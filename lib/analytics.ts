@@ -4,8 +4,10 @@ type MarketingEvents = {
 }
 
 /**
- * No-op until an analytics provider is chosen (spec D-02).
- * Call sites are correct today; swapping in the real provider is one file.
+ * Typed event contract for marketing analytics. No provider has been
+ * selected yet (spec open decision D-02), so this is a no-op today.
+ * Nothing in the app calls `track()` yet — call sites land alongside
+ * whichever provider is chosen.
  */
 export function track<E extends keyof MarketingEvents>(
   event: E,

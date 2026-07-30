@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { faqPageJsonLd, organizationJsonLd, softwareApplicationJsonLd, siteUrl } from './seo'
+import { faqPageJsonLd, organizationJsonLd, serializeJsonLd, softwareApplicationJsonLd, siteUrl } from './seo'
 import { pricing } from '@/content/pricing'
 
 describe('siteUrl', () => {
@@ -33,5 +33,15 @@ describe('faqPageJsonLd', () => {
     expect(data.mainEntity).toHaveLength(pricing.faq.length)
     expect(data.mainEntity[0].name).toBe(pricing.faq[0].question)
     expect(data.mainEntity[0].acceptedAnswer.text).toBe(pricing.faq[0].answer)
+  })
+})
+
+describe('serializeJsonLd', () => {
+  it('escapes "<" so a "</script>" in the data cannot terminate the script tag early, while still round-tripping through JSON.parse unchanged', () => {
+    const data = { text: 'Ends with </script><script>alert(1)</script> in it' }
+    const serialized = serializeJsonLd(data)
+
+    expect(serialized).not.toContain('<')
+    expect(JSON.parse(serialized)).toEqual(data)
   })
 })

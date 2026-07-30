@@ -40,11 +40,21 @@ export function faqPageJsonLd() {
   }
 }
 
+/**
+ * `JSON.stringify` does not escape `<` or `/`, so a data value containing
+ * `</script>` would terminate the script tag early and inject the remainder
+ * as markup. `<` is a valid JSON escape for `<` — parsers read it
+ * identically, but the literal character never reaches the HTML.
+ */
+export function serializeJsonLd(data: object): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c')
+}
+
 export function JsonLd({ data }: { data: object }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }}
     />
   )
 }
