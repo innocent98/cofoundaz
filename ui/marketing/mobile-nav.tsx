@@ -13,10 +13,18 @@ export function MobileNav() {
   const panelRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
 
-  // Close on route change so the panel never survives a navigation.
-  useEffect(() => {
+  // Close on route change so the panel never survives a navigation. Adjusted
+  // during render (React's documented "reset state when a prop changes"
+  // pattern) rather than in an effect — an effect-based `setOpen` here would
+  // fire an extra render pass on every navigation
+  // (react-hooks/set-state-in-effect). This also catches navigations that
+  // don't originate from a click inside the panel (back/forward, programmatic
+  // pushes), which an onClick handler alone would miss.
+  const [lastPathname, setLastPathname] = useState(pathname)
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname)
     setOpen(false)
-  }, [pathname])
+  }
 
   // Move focus into the panel on open; restore it to the trigger on close.
   // Skip the very first run: `open` starts `false`, so without this guard
