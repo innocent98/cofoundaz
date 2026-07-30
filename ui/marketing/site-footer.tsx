@@ -9,7 +9,9 @@ export function SiteFooter() {
       <Container className="grid grid-cols-1 gap-8 py-14 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo tone="dark" />
-          <p className="mt-3.5 max-w-[26ch] text-[13px] leading-relaxed text-green-400">
+          {/* green-400 on this footer's green-950 bg measured 4.499:1 (normal
+              text needs 4.5:1) — a hairline fail. green-300 clears it at 7.02:1. */}
+          <p className="mt-3.5 max-w-[26ch] text-[13px] leading-relaxed text-green-300">
             {footerTagline}
           </p>
         </div>
@@ -32,7 +34,7 @@ export function SiteFooter() {
         ))}
       </Container>
 
-      <Container className="flex flex-col items-center justify-between gap-4 border-t border-green-900 py-5 text-[13px] text-green-400 md:flex-row">
+      <Container className="flex flex-col items-center justify-between gap-4 border-t border-green-900 py-5 text-[13px] text-green-300 md:flex-row">
         <span>{copyright}</span>
       </Container>
     </footer>

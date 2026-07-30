@@ -50,7 +50,7 @@ export function TestimonialCarousel() {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-center gap-2">
+        <div className="mt-6 flex justify-center">
           {quotes.map((_, i) => (
             <button
               key={i}
@@ -58,11 +58,19 @@ export function TestimonialCarousel() {
               aria-label={`Show quote ${i + 1}`}
               aria-current={i === index ? 'true' : undefined}
               onClick={() => setIndex(i)}
-              className={cn(
-                'h-2 w-2 rounded-full transition-colors',
-                i === index ? 'bg-brass-500' : 'bg-white/25'
-              )}
-            />
+              className="flex h-11 w-11 flex-none items-center justify-center"
+            >
+              {/* The visible indicator stays a small 8px dot; the button
+                  itself is the full 44px touch target (Lighthouse's
+                  target-size audit flagged the dot alone at 8x8px). */}
+              <span
+                aria-hidden="true"
+                className={cn(
+                  'h-2 w-2 rounded-full transition-colors',
+                  i === index ? 'bg-brass-500' : 'bg-white/25'
+                )}
+              />
+            </button>
           ))}
         </div>
       </Container>

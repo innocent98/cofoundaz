@@ -11,7 +11,9 @@ export function AuthBrandPanel() {
         </p>
         <p className="mt-5 text-sm text-green-300">{authPanel.trustLine}</p>
       </div>
-      <div className="hidden text-[13px] text-green-400 lg:block">{authPanel.copyright}</div>
+      {/* green-400 on this panel's green-900 bg measured 4.03:1 (normal text
+          needs 4.5:1). green-300 clears it at 6.30:1. */}
+      <div className="hidden text-[13px] text-green-300 lg:block">{authPanel.copyright}</div>
     </div>
   )
 }

@@ -3,7 +3,12 @@ import { Button } from '@/ui/primitives'
 export default function NotFound() {
   return (
     <main className="mx-auto flex max-w-[620px] flex-col items-center px-4 py-28 text-center">
-      <div aria-hidden="true" className="font-display text-[88px] font-bold leading-none text-green-100">
+      {/* Decorative background numeral. green-100 measured 1.18:1 on white
+          (large bold text needs 3:1) — axe checks visual contrast regardless
+          of aria-hidden, so this needs a real fix, not just the ARIA
+          exemption. green-400 is the lightest token on our ramp that clears
+          3:1 here (3.82:1). */}
+      <div aria-hidden="true" className="font-display text-[88px] font-bold leading-none text-green-400">
         404
       </div>
       <h1 className="mt-2 font-display text-[28px] font-semibold text-balance text-green-900 md:text-[34px]">

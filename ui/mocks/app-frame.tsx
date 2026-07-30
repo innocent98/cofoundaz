@@ -103,7 +103,12 @@ const INVESTORS: Investor[] = [
     name: 'Adia Holdings',
     check: '$50k angel',
     stage: 'Diligence',
-    fgClassName: 'text-brass-700',
+    // brass-700 (the AA-safe brass-on-white text color, D-1) measures only
+    // 4.16:1 against this bg-brass-100 pill — a different surface than the
+    // white one D-1 verified. green-900 on brass-100 is the pattern already
+    // used by Badge's accent tone (bg-brass-600 text-green-900) and clears
+    // 13.32:1 here.
+    fgClassName: 'text-green-900',
     bgClassName: 'bg-brass-100',
   },
   {
@@ -204,7 +209,10 @@ function BuildPanel() {
         <div className="font-display text-base font-semibold text-green-900">
           Business Model Canvas
         </div>
-        <span className="rounded-pill border border-brass-200 bg-brass-100 px-2 py-1 text-[10px] font-bold text-brass-700">
+        {/* text-green-900, not text-brass-700 — see the Diligence badge
+            comment above the INVESTORS array: brass-700 on bg-brass-100 only
+            clears 4.16:1. */}
+        <span className="rounded-pill border border-brass-200 bg-brass-100 px-2 py-1 text-[10px] font-bold text-green-900">
           ✦ AI draft
         </span>
       </div>

@@ -34,13 +34,22 @@ export default function PricingPage() {
 
       {/* Growth first at base width so the recommended plan is not buried below the fold. */}
       <Container width="narrow" className="grid grid-cols-1 items-start gap-5.5 py-6 lg:grid-cols-3">
+        {/* Visually-hidden section heading: PricingCard's plan name is an h3
+            (the responsive sweep's "Growth is the first pricing card" test
+            locates plan cards by h3), so without an intervening h2 the page
+            jumped h1 -> h3, which Lighthouse's heading-order audit flags.
+            sr-only keeps the visual design (no comp'd heading here) intact. */}
+        <h2 className="sr-only">Plans</h2>
         <div className="order-2 lg:order-1"><PricingCard plan={pricing.plans[0]} /></div>
         <div className="order-1 lg:order-2"><PricingCard plan={pricing.plans[1]} /></div>
         <div className="order-3"><PricingCard plan={pricing.plans[2]} /></div>
       </Container>
 
       <Container width="narrow" className="pb-14">
-        <p className="rounded-card border border-brass-200 bg-brass-100 px-6 py-5 text-center text-[15px] font-semibold text-brass-700">
+        {/* text-green-900, not text-brass-700 — brass-700 on this bg-brass-100
+            banner only clears 4.16:1 (needs 4.5:1). green-900 on brass-100
+            matches the Badge accent-tone pattern and clears 13.32:1. */}
+        <p className="rounded-card border border-brass-200 bg-brass-100 px-6 py-5 text-center text-[15px] font-semibold text-green-900">
           {pricing.addOnsBanner}
         </p>
       </Container>
