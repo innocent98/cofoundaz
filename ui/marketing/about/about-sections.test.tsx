@@ -29,6 +29,8 @@ describe('StoryTimeline', () => {
     expect(items).toHaveLength(about.story.length)
     for (const entry of about.story) {
       expect(screen.getByRole('heading', { name: entry.title })).toBeInTheDocument()
+      expect(screen.getByText(entry.body)).toBeInTheDocument()
+      expect(screen.getAllByText(entry.year).length).toBeGreaterThan(0)
     }
   })
 })
