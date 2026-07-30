@@ -30,16 +30,15 @@ export function FaqAccordion() {
                 {isOpen ? '−' : '+'}
               </span>
             </button>
-            {isOpen ? (
-              <div
-                id={panelId}
-                role="region"
-                aria-labelledby={triggerId}
-                className="px-5 pb-5 text-[15px] leading-relaxed text-sage-700"
-              >
-                {item.answer}
-              </div>
-            ) : null}
+            <div
+              id={panelId}
+              role="region"
+              aria-labelledby={triggerId}
+              hidden={!isOpen}
+              className="px-5 pb-5 text-[15px] leading-relaxed text-sage-700"
+            >
+              {item.answer}
+            </div>
           </div>
         )
       })}

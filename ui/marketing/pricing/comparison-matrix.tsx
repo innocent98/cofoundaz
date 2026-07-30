@@ -1,5 +1,6 @@
 import { pricing } from '@/content/pricing'
 import type { MatrixCell } from '@/content/types'
+import { cn } from '@/lib/cn'
 
 function Cell({ cell }: { cell: MatrixCell }) {
   if (cell.kind === 'yes') {
@@ -27,9 +28,18 @@ export function ComparisonMatrix() {
         <thead>
           <tr className="bg-green-900 text-white">
             <th scope="col" className="px-5 py-4 text-[13px] font-bold">Features</th>
-            <th scope="col" className="px-4 py-4 text-center text-[13px] font-bold">Starter</th>
-            <th scope="col" className="px-4 py-4 text-center text-[13px] font-bold text-brass-500">Growth</th>
-            <th scope="col" className="px-4 py-4 text-center text-[13px] font-bold">Scale</th>
+            {/* Column headers are derived from pricing.plans so a rename can't desync
+                the table from the cards; the brass highlight follows plan.popular
+                rather than a hardcoded index. */}
+            {pricing.plans.map((plan) => (
+              <th
+                key={plan.name}
+                scope="col"
+                className={cn('px-4 py-4 text-center text-[13px] font-bold', plan.popular && 'text-brass-500')}
+              >
+                {plan.name}
+              </th>
+            ))}
           </tr>
         </thead>
         {pricing.matrix.map((section) => (

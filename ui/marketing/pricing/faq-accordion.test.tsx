@@ -34,7 +34,7 @@ describe('FaqAccordion', () => {
     const first = screen.getByRole('button', { name: new RegExp(pricing.faq[0].question) })
     await user.click(first)
     expect(first).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByText(pricing.faq[0].answer)).not.toBeInTheDocument()
+    expect(screen.getByText(pricing.faq[0].answer)).not.toBeVisible()
   })
 
   it('associates each panel with its trigger', () => {
@@ -43,6 +43,19 @@ describe('FaqAccordion', () => {
     const panelId = first.getAttribute('aria-controls')
     expect(panelId).toBeTruthy()
     expect(document.getElementById(panelId!)).toHaveAttribute('role', 'region')
+  })
+
+  it('keeps aria-controls resolvable on a closed item, hiding its panel instead of unmounting it', () => {
+    render(<FaqAccordion />)
+    // Every item is closed except index 0 by default; pick one that starts closed.
+    const closedTrigger = screen.getByRole('button', { name: new RegExp(pricing.faq[1].question) })
+    expect(closedTrigger).toHaveAttribute('aria-expanded', 'false')
+    const panelId = closedTrigger.getAttribute('aria-controls')
+    expect(panelId).toBeTruthy()
+    const panel = document.getElementById(panelId!)
+    expect(panel).not.toBeNull()
+    expect(panel).toHaveAttribute('role', 'region')
+    expect(panel).not.toBeVisible()
   })
 
   it('has no accessibility violations', async () => {
