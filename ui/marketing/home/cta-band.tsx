@@ -1,5 +1,5 @@
 import { Button, Container } from '@/ui/primitives'
-import { cn } from '@/lib/cn'
+import { cn } from '../../lib/cn'
 
 export function CtaBand({
   title,

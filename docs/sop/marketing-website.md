@@ -3,9 +3,10 @@
 ## What shipped
 
 The public marketing site: 11 routes plus a branded 404, built as static pages on Next.js 16
-App Router. Branch `feat/marketing-website`, commits `48df11d..165e31e`, plus `83193a9` (Task 14's
-e2e sweep) and its post-review fix round (see `git log` on that branch for the full, task-by-task
-history — the SDD ledger for this build lives at `.superpowers/sdd/2026-07-30-marketing-website/`).
+App Router. Branch `feat/marketing-website`, commits `48df11d..68e4de2` (30 commits, Tasks 1–14
+plus their post-review fix rounds), followed by the whole-branch review's single fix wave — see
+"Whole-branch review fix wave" below. `git log` on that branch has the full task-by-task history;
+the SDD ledger for this build lives at `.superpowers/sdd/2026-07-30-marketing-website/`.
 
 | Route | Purpose |
 |---|---|
@@ -20,18 +21,22 @@ history — the SDD ledger for this build lives at `.superpowers/sdd/2026-07-30-
 
 Plus generated `/sitemap.xml`, `/robots.txt`, `/opengraph-image`.
 
-Final gate (this task, Task 14):
+Final gate (after the whole-branch review fix wave):
 
 ```
 npm run typecheck   → clean
 npm run lint        → clean
-npx vitest run       → 166 tests / 19 files passing
+npx vitest run       → 188 tests / 20 files passing
 npm run build        → 15 static routes (all ○, none ƒ)
-npm run test:e2e     → 99 Playwright tests passing (accessibility + responsive)
+npm run test:e2e     → 152 Playwright tests passing (accessibility + responsive)
 ```
 
 Lighthouse (`seo,accessibility` categories, production build, `/`, `/product`, `/pricing`):
 **100 / 100 on all three**, after the fixes below.
+
+Lighthouse cannot audit `/this-route-does-not-exist`: it aborts with
+`ERRORED_DOCUMENT_REQUEST` on any HTTP 404 regardless of what the page contains. The 404's
+accessibility is covered by the Playwright axe sweep instead, which it is now in (see I-2 below).
 
 ## Why
 
@@ -80,9 +85,9 @@ eyeballing a comp.
 app/
   layout.tsx                       root layout — next/font (Spectral, Hanken Grotesk), metadata
   globals.css                      @theme tokens, base layer, D-2 reduced-motion
-  not-found.tsx                    branded 404 (no shared header/footer)
+  not-found.tsx                    branded 404, renders <SiteChrome> directly
   opengraph-image.tsx, robots.ts, sitemap.ts
-  (marketing)/layout.tsx           skip link + SiteHeader + <main id="main"> + SiteFooter
+  (marketing)/layout.tsx           renders <SiteChrome> (skip link + header + main + footer)
   (marketing)/page.tsx             home
   (marketing)/product/page.tsx
   (marketing)/pricing/page.tsx
@@ -93,17 +98,22 @@ app/
   (auth)/{login,signup}/page.tsx
 
 content/                           types.ts + 8 typed copy modules (home, product, pricing, about,
-                                    contact, legal, nav, auth) + content.test.ts house-style guard
-
+                                    contact, legal, nav, auth) + strings/common.ts (shared app
+                                    strings) + content.test.ts house-style guard
+ui/lib/cn.ts                       the class-merge helper, inside ui/ so the directory is
+                                    git-mv portable; lib/cn.ts re-exports it for app callers
 ui/primitives/                     Button, Card, Badge, Container, Field, SectionHeading
-ui/marketing/                      site-header, mobile-nav, site-footer, logo, legal-document,
-                                    home/*, product/*, pricing/*, about/*, contact/*, auth/*
+ui/marketing/                      site-chrome, site-header, mobile-nav, site-footer, logo,
+                                    legal-document, home/*, product/*, pricing/*, about/*,
+                                    contact/*, auth/*
 ui/mocks/                          product-shot.tsx, app-frame.tsx (illustrated mock screenshots)
+ui/tokens.test.ts                  token assertions + the cleared-namespace source guard
+ui/portability.test.ts             ui/ imports nothing from @/lib or @/app
 
 lib/cn.ts, lib/seo.tsx, lib/analytics.ts
 
 e2e/                                (this task)
-  routes.ts                        MARKETING_ROUTES / AUTH_ROUTES / ALL_ROUTES
+  routes.ts                        MARKETING_ROUTES / AUTH_ROUTES / CHROME_ROUTES / ALL_ROUTES
   accessibility.spec.ts            axe sweep, h1 sweep, skip-link sweep, mobile-menu focus trap,
                                     carousel reduced-motion, accent-CTA invariant sweep
   responsive.spec.ts               4-viewport overflow sweep, nav breakpoint sweep, matrix-scroll
@@ -123,6 +133,9 @@ npx vitest run        → 166 tests / 19 files
 npm run build         → 15 static routes (○), 0 dynamic (ƒ)
 npm run test:e2e      → 99 Playwright tests (47 accessibility, 52 responsive)
 ```
+
+(Those are the Task 14 numbers. The current head numbers are in "What shipped" above:
+188 unit tests / 20 files, 152 Playwright tests.)
 
 Lighthouse, production build, `seo`+`accessibility` categories only:
 
@@ -235,7 +248,7 @@ Per-route `h1` and header-CTA counts, enforced by `e2e/accessibility.spec.ts`:
 | `/contact` | 1 | 1 | 1 (form submit) |
 | `/terms`, `/privacy`, `/security`, `/cookies` | 1 each | 1 each | 0 each |
 | `/login`, `/signup` | 1 each | 0 (no shared header) | 1 each (form submit) |
-| `/_not-found` | 1 | 0 (no shared header) | 1 ("Back home") |
+| `/_not-found` | 1 | 1 (gained the shared chrome in the review fix wave, I-2) | 1 ("Back home") |
 
 `SiteHeader` renders its own `bg-brass-600` "Start free" CTA on every route in the `(marketing)`
 layout — a fact the existing per-page unit tests never surfaced, since they render page components
@@ -275,6 +288,138 @@ document-wide tally. Home, Product, and Pricing's hero-CTA-plus-closing-band bra
      (removing the five sections between them) — 3 of 4 viewports (`md`, `lg`, `xl`) immediately
      went red with spans of 857px/426px/423px, all comfortably under their viewport heights.
      Reverted immediately after confirming.
+
+## Whole-branch review fix wave
+
+A final whole-branch review returned "ready to merge, with fixes". All of them were closed in one
+wave; every fix is in the production code, never in a loosened assertion. Where a test changed, it
+changed because the behaviour legitimately changed (I-2).
+
+| ID | Finding | Fix |
+|---|---|---|
+| C-1 | Testimonial carousel violated **WCAG 2.2.2 (Level A)** — rotated every 6s forever with no pause/stop/hide, dot clicks did not reset the interval, and `aria-live="polite"` re-announced a whole testimonial every 6s indefinitely | Rewrote `ui/marketing/home/testimonial-carousel.tsx`: explicit pause/play toggle, prev/next controls, dwell restart on any manual selection, live region moved off the auto-rotation path |
+| I-1 | The matrix's "not included" cell rendered a bare `·` with no text equivalent — a screen-reader user could not tell "not included" from an empty cell (WCAG 1.1.1 / 1.3.1) | New `{ kind: 'no' }` arm on `MatrixCell`; renders `·` as `aria-hidden` alongside an sr-only "Not included" |
+| I-2 | The 404 had no header, footer or skip link (root `not-found.tsx` renders under `app/layout.tsx` only, so `(marketing)/layout.tsx` never applies) | Extracted `ui/marketing/site-chrome.tsx` and rendered it from both the marketing layout and `not-found.tsx` |
+| I-3a | Two testimonial names collided with the `/about` team list — the same people read as both customers and staff | Renamed all three testimonial attributions (quote text and company names untouched) |
+| I-3b | `/security` lacked the counsel disclaimer the other three legal pages carry, while making the most unqualified factual claims | Appended the identical sentence to its `intro` |
+| I-4 | Sixteen files under `ui/` imported `@/lib/cn`, so `git mv ui packages/ui` would break all of them (spec §5) | Helper moved to `ui/lib/cn.ts`; `lib/cn.ts` re-exports it for app-side callers |
+| M-2 | `e2e/responsive.spec.ts`'s sticky-header test could not fail (`sticky top-0` gives `top === 0` at scroll 0 too) | Scroll with `behavior: 'instant'`, assert `scrollY` actually moved and the hero scrolled off-screen, then assert the header is pinned |
+| M-5 | `content/strings/common.ts` was outside the house-style guard | Added, with `genericError` excluded by name (its em-dash is deliberate app copy, not marketing copy) and asserted to still contain one |
+| M-7 | `ContactForm` dropped focus to `<body>` on success | Status panel is `tabIndex={-1}` and receives focus |
+| M-8 | `auth-form.tsx` used `accent-[var(--color-green-600)]`, the only place reaching around the token system | `accent-green-600` |
+| Deferred #2 | `ui/tokens.test.ts` never asserted `--color-*: initial` — the line that actually makes `bg-blue-500` refuse to compile | Asserts all five cleared namespaces |
+| Deferred #3 | Nothing caught a class in a cleared namespace, which renders **silently unstyled** and is invisible to typecheck, lint, tests and build. This defect class shipped four times during the build | New source guard in `ui/tokens.test.ts` (below) |
+
+### The cleared-namespace source guard
+
+`ui/tokens.test.ts` now scans every non-test `.ts`/`.tsx` under `app/`, `ui/`, `lib/`, `content/`
+and fails, with `file:line`, on any of six rules: cleared radii (`rounded-{sm,md,lg,xl,2xl,3xl,4xl}`),
+cleared shadows (`shadow-{2xs,xs,sm,md,lg,xl,2xl,inner}`), cleared font families
+(`font-{sans,serif,mono}`), any `sm:` variant, any of the 20 deleted default palettes, and any
+shade that does not exist on a PRD ramp (e.g. `text-sage-200`, `bg-red-500`).
+
+Two details worth knowing before editing it:
+
+- The `sm:` rule uses `\bsm:(?=[a-z[!-])` — a lookahead is what separates the Tailwind variant
+  `sm:px-4` from an object key literally named `sm` (`Button`'s own `SIZES` record, which is the
+  component's `size` prop and nothing to do with breakpoints). Without it the guard false-positives
+  on `ui/primitives/button.tsx:22`.
+- Test files are excluded from the scan, because this guard's own source necessarily contains every
+  fragment it hunts for. No test file is ever rendered, so nothing is lost.
+
+`ui/portability.test.ts` is the I-4 equivalent: it fails if any non-test file under `ui/` imports
+from `@/lib/` or `@/app/`.
+
+### Deliberate-break evidence
+
+Each new or repaired guard was proved capable of failing, then reverted:
+
+| Guard | Break applied | Result |
+|---|---|---|
+| D-2 carousel (WCAG 2.2.2) | Removed the `reducedMotion` half of the rotation effect's guard | `never auto-advances under prefers-reduced-motion (deviation D-2)` went red (1 failed / 11 passed) |
+| M-2 sticky header | Deleted `sticky` from `ui/marketing/site-header.tsx` | Both scroll-time sticky tests went red (`/` and `/product`, header top `-1200` / `-1500`) |
+| Cleared-namespace guard | Added `"rounded-lg shadow-md font-sans sm:px-4 bg-blue-500 text-sage-200"` to `ui/primitives/card.tsx` | All six rules went red simultaneously |
+
+### Carousel behaviour after C-1, in detail
+
+- **Pause/play toggle** — a real 44px control with a changing accessible name ("Pause quote
+  rotation" / "Resume quote rotation"), keyboard-operable. Pause-on-hover was rejected as the
+  primary mechanism because it helps neither keyboard nor touch users.
+- **Prev/next controls** — as spec §11 D-2 asked for, alongside the existing dots.
+- **Interval reset** — a `cycle` counter, bumped by every manual selection, is the rotation
+  effect's dependency. Keying it off `index` alone would miss the case where the user re-selects
+  the quote already on screen or steps back and forth to the same index — those must still restart
+  the dwell.
+- **Live region** — the rotating quote (`[data-carousel-quote]`) carries no live semantics at all.
+  A separate `sr-only` `aria-live="polite"` span is populated *only* by prev/next/dot activation,
+  so screen-reader users hear a testimonial when they ask for one and never on a 6-second loop.
+- **Reduced motion** — the preference is read with `useSyncExternalStore` (server snapshot `false`,
+  so SSR and hydration agree; client snapshot read on the first client render, well before any tick
+  could fire). It is the single guard on the rotation effect, which is what makes the D-2 test able
+  to fail when the guard is removed. The pause toggle is not rendered under reduced motion, where
+  it would be a control over nothing.
+- The e2e reduced-motion test now targets `[data-carousel-quote]` rather than `[aria-live]`. That
+  is a strengthening, not a loosening: with the live region correctly moved off the quote, an
+  `[aria-live]` locator would find the empty announcement span and pass vacuously.
+
+### Tests changed because behaviour changed (I-2)
+
+`e2e/accessibility.spec.ts` previously *encoded* the 404's missing chrome — it excluded the route
+from the skip-link sweep and asserted zero header CTAs on it. Both were updated, deliberately and
+explicitly, because the 404 now renders the same `SiteChrome` as every other marketing route:
+
+- `e2e/routes.ts` gained `CHROME_ROUTES` (`MARKETING_ROUTES` + the 404). Auth routes stay out —
+  `app/(auth)/layout.tsx` is a two-pane brand panel with no marketing nav, by design.
+- The skip-link sweep and the header-accent-CTA sweep both run over `CHROME_ROUTES`, so the 404 is
+  now held to the same standard rather than exempted from it.
+
+### Content-risk rulings
+
+- **Testimonial names.** `content/home.ts` attributed quotes to *Daniel Kariuki* and *Fatima
+  Adeyemi*, who are also listed in `content/about.ts` as Head of Product and Head of Growth. Ruling:
+  change the testimonials, not the team. All three are now Zainab Okafor (ZO) / Tunde Mwangi (TM) /
+  Chioma Danso (CD); quote text and company descriptors are unchanged. `content/content.test.ts`
+  now fails if any testimonial name reappears in the team list.
+- **`/security` disclaimer.** Terms, Privacy and Cookies each closed their `intro` with "This is a
+  v1 layout; final language is provided by counsel." Security did not, and it is the page asserting
+  OWASP ASVS L2, an annual penetration test, SOC 2 providers, 30-day PITR and a tested DR plan for
+  a product with no backend yet. The identical sentence was appended; nothing else was reworded.
+  A test now asserts all four documents carry it.
+
+### One review finding that was slightly off
+
+The review described "the nine negative cells" in `content/pricing.ts`. There are **eleven** — five
+in "Grow & operate" (`starter` only) and six in "Fund & protect" (`starter` and `growth` on three
+rows). All eleven were converted, and the test asserts the rendered "Not included" count equals the
+number of `kind: 'no'` cells in the content module, so the two can't drift.
+
+## Token and architecture constraints the product modules inherit
+
+- **M-10 · The focus ring has a 0.06 margin.** `*:focus-visible` is `2px solid brass-600`
+  (`#A8894B`). Against white that is **3.31:1**; against `green-50` (`#F2F7F4`) it is **3.06:1** —
+  WCAG 1.4.11 requires 3:1 for non-text contrast. It passes on every surface currently shipped, but
+  **any surface darker than `green-50` breaks it**. The 26 product modules inherit this ring, so
+  either keep interactive elements on white/`green-50`, or move the ring to `brass-700` (4.84:1 on
+  white) for darker light surfaces. Recorded, not changed — changing the ring token now would be a
+  sitewide visual change outside the review's scope.
+- **`ui/` can only serve Next consumers.** After I-4, nothing under `ui/` imports from `@/lib` or
+  `@/app`, so `git mv ui packages/ui` works. It does still import `next/link` and
+  `next/navigation`'s `usePathname` (`Button`, `Logo`, `SiteHeader`, `SiteFooter`, `MobileNav`,
+  `ScrollSpyNav`). That is a deliberate tradeoff: routing-aware primitives are worth more than
+  framework neutrality for a Next-only product, so `packages/ui` would be a Next component package,
+  not a generic React one. Removing the coupling would mean injecting a link component and a
+  pathname through props or context at every call site — not worth it unless a non-Next consumer
+  appears.
+
+## Deliberate deferrals (recorded, not implemented)
+
+| Item | Status |
+|---|---|
+| **Per-route OG images** | Spec §12 asked for `/`, `/product` and `/pricing` overrides; only the root `app/opengraph-image.tsx` shipped. It also renders without the Spectral face, because no `fonts` option is passed to `ImageResponse` — worth fixing at the same time as the overrides. |
+| **`Organization` JSON-LD is home-only** | Spec §12 said "sitewide". Emitting it once on the home page is arguably the better SEO outcome (a single canonical Organization node rather than nine duplicates). Recorded as a decision, not drift. |
+| **`lib/analytics.ts` has no call sites** | Written in Task 13 against the PRD's event list; nothing calls it until the product modules exist. |
+| **The comparison matrix is half-derived** | Its column headers come from `pricing.plans`, but `MatrixRow` in `content/types.ts` hardcodes `starter` / `growth` / `scale`. Adding a fourth plan would render 5 header cells against 4 body cells **with no type error**. Fixing it means making `MatrixRow` a record keyed by plan name. |
+| **`heading-order` is not WCAG-tagged** | See Follow-ups. |
 
 ## Deviations from the comps (carried forward from Task 1/2, restated here with the Task 14 evidence)
 
@@ -323,8 +468,11 @@ scan reads the settled, final page state rather than racing a fade-in transition
   `/api/v1/auth/oauth/{google,apple}`), and un-disable the currently-`disabled` submit/OAuth
   buttons once real endpoints exist.
 - **`packages/ui` promotion** — if a second app (the authenticated product) needs these
-  primitives, promote `ui/primitives/` out of this app into a shared package rather than
-  duplicating Button/Card/Badge/Field.
+  primitives, promote `ui/` out of this app into a shared package rather than duplicating
+  Button/Card/Badge/Field. As of the review fix wave (I-4) that is a plain `git mv` — nothing under
+  `ui/` imports from `@/lib` or `@/app`, and `ui/portability.test.ts` keeps it that way. It would
+  be a **Next** component package, not a generic React one: see "Token and architecture constraints"
+  above for the `next/link` / `usePathname` tradeoff.
 - **`heading-order` is an axe best-practice rule, not WCAG-tagged** — it isn't caught by
   `e2e/accessibility.spec.ts`'s `withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa'])` axe sweep
   (that's how the `/pricing` h1→h3 skip shipped through Task 8 unnoticed until Lighthouse caught

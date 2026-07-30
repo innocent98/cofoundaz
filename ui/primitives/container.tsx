@@ -1,4 +1,4 @@
-import { cn } from '@/lib/cn'
+import { cn } from '../lib/cn'
 
 const WIDTHS = {
   default: 'max-w-[1280px]',

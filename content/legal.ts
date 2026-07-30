@@ -36,7 +36,11 @@ export const legalDocuments: Record<
     title: 'Security at Cofoundaz',
     updated: 'July 1, 2026',
     intro:
-      'Your startup runs on Cofoundaz, so security is foundational. Here is how we protect your workspace.',
+      // The counsel disclaimer matters most on this page: it is the one making
+      // unqualified factual claims (OWASP ASVS L2, annual penetration test,
+      // SOC 2 providers, 30-day PITR, a tested DR plan) for a product that has
+      // no backend yet.
+      'Your startup runs on Cofoundaz, so security is foundational. Here is how we protect your workspace. This is a v1 layout; final language is provided by counsel.',
     sections: [
       { heading: 'Isolated workspaces', body: 'Every workspace is tenant-isolated with row-level policies enforced at both the gateway and the service layer.' },
       { heading: 'Encryption', body: 'Data is encrypted in transit and at rest. The Founder Journal is additionally encrypted with a per-workspace key.' },

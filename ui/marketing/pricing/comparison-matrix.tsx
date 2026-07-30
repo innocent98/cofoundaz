@@ -1,6 +1,6 @@
 import { pricing } from '@/content/pricing'
 import type { MatrixCell } from '@/content/types'
-import { cn } from '@/lib/cn'
+import { cn } from '../../lib/cn'
 
 function Cell({ cell }: { cell: MatrixCell }) {
   if (cell.kind === 'yes') {
@@ -8,6 +8,17 @@ function Cell({ cell }: { cell: MatrixCell }) {
       <>
         <span aria-hidden="true" className="text-[15px] font-bold text-green-600">✓</span>
         <span className="sr-only">Included</span>
+      </>
+    )
+  }
+  if (cell.kind === 'no') {
+    // The middle dot is decoration only. Without the sr-only text a screen
+    // reader announces "middle dot", which is indistinguishable from an empty
+    // cell — on the table whose entire purpose is plan comparison.
+    return (
+      <>
+        <span aria-hidden="true" className="text-[13px] font-semibold text-sage-500">·</span>
+        <span className="sr-only">Not included</span>
       </>
     )
   }

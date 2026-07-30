@@ -44,6 +44,20 @@ describe('ContactForm', () => {
     expect(screen.getByRole('status')).toHaveTextContent(contact.success)
   })
 
+  it('moves focus to the success panel instead of dropping it to the body', async () => {
+    const user = userEvent.setup()
+    render(<ContactForm />)
+    await user.type(screen.getByLabelText('Name'), 'Amara Nwosu')
+    await user.type(screen.getByLabelText('Email'), 'amara@kolo.africa')
+    await user.type(screen.getByLabelText('Message'), 'Hello')
+    await user.click(screen.getByRole('button', { name: contact.submit }))
+
+    const panel = screen.getByRole('status')
+    expect(panel).toHaveAttribute('tabindex', '-1')
+    expect(panel).toHaveFocus()
+    expect(document.activeElement).not.toBe(document.body)
+  })
+
   it('has no accessibility violations', async () => {
     const { container } = render(<ContactForm />)
     expect(await axe(container)).toHaveNoViolations()

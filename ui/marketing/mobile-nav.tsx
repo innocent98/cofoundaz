@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/ui/primitives'
 import { headerCtas, headerLinks } from '@/content/nav'
-import { cn } from '@/lib/cn'
+import { cn } from '../lib/cn'
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)

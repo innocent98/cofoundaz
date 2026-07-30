@@ -31,8 +31,16 @@ export type Plan = {
   features: string[]
 }
 
-/** A cell is either a tick or a short label such as "Basic" / "Unlimited" / "·". */
-export type MatrixCell = { kind: 'yes' } | { kind: 'text'; value: string }
+/**
+ * A cell is a tick, an explicit "not included", or a short label such as
+ * "Basic" / "Unlimited".
+ *
+ * `no` is its own arm rather than `text('·')` because the middle dot is purely
+ * visual: rendered as text it leaves a screen-reader user unable to tell "not
+ * included" from an empty cell (WCAG 1.1.1 / 1.3.1). The renderer pairs the
+ * glyph with an sr-only "Not included".
+ */
+export type MatrixCell = { kind: 'yes' } | { kind: 'no' } | { kind: 'text'; value: string }
 export type MatrixRow = {
   feature: string
   starter: MatrixCell

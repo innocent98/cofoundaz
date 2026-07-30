@@ -65,7 +65,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
             <input
               id="auth-terms"
               type="checkbox"
-              className="mt-0.5 h-4 w-4 accent-[var(--color-green-600)]"
+              className="mt-0.5 h-4 w-4 accent-green-600"
             />
             <label htmlFor="auth-terms" className="text-[13px] leading-[1.4] text-sage-700">
               {authShared.termsPrefix}{' '}

@@ -1,4 +1,4 @@
-import { cn } from '@/lib/cn'
+import { cn } from '../lib/cn'
 
 export const fieldControlClasses =
   'mt-1.5 w-full rounded-input border border-sage-300 bg-white px-3.5 py-3 text-[15px] text-sage-900 placeholder:text-sage-500'

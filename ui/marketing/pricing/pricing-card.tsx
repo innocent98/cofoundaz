@@ -1,6 +1,6 @@
 import { Badge, Button } from '@/ui/primitives'
 import type { Plan } from '@/content/types'
-import { cn } from '@/lib/cn'
+import { cn } from '../../lib/cn'
 
 export function PricingCard({ plan }: { plan: Plan }) {
   const dark = plan.popular

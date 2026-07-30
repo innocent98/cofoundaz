@@ -1,4 +1,4 @@
-import { cn } from '@/lib/cn'
+import { cn } from '../lib/cn'
 
 export type AppFrameVariant = 'overview' | 'build' | 'grow' | 'fund' | 'resources'
 

@@ -2,7 +2,8 @@ import type { FaqItem, MatrixSection, Plan } from './types'
 
 const yes = { kind: 'yes' } as const
 const text = (value: string) => ({ kind: 'text', value }) as const
-const none = text('·')
+/** Not included in this plan. The renderer supplies both the glyph and its text equivalent. */
+const none = { kind: 'no' } as const
 
 export const pricing = {
   hero: {

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { cn } from '@/lib/cn'
+import { cn } from '../lib/cn'
 
 type Variant = 'accent' | 'primary' | 'secondary' | 'ghost' | 'onDark'
 type Size = 'sm' | 'md' | 'lg'

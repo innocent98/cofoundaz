@@ -79,7 +79,20 @@ test('Growth is the first pricing card at sm', async ({ page }) => {
 test('the sticky header stays pinned after scrolling on /', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/')
-  await page.evaluate(() => window.scrollTo(0, 1200))
+  // `behavior: 'instant'` matters: `html { scroll-behavior: smooth }` is active
+  // (app/globals.css), so a plain scrollTo animates and the measurement below
+  // can land mid-flight.
+  await page.evaluate(() => window.scrollTo({ top: 1200, left: 0, behavior: 'instant' }))
+
+  // The header is `sticky top-0`, so `top === 0` is true at scroll 0 as well —
+  // on its own that assertion passes even with `position: sticky` deleted.
+  // Proving the page actually moved is what gives it signal: the hero must have
+  // scrolled off-screen while the header stayed put.
+  const scrollY = await page.evaluate(() => window.scrollY)
+  expect(scrollY).toBe(1200)
+  const heroTop = await page.locator('h1').evaluate((el) => el.getBoundingClientRect().top)
+  expect(heroTop).toBeLessThan(0)
+
   const top = await page.locator('header').evaluate((el) => el.getBoundingClientRect().top)
   expect(top).toBe(0)
 })
@@ -89,7 +102,8 @@ test('the sticky header and product sub-nav stay pinned after scrolling on /prod
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/product')
-  await page.evaluate(() => window.scrollTo(0, 1500))
+  await page.evaluate(() => window.scrollTo({ top: 1500, left: 0, behavior: 'instant' }))
+  expect(await page.evaluate(() => window.scrollY)).toBe(1500)
   const headerTop = await page.locator('header').evaluate((el) => el.getBoundingClientRect().top)
   expect(headerTop).toBe(0)
   const subNavTop = await page

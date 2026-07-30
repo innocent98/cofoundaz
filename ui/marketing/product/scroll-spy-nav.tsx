@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { product } from '@/content/product'
-import { cn } from '@/lib/cn'
+import { cn } from '../../lib/cn'
 
 export function ScrollSpyNav() {
   const [active, setActive] = useState<string>(product.subNav[0].anchor)

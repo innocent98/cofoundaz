@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
-import { ALL_ROUTES, MARKETING_ROUTES } from './routes'
+import { ALL_ROUTES, CHROME_ROUTES } from './routes'
 
 for (const route of ALL_ROUTES) {
   test(`${route} has no axe violations`, async ({ page }) => {
@@ -28,7 +28,9 @@ for (const route of ALL_ROUTES) {
   })
 }
 
-for (const route of MARKETING_ROUTES) {
+// The 404 is in this sweep, not excluded from it: it now renders the same
+// SiteChrome as every other marketing route.
+for (const route of CHROME_ROUTES) {
   test(`${route} exposes a working skip link`, async ({ page }) => {
     await page.goto(route)
     await page.keyboard.press('Tab')
@@ -51,10 +53,37 @@ test('the mobile menu traps focus and closes on Escape', async ({ page }) => {
 test('the carousel does not auto-advance under reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  const quote = page.locator('[aria-live="polite"]')
+  // Targets the quote region itself, not `[aria-live]`: the quote deliberately
+  // is NOT a live region any more (see below), so an aria-live locator would
+  // now find the empty announcement span and pass vacuously.
+  const quote = page.locator('[data-carousel-quote]')
+  const before = await quote.textContent()
+  expect(before).not.toBe('')
+  await page.waitForTimeout(7000)
+  expect(await quote.textContent()).toBe(before)
+})
+
+test('the carousel offers a pause control and honours it (WCAG 2.2.2)', async ({ page }) => {
+  await page.goto('/')
+  const quote = page.locator('[data-carousel-quote]')
+  const toggle = page.getByRole('button', { name: 'Pause quote rotation' })
+  await expect(toggle).toBeVisible()
+
+  // Keyboard-operable, not hover-only.
+  await toggle.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('button', { name: 'Resume quote rotation' })).toBeVisible()
+
   const before = await quote.textContent()
   await page.waitForTimeout(7000)
   expect(await quote.textContent()).toBe(before)
+})
+
+test('the auto-rotating quote is not a live region', async ({ page }) => {
+  await page.goto('/')
+  // An aria-live quote would re-announce a whole testimonial every 6 seconds.
+  await expect(page.locator('[data-carousel-quote][aria-live]')).toHaveCount(0)
+  await expect(page.locator('[data-carousel-quote] [aria-live]')).toHaveCount(0)
 })
 
 /**
@@ -89,7 +118,7 @@ test('the carousel does not auto-advance under reduced motion', async ({ page })
  * accent CTAs may ever be simultaneously visible in the viewport at any
  * scroll position.
  */
-const HEADER_ROUTES = new Set(MARKETING_ROUTES)
+const HEADER_ROUTES = new Set(CHROME_ROUTES)
 
 for (const route of ALL_ROUTES) {
   test(`${route} header renders at most one accent CTA`, async ({ page }) => {

@@ -1,11 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button, Field, fieldControlClasses } from '@/ui/primitives'
 import { contact } from '@/content/contact'
 
 export function ContactForm() {
   const [sent, setSent] = useState(false)
+  const successRef = useRef<HTMLDivElement>(null)
+
+  // Submitting unmounts the focused submit button, which drops focus to
+  // <body> — a keyboard or screen-reader user loses their place entirely.
+  // Move focus onto the success panel instead (tabIndex -1 makes it a valid,
+  // non-tabbable focus target).
+  useEffect(() => {
+    if (sent) successRef.current?.focus()
+  }, [sent])
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -18,7 +27,9 @@ export function ContactForm() {
   if (sent) {
     return (
       <div
+        ref={successRef}
         role="status"
+        tabIndex={-1}
         className="mt-9 rounded-card border border-green-200 bg-green-100 p-8 text-center"
       >
         <span

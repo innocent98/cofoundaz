@@ -70,23 +70,26 @@ export const home = {
 
   testimonials: {
     title: 'Founders are building faster.',
+    // Placeholder attributions. Kept deliberately distinct from every name in
+    // `content/about.ts`'s team list — an earlier draft reused two of them,
+    // which read live as the same people being both customers and staff.
     quotes: [
       {
         text: 'It feels like having a co-founder, a lawyer, and a CFO in one place. I stopped guessing and started shipping.',
-        initials: 'AN',
-        name: 'Amara Nwosu',
+        initials: 'ZO',
+        name: 'Zainab Okafor',
         company: 'Kolo, savings for gig workers',
       },
       {
         text: 'The daily mission is the first thing I open. Small wins, every day, and the Health Score kept climbing.',
-        initials: 'DK',
-        name: 'Daniel Kariuki',
+        initials: 'TM',
+        name: 'Tunde Mwangi',
         company: 'Shamba, agri-logistics',
       },
       {
         text: 'We built our data room and closed our pre-seed in six weeks. Investors noticed how organized we were.',
-        initials: 'FA',
-        name: 'Fatima Adeyemi',
+        initials: 'CD',
+        name: 'Chioma Danso',
         company: 'Payflow, B2B payments',
       },
     ] satisfies Testimonial[],

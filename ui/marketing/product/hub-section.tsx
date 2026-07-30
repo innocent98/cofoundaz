@@ -1,6 +1,6 @@
 import { AppFrame } from '@/ui/mocks/app-frame'
 import type { HubGroup } from '@/content/types'
-import { cn } from '@/lib/cn'
+import { cn } from '../../lib/cn'
 
 export function HubSection({ group, index }: { group: HubGroup; index: number }) {
   const reversed = index % 2 === 1

@@ -13,6 +13,7 @@ import {
 } from './nav'
 import { contact } from './contact'
 import { authModes, authShared, authPanel } from './auth'
+import { common } from './strings/common'
 
 describe('home content', () => {
   it('uses the comp hero copy verbatim', () => {
@@ -91,6 +92,14 @@ describe('about content', () => {
     expect(about.team).toHaveLength(6)
     expect(about.stats).toHaveLength(3)
   })
+
+  it('never attributes a testimonial to someone on the team', () => {
+    // Live, that reads as the same person being both a customer and staff.
+    const team = new Set(about.team.map((member) => member.name))
+    for (const quote of home.testimonials.quotes) {
+      expect(team.has(quote.name), `${quote.name} is both a customer and staff`).toBe(false)
+    }
+  })
 })
 
 describe('legal content', () => {
@@ -101,6 +110,18 @@ describe('legal content', () => {
       expect(doc.title).toBeTruthy()
       expect(doc.updated).toBe('July 1, 2026')
       expect(doc.sections.length).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it('carries the counsel disclaimer on every document, security included', () => {
+    // /security shipped without it, and it is the page making unqualified
+    // factual claims (OWASP ASVS L2, annual pen test, SOC 2 providers, 30-day
+    // PITR) for a product with no backend yet.
+    const keys = ['terms', 'privacy', 'security', 'cookies'] as const
+    for (const key of keys) {
+      expect(legalDocuments[key].intro).toContain(
+        'This is a v1 layout; final language is provided by counsel.'
+      )
     }
   })
 })
@@ -157,6 +178,13 @@ describe('navigation', () => {
 
 describe('copy house style', () => {
   it('never uses em-dashes or en-dashes, matching the comp', () => {
+    // `common.genericError` is the one deliberate exception: it is app copy for
+    // the authenticated product (PRD shared strings), not marketing copy, and
+    // its em-dash is verbatim from the PRD. Excluding that single field rather
+    // than the whole module keeps the other six strings under the guard.
+    const { genericError, ...commonMarketingSafe } = common
+    expect(genericError).toMatch(/—/)
+
     const allCopy = JSON.stringify([
       home,
       product,
@@ -172,6 +200,7 @@ describe('copy house style', () => {
       authModes,
       authShared,
       authPanel,
+      commonMarketingSafe,
     ])
     expect(allCopy).not.toMatch(/[—–]/)
   })
