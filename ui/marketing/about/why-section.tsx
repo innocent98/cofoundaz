@@ -9,8 +9,8 @@ export function WhySection() {
           <h2 className="font-display text-[28px] font-semibold text-balance text-green-900 md:text-[34px]">
             {about.why.title}
           </h2>
-          {about.why.paragraphs.map((paragraph) => (
-            <p key={paragraph} className="mt-4 text-base leading-relaxed text-sage-700 md:text-[17px]">
+          {about.why.paragraphs.map((paragraph, index) => (
+            <p key={index} className="mt-4 text-base leading-relaxed text-sage-700 md:text-[17px]">
               {paragraph}
             </p>
           ))}
