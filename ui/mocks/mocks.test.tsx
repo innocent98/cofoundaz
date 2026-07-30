@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ProductShot } from './product-shot'
-import { AppFrame } from './app-frame'
+import { AppFrame, type AppFrameVariant } from './app-frame'
 
 describe('ProductShot', () => {
   it('is hidden from assistive tech as decorative product imagery', () => {
@@ -16,13 +16,38 @@ describe('ProductShot', () => {
   })
 })
 
+// One string unique to each variant's ported panel — verified against
+// ui/mocks/app-frame.tsx to not appear in any of the other four panels'
+// rendered output.
+const VARIANT_MARKERS: Record<AppFrameVariant, string> = {
+  overview: 'Good morning, Amara.',
+  build: 'Business Model Canvas',
+  grow: 'Pipeline',
+  fund: 'Pre-seed round',
+  resources: 'Marketplace',
+}
+
+const VARIANTS = Object.keys(VARIANT_MARKERS) as AppFrameVariant[]
+
 describe('AppFrame', () => {
-  it.each(['overview', 'build', 'grow', 'fund', 'resources'] as const)(
-    'renders the %s variant without crashing',
+  it.each(VARIANTS)('renders the %s variant without crashing', (variant) => {
+    const { container } = render(<AppFrame variant={variant} />)
+    expect(container.firstChild).toBeTruthy()
+    expect(container.firstChild).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it.each(VARIANTS)(
+    "renders the %s variant's own content and none of the other variants'",
     (variant) => {
       const { container } = render(<AppFrame variant={variant} />)
-      expect(container.firstChild).toBeTruthy()
-      expect(container.firstChild).toHaveAttribute('aria-hidden', 'true')
+      const text = container.textContent ?? ''
+
+      expect(text).toContain(VARIANT_MARKERS[variant])
+
+      for (const otherVariant of VARIANTS) {
+        if (otherVariant === variant) continue
+        expect(text).not.toContain(VARIANT_MARKERS[otherVariant])
+      }
     }
   )
 })

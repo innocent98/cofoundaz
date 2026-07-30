@@ -290,7 +290,7 @@ function FundPanel() {
             key={investor.name}
             className="flex items-center gap-2.5 rounded-[10px] border border-green-100 bg-white px-[13px] py-[11px]"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-green-800 text-[11px] font-bold text-green-200">
+            <span className="flex h-7 w-7 items-center justify-center rounded-input bg-green-800 text-[11px] font-bold text-green-200">
               {investor.initials}
             </span>
             <div className="flex-1">
@@ -320,7 +320,7 @@ function ResourcesPanel() {
       <div className="mt-0.5 text-[11px] text-sage-500">Vetted experts, matched to your roadmap</div>
       <div className="mt-3.5 grid grid-cols-2 gap-2.5">
         {EXPERTS.map((expert) => (
-          <div key={expert.name} className="rounded-[11px] border border-green-100 bg-white p-3.5">
+          <div key={expert.name} className="rounded-[11px] border border-green-100 bg-white p-[13px]">
             <div className="flex items-center gap-[9px]">
               <span className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-green-600 text-xs font-bold text-white">
                 {expert.initials}
@@ -369,7 +369,7 @@ export function AppFrame({
 
       <div className="grid h-[400px] grid-cols-[52px_1fr]">
         <div className="flex flex-col items-center gap-3 bg-green-900 py-3.5">
-          <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[8px] bg-green-700">
+          <span className="flex h-[26px] w-[26px] items-center justify-center rounded-input bg-green-700">
             <span className="h-[11px] w-[11px] rounded-full border-2 border-brass-500 border-r-transparent" />
           </span>
           {RAIL_ITEMS.map((item) => {
@@ -378,7 +378,7 @@ export function AppFrame({
               <span
                 key={item.variant}
                 className={cn(
-                  'flex h-7 w-7 items-center justify-center rounded-[8px] text-[13px]',
+                  'flex h-7 w-7 items-center justify-center rounded-input text-[13px]',
                   active ? 'bg-green-700 text-brass-500' : 'bg-white/[0.07] text-green-300'
                 )}
               >
