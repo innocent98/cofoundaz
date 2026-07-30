@@ -43,7 +43,10 @@ type CommonProps = {
 type LinkButtonProps = CommonProps &
   { href: string } & Omit<
     React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    'href' | 'className' | 'children'
+    // 'type' is excluded even though AnchorHTMLAttributes declares it (the
+    // anchor MIME-hint attribute) — without this, `type="submit"` alongside
+    // `href` would typecheck as a valid string and silently no-op on the <a>.
+    'href' | 'className' | 'children' | 'type'
   >
 
 /**
