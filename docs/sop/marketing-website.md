@@ -3,9 +3,9 @@
 ## What shipped
 
 The public marketing site: 11 routes plus a branded 404, built as static pages on Next.js 16
-App Router. Branch `feat/marketing-website`, commits `48df11d..165e31e` (see `git log` on that
-branch for the full, task-by-task history — the SDD ledger for this build lives at
-`.superpowers/sdd/2026-07-30-marketing-website/`).
+App Router. Branch `feat/marketing-website`, commits `48df11d..165e31e`, plus `83193a9` (Task 14's
+e2e sweep) and its post-review fix round (see `git log` on that branch for the full, task-by-task
+history — the SDD ledger for this build lives at `.superpowers/sdd/2026-07-30-marketing-website/`).
 
 | Route | Purpose |
 |---|---|
@@ -79,7 +79,7 @@ eyeballing a comp.
 ```
 app/
   layout.tsx                       root layout — next/font (Spectral, Hanken Grotesk), metadata
-  globals.css                      @theme tokens, base layer, D-2 reduced-motion, html/body overflow-x guard
+  globals.css                      @theme tokens, base layer, D-2 reduced-motion
   not-found.tsx                    branded 404 (no shared header/footer)
   opengraph-image.tsx, robots.ts, sitemap.ts
   (marketing)/layout.tsx           skip link + SiteHeader + <main id="main"> + SiteFooter
@@ -107,7 +107,8 @@ e2e/                                (this task)
   accessibility.spec.ts            axe sweep, h1 sweep, skip-link sweep, mobile-menu focus trap,
                                     carousel reduced-motion, accent-CTA invariant sweep
   responsive.spec.ts               4-viewport overflow sweep, nav breakpoint sweep, matrix-scroll
-                                    and Growth-first-card checks
+                                    and Growth-first-card checks, scroll-time sticky-header and
+                                    sticky-sub-nav checks (post-review addition)
 playwright.config.ts                webServer runs `npm run build && npm start`
 ```
 
@@ -160,22 +161,46 @@ found while investigating). Each is a `file:line`-traceable fix, not a loosened 
    already collapses all animation to 0.01ms under that media query, so the scan reads the
    settled, final state (the state every real user, including reduced-motion users, eventually
    sees) instead of a race with a 0.6–0.82s CSS transition.
-6. **`/pricing` horizontal overflow at 375px — a real, user-reachable bug.** The comparison
-   matrix's `min-w-[560px]` table is deliberately wider than a 375px viewport and scrolls inside
-   its own `overflow-x-auto` region (`ui/marketing/pricing/comparison-matrix.tsx`) — that part is
-   correct by design. But it also made the *whole page* horizontally draggable: every DOM ancestor
-   between the matrix and `<body>` reported a correctly-clipped `scrollWidth`, yet
-   `document.documentElement.scrollWidth` stayed inflated, and — confirmed empirically with
+6. **`/pricing` horizontal overflow at 375px — a real, user-reachable bug, fixed twice.** The
+   comparison matrix's `min-w-[560px]` table is deliberately wider than a 375px viewport and
+   scrolls inside its own `overflow-x-auto` region (`ui/marketing/pricing/comparison-matrix.tsx`)
+   — that part is correct by design. But it also made the *whole page* horizontally draggable:
+   every DOM ancestor between the matrix and `<body>` reported a correctly-clipped `scrollWidth`,
+   yet `document.documentElement.scrollWidth` stayed inflated, and — confirmed empirically with
    `window.scrollTo(100, 0)` — the viewport actually shifted 100px, i.e. a real user could drag/
-   swipe the entire page sideways to reveal blank space. Fixed with the standard defensive guard,
-   `overflow-x: hidden` on `html` and `body` (`app/globals.css`), which stops the leak without
-   touching the matrix's own internal scroll behavior (still verified working by the
-   "comparison matrix scrolls rather than reflowing" test). Because `scrollWidth` doesn't shrink
-   in response to `overflow: hidden` (it measures content extent, not scrollability, by spec),
-   the sweep's overflow check itself was corrected to test the thing that actually matters —
-   whether `window.scrollTo` can move the viewport — rather than the geometry proxy the brief
-   started with, which has an inherent false-positive on any page with a legitimate internal
-   horizontal scroller (`e2e/responsive.spec.ts`).
+   swipe the entire page sideways to reveal blank space.
+   - **First attempt (shipped in `83193a9`, reverted after review): `overflow-x: hidden` on `html`
+     and `body`.** This stopped the drag, but per the CSS Overflow spec, declaring only
+     `overflow-x` on an axis forces the *other* axis to compute to `auto` if it isn't already
+     non-visible — so this silently set `overflow-y: auto` on `html`/`body` too, which changed the
+     sticky containing-block chain in Chromium and disabled `position: sticky` sitewide. Confirmed
+     with a scroll-time measurement: at `scrollY = 1200` on `/`, the header's
+     `getBoundingClientRect().top` was `-1200` (scrolled away) instead of `0` (pinned); same on
+     `/product` for both the header and the `top-[71px]` scroll-spy sub-nav. Nothing in the original
+     sweep caught it because every visibility assertion checked state immediately after
+     `page.goto`, before any scroll — this is now covered (see the scroll-time sticky tests below).
+   - **Real fix: `contain-layout` on `[data-matrix-scroll]` itself**, not a page-level rule.
+     Bisected on the live page by toggling one property at a time: neither the scroller's
+     `tabIndex`, its `role`/`aria-label`, nor the global `:focus-visible` outline rule changed
+     `document.documentElement.scrollWidth`; only removing the table's `min-width` did (536px →
+     375px). Walking the DOM ancestor chain from the scroller up to `<html>` showed every
+     intermediate box (the `Container`, `<main>`, the layout's flex wrapper, `<body>`) correctly
+     reporting `scrollWidth === clientWidth` — only `<html>` itself stayed inflated, meaning
+     `overflow-x: auto` was clipping and scrolling the table correctly (verified: the scroller's
+     own `scrollWidth` > `clientWidth`, and the "comparison matrix scrolls" test passes) but wasn't
+     fully isolating layout containment for the purposes of the *root's* scrollable-overflow
+     computation. Adding `contain: layout` (Tailwind's `contain-layout` utility) to the scroller
+     establishes that containment boundary explicitly; confirmed on the live page it drops
+     `document.documentElement.scrollWidth` to exactly `375` (zero excess) while the scroller's own
+     internal scroll is untouched (`scrollWidth` 560 > `clientWidth` 341, still scrolls). Because
+     the real fix eliminates the leak entirely rather than just masking it, the sweep's overflow
+     check (`e2e/responsive.spec.ts`) is the original, strict `scrollWidth`-vs-`clientWidth`
+     comparison from the brief — no numeric exception needed, since containment (not a looser
+     assertion) is what makes `/pricing` compatible with "zero page-level overflow, every route."
+     Verified both fixes independently: removing `contain-layout` alone turns the overflow test
+     red again; reintroducing `overflow-x: hidden` on `html`/`body` alone turns the two new
+     scroll-time sticky tests red (`top: -1200` / `top: -1500`, matching the exact review findings)
+     without affecting the overflow test.
 7. **`/pricing` heading order (`h1` → `h3`), caught by Lighthouse.** The plan cards render their
    name as `h3` (required — `responsive.spec.ts`'s "Growth is the first pricing card" test locates
    them by `h3`), with nothing at `h2` in between the page's `h1` and the first card. Fixed by

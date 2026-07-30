@@ -81,14 +81,6 @@
 
   html {
     scroll-behavior: smooth;
-    /* Defensive clip: a focusable nested `overflow-x: auto` scroller (the
-       pricing comparison matrix's min-w-[560px] table) makes the document
-       root itself horizontally draggable in Chromium even though every DOM
-       ancestor in between reports a correctly-clipped scrollWidth — verified
-       by walking the ancestor chain and by `window.scrollTo(100, 0)`
-       actually shifting the viewport. `overflow-x: hidden` here does not
-       affect the matrix's own internal scrolling. */
-    overflow-x: hidden;
   }
 
   body {
@@ -97,7 +89,6 @@
     background: var(--color-white);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden;
   }
 
   /* PRD §1.1: 2px brass focus ring, 2px offset, on every interactive element */

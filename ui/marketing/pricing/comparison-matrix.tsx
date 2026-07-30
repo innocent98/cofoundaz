@@ -21,7 +21,16 @@ export function ComparisonMatrix() {
       role="region"
       aria-label={pricing.matrixTitle}
       tabIndex={0}
-      className="overflow-x-auto rounded-[14px] border border-green-100 bg-white shadow-card"
+      // contain-layout: overflow-x-auto alone clips this table visually and
+      // scrolls it correctly (verified: this element's own scrollWidth >
+      // clientWidth), but does not fully isolate layout for the purposes of
+      // document.documentElement's scrollable-overflow computation — the
+      // table's min-w-[560px] content was still leaking into the ROOT's
+      // scrollable region, making the *whole page* horizontally draggable
+      // (confirmed with window.scrollTo actually moving the viewport).
+      // contain-layout establishes a real containment boundary and stops
+      // that leak without affecting this element's own internal scroll.
+      className="overflow-x-auto rounded-[14px] border border-green-100 bg-white shadow-card contain-layout"
     >
       <table className="w-full min-w-[560px] border-collapse text-left">
         <caption className="sr-only">{pricing.matrixTitle}</caption>
