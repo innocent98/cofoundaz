@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { SiteHeader } from './site-header'
 
@@ -25,6 +26,13 @@ describe('SiteHeader', () => {
 
   it('renders exactly one brass CTA, per PRD §1.1 rule 3', () => {
     const { container } = render(<SiteHeader />)
+    expect(container.querySelectorAll('.bg-brass-600')).toHaveLength(1)
+  })
+
+  it('keeps exactly one brass CTA even with the mobile panel open', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<SiteHeader />)
+    await user.click(screen.getByRole('button', { name: /open menu/i }))
     expect(container.querySelectorAll('.bg-brass-600')).toHaveLength(1)
   })
 

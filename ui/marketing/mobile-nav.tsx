@@ -19,7 +19,15 @@ export function MobileNav() {
   }, [pathname])
 
   // Move focus into the panel on open; restore it to the trigger on close.
+  // Skip the very first run: `open` starts `false`, so without this guard
+  // the "restore to trigger" branch would fire on mount and steal focus
+  // from the page before the user ever interacts with the menu.
+  const hasMounted = useRef(false)
   useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true
+      return
+    }
     if (open) {
       panelRef.current?.querySelector<HTMLElement>('a, button')?.focus()
     } else {
@@ -97,11 +105,14 @@ export function MobileNav() {
             </Link>
           ))}
           <div className="mt-2 flex flex-col gap-2 border-t border-green-100 pt-4">
+            {/*
+              The desktop "Start free" accent button in SiteHeader stays
+              visible at every width (including under `lg`), so it must not
+              be duplicated here — the design system permits exactly one
+              brass (`accent`) button per screen.
+            */}
             <Button href={headerCtas.login.href} variant="secondary" size="md">
               {headerCtas.login.label}
-            </Button>
-            <Button href={headerCtas.signup.href} variant="accent" size="md">
-              {headerCtas.signup.label}
             </Button>
           </div>
         </div>
