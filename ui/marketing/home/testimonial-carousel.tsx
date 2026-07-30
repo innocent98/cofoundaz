@@ -1,0 +1,75 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
+import { Container } from '@/ui/primitives'
+import { home } from '@/content/home'
+import { cn } from '@/lib/cn'
+
+const ROTATE_MS = 6000
+
+export function TestimonialCarousel() {
+  const { title, quotes } = home.testimonials
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    // Deviation D-2 / WCAG 2.2.2: no auto-advancing motion under reduced motion.
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) return
+
+    const timer = setInterval(() => {
+      // flushSync forces a synchronous commit for this interval-driven update.
+      // Without it, React defers the commit past a macrotask that fake-timer
+      // advances (and even awaited microtasks) don't reach, and the rotation
+      // becomes untestable and effectively invisible to a user's next paint.
+      flushSync(() => setIndex((value) => (value + 1) % quotes.length))
+    }, ROTATE_MS)
+    return () => clearInterval(timer)
+  }, [quotes.length])
+
+  const quote = quotes[index]
+
+  return (
+    <section className="bg-green-950 text-green-100">
+      <Container width="narrow" className="py-16 text-center md:py-22">
+        <h2 className="font-display text-[28px] font-semibold text-white md:text-4xl">
+          {title}
+        </h2>
+
+        <div aria-live="polite" className="mt-11 min-h-[190px]">
+          <p className="mx-auto max-w-[28ch] font-display text-xl italic leading-[1.45] text-balance text-white md:text-[26px]">
+            “{quote.text}”
+          </p>
+          <div className="mt-7 flex items-center justify-center gap-3">
+            <span
+              aria-hidden="true"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-green-600 text-[15px] font-bold text-white"
+            >
+              {quote.initials}
+            </span>
+            <div className="text-left">
+              <div className="text-[15px] font-bold text-white">{quote.name}</div>
+              <div className="text-[13px] text-green-300">{quote.company}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-center gap-2">
+          {quotes.map((item, i) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-label={`Show quote ${i + 1}`}
+              aria-current={i === index ? 'true' : undefined}
+              onClick={() => setIndex(i)}
+              className={cn(
+                'h-2 w-2 rounded-full transition-colors',
+                i === index ? 'bg-brass-500' : 'bg-white/25'
+              )}
+            />
+          ))}
+        </div>
+      </Container>
+    </section>
+  )
+}
