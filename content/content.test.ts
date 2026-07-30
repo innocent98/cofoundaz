@@ -4,7 +4,15 @@ import { product } from './product'
 import { pricing } from './pricing'
 import { about } from './about'
 import { legalDocuments } from './legal'
-import { headerLinks, footerColumns } from './nav'
+import {
+  headerLinks,
+  headerCtas,
+  footerTagline,
+  footerColumns,
+  copyright,
+} from './nav'
+import { contact } from './contact'
+import { authModes, authShared, authPanel } from './auth'
 
 describe('home content', () => {
   it('uses the comp hero copy verbatim', () => {
@@ -97,6 +105,31 @@ describe('legal content', () => {
   })
 })
 
+describe('contact content', () => {
+  it('has the topic options and success copy from the brief', () => {
+    expect(contact.fields.topic.options).toEqual([
+      'Sales', 'Support', 'Partnerships', 'Press',
+    ])
+    expect(contact.success).toBe(
+      'Thanks, we’ll get back to you within one business day.'
+    )
+  })
+})
+
+describe('auth content', () => {
+  it('has the signup and login copy from the brief, including the deliberate passwordHelp asymmetry', () => {
+    expect(authModes.signup.title).toBe('Create your workspace')
+    expect(authModes.signup.cta).toBe('Create account')
+    expect(authModes.signup.footerLink.href).toBe('/login')
+    expect(authModes.signup.passwordHelp).toBe('8+ characters, one number')
+
+    expect(authModes.login.title).toBe('Welcome back')
+    expect(authModes.login.cta).toBe('Log in')
+    expect(authModes.login.footerLink.href).toBe('/signup')
+    expect(authModes.login.passwordHelp).toBeNull()
+  })
+})
+
 describe('navigation', () => {
   it('omits Blog and Help Center while those pages are out of scope', () => {
     const allHrefs = [
@@ -124,7 +157,22 @@ describe('navigation', () => {
 
 describe('copy house style', () => {
   it('never uses em-dashes or en-dashes, matching the comp', () => {
-    const allCopy = JSON.stringify([home, product, pricing, about, legalDocuments])
+    const allCopy = JSON.stringify([
+      home,
+      product,
+      pricing,
+      about,
+      legalDocuments,
+      headerLinks,
+      headerCtas,
+      footerTagline,
+      footerColumns,
+      copyright,
+      contact,
+      authModes,
+      authShared,
+      authPanel,
+    ])
     expect(allCopy).not.toMatch(/[—–]/)
   })
 })
