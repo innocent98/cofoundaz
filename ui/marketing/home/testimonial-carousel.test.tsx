@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TestimonialCarousel } from './testimonial-carousel'
@@ -55,7 +55,9 @@ describe('TestimonialCarousel', () => {
   it('auto-advances every 6 seconds when motion is allowed', () => {
     vi.useFakeTimers()
     render(<TestimonialCarousel />)
-    vi.advanceTimersByTime(6000)
+    act(() => {
+      vi.advanceTimersByTime(6000)
+    })
     expect(screen.getByText(new RegExp(home.testimonials.quotes[1].name))).toBeInTheDocument()
   })
 
@@ -63,7 +65,9 @@ describe('TestimonialCarousel', () => {
     mockReducedMotion(true)
     vi.useFakeTimers()
     render(<TestimonialCarousel />)
-    vi.advanceTimersByTime(30000)
+    act(() => {
+      vi.advanceTimersByTime(30000)
+    })
     expect(screen.getByText(new RegExp(home.testimonials.quotes[0].name))).toBeInTheDocument()
   })
 })

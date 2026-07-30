@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { flushSync } from 'react-dom'
 import { Container } from '@/ui/primitives'
 import { home } from '@/content/home'
 import { cn } from '@/lib/cn'
@@ -17,13 +16,10 @@ export function TestimonialCarousel() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) return
 
-    const timer = setInterval(() => {
-      // flushSync forces a synchronous commit for this interval-driven update.
-      // Without it, React defers the commit past a macrotask that fake-timer
-      // advances (and even awaited microtasks) don't reach, and the rotation
-      // becomes untestable and effectively invisible to a user's next paint.
-      flushSync(() => setIndex((value) => (value + 1) % quotes.length))
-    }, ROTATE_MS)
+    const timer = setInterval(
+      () => setIndex((value) => (value + 1) % quotes.length),
+      ROTATE_MS
+    )
     return () => clearInterval(timer)
   }, [quotes.length])
 
@@ -55,9 +51,9 @@ export function TestimonialCarousel() {
         </div>
 
         <div className="mt-6 flex justify-center gap-2">
-          {quotes.map((item, i) => (
+          {quotes.map((_, i) => (
             <button
-              key={item.name}
+              key={i}
               type="button"
               aria-label={`Show quote ${i + 1}`}
               aria-current={i === index ? 'true' : undefined}
