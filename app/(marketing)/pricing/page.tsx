@@ -8,6 +8,7 @@ import { WordmarkRow } from '@/ui/marketing/pricing/wordmark-row'
 import { EveryPlanBand } from '@/ui/marketing/pricing/every-plan-band'
 import { CtaBand } from '@/ui/marketing/home/cta-band'
 import { pricing } from '@/content/pricing'
+import { JsonLd, faqPageJsonLd } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <>
+      <JsonLd data={faqPageJsonLd()} />
       <Container className="pb-6 pt-16 text-center">
         <SectionHeading as="h1" eyebrow={pricing.hero.eyebrow} title={pricing.hero.title} subtitle={pricing.hero.subtitle} className="[&_p]:max-w-[52ch]" />
         <ul className="mt-5 flex flex-wrap justify-center gap-5 text-[13.5px] text-sage-500">

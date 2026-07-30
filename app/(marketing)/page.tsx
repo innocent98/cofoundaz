@@ -7,6 +7,7 @@ import { TestimonialCarousel } from '@/ui/marketing/home/testimonial-carousel'
 import { SecurityStrip } from '@/ui/marketing/home/security-strip'
 import { CtaBand } from '@/ui/marketing/home/cta-band'
 import { home } from '@/content/home'
+import { JsonLd, organizationJsonLd } from '@/lib/seo'
 
 export const metadata: Metadata = {
   description: home.hero.subtitle,
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
+      <JsonLd data={organizationJsonLd()} />
       <Hero />
       <ProblemStrip />
       <HowItWorks />

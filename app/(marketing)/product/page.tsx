@@ -6,6 +6,7 @@ import { HubSection } from '@/ui/marketing/product/hub-section'
 import { ScoreBand } from '@/ui/marketing/product/score-band'
 import { CtaBand } from '@/ui/marketing/home/cta-band'
 import { product } from '@/content/product'
+import { JsonLd, softwareApplicationJsonLd } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: 'Product',
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function ProductPage() {
   return (
     <>
+      <JsonLd data={softwareApplicationJsonLd()} />
       <ProductHero />
       <ScrollSpyNav />
       <Container width="narrow" className="pb-6 pt-2">
