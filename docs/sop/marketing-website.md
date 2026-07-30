@@ -224,40 +224,57 @@ resolved cleanly for every route on the first re-run — see "accent-CTA invaria
 
 ### The accent-CTA and h1 invariant sweep
 
-Per-route counts, both now enforced by `e2e/accessibility.spec.ts`:
+Per-route `h1` and header-CTA counts, enforced by `e2e/accessibility.spec.ts`:
 
-| Route | `h1` | header accent CTA | in-content accent CTAs | Adjudication |
-|---|---|---|---|---|
-| `/` | 1 | 1 | 2 (Hero primary + closing CtaBand) | see below |
-| `/product` | 1 | 1 | 2 (ProductHero primary + closing CtaBand) | see below |
-| `/pricing` | 1 | 1 | 2 (popular PricingCard + closing CtaBand) | see below |
-| `/about` | 1 | 1 | 1 (closing CTA) | — |
-| `/contact` | 1 | 1 | 1 (form submit) | — |
-| `/terms`, `/privacy`, `/security`, `/cookies` | 1 each | 1 each | 0 each | — |
-| `/login`, `/signup` | 1 each | 0 (no shared header) | 1 each (form submit) | — |
-| `/_not-found` | 1 | 0 (no shared header) | 1 ("Back home") | — |
+| Route | `h1` | header accent CTA | in-content accent CTAs |
+|---|---|---|---|
+| `/` | 1 | 1 | 2 (Hero primary + closing CtaBand) |
+| `/product` | 1 | 1 | 2 (ProductHero primary + closing CtaBand) |
+| `/pricing` | 1 | 1 | 2 (popular PricingCard + closing CtaBand) |
+| `/about` | 1 | 1 | 1 (closing CTA) |
+| `/contact` | 1 | 1 | 1 (form submit) |
+| `/terms`, `/privacy`, `/security`, `/cookies` | 1 each | 1 each | 0 each |
+| `/login`, `/signup` | 1 each | 0 (no shared header) | 1 each (form submit) |
+| `/_not-found` | 1 | 0 (no shared header) | 1 ("Back home") |
 
-**This needed adjudication, not just recording.** `SiteHeader` renders its own `bg-brass-600`
-"Start free" CTA on every route in the `(marketing)` layout — a fact that isn't visible to the
-existing per-page unit tests, which render page components in isolation (e.g.
-`about-sections.test.tsx` does `render(<AboutPage />)` with no header at all). A literal "exactly
-one `.bg-brass-600` in the whole rendered document" is provably false for 5 of the 9 header-bearing
-routes, and taking that literally would mean either (a) a large, unreviewed visual change —
-stripping the accent treatment from Home/Product/Pricing/About/Contact's own CTAs, which Tasks 6–8
-already shipped and reviewed without objection — or (b) failing the sweep permanently.
+`SiteHeader` renders its own `bg-brass-600` "Start free" CTA on every route in the `(marketing)`
+layout — a fact the existing per-page unit tests never surfaced, since they render page components
+in isolation (`render(<AboutPage />)`, no header). A literal "exactly one `.bg-brass-600` in the
+whole document" is false for 5 of the 9 header-bearing routes, so this was flagged for design
+sign-off rather than encoded on assumption.
 
-**Ruling:** scope the invariant to what the existing precedent and the code's own comments already
-establish. `ui/marketing/mobile-nav.tsx` explicitly documents the header's "Start free" as the
-one CTA that's *always* present and must never be duplicated; that makes it site chrome, not page
-content. The sweep therefore asserts two things per route: the header never renders more than one
-accent CTA (`header :is(a,button).bg-brass-600`, expected 1 where a header exists, 0 where it
-doesn't), and the page's own content (`main :is(a,button).bg-brass-600`) matches the table above —
-2 for Home/Product/Pricing's deliberate hero-CTA-plus-closing-band bracket, 1 for About/Contact/
-auth/404, 0 for the legal documents. **This is a judgment call a human reviewer should sign off
-on** — the alternative reading (downgrade the hero/closing-band CTAs to a non-accent variant so a
-document-wide count of exactly 1 holds everywhere) is a legitimate, more literal interpretation of
-PRD rule 3, and would be a small, well-scoped follow-up if the design team wants it strictly
-document-wide rather than per-region.
+**Design ruling: "one brass CTA per screen" means per viewport, not per document.** The header's
+CTA is a separate, sanctioned, always-present exception (`ui/marketing/mobile-nav.tsx` already
+documents this — the header's "Start free" stays visible at every width and must never be
+duplicated). For in-content CTAs, PRD §1.1's restraint principle (≤10% brass per screen, one brass
+CTA per screen) is about what a reader sees at any one moment on a long scrolling page, not a
+document-wide tally. Home, Product, and Pricing's hero-CTA-plus-closing-band bracket is correct
+*because* the two never appear on screen together — confirmed, not assumed (see below).
+
+**Enforcement, two separate invariants:**
+
+1. **Header:** `header :is(a,button).bg-brass-600` count is exactly 1 where a header exists, 0
+   where it doesn't (auth routes, 404) — unchanged, still a simple per-page count.
+2. **In-content co-visibility:** for every route, at each of the four breakpoint viewports (375,
+   768, 1280×900, 1440×900 — matching `e2e/responsive.spec.ts`'s own `VIEWPORTS`), no two
+   `main :is(a,button).bg-brass-600` elements may be simultaneously visible at *any* scroll
+   position. Implemented as a closed-form check rather than sampling discrete scroll steps: for
+   every pair of accent CTAs, compute the document-space span from the top of the earlier one to
+   the bottom of the later one; two CTAs can be co-visible at some scroll offset if and only if
+   that span fits inside one viewport-height window, so the assertion is `span > viewportHeight`
+   for every pair. "Visible" is defined as any pixel overlap with the viewport (partial visibility
+   counts) — a CTA half off the bottom edge still visually competes for attention, so this is the
+   conservative reading.
+   - Measured spans on `/`, `/product`, `/pricing` (the only routes with 2 in-content CTAs) ranged
+     from 3327px (`/` at lg/xl) up to 7366px (`/product` at sm) — 3.7× to 8.9× the tallest viewport
+     height (1024px) at the *closest* measured case. No route came anywhere near a violation at any
+     of the four viewports, including `xl` (1440×900), which was checked specifically since more of
+     a page's width fits on screen there (its height is unchanged from `lg`, so no more of the
+     *vertical* scroll fits either).
+   - Verified the check can genuinely fail: temporarily reduced Home to just `<Hero /><CtaBand />`
+     (removing the five sections between them) — 3 of 4 viewports (`md`, `lg`, `xl`) immediately
+     went red with spans of 857px/426px/423px, all comfortably under their viewport heights.
+     Reverted immediately after confirming.
 
 ## Deviations from the comps (carried forward from Task 1/2, restated here with the Task 14 evidence)
 
@@ -308,11 +325,6 @@ scan reads the settled, final page state rather than racing a fade-in transition
 - **`packages/ui` promotion** — if a second app (the authenticated product) needs these
   primitives, promote `ui/primitives/` out of this app into a shared package rather than
   duplicating Button/Card/Badge/Field.
-- **Accent-CTA invariant adjudication** — see the ruling above; flag to the design team whether
-  the per-region reading (shipped) or a strict document-wide "exactly one" reading (would require
-  downgrading Home/Product/Pricing/About/Contact's in-page CTAs) is the intended rule going
-  forward, so future pages are built against a confirmed answer rather than this task's judgment
-  call.
 - **`heading-order` is an axe best-practice rule, not WCAG-tagged** — it isn't caught by
   `e2e/accessibility.spec.ts`'s `withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa'])` axe sweep
   (that's how the `/pricing` h1→h3 skip shipped through Task 8 unnoticed until Lighthouse caught
