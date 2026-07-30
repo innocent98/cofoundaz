@@ -18,6 +18,16 @@ describe('ProductHero', () => {
     const { container } = render(<ProductHero />)
     expect(await axe(container)).toHaveNoViolations()
   })
+
+  it('renders each stat label exactly once, as a valid dt/dd pair', () => {
+    const { container } = render(<ProductHero />)
+    for (const stat of product.hero.stats) {
+      expect(screen.getAllByText(stat.label)).toHaveLength(1)
+    }
+    const dl = container.querySelector('dl')
+    expect(dl?.querySelectorAll('dt')).toHaveLength(product.hero.stats.length)
+    expect(dl?.querySelectorAll('dd')).toHaveLength(product.hero.stats.length)
+  })
 })
 
 describe('HubSection', () => {
@@ -41,6 +51,21 @@ describe('HubSection', () => {
   it('uses AA-safe brass-700 for the kicker on a light surface', () => {
     render(<HubSection group={product.hubGroups[0]} index={0} />)
     expect(screen.getByText('Overview').className).toContain('text-brass-700')
+  })
+
+  it('alternates the lg column order per index, across every hub group', () => {
+    for (const [index, group] of product.hubGroups.entries()) {
+      const { container, unmount } = render(<HubSection group={group} index={index} />)
+      const [textCol, frameCol] = container.firstElementChild?.children ?? []
+      if (index % 2 === 1) {
+        expect(textCol).toHaveClass('lg:order-2')
+        expect(frameCol).toHaveClass('lg:order-1')
+      } else {
+        expect(textCol?.className).not.toContain('lg:order')
+        expect(frameCol?.className).not.toContain('lg:order')
+      }
+      unmount()
+    }
   })
 })
 

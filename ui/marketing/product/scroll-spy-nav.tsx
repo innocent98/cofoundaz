@@ -11,7 +11,7 @@ export function ScrollSpyNav() {
     const sections = product.subNav
       .map((item) => document.getElementById(item.anchor))
       .filter((el): el is HTMLElement => el !== null)
-    if (sections.length === 0) return
+    if (typeof IntersectionObserver === 'undefined' || sections.length === 0) return
 
     const observer = new IntersectionObserver(
       (entries) => {

@@ -16,11 +16,9 @@ export function ProductHero() {
         </div>
         <dl className="mt-13 flex flex-wrap justify-center gap-10 md:gap-14">
           {stats.map((stat) => (
-            <div key={stat.label}>
-              <dd>
-                <span className="block font-display text-[34px] font-bold text-white">{stat.value}</span>
-                <span className="mt-0.5 block text-[13px] text-green-300">{stat.label}</span>
-              </dd>
+            <div key={stat.label} className="flex flex-col-reverse">
+              <dt className="mt-0.5 text-[13px] text-green-300">{stat.label}</dt>
+              <dd className="font-display text-[34px] font-bold text-white">{stat.value}</dd>
             </div>
           ))}
         </dl>
