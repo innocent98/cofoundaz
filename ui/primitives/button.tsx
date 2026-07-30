@@ -28,34 +28,71 @@ const BASE =
   'inline-flex items-center justify-center gap-2 rounded-input transition-colors ' +
   'disabled:opacity-60 disabled:pointer-events-none cursor-pointer'
 
-export type ButtonProps = {
+type CommonProps = {
   variant?: Variant
   size?: Size
-  href?: string
   className?: string
   children: React.ReactNode
-} & React.ButtonHTMLAttributes<HTMLButtonElement>
+}
 
-export function Button({
-  variant = 'secondary',
-  size = 'md',
-  href,
-  className,
-  children,
-  ...rest
-}: ButtonProps) {
+/**
+ * When `href` is present, the rendered element is an anchor (via `next/link`)
+ * and only anchor attributes are valid — button-only attributes like `type`
+ * or `disabled` would be invalid DOM props on an `<a>`.
+ */
+type LinkButtonProps = CommonProps &
+  { href: string } & Omit<
+    React.AnchorHTMLAttributes<HTMLAnchorElement>,
+    'href' | 'className' | 'children'
+  >
+
+/**
+ * Without `href`, the rendered element is a native `<button>` and the full
+ * set of button attributes (`type`, `disabled`, `form`, ...) is valid.
+ */
+type NativeButtonProps = CommonProps &
+  { href?: undefined } & Omit<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    'className' | 'children'
+  >
+
+export type ButtonProps = LinkButtonProps | NativeButtonProps
+
+const COMMON_KEYS = ['variant', 'size', 'className', 'children', 'href'] as const
+
+/** Strips the shared visual props, leaving only the native DOM attributes to forward. */
+function pickRest<T extends object>(props: T): Omit<T, (typeof COMMON_KEYS)[number]> {
+  const rest = { ...props }
+  for (const key of COMMON_KEYS) {
+    delete (rest as Record<string, unknown>)[key]
+  }
+  return rest as Omit<T, (typeof COMMON_KEYS)[number]>
+}
+
+/**
+ * A plain `if (props.href)` truthiness check narrows the `href`-present branch
+ * fine, but can't rule out `LinkButtonProps` in the `else` branch — `href` is
+ * typed `string`, and TypeScript can't assume it's never an empty (falsy)
+ * string. A named type guard makes the narrowing exact in both directions.
+ */
+function isLinkProps(props: ButtonProps): props is LinkButtonProps {
+  return typeof props.href === 'string'
+}
+
+export function Button(props: ButtonProps) {
+  const { variant = 'secondary', size = 'md', className, children } = props
   const classes = cn(BASE, VARIANTS[variant], SIZES[size], className)
 
-  if (href) {
+  if (isLinkProps(props)) {
     return (
-      <Link href={href} className={classes}>
+      <Link href={props.href} className={classes} {...pickRest(props)}>
         {children}
       </Link>
     )
   }
 
   return (
-    <button className={classes} {...rest}>
+    <button className={classes} {...pickRest(props)}>
       {children}
     </button>
   )
