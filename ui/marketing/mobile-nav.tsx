@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/ui/primitives'
@@ -95,12 +96,18 @@ export function MobileNav() {
         </span>
       </button>
 
-      {open ? (
+      {open
+        ? createPortal(
         <div
           ref={panelRef}
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
+          // Portaled to <body>: the SiteHeader has `backdrop-blur`, which makes
+          // it the containing block for `position: fixed` descendants — a panel
+          // rendered inside the header would size against the 72px header box,
+          // not the viewport, collapsing `bottom-0` to a sliver. Rendering into
+          // <body> restores viewport-relative fixed positioning.
           className="fixed inset-x-0 top-[72px] bottom-0 z-40 flex flex-col gap-2 border-t border-green-100 bg-white p-4 lg:hidden"
         >
           {headerLinks.map((link) => (
@@ -123,8 +130,10 @@ export function MobileNav() {
               {headerCtas.login.label}
             </Button>
           </div>
-        </div>
-      ) : null}
+        </div>,
+            document.body
+          )
+        : null}
     </>
   )
 }
