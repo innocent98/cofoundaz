@@ -5,7 +5,10 @@ export function ProblemStrip() {
   return (
     <section>
       <Container className="py-16 md:py-22">
-        <SectionHeading title={home.problem.title} className="mx-auto max-w-[20ch]" />
+        {/* Cap the line length on the heading itself, not the wrapper: `ch` on
+            the wrapper measures against the inherited body font (~16px), which
+            collapses this display-size heading to one word per line. */}
+        <SectionHeading title={home.problem.title} className="[&_h2]:mx-auto [&_h2]:max-w-[22ch]" />
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {home.problem.cards.map((card) => (
             <Card key={card.title} className="p-8">
