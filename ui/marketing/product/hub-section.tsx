@@ -10,8 +10,8 @@ export function HubSection({ group, index }: { group: HubGroup; index: number })
       className="grid scroll-mt-[140px] grid-cols-1 gap-10 border-t border-green-100 py-14 lg:grid-cols-[1fr_1.15fr] lg:gap-14"
     >
       <div className={cn(reversed && 'lg:order-2')}>
-        {/* Deviation D-1: brass-700, not brass-600, for brass text on light. */}
-        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-brass-700">
+        {/* Deviation D-1: copper-700, not copper-600, for copper text on light. */}
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-copper-700">
           {group.kicker}
         </span>
         <h2 className="mb-3.5 mt-2.5 font-display text-[26px] font-semibold leading-[1.12] tracking-[-0.01em] text-green-900 md:text-[34px]">

@@ -12,9 +12,9 @@ const TOKENS: Record<string, string> = {
   'color-green-400': '#4E8F73', 'color-green-300': '#7FB09A',
   'color-green-200': '#B3D0C3', 'color-green-100': '#E3EFE9',
   'color-green-50': '#F2F7F4',
-  'color-brass-700': '#8A6E33', 'color-brass-600': '#A8894B',
-  'color-brass-500': '#BDA05F', 'color-brass-200': '#E9DDBE',
-  'color-brass-100': '#F5EEDC',
+  'color-copper-700': '#8A5330', 'color-copper-600': '#9C5B34',
+  'color-copper-500': '#D89A6E', 'color-copper-200': '#EAD5C6',
+  'color-copper-100': '#F6EAE1',
   'color-sage-900': '#171C1A', 'color-sage-700': '#3A423E',
   'color-sage-500': '#67716C', 'color-sage-300': '#C3CCC7',
   'color-sage-100': '#F4F6F5',
@@ -50,8 +50,8 @@ describe('design tokens', () => {
     expect(css).toMatch(/--font-body:\s*var\(--font-hanken\)/)
   })
 
-  it('sets the brass focus ring at 2px with 2px offset', () => {
-    expect(css).toMatch(/outline:\s*2px solid var\(--color-brass-600\)/)
+  it('sets the copper focus ring at 2px with 2px offset', () => {
+    expect(css).toMatch(/outline:\s*2px solid var\(--color-copper-600\)/)
     expect(css).toMatch(/outline-offset:\s*2px/)
   })
 
@@ -82,7 +82,7 @@ describe('cleared Tailwind namespaces are never referenced in source', () => {
   /** Shades that actually exist on each PRD ramp. Anything else compiles to nothing. */
   const RAMP_SHADES: Record<string, readonly string[]> = {
     green: ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'],
-    brass: ['100', '200', '500', '600', '700'],
+    copper: ['100', '200', '500', '600', '700'],
     sage: ['100', '300', '500', '700', '900'],
     red: ['100', '600'],
   }
@@ -160,7 +160,7 @@ describe('cleared Tailwind namespaces are never referenced in source', () => {
   })
 
   it('never uses a shade that does not exist on a PRD ramp', () => {
-    const pattern = new RegExp(`\\b${utility}-(green|brass|sage|red)-(\\d{2,3})\\b`, 'g')
+    const pattern = new RegExp(`\\b${utility}-(green|copper|sage|red)-(\\d{2,3})\\b`, 'g')
     expect(scan(pattern, (m) => !RAMP_SHADES[m[1]].includes(m[2]))).toEqual([])
   })
 })

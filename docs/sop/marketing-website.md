@@ -1,5 +1,16 @@
 # SOP — Marketing website (Cofoundaz)
 
+> **Update (2026-08-06) — accent recolored Brass → Copper.** The accent token
+> was renamed `brass-*` → `copper-*` and revalued (accent `#A8894B` → `#9C5B34`);
+> solid-accent controls now use **white** text (was black/`green-900`). As a
+> result, the Brass-specific contrast figures in this file — notably **D-1**,
+> **M-10**, and finding **#4** below — are **historical**: `copper-600` now
+> passes AA as text on white (5.30:1), which brass-600 did not. For the current
+> accent truth, ramp, and verified ratios, see
+> [`accent-copper-migration.md`](./accent-copper-migration.md). The route
+> architecture, content-module design, and non-color findings below are still
+> accurate.
+
 ## What shipped
 
 The public marketing site: 11 routes plus a branded 404, built as static pages on Next.js 16

@@ -117,7 +117,7 @@ export function MobileNav() {
               The desktop "Start free" accent button in SiteHeader stays
               visible at every width (including under `lg`), so it must not
               be duplicated here — the design system permits exactly one
-              brass (`accent`) button per screen.
+              copper (`accent`) button per screen.
             */}
             <Button href={headerCtas.login.href} variant="secondary" size="md">
               {headerCtas.login.label}

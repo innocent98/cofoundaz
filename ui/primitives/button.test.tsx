@@ -27,11 +27,11 @@ describe('Button', () => {
     expect(link).toHaveAttribute('aria-current', 'page')
   })
 
-  it('applies brass background and dark text for the accent variant', () => {
+  it('applies copper background and white text for the accent variant', () => {
     render(<Button variant="accent">Start free</Button>)
     const el = screen.getByRole('button', { name: 'Start free' })
-    expect(el.className).toContain('bg-brass-600')
-    expect(el.className).toContain('text-green-900')
+    expect(el.className).toContain('bg-copper-600')
+    expect(el.className).toContain('text-white')
   })
 
   it('defaults to the secondary variant', () => {
@@ -48,7 +48,7 @@ describe('Button', () => {
 
   it('lets a caller className win a genuine conflict with a variant class', () => {
     // Unlike a non-conflicting class (e.g. w-full), bg-green-700 conflicts with
-    // the accent variant's own bg-brass-600 — this exercises cn()'s twMerge
+    // the accent variant's own bg-copper-600 — this exercises cn()'s twMerge
     // precedence, not just presence of the caller's class.
     render(
       <Button variant="accent" className="bg-green-700">
@@ -57,6 +57,6 @@ describe('Button', () => {
     )
     const el = screen.getByRole('button')
     expect(el.className).toContain('bg-green-700')
-    expect(el.className).not.toContain('bg-brass-600')
+    expect(el.className).not.toContain('bg-copper-600')
   })
 })

@@ -22,13 +22,16 @@
   --color-green-100: #E3EFE9;
   --color-green-50: #F2F7F4;
 
-  /* Color 2 — Brass (accent, ≤10% per screen).
-     brass-700 is the AA-safe value for text on light surfaces (deviation D-1). */
-  --color-brass-700: #8A6E33;
-  --color-brass-600: #A8894B;
-  --color-brass-500: #BDA05F;
-  --color-brass-200: #E9DDBE;
-  --color-brass-100: #F5EEDC;
+  /* Color 2 — Copper (accent, ≤10% per screen).
+     copper-600 is the solid-fill accent: white text on it clears 5.30:1 (AA).
+     copper-700 is the on-light text token (eyebrows, numerals) at 6.25:1, and
+     the accent-button hover (darken-on-press keeps white text ≥ AA).
+     copper-500 is the light accent for text/icons on dark green surfaces. */
+  --color-copper-700: #8A5330;
+  --color-copper-600: #9C5B34;
+  --color-copper-500: #D89A6E;
+  --color-copper-200: #EAD5C6;
+  --color-copper-100: #F6EAE1;
 
   /* Neutrals — green-tinted "Sage" ramp */
   --color-sage-900: #171C1A;
@@ -48,9 +51,9 @@
 
   /* Semantic aliases — product code targets meaning, not ramp position */
   --color-primary: var(--color-green-700);
-  --color-accent: var(--color-brass-600);
+  --color-accent: var(--color-copper-600);
   --color-success: var(--color-green-600);
-  --color-warning: var(--color-brass-600);
+  --color-warning: var(--color-copper-600);
   --color-danger: var(--color-red-600);
 
   /* Typography — CSS vars are set by next/font in app/layout.tsx */
@@ -69,7 +72,7 @@
 
   --shadow-card: 0 1px 3px rgba(18, 41, 31, 0.08);
   --shadow-raised: 0 8px 24px rgba(18, 41, 31, 0.12);
-  --shadow-accent: 0 8px 24px rgba(168, 137, 75, 0.28);
+  --shadow-accent: 0 8px 24px rgba(156, 91, 52, 0.28);
 }
 
 @layer base {
@@ -91,14 +94,14 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* PRD §1.1: 2px brass focus ring, 2px offset, on every interactive element */
+  /* PRD §1.1: 2px copper focus ring, 2px offset, on every interactive element */
   *:focus-visible {
-    outline: 2px solid var(--color-brass-600);
+    outline: 2px solid var(--color-copper-600);
     outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--color-brass-200);
+    background: var(--color-copper-200);
     color: var(--color-green-900);
   }
 }

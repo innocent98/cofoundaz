@@ -1,5 +1,9 @@
 # Cofoundaz Marketing Website Implementation Plan
 
+> **Update (2026-08-06):** the accent was recolored **Brass → Copper** after this plan
+> executed. Token/hex values embedded below are historical (the plan is an execution
+> record). Current accent truth: [`docs/sop/accent-copper-migration.md`](../../sop/accent-copper-migration.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Ship the 11-route public marketing website for Cofoundaz — statically rendered, at visual parity with the UI comps and copy parity with the Technical PRD, meeting WCAG 2.1 AA.

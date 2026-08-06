@@ -195,7 +195,7 @@ Self-hosting via `next/font` removes a render-blocking third-party request.
 
 The PRD ships a named 11-stop ramp. Tailwind v4's `@theme` turns each token into a real utility, so
 the comp's `background:#1E4D3B` becomes `bg-green-700` — the *token name survives into the markup*,
-which is what makes PRD §1.1's usage rules reviewable by grep (60/30/10 balance, one brass CTA per
+which is what makes PRD §1.1's usage rules reviewable by grep (60/30/10 balance, one copper CTA per
 screen, charts monochrome-sequential).
 
 **Rejected — shadcn/ui.** PRD §5.0 mentions a "shadcn/ui-style" library, but shadcn's semantic layer
@@ -215,18 +215,19 @@ the app phase, where PRD §1.2 needs Combobox, Drawer, Popover, Modal, and Comma
 ```
 Evergreen  --green-950 #0B1F17 · 900 #12291F · 800 #183B2C · 700 #1E4D3B · 600 #266049
            --green-500 #2E7256 · 400 #4E8F73 · 300 #7FB09A · 200 #B3D0C3 · 100 #E3EFE9 · 50 #F2F7F4
-Brass      --brass-700 #8A6E33 · 600 #A8894B · 500 #BDA05F · 200 #E9DDBE · 100 #F5EEDC
+Copper     --copper-700 #8A5330 · 600 #9C5B34 · 500 #D89A6E · 200 #EAD5C6 · 100 #F6EAE1
+           (was "Copper" — recolored 2026-08-06, see docs/sop/accent-copper-migration.md)
 Sage       --sage-900 #171C1A · 700 #3A423E · 500 #67716C · 300 #C3CCC7 · 100 #F4F6F5 · white #FFFFFF
 Red        --red-600 #B0483B · --red-100 #F6E5E2      (functional only; absent from marketing)
 ```
 
 Semantic aliases are also defined so product code targets meaning, not ramp position:
-`--color-primary → green-700` · `--color-accent → brass-600` · `--color-success → green-600` ·
-`--color-warning → brass-600` · `--color-danger → red-600`.
+`--color-primary → green-700` · `--color-accent → copper-600` · `--color-success → green-600` ·
+`--color-warning → copper-600` · `--color-danger → red-600`.
 
 **Scale tokens:** spacing `4/8/12/16/24/32/48/64`; radius inputs+buttons `8px`, cards `12px`,
 modals `16px`, pills `999px`; shadows `card 0 1px 3px rgba(18,41,31,.08)` and
-`raised 0 8px 24px rgba(18,41,31,.12)`; focus ring `2px brass-600, offset 2px`.
+`raised 0 8px 24px rgba(18,41,31,.12)`; focus ring `2px copper-600, offset 2px`.
 
 **Type scale** (comp values, which are marketing-specific and larger than the PRD's app scale):
 hero h1 60px/1.02, page h1 46–54px, section h2 38–42px, card h3 16–20px, body 15–19px.
@@ -282,7 +283,7 @@ central to the design.
 → CTA (`green-50`).
 
 **`/pricing`** — Header + 3 trust ticks → 3 `PricingCard`s (Growth is dark + "Most popular") →
-add-ons banner (`brass-100`) → "In every plan, from day one" (`green-900`, 6 items) → comparison
+add-ons banner (`copper-100`) → "In every plan, from day one" (`green-900`, 6 items) → comparison
 matrix → "What is an AI credit?" panel → wordmarks → FAQ accordion (6) → CTA card (`green-900`).
 
 **`/about`** — Header → "Why we exist" 2-col + stats card → mission quote band (`green-950`) →
@@ -355,31 +356,33 @@ Two deliberate exceptions:
 ## 11. Accessibility — WCAG 2.1 AA
 
 PRD §5.5 requires AA. Baseline: semantic landmarks, one `h1` per route, logical heading order,
-skip-to-content link, visible focus on every interactive element (`2px brass-600, offset 2px`), 44px
+skip-to-content link, visible focus on every interactive element (`2px copper-600, offset 2px`), 44px
 minimum touch targets at `sm`, `lang="en"`, and no keyboard traps.
 
-The comp's own `*:focus-visible{outline:2px solid #A8894B;outline-offset:2px}` already matches the
-PRD focus ring and is kept.
+The `*:focus-visible` outline is `2px solid var(--color-copper-600)` with a 2px offset, matching the
+PRD focus ring.
 
 ### Two deviations from the comps (PRD wins — §2 rule 3)
 
-**D-1 · `brass-600` as text on light backgrounds fails AA.**
+**D-1 · accent-as-text on light backgrounds.** *(Recolored 2026-08-06 — with
+Copper this is largely resolved; kept for history. See
+docs/sop/accent-copper-migration.md.)*
 
-Measured contrast ratios:
+Under the original Copper palette, `copper-600 #A8894B` as text on white measured only **3.31:1**
+(fail), so `copper-700 #8A6E33` (**4.84:1**) was used for accent text on light surfaces.
+
+Under **Copper**, the accent is dark enough that the -600 stop itself passes:
 
 | Foreground | Background | Ratio | AA normal text (4.5:1) |
 |---|---|---|---|
-| `brass-600 #A8894B` | white | **3.31:1** | ✗ fail |
-| `brass-700 #8A6E33` | white | **4.84:1** | ✓ pass |
-| `green-900 #12291F` | `brass-600 #A8894B` | **4.61:1** | ✓ pass |
+| `copper-600 #9C5B34` | white | **5.30:1** | ✓ pass |
+| `copper-700 #8A5330` | white | **6.25:1** | ✓ pass |
+| white | `copper-600 #9C5B34` | **5.30:1** | ✓ pass (button/badge text) |
 
-The comp uses `#A8894B` for every eyebrow/kicker label on light backgrounds (`Pricing`,
-`About Cofoundaz`, `The product` on light sections) and for the FAQ `+`/`−` signs. PRD §1.1
-anticipates exactly this: `--brass-700` is annotated *"brass text on light bg (AA-safe)"*.
-
-**Fix:** `brass-700` for brass **text on light surfaces**; `brass-600` retained for backgrounds,
-borders, and the focus ring. Brass buttons are unaffected — dark text on brass already passes.
-Brass text on dark bands (`brass-500 #BDA05F` on `green-900`) is unaffected and passes.
+**Current rule:** `copper-700` is still used for eyebrows/kickers on light surfaces (stronger
+6.25:1, clearer hierarchy), but it is now a choice, not a hard requirement. Solid-accent controls
+(buttons, badges) use **white** text (5.30:1) — this is what allowed the switch away from black
+text. Accent text on dark bands uses `copper-500 #D89A6E` on `green-900` (~6.4:1).
 
 **D-2 · No `prefers-reduced-motion` guard.**
 
@@ -417,7 +420,7 @@ PRD §3 requires static rendering. Every route is statically generated.
 
 - **Metadata** — `metadataBase` in the root layout; per-route `metadata` exports with unique title,
   description, canonical, and OpenGraph/Twitter cards. Title template `%s · Cofoundaz`.
-- **OG images** — `opengraph-image.tsx` via `ImageResponse`, brand-styled (`green-900` ground, brass
+- **OG images** — `opengraph-image.tsx` via `ImageResponse`, brand-styled (`green-900` ground, copper
   accent, Spectral wordmark). Root default plus per-route overrides for `/`, `/product`, `/pricing`.
   Note the Next 16 change: `params` and `id` arrive as Promises.
 - **`app/sitemap.ts`** — typed `MetadataRoute.Sitemap`, all 9 indexable routes (the 11 shipped

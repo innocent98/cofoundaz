@@ -25,8 +25,8 @@ export function FaqAccordion() {
               className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
             >
               <span className="text-base font-semibold text-sage-900">{item.question}</span>
-              {/* Deviation D-1: brass-700 for brass text on a white surface. */}
-              <span aria-hidden="true" className="flex-none text-lg font-semibold text-brass-700">
+              {/* Deviation D-1: copper-700 for copper text on a white surface. */}
+              <span aria-hidden="true" className="flex-none text-lg font-semibold text-copper-700">
                 {isOpen ? '−' : '+'}
               </span>
             </button>

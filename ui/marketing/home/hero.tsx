@@ -9,7 +9,7 @@ export function Hero() {
       <Container className="grid grid-cols-1 items-center gap-12 py-16 lg:grid-cols-2 lg:gap-14 lg:py-20">
         <div className="animate-[fade-up_0.6s_ease-out_both]">
           <Badge>
-            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brass-600" />
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-copper-600" />
             {badge}
           </Badge>
           <h1 className="mt-5 font-display text-[38px] font-semibold leading-[1.02] tracking-[-0.02em] text-balance text-green-900 md:text-5xl lg:text-[60px]">

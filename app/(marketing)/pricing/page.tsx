@@ -46,10 +46,10 @@ export default function PricingPage() {
       </Container>
 
       <Container width="narrow" className="pb-14">
-        {/* text-green-900, not text-brass-700 — brass-700 on this bg-brass-100
-            banner only clears 4.16:1 (needs 4.5:1). green-900 on brass-100
-            matches the Badge accent-tone pattern and clears 13.32:1. */}
-        <p className="rounded-card border border-brass-200 bg-brass-100 px-6 py-5 text-center text-[15px] font-semibold text-green-900">
+        {/* green-900 for maximum contrast (~13:1) on this light bg-copper-100
+            wash. copper-700 would also pass here (5.3:1), but green-900 matches
+            the Badge accent-tone / banner text pattern used elsewhere. */}
+        <p className="rounded-card border border-copper-200 bg-copper-100 px-6 py-5 text-center text-[15px] font-semibold text-green-900">
           {pricing.addOnsBanner}
         </p>
       </Container>

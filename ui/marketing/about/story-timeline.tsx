@@ -12,8 +12,8 @@ export function StoryTimeline() {
               key={`${entry.year}-${entry.title}`}
               className="grid grid-cols-1 gap-2 pb-8 md:grid-cols-[80px_1fr] md:gap-6"
             >
-              {/* Deviation D-1: brass-700 for brass text on a white surface. */}
-              <div className="pt-0.5 font-display text-lg font-bold text-brass-700 md:text-right">
+              {/* Deviation D-1: copper-700 for copper text on a white surface. */}
+              <div className="pt-0.5 font-display text-lg font-bold text-copper-700 md:text-right">
                 {entry.year}
               </div>
               <div className="relative border-l-2 border-green-100 pl-6">
