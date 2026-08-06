@@ -121,11 +121,14 @@ export function MobileNav() {
           ))}
           <div className="mt-2 flex flex-col gap-2 border-t border-green-100 pt-4">
             {/*
-              The desktop "Start free" accent button in SiteHeader stays
-              visible at every width (including under `lg`), so it must not
-              be duplicated here — the design system permits exactly one
-              copper (`accent`) button per screen.
+              On mobile, SiteHeader hides its "Start free" accent CTA
+              (`hidden lg:inline-flex`), so this menu hosts the single
+              per-screen accent button (PRD §1.1 rule 3). The hero's accent
+              CTA sits behind this full-screen panel, so only one is visible.
             */}
+            <Button href={headerCtas.signup.href} variant="accent" size="md">
+              {headerCtas.signup.label}
+            </Button>
             <Button href={headerCtas.login.href} variant="secondary" size="md">
               {headerCtas.login.label}
             </Button>

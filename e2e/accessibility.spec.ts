@@ -91,11 +91,13 @@ test('the auto-rotating quote is not a live region', async ({ page }) => {
  *
  * PRD §1.1 rule 3 is "exactly one copper (accent) CTA per screen." The
  * `SiteHeader` (`ui/marketing/site-header.tsx`) renders its own "Start free"
- * accent button, unconditionally, on every route that uses the `(marketing)`
- * layout — nine of the eleven shipped routes. That header CTA is explicitly
- * called out as the sanctioned always-present exception in
- * `ui/marketing/mobile-nav.tsx` ("the desktop 'Start free' accent button ...
- * stays visible at every width ... so it must not be duplicated here").
+ * accent button on every route that uses the `(marketing)` layout — nine of
+ * the eleven shipped routes. It is `hidden lg:inline-flex`: visible in the bar
+ * on desktop, and on mobile it is CSS-hidden while the same single accent CTA
+ * is presented inside the `MobileNav` menu instead. The button stays in the
+ * DOM at every width, so the count-based invariant below (which counts DOM
+ * nodes, hidden included) holds unchanged, and there is never more than one
+ * accent CTA visible in the header region at any viewport.
  *
  * The rule is about CTA *buttons*, not the copper token in general — the
  * design intentionally reuses `bg-copper-600` for small, non-interactive

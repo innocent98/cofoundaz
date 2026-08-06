@@ -54,7 +54,7 @@ describe('MobileNav', () => {
     expect(screen.getByRole('button', { name: /open menu/i })).toHaveFocus()
   })
 
-  it('renders every header link plus the Log in CTA, but not Start free, when open', async () => {
+  it('renders every header link plus the Start free and Log in CTAs when open', async () => {
     const user = userEvent.setup()
     render(<MobileNav />)
     await user.click(screen.getByRole('button', { name: /open menu/i }))
@@ -62,8 +62,9 @@ describe('MobileNav', () => {
     expect(dialog).toHaveTextContent('Product')
     expect(dialog).toHaveTextContent('Pricing')
     expect(dialog).toHaveTextContent('About')
+    // On mobile the header hides its accent CTA, so "Start free" lives here.
+    expect(dialog).toHaveTextContent('Start free')
     expect(dialog).toHaveTextContent('Log in')
-    expect(dialog).not.toHaveTextContent('Start free')
   })
 
   it('moves focus into the panel when opened', async () => {

@@ -67,6 +67,26 @@ Run from `cofoundaz/`:
 Pure client-component render change; no config/runtime/DB impact. Roll back by
 reverting the `createPortal` wrap (restores the inline render — and the bug).
 
+## Follow-up shipped — mobile "Start free" moved into the menu
+
+Same session, same component. On mobile the header bar showed logo + `Start
+free` (accent) + hamburger, which felt cramped. Moved the accent CTA off the
+bar and into the menu for a cleaner, more professional nav.
+
+- `ui/marketing/site-header.tsx` — the `Start free` accent Button is now
+  `hidden lg:inline-flex` (desktop only). It stays in the DOM at every width, so
+  the count-based "one accent CTA in the header" invariant still resolves to 1.
+- `ui/marketing/mobile-nav.tsx` — the menu now renders `Start free` (accent,
+  primary) above `Log in` (secondary). The hero's accent CTA sits behind the
+  full-screen panel, so only one accent CTA is ever visible per mobile viewport
+  (PRD §1.1 rule 3 upheld).
+- Tests — `ui/marketing/mobile-nav.test.tsx` updated (menu now *contains* `Start
+  free`, reversing the old "must not duplicate" assertion); the invariant-doc
+  comment in `e2e/accessibility.spec.ts` updated to describe the hide-on-mobile
+  behavior. `site-header.test.tsx` accent-count (=1) unchanged and still passes.
+- Verified: 188 unit + 98 accessibility e2e green; mobile screenshots confirm a
+  logo+hamburger bar and the accent `Start free` leading the open menu.
+
 ## Follow-ups
 
 - Any future `fixed` overlay rendered under `SiteHeader` (or any
