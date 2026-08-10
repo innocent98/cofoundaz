@@ -12,9 +12,9 @@ describe('Card', () => {
 })
 
 describe('Badge', () => {
-  it('renders the accent tone on brass', () => {
+  it('renders the accent tone on copper', () => {
     render(<Badge tone="accent">Most popular</Badge>)
-    expect(screen.getByText('Most popular').className).toContain('bg-brass-600')
+    expect(screen.getByText('Most popular').className).toContain('bg-copper-600')
   })
 })
 
@@ -43,13 +43,13 @@ describe('SectionHeading', () => {
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
   })
 
-  it('uses AA-safe brass-700 for the eyebrow on light surfaces (deviation D-1)', () => {
+  it('uses AA-safe copper-700 for the eyebrow on light surfaces (deviation D-1)', () => {
     render(<SectionHeading eyebrow="Pricing" title="Simple plans that grow with you." />)
-    expect(screen.getByText('Pricing').className).toContain('text-brass-700')
+    expect(screen.getByText('Pricing').className).toContain('text-copper-700')
   })
 
-  it('uses brass-500 for the eyebrow on dark surfaces', () => {
+  it('uses copper-500 for the eyebrow on dark surfaces', () => {
     render(<SectionHeading tone="dark" eyebrow="How it works" title="One workspace." />)
-    expect(screen.getByText('How it works').className).toContain('text-brass-500')
+    expect(screen.getByText('How it works').className).toContain('text-copper-500')
   })
 })

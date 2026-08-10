@@ -26,7 +26,11 @@ export function SiteHeader() {
           <Button href={headerCtas.login.href} variant="ghost" size="sm" className="hidden lg:inline-flex">
             {headerCtas.login.label}
           </Button>
-          <Button href={headerCtas.signup.href} variant="accent" size="sm">
+          {/* Desktop only: on mobile this accent CTA moves into the MobileNav
+              menu, leaving the bar uncluttered. It stays in the DOM (CSS-hidden)
+              so it remains the single per-screen accent CTA the header is
+              allowed under PRD §1.1 rule 3. */}
+          <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex">
             {headerCtas.signup.label}
           </Button>
           <MobileNav />

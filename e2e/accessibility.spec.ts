@@ -89,20 +89,22 @@ test('the auto-rotating quote is not a live region', async ({ page }) => {
 /**
  * Cross-page design-system invariant sweep (Task 14 addition).
  *
- * PRD §1.1 rule 3 is "exactly one brass (accent) CTA per screen." The
+ * PRD §1.1 rule 3 is "exactly one copper (accent) CTA per screen." The
  * `SiteHeader` (`ui/marketing/site-header.tsx`) renders its own "Start free"
- * accent button, unconditionally, on every route that uses the `(marketing)`
- * layout — nine of the eleven shipped routes. That header CTA is explicitly
- * called out as the sanctioned always-present exception in
- * `ui/marketing/mobile-nav.tsx` ("the desktop 'Start free' accent button ...
- * stays visible at every width ... so it must not be duplicated here").
+ * accent button on every route that uses the `(marketing)` layout — nine of
+ * the eleven shipped routes. It is `hidden lg:inline-flex`: visible in the bar
+ * on desktop, and on mobile it is CSS-hidden while the same single accent CTA
+ * is presented inside the `MobileNav` menu instead. The button stays in the
+ * DOM at every width, so the count-based invariant below (which counts DOM
+ * nodes, hidden included) holds unchanged, and there is never more than one
+ * accent CTA visible in the header region at any viewport.
  *
- * The rule is about CTA *buttons*, not the brass token in general — the
- * design intentionally reuses `bg-brass-600` for small, non-interactive
+ * The rule is about CTA *buttons*, not the copper token in general — the
+ * design intentionally reuses `bg-copper-600` for small, non-interactive
  * decoration (the "Most popular" plan `Badge`, the hero badge's status dot,
  * the `AppFrame`/`ProductShot` mock-illustration accents) under the separate
- * "brass ≤10% of screen" background rule. An early draft of this sweep that
- * matched the bare `.bg-brass-600` class caught those decorative spans too
+ * "copper ≤10% of screen" background rule. An early draft of this sweep that
+ * matched the bare `.bg-copper-600` class caught those decorative spans too
  * (Home and Product both resolved to 4, Pricing to 3). The selectors below
  * are scoped to actual interactive controls — the elements the `Button`
  * component itself renders (an `<a>` when `href` is given, a `<button>`
@@ -123,7 +125,7 @@ const HEADER_ROUTES = new Set(CHROME_ROUTES)
 for (const route of ALL_ROUTES) {
   test(`${route} header renders at most one accent CTA`, async ({ page }) => {
     await page.goto(route)
-    const headerAccentCount = await page.locator('header :is(a, button).bg-brass-600').count()
+    const headerAccentCount = await page.locator('header :is(a, button).bg-copper-600').count()
     expect(headerAccentCount, 'header must never render more than one accent CTA').toBe(
       HEADER_ROUTES.has(route) ? 1 : 0
     )
@@ -152,7 +154,7 @@ for (const viewport of CO_VISIBILITY_VIEWPORTS) {
       // Adding window.scrollY makes this robust even if navigation ever
       // lands mid-scroll (it's 0 right after a fresh goto); rect.top/bottom
       // alone would already be document-space at scroll 0.
-      const boxes = await page.locator('main :is(a, button).bg-brass-600').evaluateAll((els) =>
+      const boxes = await page.locator('main :is(a, button).bg-copper-600').evaluateAll((els) =>
         els.map((el) => {
           const rect = el.getBoundingClientRect()
           return { top: rect.top + window.scrollY, bottom: rect.bottom + window.scrollY }

@@ -80,7 +80,7 @@ const PIPELINE: PipelineColumn[] = [
   {
     name: 'Negotiation',
     count: 1,
-    deals: [{ company: 'GigPay HR', value: '₦12.0M', edgeClassName: 'border-l-brass-600' }],
+    deals: [{ company: 'GigPay HR', value: '₦12.0M', edgeClassName: 'border-l-copper-600' }],
   },
   {
     name: 'Won',
@@ -103,13 +103,11 @@ const INVESTORS: Investor[] = [
     name: 'Adia Holdings',
     check: '$50k angel',
     stage: 'Diligence',
-    // brass-700 (the AA-safe brass-on-white text color, D-1) measures only
-    // 4.16:1 against this bg-brass-100 pill — a different surface than the
-    // white one D-1 verified. green-900 on brass-100 is the pattern already
-    // used by Badge's accent tone (bg-brass-600 text-green-900) and clears
-    // 13.32:1 here.
+    // green-900 on this bg-copper-100 pill for maximum contrast (~13:1) at the
+    // smallest pill size. copper-700 would also pass here now (5.3:1); green-900
+    // matches the light-wash text pattern used on the pricing add-ons banner.
     fgClassName: 'text-green-900',
-    bgClassName: 'bg-brass-100',
+    bgClassName: 'bg-copper-100',
   },
   {
     initials: 'SF',
@@ -183,7 +181,7 @@ function OverviewPanel() {
               <span className="text-xs text-sage-900">Runway tightening, revenue flat 2 months</span>
             </div>
             <div className="mt-2 flex items-center gap-2">
-              <span className="h-[7px] w-[7px] rounded-full bg-brass-600" />
+              <span className="h-[7px] w-[7px] rounded-full bg-copper-600" />
               <span className="text-xs text-sage-900">Compliance filing due in 9 days</span>
             </div>
           </div>
@@ -191,7 +189,7 @@ function OverviewPanel() {
       </div>
 
       <div className="mt-3 flex items-center gap-2.5 rounded-card bg-green-900 px-3.5 py-3">
-        <span className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-brass-600 text-[13px] font-bold text-green-900">
+        <span className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-copper-600 text-[13px] font-bold text-white">
           ✦
         </span>
         <span className="text-xs text-green-100">
@@ -209,10 +207,9 @@ function BuildPanel() {
         <div className="font-display text-base font-semibold text-green-900">
           Business Model Canvas
         </div>
-        {/* text-green-900, not text-brass-700 — see the Diligence badge
-            comment above the INVESTORS array: brass-700 on bg-brass-100 only
-            clears 4.16:1. */}
-        <span className="rounded-pill border border-brass-200 bg-brass-100 px-2 py-1 text-[10px] font-bold text-green-900">
+        {/* green-900 on bg-copper-100 for maximum contrast at 10px — see the
+            Diligence badge comment above the INVESTORS array. */}
+        <span className="rounded-pill border border-copper-200 bg-copper-100 px-2 py-1 text-[10px] font-bold text-green-900">
           ✦ AI draft
         </span>
       </div>
@@ -339,7 +336,7 @@ function ResourcesPanel() {
               </div>
             </div>
             <div className="mt-[11px] flex items-center justify-between">
-              <span className="text-[10.5px] font-semibold text-brass-700">★ {expert.rating}</span>
+              <span className="text-[10.5px] font-semibold text-copper-700">★ {expert.rating}</span>
               <span className="rounded-pill bg-green-100 px-[7px] py-[3px] text-[10px] font-bold text-green-700">
                 Vetted
               </span>
@@ -378,7 +375,7 @@ export function AppFrame({
       <div className="grid h-[400px] grid-cols-[52px_1fr]">
         <div className="flex flex-col items-center gap-3 bg-green-900 py-3.5">
           <span className="flex h-[26px] w-[26px] items-center justify-center rounded-input bg-green-700">
-            <span className="h-[11px] w-[11px] rounded-full border-2 border-brass-500 border-r-transparent" />
+            <span className="h-[11px] w-[11px] rounded-full border-2 border-copper-500 border-r-transparent" />
           </span>
           {RAIL_ITEMS.map((item) => {
             const active = item.variant === variant
@@ -387,7 +384,7 @@ export function AppFrame({
                 key={item.variant}
                 className={cn(
                   'flex h-7 w-7 items-center justify-center rounded-input text-[13px]',
-                  active ? 'bg-green-700 text-brass-500' : 'bg-white/[0.07] text-green-300'
+                  active ? 'bg-green-700 text-copper-500' : 'bg-white/[0.07] text-green-300'
                 )}
               >
                 {item.glyph}

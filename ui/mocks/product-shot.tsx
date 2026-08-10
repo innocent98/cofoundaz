@@ -21,7 +21,7 @@ export function ProductShot({ className }: { className?: string }) {
       <div className="grid grid-cols-[52px_1fr]">
         <div className="flex flex-col items-center gap-3.5 bg-green-900 py-3.5">
           <span className="flex h-[26px] w-[26px] items-center justify-center rounded-input bg-green-700">
-            <span className="h-[11px] w-[11px] rounded-full border-2 border-brass-500 border-r-transparent" />
+            <span className="h-[11px] w-[11px] rounded-full border-2 border-copper-500 border-r-transparent" />
           </span>
           <span className="h-[26px] w-[26px] rounded-[7px] bg-green-700" />
           <span className="h-[26px] w-[26px] rounded-[7px] bg-white/10" />
@@ -93,7 +93,7 @@ export function ProductShot({ className }: { className?: string }) {
           </div>
 
           <div className="mt-3 flex items-center gap-2.5 rounded-card bg-green-900 px-3.5 py-3">
-            <span className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-brass-600 text-[13px] font-bold text-green-900">✦</span>
+            <span className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-copper-600 text-[13px] font-bold text-white">✦</span>
             <span className="text-xs text-green-100">
               Your riskiest untested assumption is pricing. Want an experiment for it?
             </span>

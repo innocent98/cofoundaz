@@ -9,7 +9,7 @@ export function SecurityStrip() {
           <div>
             <div
               aria-hidden="true"
-              className="flex h-12 w-12 items-center justify-center rounded-modal bg-green-700 text-[22px] text-brass-500"
+              className="flex h-12 w-12 items-center justify-center rounded-modal bg-green-700 text-[22px] text-copper-500"
             >
               🛡
             </div>

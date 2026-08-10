@@ -24,8 +24,9 @@ export function SectionHeading({
         <span
           className={cn(
             'text-xs font-semibold uppercase tracking-[0.08em]',
-            // Deviation D-1: brass-600 on white is 3.31:1 and fails AA.
-            isDark ? 'text-brass-500' : 'text-brass-700'
+            // copper-700 is the on-light text token (6.25:1 on white). copper-500
+            // is the light accent for eyebrows on dark green (5.96:1 on green-900).
+            isDark ? 'text-copper-500' : 'text-copper-700'
           )}
         >
           {eyebrow}

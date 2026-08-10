@@ -21,7 +21,7 @@ export function Logo({
         <span
           className={cn(
             'h-[13px] w-[13px] rounded-full border-[2.5px] border-r-transparent',
-            isDark ? 'border-brass-600' : 'border-brass-500'
+            isDark ? 'border-copper-600' : 'border-copper-500'
           )}
         />
       </span>

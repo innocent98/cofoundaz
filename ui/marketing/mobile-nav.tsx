@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/ui/primitives'
@@ -95,12 +96,18 @@ export function MobileNav() {
         </span>
       </button>
 
-      {open ? (
+      {open
+        ? createPortal(
         <div
           ref={panelRef}
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
+          // Portaled to <body>: the SiteHeader has `backdrop-blur`, which makes
+          // it the containing block for `position: fixed` descendants — a panel
+          // rendered inside the header would size against the 72px header box,
+          // not the viewport, collapsing `bottom-0` to a sliver. Rendering into
+          // <body> restores viewport-relative fixed positioning.
           className="fixed inset-x-0 top-[72px] bottom-0 z-40 flex flex-col gap-2 border-t border-green-100 bg-white p-4 lg:hidden"
         >
           {headerLinks.map((link) => (
@@ -114,17 +121,22 @@ export function MobileNav() {
           ))}
           <div className="mt-2 flex flex-col gap-2 border-t border-green-100 pt-4">
             {/*
-              The desktop "Start free" accent button in SiteHeader stays
-              visible at every width (including under `lg`), so it must not
-              be duplicated here — the design system permits exactly one
-              brass (`accent`) button per screen.
+              On mobile, SiteHeader hides its "Start free" accent CTA
+              (`hidden lg:inline-flex`), so this menu hosts the single
+              per-screen accent button (PRD §1.1 rule 3). The hero's accent
+              CTA sits behind this full-screen panel, so only one is visible.
             */}
+            <Button href={headerCtas.signup.href} variant="accent" size="md">
+              {headerCtas.signup.label}
+            </Button>
             <Button href={headerCtas.login.href} variant="secondary" size="md">
               {headerCtas.login.label}
             </Button>
           </div>
-        </div>
-      ) : null}
+        </div>,
+            document.body
+          )
+        : null}
     </>
   )
 }

@@ -5,11 +5,11 @@ type Variant = 'accent' | 'primary' | 'secondary' | 'ghost' | 'onDark'
 type Size = 'sm' | 'md' | 'lg'
 
 /**
- * PRD §1.1 rule 3: exactly one `accent` (brass) button per screen. All other
+ * PRD §1.1 rule 3: exactly one `accent` (copper) button per screen. All other
  * actions use `primary`, `secondary`, `ghost`, or `onDark`.
  */
 const VARIANTS: Record<Variant, string> = {
-  accent: 'bg-brass-600 text-green-900 font-bold hover:bg-brass-500 shadow-card',
+  accent: 'bg-copper-600 text-white font-bold hover:bg-copper-700 shadow-card',
   primary: 'bg-green-700 text-white font-semibold hover:bg-green-600',
   secondary:
     'bg-white text-green-700 font-semibold border border-sage-300 hover:bg-green-50',

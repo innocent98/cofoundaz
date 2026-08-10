@@ -11,7 +11,7 @@ export function EveryPlanBand() {
         <ul className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
           {pricing.everyPlan.items.map((item) => (
             <li key={item} className="flex gap-2.5 text-sm leading-[1.5] text-green-100">
-              <span aria-hidden="true" className="flex-none font-bold text-brass-500">
+              <span aria-hidden="true" className="flex-none font-bold text-copper-500">
                 ✓
               </span>
               <span className="sr-only">Included: </span>

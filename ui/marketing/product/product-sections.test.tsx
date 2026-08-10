@@ -48,9 +48,9 @@ describe('HubSection', () => {
     expect(screen.getByText(group.metric)).toBeInTheDocument()
   })
 
-  it('uses AA-safe brass-700 for the kicker on a light surface', () => {
+  it('uses AA-safe copper-700 for the kicker on a light surface', () => {
     render(<HubSection group={product.hubGroups[0]} index={0} />)
-    expect(screen.getByText('Overview').className).toContain('text-brass-700')
+    expect(screen.getByText('Overview').className).toContain('text-copper-700')
   })
 
   it('alternates the lg column order per index, across every hub group', () => {

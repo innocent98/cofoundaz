@@ -120,7 +120,7 @@ export function TestimonialCarousel() {
                   aria-hidden="true"
                   className={cn(
                     'h-2 w-2 rounded-full transition-colors',
-                    i === index ? 'bg-brass-500' : 'bg-white/25'
+                    i === index ? 'bg-copper-500' : 'bg-white/25'
                   )}
                 />
               </button>

@@ -56,7 +56,7 @@ export function PricingCard({ plan }: { plan: Plan }) {
             key={feature}
             className={cn('flex gap-2.5 text-sm leading-[1.45]', dark ? 'text-green-100' : 'text-sage-700')}
           >
-            <span aria-hidden="true" className={cn('flex-none font-bold', dark ? 'text-brass-500' : 'text-green-600')}>
+            <span aria-hidden="true" className={cn('flex-none font-bold', dark ? 'text-copper-500' : 'text-green-600')}>
               ✓
             </span>
             {feature}

@@ -6,7 +6,9 @@ export function ProductHero() {
   return (
     <section className="bg-green-900">
       <Container className="py-16 text-center md:py-20">
-        <SectionHeading as="h1" tone="dark" eyebrow={eyebrow} title={title} className="mx-auto max-w-[18ch]" />
+        {/* Cap line length on the h1 itself — `ch` on the wrapper measures the
+            inherited body font, collapsing the display heading to one word per line. */}
+        <SectionHeading as="h1" tone="dark" eyebrow={eyebrow} title={title} className="[&_h1]:mx-auto [&_h1]:max-w-[18ch]" />
         <p className="mx-auto mt-5 max-w-[62ch] text-base leading-relaxed text-green-200 md:text-[19px]">
           {subtitle}
         </p>

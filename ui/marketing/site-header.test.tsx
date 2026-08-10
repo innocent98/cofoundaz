@@ -24,16 +24,16 @@ describe('SiteHeader', () => {
     expect(screen.queryByText('Resources')).not.toBeInTheDocument()
   })
 
-  it('renders exactly one brass CTA, per PRD §1.1 rule 3', () => {
+  it('renders exactly one copper CTA, per PRD §1.1 rule 3', () => {
     const { container } = render(<SiteHeader />)
-    expect(container.querySelectorAll('.bg-brass-600')).toHaveLength(1)
+    expect(container.querySelectorAll('.bg-copper-600')).toHaveLength(1)
   })
 
-  it('keeps exactly one brass CTA even with the mobile panel open', async () => {
+  it('keeps exactly one copper CTA even with the mobile panel open', async () => {
     const user = userEvent.setup()
     const { container } = render(<SiteHeader />)
     await user.click(screen.getByRole('button', { name: /open menu/i }))
-    expect(container.querySelectorAll('.bg-brass-600')).toHaveLength(1)
+    expect(container.querySelectorAll('.bg-copper-600')).toHaveLength(1)
   })
 
   it('sends the home link to /', () => {

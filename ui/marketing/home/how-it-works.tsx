@@ -12,7 +12,7 @@ export function HowItWorks() {
             <div key={step.number} className="rounded-[14px] border border-green-700 bg-green-800 p-8">
               <div
                 aria-hidden="true"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-brass-500 font-display text-xl font-bold text-green-900"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-copper-500 font-display text-xl font-bold text-green-900"
               >
                 {step.number}
               </div>
