@@ -13,7 +13,7 @@ const testimonials = [
   },
   {
     quote: "“The daily mission is the first thing I open. Small wins, every day, and the Health Score kept climbing.”",
-    initials: "Dk",
+    initials: "DK",
     name: "Daniel Kariuki",
     role: "Shamba, agri-logistics",
   },
@@ -28,11 +28,11 @@ const testimonials = [
 function MarketingHomePage() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Auto-rotate testimonials every 2 seconds
+  // Auto-rotate testimonials every 3 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 2000);
+    }, 3000);
 
     return () => clearInterval(timer);
   }, []);
@@ -40,7 +40,7 @@ function MarketingHomePage() {
   const currentTestimonial = testimonials[currentIndex];
 
   return (
-    <div className="min-h-screen bg-[#F2F6F3] text-[#12291F] font-sans">
+    <div className="min-h-screen bg-[#F2F6F3] text-[#12291F] font-sans scroll-smooth">
       <Navbar />
 
       {/* 1. HERO SECTION */}
@@ -310,7 +310,7 @@ function MarketingHomePage() {
         </div>
       </section>
 
-      {/* 4. EVERYTHING CONNECTED SECTION */}
+      {/* 4. EVERYTHING CONNECTED (PRODUCT) SECTION */}
       <section id="product" className="bg-white py-24 px-2 sm:px-4 lg:px-6 border-t border-[#E3EBE7]">
         <div className="max-w-[1440px] mx-auto text-center">
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-4xl font-semibold text-[#12291F] tracking-tight leading-snug max-w-3xl mx-auto">
@@ -477,8 +477,8 @@ function MarketingHomePage() {
         </div>
       </section>
 
-      {/* 6. DATA PRIVACY & SECURITY SECTION */}
-      <section className="bg-[#F2F6F3] py-16 px-4 sm:px-6 lg:px-8 border-t border-[#E3EBE7]">
+      {/* 6. DATA PRIVACY & SECURITY SECTION (ABOUT) */}
+      <section id="about" className="bg-[#F2F6F3] py-16 px-4 sm:px-6 lg:px-8 border-t border-[#E3EBE7]">
         <div className="max-w-[1440px] mx-auto">
           <div className="bg-[#EAF0EC] border border-[#D5E0DA] rounded-2xl p-8 lg:p-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -592,8 +592,7 @@ function MarketingHomePage() {
               <ul className="space-y-2.5 text-sm text-[#8BA89B]">
                 <li><a href="#product" className="hover:text-white transition-colors">Overview</a></li>
                 <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#how-it-works" className="hover:text-white transition-colors">How it Works</a></li>
               </ul>
             </div>
 
@@ -603,9 +602,9 @@ function MarketingHomePage() {
                 COMPANY
               </span>
               <ul className="space-y-2.5 text-sm text-[#8BA89B]">
-                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
+                <li><a href="#about" className="hover:text-white transition-colors">About</a></li>
+                <li><a href="mailto:support@cofoundaz.com" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="#about" className="hover:text-white transition-colors">Security</a></li>
               </ul>
             </div>
 

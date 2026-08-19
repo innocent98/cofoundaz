@@ -25,7 +25,7 @@ export default function MarketingNavbar() {
       {/* Container with minimal horizontal padding (px-2 on mobile, px-4/px-6 on desktop) */}
       <div className="w-full max-w-(--breakpoint-2xl) mx-auto px-2 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-20">
-          
+
           {/* Logo + Navigation Links Group */}
           <div className="flex items-center gap-8 md:gap-12">
             {/* Logo */}
@@ -40,18 +40,18 @@ export default function MarketingNavbar() {
 
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center space-x-7">
-              <Link
-                href="/#product"
+              <a
+                href="#product"
                 className="text-[#33413B] hover:text-[#12291F] transition-colors text-[15px] font-normal"
               >
                 Product
-              </Link>
-              <Link
-                href="/pricing"
+              </a>
+              <a
+                href="#pricing"
                 className="text-[#33413B] hover:text-[#12291F] transition-colors text-[15px] font-normal"
               >
                 Pricing
-              </Link>
+              </a>
 
               {/* Resources Dropdown */}
               <div className="relative">
@@ -75,28 +75,28 @@ export default function MarketingNavbar() {
 
                 {resourcesOpen && (
                   <div className="absolute top-full left-0 mt-2 w-48 rounded-lg bg-white shadow-lg border border-gray-100 py-2 z-50">
-                    <Link
-                      href="/blog"
+                    <a
+                      href="#blog"
                       className="block px-4 py-2 text-sm text-[#33413B] hover:bg-gray-50 hover:text-[#12291F]"
                     >
                       Blog
-                    </Link>
-                    <Link
-                      href="/guides"
+                    </a>
+                    <a
+                      href="#guides"
                       className="block px-4 py-2 text-sm text-[#33413B] hover:bg-gray-50 hover:text-[#12291F]"
                     >
                       Guides & Tools
-                    </Link>
+                    </a>
                   </div>
                 )}
               </div>
 
-              <Link
-                href="/about"
+              <a
+                href="#about"
                 className="text-[#33413B] hover:text-[#12291F] transition-colors text-[15px] font-normal"
               >
                 About
-              </Link>
+              </a>
             </nav>
           </div>
 
@@ -108,7 +108,7 @@ export default function MarketingNavbar() {
             >
               Log in
             </Link>
-            
+
             <Link
               href="/signup"
               className="bg-[#A88746] hover:bg-[#96773B] text-[#12291F] font-semibold text-[15px] px-5 py-2.5 rounded-xl shadow-xs transition-all active:scale-[0.98]"
@@ -141,27 +141,27 @@ export default function MarketingNavbar() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-gray-100 px-4 pt-2 pb-6 space-y-3">
-          <Link
-            href="/#product"
+          <a
+            href="#product"
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#33413B] hover:text-[#12291F] py-2 text-base font-normal"
           >
             Product
-          </Link>
-          <Link
-            href="/pricing"
+          </a>
+          <a
+            href="#pricing"
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#33413B] hover:text-[#12291F] py-2 text-base font-normal"
           >
             Pricing
-          </Link>
-          <Link
-            href="/about"
+          </a>
+          <a
+            href="#about"
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#33413B] hover:text-[#12291F] py-2 text-base font-normal"
           >
             About
-          </Link>
+          </a>
           <div className="pt-4 border-t border-gray-100 space-y-3">
             <Link
               href="/login"
