@@ -196,7 +196,7 @@ export default function LegalComplianceApp() {
                 </span>
               </button>
 
-              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1 cursor-pointer">
+              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1 cursor-pointer">
                 <UserPlus className="w-4 h-4" />
                 <span>+ Invite</span>
               </button>
@@ -480,7 +480,7 @@ export default function LegalComplianceApp() {
                     </button>
                     <button
                       onClick={handleAcceptAndContinue}
-                      className="flex-1 bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold py-3 px-4 rounded-card text-sm transition-colors cursor-pointer text-center"
+                      className="flex-1 bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold py-3 px-4 rounded-card text-sm transition-colors cursor-pointer text-center"
                     >
                       Accept & continue
                     </button>
@@ -501,7 +501,7 @@ export default function LegalComplianceApp() {
                 <h1 className="text-3xl font-display font-semibold text-sage-900">IP tracker</h1>
                 <button
                   onClick={handleAddAsset}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-card"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-card"
                 >
                   <span>+ Add asset</span>
                 </button>
@@ -589,7 +589,7 @@ export default function LegalComplianceApp() {
                 <h1 className="text-3xl font-display font-semibold text-sage-900">Legal advisor requests</h1>
                 <button
                   onClick={handleNewRequestButton}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-card"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-card"
                 >
                   <span>+ New request</span>
                 </button>

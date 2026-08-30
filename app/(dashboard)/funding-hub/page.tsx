@@ -299,7 +299,7 @@ export default function FundingHubApp() {
                 </span>
               </button>
 
-              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1 cursor-pointer">
+              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1 cursor-pointer">
                 <UserPlus className="w-4 h-4" />
                 <span>+ Invite</span>
               </button>
@@ -446,7 +446,7 @@ export default function FundingHubApp() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold py-3.5 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-card"
+                    className="flex-1 bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold py-3.5 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-card"
                   >
                     Send invite
                   </button>
@@ -523,7 +523,7 @@ export default function FundingHubApp() {
                 <h1 className="text-3xl font-display font-semibold text-sage-900">Data room</h1>
                 <button
                   onClick={handleShareDataRoomClick}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-card"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-card"
                 >
                   <span>Share data room</span>
                 </button>
@@ -667,7 +667,7 @@ export default function FundingHubApp() {
 
                     <button
                       onClick={handleSaveScenario}
-                      className="w-full bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold py-3 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-card"
+                      className="w-full bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold py-3 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-card"
                     >
                       Save as scenario
                     </button>
@@ -712,7 +712,7 @@ export default function FundingHubApp() {
                         <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                           <button
                             onClick={() => handleStartApplication(grant.title)}
-                            className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2.5 rounded-card text-xs md:text-sm transition-colors cursor-pointer shadow-card flex-1 md:flex-none text-center"
+                            className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-4 py-2.5 rounded-card text-xs md:text-sm transition-colors cursor-pointer shadow-card flex-1 md:flex-none text-center"
                           >
                             Start application
                           </button>

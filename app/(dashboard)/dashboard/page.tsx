@@ -429,7 +429,7 @@ export default function DashboardPage() {
               <button
                 type="button"
                 onClick={handleBriefingDoIt}
-                className="flex-1 bg-[#D89A6E] hover:bg-[#9C5B34] text-[#0F291E] text-sm font-bold py-3 rounded-card transition-colors text-center cursor-pointer"
+                className="flex-1 bg-[#D89A6E] hover:bg-[#9C5B34] text-white text-sm font-bold py-3 rounded-card transition-colors text-center cursor-pointer"
               >
                 Do it
               </button>
@@ -973,7 +973,7 @@ export default function DashboardPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-sage-100 bg-white">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-[#9C5B34] rounded-modal text-[#0F291E] flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 bg-[#9C5B34] rounded-modal text-white flex items-center justify-center shrink-0">
                   <Sparkles className="w-5 h-5 fill-[#0F291E]" />
                 </div>
                 <div>

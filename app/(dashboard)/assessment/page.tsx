@@ -240,7 +240,7 @@ export default function ValidationHub() {
                 </span>
               </button>
 
-              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1">
+              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1">
                 <span>+ Invite</span>
               </button>
             </div>
@@ -434,7 +434,7 @@ export default function ValidationHub() {
                       setActiveSubTab("Take assessment");
                       if (assessmentStep === 0) setAssessmentStep(1);
                     }}
-                    className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-6 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card"
+                    className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-6 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card"
                   >
                     Resume
                   </button>
@@ -462,7 +462,7 @@ export default function ValidationHub() {
                   <div className="pt-2">
                     <button
                       onClick={() => setAssessmentStep(1)}
-                      className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-8 py-3 rounded-card text-sm transition-all cursor-pointer shadow-card"
+                      className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-8 py-3 rounded-card text-sm transition-all cursor-pointer shadow-card"
                     >
                       Begin
                     </button>
@@ -511,7 +511,7 @@ export default function ValidationHub() {
                           window.location.href = "/dashboard";
                         }, 1000);
                       }}
-                      className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-8 py-3 rounded-card text-sm transition-all cursor-pointer shadow-card"
+                      className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-8 py-3 rounded-card text-sm transition-all cursor-pointer shadow-card"
                     >
                       See my dashboard
                     </button>
@@ -671,7 +671,7 @@ export default function ValidationHub() {
 
                     <button
                       onClick={handleNextQuestion}
-                      className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-6 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card"
+                      className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-6 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card"
                     >
                       {assessmentStep === assessmentQuestions.length ? "Finish" : "Continue"}
                     </button>

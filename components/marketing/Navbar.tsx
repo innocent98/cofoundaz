@@ -111,7 +111,7 @@ export default function MarketingNavbar() {
 
             <Link
               href="/signup"
-              className="bg-[#9C5B34] hover:bg-[#8A5330] text-[#12291F] font-semibold text-[15px] px-5 py-2.5 rounded-card shadow-card transition-all active:scale-[0.98]"
+              className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold text-[15px] px-5 py-2.5 rounded-card shadow-card transition-all active:scale-[0.98]"
             >
               Start free
             </Link>
@@ -173,7 +173,7 @@ export default function MarketingNavbar() {
             <Link
               href="/signup"
               onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center bg-[#9C5B34] text-[#12291F] font-semibold py-2.5 rounded-card shadow-card"
+              className="block w-full text-center bg-[#9C5B34] text-white font-semibold py-2.5 rounded-card shadow-card"
             >
               Start free
             </Link>

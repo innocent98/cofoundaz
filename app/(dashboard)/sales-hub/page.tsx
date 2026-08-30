@@ -289,7 +289,7 @@ export default function SalesHub() {
                 </span>
               </button>
 
-              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1">
+              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1">
                 <span>+ Invite</span>
               </button>
             </div>
@@ -427,7 +427,7 @@ export default function SalesHub() {
                   </button>
                   <button
                     onClick={() => showToastMsg("Quick-add lead opened.")}
-                    className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2 rounded-card text-sm transition-colors cursor-pointer shadow-card"
+                    className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-4 py-2 rounded-card text-sm transition-colors cursor-pointer shadow-card"
                   >
                     + Add lead
                   </button>
@@ -749,7 +749,7 @@ export default function SalesHub() {
 
                       <button
                         onClick={() => setRolePlayState("chat")}
-                        className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-5 py-2.5 rounded-card text-sm transition-colors cursor-pointer shadow-card"
+                        className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-colors cursor-pointer shadow-card"
                       >
                         Start role-play
                       </button>
@@ -829,7 +829,7 @@ export default function SalesHub() {
                             setRolePlayState("setup");
                             setChatMessages(["Honestly, I am not sure my riders will trust an app to hold their money. Convince me."]);
                           }}
-                          className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-5 py-2.5 rounded-card text-sm transition-colors cursor-pointer shadow-card"
+                          className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-colors cursor-pointer shadow-card"
                         >
                           Practice this again
                         </button>

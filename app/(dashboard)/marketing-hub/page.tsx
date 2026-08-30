@@ -361,7 +361,7 @@ export default function MarketingHub() {
 
               <div className="bg-[#0e271f] rounded-modal p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-white shadow-card">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-card bg-[#9C5B34] text-[#1c180e] flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                  <div className="w-10 h-10 rounded-card bg-[#9C5B34] text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
                     ✦
                   </div>
                   <div className="space-y-1">
@@ -379,7 +379,7 @@ export default function MarketingHub() {
                     setActiveTab("AI Copy");
                     setHasGenerated(false);
                   }}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-5 py-2.5 rounded-card text-sm transition-all cursor-pointer whitespace-nowrap shadow-card"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-all cursor-pointer whitespace-nowrap shadow-card"
                 >
                   Draft it
                 </button>
@@ -416,7 +416,7 @@ export default function MarketingHub() {
 
                 <button
                   onClick={() => showToastMsg("AI proposed a 7-day starter calendar.")}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-5 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card flex items-center gap-2 self-start md:self-auto"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card flex items-center gap-2 self-start md:self-auto"
                 >
                   <span>✦</span>
                   <span>Plan my first week</span>
@@ -505,7 +505,7 @@ export default function MarketingHub() {
 
                 <button
                   onClick={() => showToastMsg("New campaign wizard opened.")}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-5 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card flex items-center gap-2 self-start md:self-auto"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card flex items-center gap-2 self-start md:self-auto"
                 >
                   <span>+ New campaign</span>
                 </button>
@@ -554,7 +554,7 @@ export default function MarketingHub() {
               </div>
 
               <div className="bg-[#0e271f] rounded-modal p-5 md:p-6 flex items-center gap-4 text-white shadow-card">
-                <div className="w-9 h-9 rounded-card bg-[#9C5B34] text-[#1c180e] flex items-center justify-center font-bold flex-shrink-0">
+                <div className="w-9 h-9 rounded-card bg-[#9C5B34] text-white flex items-center justify-center font-bold flex-shrink-0">
                   ✦
                 </div>
                 <p className="text-sm text-sage-200 leading-relaxed">
@@ -686,7 +686,7 @@ export default function MarketingHub() {
                       setHasGenerated(true);
                       showToastMsg("AI Copy generated successfully!");
                     }}
-                    className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-6 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card"
+                    className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-6 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card"
                   >
                     Generate copy
                   </button>
@@ -769,7 +769,7 @@ export default function MarketingHub() {
                       </div>
 
                       <div className="bg-[#f2f6f4] rounded-card p-3.5 flex items-start gap-3 border border-[#e4ece7]">
-                        <div className="w-5 h-5 rounded-[6px] bg-[#9C5B34] text-[#1c180e] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                        <div className="w-5 h-5 rounded-[6px] bg-[#9C5B34] text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                           ✦
                         </div>
                         <p className="text-xs md:text-sm text-[#1e382c] font-medium leading-relaxed">
@@ -840,7 +840,7 @@ export default function MarketingHub() {
 
                 <button
                   onClick={() => showToastMsg("New segment builder opened.")}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-5 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card flex items-center gap-2 self-start md:self-auto"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card flex items-center gap-2 self-start md:self-auto"
                 >
                   <span>+ New segment</span>
                 </button>

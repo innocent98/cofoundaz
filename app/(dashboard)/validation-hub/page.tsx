@@ -360,7 +360,7 @@ export default function ValidationHub() {
                 </span>
               </button>
 
-              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1">
+              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1">
                 <span>+ Invite</span>
               </button>
             </div>
@@ -447,7 +447,7 @@ export default function ValidationHub() {
 
               <div className="bg-[#0e271f] text-white rounded-modal p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
                 <div className="flex items-start md:items-center gap-3 md:gap-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-card bg-[#9C5B34] text-[#1c180e] flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-card bg-[#9C5B34] text-white flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
                     </svg>
@@ -464,7 +464,7 @@ export default function ValidationHub() {
 
                 <button
                   onClick={triggerExperimentToast}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2 md:px-5 md:py-2.5 rounded-card text-xs md:text-sm transition-all shrink-0 self-start md:self-auto cursor-pointer"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-4 py-2 md:px-5 md:py-2.5 rounded-card text-xs md:text-sm transition-all shrink-0 self-start md:self-auto cursor-pointer"
                 >
                   Design experiment
                 </button>
@@ -483,7 +483,7 @@ export default function ValidationHub() {
                 <button
                   onClick={handleSynthesizeInsights}
                   disabled={mvpViewState === "loading"}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2.5 rounded-card text-xs md:text-sm transition-all flex items-center gap-2 cursor-pointer shadow-card disabled:opacity-75"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-4 py-2.5 rounded-card text-xs md:text-sm transition-all flex items-center gap-2 cursor-pointer shadow-card disabled:opacity-75"
                 >
                   <span>✦ Synthesize insights</span>
                 </button>
@@ -762,7 +762,7 @@ export default function ValidationHub() {
 
                     <button
                       onClick={handleSaveInterviewNote}
-                      className="w-full bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold py-3 rounded-card text-sm transition-all cursor-pointer shadow-card mt-2"
+                      className="w-full bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold py-3 rounded-card text-sm transition-all cursor-pointer shadow-card mt-2"
                     >
                       Save note
                     </button>
@@ -864,7 +864,7 @@ export default function ValidationHub() {
 
                     <button
                       onClick={() => setIsScriptGenerated(true)}
-                      className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-5 py-3 rounded-card text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-card whitespace-nowrap"
+                      className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-5 py-3 rounded-card text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-card whitespace-nowrap"
                     >
                       <span>✦ Generate script</span>
                     </button>
@@ -925,7 +925,7 @@ export default function ValidationHub() {
             <div className="space-y-6">
               <div className="bg-[#0e271f] text-white rounded-modal p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
                 <div className="flex items-start md:items-center gap-3 md:gap-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-card bg-[#9C5B34] text-[#1c180e] flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-card bg-[#9C5B34] text-white flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
                     </svg>
@@ -943,7 +943,7 @@ export default function ValidationHub() {
 
                 <button
                   onClick={triggerExperimentToast}
-                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2 md:px-5 md:py-2.5 rounded-card text-xs md:text-sm transition-all shrink-0 self-start md:self-auto cursor-pointer"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-white font-semibold px-4 py-2 md:px-5 md:py-2.5 rounded-card text-xs md:text-sm transition-all shrink-0 self-start md:self-auto cursor-pointer"
                 >
                   Design experiment
                 </button>

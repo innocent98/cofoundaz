@@ -64,7 +64,7 @@ function MarketingHomePage() {
             <div className="pt-2 flex flex-col md:flex-row items-stretch md:items-center gap-4">
               <Link
                 href="/signup"
-                className="bg-[#9C5B34] hover:bg-[#8A5330] text-[#12291F] font-semibold text-base px-7 py-3.5 rounded-card shadow-card transition-all text-center"
+                className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold text-base px-7 py-3.5 rounded-card shadow-card transition-all text-center"
               >
                 Start free
               </Link>
@@ -267,7 +267,7 @@ function MarketingHomePage() {
           <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-left">
             <div className="bg-[#1B382C] p-8 rounded-modal border border-[#234738] flex flex-col justify-between hover:border-[#2D5A47] transition-colors">
               <div>
-                <div className="w-10 h-10 rounded-full bg-[#9C5B34] text-[#12291F] font-bold text-base flex items-center justify-center mb-6">
+                <div className="w-10 h-10 rounded-full bg-[#9C5B34] text-white font-bold text-base flex items-center justify-center mb-6">
                   1
                 </div>
                 <h3 className="font-body text-xl font-bold text-white tracking-tight">
@@ -281,7 +281,7 @@ function MarketingHomePage() {
 
             <div className="bg-[#1B382C] p-8 rounded-modal border border-[#234738] flex flex-col justify-between hover:border-[#2D5A47] transition-colors">
               <div>
-                <div className="w-10 h-10 rounded-full bg-[#9C5B34] text-[#12291F] font-bold text-base flex items-center justify-center mb-6">
+                <div className="w-10 h-10 rounded-full bg-[#9C5B34] text-white font-bold text-base flex items-center justify-center mb-6">
                   2
                 </div>
                 <h3 className="font-body text-xl font-bold text-white tracking-tight">
@@ -295,7 +295,7 @@ function MarketingHomePage() {
 
             <div className="bg-[#1B382C] p-8 rounded-modal border border-[#234738] flex flex-col justify-between hover:border-[#2D5A47] transition-colors">
               <div>
-                <div className="w-10 h-10 rounded-full bg-[#9C5B34] text-[#12291F] font-bold text-base flex items-center justify-center mb-6">
+                <div className="w-10 h-10 rounded-full bg-[#9C5B34] text-white font-bold text-base flex items-center justify-center mb-6">
                   3
                 </div>
                 <h3 className="font-body text-xl font-bold text-white tracking-tight">
@@ -552,7 +552,7 @@ function MarketingHomePage() {
           <div className="pt-2">
             <Link
               href="/signup"
-              className="inline-block bg-[#9C5B34] hover:bg-[#8A5330] text-[#12291F] font-semibold text-base px-8 py-3.5 rounded-card shadow-card transition-all"
+              className="inline-block bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold text-base px-8 py-3.5 rounded-card shadow-card transition-all"
             >
               Start free
             </Link>
