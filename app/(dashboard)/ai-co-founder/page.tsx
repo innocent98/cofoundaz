@@ -465,7 +465,10 @@ export default function AICoFounderPage() {
     </button>
 
     {/* Desktop Breadcrumbs */}
-    <div className="hidden lg:flex items-center gap-2 text-base md:text-lg font-semibold">
+    <div className="hidden lg:flex items-center gap-2.5 text-base md:text-lg font-semibold">
+      <div className="w-7 h-7 rounded-xl bg-[#F2E7CA] text-[#173B28] flex items-center justify-center shrink-0">
+        <Sparkles className="w-4 h-4 text-[#173B28]" />
+      </div>
       <span className="text-[#8E9B90]">Workspace</span>
       <span className="text-[#8E9B90]">/</span>
       <h1 className="text-[#1E2923] font-bold truncate">AI Co-Founder</h1>

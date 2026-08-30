@@ -241,18 +241,18 @@ export default function MarketingHub() {
         )}
 
         {/* HEADER */}
-        <header className="sticky top-0 z-40 bg-white border-b border-gray-200/80 shadow-xs w-full">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span className="hover:text-gray-700 cursor-pointer">Workspace</span>
+        <header className="sticky top-0 z-40 bg-white border-b border-green-100 shadow-card w-full">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm text-sage-500">
+              <span className="hover:text-sage-700 cursor-pointer">Workspace</span>
               <span>/</span>
-              <span className="font-semibold text-gray-900">Marketing Hub</span>
+              <span className="font-semibold text-sage-900">Marketing Hub</span>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 ml-auto">
-              <div className="bg-[#e2ede6] text-[#1e4836] px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1.5 border border-[#d2e2d8]">
+            <div className="flex items-center gap-2 md:gap-3 ml-auto">
+              <div className="bg-green-100 text-green-900 px-3 py-1 md:px-3.5 md:py-1.5 rounded-full text-xs md:text-sm font-medium flex items-center gap-1.5 border border-green-200">
                 <span>Health</span>
-                <span className="font-serif font-bold text-sm sm:text-base text-[#0e271f]">
+                <span className="font-display font-bold text-sm md:text-base text-green-900">
                   72
                 </span>
                 <span className="text-xs">↑</span>
@@ -270,14 +270,14 @@ export default function MarketingHub() {
                 </span>
               </button>
 
-              <button className="bg-[#b89d5f] hover:bg-[#a68c4f] text-[#1c180e] font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center gap-1">
+              <button className="bg-copper-600 hover:bg-copper-700 text-white font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1">
                 <span>+ Invite</span>
               </button>
             </div>
           </div>
 
           {/* TAB NAVIGATION */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3 pt-1">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 pb-3 pt-1">
             <nav className="flex items-center gap-2 overflow-x-auto scrollbar-none">
               {(
                 [
@@ -299,10 +299,10 @@ export default function MarketingHub() {
                       setActiveTab(tab);
                       if (tab !== "AI Copy") setHasGenerated(false);
                     }}
-                    className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+                    className={`px-3.5 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                       isActive
-                        ? "bg-[#eadaaf] text-[#2c220b] shadow-2xs font-semibold"
-                        : "bg-[#eaeee9] text-gray-700 hover:bg-[#e0e6df]"
+                        ? "bg-copper-200 text-copper-700 shadow-card font-semibold"
+                        : "bg-sage-100 text-sage-700 hover:bg-green-100"
                     }`}
                   >
                     {tab}

@@ -49,7 +49,13 @@ export default function DashboardPage() {
   // AI Chat Drawer State (Starts empty)
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [generatedIdSeed, setGeneratedIdSeed] = useState(0);
+  const messageIdRef = useRef(0);
   const chatScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setGeneratedIdSeed(Date.now());
+  }, []);
 
   // Invite Form State & Custom Role Dropdown State
   const [inviteEmail, setInviteEmail] = useState('');
@@ -195,8 +201,15 @@ export default function DashboardPage() {
     const content = textToSend || chatInput;
     if (!content.trim()) return;
 
+    const createMessageId = (prefix: string) => {
+      const timeBase = generatedIdSeed || Date.now();
+      const nextId = `${prefix}-${timeBase}-${messageIdRef.current}`;
+      messageIdRef.current += 1;
+      return nextId;
+    };
+
     const newMsg: ChatMessage = {
-      id: Date.now().toString(),
+      id: createMessageId('user'),
       sender: 'user',
       text: content,
     };
@@ -207,9 +220,9 @@ export default function DashboardPage() {
     // Simulate AI response after a brief moment
     setTimeout(() => {
       const aiReply: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: createMessageId('assistant'),
         sender: 'assistant',
-        text: `Good question. I'll pull the numbers from your workspace and walk you through "${content}", then I can turn the answer into a task or a document if useful.`,
+        text: `Good question. I&apos;ll pull the numbers from your workspace and walk you through "${content}", then I can turn the answer into a task or a document if useful.`,
       };
       setChatMessages((prev) => [...prev, aiReply]);
     }, 600);
@@ -270,11 +283,11 @@ export default function DashboardPage() {
       <main className="flex-1 w-full min-w-0 max-w-7xl px-6 md:px-10 pt-4 pb-12 space-y-6">
         {/* GREETING SECTION */}
         <section className="mb-6">
-          <h1 className="text-3xl font-serif font-bold text-[#1C201D] mb-1">
+          <h1 className="text-3xl font-serif font-bold text-sage-900 mb-1">
             Good evening, Amara.
           </h1>
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-400">
-            <p>Here's where Kolo stands today.</p>
+            <p>Here&apos;s where Kolo stands today.</p>
             <span className="text-gray-500">Monday, Aug 17</span>
           </div>
         </section>
@@ -282,11 +295,11 @@ export default function DashboardPage() {
         {/* TOP CARDS ROW */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* 1. Startup Health Card */}
-          <div className="bg-white border border-gray-200/60 rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+          <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold text-base text-[#1D2A24]">Startup Health</h3>
-                <span className="text-xs font-semibold bg-[#E6F0EB] text-[#266B4E] px-3 py-1 rounded-full">
+                <h3 className="font-bold text-base text-sage-900">Startup Health</h3>
+                <span className="text-xs font-semibold bg-green-100 text-green-700 px-3 py-1 rounded-full">
                   +4 this week
                 </span>
               </div>
@@ -334,16 +347,16 @@ export default function DashboardPage() {
               type="button"
               className="text-sm font-bold text-[#266B4E] flex items-center justify-center gap-1 hover:underline pt-2 cursor-pointer"
             >
-              See what's driving it →
+              See what&apos;s driving it →
             </button>
           </div>
 
           {/* 2. Today's Mission Card */}
-          <div className="bg-white border border-gray-200/60 rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+          <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold text-base text-[#1D2A24]">Today's Mission</h3>
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#9C6D18]">
+                <h3 className="font-bold text-base text-sage-900">Today&apos;s Mission</h3>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-copper-700">
                   <Flame className="w-4 h-4 fill-orange-500 text-orange-500" />
                   <span>6-day streak</span>
                 </div>
@@ -394,7 +407,7 @@ export default function DashboardPage() {
           </div>
 
           {/* 3. Your AI Briefing Card */}
-          <div className="bg-[#0F291E] text-white rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+          <div className="bg-green-900 text-white rounded-card p-6 shadow-card flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-[#C3A059] rounded-2xl text-[#0F291E] flex items-center justify-center shrink-0">
@@ -413,7 +426,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="text-sm text-gray-200 leading-relaxed font-normal mb-8">
-                Good news first: pipeline grew ₦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it's your riskiest untested assumption and it moves both revenue and runway.
+                Good news first: pipeline grew ₦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I&apos;d spend today on pricing, it&apos;s your riskiest untested assumption and it moves both revenue and runway.
               </p>
             </div>
 
@@ -437,8 +450,8 @@ export default function DashboardPage() {
         </section>
 
         {/* METRICS ROW */}
-        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div className="bg-white p-5 rounded-3xl border border-gray-200/60 shadow-xs flex flex-col justify-between">
+        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
             <div>
               <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-3">
                 MONTHLY REVENUE
@@ -453,9 +466,9 @@ export default function DashboardPage() {
             </svg>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-gray-200/60 shadow-xs flex flex-col justify-between">
+          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
             <div>
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-3">
+              <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
                 RUNWAY
               </span>
               <div className="flex items-baseline gap-2 mb-4">
@@ -468,9 +481,9 @@ export default function DashboardPage() {
             </svg>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-gray-200/60 shadow-xs flex flex-col justify-between">
+          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
             <div>
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-3">
+              <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
                 PIPELINE VALUE
               </span>
               <div className="flex items-baseline gap-2 mb-4">
@@ -483,9 +496,9 @@ export default function DashboardPage() {
             </svg>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-gray-200/60 shadow-xs flex flex-col justify-between">
+          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
             <div>
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-3">
+              <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
                 CAMPAIGN CTR
               </span>
               <div className="flex items-baseline gap-1.5 mb-4">
@@ -498,9 +511,9 @@ export default function DashboardPage() {
             </svg>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-gray-200/60 shadow-xs flex flex-col justify-between">
+          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
             <div>
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-3">
+              <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
                 TASKS THIS WEEK
               </span>
               <div className="flex items-baseline gap-2 mb-4">
