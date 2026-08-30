@@ -392,7 +392,7 @@ export default function AICoFounderPage() {
       case 'currency':
         return <span className="font-bold text-sm">₦</span>;
       case 'diamond':
-        return <Diamond className="w-4 h-4 text-[#D4B871]" />;
+        return <Diamond className="w-4 h-4 text-[#D89A6E]" />;
       case 'check':
         return <Check className="w-4 h-4 stroke-[3]" />;
       case 'trending':
@@ -413,25 +413,25 @@ export default function AICoFounderPage() {
           </div>
         );
       case 'currency':
-        return <span className="font-bold text-sm text-[#D4B871]">₦</span>;
+        return <span className="font-bold text-sm text-[#D89A6E]">₦</span>;
       case 'section':
-        return <span className="font-serif text-sm font-bold text-[#D4B871]">§</span>;
+        return <span className="font-display text-sm font-bold text-[#D89A6E]">§</span>;
       case 'pie':
-        return <PieChart className="w-4 h-4 text-[#D4B871]" />;
+        return <PieChart className="w-4 h-4 text-[#D89A6E]" />;
       case 'trending':
-        return <TrendingUp className="w-4 h-4 text-[#D4B871]" />;
+        return <TrendingUp className="w-4 h-4 text-[#D89A6E]" />;
       case 'diamond':
-        return <Diamond className="w-4 h-4 text-[#D4B871]" />;
+        return <Diamond className="w-4 h-4 text-[#D89A6E]" />;
       case 'star':
-        return <Star className="w-4 h-4 text-[#D4B871] fill-[#D4B871]" />;
+        return <Star className="w-4 h-4 text-[#D89A6E] fill-[#D89A6E]" />;
       case 'check':
         return <Check className="w-4 h-4 stroke-[3] text-white" />;
       case 'arrow':
-        return <ArrowRight className="w-4 h-4 text-[#D4B871]" />;
+        return <ArrowRight className="w-4 h-4 text-[#D89A6E]" />;
       case 'layers':
-        return <Layers className="w-4 h-4 text-[#D4B871]" />;
+        return <Layers className="w-4 h-4 text-[#D89A6E]" />;
       case 'sun':
-        return <Sun className="w-4 h-4 text-[#D4B871]" />;
+        return <Sun className="w-4 h-4 text-[#D89A6E]" />;
       default:
         return null;
     }
@@ -453,12 +453,12 @@ export default function AICoFounderPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         {/* Top Navigation Bar */}
-       <header className="sticky top-0 z-40 bg-white border-b border-[#EBEBE6] px-4 md:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 shadow-xs">
+       <header className="sticky top-0 z-40 bg-white border-b border-[#EBEBE6] px-4 md:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 shadow-card">
   <div className="flex items-center gap-3">
     {/* Mobile-Only Standalone Logo Button (triggers sidebar) */}
     <button
       onClick={() => setIsSidebarOpen(true)}
-      className="lg:hidden w-10 h-10 rounded-2xl bg-[#173B28] text-[#D4B871] flex items-center justify-center font-bold text-base shadow-xs hover:opacity-90 transition-opacity shrink-0"
+      className="lg:hidden w-10 h-10 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-base shadow-card hover:opacity-90 transition-opacity shrink-0"
       aria-label="Open sidebar"
     >
       C
@@ -466,7 +466,7 @@ export default function AICoFounderPage() {
 
     {/* Desktop Breadcrumbs */}
     <div className="hidden lg:flex items-center gap-2.5 text-base md:text-lg font-semibold">
-      <div className="w-7 h-7 rounded-xl bg-[#F2E7CA] text-[#173B28] flex items-center justify-center shrink-0">
+      <div className="w-7 h-7 rounded-card bg-[#F2E7CA] text-[#173B28] flex items-center justify-center shrink-0">
         <Sparkles className="w-4 h-4 text-[#173B28]" />
       </div>
       <span className="text-[#8E9B90]">Workspace</span>
@@ -477,7 +477,7 @@ export default function AICoFounderPage() {
 
   {/* Header Right Actions */}
   <div className="flex items-center gap-3">
-    <div className="hidden sm:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3 py-1 rounded-full text-xs font-medium">
+    <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3 py-1 rounded-full text-xs font-medium">
       <span className="text-[#556358]">Health</span>
       <span className="font-bold text-sm">72</span>
       <span className="text-[10px] text-[#2D5A3F]">↑</span>
@@ -485,14 +485,14 @@ export default function AICoFounderPage() {
 
     <button className="relative p-2 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]">
       <Bell className="w-4 h-4" />
-      <span className="absolute -top-1 -right-1 bg-[#A5823D] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+      <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
         5
       </span>
     </button>
 
-    <button className="flex items-center gap-1.5 bg-[#A5823D] hover:bg-[#8F6F30] text-white font-bold px-4 py-1.5 rounded-xl text-xs transition-colors shadow-xs">
+    <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-4 py-1.5 rounded-card text-xs transition-colors shadow-card">
       <Plus className="w-4 h-4" />
-      <span className="hidden sm:inline">Invite</span>
+      <span className="hidden md:inline">Invite</span>
     </button>
   </div>
 </header>
@@ -508,7 +508,7 @@ export default function AICoFounderPage() {
                   onClick={() => setActiveTab(tab)}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-[#E7DDC8] text-[#1E2923] font-semibold'
+                      ? 'bg-[#EAD5C6] text-[#1E2923] font-semibold'
                       : 'bg-transparent text-[#617065] hover:bg-[#F2F2EC]'
                   }`}
                 >
@@ -531,7 +531,7 @@ export default function AICoFounderPage() {
               </div>
 
               {/* Section 1: Toggles */}
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] p-6 shadow-xs flex flex-col divide-y divide-[#F0F0EC]">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] p-6 shadow-card flex flex-col divide-y divide-[#F0F0EC]">
                 {/* Proactive suggestions toggle */}
                 <div className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
                   <div>
@@ -549,7 +549,7 @@ export default function AICoFounderPage() {
                     }`}
                   >
                     <div
-                      className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${
+                      className={`w-5 h-5 rounded-full bg-white shadow-card transform transition-transform ${
                         proactiveSuggestions ? 'translate-x-6' : 'translate-x-0'
                       }`}
                     />
@@ -573,7 +573,7 @@ export default function AICoFounderPage() {
                     }`}
                   >
                     <div
-                      className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${
+                      className={`w-5 h-5 rounded-full bg-white shadow-card transform transition-transform ${
                         dailyBriefing ? 'translate-x-6' : 'translate-x-0'
                       }`}
                     />
@@ -582,14 +582,14 @@ export default function AICoFounderPage() {
               </div>
 
               {/* Section 2: Tone Selection */}
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] p-6 shadow-xs">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] p-6 shadow-card">
                 <h3 className="font-bold text-sm text-[#1E2923] mb-4">Tone</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Straight shooter card */}
                   <div
                     onClick={() => setSelectedTone('straight')}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                    className={`p-4 rounded-card border cursor-pointer transition-all ${
                       selectedTone === 'straight'
                         ? 'bg-[#EAF2ED] border-[#183B28]'
                         : 'bg-white border-[#EBEBE6] hover:border-[#D0D0C8]'
@@ -602,7 +602,7 @@ export default function AICoFounderPage() {
                   {/* Encouraging card */}
                   <div
                     onClick={() => setSelectedTone('encouraging')}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                    className={`p-4 rounded-card border cursor-pointer transition-all ${
                       selectedTone === 'encouraging'
                         ? 'bg-[#EAF2ED] border-[#183B28]'
                         : 'bg-white border-[#EBEBE6] hover:border-[#D0D0C8]'
@@ -615,7 +615,7 @@ export default function AICoFounderPage() {
               </div>
 
               {/* Section 3: What I Remember */}
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] p-6 shadow-xs">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] p-6 shadow-card">
                 <div className="flex items-center justify-between pb-4 border-b border-[#F0F0EC]">
                   <h3 className="font-bold text-sm text-[#1E2923]">What I remember</h3>
                   {memoryItems.length > 0 && (
@@ -671,12 +671,12 @@ export default function AICoFounderPage() {
                 {benchAgents.map((agent) => (
                   <div
                     key={agent.id}
-                    className="bg-white rounded-2xl p-5 border border-[#EBEBE6] shadow-xs flex flex-col justify-between"
+                    className="bg-white rounded-modal p-5 border border-[#EBEBE6] shadow-card flex flex-col justify-between"
                   >
                     <div>
                       {/* Card Header with Icon */}
                       <div className="flex items-start gap-3 mb-3">
-                        <div className="w-9 h-9 rounded-xl bg-[#183B28] text-white flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded-card bg-[#183B28] text-white flex items-center justify-center shrink-0">
                           {renderBenchIcon(agent.iconType)}
                         </div>
 
@@ -684,7 +684,7 @@ export default function AICoFounderPage() {
                           <h3 className="font-bold text-sm text-[#1E2923] leading-tight">
                             {agent.name}
                           </h3>
-                          <span className="text-[11px] font-semibold text-[#A5823D]">
+                          <span className="text-[11px] font-semibold text-[#9C5B34]">
                             {agent.category}
                           </span>
                         </div>
@@ -702,7 +702,7 @@ export default function AICoFounderPage() {
                         setActiveTab('Chat');
                         setInputText(`Hi ${agent.name}, I need help with...`);
                       }}
-                      className="w-full bg-white hover:bg-[#F5F5F0] text-[#183B28] font-semibold text-xs py-2 rounded-xl border border-[#D5DDD6] transition-colors"
+                      className="w-full bg-white hover:bg-[#F5F5F0] text-[#183B28] font-semibold text-xs py-2 rounded-card border border-[#D5DDD6] transition-colors"
                     >
                       {agent.buttonText}
                     </button>
@@ -716,30 +716,30 @@ export default function AICoFounderPage() {
           {activeTab === 'History' && (
             <div className="max-w-5xl w-full mx-auto flex flex-col gap-6">
               {/* Header section with search */}
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-bold text-[#1E2923] tracking-tight mb-1">
                     Conversation history
                   </h2>
                   <p className="text-xs text-[#617065]">
-                    Everything you've worked through, grouped by topic.
+                    Everything you&apos;ve worked through, grouped by topic.
                   </p>
                 </div>
 
-                <div className="relative w-full sm:w-64 shrink-0">
+                <div className="relative w-full md:w-64 shrink-0">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9B90]" />
                   <input
                     type="text"
                     value={historySearchQuery}
                     onChange={(e) => setHistorySearchQuery(e.target.value)}
                     placeholder="Search conversations"
-                    className="w-full bg-white text-xs text-[#1E2923] placeholder-[#8E9B90] pl-9 pr-3 py-2 rounded-xl border border-[#EBEBE6] focus:border-[#A5823D] focus:outline-none transition-colors shadow-2xs"
+                    className="w-full bg-white text-xs text-[#1E2923] placeholder-[#8E9B90] pl-9 pr-3 py-2 rounded-card border border-[#EBEBE6] focus:border-[#9C5B34] focus:outline-none transition-colors shadow-card"
                   />
                 </div>
               </div>
 
               {/* Table Container */}
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] shadow-xs overflow-hidden">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -807,14 +807,14 @@ export default function AICoFounderPage() {
                 {suggestedActions.map((action) => (
                   <div
                     key={action.id}
-                    className="bg-white rounded-2xl p-5 border border-[#EBEBE6] shadow-xs flex items-start gap-4"
+                    className="bg-white rounded-modal p-5 border border-[#EBEBE6] shadow-card flex items-start gap-4"
                   >
-                    <div className="w-9 h-9 rounded-xl bg-[#183B28] text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-9 h-9 rounded-card bg-[#183B28] text-white flex items-center justify-center shrink-0 mt-0.5">
                       {renderIcon(action.iconType)}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <span className="text-[11px] font-semibold text-[#8C6D2D] tracking-wide">
+                      <span className="text-[11px] font-semibold text-[#8A5330] tracking-wide">
                         {action.agentRole}
                       </span>
                       <h3 className="font-bold text-sm text-[#1E2923] mt-0.5 mb-1">
@@ -830,13 +830,13 @@ export default function AICoFounderPage() {
                             setActiveTab('Chat');
                             setInputText(`Let's do this: ${action.title}`);
                           }}
-                          className="bg-[#A5823D] hover:bg-[#8F6F30] text-white text-xs font-semibold px-4 py-1.5 rounded-xl transition-colors shadow-2xs"
+                          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-semibold px-4 py-1.5 rounded-card transition-colors shadow-card"
                         >
                           Do it
                         </button>
                         <button
                           onClick={() => handleDismissAction(action.id)}
-                          className="bg-white hover:bg-[#F5F5F0] text-[#1E2923] text-xs font-medium px-4 py-1.5 rounded-xl border border-[#D5DDD6] transition-colors"
+                          className="bg-white hover:bg-[#F5F5F0] text-[#1E2923] text-xs font-medium px-4 py-1.5 rounded-card border border-[#D5DDD6] transition-colors"
                         >
                           Dismiss
                         </button>
@@ -849,7 +849,7 @@ export default function AICoFounderPage() {
                 ))}
 
                 {suggestedActions.length === 0 && (
-                  <div className="text-center py-12 bg-white rounded-2xl border border-[#EBEBE6] text-xs text-[#8E9B90]">
+                  <div className="text-center py-12 bg-white rounded-modal border border-[#EBEBE6] text-xs text-[#8E9B90]">
                     All caught up! No active suggestions right now.
                   </div>
                 )}
@@ -861,8 +861,8 @@ export default function AICoFounderPage() {
           {activeTab === 'Chat' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
               {/* Left Column: Sidebar Conversations */}
-              <div className="lg:col-span-3 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-[#EBEBE6] shadow-xs">
-                <button className="w-full flex items-center justify-center gap-2 bg-[#A5823D] hover:bg-[#8F6F30] text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition-colors shadow-xs">
+              <div className="lg:col-span-3 flex flex-col gap-3 bg-white p-4 rounded-modal border border-[#EBEBE6] shadow-card">
+                <button className="w-full flex items-center justify-center gap-2 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold py-2.5 px-4 rounded-card text-sm transition-colors shadow-card">
                   <Plus className="w-4 h-4" />
                   <span>New chat</span>
                 </button>
@@ -872,7 +872,7 @@ export default function AICoFounderPage() {
                   <input
                     type="text"
                     placeholder="Search conversations"
-                    className="w-full bg-[#F5F5F0] text-xs text-[#1E2923] placeholder-[#8E9B90] pl-9 pr-3 py-2 rounded-xl border border-transparent focus:border-[#A5823D] focus:outline-none transition-colors"
+                    className="w-full bg-[#F5F5F0] text-xs text-[#1E2923] placeholder-[#8E9B90] pl-9 pr-3 py-2 rounded-card border border-transparent focus:border-[#9C5B34] focus:outline-none transition-colors"
                   />
                 </div>
 
@@ -899,9 +899,9 @@ export default function AICoFounderPage() {
                   {conversations.map((item) => (
                     <div
                       key={item.id}
-                      className={`p-2.5 rounded-xl cursor-pointer transition-all ${
+                      className={`p-2.5 rounded-card cursor-pointer transition-all ${
                         item.active
-                          ? 'bg-[#F2EFE8] border border-[#E1D7C3]'
+                          ? 'bg-[#F2EFE8] border border-[#EAD5C6]'
                           : 'hover:bg-[#F8F8F4]'
                       }`}
                     >
@@ -923,14 +923,14 @@ export default function AICoFounderPage() {
               </div>
 
               {/* Center Column: Interactive Chatbox */}
-              <div className="lg:col-span-6 flex flex-col h-[560px] bg-white rounded-2xl border border-[#EBEBE6] shadow-xs overflow-hidden justify-between">
+              <div className="lg:col-span-6 flex flex-col h-[560px] bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden justify-between">
                 {/* Chat Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-[#EBEBE6]">
                   <div>
                     <h2 className="font-bold text-sm text-[#1E2923]">Runway and pricing</h2>
                     <p className="text-[11px] text-[#8E9B90]">Finance Advisor · Co-Founder</p>
                   </div>
-                  <button className="text-xs font-medium text-[#556358] bg-[#F2F2EC] hover:bg-[#E5E5DE] px-3 py-1 rounded-lg border border-[#E1E1D8] transition-colors">
+                  <button className="text-xs font-medium text-[#556358] bg-[#F2F2EC] hover:bg-[#E5E5DE] px-3 py-1 rounded-input border border-[#E1E1D8] transition-colors">
                     Open full view
                   </button>
                 </div>
@@ -940,13 +940,13 @@ export default function AICoFounderPage() {
                   {messages.map((msg) =>
                     msg.sender === 'user' ? (
                       <div key={msg.id} className="flex justify-end">
-                        <div className="bg-[#183B28] text-white p-3.5 rounded-2xl rounded-tr-xs max-w-[85%] text-xs leading-relaxed shadow-xs">
+                        <div className="bg-[#183B28] text-white p-3.5 rounded-modal rounded-tr-xs max-w-[85%] text-xs leading-relaxed shadow-card">
                           {msg.text}
                         </div>
                       </div>
                     ) : (
                       <div key={msg.id} className="flex gap-2.5 items-start max-w-[95%]">
-                        <div className="w-7 h-7 rounded-xl bg-[#183B28] text-[#D4B871] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                        <div className="w-7 h-7 rounded-card bg-[#183B28] text-[#D89A6E] flex items-center justify-center shrink-0 mt-0.5 shadow-card">
                           <Sparkles className="w-3.5 h-3.5" />
                         </div>
                         <div className="flex flex-col gap-2.5 w-full">
@@ -955,7 +955,7 @@ export default function AICoFounderPage() {
                             {msg.via && <span className="text-[10px] text-[#8E9B90]">via {msg.via}</span>}
                           </div>
 
-                          <div className="bg-[#F8F8F4] border border-[#EBEBE6] p-3.5 rounded-2xl rounded-tl-xs text-xs text-[#2C3830] leading-relaxed">
+                          <div className="bg-[#F8F8F4] border border-[#EBEBE6] p-3.5 rounded-modal rounded-tl-xs text-xs text-[#2C3830] leading-relaxed">
                             {msg.text}
                           </div>
 
@@ -971,7 +971,7 @@ export default function AICoFounderPage() {
                                 <button
                                   key={idx}
                                   onClick={() => setInputText(chipText)}
-                                  className="bg-white hover:bg-[#F5F5F0] text-[#183B28] font-semibold text-xs px-4 py-2 rounded-xl border border-[#D5DDD6] transition-colors shadow-2xs"
+                                  className="bg-white hover:bg-[#F5F5F0] text-[#183B28] font-semibold text-xs px-4 py-2 rounded-card border border-[#D5DDD6] transition-colors shadow-card"
                                 >
                                   {chipText}
                                 </button>
@@ -980,9 +980,9 @@ export default function AICoFounderPage() {
                           )}
 
                           {msg.taskCard && (
-                            <div className="mt-1 flex items-center justify-between bg-[#E6F1EB] border border-[#CDE3D6] rounded-2xl p-3 text-xs text-[#183B28]">
+                            <div className="mt-1 flex items-center justify-between bg-[#E6F1EB] border border-[#CDE3D6] rounded-modal p-3 text-xs text-[#183B28]">
                               <div className="flex items-center gap-3">
-                                <div className="w-7 h-7 rounded-lg bg-[#183B28] text-white flex items-center justify-center shrink-0">
+                                <div className="w-7 h-7 rounded-input bg-[#183B28] text-white flex items-center justify-center shrink-0">
                                   <Check className="w-4 h-4 stroke-[3]" />
                                 </div>
                                 <p className="text-xs">
@@ -1004,7 +1004,7 @@ export default function AICoFounderPage() {
 
                 {/* Chat Input Bar */}
                 <form onSubmit={handleSendMessage} className="p-3 border-t border-[#EBEBE6]">
-                  <div className="bg-[#F5F5F0] rounded-2xl p-2.5 border border-[#E5E5DE] focus-within:border-[#A5823D] transition-colors">
+                  <div className="bg-[#F5F5F0] rounded-modal p-2.5 border border-[#E5E5DE] focus-within:border-[#9C5B34] transition-colors">
                     <input
                       type="text"
                       value={inputText}
@@ -1028,7 +1028,7 @@ export default function AICoFounderPage() {
                       </div>
                       <button
                         type="submit"
-                        className="bg-[#A5823D] hover:bg-[#8F6F30] text-white px-4 py-1 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs ml-auto cursor-pointer"
+                        className="bg-[#9C5B34] hover:bg-[#8A5330] text-white px-4 py-1 rounded-card text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-card ml-auto cursor-pointer"
                       >
                         <span>Send</span>
                         <Send className="w-3 h-3" />
@@ -1039,7 +1039,7 @@ export default function AICoFounderPage() {
               </div>
 
               {/* Right Column: Context & Metadata Panel */}
-              <div className="lg:col-span-3 flex flex-col gap-5 bg-white p-4 rounded-2xl border border-[#EBEBE6] shadow-xs">
+              <div className="lg:col-span-3 flex flex-col gap-5 bg-white p-4 rounded-modal border border-[#EBEBE6] shadow-card">
                 <div>
                   <h3 className="text-[11px] font-bold uppercase tracking-wider text-[#8E9B90] mb-2.5">
                     Suggested Actions
@@ -1047,13 +1047,13 @@ export default function AICoFounderPage() {
                   <div className="flex flex-col gap-2">
                     <button
                       onClick={() => setInputText('Draft a pricing experiment for the Validation Hub')}
-                      className="w-full text-left p-2.5 rounded-xl bg-[#F4F7F4] hover:bg-[#E9EFE9] border border-[#E1EAE1] text-xs font-medium text-[#1E2923] transition-colors"
+                      className="w-full text-left p-2.5 rounded-card bg-[#F4F7F4] hover:bg-[#E9EFE9] border border-[#E1EAE1] text-xs font-medium text-[#1E2923] transition-colors"
                     >
                       Draft a pricing experiment for the Validation Hub
                     </button>
                     <button
                       onClick={() => setInputText('Send the runway math to your accountant')}
-                      className="w-full text-left p-2.5 rounded-xl bg-[#F4F7F4] hover:bg-[#E9EFE9] border border-[#E1EAE1] text-xs font-medium text-[#1E2923] transition-colors"
+                      className="w-full text-left p-2.5 rounded-card bg-[#F4F7F4] hover:bg-[#E9EFE9] border border-[#E1EAE1] text-xs font-medium text-[#1E2923] transition-colors"
                     >
                       Send the runway math to your accountant
                     </button>
@@ -1066,19 +1066,19 @@ export default function AICoFounderPage() {
                   </h3>
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2 text-xs text-[#2C3830]">
-                      <div className="p-1 bg-[#E6EFEA] rounded-md text-[#183B28]">
+                      <div className="p-1 bg-[#E6EFEA] rounded-[6px] text-[#183B28]">
                         <PieChart className="w-3.5 h-3.5" />
                       </div>
                       <span>Finance Hub · Runway</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-[#2C3830]">
-                      <div className="p-1 bg-[#E6EFEA] rounded-md text-[#183B28]">
+                      <div className="p-1 bg-[#E6EFEA] rounded-[6px] text-[#183B28]">
                         <FileText className="w-3.5 h-3.5" />
                       </div>
                       <span>Revenue model</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-[#2C3830]">
-                      <div className="p-1 bg-[#E6EFEA] rounded-md text-[#183B28]">
+                      <div className="p-1 bg-[#E6EFEA] rounded-[6px] text-[#183B28]">
                         <Globe className="w-3.5 h-3.5" />
                       </div>
                       <span>Kickoff assessment</span>
@@ -1092,13 +1092,13 @@ export default function AICoFounderPage() {
                   </h3>
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center gap-2.5 p-1">
-                      <div className="w-6 h-6 rounded-md bg-[#183B28] text-white flex items-center justify-center font-bold text-[10px]">
+                      <div className="w-6 h-6 rounded-[6px] bg-[#183B28] text-white flex items-center justify-center font-bold text-[10px]">
                         ₦
                       </div>
                       <span className="font-semibold text-xs text-[#1E2923]">Finance Advisor</span>
                     </div>
                     <div className="flex items-center gap-2.5 p-1">
-                      <div className="w-6 h-6 rounded-md bg-[#A5823D] text-white flex items-center justify-center">
+                      <div className="w-6 h-6 rounded-[6px] bg-[#9C5B34] text-white flex items-center justify-center">
                         <Sparkles className="w-3 h-3" />
                       </div>
                       <span className="font-semibold text-xs text-[#1E2923]">Co-Founder</span>

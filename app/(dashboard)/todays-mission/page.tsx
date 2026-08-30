@@ -204,12 +204,12 @@ export default function TodaysMissionPage() {
         {/* Sticky Top Header & Tabs Wrapper */}
         <div className="sticky top-0 z-40 bg-[#F7F7F5]">
           {/* Main Header Bar */}
-          <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4 shadow-xs">
+          <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4 shadow-card">
             <div className="flex items-center gap-3">
               {/* Mobile-Only Standalone C Logo Button */}
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden w-10 h-10 rounded-2xl bg-[#173B28] text-[#D4B871] flex items-center justify-center font-bold text-base shadow-xs hover:opacity-90 transition-opacity shrink-0"
+                className="lg:hidden w-10 h-10 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-base shadow-card hover:opacity-90 transition-opacity shrink-0"
                 aria-label="Open sidebar"
               >
                 C
@@ -219,13 +219,13 @@ export default function TodaysMissionPage() {
               <div className="flex items-center gap-2 text-base md:text-lg font-semibold">
                 <span className="text-[#8E9B90]">Workspace</span>
                 <span className="text-[#8E9B90]">/</span>
-                <h1 className="text-[#1E2923] font-bold truncate">Today's Mission</h1>
+                <h1 className="text-[#1E2923] font-bold truncate">Today&apos;s Mission</h1>
               </div>
             </div>
 
             {/* Top Right Action Controls */}
             <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
+              <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
                 <span className="text-[#556358]">Health</span>
                 <span className="font-bold text-sm">72</span>
                 <span className="text-[10px] text-[#2D5A3F]">↑</span>
@@ -233,14 +233,14 @@ export default function TodaysMissionPage() {
 
               <button className="relative p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]">
                 <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 bg-[#A5823D] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   5
                 </span>
               </button>
 
-              <button className="flex items-center gap-1.5 bg-[#A5823D] hover:bg-[#8F6F30] text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shadow-xs">
+              <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors shadow-card">
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Invite</span>
+                <span className="hidden md:inline">Invite</span>
               </button>
             </div>
           </header>
@@ -256,7 +256,7 @@ export default function TodaysMissionPage() {
                     onClick={() => setActiveTab(tab)}
                     className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                       isActive
-                        ? 'bg-[#E7DDC8] text-[#1E2923] font-semibold'
+                        ? 'bg-[#EAD5C6] text-[#1E2923] font-semibold'
                         : 'bg-transparent text-[#617065] hover:bg-[#EBEBE6]'
                     }`}
                   >
@@ -275,16 +275,16 @@ export default function TodaysMissionPage() {
             <>
               <div className="flex items-start justify-between gap-4 pt-2">
                 <div>
-                  <h2 className="text-3xl font-serif font-semibold text-[#1E2923] tracking-tight">
-                    Today's Mission
+                  <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">
+                    Today&apos;s Mission
                   </h2>
                   <p className="text-sm text-[#768478] mt-1 font-medium">
                     Tuesday, Aug 18
                   </p>
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-[#F7EEDC] text-[#8C6D2D] px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-2xs shrink-0">
-                  <Flame className="w-4 h-4 fill-[#E09332] text-[#E09332]" />
+                <div className="flex items-center gap-1.5 bg-[#F7EEDC] text-[#8A5330] px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-card shrink-0">
+                  <Flame className="w-4 h-4 fill-[#D89A6E] text-[#D89A6E]" />
                   <span>6-day streak</span>
                 </div>
               </div>
@@ -293,11 +293,11 @@ export default function TodaysMissionPage() {
                 {todayTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-xs hover:border-[#D5DDD6] transition-all flex items-start gap-4"
+                    className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card hover:border-[#D5DDD6] transition-all flex items-start gap-4"
                   >
                     <button
                       onClick={() => toggleTodayTask(task.id)}
-                      className={`w-6 h-6 rounded-lg border-2 transition-all flex items-center justify-center shrink-0 mt-0.5 ${
+                      className={`w-6 h-6 rounded-input border-2 transition-all flex items-center justify-center shrink-0 mt-0.5 ${
                         task.completed
                           ? 'bg-[#183B28] border-[#183B28] text-white'
                           : 'border-[#C5CFC7] hover:border-[#183B28] bg-white'
@@ -338,7 +338,7 @@ export default function TodaysMissionPage() {
                   </div>
                 ))}
 
-                <button className="w-full py-4 border-2 border-dashed border-[#D5DDD6] hover:border-[#183B28] rounded-2xl text-xs font-semibold text-[#556358] hover:text-[#183B28] transition-colors bg-white/40 hover:bg-white text-center mt-1">
+                <button className="w-full py-4 border-2 border-dashed border-[#D5DDD6] hover:border-[#183B28] rounded-modal text-xs font-semibold text-[#556358] hover:text-[#183B28] transition-colors bg-white/40 hover:bg-white text-center mt-1">
                   + Add a task
                 </button>
 
@@ -356,7 +356,7 @@ export default function TodaysMissionPage() {
           {activeTab === 'Upcoming' && (
             <div className="flex flex-col gap-8 pt-2 pb-12">
               <div>
-                <h2 className="text-3xl font-serif font-semibold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">
                   Upcoming
                 </h2>
                 <p className="text-xs md:text-sm text-[#768478] mt-1.5 font-normal">
@@ -375,7 +375,7 @@ export default function TodaysMissionPage() {
                       {section.tasks.map((task) => (
                         <div
                           key={task.id}
-                          className="bg-white rounded-2xl px-5 py-4 border border-[#EBEBE6] shadow-2xs hover:border-[#D5DDD6] transition-all flex items-center justify-between gap-4 group cursor-grab active:cursor-grabbing"
+                          className="bg-white rounded-modal px-5 py-4 border border-[#EBEBE6] shadow-card hover:border-[#D5DDD6] transition-all flex items-center justify-between gap-4 group cursor-grab active:cursor-grabbing"
                         >
                           <div className="flex items-center gap-3.5 min-w-0">
                             <GripVertical className="w-4 h-4 text-[#C0C9C2] group-hover:text-[#8E9B90] transition-colors shrink-0" />
@@ -400,7 +400,7 @@ export default function TodaysMissionPage() {
           {activeTab === 'Completed' && (
             <div className="flex flex-col gap-8 pt-2 pb-12">
               <div className="flex items-start justify-between gap-4">
-                <h2 className="text-3xl font-serif font-semibold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">
                   Completed
                 </h2>
 
@@ -420,9 +420,9 @@ export default function TodaysMissionPage() {
                       {section.tasks.map((task) => (
                         <div
                           key={task.id}
-                          className="bg-white rounded-2xl px-5 py-4 border border-[#EBEBE6] shadow-2xs flex items-center gap-3.5"
+                          className="bg-white rounded-modal px-5 py-4 border border-[#EBEBE6] shadow-card flex items-center gap-3.5"
                         >
-                          <div className="w-6 h-6 rounded-lg bg-[#2B4C38] flex items-center justify-center shrink-0">
+                          <div className="w-6 h-6 rounded-input bg-[#2B4C38] flex items-center justify-center shrink-0">
                             <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
                           </div>
 
@@ -442,7 +442,7 @@ export default function TodaysMissionPage() {
           {activeTab === 'Streaks' && (
             <div className="flex flex-col gap-8 pt-2 pb-12">
               <div>
-                <h2 className="text-3xl font-serif font-semibold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">
                   Streak history
                 </h2>
                 <p className="text-xs md:text-sm text-[#768478] mt-1.5 font-normal">
@@ -451,38 +451,38 @@ export default function TodaysMissionPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col justify-between h-36">
+                <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between h-36">
                   <span className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">
                     CURRENT STREAK
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-3xl font-serif font-semibold text-[#1E2923]">
+                    <span className="text-3xl font-display font-semibold text-[#1E2923]">
                       6 days
                     </span>
                     <span className="text-2xl">🔥</span>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col justify-between h-36">
+                <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between h-36">
                   <span className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">
                     BEST STREAK
                   </span>
-                  <span className="text-3xl font-serif font-semibold text-[#1E2923]">
+                  <span className="text-3xl font-display font-semibold text-[#1E2923]">
                     21 days
                   </span>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col justify-between h-36">
+                <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between h-36">
                   <span className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">
                     COMPLETION (90D)
                   </span>
-                  <span className="text-3xl font-serif font-semibold text-[#1E2923]">
+                  <span className="text-3xl font-display font-semibold text-[#1E2923]">
                     82%
                   </span>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 md:p-8 border border-[#EBEBE6] shadow-2xs flex flex-col gap-6">
+              <div className="bg-white rounded-modal p-6 md:p-8 border border-[#EBEBE6] shadow-card flex flex-col gap-6">
                 <span className="text-xs font-semibold text-[#1E2923]">
                   Last 14 weeks
                 </span>
@@ -521,7 +521,7 @@ export default function TodaysMissionPage() {
             <div className="flex flex-col gap-8 pt-2 pb-12">
               {/* Header Info */}
               <div>
-                <h2 className="text-3xl font-serif font-semibold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">
                   Mission settings
                 </h2>
                 <p className="text-xs md:text-sm text-[#768478] mt-1.5 font-normal">
@@ -530,7 +530,7 @@ export default function TodaysMissionPage() {
               </div>
 
               {/* Mission Size Card */}
-              <div className="bg-white rounded-2xl p-6 md:p-8 border border-[#EBEBE6] shadow-2xs flex flex-col gap-6">
+              <div className="bg-white rounded-modal p-6 md:p-8 border border-[#EBEBE6] shadow-card flex flex-col gap-6">
                 <h3 className="text-sm font-semibold text-[#1E2923]">
                   Mission size
                 </h3>
@@ -542,13 +542,13 @@ export default function TodaysMissionPage() {
                       <button
                         key={size}
                         onClick={() => setMissionSize(size)}
-                        className={`rounded-xl p-5 border transition-all flex flex-col items-center justify-center cursor-pointer ${
+                        className={`rounded-card p-5 border transition-all flex flex-col items-center justify-center cursor-pointer ${
                           isSelected
                             ? 'bg-[#E3EFE8] border-[#183B28] text-[#183B28]'
                             : 'bg-white border-[#EBEBE6] text-[#1E2923] hover:border-[#C5CFC7]'
                         }`}
                       >
-                        <span className="text-2xl font-serif font-semibold">
+                        <span className="text-2xl font-display font-semibold">
                           {size}
                         </span>
                         <span className="text-xs text-[#768478] mt-1 font-medium">
@@ -561,7 +561,7 @@ export default function TodaysMissionPage() {
               </div>
 
               {/* Delivery Time & Weekends Off Card */}
-              <div className="bg-white rounded-2xl p-6 md:p-8 border border-[#EBEBE6] shadow-2xs flex flex-col gap-6">
+              <div className="bg-white rounded-modal p-6 md:p-8 border border-[#EBEBE6] shadow-card flex flex-col gap-6">
                 {/* Delivery Time Option */}
                 <div className="flex items-center justify-between gap-4 pb-6 border-b border-[#F0F0EC]">
                   <div>
@@ -576,7 +576,7 @@ export default function TodaysMissionPage() {
                   <select
                     value={deliveryTime}
                     onChange={(e) => setDeliveryTime(e.target.value)}
-                    className="bg-white border border-[#EBEBE6] rounded-xl px-4 py-2 text-xs font-medium text-[#1E2923] focus:outline-none focus:border-[#183B28] cursor-pointer shadow-2xs"
+                    className="bg-white border border-[#EBEBE6] rounded-card px-4 py-2 text-xs font-medium text-[#1E2923] focus:outline-none focus:border-[#183B28] cursor-pointer shadow-card"
                   >
                     <option value="5:00 AM">5:00 AM</option>
                     <option value="6:00 AM">6:00 AM</option>
@@ -606,7 +606,7 @@ export default function TodaysMissionPage() {
                     aria-label="Toggle weekends off"
                   >
                     <div
-                      className={`w-4 h-4 rounded-full bg-white shadow-xs transition-transform ${
+                      className={`w-4 h-4 rounded-full bg-white shadow-card transition-transform ${
                         weekendsOff ? 'translate-x-6' : 'translate-x-0'
                       }`}
                     />

@@ -263,10 +263,10 @@ export default function FundingHubApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f7f5] text-[#2c3531] flex font-sans relative">
+    <div className="min-h-screen bg-[#f5f7f5] text-[#2c3531] flex font-body relative">
       
       {/* SIDEBAR NAVIGATION */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[#0e271f] text-white flex-shrink-0 hidden md:block shadow-lg">
+      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[#0e271f] text-white flex-shrink-0 hidden md:block shadow-raised">
         <Sidebar />
       </aside>
 
@@ -274,32 +274,32 @@ export default function FundingHubApp() {
       <div className="flex-1 flex flex-col min-w-0 pb-16 w-full md:pl-64">
         
         {/* STICKY HEADER */}
-        <header className="sticky top-0 z-40 bg-white border-b border-gray-200/85 shadow-xs w-full">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span className="hover:text-gray-700 cursor-pointer">Workspace</span>
+        <header className="sticky top-0 z-40 bg-white border-b border-sage-200/85 shadow-card w-full">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm text-sage-500">
+              <span className="hover:text-sage-700 cursor-pointer">Workspace</span>
               <span>/</span>
-              <span className="font-semibold text-gray-900">Funding Hub</span>
+              <span className="font-semibold text-sage-900">Funding Hub</span>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 ml-auto">
-              <div className="bg-[#e2ede6] text-[#1e4836] px-3 py-1 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1.5 border border-[#d2e2d8]">
+            <div className="flex items-center gap-2 md:gap-3 ml-auto">
+              <div className="bg-[#e2ede6] text-[#1e4836] px-3 py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1.5 border border-[#d2e2d8]">
                 <span>Health</span>
-                <span className="font-serif font-bold text-sm sm:text-base text-[#0e271f]">72</span>
+                <span className="font-display font-bold text-sm md:text-base text-[#0e271f]">72</span>
                 <span className="text-xs">↑</span>
               </div>
 
               <button
                 aria-label="Notifications"
-                className="relative p-2.5 rounded-full bg-gray-100/80 border border-gray-200/60 text-gray-700 hover:bg-gray-200/60 transition-colors flex items-center justify-center cursor-pointer"
+                className="relative p-2.5 rounded-full bg-sage-100/80 border border-sage-200/60 text-sage-700 hover:bg-sage-200/60 transition-colors flex items-center justify-center cursor-pointer"
               >
                 <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 bg-[#b89d5f] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   5
                 </span>
               </button>
 
-              <button className="bg-[#b89d5f] hover:bg-[#a68c4f] text-[#1c180e] font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center gap-1 cursor-pointer">
+              <button className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1 cursor-pointer">
                 <UserPlus className="w-4 h-4" />
                 <span>+ Invite</span>
               </button>
@@ -307,7 +307,7 @@ export default function FundingHubApp() {
           </div>
 
           {/* TOP NAV TABS */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3 pt-1">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 pb-3 pt-1">
             <nav className="flex items-center gap-2 overflow-x-auto scrollbar-none">
               {(
                 [
@@ -324,10 +324,10 @@ export default function FundingHubApp() {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+                    className={`px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                       isActive
-                        ? "bg-[#eadaaf] text-[#2c220b] shadow-2xs font-semibold"
-                        : "bg-[#eaeee9] text-gray-700 hover:bg-[#e0e6df]"
+                        ? "bg-[#EAD5C6] text-[#2c220b] shadow-card font-semibold"
+                        : "bg-[#eaeee9] text-sage-700 hover:bg-[#e0e6df]"
                     }`}
                   >
                     {tab}
@@ -340,7 +340,7 @@ export default function FundingHubApp() {
 
         {/* TOAST NOTIFICATION POPUP */}
         {toastMessage && (
-          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#0e271f] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[#23483b] animate-bounce">
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#0e271f] text-white px-5 py-3 rounded-modal shadow-raised flex items-center gap-3 border border-[#23483b] animate-bounce">
             <div className="w-5 h-5 rounded-full bg-[#1e4836] flex items-center justify-center text-white">
               <Check className="w-3 h-3 stroke-[3]" />
             </div>
@@ -351,13 +351,13 @@ export default function FundingHubApp() {
         {/* SHARE DATA ROOM MODAL */}
         {isShareModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fadeIn">
-            <div className="bg-white rounded-3xl border border-gray-200 shadow-2xl w-full max-w-lg overflow-hidden p-6 sm:p-8 space-y-6 relative">
+            <div className="bg-white rounded-[24px] border border-sage-200 shadow-raised w-full max-w-lg overflow-hidden p-6 md:p-8 space-y-6 relative">
               
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-serif font-semibold text-gray-900">Share data room</h2>
+                <h2 className="text-2xl font-display font-semibold text-sage-900">Share data room</h2>
                 <button 
                   onClick={() => setIsShareModalOpen(false)}
-                  className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors cursor-pointer"
+                  className="p-2 rounded-full hover:bg-sage-100 text-sage-500 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -365,7 +365,7 @@ export default function FundingHubApp() {
 
               <form onSubmit={handleSendInvite} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-500">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-sage-500">
                     Investor email
                   </label>
                   <input
@@ -374,12 +374,12 @@ export default function FundingHubApp() {
                     placeholder="partner@fund.com"
                     value={investorEmail}
                     onChange={(e) => setInvestorEmail(e.target.value)}
-                    className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0e271f]/20"
+                    className="w-full bg-white border border-sage-300 rounded-card px-4 py-3 text-sm text-sage-900 focus:outline-none focus:ring-2 focus:ring-[#0e271f]/20"
                   />
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-500">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-sage-500">
                     Folders to share
                   </label>
                   <div className="flex flex-wrap gap-2.5">
@@ -390,13 +390,13 @@ export default function FundingHubApp() {
                           key={folderName}
                           type="button"
                           onClick={() => toggleFolderCheckbox(folderName)}
-                          className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 border transition-colors cursor-pointer ${
+                          className={`px-3.5 py-2 rounded-card text-xs font-medium flex items-center gap-2 border transition-colors cursor-pointer ${
                             isChecked 
                               ? "bg-[#e2ede6] text-[#1e4836] border-[#c2d7cb]" 
-                              : "bg-gray-50 text-gray-600 border-gray-200"
+                              : "bg-sage-50 text-sage-600 border-sage-200"
                           }`}
                         >
-                          <div className={`w-4 h-4 rounded flex items-center justify-center ${isChecked ? "bg-[#1e4836] text-white" : "border border-gray-300 bg-white"}`}>
+                          <div className={`w-4 h-4 rounded flex items-center justify-center ${isChecked ? "bg-[#1e4836] text-white" : "border border-sage-300 bg-white"}`}>
                             {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
                           </div>
                           <span>{folderName}</span>
@@ -410,13 +410,13 @@ export default function FundingHubApp() {
                   <button
                     type="button"
                     onClick={() => toggleFolderCheckbox("Legal")}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 border transition-colors cursor-pointer ${
+                    className={`px-3.5 py-2 rounded-card text-xs font-medium flex items-center gap-2 border transition-colors cursor-pointer ${
                       selectedFolders["Legal"] 
                         ? "bg-[#e2ede6] text-[#1e4836] border-[#c2d7cb]" 
-                        : "bg-gray-50 text-gray-600 border-gray-200"
+                        : "bg-sage-50 text-sage-600 border-sage-200"
                     }`}
                   >
-                    <div className={`w-4 h-4 rounded flex items-center justify-center ${selectedFolders["Legal"] ? "bg-[#1e4836] text-white" : "border border-gray-300 bg-white"}`}>
+                    <div className={`w-4 h-4 rounded flex items-center justify-center ${selectedFolders["Legal"] ? "bg-[#1e4836] text-white" : "border border-sage-300 bg-white"}`}>
                       {selectedFolders["Legal"] && <Check className="w-3 h-3 stroke-[3]" />}
                     </div>
                     <span>Legal</span>
@@ -427,12 +427,12 @@ export default function FundingHubApp() {
                   <button
                     type="button"
                     onClick={() => setWatermark(!watermark)}
-                    className={`w-5 h-5 rounded flex items-center justify-center transition-colors cursor-pointer border ${watermark ? "bg-[#1e4836] text-white border-[#1e4836]" : "border-gray-300 bg-white"}`}
+                    className={`w-5 h-5 rounded flex items-center justify-center transition-colors cursor-pointer border ${watermark ? "bg-[#1e4836] text-white border-[#1e4836]" : "border-sage-300 bg-white"}`}
                   >
                     {watermark && <Check className="w-3 h-3 stroke-[3]" />}
                   </button>
-                  <span className="text-sm text-gray-700 select-none cursor-pointer" onClick={() => setWatermark(!watermark)}>
-                    Watermark PDFs with viewer's email
+                  <span className="text-sm text-sage-700 select-none cursor-pointer" onClick={() => setWatermark(!watermark)}>
+                    Watermark PDFs with viewer&apos;s email
                   </span>
                 </div>
 
@@ -440,13 +440,13 @@ export default function FundingHubApp() {
                   <button
                     type="button"
                     onClick={() => setIsShareModalOpen(false)}
-                    className="flex-1 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 font-semibold py-3.5 px-4 rounded-xl text-sm transition-colors cursor-pointer text-center shadow-2xs"
+                    className="flex-1 bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-3.5 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-card"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-[#b89d5f] hover:bg-[#a68c4f] text-[#1c180e] font-semibold py-3.5 px-4 rounded-xl text-sm transition-colors cursor-pointer text-center shadow-xs"
+                    className="flex-1 bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold py-3.5 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-card"
                   >
                     Send invite
                   </button>
@@ -458,26 +458,26 @@ export default function FundingHubApp() {
         )}
 
         {/* MAIN BODY VIEW ROUTER */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 flex-1 w-full space-y-6">
+        <main className="max-w-7xl mx-auto px-4 md:px-6 pt-6 flex-1 w-full space-y-6">
           
           {activeTab === "Pipeline" && (
             <div className="space-y-6 animate-fadeIn pb-12">
-              <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-2xs max-w-lg space-y-3">
-                <div className="flex items-center justify-between text-xs font-semibold text-gray-600">
+              <div className="bg-white rounded-modal border border-sage-200/90 p-5 shadow-card max-w-lg space-y-3">
+                <div className="flex items-center justify-between text-xs font-semibold text-sage-600">
                   <span>Soft-committed vs target round</span>
-                  <span className="text-gray-900 font-bold">₦58M of ₦90M</span>
+                  <span className="text-sage-900 font-bold">₦58M of ₦90M</span>
                 </div>
-                <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+                <div className="w-full bg-sage-100 h-3 rounded-full overflow-hidden">
                   <div className="bg-[#1e4836] h-full rounded-full w-[64%]"></div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-start overflow-x-auto pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-start overflow-x-auto pb-4">
                 {pipelineColumns.map((col) => (
-                  <div key={col.id} className="bg-[#f0f3f0] rounded-2xl p-3 border border-gray-200/60 space-y-3 min-w-[220px]">
+                  <div key={col.id} className="bg-[#f0f3f0] rounded-modal p-3 border border-sage-200/60 space-y-3 min-w-[220px]">
                     <div className="px-1 pt-1">
-                      <h3 className="font-semibold text-sm text-gray-900">{col.title}</h3>
-                      <p className="text-[11px] text-gray-500">{col.investors.length} investors</p>
+                      <h3 className="font-semibold text-sm text-sage-900">{col.title}</h3>
+                      <p className="text-[11px] text-sage-500">{col.investors.length} investors</p>
                     </div>
 
                     <div className="space-y-3">
@@ -485,15 +485,15 @@ export default function FundingHubApp() {
                         <div
                           key={inv.id}
                           onClick={() => handleCardClick(inv.name)}
-                          className="bg-white rounded-xl border border-gray-200/80 p-4 shadow-2xs hover:border-[#b89d5f] transition-all cursor-pointer space-y-3 group"
+                          className="bg-white rounded-card border border-sage-200/80 p-4 shadow-card hover:border-[#9C5B34] transition-all cursor-pointer space-y-3 group"
                         >
                           <div className="flex items-start justify-between gap-2">
-                            <h4 className="font-semibold text-sm text-gray-900 group-hover:text-[#8c6d33] transition-colors">
+                            <h4 className="font-semibold text-sm text-sage-900 group-hover:text-[#8A5330] transition-colors">
                               {inv.name}
                             </h4>
                             <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                               inv.statusType === "Cold" 
-                                ? "bg-gray-100 text-gray-600" 
+                                ? "bg-sage-100 text-sage-600" 
                                 : "bg-[#e2ede6] text-[#1e4836]"
                             }`}>
                               {inv.status}
@@ -501,8 +501,8 @@ export default function FundingHubApp() {
                           </div>
 
                           <div>
-                            <p className="text-sm font-bold text-gray-900">{inv.amount}</p>
-                            <p className="text-xs text-gray-500 mt-1">{inv.action}</p>
+                            <p className="text-sm font-bold text-sage-900">{inv.amount}</p>
+                            <p className="text-xs text-sage-500 mt-1">{inv.action}</p>
                           </div>
                         </div>
                       ))}
@@ -511,7 +511,7 @@ export default function FundingHubApp() {
                 ))}
               </div>
 
-              <p className="text-xs text-gray-500 italic pt-2">
+              <p className="text-xs text-sage-500 italic pt-2">
                 Tip: click an investor card to get a meeting-prep brief from the Fundraising Copilot.
               </p>
             </div>
@@ -520,45 +520,45 @@ export default function FundingHubApp() {
           {activeTab === "Data room" && (
             <div className="space-y-6 animate-fadeIn pb-12">
               <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="text-3xl font-serif font-semibold text-gray-900">Data room</h1>
+                <h1 className="text-3xl font-display font-semibold text-sage-900">Data room</h1>
                 <button
                   onClick={handleShareDataRoomClick}
-                  className="bg-[#b89d5f] hover:bg-[#a68c4f] text-[#1c180e] font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                  className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-card"
                 >
                   <span>Share data room</span>
                 </button>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-200/95 shadow-2xs p-2 divide-y divide-gray-100">
+                <div className="lg:col-span-7 bg-white rounded-modal border border-sage-200/95 shadow-card p-2 divide-y divide-sage-100">
                   {dataRoomFolders.map((folder) => (
                     <div 
                       key={folder.id}
                       onClick={() => triggerToast(`Opening folder: ${folder.name}`)}
-                      className="px-5 py-4 flex items-center justify-between hover:bg-gray-50/80 transition-colors rounded-xl cursor-pointer"
+                      className="px-5 py-4 flex items-center justify-between hover:bg-sage-50/80 transition-colors rounded-card cursor-pointer"
                     >
                       <div className="flex items-center gap-3.5">
-                        <ChevronRight className="w-4 h-4 text-[#b89d5f] shrink-0" />
-                        <span className="font-semibold text-sm text-gray-900">{folder.name}</span>
+                        <ChevronRight className="w-4 h-4 text-[#9C5B34] shrink-0" />
+                        <span className="font-semibold text-sm text-sage-900">{folder.name}</span>
                       </div>
-                      <span className="text-xs text-gray-500 font-medium">{folder.filesCount} files</span>
+                      <span className="text-xs text-sage-500 font-medium">{folder.filesCount} files</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="lg:col-span-5 bg-white rounded-2xl border border-gray-200/95 shadow-2xs p-6 space-y-4">
-                  <h3 className="font-semibold text-sm text-gray-900">Access log</h3>
-                  <div className="space-y-4 divide-y divide-gray-100">
+                <div className="lg:col-span-5 bg-white rounded-modal border border-sage-200/95 shadow-card p-6 space-y-4">
+                  <h3 className="font-semibold text-sm text-sage-900">Access log</h3>
+                  <div className="space-y-4 divide-y divide-sage-100">
                     {accessLogs.map((log) => (
                       <div key={log.id} className="pt-4 first:pt-0 flex items-start gap-3.5">
-                        <div className="w-9 h-9 rounded-full bg-[#0e271f] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                        <div className="w-9 h-9 rounded-full bg-[#0e271f] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-card">
                           {log.initials}
                         </div>
                         <div className="space-y-0.5 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                          <p className="text-sm font-medium text-sage-900 truncate">
                             <span className="font-semibold">{log.name}</span> {log.action}
                           </p>
-                          <p className="text-xs text-gray-500">{log.time}</p>
+                          <p className="text-xs text-sage-500">{log.time}</p>
                         </div>
                       </div>
                     ))}
@@ -571,22 +571,22 @@ export default function FundingHubApp() {
           {activeTab === "Cap table" && (
             <div className="space-y-6 animate-fadeIn pb-12">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-200/95 shadow-2xs overflow-hidden">
+                <div className="lg:col-span-7 bg-white rounded-modal border border-sage-200/95 shadow-card overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-gray-200/80 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                        <tr className="border-b border-sage-200/80 text-[11px] font-bold text-sage-400 uppercase tracking-wider">
                           <th className="py-4 px-6">Stakeholder</th>
                           <th className="py-4 px-6">Security</th>
                           <th className="py-4 px-6 text-right">Ownership</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-100">
+                      <tbody className="divide-y divide-sage-100">
                         {capTableRows.map((row) => (
-                          <tr key={row.id} className="hover:bg-gray-50/50 transition-colors">
-                            <td className="py-4 px-6 font-semibold text-sm text-gray-900">{row.stakeholder}</td>
-                            <td className="py-4 px-6 text-sm text-gray-500">{row.security}</td>
-                            <td className="py-4 px-6 text-sm font-bold text-gray-900 text-right">{row.ownership}</td>
+                          <tr key={row.id} className="hover:bg-sage-50/50 transition-colors">
+                            <td className="py-4 px-6 font-semibold text-sm text-sage-900">{row.stakeholder}</td>
+                            <td className="py-4 px-6 text-sm text-sage-500">{row.security}</td>
+                            <td className="py-4 px-6 text-sm font-bold text-sage-900 text-right">{row.ownership}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -595,7 +595,7 @@ export default function FundingHubApp() {
                 </div>
 
                 <div className="lg:col-span-5 space-y-6">
-                  <div className="bg-white rounded-2xl border border-gray-200/95 shadow-2xs p-6 flex flex-col items-center justify-center space-y-4">
+                  <div className="bg-white rounded-modal border border-sage-200/95 shadow-card p-6 flex flex-col items-center justify-center space-y-4">
                     <div className="relative w-36 h-36 flex items-center justify-center">
                       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                         <path
@@ -607,7 +607,7 @@ export default function FundingHubApp() {
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                         <path
-                          className="text-[#8c6d33]"
+                          className="text-[#8A5330]"
                           strokeWidth="4"
                           stroke="currentColor"
                           fill="none"
@@ -629,45 +629,45 @@ export default function FundingHubApp() {
                         <div className="w-16 h-16 rounded-full bg-white"></div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 font-medium text-center">
+                    <p className="text-xs text-sage-600 font-medium text-center">
                       Founders 70% · Options 18% · SAFE 12%
                     </p>
                   </div>
 
-                  <div className="bg-[#0e271f] rounded-2xl p-6 text-white space-y-4 shadow-xl">
-                    <h3 className="font-serif font-semibold text-base">Model a round</h3>
+                  <div className="bg-[#0e271f] rounded-modal p-6 text-white space-y-4 shadow-raised">
+                    <h3 className="font-display font-semibold text-base">Model a round</h3>
                     
                     <div className="space-y-1.5">
-                      <label className="block text-[11px] font-bold text-gray-300 uppercase tracking-wider">
+                      <label className="block text-[11px] font-bold text-sage-300 uppercase tracking-wider">
                         New money (₦M)
                       </label>
                       <input
                         type="text"
                         value={newMoney}
                         onChange={(e) => setNewMoney(e.target.value)}
-                        className="w-full bg-[#16382c] border border-[#235342] rounded-xl px-4 py-2.5 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-[#b89d5f]/50"
+                        className="w-full bg-[#16382c] border border-[#235342] rounded-card px-4 py-2.5 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-[#9C5B34]/50"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-[11px] font-bold text-gray-300 uppercase tracking-wider">
+                      <label className="block text-[11px] font-bold text-sage-300 uppercase tracking-wider">
                         Pre-money (₦M)
                       </label>
                       <input
                         type="text"
                         value={preMoney}
                         onChange={(e) => setPreMoney(e.target.value)}
-                        className="w-full bg-[#16382c] border border-[#235342] rounded-xl px-4 py-2.5 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-[#b89d5f]/50"
+                        className="w-full bg-[#16382c] border border-[#235342] rounded-card px-4 py-2.5 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-[#9C5B34]/50"
                       />
                     </div>
 
-                    <div className="bg-[#16382c] border border-[#235342] rounded-xl p-3.5 text-xs text-gray-200">
-                      You would go from <span className="font-bold text-white">70%</span> to <span className="font-bold text-[#eadaaf]">56%</span> founder ownership.
+                    <div className="bg-[#16382c] border border-[#235342] rounded-card p-3.5 text-xs text-sage-200">
+                      You would go from <span className="font-bold text-white">70%</span> to <span className="font-bold text-[#EAD5C6]">56%</span> founder ownership.
                     </div>
 
                     <button
                       onClick={handleSaveScenario}
-                      className="w-full bg-[#b89d5f] hover:bg-[#a68c4f] text-[#1c180e] font-semibold py-3 px-4 rounded-xl text-sm transition-colors cursor-pointer text-center shadow-xs"
+                      className="w-full bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold py-3 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-card"
                     >
                       Save as scenario
                     </button>
@@ -679,46 +679,46 @@ export default function FundingHubApp() {
 
           {activeTab === "Grants" && (
             <div className="space-y-6 animate-fadeIn pb-12">
-              <h1 className="text-3xl font-serif font-semibold text-gray-900">Grants</h1>
+              <h1 className="text-3xl font-display font-semibold text-sage-900">Grants</h1>
               
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">AI MATCHES</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-sage-500">AI MATCHES</h3>
 
                 <div className="space-y-4">
                   {grants.length === 0 ? (
-                    <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center text-gray-500 text-sm">
+                    <div className="bg-white rounded-modal border border-sage-200 p-8 text-center text-sage-500 text-sm">
                       No grant matches available right now.
                     </div>
                   ) : (
                     grants.map((grant) => (
                       <div 
                         key={grant.id}
-                        className="bg-white rounded-2xl border border-gray-200/95 p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                        className="bg-white rounded-modal border border-sage-200/95 p-5 md:p-6 shadow-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
                       >
                         <div className="flex items-center gap-5">
-                          <div className="bg-[#e2ede6] text-[#1e4836] px-3.5 py-2.5 rounded-xl font-serif font-bold text-center shrink-0 min-w-[70px]">
-                            <div className="text-base sm:text-lg leading-tight">{grant.fit}</div>
-                            <div className="text-[10px] uppercase font-sans tracking-wider opacity-80">FIT</div>
+                          <div className="bg-[#e2ede6] text-[#1e4836] px-3.5 py-2.5 rounded-card font-display font-bold text-center shrink-0 min-w-[70px]">
+                            <div className="text-base md:text-lg leading-tight">{grant.fit}</div>
+                            <div className="text-[10px] uppercase font-body tracking-wider opacity-80">FIT</div>
                           </div>
 
                           <div className="space-y-1">
-                            <h4 className="font-semibold text-base text-gray-900">{grant.title}</h4>
-                            <p className="text-xs text-gray-500 font-medium">
+                            <h4 className="font-semibold text-base text-sage-900">{grant.title}</h4>
+                            <p className="text-xs text-sage-500 font-medium">
                               {grant.provider} · {grant.amount} · {grant.deadline}
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                           <button
                             onClick={() => handleStartApplication(grant.title)}
-                            className="bg-[#b89d5f] hover:bg-[#a68c4f] text-[#1c180e] font-semibold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-colors cursor-pointer shadow-xs flex-1 sm:flex-none text-center"
+                            className="bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1c180e] font-semibold px-4 py-2.5 rounded-card text-xs md:text-sm transition-colors cursor-pointer shadow-card flex-1 md:flex-none text-center"
                           >
                             Start application
                           </button>
                           <button
                             onClick={() => handleNotRelevant(grant.id, grant.title)}
-                            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 font-medium px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-colors cursor-pointer flex-1 sm:flex-none text-center shadow-2xs"
+                            className="bg-white hover:bg-sage-50 text-sage-700 border border-sage-200 font-medium px-4 py-2.5 rounded-card text-xs md:text-sm transition-colors cursor-pointer flex-1 md:flex-none text-center shadow-card"
                           >
                             Not relevant
                           </button>
@@ -734,27 +734,27 @@ export default function FundingHubApp() {
           {activeTab === "Term sheets" && (
             <div className="space-y-6 animate-fadeIn pb-12">
               <div className="space-y-1">
-                <h1 className="text-3xl font-serif font-semibold text-gray-900">Term sheets</h1>
-                <p className="text-sm text-gray-500">Negotiate with clarity.</p>
+                <h1 className="text-3xl font-display font-semibold text-sage-900">Term sheets</h1>
+                <p className="text-sm text-sage-500">Negotiate with clarity.</p>
               </div>
 
               <div className="space-y-4">
-                <div className="bg-white rounded-2xl border border-gray-200/95 shadow-2xs overflow-hidden">
+                <div className="bg-white rounded-modal border border-sage-200/95 shadow-card overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-gray-200/80 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                        <tr className="border-b border-sage-200/80 text-[11px] font-bold text-sage-400 uppercase tracking-wider">
                           <th className="py-4 px-6">Term</th>
                           <th className="py-4 px-6">Sheet A</th>
                           <th className="py-4 px-6">Sheet B</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-100">
+                      <tbody className="divide-y divide-sage-100">
                         {termSheetRows.map((row, index) => (
-                          <tr key={index} className="hover:bg-gray-50/50 transition-colors">
-                            <td className="py-4 px-6 font-semibold text-sm text-gray-900">{row.term}</td>
-                            <td className="py-4 px-6 text-sm text-gray-700 font-medium">{row.sheetA}</td>
-                            <td className="py-4 px-6 text-sm text-gray-700 font-medium">{row.sheetB}</td>
+                          <tr key={index} className="hover:bg-sage-50/50 transition-colors">
+                            <td className="py-4 px-6 font-semibold text-sm text-sage-900">{row.term}</td>
+                            <td className="py-4 px-6 text-sm text-sage-700 font-medium">{row.sheetA}</td>
+                            <td className="py-4 px-6 text-sm text-sage-700 font-medium">{row.sheetB}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -762,18 +762,18 @@ export default function FundingHubApp() {
                   </div>
                 </div>
 
-                <div className="bg-[#f3eee2] border border-[#e5dcbe] rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-2xs">
-                  <div className="text-[#8c6d33] mt-0.5 shrink-0">
+                <div className="bg-[#f3eee2] border border-[#EAD5C6] rounded-modal p-4 md:p-5 flex items-start gap-3.5 shadow-card">
+                  <div className="text-[#8A5330] mt-0.5 shrink-0">
                     <Sparkles className="w-4 h-4 fill-current" />
                   </div>
                   <div className="space-y-0.5">
-                    <p className="text-xs font-semibold text-[#5c4720]">
-                      AI note: <span className="font-normal text-gray-800">Sheet B's 2x liquidation preference is unusual at this stage. Ask for 1x non-participating.</span>
+                    <p className="text-xs font-semibold text-[#522F1A]">
+                      AI note: <span className="font-normal text-sage-800">Sheet B&apos;s 2x liquidation preference is unusual at this stage. Ask for 1x non-participating.</span>
                     </p>
                   </div>
                 </div>
 
-                <p className="text-[11px] text-gray-400 italic">
+                <p className="text-[11px] text-sage-400 italic">
                   This is AI-assisted guidance, not professional legal advice. For anything non-standard, involve a licensed professional.
                 </p>
               </div>
@@ -782,51 +782,51 @@ export default function FundingHubApp() {
 
           {activeTab === "Analytics" && (
             <div className="space-y-6 animate-fadeIn pb-12">
-              <h1 className="text-3xl font-serif font-semibold text-gray-900">Fundraise analytics</h1>
+              <h1 className="text-3xl font-display font-semibold text-sage-900">Fundraise analytics</h1>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 {/* Investor Funnel Card */}
-                <div className="lg:col-span-6 bg-white rounded-2xl border border-gray-200/95 shadow-2xs p-6 space-y-6">
-                  <h3 className="font-semibold text-sm text-gray-900">Investor funnel</h3>
+                <div className="lg:col-span-6 bg-white rounded-modal border border-sage-200/95 shadow-card p-6 space-y-6">
+                  <h3 className="font-semibold text-sm text-sage-900">Investor funnel</h3>
 
                   <div className="space-y-5">
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center text-xs font-medium text-gray-700">
+                      <div className="flex justify-between items-center text-xs font-medium text-sage-700">
                         <span>Contacted</span>
-                        <span className="font-bold text-gray-900">24</span>
+                        <span className="font-bold text-sage-900">24</span>
                       </div>
-                      <div className="w-full bg-gray-100 h-3.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-sage-100 h-3.5 rounded-full overflow-hidden">
                         <div className="bg-[#1e4836] h-full rounded-full w-full"></div>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center text-xs font-medium text-gray-700">
+                      <div className="flex justify-between items-center text-xs font-medium text-sage-700">
                         <span>Meetings</span>
-                        <span className="font-bold text-gray-900">11</span>
+                        <span className="font-bold text-sage-900">11</span>
                       </div>
-                      <div className="w-full bg-gray-100 h-3.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-sage-100 h-3.5 rounded-full overflow-hidden">
                         <div className="bg-[#1e4836] h-full rounded-full w-[46%]"></div>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center text-xs font-medium text-gray-700">
+                      <div className="flex justify-between items-center text-xs font-medium text-sage-700">
                         <span>Diligence</span>
-                        <span className="font-bold text-gray-900">5</span>
+                        <span className="font-bold text-sage-900">5</span>
                       </div>
-                      <div className="w-full bg-gray-100 h-3.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-sage-100 h-3.5 rounded-full overflow-hidden">
                         <div className="bg-[#1e4836] h-full rounded-full w-[21%]"></div>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center text-xs font-medium text-gray-700">
+                      <div className="flex justify-between items-center text-xs font-medium text-sage-700">
                         <span>Committed</span>
-                        <span className="font-bold text-gray-900">2</span>
+                        <span className="font-bold text-sage-900">2</span>
                       </div>
-                      <div className="w-full bg-gray-100 h-3.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-sage-100 h-3.5 rounded-full overflow-hidden">
                         <div className="bg-[#1e4836] h-full rounded-full w-[8%]"></div>
                       </div>
                     </div>
@@ -834,15 +834,15 @@ export default function FundingHubApp() {
                 </div>
 
                 {/* Committed vs Target Card */}
-                <div className="lg:col-span-6 bg-white rounded-2xl border border-gray-200/95 shadow-2xs p-6 space-y-8 flex flex-col justify-between min-h-[300px]">
-                  <h3 className="font-semibold text-sm text-gray-900">Committed vs target</h3>
+                <div className="lg:col-span-6 bg-white rounded-modal border border-sage-200/95 shadow-card p-6 space-y-8 flex flex-col justify-between min-h-[300px]">
+                  <h3 className="font-semibold text-sm text-sage-900">Committed vs target</h3>
 
                   <div className="flex flex-col items-center justify-center space-y-2 py-4">
-                    <span className="font-serif font-bold text-5xl text-[#1e4836] tracking-tight">64%</span>
-                    <span className="text-xs text-gray-500 font-medium">₦58M soft-committed of ₦90M</span>
+                    <span className="font-display font-bold text-5xl text-[#1e4836] tracking-tight">64%</span>
+                    <span className="text-xs text-sage-500 font-medium">₦58M soft-committed of ₦90M</span>
                   </div>
 
-                  <div className="w-full bg-gray-100 h-3.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-sage-100 h-3.5 rounded-full overflow-hidden">
                     <div className="bg-[#1e4836] h-full rounded-full w-[64%]"></div>
                   </div>
                 </div>

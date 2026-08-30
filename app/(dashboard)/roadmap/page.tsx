@@ -514,8 +514,8 @@ export default function RoadmapPage() {
     <div className="flex min-h-screen bg-[#F7F7F5] text-[#1E2923] relative">
       {/* Top Preview Badge */}
       {previewingTemplateTitle && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#172E21] text-white px-5 py-2.5 rounded-2xl shadow-xl flex items-center gap-2.5 transition-all duration-300 border border-[#2B4736]">
-          <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#172E21] text-white px-5 py-2.5 rounded-modal shadow-raised flex items-center gap-2.5 transition-all duration-300 border border-[#2B4736]">
+          <div className="w-4 h-4 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center shrink-0">
             <Check className="w-3 h-3 stroke-[3]" />
           </div>
           <span className="text-xs font-medium tracking-tight">
@@ -523,7 +523,7 @@ export default function RoadmapPage() {
           </span>
           <button
             onClick={() => setPreviewingTemplateTitle(null)}
-            className="ml-2 text-gray-400 hover:text-white transition-colors"
+            className="ml-2 text-sage-400 hover:text-white transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -532,8 +532,8 @@ export default function RoadmapPage() {
 
       {/* Top Floating Notification Badge (Used for AI Re-plan and Templates) */}
       {showNotification && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#172E21] text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 transition-all duration-300 border border-[#2B4736]">
-          <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#172E21] text-white px-6 py-3 rounded-modal shadow-raised flex items-center gap-3 transition-all duration-300 border border-[#2B4736]">
+          <div className="w-4 h-4 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center shrink-0">
             <Check className="w-3.5 h-3.5 stroke-[3]" />
           </div>
           <span className="text-xs font-semibold tracking-tight">
@@ -541,7 +541,7 @@ export default function RoadmapPage() {
           </span>
           <button
             onClick={() => setShowNotification(null)}
-            className="ml-2 text-gray-400 hover:text-white transition-colors"
+            className="ml-2 text-sage-400 hover:text-white transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -556,11 +556,11 @@ export default function RoadmapPage() {
         {/* Sticky Header & Navigation Wrapper */}
         <div className="sticky top-0 z-40 bg-[#F7F7F5] border-b border-[#EBEBE6]">
           {/* Main Top Navbar */}
-          <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4 shadow-xs">
+          <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4 shadow-card">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden w-10 h-10 rounded-2xl bg-[#173B28] text-[#D4B871] flex items-center justify-center font-bold text-base shadow-xs hover:opacity-90 transition-opacity shrink-0"
+                className="lg:hidden w-10 h-10 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-base shadow-card hover:opacity-90 transition-opacity shrink-0"
                 aria-label="Open sidebar"
               >
                 C
@@ -574,7 +574,7 @@ export default function RoadmapPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
+              <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
                 <span className="text-[#556358]">Health</span>
                 <span className="font-bold text-sm">72</span>
                 <span className="text-[10px] text-[#2D5A3F]">↑</span>
@@ -582,14 +582,14 @@ export default function RoadmapPage() {
 
               <button className="relative p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]">
                 <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 bg-[#A5823D] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   5
                 </span>
               </button>
 
-              <button className="flex items-center gap-1.5 bg-[#A5823D] hover:bg-[#8F6F30] text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shadow-xs">
+              <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors shadow-card">
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Invite</span>
+                <span className="hidden md:inline">Invite</span>
               </button>
             </div>
           </header>
@@ -599,7 +599,7 @@ export default function RoadmapPage() {
             {/* Title Row with Alert Pill */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div>
-                <h2 className="text-3xl font-serif font-semibold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">
                   Roadmap
                 </h2>
                 <p className="text-xs text-[#617065] mt-1">
@@ -609,7 +609,7 @@ export default function RoadmapPage() {
 
               <button
                 onClick={() => setActiveTab('AI Re-plan')}
-                className="flex items-center gap-2 bg-[#F5EEDC] hover:bg-[#EFE3C6] text-[#8F6F30] px-4 py-2 rounded-xl text-xs font-medium transition-colors border border-[#E8DAB7] self-start"
+                className="flex items-center gap-2 bg-[#F5EEDC] hover:bg-[#EAD5C6] text-[#8A5330] px-4 py-2 rounded-card text-xs font-medium transition-colors border border-[#EAD5C6] self-start"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>3 tasks slipped, review re-plan</span>
@@ -632,7 +632,7 @@ export default function RoadmapPage() {
                   >
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
-                        isSelected ? 'bg-[#D4B871]' : 'bg-[#C5CFC7]'
+                        isSelected ? 'bg-[#D89A6E]' : 'bg-[#C5CFC7]'
                       }`}
                     />
                     {stage.name}
@@ -672,10 +672,10 @@ export default function RoadmapPage() {
           {activeTab === 'AI Re-plan' && (
             <div className="flex flex-col gap-8">
               {/* Main Card Container */}
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] shadow-2xs overflow-hidden">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
                 {/* Banner Header */}
-                <div className="bg-[#F5EEDC] p-6 border-b border-[#E8DAB7] flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#8F6F30]/10 text-[#8F6F30] flex items-center justify-center shrink-0 border border-[#8F6F30]/20 mt-0.5">
+                <div className="bg-[#F5EEDC] p-6 border-b border-[#EAD5C6] flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-card bg-[#8A5330]/10 text-[#8A5330] flex items-center justify-center shrink-0 border border-[#8A5330]/20 mt-0.5">
                     <RefreshCw className="w-5 h-5" />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -706,7 +706,7 @@ export default function RoadmapPage() {
                         {/* Custom Checkbox */}
                         <button
                           type="button"
-                          className={`w-5 h-5 rounded-md flex items-center justify-center transition-all shrink-0 mt-0.5 ${
+                          className={`w-5 h-5 rounded-[6px] flex items-center justify-center transition-all shrink-0 mt-0.5 ${
                             item.selected
                               ? 'bg-[#183B28] text-white'
                               : 'border-2 border-[#C5CFC7] bg-white group-hover:border-[#183B28]'
@@ -742,14 +742,14 @@ export default function RoadmapPage() {
                   <div className="p-6 border-t border-[#EBEBE6] bg-white flex items-center justify-end gap-3">
                     <button
                       onClick={() => setActiveTab('Timeline')}
-                      className="bg-white border border-[#EBEBE6] hover:bg-[#F5F5F0] text-[#1E2923] text-xs font-bold px-6 py-2.5 rounded-xl transition-colors"
+                      className="bg-white border border-[#EBEBE6] hover:bg-[#F5F5F0] text-[#1E2923] text-xs font-bold px-6 py-2.5 rounded-card transition-colors"
                     >
                       Dismiss
                     </button>
                     <button
                       onClick={handleApplyRePlanChanges}
                       disabled={selectedChangesCount === 0}
-                      className="bg-[#A5823D] hover:bg-[#8F6F30] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-colors shadow-2xs"
+                      className="bg-[#9C5B34] hover:bg-[#8A5330] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold px-6 py-2.5 rounded-card transition-colors shadow-card"
                     >
                       Apply {selectedChangesCount}{' '}
                       {selectedChangesCount === 1 ? 'change' : 'changes'}
@@ -765,7 +765,7 @@ export default function RoadmapPage() {
                 </h4>
 
                 <div className="flex flex-col gap-3">
-                  <div className="bg-white rounded-2xl p-5 border border-[#EBEBE6] shadow-2xs flex flex-col gap-1">
+                  <div className="bg-white rounded-modal p-5 border border-[#EBEBE6] shadow-card flex flex-col gap-1">
                     <h5 className="text-sm font-bold text-[#1E2923]">
                       Re-planned 2 milestones
                     </h5>
@@ -774,7 +774,7 @@ export default function RoadmapPage() {
                     </p>
                   </div>
 
-                  <div className="bg-white rounded-2xl p-5 border border-[#EBEBE6] shadow-2xs flex flex-col gap-1">
+                  <div className="bg-white rounded-modal p-5 border border-[#EBEBE6] shadow-card flex flex-col gap-1">
                     <h5 className="text-sm font-bold text-[#1E2923]">
                       Re-planned 1 milestone
                     </h5>
@@ -791,14 +791,14 @@ export default function RoadmapPage() {
           {activeTab === 'Timeline' && (
             <div className="flex flex-col gap-4">
               <div className="flex justify-end">
-                <div className="flex items-center bg-white p-1 rounded-xl border border-[#EBEBE6] shadow-2xs">
+                <div className="flex items-center bg-white p-1 rounded-card border border-[#EBEBE6] shadow-card">
                   {['Week', 'Month', 'Quarter'].map((mode) => (
                     <button
                       key={mode}
                       onClick={() => setViewMode(mode)}
-                      className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                      className={`px-3 py-1 rounded-input text-xs font-medium transition-all ${
                         viewMode === mode
-                          ? 'bg-[#E7DDC8] text-[#1E2923] font-bold'
+                          ? 'bg-[#EAD5C6] text-[#1E2923] font-bold'
                           : 'bg-transparent text-[#768478] hover:text-[#1E2923]'
                       }`}
                     >
@@ -808,7 +808,7 @@ export default function RoadmapPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] shadow-2xs overflow-hidden">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
                 <div className="overflow-x-auto">
                   <div className="min-w-[800px]">
                     <div className="grid grid-cols-7 border-b border-[#EBEBE6] bg-[#F7F7F5] text-[11px] font-bold text-[#768478] uppercase">
@@ -827,7 +827,7 @@ export default function RoadmapPage() {
 
                     <div className="relative divide-y divide-[#F0F0EC]">
                       <div
-                        className="absolute top-0 bottom-0 w-[1.5px] bg-[#A5823D] z-10 pointer-events-none"
+                        className="absolute top-0 bottom-0 w-[1.5px] bg-[#9C5B34] z-10 pointer-events-none"
                         style={{ left: '35.5%' }}
                       />
 
@@ -857,7 +857,7 @@ export default function RoadmapPage() {
 
                                 {task.bar && (
                                   <div
-                                    className="absolute top-1/2 -translate-y-1/2 h-9 rounded-xl bg-[#E6EFEA] border border-[#B8D5C4] flex items-center justify-between px-3 text-xs font-bold text-[#183B28] shadow-2xs z-20"
+                                    className="absolute top-1/2 -translate-y-1/2 h-9 rounded-card bg-[#E6EFEA] border border-[#B8D5C4] flex items-center justify-between px-3 text-xs font-bold text-[#183B28] shadow-card z-20"
                                     style={{
                                       left:
                                         task.bar.startCol === 'Jul'
@@ -898,7 +898,7 @@ export default function RoadmapPage() {
               </div>
 
               <div className="flex items-center gap-2 text-xs text-[#768478] font-medium pt-1">
-                <span className="w-3 h-0.5 bg-[#A5823D]" />
+                <span className="w-3 h-0.5 bg-[#9C5B34]" />
                 <span>Today</span>
               </div>
             </div>
@@ -910,9 +910,9 @@ export default function RoadmapPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setKanbanFilter('phase')}
-                  className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  className={`px-4 py-1.5 rounded-card text-xs font-semibold transition-all ${
                     kanbanFilter === 'phase'
-                      ? 'bg-[#E7DDC8] text-[#1E2923]'
+                      ? 'bg-[#EAD5C6] text-[#1E2923]'
                       : 'bg-white border border-[#EBEBE6] text-[#617065] hover:bg-[#F5F5F0]'
                   }`}
                 >
@@ -920,9 +920,9 @@ export default function RoadmapPage() {
                 </button>
                 <button
                   onClick={() => setKanbanFilter('status')}
-                  className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  className={`px-4 py-1.5 rounded-card text-xs font-semibold transition-all ${
                     kanbanFilter === 'status'
-                      ? 'bg-[#E7DDC8] text-[#1E2923]'
+                      ? 'bg-[#EAD5C6] text-[#1E2923]'
                       : 'bg-white border border-[#EBEBE6] text-[#617065] hover:bg-[#F5F5F0]'
                   }`}
                 >
@@ -934,7 +934,7 @@ export default function RoadmapPage() {
                 {currentKanbanColumns.map((col, colIdx) => (
                   <div
                     key={colIdx}
-                    className="bg-[#F2F4F1] rounded-2xl p-4 border border-[#EBEBE6] flex flex-col gap-4 min-h-[380px]"
+                    className="bg-[#F2F4F1] rounded-modal p-4 border border-[#EBEBE6] flex flex-col gap-4 min-h-[380px]"
                   >
                     <div className="flex items-center justify-between px-1">
                       <h3 className="text-sm font-bold text-[#1E2923]">
@@ -949,14 +949,14 @@ export default function RoadmapPage() {
                       {col.cards.map((card, cardIdx) => (
                         <div
                           key={cardIdx}
-                          className={`bg-white rounded-2xl p-4 shadow-2xs border relative overflow-hidden flex flex-col gap-3 ${
+                          className={`bg-white rounded-modal p-4 shadow-card border relative overflow-hidden flex flex-col gap-3 ${
                             card.hasBorderAccent
-                              ? 'border-[#C5A467]'
+                              ? 'border-[#D89A6E]'
                               : 'border-[#EBEBE6]'
                           }`}
                         >
                           {card.hasBorderAccent && (
-                            <div className="absolute top-0 bottom-0 left-0 w-1 bg-[#A5823D] rounded-l-2xl" />
+                            <div className="absolute top-0 bottom-0 left-0 w-1 bg-[#9C5B34] rounded-l-2xl" />
                           )}
 
                           <div className="flex items-start justify-between gap-2">
@@ -989,7 +989,7 @@ export default function RoadmapPage() {
 
           {/* MILESTONES VIEW */}
           {activeTab === 'Milestones' && (
-            <div className="bg-white rounded-2xl border border-[#EBEBE6] shadow-2xs overflow-hidden">
+            <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
@@ -1032,7 +1032,7 @@ export default function RoadmapPage() {
                           <span
                             className={`px-2.5 py-1 rounded-full text-[11px] font-medium inline-block ${
                               row.status === 'In progress'
-                                ? 'bg-[#F2EADA] text-[#8F6F30]'
+                                ? 'bg-[#F2EADA] text-[#8A5330]'
                                 : 'bg-[#F0F0EC] text-[#617065]'
                             }`}
                           >
@@ -1040,7 +1040,7 @@ export default function RoadmapPage() {
                           </span>
                         </td>
                         <td className="py-4 px-4 text-right">
-                          <button className="text-[#8E9B90] hover:text-[#1E2923] p-1 rounded-md transition-colors">
+                          <button className="text-[#8E9B90] hover:text-[#1E2923] p-1 rounded-[6px] transition-colors">
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
                         </td>
@@ -1055,7 +1055,7 @@ export default function RoadmapPage() {
           {/* DEPENDENCIES VIEW */}
           {activeTab === 'Dependencies' && (
             <div className="flex flex-col gap-6">
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] p-6 sm:p-10 shadow-2xs flex flex-col gap-8">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] p-6 md:p-10 shadow-card flex flex-col gap-8">
                 <h3 className="text-xs font-bold text-[#1E2923]">
                   Dependency graph
                 </h3>
@@ -1168,7 +1168,7 @@ export default function RoadmapPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] p-6 sm:p-8 shadow-2xs flex flex-col gap-6">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] p-6 md:p-8 shadow-card flex flex-col gap-6">
                 <h3 className="text-xs font-bold text-[#1E2923]">
                   Add a dependency
                 </h3>
@@ -1178,7 +1178,7 @@ export default function RoadmapPage() {
                     <select
                       value={selectedTask}
                       onChange={(e) => setSelectedTask(e.target.value)}
-                      className="w-full appearance-none bg-white border border-[#EBEBE6] rounded-xl px-4 py-2.5 text-xs font-medium text-[#1E2923] pr-10 focus:outline-none focus:border-[#183B28]"
+                      className="w-full appearance-none bg-white border border-[#EBEBE6] rounded-card px-4 py-2.5 text-xs font-medium text-[#1E2923] pr-10 focus:outline-none focus:border-[#183B28]"
                     >
                       {allTaskOptions.map((opt) => (
                         <option key={opt} value={opt}>
@@ -1199,7 +1199,7 @@ export default function RoadmapPage() {
                       onChange={(e) =>
                         setSelectedDependencyTarget(e.target.value)
                       }
-                      className="w-full appearance-none bg-white border border-[#EBEBE6] rounded-xl px-4 py-2.5 text-xs font-medium text-[#1E2923] pr-10 focus:outline-none focus:border-[#183B28]"
+                      className="w-full appearance-none bg-white border border-[#EBEBE6] rounded-card px-4 py-2.5 text-xs font-medium text-[#1E2923] pr-10 focus:outline-none focus:border-[#183B28]"
                     >
                       {allTaskOptions.map((opt) => (
                         <option key={opt} value={opt}>
@@ -1212,7 +1212,7 @@ export default function RoadmapPage() {
 
                   <button
                     onClick={handleAddDependency}
-                    className="bg-[#A5823D] hover:bg-[#8F6F30] text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-colors shadow-2xs"
+                    className="bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-bold px-5 py-2.5 rounded-card transition-colors shadow-card"
                   >
                     Add
                   </button>
@@ -1246,11 +1246,11 @@ export default function RoadmapPage() {
                 {templatesData.map((tmpl) => (
                   <div
                     key={tmpl.id}
-                    className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col justify-between gap-6 hover:shadow-xs transition-shadow"
+                    className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between gap-6 hover:shadow-card transition-shadow"
                   >
                     <div className="flex flex-col gap-3">
                       {/* Icon Circle */}
-                      <div className="w-10 h-10 rounded-2xl bg-[#E6EFEA] flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-modal bg-[#E6EFEA] flex items-center justify-center shrink-0">
                         {tmpl.icon}
                       </div>
 
@@ -1259,7 +1259,7 @@ export default function RoadmapPage() {
                         <h3 className="text-sm font-bold text-[#1E2923]">
                           {tmpl.title}
                         </h3>
-                        <span className="text-xs font-medium text-[#A5823D]">
+                        <span className="text-xs font-medium text-[#9C5B34]">
                           {tmpl.category}
                         </span>
                       </div>
@@ -1273,13 +1273,13 @@ export default function RoadmapPage() {
                     <div className="grid grid-cols-2 gap-3 pt-2">
                       <button
                         onClick={() => handlePreview(tmpl.title)}
-                        className="w-full bg-white border border-[#EBEBE6] hover:bg-[#F5F5F0] text-[#1E2923] text-xs font-bold py-2.5 rounded-xl transition-colors"
+                        className="w-full bg-white border border-[#EBEBE6] hover:bg-[#F5F5F0] text-[#1E2923] text-xs font-bold py-2.5 rounded-card transition-colors"
                       >
                         Preview
                       </button>
                       <button
                         onClick={() => handleApplyClick(tmpl)}
-                        className="w-full bg-[#A5823D] hover:bg-[#8F6F30] text-white text-xs font-bold py-2.5 rounded-xl transition-colors"
+                        className="w-full bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-bold py-2.5 rounded-card transition-colors"
                       >
                         Apply
                       </button>
@@ -1295,9 +1295,9 @@ export default function RoadmapPage() {
       {/* Apply Template Overlay Modal */}
       {applyingTemplate && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-[#EBEBE6] flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-modal max-w-md w-full p-6 md:p-8 shadow-raised border border-[#EBEBE6] flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex flex-col gap-2">
-              <h3 className="text-lg font-serif font-bold text-[#1E2923]">
+              <h3 className="text-lg font-display font-bold text-[#1E2923]">
                 Apply this template?
               </h3>
               <p className="text-xs text-[#768478] leading-relaxed">
@@ -1308,13 +1308,13 @@ export default function RoadmapPage() {
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setApplyingTemplate(null)}
-                className="flex-1 bg-white border border-[#EBEBE6] hover:bg-[#F5F5F0] text-[#1E2923] text-xs font-bold py-3 rounded-xl transition-colors"
+                className="flex-1 bg-white border border-[#EBEBE6] hover:bg-[#F5F5F0] text-[#1E2923] text-xs font-bold py-3 rounded-card transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmApplyTemplate}
-                className="flex-1 bg-[#A5823D] hover:bg-[#8F6F30] text-white text-xs font-bold py-3 rounded-xl transition-colors"
+                className="flex-1 bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-bold py-3 rounded-card transition-colors"
               >
                 Apply template
               </button>

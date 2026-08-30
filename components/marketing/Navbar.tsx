@@ -18,22 +18,22 @@ export default function MarketingNavbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 bg-white border-b border-gray-100 transition-all duration-200 ${
-        isScrolled ? 'shadow-sm' : ''
+      className={`sticky top-0 z-50 bg-white border-b border-sage-100 transition-all duration-200 ${
+        isScrolled ? 'shadow-card' : ''
       }`}
     >
       {/* Container with minimal horizontal padding (px-2 on mobile, px-4/px-6 on desktop) */}
-      <div className="w-full max-w-(--breakpoint-2xl) mx-auto px-2 sm:px-4 lg:px-6">
+      <div className="w-full max-w-(--breakpoint-2xl) mx-auto px-2 md:px-4 lg:px-6">
         <div className="flex items-center justify-between h-20">
 
           {/* Logo + Navigation Links Group */}
           <div className="flex items-center gap-8 md:gap-12">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#1B4B38] flex items-center justify-center shadow-xs">
-                <span className="font-serif text-[#C4A35A] font-bold text-lg leading-none">C</span>
+              <div className="w-9 h-9 rounded-card bg-[#1B4B38] flex items-center justify-center shadow-card">
+                <span className="font-display text-[#9C5B34] font-bold text-lg leading-none">C</span>
               </div>
-              <span className="font-serif text-2xl font-semibold text-[#12291F] tracking-tight">
+              <span className="font-display text-2xl font-semibold text-[#12291F] tracking-tight">
                 Cofoundaz
               </span>
             </Link>
@@ -74,16 +74,16 @@ export default function MarketingNavbar() {
                 </button>
 
                 {resourcesOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-48 rounded-lg bg-white shadow-lg border border-gray-100 py-2 z-50">
+                  <div className="absolute top-full left-0 mt-2 w-48 rounded-input bg-white shadow-raised border border-sage-100 py-2 z-50">
                     <a
                       href="#blog"
-                      className="block px-4 py-2 text-sm text-[#33413B] hover:bg-gray-50 hover:text-[#12291F]"
+                      className="block px-4 py-2 text-sm text-[#33413B] hover:bg-sage-50 hover:text-[#12291F]"
                     >
                       Blog
                     </a>
                     <a
                       href="#guides"
-                      className="block px-4 py-2 text-sm text-[#33413B] hover:bg-gray-50 hover:text-[#12291F]"
+                      className="block px-4 py-2 text-sm text-[#33413B] hover:bg-sage-50 hover:text-[#12291F]"
                     >
                       Guides & Tools
                     </a>
@@ -111,7 +111,7 @@ export default function MarketingNavbar() {
 
             <Link
               href="/signup"
-              className="bg-[#A88746] hover:bg-[#96773B] text-[#12291F] font-semibold text-[15px] px-5 py-2.5 rounded-xl shadow-xs transition-all active:scale-[0.98]"
+              className="bg-[#9C5B34] hover:bg-[#8A5330] text-[#12291F] font-semibold text-[15px] px-5 py-2.5 rounded-card shadow-card transition-all active:scale-[0.98]"
             >
               Start free
             </Link>
@@ -140,7 +140,7 @@ export default function MarketingNavbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100 px-4 pt-2 pb-6 space-y-3">
+        <div className="md:hidden bg-white border-b border-sage-100 px-4 pt-2 pb-6 space-y-3">
           <a
             href="#product"
             onClick={() => setMobileMenuOpen(false)}
@@ -162,7 +162,7 @@ export default function MarketingNavbar() {
           >
             About
           </a>
-          <div className="pt-4 border-t border-gray-100 space-y-3">
+          <div className="pt-4 border-t border-sage-100 space-y-3">
             <Link
               href="/login"
               onClick={() => setMobileMenuOpen(false)}
@@ -173,7 +173,7 @@ export default function MarketingNavbar() {
             <Link
               href="/signup"
               onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center bg-[#A88746] text-[#12291F] font-semibold py-2.5 rounded-xl shadow-xs"
+              className="block w-full text-center bg-[#9C5B34] text-[#12291F] font-semibold py-2.5 rounded-card shadow-card"
             >
               Start free
             </Link>
