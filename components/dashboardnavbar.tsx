@@ -36,7 +36,7 @@ export function DashboardNavbar({
       {/* Breadcrumbs */}
       <div className="hidden md:block text-sm text-sage-500 font-normal shrink-0">
         Workspace <span className="text-sage-300 mx-0.5">/</span>{' '}
-        <span className="text-black font-semibold">Dashboard</span>
+        <span className="text-sage-900 font-semibold">Dashboard</span>
       </div>
 
       {/* Search Bar Trigger */}
@@ -59,7 +59,7 @@ export function DashboardNavbar({
         {/* Health Badge */}
         <div className="hidden md:flex items-center gap-1.5 bg-[#E4EFE9] text-[#114B32] font-medium text-xs px-3.5 py-1.5 rounded-full">
           <span>Health</span>
-          <span className="text-sm font-bold text-black">72</span>
+          <span className="text-sm font-bold text-green-900">72</span>
           <span className="text-[10px]">↑</span>
         </div>
 
@@ -80,9 +80,9 @@ export function DashboardNavbar({
         <button
           type="button"
           onClick={() => setIsInviteOpen(true)}
-          className="flex items-center gap-1 bg-[#9C5B34] hover:bg-[#9C5B34] text-black font-semibold text-xs px-3.5 py-1.5 rounded-card transition-colors shadow-card"
+          className="flex items-center gap-1 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold text-xs px-3.5 py-1.5 rounded-card transition-colors shadow-card"
         >
-          <Plus className="w-3.5 h-3.5 text-black stroke-[2.5]" /> Invite
+          <Plus className="w-3.5 h-3.5 text-white stroke-[2.5]" /> Invite
         </button>
       </div>
 
