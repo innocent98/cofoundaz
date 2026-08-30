@@ -132,14 +132,14 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
       <aside
         aria-label="Main navigation"
         className={`fixed inset-y-0 left-0 z-50 w-64 shrink-0 bg-[#061A12] text-[#A3B899] flex flex-col justify-between p-4 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-sm font-medium will-change-transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+          isOpen ? 'translate-x-0 shadow-raised' : '-translate-x-full'
         }`}
       >
         <div className="w-full">
           {/* Brand Header & Mobile Close Button */}
           <div className="flex w-full items-center justify-between gap-2 mb-6 px-2 pt-1">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="bg-[#122E21] text-[#D4B871] font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-xl text-lg">
+              <div className="bg-[#122E21] text-[#D89A6E] font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-card text-lg">
                 C
               </div>
               <span className="truncate text-xl font-semibold text-white tracking-tight">Cofoundaz</span>
@@ -148,7 +148,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
             <button
               type="button"
               onClick={() => setIsOpen && setIsOpen(false)}
-              className="lg:hidden shrink-0 p-1.5 rounded-lg text-[#7B9382] hover:text-white hover:bg-[#0E281C] transition-colors cursor-pointer"
+              className="lg:hidden shrink-0 p-1.5 rounded-input text-[#7B9382] hover:text-white hover:bg-[#0E281C] transition-colors cursor-pointer"
               aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
@@ -156,9 +156,9 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
           </div>
 
           {/* Project Selector */}
-          <div className="w-full bg-[#0C2419] border border-[#183B2B] rounded-xl p-3 mb-6 flex items-center justify-between gap-2 cursor-pointer hover:border-[#26533D] transition-colors">
+          <div className="w-full bg-[#0C2419] border border-[#183B2B] rounded-card p-3 mb-6 flex items-center justify-between gap-2 cursor-pointer hover:border-[#26533D] transition-colors">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="bg-[#122E21] text-[#D4B871] font-bold h-8 w-8 shrink-0 flex items-center justify-center rounded-lg text-sm">
+              <div className="bg-[#122E21] text-[#D89A6E] font-bold h-8 w-8 shrink-0 flex items-center justify-center rounded-input text-sm">
                 K
               </div>
               <div className="min-w-0">
@@ -185,21 +185,21 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
                         <Link
                           href={item.href}
                           onClick={() => setIsOpen && setIsOpen(false)}
-                          className={`relative flex w-full items-center justify-between gap-2 px-3 py-2.5 rounded-2xl transition-all ${
+                          className={`relative flex w-full items-center justify-between gap-2 px-3 py-2.5 rounded-modal transition-all ${
                             isActive
-                              ? 'bg-[#0E2C1E] text-white font-bold border-l-2 border-[#C5A86F] shadow-sm'
+                              ? 'bg-[#0E2C1E] text-white font-bold border-l-2 border-[#D89A6E] shadow-card'
                               : 'text-[#A3B899] hover:text-white hover:bg-[#0A2217]'
                           }`}
                         >
                           <div className="flex min-w-0 items-center gap-3">
                             <Icon
                               className={`w-4 h-4 shrink-0 ${
-                                isActive ? 'text-[#C5A86F]' : 'text-[#7B9382]'
+                                isActive ? 'text-[#D89A6E]' : 'text-[#7B9382]'
                               }`}
                             />
                             <span className="truncate">{item.label}</span>
                           </div>
-                          {item.locked && <Lock className="w-3.5 h-3.5 shrink-0 text-[#C5A86F]" />}
+                          {item.locked && <Lock className="w-3.5 h-3.5 shrink-0 text-[#D89A6E]" />}
                         </Link>
                       </li>
                     );
@@ -215,13 +215,13 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
           <Link
             href="/notifications"
             onClick={() => setIsOpen && setIsOpen(false)}
-            className="flex w-full items-center justify-between gap-2 px-3 py-2 rounded-xl hover:text-white hover:bg-[#0A2217] transition-colors"
+            className="flex w-full items-center justify-between gap-2 px-3 py-2 rounded-card hover:text-white hover:bg-[#0A2217] transition-colors"
           >
             <div className="flex min-w-0 items-center gap-3">
               <Bell className="w-4 h-4 shrink-0 text-[#7B9382]" />
               <span className="truncate">Notifications</span>
             </div>
-            <span className="shrink-0 bg-[#C5A86F] text-[#061A12] text-xs font-bold px-1.5 py-0.5 rounded-full">
+            <span className="shrink-0 bg-[#D89A6E] text-[#061A12] text-xs font-bold px-1.5 py-0.5 rounded-full">
               5
             </span>
           </Link>
@@ -229,7 +229,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
           <Link
             href="/settings"
             onClick={() => setIsOpen && setIsOpen(false)}
-            className="flex w-full items-center gap-3 px-3 py-2 rounded-xl hover:text-white hover:bg-[#0A2217] transition-colors"
+            className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-[#0A2217] transition-colors"
           >
             <Settings className="w-4 h-4 shrink-0 text-[#7B9382]" />
             <span className="truncate">Settings & Billing</span>

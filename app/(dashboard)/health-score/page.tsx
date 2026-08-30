@@ -19,7 +19,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   isNegative = false,
   isSteady = false,
 }) => {
-  const strokeColor = isNegative ? '#A5823D' : isSteady ? '#A5823D' : '#2D5A3F';
+  const strokeColor = isNegative ? '#9C5B34' : isSteady ? '#9C5B34' : '#2D5A3F';
   const pathD = isNegative
     ? 'M 0 10 Q 75 12 150 20'
     : isSteady
@@ -27,11 +27,11 @@ const MetricCard: React.FC<MetricCardProps> = ({
     : 'M 0 20 Q 75 18 150 10';
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-[#EBEBE6] shadow-2xs flex flex-col justify-between gap-4">
+    <div className="bg-white rounded-modal p-5 border border-[#EBEBE6] shadow-card flex flex-col justify-between gap-4">
       <div>
         <span className="text-xs font-semibold text-[#1E2923]">{title}</span>
         <div className="flex items-baseline gap-1 mt-2">
-          <span className="text-2xl md:text-3xl font-serif font-bold text-[#1E2923]">
+          <span className="text-2xl md:text-3xl font-display font-bold text-[#1E2923]">
             {score}
           </span>
           <span className="text-xs text-[#768478] font-medium">/100</span>
@@ -300,11 +300,11 @@ export default function HealthScorePage() {
         {/* Sticky Header & Navigation Wrapper */}
         <div className="sticky top-0 z-40 bg-[#F7F7F5]">
           {/* Main Top Navbar */}
-          <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4 shadow-xs">
+          <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4 shadow-card">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden w-10 h-10 rounded-2xl bg-[#173B28] text-[#D4B871] flex items-center justify-center font-bold text-base shadow-xs hover:opacity-90 transition-opacity shrink-0"
+                className="lg:hidden w-10 h-10 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-base shadow-card hover:opacity-90 transition-opacity shrink-0"
                 aria-label="Open sidebar"
               >
                 C
@@ -320,7 +320,7 @@ export default function HealthScorePage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
+              <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
                 <span className="text-[#556358]">Health</span>
                 <span className="font-bold text-sm">72</span>
                 <span className="text-[10px] text-[#2D5A3F]">↑</span>
@@ -328,14 +328,14 @@ export default function HealthScorePage() {
 
               <button className="relative p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]">
                 <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 bg-[#A5823D] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   5
                 </span>
               </button>
 
-              <button className="flex items-center gap-1.5 bg-[#A5823D] hover:bg-[#8F6F30] text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shadow-xs">
+              <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors shadow-card">
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Invite</span>
+                <span className="hidden md:inline">Invite</span>
               </button>
             </div>
           </header>
@@ -351,7 +351,7 @@ export default function HealthScorePage() {
                     onClick={() => setActiveTab(tab)}
                     className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                       isActive
-                        ? 'bg-[#E7DDC8] text-[#1E2923] font-semibold'
+                        ? 'bg-[#EAD5C6] text-[#1E2923] font-semibold'
                         : 'bg-transparent text-[#617065] hover:bg-[#EBEBE6]'
                     }`}
                   >
@@ -369,7 +369,7 @@ export default function HealthScorePage() {
           {activeTab === 'Overview' && (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                <div className="lg:col-span-4 bg-[#0F2218] rounded-3xl p-8 flex flex-col items-center justify-between text-center min-h-[320px] shadow-sm">
+                <div className="lg:col-span-4 bg-[#0F2218] rounded-[24px] p-8 flex flex-col items-center justify-between text-center min-h-[320px] shadow-card">
                   <div className="relative w-44 h-44 flex items-center justify-center my-auto">
                     <svg
                       className="w-full h-full transform -rotate-90"
@@ -397,7 +397,7 @@ export default function HealthScorePage() {
                     </svg>
 
                     <div className="absolute flex flex-col items-center justify-center">
-                      <span className="text-5xl font-serif font-bold text-white tracking-tight">
+                      <span className="text-5xl font-display font-bold text-white tracking-tight">
                         72
                       </span>
                       <span className="text-xs text-[#8BA193] mt-0.5">
@@ -410,24 +410,24 @@ export default function HealthScorePage() {
                     <span className="bg-[#EAF2ED] text-[#183B28] px-3.5 py-1 rounded-full text-xs font-bold">
                       +4 this week
                     </span>
-                    <button className="text-xs text-[#C8AD6D] hover:underline font-medium mt-1">
+                    <button className="text-xs text-[#D89A6E] hover:underline font-medium mt-1">
                       How is this calculated?
                     </button>
                   </div>
                 </div>
 
-                <div className="lg:col-span-8 bg-white rounded-3xl p-8 md:p-10 border border-[#EBEBE6] shadow-2xs flex flex-col justify-center">
-                  <div className="flex items-center gap-2 text-[#8F6F30] mb-4">
-                    <div className="p-1.5 bg-[#F7EEDC] rounded-md">
-                      <Sparkles className="w-4 h-4 fill-[#8F6F30]" />
+                <div className="lg:col-span-8 bg-white rounded-[24px] p-8 md:p-10 border border-[#EBEBE6] shadow-card flex flex-col justify-center">
+                  <div className="flex items-center gap-2 text-[#8A5330] mb-4">
+                    <div className="p-1.5 bg-[#F7EEDC] rounded-[6px]">
+                      <Sparkles className="w-4 h-4 fill-[#8A5330]" />
                     </div>
                     <span className="text-xs font-bold uppercase tracking-wider">
                       AI summary
                     </span>
                   </div>
 
-                  <h2 className="text-2xl md:text-3xl font-serif font-medium text-[#1E2923] leading-snug tracking-tight">
-                    You're strong for validation stage. Team is carrying you;
+                  <h2 className="text-2xl md:text-3xl font-display font-medium text-[#1E2923] leading-snug tracking-tight">
+                    You&apos;re strong for validation stage. Team is carrying you;
                     financials are holding you back.
                   </h2>
 
@@ -439,7 +439,7 @@ export default function HealthScorePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 <MetricCard
                   title="Product"
                   score={78}
@@ -470,7 +470,7 @@ export default function HealthScorePage() {
               </div>
 
               <div className="flex flex-col gap-5 pt-2 pb-12">
-                <h2 className="text-2xl font-serif font-semibold text-[#1E2923] tracking-tight">
+                <h2 className="text-2xl font-display font-semibold text-[#1E2923] tracking-tight">
                   Top 3 fastest ways to raise your score
                 </h2>
 
@@ -478,7 +478,7 @@ export default function HealthScorePage() {
                   {fullRecommendationsList.slice(0, 3).map((item, idx) => (
                     <div
                       key={idx}
-                      className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col justify-between gap-6"
+                      className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between gap-6"
                     >
                       <div className="flex flex-col items-start gap-3">
                         <span className="bg-[#EAF2ED] text-[#2D5A3F] text-xs font-semibold px-3 py-1 rounded-full">
@@ -492,7 +492,7 @@ export default function HealthScorePage() {
                         </p>
                       </div>
 
-                      <button className="w-full bg-[#A5823D] hover:bg-[#8F6F30] text-white text-xs font-bold py-3 rounded-xl transition-colors shadow-2xs">
+                      <button className="w-full bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-bold py-3 rounded-card transition-colors shadow-card">
                         Do it
                       </button>
                     </div>
@@ -526,12 +526,12 @@ export default function HealthScorePage() {
               </div>
 
               {/* Title Section */}
-              <h2 className="text-3xl font-serif font-medium text-[#1E2923] tracking-tight">
-                What's driving {selectedDimension}
+              <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">
+                What&apos;s driving {selectedDimension}
               </h2>
 
               {/* Signals Breakdown Table */}
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] shadow-2xs overflow-hidden">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead>
@@ -580,19 +580,19 @@ export default function HealthScorePage() {
           {activeTab === 'Trend history' && (
             <div className="flex flex-col gap-6 pt-2 pb-12">
               <div className="flex items-center justify-between">
-                <h2 className="text-3xl font-serif font-medium text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">
                   Score over time
                 </h2>
 
                 {/* Time Range Selector */}
-                <div className="flex items-center gap-1 bg-[#F5F5F0] p-1 rounded-xl border border-[#EBEBE6]">
+                <div className="flex items-center gap-1 bg-[#F5F5F0] p-1 rounded-card border border-[#EBEBE6]">
                   {['30d', '90d', '1y'].map((range) => (
                     <button
                       key={range}
                       onClick={() => setTrendRange(range)}
-                      className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      className={`px-3.5 py-1.5 rounded-input text-xs font-medium transition-all ${
                         trendRange === range
-                          ? 'bg-[#E7DDC8] text-[#1E2923] font-bold shadow-2xs'
+                          ? 'bg-[#EAD5C6] text-[#1E2923] font-bold shadow-card'
                           : 'bg-transparent text-[#768478] hover:text-[#1E2923]'
                       }`}
                     >
@@ -603,7 +603,7 @@ export default function HealthScorePage() {
               </div>
 
               {/* Score Chart Card */}
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] shadow-2xs p-6 md:p-10 flex flex-col justify-between min-h-[420px]">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-6 md:p-10 flex flex-col justify-between min-h-[420px]">
                 <div className="relative w-full h-64 mt-4">
                   {/* Grid Lines */}
                   <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
@@ -634,10 +634,10 @@ export default function HealthScorePage() {
                       className="absolute flex flex-col items-center"
                       style={{ left: '33%', top: '63%', transform: 'translate(-50%, -50%)' }}
                     >
-                      <span className="text-[11px] font-bold text-[#A5823D] whitespace-nowrap mb-1">
+                      <span className="text-[11px] font-bold text-[#9C5B34] whitespace-nowrap mb-1">
                         Business plan generated
                       </span>
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#A5823D] border-2 border-white shadow-2xs"></div>
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#9C5B34] border-2 border-white shadow-card"></div>
                     </div>
 
                     {/* Point 2: Smoke test passed */}
@@ -645,10 +645,10 @@ export default function HealthScorePage() {
                       className="absolute flex flex-col items-center"
                       style={{ left: '68%', top: '42%', transform: 'translate(-50%, -50%)' }}
                     >
-                      <span className="text-[11px] font-bold text-[#A5823D] whitespace-nowrap mb-1">
+                      <span className="text-[11px] font-bold text-[#9C5B34] whitespace-nowrap mb-1">
                         Smoke test passed
                       </span>
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#A5823D] border-2 border-white shadow-2xs"></div>
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#9C5B34] border-2 border-white shadow-card"></div>
                     </div>
                   </div>
                 </div>
@@ -666,7 +666,7 @@ export default function HealthScorePage() {
           {activeTab === 'Benchmarks' && (
             <div className="flex flex-col gap-6 pt-2 pb-12">
               <div>
-                <h2 className="text-3xl font-serif font-medium text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">
                   How you compare
                 </h2>
                 <p className="text-xs text-[#617065] mt-1.5">
@@ -675,7 +675,7 @@ export default function HealthScorePage() {
               </div>
 
               {/* Benchmarks Card */}
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] shadow-2xs p-6 md:p-10 flex flex-col gap-8">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-6 md:p-10 flex flex-col gap-8">
                 <div className="flex flex-col gap-7">
                   {benchmarkData.map((item) => (
                     <div key={item.category} className="flex flex-col gap-2">
@@ -709,7 +709,7 @@ export default function HealthScorePage() {
                 {/* Legend */}
                 <div className="flex items-center gap-6 pt-2 text-xs font-medium text-[#617065]">
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 bg-[#B8C4BB] rounded-sm"></span>
+                    <span className="w-3 h-3 bg-[#B8C4BB] rounded-[2px]"></span>
                     <span>Cohort median</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -720,7 +720,7 @@ export default function HealthScorePage() {
               </div>
 
               <p className="text-[11px] italic text-[#8E9B90]">
-                Benchmarks are anonymized and aggregated. No startup's individual data is ever visible.
+                Benchmarks are anonymized and aggregated. No startup&apos;s individual data is ever visible.
               </p>
             </div>
           )}
@@ -729,7 +729,7 @@ export default function HealthScorePage() {
           {activeTab === 'Recommendations' && (
             <div className="flex flex-col gap-6 pt-2 pb-12">
               <div>
-                <h2 className="text-3xl font-serif font-medium text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">
                   Recommendations
                 </h2>
                 <p className="text-xs text-[#617065] mt-1.5">
@@ -741,7 +741,7 @@ export default function HealthScorePage() {
                 {fullRecommendationsList.map((item, idx) => (
                   <div
                     key={idx}
-                    className="bg-white rounded-2xl p-6 md:p-8 border border-[#EBEBE6] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-6"
+                    className="bg-white rounded-modal p-6 md:p-8 border border-[#EBEBE6] shadow-card flex flex-col md:flex-row md:items-center justify-between gap-6"
                   >
                     <div className="flex items-start gap-4 flex-1">
                       <span className="bg-[#EAF2ED] text-[#2D5A3F] text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
@@ -762,10 +762,10 @@ export default function HealthScorePage() {
                     </div>
 
                     <div className="flex items-center md:flex-col gap-2 shrink-0 justify-end md:justify-center">
-                      <button className="w-24 bg-[#A5823D] hover:bg-[#8F6F30] text-white text-xs font-bold py-2.5 rounded-xl transition-colors shadow-2xs">
+                      <button className="w-24 bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-bold py-2.5 rounded-card transition-colors shadow-card">
                         Start
                       </button>
-                      <button className="w-24 bg-white hover:bg-[#F5F5F0] text-[#1E2923] border border-[#EBEBE6] text-xs font-bold py-2.5 rounded-xl transition-colors">
+                      <button className="w-24 bg-white hover:bg-[#F5F5F0] text-[#1E2923] border border-[#EBEBE6] text-xs font-bold py-2.5 rounded-card transition-colors">
                         Dismiss
                       </button>
                     </div>

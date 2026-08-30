@@ -229,9 +229,9 @@ export default function BusinessBuilderPage() {
       title: 'Weaknesses',
       icon: <span className="text-sm font-bold">↓</span>,
       bgColor: 'bg-[#F9F4E6]',
-      borderColor: 'border-[#EAE0C8]',
-      titleColor: 'text-[#8F6F30]',
-      dotColor: 'bg-[#8F6F30]',
+      borderColor: 'border-[#EAD5C6]',
+      titleColor: 'text-[#8A5330]',
+      dotColor: 'bg-[#8A5330]',
       items: [
         'Thin runway',
         'Small team',
@@ -455,7 +455,7 @@ export default function BusinessBuilderPage() {
   const getProgressColor = (pct: number) => {
     if (pct === 100) return '#183B28';
     if (pct >= 60) return '#2D5A3F';
-    if (pct >= 40) return '#8F6F30';
+    if (pct >= 40) return '#8A5330';
     return '#B26B6B';
   };
 
@@ -464,7 +464,7 @@ export default function BusinessBuilderPage() {
       case 'High':
         return 'bg-[#FBEBEB] text-[#B83E3E]';
       case 'Medium':
-        return 'bg-[#F7EFE0] text-[#A37B32]';
+        return 'bg-[#F7EFE0] text-[#9C5B34]';
       case 'Low':
         return 'bg-[#EBF5F0] text-[#2E7A56]';
     }
@@ -476,8 +476,8 @@ export default function BusinessBuilderPage() {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-[#12261C] text-white px-5 py-2.5 rounded-xl shadow-lg flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-200">
-          <Check className="w-4 h-4 text-[#D4B871]" />
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-[#12261C] text-white px-5 py-2.5 rounded-card shadow-raised flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-200">
+          <Check className="w-4 h-4 text-[#D89A6E]" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -489,7 +489,7 @@ export default function BusinessBuilderPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden w-10 h-10 rounded-2xl bg-[#173B28] text-[#D4B871] flex items-center justify-center font-bold text-base shadow-xs"
+                className="lg:hidden w-10 h-10 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-base shadow-card"
               >
                 C
               </button>
@@ -501,7 +501,7 @@ export default function BusinessBuilderPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
+              <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
                 <span className="text-[#556358]">Health</span>
                 <span className="font-bold text-sm">72</span>
                 <span className="text-[10px] text-[#2D5A3F]">↑</span>
@@ -509,14 +509,14 @@ export default function BusinessBuilderPage() {
 
               <button className="relative p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]">
                 <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 bg-[#A5823D] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   5
                 </span>
               </button>
 
-              <button className="flex items-center gap-1.5 bg-[#A5823D] hover:bg-[#8F6F30] text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shadow-xs">
+              <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors shadow-card">
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Invite</span>
+                <span className="hidden md:inline">Invite</span>
               </button>
             </div>
           </header>
@@ -532,7 +532,7 @@ export default function BusinessBuilderPage() {
                     onClick={() => setActiveTab(tab)}
                     className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                       isActive
-                        ? 'bg-[#E7DDC8] text-[#1E2923] font-bold shadow-2xs'
+                        ? 'bg-[#EAD5C6] text-[#1E2923] font-bold shadow-card'
                         : 'bg-white border border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]'
                     }`}
                   >
@@ -549,7 +549,7 @@ export default function BusinessBuilderPage() {
           {activeTab === 'Overview' ? (
             <>
               <div>
-                <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                   Business Builder
                 </h2>
                 <p className="text-xs text-[#768478] mt-1.5 max-w-xl">
@@ -563,12 +563,12 @@ export default function BusinessBuilderPage() {
                   return (
                     <div
                       key={card.id}
-                      className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col justify-between gap-6 hover:shadow-xs transition-shadow group cursor-pointer"
+                      className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between gap-6 hover:shadow-card transition-shadow group cursor-pointer"
                       onClick={() => setActiveTab(card.category)}
                     >
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between">
-                          <div className="w-10 h-10 rounded-2xl bg-[#E6EFEA] flex items-center justify-center shrink-0">
+                          <div className="w-10 h-10 rounded-modal bg-[#E6EFEA] flex items-center justify-center shrink-0">
                             {card.icon}
                           </div>
 
@@ -623,9 +623,9 @@ export default function BusinessBuilderPage() {
             </>
           ) : activeTab === 'Business Model' || activeTab === 'Lean Canvas' ? (
             <div className="flex flex-col gap-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+                  <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                     {activeTab === 'Business Model'
                       ? 'Business Model Canvas'
                       : 'Lean Canvas'}
@@ -637,18 +637,18 @@ export default function BusinessBuilderPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 self-start sm:self-auto">
+                <div className="flex items-center gap-3 self-start md:self-auto">
                   <button
                     onClick={() => setShowAiModal(true)}
-                    className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EBDCBE] text-[#59431A] font-bold px-4 py-2 rounded-xl text-xs transition-colors border border-[#E3D4B6]"
+                    className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2 rounded-card text-xs transition-colors border border-[#EAD5C6]"
                   >
-                    <Sparkles className="w-3.5 h-3.5 fill-[#8F6F30] text-[#8F6F30]" />
+                    <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />
                     <span>Fill with AI</span>
                   </button>
 
                   <button
                     onClick={handleExport}
-                    className="flex items-center gap-1.5 bg-white hover:bg-[#F5F5F0] text-[#1E2923] font-semibold px-4 py-2 rounded-xl text-xs transition-colors border border-[#EBEBE6] shadow-2xs"
+                    className="flex items-center gap-1.5 bg-white hover:bg-[#F5F5F0] text-[#1E2923] font-semibold px-4 py-2 rounded-card text-xs transition-colors border border-[#EBEBE6] shadow-card"
                   >
                     <Download className="w-3.5 h-3.5 text-[#556358]" />
                     <span>Export</span>
@@ -663,7 +663,7 @@ export default function BusinessBuilderPage() {
                 ).map((sec) => (
                   <div
                     key={sec.id}
-                    className="bg-white rounded-2xl p-5 border border-[#EBEBE6] shadow-2xs flex flex-col gap-4 min-h-[160px]"
+                    className="bg-white rounded-modal p-5 border border-[#EBEBE6] shadow-card flex flex-col gap-4 min-h-[160px]"
                   >
                     <h4 className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">
                       {sec.title}
@@ -673,7 +673,7 @@ export default function BusinessBuilderPage() {
                       {sec.items.map((item, idx) => (
                         <span
                           key={idx}
-                          className="bg-[#E6EFEA] text-[#183B28] text-xs font-medium px-3 py-1.5 rounded-lg border border-[#D5E3DB]"
+                          className="bg-[#E6EFEA] text-[#183B28] text-xs font-medium px-3 py-1.5 rounded-input border border-[#D5E3DB]"
                         >
                           {item}
                         </span>
@@ -686,12 +686,12 @@ export default function BusinessBuilderPage() {
           ) : activeTab === 'Mission & Vision' ? (
             <div className="flex flex-col gap-6 max-w-4xl">
               <div>
-                <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                   Mission & Vision
                 </h2>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col gap-3">
+              <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-[#1E2923]">Mission</h3>
@@ -716,12 +716,12 @@ export default function BusinessBuilderPage() {
                     rows={3}
                     value={missionText}
                     onChange={(e) => setMissionText(e.target.value)}
-                    className="w-full bg-[#FAFAFA] border border-[#E0E0DB] rounded-xl p-4 text-xs md:text-sm text-[#1E2923] focus:outline-hidden focus:border-[#183B28] focus:bg-white transition-all resize-y font-normal leading-relaxed"
+                    className="w-full bg-[#FAFAFA] border border-[#E0E0DB] rounded-card p-4 text-xs md:text-sm text-[#1E2923] focus:outline-hidden focus:border-[#183B28] focus:bg-white transition-all resize-y font-normal leading-relaxed"
                   />
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col gap-3">
+              <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-[#1E2923]">Vision</h3>
@@ -744,7 +744,7 @@ export default function BusinessBuilderPage() {
                     rows={3}
                     value={visionText}
                     onChange={(e) => setVisionText(e.target.value)}
-                    className="w-full bg-[#FAFAFA] border border-[#E0E0DB] rounded-xl p-4 text-xs md:text-sm text-[#1E2923] focus:outline-hidden focus:border-[#183B28] focus:bg-white transition-all resize-y font-normal leading-relaxed"
+                    className="w-full bg-[#FAFAFA] border border-[#E0E0DB] rounded-card p-4 text-xs md:text-sm text-[#1E2923] focus:outline-hidden focus:border-[#183B28] focus:bg-white transition-all resize-y font-normal leading-relaxed"
                   />
                 </div>
               </div>
@@ -752,13 +752,13 @@ export default function BusinessBuilderPage() {
           ) : activeTab === 'Value Prop' ? (
             <div className="flex flex-col gap-6">
               <div>
-                <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                   Value Proposition
                 </h2>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col gap-6">
+                <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-6">
                   <h3 className="text-sm font-bold text-[#1E2923]">
                     Customer profile
                   </h3>
@@ -773,7 +773,7 @@ export default function BusinessBuilderPage() {
                           {sec.items.map((item, idx) => (
                             <span
                               key={idx}
-                              className="bg-[#F5F2E9] text-[#59431A] text-xs font-medium px-3.5 py-2 rounded-xl border border-[#EAE3D2]"
+                              className="bg-[#F5F2E9] text-[#522F1A] text-xs font-medium px-3.5 py-2 rounded-card border border-[#EAE3D2]"
                             >
                               {item}
                             </span>
@@ -784,7 +784,7 @@ export default function BusinessBuilderPage() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col gap-6">
+                <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-6">
                   <h3 className="text-sm font-bold text-[#1E2923]">
                     Value map
                   </h3>
@@ -799,7 +799,7 @@ export default function BusinessBuilderPage() {
                           {sec.items.map((item, idx) => (
                             <span
                               key={idx}
-                              className="bg-[#E6EFEA] text-[#183B28] text-xs font-medium px-3.5 py-2 rounded-xl border border-[#D5E3DB]"
+                              className="bg-[#E6EFEA] text-[#183B28] text-xs font-medium px-3.5 py-2 rounded-card border border-[#D5E3DB]"
                             >
                               {item}
                             </span>
@@ -820,16 +820,16 @@ export default function BusinessBuilderPage() {
             </div>
           ) : activeTab === 'Personas' ? (
             <div className="flex flex-col gap-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                   Customer personas
                 </h2>
 
                 <button
                   onClick={() => triggerToast('✦ Personas updated from validation notes!')}
-                  className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EBDCBE] text-[#59431A] font-bold px-4 py-2.5 rounded-xl text-xs transition-colors border border-[#E3D4B6] self-start sm:self-auto shadow-2xs"
+                  className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2.5 rounded-card text-xs transition-colors border border-[#EAD5C6] self-start md:self-auto shadow-card"
                 >
-                  <Sparkles className="w-3.5 h-3.5 fill-[#8F6F30] text-[#8F6F30]" />
+                  <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />
                   <span>Generate from validation notes</span>
                 </button>
               </div>
@@ -838,11 +838,11 @@ export default function BusinessBuilderPage() {
                 {personas.map((persona) => (
                   <div
                     key={persona.id}
-                    className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col justify-between gap-6"
+                    className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between gap-6"
                   >
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-[#183B28] text-[#E7DDC8] font-bold text-base flex items-center justify-center shrink-0">
+                        <div className="w-12 h-12 rounded-full bg-[#183B28] text-[#EAD5C6] font-bold text-base flex items-center justify-center shrink-0">
                           {persona.initials}
                         </div>
                         <div className="flex flex-col">
@@ -860,7 +860,7 @@ export default function BusinessBuilderPage() {
                       </p>
 
                       <div className="flex flex-col gap-1 pt-2">
-                        <span className="text-[10px] font-bold tracking-wider text-[#8F6F30] uppercase">
+                        <span className="text-[10px] font-bold tracking-wider text-[#8A5330] uppercase">
                           GOALS
                         </span>
                         <p className="text-xs text-[#1E2923] leading-normal">
@@ -884,7 +884,7 @@ export default function BusinessBuilderPage() {
           ) : activeTab === 'Pricing' ? (
             <div className="flex flex-col gap-6">
               <div>
-                <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                   Pricing strategy
                 </h2>
               </div>
@@ -908,7 +908,7 @@ export default function BusinessBuilderPage() {
                 })}
               </div>
 
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] shadow-2xs overflow-hidden">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[500px]">
                     <thead>
@@ -943,9 +943,9 @@ export default function BusinessBuilderPage() {
                 </div>
               </div>
 
-              <div className="bg-[#12261C] text-white p-5 rounded-2xl flex items-center gap-3 shadow-2xs">
-                <div className="w-7 h-7 rounded-lg bg-[#213C2D] flex items-center justify-center shrink-0">
-                  <Sparkles className="w-4 h-4 fill-[#D4B871] text-[#D4B871]" />
+              <div className="bg-[#12261C] text-white p-5 rounded-modal flex items-center gap-3 shadow-card">
+                <div className="w-7 h-7 rounded-input bg-[#213C2D] flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 fill-[#D89A6E] text-[#D89A6E]" />
                 </div>
                 <p className="text-xs md:text-sm font-medium leading-relaxed">
                   Willingness-to-pay signal from your survey suggests <span className="font-bold">₦500 to ₦800 per month</span> is the sweet spot for gig workers.
@@ -955,20 +955,20 @@ export default function BusinessBuilderPage() {
           ) : activeTab === 'Revenue' ? (
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between gap-4">
-                <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                   Revenue model
                 </h2>
 
                 <button
                   onClick={handleSendToFinancialModel}
-                  className="bg-[#A38048] hover:bg-[#8F6F30] text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-colors flex items-center gap-1.5 shadow-2xs"
+                  className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
                 >
                   <span>Send to financial model</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              <div className="bg-white rounded-2xl border border-[#EBEBE6] shadow-2xs overflow-hidden">
+              <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[500px]">
                     <thead>
@@ -1003,7 +1003,7 @@ export default function BusinessBuilderPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col gap-6">
+              <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-6">
                 <h3 className="text-xs font-bold text-[#1E2923]">
                   12-month projection
                 </h3>
@@ -1012,7 +1012,7 @@ export default function BusinessBuilderPage() {
                   {monthlyProjectionData.map((heightPct, index) => (
                     <div
                       key={index}
-                      className="flex-1 bg-[#235840] hover:bg-[#183B28] transition-colors rounded-xs md:rounded-sm"
+                      className="flex-1 bg-[#235840] hover:bg-[#183B28] transition-colors rounded-xs md:rounded-[2px]"
                       style={{ height: `${heightPct}%` }}
                     />
                   ))}
@@ -1022,13 +1022,13 @@ export default function BusinessBuilderPage() {
           ) : activeTab === 'Competitive' ? (
             <div className="flex flex-col gap-6">
               <div>
-                <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                   Competitive analysis
                 </h2>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div className="lg:col-span-7 bg-white rounded-2xl border border-[#EBEBE6] shadow-2xs overflow-hidden">
+                <div className="lg:col-span-7 bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[420px]">
                       <thead>
@@ -1069,7 +1069,7 @@ export default function BusinessBuilderPage() {
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col gap-4">
+                <div className="lg:col-span-5 bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-4">
                   <h3 className="text-xs font-bold text-[#1E2923]">
                     Positioning map
                   </h3>
@@ -1083,22 +1083,22 @@ export default function BusinessBuilderPage() {
                     </span>
 
                     <div className="absolute top-[38%] left-[20%] flex flex-col items-center -translate-x-1/2 -translate-y-1/2">
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#75B29B] border-2 border-white shadow-2xs" />
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#75B29B] border-2 border-white shadow-card" />
                       <span className="text-[10px] font-bold text-[#1E2923] mt-1">Banks</span>
                     </div>
 
                     <div className="absolute top-[62%] left-[45%] flex flex-col items-center -translate-x-1/2 -translate-y-1/2">
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#3B7A57] border-2 border-white shadow-2xs" />
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#3B7A57] border-2 border-white shadow-card" />
                       <span className="text-[10px] font-bold text-[#1E2923] mt-1">Cowrywise</span>
                     </div>
 
                     <div className="absolute top-[46%] left-[52%] flex flex-col items-center -translate-x-1/2 -translate-y-1/2">
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#1A422D] border-2 border-white shadow-2xs" />
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#1A422D] border-2 border-white shadow-card" />
                       <span className="text-[10px] font-bold text-[#1E2923] mt-1">PiggyVest</span>
                     </div>
 
                     <div className="absolute top-[30%] left-[82%] flex flex-col items-center -translate-x-1/2 -translate-y-1/2">
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#A38048] border-2 border-white shadow-2xs" />
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#9C5B34] border-2 border-white shadow-card" />
                       <span className="text-[10px] font-bold text-[#1E2923] mt-1">Kolo</span>
                     </div>
                   </div>
@@ -1108,15 +1108,15 @@ export default function BusinessBuilderPage() {
           ) : activeTab === 'SWOT' ? (
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between gap-4">
-                <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                   SWOT
                 </h2>
 
                 <button
                   onClick={() => setShowAiModal(true)}
-                  className="bg-[#F5ECDC] hover:bg-[#EBDCBE] text-[#59431A] font-bold px-4 py-2.5 rounded-xl text-xs transition-colors flex items-center gap-1.5 border border-[#E3D4B6] shadow-2xs"
+                  className="bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 border border-[#EAD5C6] shadow-card"
                 >
-                  <Sparkles className="w-3.5 h-3.5 fill-[#8F6F30] text-[#8F6F30]" />
+                  <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />
                   <span>Seed each quadrant</span>
                 </button>
               </div>
@@ -1125,7 +1125,7 @@ export default function BusinessBuilderPage() {
                 {swotData.map((quad) => (
                   <div
                     key={quad.id}
-                    className={`${quad.bgColor} ${quad.borderColor} rounded-2xl p-6 border shadow-2xs flex flex-col gap-4 min-h-[190px]`}
+                    className={`${quad.bgColor} ${quad.borderColor} rounded-modal p-6 border shadow-card flex flex-col gap-4 min-h-[190px]`}
                   >
                     <div className="flex items-center gap-2">
                       <span className={quad.titleColor}>{quad.icon}</span>
@@ -1155,7 +1155,7 @@ export default function BusinessBuilderPage() {
             /* BUSINESS PLAN TAB */
             <div className="flex flex-col gap-6 max-w-4xl">
               <div>
-                <h2 className="text-3xl font-serif font-bold text-[#1E2923] tracking-tight">
+                <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
                   AI business plan generator
                 </h2>
                 <p className="text-xs text-[#768478] mt-1.5">
@@ -1166,7 +1166,7 @@ export default function BusinessBuilderPage() {
               {genState === 'idle' && (
                 <div className="flex flex-col gap-6">
                   {/* Readiness Checklist Card */}
-                  <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col gap-4">
+                  <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-4">
                     <h3 className="text-xs font-bold text-[#1E2923]">
                       Readiness checklist
                     </h3>
@@ -1179,11 +1179,11 @@ export default function BusinessBuilderPage() {
                         >
                           <div className="flex items-center gap-3">
                             {item.status === 'ready' ? (
-                              <div className="w-5 h-5 rounded-md bg-[#183B28] text-white flex items-center justify-center shrink-0">
+                              <div className="w-5 h-5 rounded-[6px] bg-[#183B28] text-white flex items-center justify-center shrink-0">
                                 <Check className="w-3.5 h-3.5" />
                               </div>
                             ) : (
-                              <div className="w-5 h-5 rounded-md bg-[#FDF4E3] text-[#8F6F30] flex items-center justify-center font-bold text-xs shrink-0 border border-[#EAE0C8]">
+                              <div className="w-5 h-5 rounded-[6px] bg-[#FDF4E3] text-[#8A5330] flex items-center justify-center font-bold text-xs shrink-0 border border-[#EAD5C6]">
                                 !
                               </div>
                             )}
@@ -1200,7 +1200,7 @@ export default function BusinessBuilderPage() {
                             ) : (
                               <button
                                 onClick={() => setShowAiModal(true)}
-                                className="text-xs font-medium text-[#8F6F30] hover:underline"
+                                className="text-xs font-medium text-[#8A5330] hover:underline"
                               >
                                 Draft missing sections with AI
                               </button>
@@ -1214,7 +1214,7 @@ export default function BusinessBuilderPage() {
                   {/* Options Grid: Audience & Length */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Audience Selection */}
-                    <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col gap-4">
+                    <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-4">
                       <h3 className="text-xs font-bold text-[#1E2923]">
                         Audience
                       </h3>
@@ -1226,9 +1226,9 @@ export default function BusinessBuilderPage() {
                             <button
                               key={aud}
                               onClick={() => setSelectedAudience(aud)}
-                              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                              className={`px-4 py-2 rounded-card text-xs font-semibold transition-all ${
                                 isSelected
-                                  ? 'bg-[#183B28] text-white shadow-2xs'
+                                  ? 'bg-[#183B28] text-white shadow-card'
                                   : 'bg-white border border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]'
                               }`}
                             >
@@ -1240,7 +1240,7 @@ export default function BusinessBuilderPage() {
                     </div>
 
                     {/* Length Selection */}
-                    <div className="bg-white rounded-2xl p-6 border border-[#EBEBE6] shadow-2xs flex flex-col gap-4">
+                    <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-4">
                       <h3 className="text-xs font-bold text-[#1E2923]">
                         Length
                       </h3>
@@ -1255,9 +1255,9 @@ export default function BusinessBuilderPage() {
                             <button
                               key={len.key}
                               onClick={() => setSelectedLength(len.key as 'Concise' | 'Full')}
-                              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                              className={`px-4 py-2 rounded-card text-xs font-semibold transition-all ${
                                 isSelected
-                                  ? 'bg-white border-2 border-[#183B28] text-[#1E2923] shadow-2xs'
+                                  ? 'bg-white border-2 border-[#183B28] text-[#1E2923] shadow-card'
                                   : 'bg-white border border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]'
                               }`}
                             >
@@ -1272,7 +1272,7 @@ export default function BusinessBuilderPage() {
                   {/* Primary Action Button */}
                   <button
                     onClick={handleGenerateBusinessPlan}
-                    className="w-full bg-[#A38048] hover:bg-[#8F6F30] text-white font-bold py-3.5 rounded-xl text-sm transition-colors shadow-2xs active:scale-[0.99]"
+                    className="w-full bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold py-3.5 rounded-card text-sm transition-colors shadow-card active:scale-[0.99]"
                   >
                     Generate my business plan
                   </button>
@@ -1280,10 +1280,10 @@ export default function BusinessBuilderPage() {
               )}
 
               {genState === 'generating' && (
-                <div className="bg-white rounded-2xl p-12 border border-[#EBEBE6] shadow-2xs flex flex-col items-center justify-center text-center gap-4 min-h-[320px]">
-                  <Loader2 className="w-8 h-8 text-[#A38048] animate-spin" />
+                <div className="bg-white rounded-modal p-12 border border-[#EBEBE6] shadow-card flex flex-col items-center justify-center text-center gap-4 min-h-[320px]">
+                  <Loader2 className="w-8 h-8 text-[#9C5B34] animate-spin" />
                   <div className="flex flex-col gap-1">
-                    <h3 className="text-lg font-serif font-bold text-[#1E2923]">
+                    <h3 className="text-lg font-display font-bold text-[#1E2923]">
                       Compiling your canvases...
                     </h3>
                     <p className="text-xs text-[#768478]">
@@ -1294,13 +1294,13 @@ export default function BusinessBuilderPage() {
               )}
 
               {genState === 'ready' && (
-                <div className="bg-white rounded-2xl p-10 border border-[#EBEBE6] shadow-2xs flex flex-col items-center justify-center text-center gap-6 min-h-[320px]">
-                  <div className="w-14 h-14 rounded-full bg-[#183B28] text-white flex items-center justify-center shadow-xs">
+                <div className="bg-white rounded-modal p-10 border border-[#EBEBE6] shadow-card flex flex-col items-center justify-center text-center gap-6 min-h-[320px]">
+                  <div className="w-14 h-14 rounded-full bg-[#183B28] text-white flex items-center justify-center shadow-card">
                     <Check className="w-7 h-7" />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="text-2xl font-serif font-bold text-[#1E2923]">
+                    <h3 className="text-2xl font-display font-bold text-[#1E2923]">
                       Your business plan is ready.
                     </h3>
                     <p className="text-xs text-[#768478]">
@@ -1311,13 +1311,13 @@ export default function BusinessBuilderPage() {
                   <div className="flex items-center gap-3 pt-2">
                     <button
                       onClick={handleOpenDocument}
-                      className="bg-[#A38048] hover:bg-[#8F6F30] text-white font-bold px-6 py-3 rounded-xl text-xs transition-colors shadow-2xs"
+                      className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-6 py-3 rounded-card text-xs transition-colors shadow-card"
                     >
                       Open document
                     </button>
                     <button
                       onClick={() => setGenState('idle')}
-                      className="bg-white hover:bg-[#F5F5F0] text-[#1E2923] font-semibold px-6 py-3 rounded-xl text-xs transition-colors border border-[#EBEBE6] shadow-2xs"
+                      className="bg-white hover:bg-[#F5F5F0] text-[#1E2923] font-semibold px-6 py-3 rounded-card text-xs transition-colors border border-[#EBEBE6] shadow-card"
                     >
                       Regenerate a section
                     </button>
@@ -1327,7 +1327,7 @@ export default function BusinessBuilderPage() {
             </div>
           ) : (
             /* PLACEHOLDER */
-            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-[#EBEBE6] gap-3">
+            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-modal border border-[#EBEBE6] gap-3">
               <h3 className="text-lg font-bold text-[#1E2923]">
                 {activeTab} Module
               </h3>
@@ -1342,13 +1342,13 @@ export default function BusinessBuilderPage() {
       {/* AI Fill Modal Overlay */}
       {showAiModal && (
         <div className="fixed inset-0 z-50 bg-[#1E2923]/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-[#EBEBE6] flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-modal p-6 max-w-md w-full shadow-raised border border-[#EBEBE6] flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#8F6F30] flex items-center justify-center text-white shrink-0 shadow-xs">
+              <div className="w-10 h-10 rounded-card bg-[#8A5330] flex items-center justify-center text-white shrink-0 shadow-card">
                 <Sparkles className="w-5 h-5 fill-white" />
               </div>
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg font-serif font-bold text-[#1E2923]">
+                <h3 className="text-lg font-display font-bold text-[#1E2923]">
                   Fill with AI
                 </h3>
                 <p className="text-xs text-[#617065] leading-relaxed">
@@ -1360,13 +1360,13 @@ export default function BusinessBuilderPage() {
             <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#F0F0EC]">
               <button
                 onClick={() => setShowAiModal(false)}
-                className="px-5 py-2.5 rounded-xl border border-[#EBEBE6] text-xs font-bold text-[#1E2923] hover:bg-[#F5F5F0] transition-colors"
+                className="px-5 py-2.5 rounded-card border border-[#EBEBE6] text-xs font-bold text-[#1E2923] hover:bg-[#F5F5F0] transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDraftAI}
-                className="px-5 py-2.5 rounded-xl bg-[#8F6F30] hover:bg-[#785C27] text-white text-xs font-bold transition-colors shadow-xs"
+                className="px-5 py-2.5 rounded-card bg-[#8A5330] hover:bg-[#6E4326] text-white text-xs font-bold transition-colors shadow-card"
               >
                 Draft it
               </button>

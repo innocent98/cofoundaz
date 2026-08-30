@@ -1,26 +1,155 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Clear Tailwind's defaults so only PRD tokens exist. This is what makes
+     PRD §1.1's "exactly two colors" rule enforceable — bg-blue-500 will not compile. */
+  --color-*: initial;
+  --breakpoint-*: initial;
+  --font-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+
+  /* Color 1 — Evergreen (brand, ~90% of colored UI) */
+  --color-green-950: #0B1F17;
+  --color-green-900: #12291F;
+  --color-green-800: #183B2C;
+  --color-green-700: #1E4D3B;
+  --color-green-600: #266049;
+  --color-green-500: #2E7256;
+  --color-green-400: #4E8F73;
+  --color-green-300: #7FB09A;
+  --color-green-200: #B3D0C3;
+  --color-green-100: #E3EFE9;
+  --color-green-50: #F2F7F4;
+
+  /* Color 2 — Copper (accent, ≤10% per screen).
+     copper-600 is the solid-fill accent: white text on it clears 5.30:1 (AA).
+     copper-700 is the on-light text token (eyebrows, numerals) at 6.25:1, and
+     the accent-button hover (darken-on-press keeps white text ≥ AA).
+     copper-500 is the light accent for text/icons on dark green surfaces.
+     900/800 are the dark end used by the product app (warning surfaces). */
+  --color-copper-900: #522F1A;
+  --color-copper-800: #6E4326;
+  --color-copper-700: #8A5330;
+  --color-copper-600: #9C5B34;
+  --color-copper-500: #D89A6E;
+  --color-copper-200: #EAD5C6;
+  --color-copper-100: #F6EAE1;
+
+  /* Neutrals — green-tinted "Sage" ramp. Full 50–900 scale so the product
+     app's neutral text/borders/surfaces stay on-system (maps 1:1 off gray). */
+  --color-sage-900: #171C1A;
+  --color-sage-800: #282E2B;
+  --color-sage-700: #3A423E;
+  --color-sage-600: #515A55;
+  --color-sage-500: #67716C;
+  --color-sage-400: #97A29C;
+  --color-sage-300: #C3CCC7;
+  --color-sage-200: #E5E9E7;
+  --color-sage-100: #F4F6F5;
+  --color-sage-50: #F8FAF9;
+
+  /* Functional red — signal (danger/destructive). Extended for the product app. */
+  --color-red-800: #6E2B23;
+  --color-red-700: #8F382E;
+  --color-red-600: #B0483B;
+  --color-red-200: #EFC4BD;
+  --color-red-100: #F6E5E2;
+  --color-red-50: #FBF0EE;
+
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Semantic aliases — product code targets meaning, not ramp position */
+  --color-primary: var(--color-green-700);
+  --color-accent: var(--color-copper-600);
+  --color-success: var(--color-green-600);
+  --color-warning: var(--color-copper-600);
+  --color-danger: var(--color-red-600);
+
+  /* Typography — CSS vars are set by next/font in app/layout.tsx */
+  --font-display: var(--font-spectral), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-hanken), system-ui, -apple-system, sans-serif;
+
+  /* PRD §1.1 breakpoints. Base styles are the sm (<640) design. */
+  --breakpoint-md: 640px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1440px;
+
+  --radius-input: 8px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 3px rgba(18, 41, 31, 0.08);
+  --shadow-raised: 0 8px 24px rgba(18, 41, 31, 0.12);
+  --shadow-accent: 0 8px 24px rgba(156, 91, 52, 0.28);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
-}
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-sage-700);
+    background: var(--color-white);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* PRD §1.1: 2px copper focus ring, 2px offset, on every interactive element */
+  *:focus-visible {
+    outline: 2px solid var(--color-copper-600);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--color-copper-200);
+    color: var(--color-green-900);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ring-in {
+  from {
+    stroke-dashoffset: 327;
+  }
+}
+
+/* Deviation D-2 — PRD §1.2 requires all motion disabled under this query.
+   The testimonial carousel additionally must not auto-advance (WCAG 2.2.2);
+   that is enforced in the component via a matchMedia check. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
 }
