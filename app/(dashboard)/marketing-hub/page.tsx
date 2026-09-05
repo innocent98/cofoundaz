@@ -68,6 +68,7 @@ interface LeaderboardItem {
 }
 
 export default function MarketingHub() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabName>("Analytics");
   const [toast, setToast] = useState<ToastState>({ show: false, message: "" });
 
@@ -219,14 +220,19 @@ export default function MarketingHub() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f7f5] text-[#2c3531] flex font-body">
-      {/* SIDEBAR NAVIGATION */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[#0e271f] text-white flex-shrink-0 hidden md:block shadow-raised">
-        <Sidebar />
-      </aside>
+    <div className="relative flex min-h-screen w-full min-w-0 flex-col bg-[#f5f7f5] text-[#2c3531] font-body">
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-      {/* MAIN CONTAINER */}
-      <div className="flex-1 flex flex-col min-w-0 pb-16 w-full md:pl-64">
+      {isSidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close sidebar overlay"
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-40 block bg-black/40 backdrop-blur-[1px] lg:hidden"
+        />
+      )}
+
+      <div className="flex-1 flex flex-col min-w-0">
         
         {/* TOAST NOTIFICATION */}
         {toast.show && (
@@ -240,27 +246,34 @@ export default function MarketingHub() {
           </div>
         )}
 
-        {/* HEADER */}
-        <header className="sticky top-0 z-40 bg-white border-b border-green-100 shadow-card w-full">
-          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-sm text-sage-500">
-              <span className="hover:text-sage-700 cursor-pointer">Workspace</span>
-              <span>/</span>
-              <span className="font-semibold text-sage-900">Marketing Hub</span>
+        <div className="sticky top-0 z-40 bg-[#F7F7F5] border-b border-[#EBEBE6]">
+          <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+                onClick={() => setIsSidebarOpen((open) => !open)}
+                className="lg:hidden h-10 w-10 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-base shadow-card hover:opacity-90 transition-opacity shrink-0"
+              >
+                C
+              </button>
+              <div className="flex items-center gap-2 text-sm md:text-base font-semibold">
+                <span className="text-[#8E9B90]">Workspace</span>
+                <span className="text-[#8E9B90]">/</span>
+                <h1 className="text-[#1E2923] font-bold">Marketing Hub</h1>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 md:gap-3 ml-auto">
-              <div className="bg-green-100 text-green-900 px-3 py-1 md:px-3.5 md:py-1.5 rounded-full text-xs md:text-sm font-medium flex items-center gap-1.5 border border-green-200">
-                <span>Health</span>
-                <span className="font-display font-bold text-sm md:text-base text-green-900">
-                  72
-                </span>
-                <span className="text-xs">↑</span>
+            <div className="flex items-center gap-3">
+              <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
+                <span className="text-[#556358]">Health</span>
+                <span className="font-bold text-sm">72</span>
+                <span className="text-[10px] text-[#2D5A3F]">↑</span>
               </div>
 
               <button
                 aria-label="Notifications"
-                className="relative p-2.5 rounded-full bg-sage-100/80 border border-sage-200/60 text-sage-700 hover:bg-sage-200/60 transition-colors flex items-center justify-center cursor-pointer"
+                className="relative p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -270,15 +283,14 @@ export default function MarketingHub() {
                 </span>
               </button>
 
-              <button className="bg-copper-600 hover:bg-copper-700 text-white font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1">
+              <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs sm:text-sm transition-colors shadow-card">
                 <span>+ Invite</span>
               </button>
             </div>
-          </div>
+          </header>
 
-          {/* TAB NAVIGATION */}
-          <div className="max-w-7xl mx-auto px-4 md:px-6 pb-3 pt-1">
-            <nav className="flex items-center gap-2 overflow-x-auto scrollbar-none">
+          <div className="px-4 md:px-8 py-3 bg-[#F7F7F5]">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
               {(
                 [
                   "Overview",
@@ -299,19 +311,19 @@ export default function MarketingHub() {
                       setActiveTab(tab);
                       if (tab !== "AI Copy") setHasGenerated(false);
                     }}
-                    className={`px-3.5 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+                    className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                       isActive
-                        ? "bg-copper-200 text-copper-700 shadow-card font-semibold"
-                        : "bg-sage-100 text-sage-700 hover:bg-green-100"
+                        ? "bg-[#EAD5C6] text-[#1E2923] font-bold shadow-card"
+                        : "bg-white border border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]"
                     }`}
                   >
                     {tab}
                   </button>
                 );
               })}
-            </nav>
+            </div>
           </div>
-        </header>
+        </div>
 
         {/* MAIN BODY CONTENT */}
         <main className="max-w-6xl mx-auto px-4 md:px-6 pt-8 flex-1 w-full space-y-6">

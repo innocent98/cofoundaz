@@ -296,7 +296,7 @@ export default function HealthScorePage() {
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Sticky Header & Navigation Wrapper */}
         <div className="sticky top-0 z-40 bg-[#F7F7F5]">
           {/* Main Top Navbar */}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import Sidebar from '@/components/sidebar'; // Adjust path based on your project structure
+import { useSidebar } from '@/components/sidebar-context';
 import {
   Plus,
   Search,
@@ -79,7 +79,7 @@ interface MemoryItem {
 }
 
 export default function AICoFounderPage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { openSidebar } = useSidebar();
   const [activeTab, setActiveTab] = useState('Chat');
   const [activeCategory, setActiveCategory] = useState('All');
   const [inputText, setInputText] = useState('');
@@ -445,30 +445,22 @@ export default function AICoFounderPage() {
       item.agents.toLowerCase().includes(historySearchQuery.toLowerCase())
   );
 
-  return (
-    <div className="flex min-h-screen bg-[#FBFBFA] text-[#1E2923]">
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
-        {/* Top Navigation Bar */}
-       <header className="sticky top-0 z-40 bg-white border-b border-[#EBEBE6] px-4 md:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 shadow-card">
+return (
+  <div className="min-h-screen bg-[#FBFBFA] text-[#1E2923]">
+    <div className="flex flex-col min-w-0">
+<header className="sticky top-0 z-40 bg-white border-b border-[#EBEBE6] px-4 md:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 shadow-card">
   <div className="flex items-center gap-3">
     {/* Mobile-Only Standalone Logo Button (triggers sidebar) */}
     <button
-      onClick={() => setIsSidebarOpen(true)}
+    onClick={openSidebar}
       className="lg:hidden w-10 h-10 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-base shadow-card hover:opacity-90 transition-opacity shrink-0"
       aria-label="Open sidebar"
     >
       C
     </button>
 
-    {/* Desktop Breadcrumbs */}
-    <div className="hidden lg:flex items-center gap-2.5 text-base md:text-lg font-semibold">
-      <div className="w-7 h-7 rounded-card bg-[#F2E7CA] text-[#173B28] flex items-center justify-center shrink-0">
-        <Sparkles className="w-4 h-4 text-[#173B28]" />
-      </div>
+    {/* Responsive Breadcrumbs */}
+    <div className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm md:text-lg font-semibold">
       <span className="text-[#8E9B90]">Workspace</span>
       <span className="text-[#8E9B90]">/</span>
       <h1 className="text-[#1E2923] font-bold truncate">AI Co-Founder</h1>
@@ -476,23 +468,22 @@ export default function AICoFounderPage() {
   </div>
 
   {/* Header Right Actions */}
-  <div className="flex items-center gap-3">
-    <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3 py-1 rounded-full text-xs font-medium">
-      <span className="text-[#556358]">Health</span>
-      <span className="font-bold text-sm">72</span>
-      <span className="text-[10px] text-[#2D5A3F]">↑</span>
+  <div className="flex items-center gap-4">
+    <div className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]">
+      <span>Health</span>
+      <span className="font-bold">72</span>
+      <span className="text-emerald-600 font-bold">↑</span>
     </div>
 
-    <button className="relative p-2 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]">
-      <Bell className="w-4 h-4" />
-      <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+    <button className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+      <Bell className="w-4 h-4 text-[#66756F]" />
+      <span className="absolute -top-1 -right-1 bg-[#12291F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
         5
       </span>
     </button>
 
-    <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-4 py-1.5 rounded-card text-xs transition-colors shadow-card">
-      <Plus className="w-4 h-4" />
-      <span className="hidden md:inline">Invite</span>
+    <button className="bg-[#A8894B] text-[#12291F] font-semibold text-xs px-4 h-[36px] rounded-[8px] hover:bg-[#967941] transition-colors">
+      + Invite
     </button>
   </div>
 </header>

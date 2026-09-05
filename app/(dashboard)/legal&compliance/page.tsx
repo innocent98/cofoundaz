@@ -163,12 +163,12 @@ export default function LegalComplianceApp() {
     <div className="min-h-screen bg-[#f5f7f5] text-[#2c3531] flex font-body relative">
       
       {/* SIDEBAR NAVIGATION */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[#0e271f] text-white flex-shrink-0 hidden md:block shadow-raised">
+      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[#0e271f] text-white flex-shrink-0 hidden lg:block shadow-raised">
         <Sidebar />
       </aside>
 
       {/* MAIN CONTENT CONTAINER */}
-      <div className="flex-1 flex flex-col min-w-0 pb-16 w-full md:pl-64">
+      <div className="flex-1 flex flex-col min-w-0 pb-16 w-full">
         
         {/* STICKY HEADER WITH WHITE BACKGROUND */}
         <header className="sticky top-0 z-40 bg-white border-b border-sage-200/85 shadow-card w-full">

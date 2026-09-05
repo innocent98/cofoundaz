@@ -71,6 +71,7 @@ interface TermSheetComparisonRow {
 }
 
 export default function FundingHubApp() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<FundingTab>("Analytics");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -263,32 +264,42 @@ export default function FundingHubApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f7f5] text-[#2c3531] flex font-body relative">
-      
-      {/* SIDEBAR NAVIGATION */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[#0e271f] text-white flex-shrink-0 hidden md:block shadow-raised">
-        <Sidebar />
-      </aside>
+    <div className="min-h-screen bg-[#f5f7f5] text-[#2c3531] flex font-body relative w-full max-w-none">
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+
+      {isSidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close sidebar overlay"
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-40 block bg-black/40 backdrop-blur-[1px] lg:hidden"
+        />
+      )}
 
       {/* MAIN CONTENT CONTAINER */}
-      <div className="flex-1 flex flex-col min-w-0 pb-16 w-full md:pl-64">
+      <div className="flex-1 flex flex-col min-w-0 pb-16 w-full max-w-none">
         
         {/* STICKY HEADER */}
         <header className="sticky top-0 z-40 bg-white border-b border-sage-200/85 shadow-card w-full">
-          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-sm text-sage-500">
-              <span className="hover:text-sage-700 cursor-pointer">Workspace</span>
-              <span>/</span>
-              <span className="font-semibold text-sage-900">Funding Hub</span>
+          <div className="w-full px-6 py-3 flex items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen((open) => !open)}
+                aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+                className="lg:hidden h-8 w-8 rounded-xl bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-[11px] shadow-card hover:opacity-90 transition-opacity shrink-0"
+              >
+                C
+              </button>
+
+              <div className="flex min-w-0 items-center gap-1 text-sm text-sage-500">
+                <span className="hover:text-sage-700 cursor-pointer">Workspace</span>
+                <span>/</span>
+                <span className="font-semibold text-sage-900">Funding Hub</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 md:gap-3 ml-auto">
-              <div className="bg-[#e2ede6] text-[#1e4836] px-3 py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1.5 border border-[#d2e2d8]">
-                <span>Health</span>
-                <span className="font-display font-bold text-sm md:text-base text-[#0e271f]">72</span>
-                <span className="text-xs">↑</span>
-              </div>
-
+            <div className="flex shrink-0 items-center gap-2 md:gap-3">
               <button
                 aria-label="Notifications"
                 className="relative p-2.5 rounded-full bg-sage-100/80 border border-sage-200/60 text-sage-700 hover:bg-sage-200/60 transition-colors flex items-center justify-center cursor-pointer"
@@ -307,8 +318,8 @@ export default function FundingHubApp() {
           </div>
 
           {/* TOP NAV TABS */}
-          <div className="max-w-7xl mx-auto px-4 md:px-6 pb-3 pt-1">
-            <nav className="flex items-center gap-2 overflow-x-auto scrollbar-none">
+          <div className="w-full bg-neutral-50">
+            <nav className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none px-6 py-2">
               {(
                 [
                   "Pipeline",

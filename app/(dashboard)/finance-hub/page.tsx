@@ -35,6 +35,7 @@ interface TableRowItem {
 }
 
 export default function FinanceHubApp() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeNavTab, setActiveNavTab] = useState<FinanceTab>("Financial model");
   const [activeSubTab, setActiveSubTab] = useState<FinancialModelSubTab>("pnl");
   const [showNotification, setShowNotification] = useState<boolean>(false);
@@ -94,11 +95,16 @@ export default function FinanceHubApp() {
 
   return (
     <div className="min-h-screen bg-[#f5f7f5] text-[#2c3531] flex font-body relative">
-      
-      {/* SIDEBAR NAVIGATION */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[#0e271f] text-white flex-shrink-0 hidden md:block shadow-raised">
-        <Sidebar />
-      </aside>
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+
+      {isSidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close sidebar overlay"
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-40 block bg-black/40 backdrop-blur-[1px] lg:hidden"
+        />
+      )}
 
       {/* FLOATING NOTIFICATION POPUP */}
       {showNotification && (
@@ -109,72 +115,80 @@ export default function FinanceHubApp() {
       )}
 
       {/* MAIN CONTENT CONTAINER */}
-      <div className="flex-1 flex flex-col min-w-0 pb-16 w-full md:pl-64">
+      <div className="flex-1 flex flex-col min-w-0 pb-16 w-full">
         
         {/* HEADER */}
         <header className="sticky top-0 z-40 bg-white border-b border-green-100 shadow-card w-full">
-          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-sm text-sage-500">
-              <span className="hover:text-sage-700 cursor-pointer">Workspace</span>
-              <span>/</span>
-              <span className="font-semibold text-sage-900">Finance Hub</span>
+          <div className="flex w-full items-center justify-between gap-2 px-6 py-3">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <button
+                type="button"
+                aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+                onClick={() => setIsSidebarOpen((open) => !open)}
+                className="lg:hidden h-8 w-8 rounded-full bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-[11px] shadow-card hover:opacity-90 transition-opacity shrink-0"
+              >
+                C
+              </button>
+
+              <div className="flex min-w-0 items-center gap-1 text-sm text-sage-500">
+                <span className="truncate hover:text-sage-700 cursor-pointer font-medium text-sm">Workspace</span>
+                <span className="text-sage-400">/</span>
+                <span className="truncate font-bold text-[#1E2923] text-base">Finance Hub</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 md:gap-3 ml-auto">
-              <div className="bg-green-100 text-green-900 px-3 py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1.5 border border-green-200">
+            <div className="flex shrink-0 items-center gap-2">
+              <div className="bg-green-100 text-green-900 px-2 py-1 rounded-full text-[10px] sm:text-xs font-medium flex items-center gap-1 border border-green-200">
                 <span>Health</span>
-                <span className="font-display font-bold text-sm md:text-base text-green-900">72</span>
-                <span className="text-xs">↑</span>
+                <span className="font-bold text-[10px] sm:text-xs text-green-900">72</span>
+                <span className="text-[10px]">↑</span>
               </div>
 
               <button
                 aria-label="Notifications"
-                className="relative p-2.5 rounded-full bg-sage-100/80 border border-sage-200/60 text-sage-700 hover:bg-sage-200/60 transition-colors flex items-center justify-center cursor-pointer"
+                className="relative p-2 rounded-full bg-sage-100/80 border border-sage-200/60 text-sage-700 hover:bg-sage-200/60 transition-colors flex items-center justify-center cursor-pointer"
               >
-                <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <Bell className="w-3.5 h-3.5" />
+                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
                   5
                 </span>
               </button>
 
-              <button className="bg-copper-600 hover:bg-copper-700 text-white font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-card text-xs md:text-sm transition-colors flex items-center gap-1 cursor-pointer">
-                <UserPlus className="w-4 h-4" />
+              <button className="bg-copper-600 hover:bg-copper-700 text-white font-semibold px-2.5 py-1.5 h-7 rounded-full text-xs transition-colors flex items-center gap-1 cursor-pointer leading-none">
+                <UserPlus className="w-3.5 h-3.5" />
                 <span>+ Invite</span>
               </button>
             </div>
           </div>
 
-          {/* TOP NAV TABS */}
-          <div className="max-w-7xl mx-auto px-4 md:px-6 pb-3 pt-1">
-            <nav className="flex items-center gap-2 overflow-x-auto scrollbar-none">
-              {(
-                [
-                  "Cash flow",
-                  "Runway",
-                  "Budgets",
-                  "Invoices",
-                  "Expenses",
-                  "Financial model",
-                  "Integrations",
-                ] as FinanceTab[]
-              ).map((tab) => {
-                const isActive = activeNavTab === tab;
-                return (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveNavTab(tab)}
-                    className={`px-3.5 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
-                      isActive
-                        ? "bg-copper-200 text-copper-700 shadow-card font-semibold"
-                        : "bg-sage-100 text-sage-700 hover:bg-green-100"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
+          <nav className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none bg-white px-6 py-2">
+            {(
+              [
+                "Cash flow",
+                "Runway",
+                "Budgets",
+                "Invoices",
+                "Expenses",
+                "Financial model",
+                "Integrations",
+              ] as FinanceTab[]
+            ).map((tab) => {
+              const isActive = activeNavTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveNavTab(tab)}
+                  className={`px-3.5 py-1.5 md:px-4 md:py-2 rounded-full text-[11px] md:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+                    isActive
+                      ? "bg-copper-200 text-copper-700 shadow-card font-semibold"
+                      : "bg-sage-100 text-sage-700 hover:bg-green-100"
+                  }`}
+                >
+                  {tab}
+                </button>
+              );
+            })}
+          </nav>
         </header>
 
         {/* MAIN BODY VIEW ROUTER */}

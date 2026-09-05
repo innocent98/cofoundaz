@@ -241,9 +241,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full min-w-0 flex-col bg-[#F7F8F6] text-[#1C201D] font-body lg:pl-64">
-      {/* SIDEBAR (slides in on mobile, pinned from lg up) */}
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+    <div className="relative flex min-h-screen w-full min-w-0 flex-col bg-[#F7F8F6] text-[#1C201D] font-body">
 
       {/* MOBILE BACKDROP — tap anywhere outside to close the sidebar */}
       {isSidebarOpen && (
@@ -275,9 +273,9 @@ export default function DashboardPage() {
       )}
 
       {/* MAIN DASHBOARD CONTENT */}
-      <main className="flex-1 w-full min-w-0 max-w-7xl px-6 md:px-10 pt-4 pb-12 space-y-6">
+      <main className="flex-1 w-full min-w-0 max-w-none px-6 lg:px-8 pt-4 pb-12 space-y-6">
         {/* GREETING SECTION */}
-        <section className="mb-6">
+        <section className="mb-6 w-full">
           <h1 className="text-3xl font-display font-bold text-sage-900 mb-1">
             Good evening, Amara.
           </h1>
@@ -288,7 +286,7 @@ export default function DashboardPage() {
         </section>
 
         {/* TOP CARDS ROW */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <section className="grid w-full grid-cols-1 md:grid-cols-3 gap-5">
           {/* 1. Startup Health Card */}
           <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
             <div>

@@ -139,11 +139,11 @@ export default function PitchPracticeFullApp() {
   return (
     <div className="min-h-screen bg-[#fcfbf9] text-[#1a1a1a] flex font-body relative selection:bg-[#e2ede6] selection:text-[#1e4836]">
       {/* PERSISTENT SIDEBAR (fixed, hidden on mobile) — matches the other dashboard pages */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[#0e271f] text-white flex-shrink-0 hidden md:block shadow-raised">
+      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[#0e271f] text-white flex-shrink-0 hidden lg:block shadow-raised">
         <Sidebar />
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 pb-16 w-full md:pl-64">
+      <div className="flex-1 flex flex-col min-w-0 pb-16 w-full">
       {/* TOAST NOTIFICATION POPUP */}
       {toastMessage && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#0e271f] text-white px-5 py-3 rounded-modal shadow-raised flex items-center gap-3 border border-[#23483b] animate-bounce">

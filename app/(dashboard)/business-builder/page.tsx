@@ -482,7 +482,7 @@ export default function BusinessBuilderPage() {
         </div>
       )}
 
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <div className="sticky top-0 z-40 bg-[#F7F7F5] border-b border-[#EBEBE6]">
           <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4">

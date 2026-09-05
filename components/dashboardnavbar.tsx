@@ -25,8 +25,8 @@ export function DashboardNavbar({
       {/* Brand icon — opens the sidebar on mobile/tablet */}
       <button
         type="button"
-        onClick={() => setIsSidebarOpen && setIsSidebarOpen(true)}
-        aria-label="Open sidebar"
+        onClick={() => setIsSidebarOpen && setIsSidebarOpen((prev) => !prev)}
+        aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
         aria-expanded={isSidebarOpen}
         className="lg:hidden shrink-0 bg-[#1C3B2B] text-[#D89A6E] font-bold h-9 w-9 flex items-center justify-center rounded-card text-lg hover:bg-[#25503a] transition-colors cursor-pointer"
       >
@@ -55,12 +55,12 @@ export function DashboardNavbar({
       </button>
 
       {/* Actions */}
-      <div className="flex items-center gap-2.5 shrink-0">
+      <div className="flex items-center gap-4 shrink-0">
         {/* Health Badge */}
-        <div className="hidden md:flex items-center gap-1.5 bg-[#E4EFE9] text-[#114B32] font-medium text-xs px-3.5 py-1.5 rounded-full">
+        <div className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]">
           <span>Health</span>
-          <span className="text-sm font-bold text-green-900">72</span>
-          <span className="text-[10px]">↑</span>
+          <span className="font-bold">72</span>
+          <span className="text-emerald-600 font-bold">↑</span>
         </div>
 
         {/* Notification Bell */}
@@ -68,10 +68,10 @@ export function DashboardNavbar({
           type="button"
           aria-label="Toggle notifications"
           onClick={() => setIsNotificationsOpen((prev) => !prev)}
-          className="relative p-2 bg-white border border-sage-200 rounded-card hover:bg-sage-50 text-sage-700 transition-colors"
+          className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
         >
-          <Bell className="w-4 h-4 text-sage-700" />
-          <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white">
+          <Bell className="w-4 h-4 text-[#66756F]" />
+          <span className="absolute -top-1 -right-1 bg-[#12291F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
             5
           </span>
         </button>
@@ -80,9 +80,9 @@ export function DashboardNavbar({
         <button
           type="button"
           onClick={() => setIsInviteOpen(true)}
-          className="flex items-center gap-1 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold text-xs px-3.5 py-1.5 rounded-card transition-colors shadow-card"
+          className="bg-[#A8894B] text-[#12291F] font-semibold text-xs px-4 h-[36px] rounded-[8px] hover:bg-[#967941] transition-colors"
         >
-          <Plus className="w-3.5 h-3.5 text-white stroke-[2.5]" /> Invite
+          + Invite
         </button>
       </div>
 

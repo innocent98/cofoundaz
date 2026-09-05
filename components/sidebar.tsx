@@ -1,8 +1,10 @@
+// components/Sidebar.tsx
 'use client';
 
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import CofaundazLogo from '@/components/CofaundazLogo';
 import {
   LayoutGrid,
   Sparkles,
@@ -47,6 +49,7 @@ interface NavSection {
 interface SidebarProps {
   isOpen?: boolean;
   setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose?: () => void;
 }
 
 const navSections: NavSection[] = [
@@ -123,31 +126,40 @@ function EditIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
+export default function Sidebar({ isOpen = false, setIsOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+
+  const handleClose = () => {
+    if (onClose) onClose();
+    if (setIsOpen) setIsOpen(false);
+  };
 
   return (
     <>
+      {/* Mobile Backdrop Overlay */}
+      {isOpen && (
+        <div 
+          onClick={handleClose}
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden backdrop-blur-xs transition-opacity"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar Container */}
       <aside
         aria-label="Main navigation"
-        className={`fixed inset-y-0 left-0 z-50 w-64 shrink-0 bg-[#061A12] text-[#A3B899] flex flex-col justify-between p-4 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-sm font-medium will-change-transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          isOpen ? 'translate-x-0 shadow-raised' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 shrink-0 bg-[#061A12] text-[#A3B899] flex flex-col justify-between p-4 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-sm font-medium will-change-transform transition-all duration-300 ease-in-out ${
+          isOpen ? 'visible translate-x-0 opacity-100 shadow-raised' : 'invisible -translate-x-full opacity-0'
+        } lg:visible lg:translate-x-0 lg:opacity-100`}
       >
         <div className="w-full">
           {/* Brand Header & Mobile Close Button */}
           <div className="flex w-full items-center justify-between gap-2 mb-6 px-2 pt-1">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="bg-[#122E21] text-[#D89A6E] font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-card text-lg">
-                C
-              </div>
-              <span className="truncate text-xl font-semibold text-white tracking-tight">Cofoundaz</span>
-            </div>
+            <CofaundazLogo />
             {/* Close button for mobile */}
             <button
               type="button"
-              onClick={() => setIsOpen && setIsOpen(false)}
+              onClick={handleClose}
               className="lg:hidden shrink-0 p-1.5 rounded-input text-[#7B9382] hover:text-white hover:bg-[#0E281C] transition-colors cursor-pointer"
               aria-label="Close sidebar"
             >
@@ -184,7 +196,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
                       <li key={item.href} className="w-full">
                         <Link
                           href={item.href}
-                          onClick={() => setIsOpen && setIsOpen(false)}
+                          onClick={handleClose}
                           className={`relative flex w-full items-center justify-between gap-2 px-3 py-2.5 rounded-modal transition-all ${
                             isActive
                               ? 'bg-[#0E2C1E] text-white font-bold border-l-2 border-[#D89A6E] shadow-card'
@@ -214,7 +226,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
         <div className="flex w-full flex-col pt-6 border-t border-[#122E21] mt-6 space-y-1">
           <Link
             href="/notifications"
-            onClick={() => setIsOpen && setIsOpen(false)}
+            onClick={handleClose}
             className="flex w-full items-center justify-between gap-2 px-3 py-2 rounded-card hover:text-white hover:bg-[#0A2217] transition-colors"
           >
             <div className="flex min-w-0 items-center gap-3">
@@ -228,7 +240,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
 
           <Link
             href="/settings"
-            onClick={() => setIsOpen && setIsOpen(false)}
+            onClick={handleClose}
             className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-[#0A2217] transition-colors"
           >
             <Settings className="w-4 h-4 shrink-0 text-[#7B9382]" />

@@ -200,7 +200,7 @@ export default function TodaysMissionPage() {
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Sticky Top Header & Tabs Wrapper */}
         <div className="sticky top-0 z-40 bg-[#F7F7F5]">
           {/* Main Header Bar */}
