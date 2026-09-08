@@ -1,0 +1,5 @@
+#!/bin/sh
+# Cofoundaz pre-commit guard — design-token scan + ESLint on staged files.
+# Wired via `core.hooksPath=.githooks` (set by the package.json "prepare" script
+# on npm install). Bypass with `git commit --no-verify` (discouraged).
+exec node scripts/precommit-checks.mjs
