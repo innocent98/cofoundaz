@@ -8,8 +8,7 @@ import type { NavLink } from './types'
 export const headerLinks: NavLink[] = [
   { label: 'Product', href: '/product' },
   { label: 'Pricing', href: '/pricing' },
-  // { label: 'Blog', href: '/blog' },
-  // { label: 'Help Center', href: '/help' },
+  { label: 'Resources', href: '#' },
   { label: 'About', href: '/about' },
 ]
 

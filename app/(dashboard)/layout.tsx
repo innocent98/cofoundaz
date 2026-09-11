@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Sidebar from '@/components/sidebar';
 import { SidebarProvider } from '@/components/sidebar-context';
+import { AiDrawerProvider } from '@/components/ai-drawer-context';
+import { AiDrawer } from '@/components/ai-drawer';
 
 export default function DashboardLayout({
   children,
@@ -16,16 +18,19 @@ export default function DashboardLayout({
       openSidebar={() => setIsSidebarOpen(true)}
       closeSidebar={() => setIsSidebarOpen(false)}
     >
-      <div className="min-h-screen bg-[#F4F6F5]">
-        <Sidebar
-          isOpen={isSidebarOpen}
-          setIsOpen={setIsSidebarOpen}
-        />
+      <AiDrawerProvider>
+        <div className="min-h-screen bg-[#F4F6F5] flex w-full">
+          <Sidebar
+            isOpen={isSidebarOpen}
+            setIsOpen={setIsSidebarOpen}
+          />
 
-        <main className="min-h-screen lg:ml-64">
-          {children}
-        </main>
-      </div>
+          <main className="min-h-screen flex-1 w-full min-w-0 lg:ml-64">
+            {children}
+          </main>
+        </div>
+        <AiDrawer />
+      </AiDrawerProvider>
     </SidebarProvider>
   );
 }

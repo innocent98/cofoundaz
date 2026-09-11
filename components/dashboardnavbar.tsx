@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Search, Bell, Plus, Sparkles } from 'lucide-react';
+import { useSidebar } from '@/components/sidebar-context';
 
 interface DashboardNavbarProps {
   isNotificationsOpen: boolean;
@@ -10,6 +11,8 @@ interface DashboardNavbarProps {
   setIsInviteOpen: (open: boolean) => void;
   isSidebarOpen?: boolean;
   setIsSidebarOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  notifications?: import('@/app/(dashboard)/dashboard/page').NotificationItem[];
+  markAllNotificationsRead?: () => void;
 }
 
 export function DashboardNavbar({
@@ -19,15 +22,19 @@ export function DashboardNavbar({
   setIsInviteOpen,
   isSidebarOpen = false,
   setIsSidebarOpen,
+  notifications = [],
+  markAllNotificationsRead,
 }: DashboardNavbarProps) {
+  const sidebar = useSidebar();
+  const unreadCount = notifications.filter(n => n.unread).length;
+
   return (
     <header className="sticky top-0 z-40 w-full shrink-0 bg-white border-b border-sage-200/80 px-4 md:px-8 py-2.5 flex items-center justify-between gap-4 shadow-card">
       {/* Brand icon — opens the sidebar on mobile/tablet */}
       <button
         type="button"
-        onClick={() => setIsSidebarOpen && setIsSidebarOpen((prev) => !prev)}
-        aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-        aria-expanded={isSidebarOpen}
+        onClick={() => sidebar.openSidebar()}
+        aria-label="Open sidebar"
         className="lg:hidden shrink-0 bg-[#1C3B2B] text-[#D89A6E] font-bold h-9 w-9 flex items-center justify-center rounded-card text-lg hover:bg-[#25503a] transition-colors cursor-pointer"
       >
         C
@@ -71,9 +78,11 @@ export function DashboardNavbar({
           className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
         >
           <Bell className="w-4 h-4 text-[#66756F]" />
-          <span className="absolute -top-1 -right-1 bg-[#12291F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-            5
-          </span>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-[#12291F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+              {unreadCount}
+            </span>
+          )}
         </button>
 
         {/* Invite Button */}
@@ -91,39 +100,48 @@ export function DashboardNavbar({
         <div className="absolute top-14 right-4 md:right-8 z-50 w-80 md:w-96 bg-white border border-sage-100 rounded-modal shadow-raised p-4">
           <div className="flex items-center justify-between pb-3 border-b border-sage-100 mb-2">
             <h4 className="font-bold text-sm text-sage-900">Notifications</h4>
-            <button type="button" className="text-xs font-semibold text-[#114B32] hover:underline">
-              Mark all read
-            </button>
+            {unreadCount > 0 && (
+              <button 
+                type="button" 
+                onClick={markAllNotificationsRead}
+                className="text-xs font-semibold text-[#114B32] hover:underline"
+              >
+                Mark all read
+              </button>
+            )}
           </div>
-          <div className="space-y-1">
-            <div className="flex items-start gap-3 p-2.5 rounded-card bg-[#F5EEDC]">
-              <div className="p-1.5 bg-[#114B32] text-white rounded-input mt-0.5">
-                <Sparkles className="w-3.5 h-3.5" />
-              </div>
-              <div>
-                <p className="text-xs font-medium text-sage-900">Your daily AI briefing is ready.</p>
-                <span className="text-[10px] text-sage-400">10 min ago</span>
-              </div>
+          {notifications.length === 0 ? (
+            <div className="p-4 text-center text-sm text-[var(--sage-500)]">
+              No new notifications.
             </div>
-            <div className="flex items-start gap-3 p-2.5 rounded-card hover:bg-sage-50">
-              <div className="p-1.5 bg-[#E8F3EE] text-[#114B32] rounded-input mt-0.5 font-bold text-xs">
-                ₦
-              </div>
-              <div>
-                <p className="text-xs font-medium text-sage-900">Runway dropped below 9 months, worth a look.</p>
-                <span className="text-[10px] text-sage-400">1h ago</span>
-              </div>
+          ) : (
+            <div className="space-y-1">
+              {notifications.map((n) => (
+                <div key={n.id} className={`flex items-start gap-3 p-2.5 rounded-card transition-colors ${n.unread ? 'bg-[#F5EEDC]' : 'hover:bg-sage-50'}`}>
+                  {n.type === 'ai' && (
+                    <div className="p-1.5 bg-[#114B32] text-white rounded-input mt-0.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </div>
+                  )}
+                  {n.type === 'finance' && (
+                    <div className="p-1.5 bg-[#E8F3EE] text-[#114B32] rounded-input mt-0.5 font-bold text-xs flex items-center justify-center w-[26px] h-[26px]">
+                      ₦
+                    </div>
+                  )}
+                  {(n.type === 'legal' || n.type === 'funding') && (
+                    <div className="p-1.5 bg-[#E8F3EE] text-[#114B32] rounded-input mt-0.5 font-bold text-xs flex items-center justify-center w-[26px] h-[26px]">
+                      §
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-xs font-medium ${n.unread ? 'text-sage-900' : 'text-sage-700'}`}>{n.title}</p>
+                    <span className="text-[10px] text-sage-400">{n.time}</span>
+                  </div>
+                  {n.unread && <div className="w-2 h-2 rounded-full bg-[#114B32] mt-1.5 shrink-0" />}
+                </div>
+              ))}
             </div>
-            <div className="flex items-start gap-3 p-2.5 rounded-card hover:bg-sage-50">
-              <div className="p-1.5 bg-[#E8F3EE] text-[#114B32] rounded-input mt-0.5 font-bold text-xs">
-                §
-              </div>
-              <div>
-                <p className="text-xs font-medium text-sage-900">Tayo returned your NDA with 2 comments.</p>
-                <span className="text-[10px] text-sage-400">5h ago</span>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       )}
     </header>

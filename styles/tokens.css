@@ -1,0 +1,39 @@
+:root {
+  /* Evergreen (Primary Brand) */
+  --green-950: #0B1F17;
+  --green-900: #12291F;
+  --green-800: #183B2C;
+  --green-700: #1E4D3B;
+  --green-600: #266049;
+  --green-500: #2E7256;
+  --green-400: #4E8F73;
+  --green-300: #7FB09A;
+  --green-200: #B3D0C3;
+  --green-100: #E3EFE9;
+  --green-50: #F2F7F4;
+
+  /* Brass (Accent, <=10%) */
+  --brass-700: #8A6E33;
+  --brass-600: #A8894B;
+  --brass-500: #BDA05F;
+  --brass-200: #E9DDBE;
+  --brass-100: #F5EEDC;
+
+  /* Sage (Neutrals) */
+  --sage-900: #171C1A;
+  --sage-700: #3A423E;
+  --sage-500: #67716C;
+  --sage-300: #C3CCC7;
+  --sage-100: #F4F6F5;
+  --white: #FFFFFF;
+
+  /* Functional Signal */
+  --red-600: #B0483B;
+  --red-100: #F6E5E2;
+
+  /* Aliases */
+  --color-primary: var(--green-700);
+  --color-accent: var(--brass-600);
+  --color-success: var(--green-600);
+  --color-danger: var(--red-600);
+}

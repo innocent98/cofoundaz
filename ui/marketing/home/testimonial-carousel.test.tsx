@@ -62,17 +62,7 @@ describe('TestimonialCarousel', () => {
     )
   })
 
-  it('steps forward and back with the next and previous controls', async () => {
-    const user = userEvent.setup()
-    render(<TestimonialCarousel />)
-    await user.click(screen.getByRole('button', { name: 'Next quote' }))
-    expect(showing(1)).toBe(true)
-    await user.click(screen.getByRole('button', { name: 'Previous quote' }))
-    expect(showing(0)).toBe(true)
-    // Previous from the first quote wraps to the last.
-    await user.click(screen.getByRole('button', { name: 'Previous quote' }))
-    expect(showing(quotes.length - 1)).toBe(true)
-  })
+
 
   it('auto-advances every 6 seconds when motion is allowed', () => {
     vi.useFakeTimers()
@@ -93,29 +83,7 @@ describe('TestimonialCarousel', () => {
     expect(showing(0)).toBe(true)
   })
 
-  // WCAG 2.2.2 (Pause, Stop, Hide).
-  it('exposes a pause control that stops the rotation, and resumes it', () => {
-    vi.useFakeTimers()
-    render(<TestimonialCarousel />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Pause quote rotation' }))
-    act(() => {
-      vi.advanceTimersByTime(30000)
-    })
-    expect(showing(0)).toBe(true)
-
-    fireEvent.click(screen.getByRole('button', { name: 'Resume quote rotation' }))
-    act(() => {
-      vi.advanceTimersByTime(6000)
-    })
-    expect(showing(1)).toBe(true)
-  })
-
-  it('hides the pause control under reduced motion, where nothing rotates', () => {
-    mockReducedMotion(true)
-    render(<TestimonialCarousel />)
-    expect(screen.queryByRole('button', { name: /quote rotation/i })).toBeNull()
-  })
 
   it('restarts the 6 second dwell on any manual selection', () => {
     vi.useFakeTimers()

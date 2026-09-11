@@ -31,24 +31,24 @@ export default function MarketingNavbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-card bg-[#1B4B38] flex items-center justify-center shadow-card">
-                <span className="font-display text-[#9C5B34] font-bold text-lg leading-none">C</span>
+                <span className="font-display text-[#A68A48] font-bold text-lg leading-none">C</span>
               </div>
-              <span className="font-display text-2xl font-semibold text-[#12291F] tracking-tight">
+              <span className="font-display text-2xl font-bold text-[#12291F] tracking-tight">
                 Cofoundaz
               </span>
             </Link>
 
             {/* Navigation Links */}
-            <nav className="hidden md:flex items-center space-x-7">
+            <nav className="hidden md:flex items-center gap-8">
               <a
                 href="#product"
-                className="text-[#33413B] hover:text-[#12291F] transition-colors text-[15px] font-normal"
+                className="text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal"
               >
                 Product
               </a>
               <a
                 href="#pricing"
-                className="text-[#33413B] hover:text-[#12291F] transition-colors text-[15px] font-normal"
+                className="text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal"
               >
                 Pricing
               </a>
@@ -58,7 +58,8 @@ export default function MarketingNavbar() {
                 <button
                   onClick={() => setResourcesOpen(!resourcesOpen)}
                   onBlur={() => setTimeout(() => setResourcesOpen(false), 200)}
-                  className="flex items-center gap-1.5 text-[#33413B] hover:text-[#12291F] transition-colors text-[15px] font-normal focus:outline-none cursor-pointer"
+                  className="flex items-center gap-1.5 text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal focus:outline-none cursor-pointer"
+                  aria-expanded={resourcesOpen}
                 >
                   <span>Resources</span>
                   <svg
@@ -77,13 +78,13 @@ export default function MarketingNavbar() {
                   <div className="absolute top-full left-0 mt-2 w-48 rounded-input bg-white shadow-raised border border-sage-100 py-2 z-50">
                     <a
                       href="#blog"
-                      className="block px-4 py-2 text-sm text-[#33413B] hover:bg-sage-50 hover:text-[#12291F]"
+                      className="block px-4 py-2 text-[15px] text-[#33413B] hover:bg-slate-50 hover:text-slate-600"
                     >
                       Blog
                     </a>
                     <a
                       href="#guides"
-                      className="block px-4 py-2 text-sm text-[#33413B] hover:bg-sage-50 hover:text-[#12291F]"
+                      className="block px-4 py-2 text-[15px] text-[#33413B] hover:bg-slate-50 hover:text-slate-600"
                     >
                       Guides & Tools
                     </a>
@@ -93,7 +94,7 @@ export default function MarketingNavbar() {
 
               <a
                 href="#about"
-                className="text-[#33413B] hover:text-[#12291F] transition-colors text-[15px] font-normal"
+                className="text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal"
               >
                 About
               </a>
@@ -111,7 +112,7 @@ export default function MarketingNavbar() {
 
             <Link
               href="/signup"
-              className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold text-[15px] px-5 py-2.5 rounded-card shadow-card transition-all active:scale-[0.98]"
+              className="bg-[#A68A48] hover:bg-[#9E8043] text-[#1B382B] font-semibold text-[15px] px-5 py-2.5 rounded-card shadow-card transition-all active:scale-[0.98]"
             >
               Start free
             </Link>
@@ -140,45 +141,82 @@ export default function MarketingNavbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-sage-100 px-4 pt-2 pb-6 space-y-3">
+        <nav className="md:hidden bg-white border-b border-sage-100 px-4 pt-2 pb-6 flex flex-col gap-3">
           <a
             href="#product"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#33413B] hover:text-[#12291F] py-2 text-base font-normal"
+            className="block text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal"
           >
             Product
           </a>
           <a
             href="#pricing"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#33413B] hover:text-[#12291F] py-2 text-base font-normal"
+            className="block text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal"
           >
             Pricing
           </a>
+          <div className="flex flex-col">
+            <button
+              onClick={() => setResourcesOpen(!resourcesOpen)}
+              className="flex items-center justify-between text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal w-full text-left focus:outline-none"
+              aria-expanded={resourcesOpen}
+            >
+              <span>Resources</span>
+              <svg
+                className={`w-4 h-4 text-[#33413B] transition-transform duration-200 ${
+                  resourcesOpen ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {resourcesOpen && (
+              <div className="pl-4 flex flex-col gap-2 mt-1">
+                <a
+                  href="#blog"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-[#33413B] hover:text-slate-500 py-1.5 text-[15px] font-normal"
+                >
+                  Blog
+                </a>
+                <a
+                  href="#guides"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-[#33413B] hover:text-slate-500 py-1.5 text-[15px] font-normal"
+                >
+                  Guides & Tools
+                </a>
+              </div>
+            )}
+          </div>
           <a
             href="#about"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#33413B] hover:text-[#12291F] py-2 text-base font-normal"
+            className="block text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal"
           >
             About
           </a>
-          <div className="pt-4 border-t border-sage-100 space-y-3">
+          <div className="pt-4 border-t border-sage-100 flex flex-col gap-3">
             <Link
               href="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center text-[#1B4B38] py-2 text-base font-medium"
+              className="block w-full text-center text-[#1B4B38] py-2 text-[15px] font-medium"
             >
               Log in
             </Link>
             <Link
               href="/signup"
               onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center bg-[#9C5B34] text-white font-semibold py-2.5 rounded-card shadow-card"
+              className="block w-full text-center bg-[#A68A48] text-[#1B382B] font-semibold py-2.5 rounded-card shadow-card"
             >
               Start free
             </Link>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

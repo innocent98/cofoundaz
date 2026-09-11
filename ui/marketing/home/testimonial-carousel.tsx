@@ -65,9 +65,6 @@ export function TestimonialCarousel() {
     )
   }
 
-  const controlClasses =
-    'flex h-11 w-11 flex-none items-center justify-center rounded-full text-green-300 hover:text-white'
-
   return (
     <section className="bg-green-950 text-green-100">
       <Container width="narrow" className="py-16 text-center md:py-22">
@@ -75,7 +72,12 @@ export function TestimonialCarousel() {
           {title}
         </h2>
 
-        <div role="group" aria-label={title}>
+        <div 
+          role="group" 
+          aria-label={title}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
           <div data-carousel-quote className="mt-11 min-h-[190px]">
             <p className="mx-auto max-w-[28ch] font-display text-xl italic leading-[1.45] text-balance text-white md:text-[26px]">
               “{quote.text}”
@@ -95,15 +97,6 @@ export function TestimonialCarousel() {
           </div>
 
           <div className="mt-6 flex items-center justify-center">
-            <button
-              type="button"
-              aria-label="Previous quote"
-              onClick={() => select(index - 1)}
-              className={controlClasses}
-            >
-              <span aria-hidden="true" className="text-[22px] leading-none">‹</span>
-            </button>
-
             {quotes.map((_, i) => (
               <button
                 key={i}
@@ -125,33 +118,6 @@ export function TestimonialCarousel() {
                 />
               </button>
             ))}
-
-            <button
-              type="button"
-              aria-label="Next quote"
-              onClick={() => select(index + 1)}
-              className={controlClasses}
-            >
-              <span aria-hidden="true" className="text-[22px] leading-none">›</span>
-            </button>
-
-            {/* WCAG 2.2.2 (Pause, Stop, Hide) — an explicit control, not
-                pause-on-hover, because hover helps neither keyboard nor touch
-                users. Not rendered under reduced motion, where nothing rotates
-                and a Pause button would be a control over nothing. */}
-            {!reducedMotion && (
-              <button
-                type="button"
-                data-carousel-toggle
-                aria-label={paused ? 'Resume quote rotation' : 'Pause quote rotation'}
-                onClick={() => setPaused((value) => !value)}
-                className={cn(controlClasses, 'ml-1')}
-              >
-                <span aria-hidden="true" className="text-[15px] leading-none">
-                  {paused ? '▶' : '❚❚'}
-                </span>
-              </button>
-            )}
           </div>
 
           <span aria-live="polite" className="sr-only">

@@ -14,16 +14,11 @@ export function Logo({
       <span
         aria-hidden="true"
         className={cn(
-          'flex h-[30px] w-[30px] items-center justify-center rounded-[9px] shadow-card',
-          isDark ? 'bg-white' : 'bg-green-700'
+          'flex h-[30px] w-[30px] items-center justify-center rounded-[9px] shadow-card font-display text-base font-bold',
+          isDark ? 'bg-white text-copper-600' : 'bg-green-700 text-copper-500'
         )}
       >
-        <span
-          className={cn(
-            'h-[13px] w-[13px] rounded-full border-[2.5px] border-r-transparent',
-            isDark ? 'border-copper-600' : 'border-copper-500'
-          )}
-        />
+        C
       </span>
       <span
         className={cn(

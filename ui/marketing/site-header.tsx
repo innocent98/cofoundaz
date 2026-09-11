@@ -10,27 +10,41 @@ export function SiteHeader() {
       <div className="mx-auto flex h-[72px] max-w-[1280px] items-center gap-8 px-4 md:px-6">
         <Logo />
 
-        <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
-          {headerLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-input px-3 py-2 text-sm font-medium text-sage-700 hover:bg-green-50 hover:text-green-700"
-            >
-              {link.label}
-            </Link>
-          ))}
+        <nav aria-label="Main" className="hidden items-center gap-8 lg:flex">
+          {headerLinks.map((link) => {
+            if (link.label === 'Resources') {
+              return (
+                <div key={link.href} className="group relative">
+                  <button className="flex items-center gap-1.5 px-3 py-2 text-[15px] font-normal text-[#33413B] hover:text-sage-500 transition-colors cursor-pointer focus:outline-none">
+                    Resources
+                    <svg className="h-3 w-3 text-[#33413B] transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <div className="invisible absolute top-full left-0 mt-1 flex w-48 flex-col rounded-input bg-white p-2 shadow-raised opacity-0 transition-all group-hover:visible group-hover:opacity-100">
+                    <Link href="#blog" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-md">Blog</Link>
+                    <Link href="#guides" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-md">Guides & Tools</Link>
+                  </div>
+                </div>
+              )
+            }
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-3 py-2 text-[15px] font-normal text-[#33413B] hover:text-sage-500 transition-colors"
+              >
+                {link.label}
+              </Link>
+            )
+          })}
         </nav>
 
         <div className="ml-auto flex items-center gap-2.5">
-          <Button href={headerCtas.login.href} variant="ghost" size="sm" className="hidden lg:inline-flex">
+          <Button href={headerCtas.login.href} variant="ghost" size="sm" className="hidden lg:inline-flex text-[#1B4B38] hover:text-[#12291F]">
             {headerCtas.login.label}
           </Button>
-          {/* Desktop only: on mobile this accent CTA moves into the MobileNav
-              menu, leaving the bar uncluttered. It stays in the DOM (CSS-hidden)
-              so it remains the single per-screen accent CTA the header is
-              allowed under PRD §1.1 rule 3. */}
-          <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex">
+          <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex bg-[#A68A48] hover:bg-[#9E8043] text-[#1B382B]">
             {headerCtas.signup.label}
           </Button>
           <MobileNav />

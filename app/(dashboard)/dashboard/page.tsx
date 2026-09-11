@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { DashboardNavbar } from '@/components/dashboardnavbar';
 import Sidebar from '@/components/sidebar';
 import { 
@@ -12,15 +13,12 @@ import {
   ArrowUp,
   Sparkles
 } from 'lucide-react';
+import { useDashboardSummary, useAIBriefing, useActivityFeed } from '@/hooks/useDashboardApi';
+import { useAiDrawer } from '@/components/ai-drawer-context';
+import type { MissionTask } from '@/types/dashboard';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-interface MissionTask {
-  id: string;
-  title: string;
-  reason: string;
-  completed: boolean;
-}
-
-interface NotificationItem {
+export interface NotificationItem {
   id: string;
   title: string;
   time: string;
@@ -40,17 +38,67 @@ export default function DashboardPage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
+  const { openAiDrawer, closeAiDrawer } = useAiDrawer();
   const [searchQuery, setSearchQuery] = useState('');
+
+  // DATA HOOKS
+  const { data: summaryData, loading: summaryLoading, refetch: refetchSummary, error: summaryError } = useDashboardSummary();
+  const { data: briefingData, acceptAction, fallbackText, error: briefingError, refetch: refetchBriefing } = useAIBriefing();
+  const { data: activityData, error: activityError, fetchMore: refetchActivity } = useActivityFeed('workspace_123'); // Example ID
+
+  const targetScore = summaryData?.health?.score ?? 72;
+
+  // ScoreGauge Animation State
+  const [displayScore, setDisplayScore] = useState(0);
+  useEffect(() => {
+    let startTime: number;
+    const duration = 600;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reducedMotion) {
+      setDisplayScore(targetScore);
+      return;
+    }
+
+    const animate = (time: number) => {
+      if (!startTime) startTime = time;
+      const progress = Math.min((time - startTime) / duration, 1);
+      // easeOutExpo
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setDisplayScore(Math.round(ease * targetScore));
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    requestAnimationFrame(animate);
+  }, [targetScore]);
+
+  const getScoreColor = (score: number): string => {
+    if (score < 40) return 'var(--red-600, #B0483B)';
+    if (score < 70) return 'var(--brass-600, #A8894B)';
+    return 'var(--green-500, #2E7256)';
+  };
 
   // Toast State for Briefing Action
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // AI Chat Drawer State (Starts empty)
-  const [chatInput, setChatInput] = useState('');
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const messageIdRef = useRef(0);
-  const chatScrollRef = useRef<HTMLDivElement>(null);
+  // Mission Toast State
+  const [missionToastVisible, setMissionToastVisible] = useState(false);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    };
+  }, []);
+
+  const triggerMissionToast = () => {
+    setMissionToastVisible(true);
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    toastTimeoutRef.current = setTimeout(() => {
+      setMissionToastVisible(false);
+    }, 3000);
+  };
 
   // Invite Form State & Custom Role Dropdown State
   const [inviteEmail, setInviteEmail] = useState('');
@@ -110,25 +158,38 @@ export default function DashboardPage() {
       title: 'Interview 3 gig workers',
       reason: 'Why: closes out your riskiest validation task.',
       completed: true,
+      order: 1,
     },
     {
       id: '2',
       title: 'Draft your pricing experiment',
       reason: 'Why: pricing moves both revenue and runway.',
       completed: false,
+      order: 2,
     },
     {
       id: '3',
       title: "Review Tayo's NDA comments",
       reason: 'Why: unblocks your first contractor.',
       completed: false,
+      order: 3,
     },
   ]);
 
+  useEffect(() => {
+    if (summaryData?.mission?.tasks) {
+      setTasks(summaryData.mission.tasks);
+    }
+  }, [summaryData?.mission?.tasks]);
+
   const toggleTask = (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    if (task && !task.completed) {
+      triggerMissionToast();
+    }
     setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
+      prev.map((t) =>
+        t.id === id ? { ...t, completed: !t.completed } : t
       )
     );
   };
@@ -138,7 +199,7 @@ export default function DashboardPage() {
     setIsSearchOpen(false);
     setIsInviteOpen(false);
     setIsNotificationsOpen(false);
-    setIsAiDrawerOpen(false);
+    closeAiDrawer();
     setIsRoleDropdownOpen(false);
     setSearchQuery('');
   };
@@ -178,53 +239,13 @@ export default function DashboardPage() {
     };
   }, [isSidebarOpen]);
 
-  // Auto-scroll chat to bottom
-  useEffect(() => {
-    if (chatScrollRef.current) {
-      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
-    }
-  }, [chatMessages, isAiDrawerOpen]);
-
-  const handleSendInvite = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Sending invite to:', inviteEmail, 'Role:', inviteRole);
-    setInviteEmail('');
-    setIsInviteOpen(false);
-  };
-
-  const handleSendMessage = (textToSend?: string) => {
-    const content = textToSend || chatInput;
-    if (!content.trim()) return;
-
-    const createMessageId = (prefix: string) => {
-      const timeBase = Date.now();
-      const nextId = `${prefix}-${timeBase}-${messageIdRef.current}`;
-      messageIdRef.current += 1;
-      return nextId;
-    };
-
-    const newMsg: ChatMessage = {
-      id: createMessageId('user'),
-      sender: 'user',
-      text: content,
-    };
-
-    setChatMessages((prev) => [...prev, newMsg]);
-    if (!textToSend) setChatInput('');
-
-    // Simulate AI response after a brief moment
-    setTimeout(() => {
-      const aiReply: ChatMessage = {
-        id: createMessageId('assistant'),
-        sender: 'assistant',
-        text: `Good question. I'll pull the numbers from your workspace and walk you through "${content}", then I can turn the answer into a task or a document if useful.`,
-      };
-      setChatMessages((prev) => [...prev, aiReply]);
-    }, 600);
-  };
-
   // Handlers for AI Briefing Card Actions (Independent of the Chat Drawer)
+  const [isDoItPending, setIsDoItPending] = useState(false);
+
   const handleBriefingDoIt = () => {
+    if (isDoItPending) return;
+    setIsDoItPending(true);
+
     // Automatically marks the pricing task as complete
     setTasks((prev) =>
       prev.map((t) => (t.id === '2' ? { ...t, completed: true } : t))
@@ -233,11 +254,19 @@ export default function DashboardPage() {
     setToastMessage('Added “Draft a pricing experiment” to your tasks.');
     setTimeout(() => {
       setToastMessage(null);
+      setIsDoItPending(false);
     }, 4000);
   };
 
   const handleBriefingTellMeMore = () => {
-    console.log("Executed briefing action: 'Tell me more' (Expanded financial health breakdown)");
+    openAiDrawer();
+  };
+
+  const handleSendInvite = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Inviting:', inviteEmail, 'as', inviteRole);
+    setIsInviteOpen(false);
+    setInviteEmail('');
   };
 
   return (
@@ -260,6 +289,8 @@ export default function DashboardPage() {
         setIsInviteOpen={setIsInviteOpen}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
+        notifications={notifications}
+        markAllNotificationsRead={markAllNotificationsRead}
       />
 
       {/* TOAST NOTIFICATION POPUP (MATCHING DESIGN REFERENCE) */}
@@ -269,6 +300,14 @@ export default function DashboardPage() {
             <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
           </div>
           <p className="text-sm font-medium">{toastMessage}</p>
+        </div>
+      )}
+
+      {/* MISSION TOAST */}
+      {missionToastVisible && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#0F1E16] text-white px-5 py-3 rounded-xl shadow-xl shadow-black/25 inline-flex items-center gap-2.5 border border-[#1E3A29] animate-in fade-in slide-in-from-top-2 duration-300">
+          <Check className="w-4 h-4 text-[#D4A359] stroke-[3] shrink-0" />
+          <p className="text-sm font-medium text-white">Nice. Mission progress saved.</p>
         </div>
       )}
 
@@ -286,123 +325,152 @@ export default function DashboardPage() {
         </section>
 
         {/* TOP CARDS ROW */}
-        <section className="grid w-full grid-cols-1 md:grid-cols-3 gap-5">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* 1. Startup Health Card */}
-          <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold text-base text-sage-900">Startup Health</h3>
-                <span className="text-xs font-semibold bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                  +4 this week
-                </span>
-              </div>
-
-              <div className="flex flex-col items-center justify-center my-4">
-                <div className="relative w-40 h-40 flex items-center justify-center">
-                  <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      className="text-[#E4EFEA]"
-                      strokeWidth="9"
-                      stroke="currentColor"
-                      fill="none"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      className="text-[#266B4E]"
-                      strokeWidth="9"
-                      strokeDasharray={2 * Math.PI * 40}
-                      strokeDashoffset={(2 * Math.PI * 40) * (1 - 0.72)}
-                      strokeLinecap="round"
-                      stroke="currentColor"
-                      fill="none"
-                    />
-                  </svg>
-                  <div className="absolute flex flex-col items-center justify-center text-center">
-                    <span className="text-5xl font-display font-extrabold text-[#1D2A24] leading-none mb-1">
-                      72
-                    </span>
-                    <span className="text-xs text-sage-500 font-medium">of 100</span>
-                  </div>
+          <ErrorBoundary onRetry={refetchSummary}>
+            <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
+              {(() => { if (summaryError) throw summaryError; return null; })()}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-bold text-base text-sage-900">Startup Health</h3>
+                  <span className="text-xs font-semibold bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                    {(summaryData?.health?.deltaWeekly || 0) > 0 ? '+' : ''}{summaryData?.health?.deltaWeekly || '+4'} this week
+                  </span>
                 </div>
-              </div>
 
-              <p className="text-sm text-center text-sage-600 leading-relaxed px-2 mb-6">
-                Strong for validation stage. Product is carrying you; financials are holding you back.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              className="text-sm font-bold text-[#266B4E] flex items-center justify-center gap-1 hover:underline pt-2 cursor-pointer"
-            >
-              See what&apos;s driving it →
-            </button>
-          </div>
-
-          {/* 2. Today's Mission Card */}
-          <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold text-base text-sage-900">Today&apos;s Mission</h3>
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-copper-700">
-                  <Flame className="w-4 h-4 fill-copper-500 text-copper-500" />
-                  <span>6-day streak</span>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                {tasks.map((task) => (
-                  <div
-                    key={task.id}
-                    onClick={() => toggleTask(task.id)}
-                    className="flex items-start gap-3.5 cursor-pointer group"
-                  >
-                    <button
-                      type="button"
-                      aria-label={`Toggle task: ${task.title}`}
-                      className={`w-6 h-6 rounded-input flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                        task.completed
-                          ? 'bg-[#266B4E] text-white shadow-card'
-                          : 'border border-sage-300 bg-white group-hover:border-sage-400'
-                      }`}
-                    >
-                      {task.completed && <Check className="w-4 h-4 stroke-[2.5]" />}
-                    </button>
-
-                    <div>
-                      <p
-                        className={`text-sm font-semibold transition-colors ${
-                          task.completed ? 'text-sage-500 line-through' : 'text-[#1D2A24]'
-                        }`}
-                      >
-                        {task.title}
-                      </p>
-                      <p className="text-xs text-sage-500 mt-1 leading-normal">
-                        {task.reason}
-                      </p>
+                <div className="flex flex-col items-center justify-center my-4">
+                  <div className="relative w-40 h-40 flex items-center justify-center">
+                    <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        className="text-[#E4EFEA]"
+                        strokeWidth="9"
+                        stroke="currentColor"
+                        fill="none"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        strokeWidth="9"
+                        strokeDasharray={2 * Math.PI * 40}
+                        strokeDashoffset={(2 * Math.PI * 40) * (1 - (displayScore / 100))}
+                        strokeLinecap="round"
+                        stroke={getScoreColor(targetScore)}
+                        fill="none"
+                        style={{ 
+                          transition: 'stroke 600ms ease-out, stroke-dashoffset 600ms ease-out',
+                        }}
+                        className="motion-reduce:transition-none"
+                      />
+                    </svg>
+                    <div className="absolute flex flex-col items-center justify-center text-center">
+                      <span className="text-5xl font-display font-extrabold text-[#1D2A24] leading-none mb-1">
+                        {displayScore}
+                      </span>
+                      <span className="text-xs text-sage-500 font-medium">of 100</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            <button
-              type="button"
-              className="text-sm font-bold text-[#266B4E] flex items-center justify-start gap-1 hover:underline pt-6 cursor-pointer"
-            >
-              Go to mission →
-            </button>
+                <p className="text-sm text-center text-sage-600 leading-relaxed px-2 mb-6">
+                  Strong for validation stage. Product is carrying you; financials are holding you back.
+                </p>
+              </div>
+
+              <Link
+                href="/app/health"
+                className="text-sm font-bold text-[#266B4E] flex items-center justify-center gap-1 hover:underline pt-2 cursor-pointer"
+              >
+                See what&apos;s driving it →
+              </Link>
+            </div>
+          </ErrorBoundary>
+
+          {/* 2. Today's Mission Card */}
+          <ErrorBoundary onRetry={refetchSummary}>
+            <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
+              {(() => { if (summaryError) throw summaryError; return null; })()}
+              {tasks.length > 0 && tasks.every(t => t.completed) ? (
+                <div className="flex flex-col items-center justify-center h-full text-center py-10">
+                  <Flame className="w-12 h-12 fill-copper-500 text-copper-500 mb-4 animate-bounce" />
+                  <h3 className="font-bold text-lg text-sage-900">Mission complete. 🔥 {summaryData?.mission?.streakDays || 6}-day streak.</h3>
+                </div>
+              ) : (
+              <>
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-bold text-base text-sage-900">Today&apos;s Mission</h3>
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-copper-700">
+                      <Flame className="w-4 h-4 fill-copper-500 text-copper-500" />
+                      <span>{summaryData?.mission?.streakDays || 6}-day streak</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-5">
+                    {tasks.map((task) => (
+                      <div
+                        key={task.id}
+                        onClick={() => toggleTask(task.id)}
+                        className="flex items-start gap-3.5 cursor-pointer group"
+                      >
+                        <button
+                          type="button"
+                          aria-label={`Toggle task: ${task.title}`}
+                          className={`w-6 h-6 rounded-input flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${
+                            task.completed
+                              ? 'bg-[#266B4E] text-white shadow-card'
+                              : 'border border-sage-300 bg-white group-hover:border-sage-400'
+                          }`}
+                        >
+                          <Check 
+                            className="w-4 h-4 stroke-[2.5]" 
+                            style={{ 
+                              opacity: task.completed ? 1 : 0, 
+                              transform: task.completed ? 'scale(1)' : 'scale(0.5)',
+                              transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)' 
+                            }} 
+                          />
+                        </button>
+
+                        <div>
+                          <p
+                            className={`text-sm font-semibold transition-all duration-300 ${
+                              task.completed ? 'text-sage-500 line-through opacity-70' : 'text-[#1D2A24]'
+                            }`}
+                          >
+                            {task.title}
+                          </p>
+                          <p className={`text-xs mt-1 leading-normal transition-all duration-300 ${
+                            task.completed ? 'text-sage-400 opacity-70' : 'text-sage-500'
+                          }`}>
+                            {task.reason}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Link
+                  href="/mission"
+                  className="text-sm font-bold text-[#266B4E] flex items-center justify-start gap-1 hover:underline pt-6 cursor-pointer"
+                >
+                  Go to mission →
+                </Link>
+              </>
+            )}
           </div>
+          </ErrorBoundary>
 
           {/* 3. Your AI Briefing Card */}
-          <div className="bg-green-900 text-white rounded-card p-6 shadow-card flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
+          <ErrorBoundary onRetry={refetchBriefing}>
+            <div className="bg-green-900 text-white rounded-card p-6 shadow-card flex flex-col justify-between">
+              {(() => { if (briefingError) throw briefingError; return null; })()}
+              <div>
+                <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-[#D89A6E] rounded-modal text-[#0F291E] flex items-center justify-center shrink-0">
                   <svg
                     className="w-5 h-5 fill-[#0F291E]"
@@ -419,7 +487,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="text-sm text-sage-200 leading-relaxed font-normal mb-8">
-                Good news first: pipeline grew ₦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I&apos;d spend today on pricing, it&apos;s your riskiest untested assumption and it moves both revenue and runway.
+                {summaryData?.briefing?.content || "Good news first: pipeline grew ₦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it's your riskiest untested assumption and it moves both revenue and runway."}
               </p>
             </div>
 
@@ -440,127 +508,130 @@ export default function DashboardPage() {
               </button>
             </div>
           </div>
+          </ErrorBoundary>
         </section>
 
         {/* METRICS ROW */}
-        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
+        <ErrorBoundary onRetry={refetchSummary}>
+          {(() => { if (summaryError) throw summaryError; return null; })()}
+          <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <Link href="/app/finance" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
             <div>
               <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                MONTHLY REVENUE
+                {summaryData?.kpis[0]?.label || 'MONTHLY REVENUE'}
               </span>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">₦1.6M</span>
-                <span className="text-xs font-semibold text-[#266B4E]">+12%</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[0]?.value || '₦1.6M'}</span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[0]?.delta || '+12%'}</span>
               </div>
             </div>
-            <svg className="w-full h-6 text-[#266B4E]" viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg className={`w-full h-6 ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M 0,16 L 25,12 L 45,14 L 65,8 L 100,3" />
             </svg>
-          </div>
+          </Link>
 
-          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
+          <Link 
+            href="/app/finance/runway"
+            className={`bg-white p-5 rounded-card border shadow-card flex flex-col justify-between transition-colors duration-300 ${
+              summaryData?.kpis[1]?.isAlert ? 'border-[var(--red-600)] shadow-[0_4px_12px_var(--red-100)]' : 'border-green-100 hover:border-sage-300'
+            }`}
+          >
             <div>
-              <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                RUNWAY
+              <span className={`text-[10px] font-bold uppercase tracking-wider block mb-3 ${
+                summaryData?.kpis[1]?.isAlert ? 'text-[var(--red-600)]' : 'text-sage-500'
+              }`}>
+                {summaryData?.kpis[1]?.label || 'RUNWAY'}
               </span>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">8.4 mo</span>
-                <span className="text-xs font-semibold text-[#A8382A]">-0.6</span>
+                <span className={`text-2xl font-display font-extrabold ${
+                  summaryData?.kpis[1]?.isAlert ? 'text-[var(--red-600)]' : 'text-[#1D2A24]'
+                }`}>
+                  {summaryData?.kpis[1]?.value || '8.4 mo'}
+                </span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`}>
+                  {summaryData?.kpis[1]?.delta || '-0.6'}
+                </span>
               </div>
             </div>
-            <svg className="w-full h-6 text-[#A8382A]" viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg className={`w-full h-6 ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M 0,4 L 35,7 L 70,12 L 100,17" />
             </svg>
-          </div>
+          </Link>
 
-          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
+          <Link href="/app/sales" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
             <div>
               <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                PIPELINE VALUE
+                {summaryData?.kpis[2]?.label || 'PIPELINE VALUE'}
               </span>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">₦42M</span>
-                <span className="text-xs font-semibold text-[#266B4E]">+₦9M</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[2]?.value || '₦42M'}</span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[2]?.delta || '+₦9M'}</span>
               </div>
             </div>
-            <svg className="w-full h-6 text-[#266B4E]" viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg className={`w-full h-6 ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M 0,17 L 35,12 L 65,10 L 100,4" />
             </svg>
-          </div>
+          </Link>
 
-          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
+          <Link href="/app/marketing" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
             <div>
               <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                CAMPAIGN CTR
+                {summaryData?.kpis[3]?.label || 'CAMPAIGN CTR'}
               </span>
               <div className="flex items-baseline gap-1.5 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">3.8%</span>
-                <span className="text-xs font-semibold text-[#266B4E]">+0.4pt</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[3]?.value || '3.8%'}</span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[3]?.delta || '+0.4pt'}</span>
               </div>
             </div>
-            <svg className="w-full h-6 text-[#266B4E]" viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg className={`w-full h-6 ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M 0,15 L 25,13 L 45,14 L 65,9 L 100,7" />
             </svg>
-          </div>
+          </Link>
 
-          <div className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between">
+          <Link href="/app/team" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
             <div>
               <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                TASKS THIS WEEK
+                {summaryData?.kpis[4]?.label || 'TASKS THIS WEEK'}
               </span>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">14</span>
-                <span className="text-xs font-semibold text-[#266B4E]">+3</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[4]?.value || '14'}</span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[4]?.delta || '+3'}</span>
               </div>
             </div>
-            <svg className="w-full h-6 text-[#266B4E]" viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg className={`w-full h-6 ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M 0,17 L 30,13 L 65,12 L 100,6" />
             </svg>
-          </div>
-        </section>
+          </Link>
+          </section>
+        </ErrorBoundary>
 
         {/* RISKS & OPPORTUNITIES ROW */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
+        <ErrorBoundary onRetry={refetchSummary}>
+          {(() => { if (summaryError) throw summaryError; return null; })()}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
             <div>
               <h3 className="font-bold text-base text-[#1D2A24] pb-3 border-b border-sage-100">
                 Risks
               </h3>
               <div className="divide-y divide-sage-100">
-                <div className="py-3.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#B84335] shrink-0" />
-                    <p className="text-sm text-sage-700 leading-snug">
-                      Runway is under 9 months and revenue has been flat for two months.
-                    </p>
+                {(summaryData?.risks || [
+                  { id: 'r1', description: 'Runway is under 9 months and revenue has been flat for two months.', severity: 'red' },
+                  { id: 'r2', description: 'A compliance filing is due in 9 days and hasn\'t been started.', severity: 'amber' },
+                  { id: 'r3', description: 'The GigPay HR deal has had no activity for 14 days.', severity: 'amber' }
+                ]).map((risk: any) => (
+                  <div key={risk.id} className="py-3.5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className={`w-2.5 h-2.5 rounded-full ${risk.severity === 'red' ? 'bg-[#B84335]' : 'bg-[#9C5B34]'} shrink-0`} />
+                      <p className="text-sm text-sage-700 leading-snug">
+                        {risk.description}
+                      </p>
+                    </div>
+                    <Link href={risk.moduleLink || (risk.id === 'r1' ? '/app/finance' : '/app/sales')} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
+                      Review
+                    </Link>
                   </div>
-                  <button type="button" className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
-                    Review
-                  </button>
-                </div>
-                <div className="py-3.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#9C5B34] shrink-0" />
-                    <p className="text-sm text-sage-700 leading-snug">
-                      A compliance filing is due in 9 days and hasn&apos;t been started.
-                    </p>
-                  </div>
-                  <button type="button" className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
-                    Review
-                  </button>
-                </div>
-                <div className="py-3.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#9C5B34] shrink-0" />
-                    <p className="text-sm text-sage-700 leading-snug">
-                      The GigPay HR deal has had no activity for 14 days.
-                    </p>
-                  </div>
-                  <button type="button" className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
-                    Review
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -571,116 +642,79 @@ export default function DashboardPage() {
                 Opportunities
               </h3>
               <div className="divide-y divide-sage-100">
-                <div className="py-3.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#266B4E] shrink-0" />
-                    <p className="text-sm text-sage-700 leading-snug">
-                      A ₦5M grant match closes in 3 weeks and fits your profile.
-                    </p>
+                {(summaryData?.opportunities || [
+                  { id: 'o1', description: 'A ₦5M grant match closes in 3 weeks and fits your profile.' },
+                  { id: 'o2', description: 'Your smoke test hit 9% conversion, above your 5% bar.' },
+                  { id: 'o3', description: 'Two interviews flagged the same feature, worth a quick MVP task.' }
+                ]).map((opp: any) => (
+                  <div key={opp.id} className="py-3.5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#266B4E] shrink-0" />
+                      <p className="text-sm text-sage-700 leading-snug">
+                        {opp.description}
+                      </p>
+                    </div>
+                    <Link href={opp.moduleLink || (opp.id === 'o1' ? '/app/funding/grants' : '/app/validation')} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
+                      See fit
+                    </Link>
                   </div>
-                  <button type="button" className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
-                    See fit
-                  </button>
-                </div>
-                <div className="py-3.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#266B4E] shrink-0" />
-                    <p className="text-sm text-sage-700 leading-snug">
-                      Your smoke test hit 9% conversion, above your 5% bar.
-                    </p>
-                  </div>
-                  <button type="button" className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
-                    Review
-                  </button>
-                </div>
-                <div className="py-3.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#266B4E] shrink-0" />
-                    <p className="text-sm text-sage-700 leading-snug">
-                      Two interviews flagged the same feature, worth a quick MVP task.
-                    </p>
-                  </div>
-                  <button type="button" className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
-                    Review
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
+        </ErrorBoundary>
 
         {/* BOTTOM ROW */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
-            <div>
-              <h3 className="font-bold text-base text-[#1D2A24] pb-4 border-b border-sage-100">
+          <ErrorBoundary onRetry={refetchActivity}>
+            <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
+              {(() => { if (activityError) throw activityError; return null; })()}
+              <div>
+                <h3 className="font-bold text-base text-[#1D2A24] pb-4 border-b border-sage-100">
                 Team activity
               </h3>
               <div className="divide-y divide-sage-100">
-                <div className="py-3 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-7 h-7 rounded-full bg-[#1F4D3A] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                      AO
-                    </div>
-                    <p className="text-xs text-sage-700 truncate">
-                      You completed the mission task “Interview 3 gig workers”.
-                    </p>
-                  </div>
-                  <span className="text-[11px] text-sage-400 shrink-0">2h ago</span>
-                </div>
+                {(activityData || [
+                  { id: '1', actor: 'Amara Okafor', verb: 'completed', entity: 'the mission task “Interview 3 gig workers”', time: '2h ago' },
+                  { id: '2', actor: 'Tayo', verb: 'returned', entity: 'your NDA with 2 comments', time: '5h ago' },
+                  { id: '3', actor: 'Your AI Co-Founder', verb: 'drafted', entity: 'your Lean Canvas', time: 'Yesterday' },
+                  { id: '4', actor: 'Grace', verb: 'categorized', entity: '12 transactions', time: 'Yesterday' },
+                  { id: '5', actor: 'Daniel', verb: 'moved', entity: '“BodaBoda Union” to Proposal', time: '2d ago' },
+                ]).map((activity: any) => {
+                  const getInitials = (name: string) => {
+                    if (!name) return '??';
+                    if (name.includes('AI')) return null;
+                    return name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+                  };
+                  const initials = getInitials(activity.actor);
 
-                <div className="py-3 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-7 h-7 rounded-full bg-[#1F4D3A] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                      TN
+                  return (
+                    <div key={activity.id} className="py-3 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {initials ? (
+                          <div className="w-7 h-7 rounded-full bg-[#1F4D3A] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                            {initials}
+                          </div>
+                        ) : (
+                          <div className="w-7 h-7 rounded-full bg-[#9C5B34] text-[#1F4D3A] flex items-center justify-center shrink-0">
+                            <svg className="w-3 h-3 fill-[#1F4D3A]" viewBox="0 0 24 24">
+                              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+                            </svg>
+                          </div>
+                        )}
+                        <p className="text-xs text-sage-700 truncate">
+                          <span className="font-medium text-[#1D2A24]">{activity.actor}</span> {activity.verb} {activity.entity}.
+                        </p>
+                      </div>
+                      <span className="text-[11px] text-sage-400 shrink-0">{activity.time}</span>
                     </div>
-                    <p className="text-xs text-sage-700 truncate">
-                      Tayo (Legal Advisor) returned your NDA with 2 comments.
-                    </p>
-                  </div>
-                  <span className="text-[11px] text-sage-400 shrink-0">5h ago</span>
-                </div>
-
-                <div className="py-3 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-7 h-7 rounded-full bg-[#9C5B34] text-[#1F4D3A] flex items-center justify-center shrink-0">
-                      <svg className="w-3 h-3 fill-[#1F4D3A]" viewBox="0 0 24 24">
-                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                      </svg>
-                    </div>
-                    <p className="text-xs text-sage-700 truncate">
-                      Your AI Co-Founder drafted your Lean Canvas.
-                    </p>
-                  </div>
-                  <span className="text-[11px] text-sage-400 shrink-0">Yesterday</span>
-                </div>
-
-                <div className="py-3 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-7 h-7 rounded-full bg-[#1F4D3A] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                      GA
-                    </div>
-                    <p className="text-xs text-sage-700 truncate">
-                      Grace (Accountant) categorized 12 transactions.
-                    </p>
-                  </div>
-                  <span className="text-[11px] text-sage-400 shrink-0">Yesterday</span>
-                </div>
-
-                <div className="py-3 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-7 h-7 rounded-full bg-[#1F4D3A] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                      DK
-                    </div>
-                    <p className="text-xs text-sage-700 truncate">
-                      Daniel moved “BodaBoda Union” to Proposal.
-                    </p>
-                  </div>
-                  <span className="text-[11px] text-sage-400 shrink-0">2d ago</span>
-                </div>
+                  );
+                })}
               </div>
             </div>
           </div>
+          </ErrorBoundary>
 
           <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
             <div>
@@ -745,7 +779,7 @@ export default function DashboardPage() {
       {/* FLOATING AI BUTTON */}
       <button
         type="button"
-        onClick={() => setIsAiDrawerOpen(true)}
+        onClick={() => openAiDrawer()}
         aria-label="AI Co-Founder action"
         className="fixed bottom-6 right-6 w-12 h-12 bg-[#9C5B34] hover:bg-[#9C5B34] text-[#1F4D3A] rounded-full flex items-center justify-center shadow-raised transition-transform hover:scale-105 z-30 cursor-pointer"
       >
@@ -914,159 +948,53 @@ export default function DashboardPage() {
           </div>
 
           <div className="divide-y divide-sage-100 max-h-[70vh] overflow-y-auto">
-            {notifications.map((notif) => {
-              let iconContent;
-              if (notif.type === 'ai') {
-                iconContent = (
-                  <svg className="w-4 h-4 fill-[#266B4E]" viewBox="0 0 24 24">
-                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                  </svg>
-                );
-              } else if (notif.type === 'finance') {
-                iconContent = <span className="text-xs font-bold text-[#266B4E]">₦</span>;
-              } else if (notif.type === 'legal') {
-                iconContent = <span className="text-xs font-bold text-[#266B4E]">§</span>;
-              } else {
-                iconContent = (
-                  <svg className="w-4 h-4 fill-[#266B4E]" viewBox="0 0 24 24">
-                    <path d="M12 2l8 8-8 8-8-8 8-8z" />
-                  </svg>
-                );
-              }
-
-              return (
-                <div
-                  key={notif.id}
-                  className={`flex items-start gap-3.5 px-6 py-4 transition-colors cursor-pointer hover:bg-sage-50 ${
-                    notif.unread ? 'bg-[#FDFBF7]' : 'bg-white'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-card bg-[#E8F1EC] flex items-center justify-center shrink-0 mt-0.5">
-                    {iconContent}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-[#1C201D] leading-relaxed mb-1">
-                      {notif.title}
-                    </p>
-                    <p className="text-[11px] text-sage-400 font-medium">
-                      {notif.time}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* AI CO-FOUNDER CHAT DRAWER / OVERLAY */}
-      {isAiDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div 
-            onClick={closeAllOverlays}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
-          />
-
-          <div className="relative w-full max-w-lg bg-white h-full shadow-raised flex flex-col z-10 animate-in slide-in-from-right duration-200">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-sage-100 bg-white">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-[#9C5B34] rounded-modal text-white flex items-center justify-center shrink-0">
-                  <Sparkles className="w-5 h-5 fill-[#0F291E]" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-base text-[#1C201D]">AI Co-Founder</h3>
-                  <p className="text-xs text-sage-500">Knows your workspace</p>
-                </div>
+            {notifications.filter(n => n.unread).length === 0 ? (
+              <div className="px-6 py-8 text-center text-sm font-medium text-sage-500">
+                No new notifications.
               </div>
-              <button
-                type="button"
-                onClick={closeAllOverlays}
-                className="p-1.5 rounded-card text-sage-400 hover:text-sage-600 hover:bg-sage-100 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+            ) : (
+              notifications.filter(n => n.unread).map((notif) => {
+                let iconContent;
+                if (notif.type === 'ai') {
+                  iconContent = (
+                    <svg className="w-4 h-4 fill-[#266B4E]" viewBox="0 0 24 24">
+                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+                    </svg>
+                  );
+                } else if (notif.type === 'finance') {
+                  iconContent = <span className="text-xs font-bold text-[#266B4E]">₦</span>;
+                } else if (notif.type === 'legal') {
+                  iconContent = <span className="text-xs font-bold text-[#266B4E]">§</span>;
+                } else {
+                  iconContent = (
+                    <svg className="w-4 h-4 fill-[#266B4E]" viewBox="0 0 24 24">
+                      <path d="M12 2l8 8-8 8-8-8 8-8z" />
+                    </svg>
+                  );
+                }
 
-            {/* Chat Body & Messages */}
-            <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#FAFAFA]">
-              {/* Suggestion Pills */}
-              <div className="flex flex-wrap gap-2.5 mb-4">
-                {[
-                  'What should I focus on this week?',
-                  'Poke holes in my business model',
-                  'How long is my runway?',
-                  'Draft an NDA for a contractor',
-                ].map((suggestion, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSendMessage(suggestion)}
-                    className="text-xs font-medium text-[#1C201D] bg-white border border-sage-200 px-4 py-2.5 rounded-full hover:border-[#1F4D3A] hover:bg-[#F4F8F6] transition-all cursor-pointer shadow-card"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-
-              {/* Chat Stream (Only renders when user interacts or selects a pill) */}
-              {chatMessages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex items-start gap-3 ${
-                    msg.sender === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
-                  {msg.sender === 'assistant' && (
-                    <div className="w-7 h-7 rounded-full bg-[#1F4D3A] text-white flex items-center justify-center shrink-0 mt-0.5">
-                      <Sparkles className="w-3.5 h-3.5 fill-white" />
-                    </div>
-                  )}
-
+                return (
                   <div
-                    className={`max-w-[80%] p-4 text-sm leading-relaxed rounded-modal ${
-                      msg.sender === 'user'
-                        ? 'bg-[#1F4D3A] text-white rounded-br-xs'
-                        : 'bg-white border border-sage-100 text-[#1C201D] shadow-card rounded-bl-xs'
+                    key={notif.id}
+                    className={`flex items-start gap-3.5 px-6 py-4 transition-colors cursor-pointer hover:bg-sage-50 ${
+                      notif.unread ? 'bg-[#FDFBF7]' : 'bg-white'
                     }`}
                   >
-                    {msg.text}
+                    <div className="w-8 h-8 rounded-card bg-[#E8F1EC] flex items-center justify-center shrink-0 mt-0.5">
+                      {iconContent}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-[#1C201D] leading-relaxed mb-1">
+                        {notif.title}
+                      </p>
+                      <p className="text-[11px] text-sage-400 font-medium">
+                        {notif.time}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Chat Input Bar */}
-            <div className="p-4 bg-white border-t border-sage-100">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSendMessage();
-                }}
-                className="relative flex items-center"
-              >
-                <input
-                  type="text"
-                  autoFocus
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Ask anything, strategy, money, legal..."
-                  className="w-full bg-[#F7F8F6] border border-sage-200 text-sm rounded-modal px-4 py-3.5 pr-12 focus:outline-hidden focus:ring-2 focus:ring-[#9C5B34] focus:border-transparent text-[#1C201D] placeholder-sage-400"
-                />
-                <button
-                  type="submit"
-                  disabled={!chatInput.trim()}
-                  aria-label="Send message"
-                  className={`absolute right-2.5 w-8 h-8 rounded-card flex items-center justify-center transition-all cursor-pointer ${
-                    chatInput.trim()
-                      ? 'bg-[#9C5B34] hover:bg-[#9C5B34] text-white shadow-card'
-                      : 'bg-sage-200 text-sage-400 cursor-not-allowed'
-                  }`}
-                >
-                  <ArrowUp className="w-4 h-4 stroke-[2.5]" />
-                </button>
-              </form>
-            </div>
+                );
+              })
+            )}
           </div>
         </div>
       )}
