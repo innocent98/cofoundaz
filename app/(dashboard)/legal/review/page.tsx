@@ -47,7 +47,7 @@ export default function ContractReviewPage() {
               <p className="text-sm text-sage-500 mb-6">PDF, DOCX up to 10MB</p>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="bg-white border border-sage-300 text-sage-700 hover:bg-sage-50 px-4 py-2 rounded-card text-sm font-semibold transition-colors shadow-sm"
+                className="bg-white border border-sage-300 text-sage-700 hover:bg-sage-50 px-4 py-2 rounded-card text-sm font-semibold transition-colors shadow-card"
               >
                 Browse files
               </button>
@@ -126,13 +126,13 @@ export default function ContractReviewPage() {
           <div className="flex items-center gap-3 pt-2">
             <button
               onClick={handleSendToAdvisor}
-              className="flex-1 bg-white hover:bg-sage-50 text-sage-900 border border-sage-300 font-semibold py-3 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-sm"
+              className="flex-1 bg-white hover:bg-sage-50 text-sage-900 border border-sage-300 font-semibold py-3 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-card"
             >
               Send to my legal advisor
             </button>
             <button
               onClick={handleAcceptAndContinue}
-              className="flex-1 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold py-3 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-sm"
+              className="flex-1 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold py-3 px-4 rounded-card text-sm transition-colors cursor-pointer text-center shadow-card"
             >
               Accept & continue
             </button>

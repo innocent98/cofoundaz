@@ -29,7 +29,7 @@ export default function FundingLayout({ children }: { children: React.ReactNode 
               <button
                 type="button"
                 aria-label="Sidebar Menu"
-                className="lg:hidden h-8 w-8 rounded-xl bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-[11px] shadow-card hover:opacity-90 transition-opacity shrink-0"
+                className="lg:hidden h-8 w-8 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-[11px] shadow-card hover:opacity-90 transition-opacity shrink-0"
               >
                 C
               </button>
@@ -42,9 +42,9 @@ export default function FundingLayout({ children }: { children: React.ReactNode 
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <div className="bg-[#e2ede6] text-[#1e4836] px-2 py-1 rounded-full text-[10px] sm:text-xs font-medium flex items-center gap-1 border border-[#d2e2d8]">
+              <div className="bg-[#e2ede6] text-[#1e4836] px-2 py-1 rounded-full text-[10px] md:text-xs font-medium flex items-center gap-1 border border-[#d2e2d8]">
                 <span>Health</span>
-                <span className="font-bold text-[10px] sm:text-xs text-[#0e271f]">72</span>
+                <span className="font-bold text-[10px] md:text-xs text-[#0e271f]">72</span>
                 <span className="text-[10px]">↑</span>
               </div>
 
@@ -65,7 +65,7 @@ export default function FundingLayout({ children }: { children: React.ReactNode 
             </div>
           </header>
 
-          <nav className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none bg-neutral-50 px-6 py-2">
+          <nav className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none bg-sage-50 px-6 py-2">
             {navItems.map((tab) => {
               const isActive = pathname === tab.path || (tab.path !== "/funding" && pathname?.startsWith(tab.path));
               return (

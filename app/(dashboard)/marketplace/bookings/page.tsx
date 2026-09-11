@@ -84,16 +84,16 @@ export default function BookingsPage() {
             </div>
 
             {activeTab === "delivered" && (
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+              <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
                 <button
                   onClick={() => handleRequestChanges(booking.id)}
-                  className="w-full sm:w-auto bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-2.5 px-4 rounded-card text-sm transition-colors shadow-sm"
+                  className="w-full md:w-auto bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-2.5 px-4 rounded-card text-sm transition-colors shadow-card"
                 >
                   Request changes
                 </button>
                 <button
                   onClick={() => handleAcceptDelivery(booking.id)}
-                  className="w-full sm:w-auto bg-[#1e4836] hover:bg-[#153427] text-white font-semibold py-2.5 px-4 rounded-card text-sm transition-colors shadow-sm flex items-center justify-center gap-2"
+                  className="w-full md:w-auto bg-[#1e4836] hover:bg-[#153427] text-white font-semibold py-2.5 px-4 rounded-card text-sm transition-colors shadow-card flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Accept delivery</span>
@@ -123,7 +123,7 @@ export default function BookingsPage() {
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] animate-fadeIn"
             onClick={() => setIsBookingDrawerOpen(false)}
           ></div>
-          <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl z-[70] border-l border-sage-200 flex flex-col animate-[slideInRight_0.3s_ease-out]">
+          <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-accent z-[70] border-l border-sage-200 flex flex-col animate-[slideInRight_0.3s_ease-out]">
             <div className="p-6 border-b border-sage-100 space-y-4">
               <h2 className="text-xl font-display font-bold text-sage-900">New Booking Request</h2>
               
@@ -208,7 +208,7 @@ export default function BookingsPage() {
                   if (bookingStep > 1) setBookingStep(bookingStep - 1);
                   else setIsBookingDrawerOpen(false);
                 }}
-                className="flex-1 bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-3 px-4 rounded-card text-sm transition-colors shadow-sm"
+                className="flex-1 bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-3 px-4 rounded-card text-sm transition-colors shadow-card"
               >
                 {bookingStep === 1 ? "Cancel" : "Back"}
               </button>
@@ -217,7 +217,7 @@ export default function BookingsPage() {
                 <button
                   type="button"
                   onClick={() => setBookingStep(bookingStep + 1)}
-                  className="flex-1 bg-[#1e4836] hover:bg-[#153427] text-white font-semibold py-3 px-4 rounded-card text-sm transition-colors shadow-sm"
+                  className="flex-1 bg-[#1e4836] hover:bg-[#153427] text-white font-semibold py-3 px-4 rounded-card text-sm transition-colors shadow-card"
                 >
                   Next Step
                 </button>

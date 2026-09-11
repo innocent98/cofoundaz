@@ -31,7 +31,7 @@ export default function AdvisorRequestsPage() {
         </div>
         <button
           onClick={() => setIsDialogOpen(true)}
-          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
+          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-card"
         >
           <Plus className="w-4 h-4" />
           <span>New request</span>
@@ -64,7 +64,7 @@ export default function AdvisorRequestsPage() {
 
       {isDialogOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 animate-fadeIn">
-          <div className="bg-white rounded-modal p-6 w-full max-w-md shadow-xl space-y-6">
+          <div className="bg-white rounded-modal p-6 w-full max-w-md shadow-accent space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-display font-bold text-sage-900">New Advisor Request</h2>
               <button 
@@ -102,13 +102,13 @@ export default function AdvisorRequestsPage() {
                 <button
                   type="button"
                   onClick={() => setIsDialogOpen(false)}
-                  className="flex-1 px-4 py-2 bg-sage-100 hover:bg-sage-200 text-sage-700 rounded-card text-sm font-semibold transition-colors shadow-sm"
+                  className="flex-1 px-4 py-2 bg-sage-100 hover:bg-sage-200 text-sage-700 rounded-card text-sm font-semibold transition-colors shadow-card"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-4 py-2 rounded-card text-sm transition-colors shadow-sm"
+                  className="flex-1 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-4 py-2 rounded-card text-sm transition-colors shadow-card"
                 >
                   Create request
                 </button>

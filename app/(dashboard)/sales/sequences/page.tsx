@@ -11,7 +11,7 @@ export default function SequencesPage() {
     <div className="space-y-6 animate-fadeIn">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-display font-semibold text-sage-900">Email sequences</h1>
-        <button className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-4 py-2 rounded-card text-sm transition-colors shadow-sm">
+        <button className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-4 py-2 rounded-card text-sm transition-colors shadow-card">
           + New sequence
         </button>
       </div>

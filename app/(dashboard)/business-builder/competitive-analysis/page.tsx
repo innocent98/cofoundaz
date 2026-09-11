@@ -19,7 +19,7 @@ export default function CompetitiveAnalysisPage() {
       case 'Low':
         return 'bg-[#EBF5F0] text-[#2E7A56]';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-sage-100 text-sage-800';
     }
   };
 

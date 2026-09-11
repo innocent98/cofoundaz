@@ -40,7 +40,7 @@ export default function InvoicesPage() {
             </div>
             <button 
               onClick={() => setIsBuilderOpen(true)}
-              className="bg-[#9C5B34] text-white px-4 py-2 rounded-card text-sm font-medium flex items-center gap-1.5 hover:bg-[#8A5330] transition-colors shadow-sm w-fit"
+              className="bg-[#9C5B34] text-white px-4 py-2 rounded-card text-sm font-medium flex items-center gap-1.5 hover:bg-[#8A5330] transition-colors shadow-card w-fit"
             >
               <Plus className="w-4 h-4" /> Create Invoice
             </button>
@@ -218,13 +218,13 @@ export default function InvoicesPage() {
             <div className="flex items-center gap-3 pt-4 border-t border-sage-100">
               <button 
                 onClick={handleSendInvoice}
-                className="flex-1 bg-[#1e3b30] hover:bg-[#152a22] text-white font-semibold px-4 py-2.5 rounded-card text-sm transition-colors flex items-center justify-center gap-2 shadow-sm"
+                className="flex-1 bg-[#1e3b30] hover:bg-[#152a22] text-white font-semibold px-4 py-2.5 rounded-card text-sm transition-colors flex items-center justify-center gap-2 shadow-card"
               >
                 <Send className="w-4 h-4" /> Send Invoice
               </button>
               <button 
                 onClick={() => triggerToast("Invoice PDF downloaded.")}
-                className="flex-1 bg-white hover:bg-sage-50 border border-sage-200 text-sage-700 font-semibold px-4 py-2.5 rounded-card text-sm transition-colors flex items-center justify-center gap-2 shadow-sm"
+                className="flex-1 bg-white hover:bg-sage-50 border border-sage-200 text-sage-700 font-semibold px-4 py-2.5 rounded-card text-sm transition-colors flex items-center justify-center gap-2 shadow-card"
               >
                 <Download className="w-4 h-4" /> Download PDF
               </button>
@@ -232,8 +232,8 @@ export default function InvoicesPage() {
           </div>
 
           {/* INVOICE PREVIEW */}
-          <div className="bg-[#f7f9f8] rounded-modal border border-sage-200 p-8 shadow-inner flex flex-col justify-between">
-            <div className="bg-white border border-sage-200 shadow-sm p-8 rounded min-h-[400px] flex flex-col relative overflow-hidden">
+          <div className="bg-[#f7f9f8] rounded-modal border border-sage-200 p-8 shadow-card flex flex-col justify-between">
+            <div className="bg-white border border-sage-200 shadow-card p-8 rounded min-h-[400px] flex flex-col relative overflow-hidden">
               <div className="flex justify-between items-start mb-8">
                 <div>
                   <h1 className="text-2xl font-bold text-sage-900">INVOICE</h1>
@@ -280,7 +280,7 @@ export default function InvoicesPage() {
               </div>
 
               {/* Watermark paid stamp mockup */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 opacity-0 flex items-center justify-center border-4 border-green-500 text-green-500 rounded-lg px-8 py-2 text-4xl font-black tracking-widest pointer-events-none">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 opacity-0 flex items-center justify-center border-4 border-green-500 text-green-500 rounded-card px-8 py-2 text-4xl font-black tracking-widest pointer-events-none">
                 PAID
               </div>
             </div>

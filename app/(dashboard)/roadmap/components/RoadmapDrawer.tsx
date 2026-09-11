@@ -24,7 +24,7 @@ export function RoadmapDrawer({ isOpen, onClose, milestone }: RoadmapDrawerProps
       />
       
       {/* Slide-over */}
-      <div className="fixed inset-y-0 right-0 w-full md:w-[400px] bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col border-l border-[#EBEBE6]">
+      <div className="fixed inset-y-0 right-0 w-full md:w-[400px] bg-white shadow-accent z-50 transform transition-transform duration-300 flex flex-col border-l border-[#EBEBE6]">
         <div className="flex items-center justify-between p-6 border-b border-[#EBEBE6]">
           <h2 className="text-lg font-bold text-[#1E2923] tracking-tight truncate pr-4">
             {milestone.title}
@@ -62,7 +62,7 @@ export function RoadmapDrawer({ isOpen, onClose, milestone }: RoadmapDrawerProps
                 <span>Status</span>
               </div>
               <select 
-                className="bg-[#F7F7F5] border border-[#EBEBE6] rounded-md px-2 py-1 text-sm font-semibold outline-none"
+                className="bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-2 py-1 text-sm font-semibold outline-none"
                 defaultValue={milestone.status}
               >
                 <option value="pending">Pending</option>
@@ -115,7 +115,7 @@ export function RoadmapDrawer({ isOpen, onClose, milestone }: RoadmapDrawerProps
         </div>
 
         <div className="p-6 border-t border-[#EBEBE6] bg-[#FAFAFA]">
-          <button className="w-full bg-[#183B28] hover:bg-[#11291C] text-white font-bold py-3 rounded-card transition-colors shadow-sm">
+          <button className="w-full bg-[#183B28] hover:bg-[#11291C] text-white font-bold py-3 rounded-card transition-colors shadow-card">
             Mark Milestone Complete
           </button>
         </div>

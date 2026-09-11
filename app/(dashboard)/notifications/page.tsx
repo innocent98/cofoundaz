@@ -297,11 +297,11 @@ export default function NotificationsPage(): React.JSX.Element {
   });
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-[#1E2923] font-sans antialiased relative selection:bg-[#EAD5C6]">
+    <div className="min-h-screen bg-[#FBFBFA] text-[#1E2923] font-body antialiased relative selection:bg-[#EAD5C6]">
 
       {/* Toast Notification Container */}
       {toastMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#12291F] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-2.5 text-sm font-medium transition-all duration-300 border border-[#1E4231]">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#12291F] text-white px-5 py-3 rounded-[24px] shadow-accent flex items-center space-x-2.5 text-sm font-medium transition-all duration-300 border border-[#1E4231]">
           <span className="w-4 h-4 rounded-full bg-[#1C4230] flex items-center justify-center text-white text-[10px] font-bold">✓</span>
           <span>{toastMessage}</span>
         </div>
@@ -312,13 +312,13 @@ export default function NotificationsPage(): React.JSX.Element {
         <div className="flex items-center space-x-3">
           <button 
             onClick={openSidebar}
-            className="md:hidden w-9 h-9 rounded-xl border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-gray-50 flex items-center justify-center transition-colors shrink-0 shadow-xs"
+            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-xs"
             aria-label="Toggle Sidebar"
           >
             <Menu size={18} />
           </button>
 
-          <div className="flex items-center space-x-2 text-sm sm:text-base font-semibold tracking-tight">
+          <div className="flex items-center space-x-2 text-sm md:text-base font-semibold tracking-tight">
             <span className="text-[#1E2923]">Workspace</span>
             <span className="text-[#8E9B90] font-normal">/</span>
             <span className="text-[#1E2923]">Notifications</span>
@@ -380,9 +380,9 @@ export default function NotificationsPage(): React.JSX.Element {
 
         {activeTab === 'Inbox' && (
           <div className="space-y-6 animate-in fade-in duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-serif text-[#1C2621] tracking-tight">Notifications</h1>
+                <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Notifications</h1>
                 <p className="text-xs text-[#8E9B90] mt-0.5">
                   {unreadCount === 0 ? 'Nothing unread' : `${unreadCount} unread · ${needYouCount} need you today`}
                 </p>
@@ -392,7 +392,7 @@ export default function NotificationsPage(): React.JSX.Element {
                 <button
                   type="button"
                   onClick={handleMarkAllRead}
-                  className="bg-white border border-[#D5D5CF] hover:bg-gray-50 text-[#1E2923] px-4 py-2 rounded-xl text-xs font-medium shadow-2xs transition-colors cursor-pointer"
+                  className="bg-white border border-[#D5D5CF] hover:bg-sage-50 text-[#1E2923] px-4 py-2 rounded-modal text-xs font-medium shadow-2xs transition-colors cursor-pointer"
                 >
                   Mark all read
                 </button>
@@ -402,7 +402,7 @@ export default function NotificationsPage(): React.JSX.Element {
                     setActiveTab('Preferences');
                     showToast('Switched to Preferences.');
                   }}
-                  className="bg-white border border-[#D5D5CF] hover:bg-gray-50 text-[#1E2923] px-4 py-2 rounded-xl text-xs font-medium shadow-2xs transition-colors cursor-pointer"
+                  className="bg-white border border-[#D5D5CF] hover:bg-sage-50 text-[#1E2923] px-4 py-2 rounded-modal text-xs font-medium shadow-2xs transition-colors cursor-pointer"
                 >
                   Preferences
                 </button>
@@ -430,7 +430,7 @@ export default function NotificationsPage(): React.JSX.Element {
                     className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shrink-0 ${
                       isActive
                         ? 'bg-[#183B28] text-white shadow-xs'
-                        : 'bg-white border border-[#E8E8E2] text-[#617065] hover:bg-gray-50'
+                        : 'bg-white border border-[#E8E8E2] text-[#617065] hover:bg-sage-50'
                     }`}
                   >
                     <span>{filter.name}</span>
@@ -458,14 +458,14 @@ export default function NotificationsPage(): React.JSX.Element {
                       <div
                         key={item.id}
                         onClick={() => showToast(`Opened notification: ${item.title}`)}
-                        className={`bg-white border rounded-2xl p-4 sm:p-5 shadow-xs transition-all cursor-pointer relative group flex items-start justify-between gap-4 ${
+                        className={`bg-white border rounded-[24px] p-4 md:p-5 shadow-xs transition-all cursor-pointer relative group flex items-start justify-between gap-4 ${
                           item.category === 'Urgent' || item.category === 'Finance'
                             ? 'border-[#F2D6D0] hover:border-[#E8B5AC]'
                             : 'border-[#E8E8E2] hover:border-[#D1D1CB]'
                         }`}
                       >
                         <div className="flex items-start space-x-3.5 flex-1 min-w-0">
-                          <div className={`w-9 h-9 rounded-xl ${item.iconBg} flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-2xs`}>
+                          <div className={`w-9 h-9 rounded-modal ${item.iconBg} flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-2xs`}>
                             {item.iconText}
                           </div>
 
@@ -495,7 +495,7 @@ export default function NotificationsPage(): React.JSX.Element {
                             <button
                               type="button"
                               onClick={(e) => handleMarkSingleRead(item.id, e)}
-                              className="w-7 h-7 rounded-lg border border-[#E0E0DA] bg-white hover:bg-gray-50 text-gray-600 flex items-center justify-center transition-colors cursor-pointer"
+                              className="w-7 h-7 rounded-card border border-[#E0E0DA] bg-white hover:bg-sage-50 text-sage-600 flex items-center justify-center transition-colors cursor-pointer"
                               title="Mark as read"
                               aria-label="Mark as read"
                             >
@@ -505,7 +505,7 @@ export default function NotificationsPage(): React.JSX.Element {
                           <button
                             type="button"
                             onClick={(e) => handleDismiss(item.id, e)}
-                            className="w-7 h-7 rounded-lg border border-[#E0E0DA] bg-white hover:bg-gray-50 text-gray-400 hover:text-gray-700 flex items-center justify-center transition-colors cursor-pointer"
+                            className="w-7 h-7 rounded-card border border-[#E0E0DA] bg-white hover:bg-sage-50 text-sage-400 hover:text-sage-700 flex items-center justify-center transition-colors cursor-pointer"
                             title="Dismiss"
                             aria-label="Dismiss notification"
                           >
@@ -524,59 +524,59 @@ export default function NotificationsPage(): React.JSX.Element {
         {activeTab === 'Preferences' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             <div>
-              <h1 className="text-3xl font-serif text-[#1C2621] tracking-tight">Notification preferences</h1>
+              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Notification preferences</h1>
               <p className="text-xs text-[#8E9B90] mt-0.5">We default to quiet. Turn on only what genuinely needs you.</p>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-2xl shadow-xs overflow-hidden">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
               <div className="grid grid-cols-12 px-6 py-3.5 border-b border-[#E8E8E2] bg-[#FAF8F5] text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">
-                <div className="col-span-6 sm:col-span-7">Category</div>
-                <div className="col-span-2 sm:col-span-2 text-center">In App</div>
-                <div className="col-span-2 sm:col-span-2 text-center">Email</div>
-                <div className="col-span-2 sm:col-span-1 text-center">Push</div>
+                <div className="col-span-6 md:col-span-7">Category</div>
+                <div className="col-span-2 md:col-span-2 text-center">In App</div>
+                <div className="col-span-2 md:col-span-2 text-center">Email</div>
+                <div className="col-span-2 md:col-span-1 text-center">Push</div>
               </div>
 
               <div className="divide-y divide-[#F2F2EC]">
                 {preferences.map((row) => (
-                  <div key={row.id} className="grid grid-cols-12 px-6 py-4 items-center hover:bg-gray-50/50 transition-colors">
-                    <div className="col-span-6 sm:col-span-7 space-y-0.5 pr-4">
+                  <div key={row.id} className="grid grid-cols-12 px-6 py-4 items-center hover:bg-sage-50/50 transition-colors">
+                    <div className="col-span-6 md:col-span-7 space-y-0.5 pr-4">
                       <h3 className="text-xs font-bold text-[#1E2923]">{row.category}</h3>
                       <p className="text-[11px] text-[#8E9B90]">{row.description}</p>
                     </div>
 
-                    <div className="col-span-2 sm:col-span-2 flex justify-center">
+                    <div className="col-span-2 md:col-span-2 flex justify-center">
                       <button
                         type="button"
                         onClick={() => togglePreference(row.id, 'inApp')}
                         className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
-                          row.inApp ? 'bg-[#183B28]' : 'bg-gray-300'
+                          row.inApp ? 'bg-[#183B28]' : 'bg-sage-300'
                         }`}
                       >
-                        <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${row.inApp ? 'translate-x-5' : 'translate-x-0'}`} />
+                        <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${row.inApp ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                     </div>
 
-                    <div className="col-span-2 sm:col-span-2 flex justify-center">
+                    <div className="col-span-2 md:col-span-2 flex justify-center">
                       <button
                         type="button"
                         onClick={() => togglePreference(row.id, 'email')}
                         className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
-                          row.email ? 'bg-[#183B28]' : 'bg-gray-300'
+                          row.email ? 'bg-[#183B28]' : 'bg-sage-300'
                         }`}
                       >
-                        <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${row.email ? 'translate-x-5' : 'translate-x-0'}`} />
+                        <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${row.email ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                     </div>
 
-                    <div className="col-span-2 sm:col-span-1 flex justify-center">
+                    <div className="col-span-2 md:col-span-1 flex justify-center">
                       <button
                         type="button"
                         onClick={() => togglePreference(row.id, 'push')}
                         className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
-                          row.push ? 'bg-[#183B28]' : 'bg-gray-300'
+                          row.push ? 'bg-[#183B28]' : 'bg-sage-300'
                         }`}
                       >
-                        <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${row.push ? 'translate-x-5' : 'translate-x-0'}`} />
+                        <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${row.push ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                     </div>
                   </div>
@@ -589,18 +589,18 @@ export default function NotificationsPage(): React.JSX.Element {
         {activeTab === 'Digest & quiet hours' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             <div>
-              <h1 className="text-3xl font-serif text-[#1C2621] tracking-tight">Digest & quiet hours</h1>
+              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Digest & quiet hours</h1>
               <p className="text-xs text-[#8E9B90] mt-0.5">Batch the noise, protect the focus.</p>
             </div>
 
             {/* Daily Digest Section Card */}
-            <div className="bg-white border border-[#E8E8E2] rounded-2xl p-6 shadow-xs space-y-6">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-6">
               <div className="space-y-1">
                 <h3 className="text-xs font-bold text-[#1E2923]">Daily digest</h3>
               </div>
 
               {/* Three selection option cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {[
                   { mode: 'Off' as DigestMode, title: 'Off', desc: 'Every notification arrives live.' },
                   { mode: 'Daily' as DigestMode, title: 'Daily', desc: 'One summary each morning.' },
@@ -614,7 +614,7 @@ export default function NotificationsPage(): React.JSX.Element {
                         setDigestMode(item.mode);
                         showToast(`Digest mode set to ${item.title}`);
                       }}
-                      className={`border rounded-xl p-4 cursor-pointer transition-all ${
+                      className={`border rounded-modal p-4 cursor-pointer transition-all ${
                         isSelected 
                           ? 'border-[#183B28] bg-[#EAF2ED]/40 shadow-xs ring-1 ring-[#183B28]' 
                           : 'border-[#E8E8E2] bg-white hover:border-[#D1D1CB]'
@@ -640,7 +640,7 @@ export default function NotificationsPage(): React.JSX.Element {
                       setIsFromDropdownOpen(false);
                       setIsUntilDropdownOpen(false);
                     }}
-                    className={`w-full bg-white border rounded-xl px-4 py-2.5 text-xs text-[#1E2923] flex items-center justify-between transition-colors cursor-pointer ${
+                    className={`w-full bg-white border rounded-modal px-4 py-2.5 text-xs text-[#1E2923] flex items-center justify-between transition-colors cursor-pointer ${
                       isDeliveryDropdownOpen ? 'border-[#B39353] ring-1 ring-[#B39353]' : 'border-[#D5D5CF] hover:border-[#B39353]'
                     }`}
                   >
@@ -649,7 +649,7 @@ export default function NotificationsPage(): React.JSX.Element {
                   </button>
 
                   {isDeliveryDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-full bg-white border border-[#D5D5CF] rounded-xl shadow-lg z-20 overflow-hidden py-1">
+                    <div className="absolute top-full left-0 mt-1 w-full bg-white border border-[#D5D5CF] rounded-modal shadow-accent z-20 overflow-hidden py-1">
                       {['6:00 AM', '7:00 AM', '8:00 AM'].map((timeOption) => (
                         <button
                           key={timeOption}
@@ -673,7 +673,7 @@ export default function NotificationsPage(): React.JSX.Element {
             </div>
 
             {/* Quiet Hours Section Card */}
-            <div className="bg-white border border-[#E8E8E2] rounded-2xl p-6 shadow-xs space-y-6">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <h3 className="text-xs font-bold text-[#1E2923]">Quiet hours</h3>
@@ -687,16 +687,16 @@ export default function NotificationsPage(): React.JSX.Element {
                     showToast(isQuietHoursActive ? 'Quiet hours disabled.' : 'Quiet hours enabled.');
                   }}
                   className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
-                    isQuietHoursActive ? 'bg-[#183B28]' : 'bg-gray-300'
+                    isQuietHoursActive ? 'bg-[#183B28]' : 'bg-sage-300'
                   }`}
                   aria-label="Toggle Quiet Hours"
                 >
-                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${isQuietHoursActive ? 'translate-x-5' : 'translate-x-0'}`} />
+                  <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${isQuietHoursActive ? 'translate-x-5' : 'translate-x-0'}`} />
                 </button>
               </div>
 
               {/* Time dropdown selectors (From / Until) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 
                 {/* From Dropdown */}
                 <div className="space-y-1.5">
@@ -709,7 +709,7 @@ export default function NotificationsPage(): React.JSX.Element {
                         setIsDeliveryDropdownOpen(false);
                         setIsUntilDropdownOpen(false);
                       }}
-                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-xs text-[#1E2923] flex items-center justify-between transition-colors cursor-pointer ${
+                      className={`w-full bg-white border rounded-modal px-4 py-2.5 text-xs text-[#1E2923] flex items-center justify-between transition-colors cursor-pointer ${
                         isFromDropdownOpen ? 'border-[#B39353] ring-1 ring-[#B39353]' : 'border-[#D5D5CF] hover:border-[#B39353]'
                       }`}
                     >
@@ -718,7 +718,7 @@ export default function NotificationsPage(): React.JSX.Element {
                     </button>
 
                     {isFromDropdownOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-full bg-white border border-[#D5D5CF] rounded-xl shadow-lg z-20 overflow-hidden py-1">
+                      <div className="absolute top-full left-0 mt-1 w-full bg-white border border-[#D5D5CF] rounded-modal shadow-accent z-20 overflow-hidden py-1">
                         {['8:00 PM', '9:00 PM', '10:00 PM'].map((timeOption) => (
                           <button
                             key={timeOption}
@@ -751,7 +751,7 @@ export default function NotificationsPage(): React.JSX.Element {
                         setIsDeliveryDropdownOpen(false);
                         setIsFromDropdownOpen(false);
                       }}
-                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-xs text-[#1E2923] flex items-center justify-between transition-colors cursor-pointer ${
+                      className={`w-full bg-white border rounded-modal px-4 py-2.5 text-xs text-[#1E2923] flex items-center justify-between transition-colors cursor-pointer ${
                         isUntilDropdownOpen ? 'border-[#B39353] ring-1 ring-[#B39353]' : 'border-[#D5D5CF] hover:border-[#B39353]'
                       }`}
                     >
@@ -760,7 +760,7 @@ export default function NotificationsPage(): React.JSX.Element {
                     </button>
 
                     {isUntilDropdownOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-full bg-white border border-[#D5D5CF] rounded-xl shadow-lg z-20 overflow-hidden py-1">
+                      <div className="absolute top-full left-0 mt-1 w-full bg-white border border-[#D5D5CF] rounded-modal shadow-accent z-20 overflow-hidden py-1">
                         {['6:00 AM', '7:00 AM', '8:00 AM'].map((timeOption) => (
                           <button
                             key={timeOption}
@@ -787,7 +787,7 @@ export default function NotificationsPage(): React.JSX.Element {
             </div>
 
             {/* Explanatory callout box */}
-            <div className="bg-[#FAF5EC] border border-[#EADCCB] rounded-2xl p-4 text-xs text-[#61543E] leading-relaxed">
+            <div className="bg-[#FAF5EC] border border-[#EADCCB] rounded-[24px] p-4 text-xs text-[#61543E] leading-relaxed">
               <span className="font-bold text-[#42392A]">What still gets through: </span>
               compliance deadlines with penalties, signature requests, and payment failures. Everything else waits for your digest.
             </div>
@@ -798,7 +798,7 @@ export default function NotificationsPage(): React.JSX.Element {
         {activeTab === 'Announcements' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             <div>
-              <h1 className="text-3xl font-serif text-[#1C2621] tracking-tight">Announcements</h1>
+              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Announcements</h1>
             </div>
 
             <div className="space-y-4">
@@ -806,17 +806,17 @@ export default function NotificationsPage(): React.JSX.Element {
                 <div
                   key={item.id}
                   onClick={() => showToast(`Selected announcement: ${item.title}`)}
-                  className="bg-white border border-[#E8E8E2] hover:border-[#D1D1CB] rounded-2xl p-6 shadow-xs space-y-3 cursor-pointer transition-all"
+                  className="bg-white border border-[#E8E8E2] hover:border-[#D1D1CB] rounded-[24px] p-6 shadow-xs space-y-3 cursor-pointer transition-all"
                 >
                   <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider ${item.tagBg}`}>
+                    <span className={`px-2 py-0.5 rounded-input text-[10px] font-bold tracking-wider ${item.tagBg}`}>
                       {item.tagText}
                     </span>
                     <span className="text-xs text-[#8E9B90]">{item.date}</span>
                   </div>
 
                   <div className="space-y-1">
-                    <h3 className="text-base font-serif font-semibold text-[#1E2923] tracking-tight">
+                    <h3 className="text-base font-display font-semibold text-[#1E2923] tracking-tight">
                       {item.title}
                     </h3>
                     <p className="text-xs text-[#617065] leading-relaxed">

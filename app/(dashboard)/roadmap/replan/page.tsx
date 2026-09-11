@@ -35,9 +35,9 @@ export default function ReplanPage() {
       </div>
 
       {slippedTasks.length > 0 && (
-        <div className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-modal p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-modal p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
           <div className="flex items-start gap-4">
-            <div className="p-2 bg-white rounded-full shrink-0 shadow-sm border border-[#FAD7D7]">
+            <div className="p-2 bg-white rounded-full shrink-0 shadow-card border border-[#FAD7D7]">
               <AlertTriangle className="w-5 h-5 text-[#B0483B]" />
             </div>
             <div>
@@ -49,7 +49,7 @@ export default function ReplanPage() {
               </p>
             </div>
           </div>
-          <button className="bg-[#B0483B] hover:bg-[#993A2E] text-white text-xs font-bold py-2.5 px-5 rounded-card transition-colors shadow-sm shrink-0 whitespace-nowrap">
+          <button className="bg-[#B0483B] hover:bg-[#993A2E] text-white text-xs font-bold py-2.5 px-5 rounded-card transition-colors shadow-card shrink-0 whitespace-nowrap">
             Generate Re-plan
           </button>
         </div>
@@ -91,7 +91,7 @@ export default function ReplanPage() {
                     {diff.accepted ? 'Accepted' : 'Reject'}
                   </span>
                   <div className={`relative w-12 h-6 rounded-full transition-colors ${diff.accepted ? 'bg-[#183B28]' : 'bg-[#DCE6E1]'}`}>
-                    <div className={`absolute top-1 bottom-1 w-4 bg-white rounded-full transition-all shadow-sm ${diff.accepted ? 'left-7' : 'left-1'}`} />
+                    <div className={`absolute top-1 bottom-1 w-4 bg-white rounded-full transition-all shadow-card ${diff.accepted ? 'left-7' : 'left-1'}`} />
                   </div>
                   <input 
                     type="checkbox" 
@@ -108,7 +108,7 @@ export default function ReplanPage() {
 
         <div className="p-6 bg-[#F7F7F5] rounded-b-modal border-t border-[#EBEBE6] flex justify-end">
           <button 
-            className={`py-2.5 px-6 rounded-card font-bold text-xs transition-all shadow-sm flex items-center gap-2 ${
+            className={`py-2.5 px-6 rounded-card font-bold text-xs transition-all shadow-card flex items-center gap-2 ${
               acceptedCount > 0 
                 ? 'bg-[#183B28] hover:bg-[#11291C] text-white' 
                 : 'bg-[#EBEBE6] text-[#A3B1A6] cursor-not-allowed'
@@ -123,7 +123,7 @@ export default function ReplanPage() {
       
       <div className="flex flex-col gap-4 mt-4">
         <h3 className="text-sm font-bold text-[#1E2923]">Re-plan History</h3>
-        <div className="bg-white rounded-card border border-[#EBEBE6] p-5 shadow-sm">
+        <div className="bg-white rounded-card border border-[#EBEBE6] p-5 shadow-card">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-bold text-[#1E2923]">Applied on October 1st</span>

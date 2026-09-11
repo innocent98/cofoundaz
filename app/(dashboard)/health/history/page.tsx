@@ -25,7 +25,7 @@ export default function TrendHistoryPage() {
               onClick={() => setTrendRange(range)}
               className={`px-3.5 py-1.5 rounded-[6px] text-xs font-medium transition-all cursor-pointer ${
                 trendRange === range
-                  ? 'bg-white text-[#1E2923] font-bold shadow-sm'
+                  ? 'bg-white text-[#1E2923] font-bold shadow-card'
                   : 'bg-transparent text-[#768478] hover:text-[#1E2923]'
               }`}
             >

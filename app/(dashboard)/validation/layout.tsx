@@ -89,7 +89,7 @@ export default function ValidationLayout({
                 </div>
               </div>
 
-              <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <div className="flex shrink-0 items-center gap-2 md:gap-3">
                 <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
                   <span className="text-[#556358]">Health</span>
                   <span className="font-bold text-sm">72</span>
@@ -112,7 +112,7 @@ export default function ValidationLayout({
                   </span>
                 </button>
 
-                <button className="shrink-0 flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs sm:text-sm transition-colors shadow-card">
+                <button className="shrink-0 flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs md:text-sm transition-colors shadow-card">
                   <span>+ Invite</span>
                 </button>
               </div>

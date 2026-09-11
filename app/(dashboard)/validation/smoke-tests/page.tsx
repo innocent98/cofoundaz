@@ -197,7 +197,7 @@ export default function SmokeTestsPage() {
         </div>
 
         {isSignificant ? (
-          <div className={`p-4 rounded-modal border flex items-start gap-3 shadow-sm ${isValidated ? 'bg-[#E6EFEA] border-[#D5E3DB]' : 'bg-[#FDF2F2] border-[#F4C7C7]'}`}>
+          <div className={`p-4 rounded-modal border flex items-start gap-3 shadow-card ${isValidated ? 'bg-[#E6EFEA] border-[#D5E3DB]' : 'bg-[#FDF2F2] border-[#F4C7C7]'}`}>
             <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${isValidated ? 'bg-[#183B28] text-white' : 'bg-[#B0483B] text-white'}`}>
               <Check className="w-3.5 h-3.5" />
             </div>
@@ -211,7 +211,7 @@ export default function SmokeTestsPage() {
             </div>
           </div>
         ) : (
-          <div className="p-4 rounded-modal border bg-[#FAFAFA] border-[#EBEBE6] flex items-start gap-3 shadow-sm">
+          <div className="p-4 rounded-modal border bg-[#FAFAFA] border-[#EBEBE6] flex items-start gap-3 shadow-card">
             <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-[#8E9B90] text-white font-bold text-xs">
               i
             </div>

@@ -295,11 +295,11 @@ export default function AdminDashboardPage(): React.JSX.Element {
   });
 
   return (
-    <div className="min-h-screen bg-[#F7F7F5] text-[#1E2923] font-sans antialiased flex relative selection:bg-[#EAD5C6]">
+    <div className="min-h-screen bg-[#F7F7F5] text-[#1E2923] font-body antialiased flex relative selection:bg-[#EAD5C6]">
 
       {/* Toast Notification Container */}
       {toastMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#12291F] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-2.5 text-sm font-medium transition-all duration-300 border border-[#1E4231]">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#12291F] text-white px-5 py-3 rounded-[24px] shadow-accent flex items-center space-x-2.5 text-sm font-medium transition-all duration-300 border border-[#1E4231]">
           <span className="w-4 h-4 rounded-full bg-[#1C4230] flex items-center justify-center text-white text-[10px] font-bold">✓</span>
           <span>{toastMessage}</span>
         </div>
@@ -312,11 +312,11 @@ export default function AdminDashboardPage(): React.JSX.Element {
         <div className="p-6 space-y-8">
           {/* Logo / Title */}
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-xl bg-[#B39353] flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            <div className="w-8 h-8 rounded-modal bg-[#B39353] flex items-center justify-center text-white font-bold text-sm shadow-card">
               C
             </div>
             <div>
-              <h1 className="text-white font-serif font-medium text-base tracking-tight leading-none">Cofoundaz</h1>
+              <h1 className="text-white font-display font-medium text-base tracking-tight leading-none">Cofoundaz</h1>
               <span className="text-[10px] font-bold tracking-widest text-[#B39353] uppercase">ADMIN</span>
             </div>
           </div>
@@ -331,7 +331,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => { setActiveTab('Dashboard'); showToast('Switched to Dashboard'); }}
-                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
                   activeTab === 'Dashboard' 
                     ? 'bg-[#1C211F] text-white font-semibold shadow-xs' 
                     : 'hover:bg-[#181C1A] hover:text-white'
@@ -344,7 +344,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => { setActiveTab('Workspaces'); showToast('Switched to Workspaces'); }}
-                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
                   activeTab === 'Workspaces' 
                     ? 'bg-[#1C211F] text-white font-semibold shadow-xs' 
                     : 'hover:bg-[#181C1A] hover:text-white'
@@ -362,7 +362,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => { setActiveTab('Users'); showToast('Switched to Users'); }}
-                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
                   activeTab === 'Users' 
                     ? 'bg-[#1C211F] text-white font-semibold shadow-xs' 
                     : 'hover:bg-[#181C1A] hover:text-white'
@@ -375,7 +375,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => { setActiveTab('Support'); showToast('Switched to Support'); }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
                   activeTab === 'Support' 
                     ? 'bg-[#1C211F] text-white font-semibold shadow-xs' 
                     : 'hover:bg-[#181C1A] hover:text-white'
@@ -396,7 +396,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => { setActiveTab('Expert vetting'); showToast('Switched to Expert vetting'); }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
                   activeTab === 'Expert vetting' 
                     ? 'bg-[#1C211F] text-white font-semibold shadow-xs' 
                     : 'hover:bg-[#181C1A] hover:text-white'
@@ -412,7 +412,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => { setActiveTab('Content library'); showToast('Switched to Content library'); }}
-                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
                   activeTab === 'Content library' 
                     ? 'bg-[#1C211F] text-white font-semibold shadow-xs' 
                     : 'hover:bg-[#181C1A] hover:text-white'
@@ -445,7 +445,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
         
         {/* Top Header */}
         <header className="sticky top-0 z-40 border-b border-[#E8E8E2] px-8 py-3.5 flex items-center justify-between bg-white w-full">
-          <div className="flex items-center space-x-2 text-sm sm:text-base font-semibold tracking-tight">
+          <div className="flex items-center space-x-2 text-sm md:text-base font-semibold tracking-tight">
             <span className="text-[#617065] font-normal">Admin</span>
             <span className="text-[#8E9B90] font-normal">/</span>
             <span className="text-[#1E2923] font-semibold">{activeTab}</span>
@@ -453,19 +453,19 @@ export default function AdminDashboardPage(): React.JSX.Element {
 
           <div className="flex items-center space-x-4">
             {/* Search bar */}
-            <div className="relative hidden sm:block w-72">
+            <div className="relative hidden md:block w-72">
               <Search size={14} className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[#8E9B90]" />
               <input
                 type="text"
                 placeholder="Search users, workspaces, tickets..."
-                className="w-full bg-[#F7F7F5] border border-[#E0E0DA] rounded-xl pl-9 pr-3.5 py-1.5 text-xs font-medium text-[#1E2923] focus:outline-none focus:border-[#B39353]"
+                className="w-full bg-[#F7F7F5] border border-[#E0E0DA] rounded-modal pl-9 pr-3.5 py-1.5 text-xs font-medium text-[#1E2923] focus:outline-none focus:border-[#B39353]"
               />
             </div>
 
             <button
               type="button"
               onClick={() => showToast('Read & support actions loaded')}
-              className="bg-[#12291F] hover:bg-[#183B28] text-white px-4 py-2 rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer flex items-center space-x-1.5"
+              className="bg-[#12291F] hover:bg-[#183B28] text-white px-4 py-2 rounded-modal text-xs font-semibold transition-colors shadow-xs cursor-pointer flex items-center space-x-1.5"
             >
               <span>Read + support</span>
             </button>
@@ -480,44 +480,44 @@ export default function AdminDashboardPage(): React.JSX.Element {
             <div className="space-y-8 animate-in fade-in duration-200">
               <div className="flex items-baseline justify-between">
                 <div>
-                  <h2 className="text-3xl font-serif font-medium text-[#1E2923]">Platform health</h2>
+                  <h2 className="text-3xl font-display font-medium text-[#1E2923]">Platform health</h2>
                   <p className="text-xs text-[#8E9B90] mt-0.5">Last 30 days</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white border border-[#E8E8E2] rounded-3xl p-6 space-y-3 shadow-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Total workspaces</span>
-                  <div className="text-3xl font-serif font-medium text-[#1E2923]">2,847</div>
+                  <div className="text-3xl font-display font-medium text-[#1E2923]">2,847</div>
                   <div className="text-xs font-semibold text-[#137333]">+218 this month</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-3xl p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Activation rate</span>
-                  <div className="text-3xl font-serif font-medium text-[#1E2923]">64%</div>
+                  <div className="text-3xl font-display font-medium text-[#1E2923]">64%</div>
                   <div className="text-xs font-semibold text-[#137333]">+3 pts</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-3xl p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Paid conversion</span>
-                  <div className="text-3xl font-serif font-medium text-[#1E2923]">18.4%</div>
+                  <div className="text-3xl font-display font-medium text-[#1E2923]">18.4%</div>
                   <div className="text-xs font-semibold text-[#A63326]">-0.7 pts</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-3xl p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">MRR</span>
-                  <div className="text-3xl font-serif font-medium text-[#1E2923]">₦18.2M</div>
+                  <div className="text-3xl font-display font-medium text-[#1E2923]">₦18.2M</div>
                   <div className="text-xs font-semibold text-[#137333]">+11%</div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-2 bg-white border border-[#E8E8E2] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
+                <div className="lg:col-span-2 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-8 space-y-6 shadow-xs">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-[#1E2923]">Signups and activations</h3>
                   </div>
 
-                  <div className="h-52 w-full flex items-end justify-between pt-6 pb-2 px-2 gap-2 sm:gap-4 border-b border-[#E8E8E2]">
+                  <div className="h-52 w-full flex items-end justify-between pt-6 pb-2 px-2 gap-2 md:gap-4 border-b border-[#E8E8E2]">
                     {signupsBars.map((bar, index) => (
                       <div key={index} className="w-full flex items-end justify-center space-x-1 h-full">
                         <div className="w-1/2 bg-[#DCDCD6] rounded-t-sm" style={{ height: `${bar.signups}%` }}></div>
@@ -528,24 +528,24 @@ export default function AdminDashboardPage(): React.JSX.Element {
 
                   <div className="flex items-center space-x-6 text-xs font-medium text-[#617065] pt-1">
                     <div className="flex items-center space-x-2">
-                      <span className="w-3 h-3 rounded-sm bg-[#DCDCD6]"></span>
+                      <span className="w-3 h-3 rounded-[2px] bg-[#DCDCD6]"></span>
                       <span>Signups</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="w-3 h-3 rounded-sm bg-[#183B28]"></span>
+                      <span className="w-3 h-3 rounded-[2px] bg-[#183B28]"></span>
                       <span>Activated (completed onboarding)</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-3xl p-6 sm:p-7 space-y-4 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-4 shadow-xs">
                   <h3 className="text-sm font-bold text-[#1E2923]">Needs attention</h3>
 
                   <div className="space-y-3">
                     <button
                       type="button"
                       onClick={() => { setActiveTab('Support'); showToast('Opened Support section'); }}
-                      className="w-full text-left bg-[#FDF0ED] hover:bg-[#FBE8E4] border border-[#F3D5CE] rounded-2xl p-4 flex items-center justify-between transition-colors cursor-pointer group shadow-2xs"
+                      className="w-full text-left bg-[#FDF0ED] hover:bg-[#FBE8E4] border border-[#F3D5CE] rounded-[24px] p-4 flex items-center justify-between transition-colors cursor-pointer group shadow-2xs"
                     >
                       <div className="flex items-center space-x-3.5">
                         <span className="w-6 h-6 rounded-full bg-[#A63326] text-white text-xs font-bold flex items-center justify-center shrink-0">4</span>
@@ -557,7 +557,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                     <button
                       type="button"
                       onClick={() => { setActiveTab('Expert vetting'); showToast('Opened Expert vetting section'); }}
-                      className="w-full text-left bg-[#F9F6EE] hover:bg-[#F4EEDE] border border-[#EEDFB8] rounded-2xl p-4 flex items-center justify-between transition-colors cursor-pointer group shadow-2xs"
+                      className="w-full text-left bg-[#F9F6EE] hover:bg-[#F4EEDE] border border-[#EEDFB8] rounded-[24px] p-4 flex items-center justify-between transition-colors cursor-pointer group shadow-2xs"
                     >
                       <div className="flex items-center space-x-3.5">
                         <span className="w-6 h-6 rounded-full bg-[#B39353] text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
@@ -574,9 +574,9 @@ export default function AdminDashboardPage(): React.JSX.Element {
           {/* WORKSPACES VIEW */}
           {activeTab === 'Workspaces' && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              <h2 className="text-3xl font-serif font-medium text-[#1E2923]">Workspaces</h2>
+              <h2 className="text-3xl font-display font-medium text-[#1E2923]">Workspaces</h2>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-3xl overflow-hidden shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-xs">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -592,7 +592,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                       {workspacesList.map((ws, i) => (
                         <tr key={i} className="hover:bg-[#FAFAF8] transition-colors">
                           <td className="py-4 px-6 flex items-center space-x-3.5">
-                            <div className={`w-8 h-8 rounded-xl ${ws.initialBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}>
+                            <div className={`w-8 h-8 rounded-modal ${ws.initialBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}>
                               {ws.initial}
                             </div>
                             <div>
@@ -616,8 +616,8 @@ export default function AdminDashboardPage(): React.JSX.Element {
           {/* USERS VIEW */}
           {activeTab === 'Users' && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-3xl font-serif font-medium text-[#1E2923]">Users</h2>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <h2 className="text-3xl font-display font-medium text-[#1E2923]">Users</h2>
 
                 <div className="flex items-center space-x-2 bg-white border border-[#E8E8E2] p-1 rounded-full shadow-2xs">
                   {(['All', 'Active', 'Past due', 'Trialing'] as UserFilterTab[]).map((tab) => (
@@ -637,7 +637,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-3xl overflow-hidden shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-xs">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -653,7 +653,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                       {filteredUsers.map((u, i) => (
                         <tr key={i} className="hover:bg-[#FAFAF8] transition-colors">
                           <td className="py-4 px-6 flex items-center space-x-3.5">
-                            <div className={`w-8 h-8 rounded-xl ${u.initialBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}>
+                            <div className={`w-8 h-8 rounded-modal ${u.initialBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}>
                               {u.initial}
                             </div>
                             <div>
@@ -663,12 +663,12 @@ export default function AdminDashboardPage(): React.JSX.Element {
                           </td>
                           <td className="py-4 px-6 text-[#4A5550]">{u.workspace}</td>
                           <td className="py-4 px-6">
-                            <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-medium ${u.planBg}`}>
+                            <span className={`inline-block px-2.5 py-1 rounded-input text-[11px] font-medium ${u.planBg}`}>
                               {u.plan}
                             </span>
                           </td>
                           <td className="py-4 px-6">
-                            <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-medium ${u.statusBg}`}>
+                            <span className={`inline-block px-2.5 py-1 rounded-input text-[11px] font-medium ${u.statusBg}`}>
                               {u.status}
                             </span>
                           </td>
@@ -722,14 +722,14 @@ export default function AdminDashboardPage(): React.JSX.Element {
                       <div
                         key={ticket.id}
                         onClick={() => setSelectedTicketId(ticket.id)}
-                        className={`bg-white border rounded-3xl p-5 space-y-3 transition-all cursor-pointer shadow-2xs ${
+                        className={`bg-white border rounded-[24px] p-5 space-y-3 transition-all cursor-pointer shadow-2xs ${
                           isSelected 
                             ? 'border-[#1E2923] ring-1 ring-[#1E2923]' 
                             : 'border-[#E8E8E2] hover:border-[#D0D0CA]'
                         }`}
                       >
                         <div className="flex items-center space-x-2">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${ticket.priorityBadgeBg}`}>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-input ${ticket.priorityBadgeBg}`}>
                             {ticket.priority}
                           </span>
                           <span className="text-xs font-bold text-[#8E9B90]">{ticket.ticketNumber}</span>
@@ -748,18 +748,18 @@ export default function AdminDashboardPage(): React.JSX.Element {
                 </div>
 
                 {/* Right Ticket Thread & Action Pane */}
-                <div className="lg:col-span-7 bg-white border border-[#E8E8E2] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
+                <div className="lg:col-span-7 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-8 space-y-6 shadow-xs">
                   
                   {/* Ticket Header Meta */}
                   <div className="space-y-2 border-b border-[#E8E8E2] pb-6">
                     <div className="flex items-center space-x-2">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${activeTicket.priorityBadgeBg}`}>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-input ${activeTicket.priorityBadgeBg}`}>
                         {activeTicket.priority}
                       </span>
                       <span className="text-xs font-bold text-[#8E9B90]">{activeTicket.ticketNumber}</span>
                     </div>
 
-                    <h2 className="text-xl font-serif font-medium text-[#1E2923]">
+                    <h2 className="text-xl font-display font-medium text-[#1E2923]">
                       {activeTicket.title}
                     </h2>
 
@@ -769,7 +769,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                   </div>
 
                   {/* Customer Message Bubble */}
-                  <div className="bg-[#F7F7F5] border border-[#E8E8E2] rounded-2xl p-4 sm:p-5 space-y-3 text-xs text-[#1E2923]">
+                  <div className="bg-[#F7F7F5] border border-[#E8E8E2] rounded-[24px] p-4 md:p-5 space-y-3 text-xs text-[#1E2923]">
                     <p className="leading-relaxed">{activeTicket.message}</p>
                     <div className="text-[10px] text-[#8E9B90] font-medium">
                       {activeTicket.user} · {activeTicket.timeAgo}
@@ -783,7 +783,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       placeholder="Write a reply..."
-                      className="w-full bg-[#F7F7F5] border border-[#E8E8E2] rounded-2xl p-4 text-xs text-[#1E2923] focus:outline-none focus:border-[#B39353] resize-none"
+                      className="w-full bg-[#F7F7F5] border border-[#E8E8E2] rounded-[24px] p-4 text-xs text-[#1E2923] focus:outline-none focus:border-[#B39353] resize-none"
                     ></textarea>
 
                     <div className="flex items-center justify-between">
@@ -797,7 +797,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                           showToast(`Reply sent for ticket ${activeTicket.ticketNumber}!`);
                           setReplyText('');
                         }}
-                        className="bg-[#594B30] hover:bg-[#4A3E26] text-white px-5 py-2.5 rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer"
+                        className="bg-[#594B30] hover:bg-[#4A3E26] text-white px-5 py-2.5 rounded-modal text-xs font-semibold transition-colors shadow-xs cursor-pointer"
                       >
                         Send reply
                       </button>
@@ -806,7 +806,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                         <button
                           type="button"
                           onClick={() => showToast(`Ticket ${activeTicket.ticketNumber} marked as resolved.`)}
-                          className="bg-white hover:bg-gray-50 text-[#1E2923] border border-[#E8E8E2] px-4 py-2.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                          className="bg-white hover:bg-sage-50 text-[#1E2923] border border-[#E8E8E2] px-4 py-2.5 rounded-modal text-xs font-semibold transition-colors cursor-pointer"
                         >
                           Resolve
                         </button>
@@ -814,7 +814,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                         <button
                           type="button"
                           onClick={() => showToast(`Ticket ${activeTicket.ticketNumber} escalated.`)}
-                          className="bg-white hover:bg-[#FDF0ED] text-[#A63326] border border-[#F3D5CE] px-4 py-2.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                          className="bg-white hover:bg-[#FDF0ED] text-[#A63326] border border-[#F3D5CE] px-4 py-2.5 rounded-modal text-xs font-semibold transition-colors cursor-pointer"
                         >
                           Escalate
                         </button>
@@ -833,18 +833,18 @@ export default function AdminDashboardPage(): React.JSX.Element {
           {activeTab === 'Expert vetting' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="space-y-1">
-                <h2 className="text-3xl font-serif font-medium text-[#1E2923]">Expert applications</h2>
+                <h2 className="text-3xl font-display font-medium text-[#1E2923]">Expert applications</h2>
                 <p className="text-xs text-[#8E9B90]">Every expert is vetted before they appear to founders.</p>
               </div>
 
               <div className="space-y-5">
                 {experts.map((exp) => (
-                  <div key={exp.id} className="bg-white border border-[#E8E8E2] rounded-3xl p-6 sm:p-7 space-y-5 shadow-xs relative overflow-hidden">
+                  <div key={exp.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-xs relative overflow-hidden">
                     
                     {/* Top Info Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                       <div className="flex items-center space-x-3.5">
-                        <div className={`w-10 h-10 rounded-xl ${exp.initialBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}>
+                        <div className={`w-10 h-10 rounded-modal ${exp.initialBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}>
                           {exp.initial}
                         </div>
                         <div>
@@ -876,7 +876,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                         return (
                           <span
                             key={idx}
-                            className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-md text-[11px] font-medium border ${
+                            className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-input text-[11px] font-medium border ${
                               isSuccess 
                                 ? 'bg-[#F2F7F4] text-[#183B28] border-[#D8E6DE]' 
                                 : 'bg-[#FCF8EE] text-[#7A6124] border-[#EFE3BE]'
@@ -895,7 +895,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                         <button
                           type="button"
                           onClick={() => handleUpdateExpertStatus(exp.id, 'Approved')}
-                          className="bg-[#183B28] hover:bg-[#12291F] text-white px-5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-xs"
+                          className="bg-[#183B28] hover:bg-[#12291F] text-white px-5 py-2 rounded-modal text-xs font-semibold transition-colors cursor-pointer shadow-xs"
                         >
                           Approve
                         </button>
@@ -903,7 +903,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                         <button
                           type="button"
                           onClick={() => handleUpdateExpertStatus(exp.id, 'Rejected')}
-                          className="bg-white hover:bg-[#FDF0ED] text-[#A63326] border border-[#E8E8E2] px-5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                          className="bg-white hover:bg-[#FDF0ED] text-[#A63326] border border-[#E8E8E2] px-5 py-2 rounded-modal text-xs font-semibold transition-colors cursor-pointer"
                         >
                           Reject
                         </button>
@@ -911,7 +911,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                         <button
                           type="button"
                           onClick={() => showToast(`Requested more info from ${exp.name}`)}
-                          className="bg-white hover:bg-gray-50 text-[#1E2923] border border-[#E8E8E2] px-5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                          className="bg-white hover:bg-sage-50 text-[#1E2923] border border-[#E8E8E2] px-5 py-2 rounded-modal text-xs font-semibold transition-colors cursor-pointer"
                         >
                           Request more info
                         </button>
@@ -926,9 +926,9 @@ export default function AdminDashboardPage(): React.JSX.Element {
           {/* CONTENT LIBRARY VIEW */}
           {activeTab === 'Content library' && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              <h2 className="text-3xl font-serif font-medium text-[#1E2923]">Content library</h2>
+              <h2 className="text-3xl font-display font-medium text-[#1E2923]">Content library</h2>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-3xl overflow-hidden shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-xs">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -947,7 +947,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                           <td className="py-4 px-6 text-[#617065]">{item.type}</td>
                           <td className="py-4 px-6 text-[#617065]">{item.stage}</td>
                           <td className="py-4 px-6">
-                            <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-medium ${item.statusBg}`}>
+                            <span className={`inline-block px-2.5 py-1 rounded-input text-[11px] font-medium ${item.statusBg}`}>
                               {item.status}
                             </span>
                           </td>

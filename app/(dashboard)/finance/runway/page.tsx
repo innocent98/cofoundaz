@@ -114,8 +114,8 @@ export default function RunwayPage() {
               <path d="M 0,10 Q 30,15 60,40 T 100,80" fill="none" stroke="#9c5b34" strokeWidth="2" className={scenario === "Best" ? "opacity-100" : "opacity-0"} />
               <path d="M 0,10 Q 30,30 50,70 T 80,100" fill="none" stroke="#B0483B" strokeWidth="2" className={scenario === "Worst" ? "opacity-100" : "opacity-0"} />
             </svg>
-            <div className="absolute bottom-0 left-0 w-full border-t border-red-300 border-dashed"></div>
-            <span className="absolute bottom-0 right-2 text-[10px] text-red-500 font-bold bg-white px-1 -translate-y-1/2">Zero Cash Line</span>
+            <div className="absolute bottom-0 left-0 w-full border-t border-red-200 border-dashed"></div>
+            <span className="absolute bottom-0 right-2 text-[10px] text-red-600 font-bold bg-white px-1 -translate-y-1/2">Zero Cash Line</span>
           </div>
         </div>
 

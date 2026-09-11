@@ -42,7 +42,7 @@ export default function LeadsPage() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setIsImportModalOpen(true)}
-            className="bg-white hover:bg-sage-50 text-sage-700 font-medium px-4 py-2 rounded-card text-sm border border-sage-300 transition-colors shadow-sm"
+            className="bg-white hover:bg-sage-50 text-sage-700 font-medium px-4 py-2 rounded-card text-sm border border-sage-300 transition-colors shadow-card"
           >
             Import CSV
           </button>
@@ -50,7 +50,7 @@ export default function LeadsPage() {
       </div>
 
       {/* QUICK ADD BAR */}
-      <form onSubmit={handleAddLead} className="bg-white rounded-modal border border-sage-200 shadow-sm p-4 flex flex-col md:flex-row items-center gap-3">
+      <form onSubmit={handleAddLead} className="bg-white rounded-modal border border-sage-200 shadow-card p-4 flex flex-col md:flex-row items-center gap-3">
         <input 
           type="text" 
           placeholder="Lead name" 
@@ -67,7 +67,7 @@ export default function LeadsPage() {
         />
         <button
           type="submit"
-          className="w-full md:w-auto bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-6 py-2 rounded-input text-sm transition-colors shadow-sm shrink-0"
+          className="w-full md:w-auto bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-6 py-2 rounded-input text-sm transition-colors shadow-card shrink-0"
         >
           + Add lead
         </button>
@@ -129,7 +129,7 @@ export default function LeadsPage() {
       {/* CSV IMPORT MODAL */}
       {isImportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4">
-          <div className="bg-white rounded-modal p-6 md:p-8 w-full max-w-lg shadow-xl space-y-6">
+          <div className="bg-white rounded-modal p-6 md:p-8 w-full max-w-lg shadow-accent space-y-6">
             <div>
               <h2 className="text-xl font-display font-bold text-sage-900">Import Leads from CSV</h2>
               <p className="text-sm text-sage-500 mt-1">Map your columns to our standard fields.</p>

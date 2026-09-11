@@ -35,7 +35,7 @@ export default function BudgetsPage() {
             <option>February 2026</option>
             <option>January 2026</option>
           </select>
-          <button className="bg-[#9C5B34] text-white px-4 py-2 rounded-card text-sm font-medium flex items-center gap-1.5 hover:bg-[#8A5330] shadow-sm transition-colors">
+          <button className="bg-[#9C5B34] text-white px-4 py-2 rounded-card text-sm font-medium flex items-center gap-1.5 hover:bg-[#8A5330] shadow-card transition-colors">
             <Plus className="w-4 h-4" /> New Budget
           </button>
         </div>
@@ -56,7 +56,7 @@ export default function BudgetsPage() {
                 setBudgetsCreated(true);
                 triggerToast("Budget drafted from actuals.");
               }}
-              className="bg-[#1e3b30] text-white px-5 py-2.5 rounded-card text-sm font-semibold hover:bg-[#152a22] transition-colors shadow-sm"
+              className="bg-[#1e3b30] text-white px-5 py-2.5 rounded-card text-sm font-semibold hover:bg-[#152a22] transition-colors shadow-card"
             >
               Draft budget from actuals
             </button>
@@ -65,7 +65,7 @@ export default function BudgetsPage() {
                 setBudgetsCreated(true);
                 triggerToast(`Copied budget from previous month into ${selectedMonth}.`);
               }}
-              className="bg-white text-sage-700 border border-sage-200 px-5 py-2.5 rounded-card text-sm font-semibold hover:bg-sage-50 transition-colors flex items-center gap-2 shadow-sm"
+              className="bg-white text-sage-700 border border-sage-200 px-5 py-2.5 rounded-card text-sm font-semibold hover:bg-sage-50 transition-colors flex items-center gap-2 shadow-card"
             >
               <Copy className="w-4 h-4" /> Copy last month
             </button>

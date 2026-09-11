@@ -56,7 +56,7 @@ export default function TemplatesPage() {
                 </button>
                 <button 
                   onClick={() => setSelectedTemplate(t)}
-                  className="flex-1 bg-[#183B28] hover:bg-[#11291C] text-white text-xs font-bold py-2.5 rounded-card transition-colors shadow-sm flex justify-center items-center gap-1.5"
+                  className="flex-1 bg-[#183B28] hover:bg-[#11291C] text-white text-xs font-bold py-2.5 rounded-card transition-colors shadow-card flex justify-center items-center gap-1.5"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   Apply template
@@ -74,7 +74,7 @@ export default function TemplatesPage() {
           onClick={() => setSelectedTemplate(null)}
         >
           <div 
-            className="bg-white rounded-modal max-w-sm w-full p-6 shadow-2xl relative flex flex-col gap-6"
+            className="bg-white rounded-modal max-w-sm w-full p-6 shadow-accent relative flex flex-col gap-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col items-center text-center gap-3">
@@ -92,7 +92,7 @@ export default function TemplatesPage() {
             <div className="flex flex-col gap-2">
               <button 
                 onClick={applyTemplate}
-                className="w-full bg-[#B0483B] hover:bg-[#993A2E] text-white font-bold py-3 rounded-card transition-colors shadow-sm"
+                className="w-full bg-[#B0483B] hover:bg-[#993A2E] text-white font-bold py-3 rounded-card transition-colors shadow-card"
               >
                 Confirm & Merge
               </button>

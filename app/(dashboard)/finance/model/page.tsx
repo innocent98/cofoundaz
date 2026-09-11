@@ -63,7 +63,7 @@ export default function FinancialModelPage() {
           <button 
             onClick={handleGenerateModel}
             disabled={isGenerating}
-            className={`bg-[#1e3b30] text-white px-6 py-3 rounded-card font-semibold shadow-sm transition-all ${
+            className={`bg-[#1e3b30] text-white px-6 py-3 rounded-card font-semibold shadow-card transition-all ${
               isGenerating ? "opacity-70 cursor-not-allowed" : "hover:bg-[#152a22]"
             }`}
           >

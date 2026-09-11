@@ -243,11 +243,11 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
   });
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-[#1E2923] font-sans antialiased relative selection:bg-[#EAD5C6]">
+    <div className="min-h-screen bg-[#FBFBFA] text-[#1E2923] font-body antialiased relative selection:bg-[#EAD5C6]">
       
       {/* Top Banner Notification */}
       {toastMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#12291F] text-white px-5 py-2.5 rounded-xl shadow-lg flex items-center space-x-2.5 text-sm font-medium transition-all duration-300">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#12291F] text-white px-5 py-2.5 rounded-modal shadow-accent flex items-center space-x-2.5 text-sm font-medium transition-all duration-300">
           <span className="bg-[#183B28] text-white rounded-full p-0.5 text-xs">✓</span>
           <span>{toastMessage}</span>
         </div>
@@ -259,13 +259,13 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
         <div className="flex items-center space-x-2.5">
           <button 
             onClick={openSidebar}
-            className="md:hidden w-8 h-8 rounded-lg border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-gray-50 flex items-center justify-center transition-colors shrink-0 shadow-xs"
+            className="md:hidden w-8 h-8 rounded-card border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-xs"
             aria-label="Toggle Sidebar"
           >
             <Menu size={16} />
           </button>
 
-          <div className="flex items-center space-x-2 text-xs sm:text-sm font-medium tracking-tight">
+          <div className="flex items-center space-x-2 text-xs md:text-sm font-medium tracking-tight">
             <span className="text-[#1E2923] font-semibold">Workspace</span>
             <span className="text-[#8E9B90]">/</span>
             <span className="text-[#8E9B90] font-normal">Calendar</span>
@@ -273,7 +273,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
         </div>
 
         {/* Right Side */}
-        <div className="flex items-center space-x-2.5 sm:space-x-3">
+        <div className="flex items-center space-x-2.5 md:space-x-3">
           <div className="hidden md:flex bg-[#EAF2ED] text-[#1E3E2B] px-3 py-1 rounded-full text-xs font-semibold items-center space-x-1.5 border border-[#D5DDD6]">
             <span>Health</span>
             <span className="font-bold">72</span>
@@ -282,7 +282,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
           
           <button 
             onClick={() => showToast('Notifications opened.')}
-            className="relative w-8 h-8 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors shadow-xs shrink-0"
+            className="relative w-8 h-8 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-xs shrink-0"
             aria-label="Notifications"
           >
             <Bell className="w-3.5 h-3.5 text-[#66756F]" />
@@ -293,10 +293,10 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
 
           <button 
             onClick={() => showToast('Invite modal opened.')}
-            className="bg-[#B39353] hover:bg-[#A38346] text-white px-2.5 sm:px-4 py-1.5 rounded-[8px] text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[34px] shrink-0"
+            className="bg-[#B39353] hover:bg-[#A38346] text-white px-2.5 md:px-4 py-1.5 rounded-[8px] text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[34px] shrink-0"
           >
             <Plus size={15} />
-            <span className="hidden sm:inline font-medium">+ Invite</span>
+            <span className="hidden md:inline font-medium">+ Invite</span>
           </button>
         </div>
       </header>
@@ -333,24 +333,24 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
         <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
-              <h1 className="text-3xl font-serif text-[#1C2621] tracking-tight">July 2026</h1>
-              <div className="flex items-center space-x-1 border border-[#E8E8E2] rounded-lg bg-white p-0.5 shadow-xs">
+              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">July 2026</h1>
+              <div className="flex items-center space-x-1 border border-[#E8E8E2] rounded-card bg-white p-0.5 shadow-xs">
                 <button onClick={() => showToast('Switched to previous month.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronLeft size={16} /></button>
                 <button onClick={() => showToast('Switched to next month.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronRight size={16} /></button>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center space-x-1 bg-white border border-[#E8E8E2] p-1 rounded-xl shadow-xs overflow-x-auto">
+              <div className="flex items-center space-x-1 bg-white border border-[#E8E8E2] p-1 rounded-modal shadow-xs overflow-x-auto">
                 {(['All', 'Milestone', 'Meeting', 'Deadline', 'Task'] as FilterType[]).map((filter) => {
                   const isSelected = selectedFilter === filter;
                   return (
                     <button
                       key={filter}
                       onClick={() => setSelectedFilter(filter)}
-                      className={`px-3 py-1 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors ${isSelected ? 'bg-[#183B28] text-white font-semibold' : 'text-[#617065] hover:bg-[#F5F5F0]'}`}
+                      className={`px-3 py-1 rounded-card text-xs font-medium flex items-center space-x-1.5 transition-colors ${isSelected ? 'bg-[#183B28] text-white font-semibold' : 'text-[#617065] hover:bg-[#F5F5F0]'}`}
                     >
-                      <span className={`w-2 h-2 rounded-full ${filter === 'All' ? 'bg-gray-400' : filter === 'Milestone' ? 'bg-[#B39353]' : filter === 'Meeting' ? 'bg-[#183B28]' : filter === 'Deadline' ? 'bg-[#B93838]' : 'bg-[#1E3E2B]'}`} />
+                      <span className={`w-2 h-2 rounded-full ${filter === 'All' ? 'bg-sage-400' : filter === 'Milestone' ? 'bg-[#B39353]' : filter === 'Meeting' ? 'bg-[#183B28]' : filter === 'Deadline' ? 'bg-[#B93838]' : 'bg-[#1E3E2B]'}`} />
                       <span>{filter}</span>
                     </button>
                   );
@@ -359,7 +359,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
 
               <button 
                 onClick={() => { setIsEventModalOpen(true); showToast('New event drawer opened.'); }}
-                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
+                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
               >
                 <Plus size={15} />
                 <span>+ Event</span>
@@ -367,7 +367,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
             </div>
           </div>
 
-          <div className="bg-white border border-[#E8E8E2] rounded-2xl shadow-xs overflow-hidden">
+          <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
             <div className="grid grid-cols-7 border-b border-[#E8E8E2] bg-[#F9F9F6] text-center">
               {DAYS_OF_WEEK_LIST.map((day, idx) => (
                 <div key={idx} className="py-3 text-[10px] font-bold text-[#8E9B90] tracking-wider">{day}</div>
@@ -402,24 +402,24 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
         <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
-              <h1 className="text-3xl font-serif text-[#1C2621] tracking-tight">July 12 – 18, 2026</h1>
-              <div className="flex items-center space-x-1 border border-[#E8E8E2] rounded-lg bg-white p-0.5 shadow-xs">
+              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">July 12 – 18, 2026</h1>
+              <div className="flex items-center space-x-1 border border-[#E8E8E2] rounded-card bg-white p-0.5 shadow-xs">
                 <button onClick={() => showToast('Switched to previous week.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronLeft size={16} /></button>
                 <button onClick={() => showToast('Switched to next week.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronRight size={16} /></button>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center space-x-1 bg-white border border-[#E8E8E2] p-1 rounded-xl shadow-xs overflow-x-auto">
+              <div className="flex items-center space-x-1 bg-white border border-[#E8E8E2] p-1 rounded-modal shadow-xs overflow-x-auto">
                 {(['All', 'Milestone', 'Meeting', 'Deadline', 'Task'] as FilterType[]).map((filter) => {
                   const isSelected = selectedFilter === filter;
                   return (
                     <button
                       key={filter}
                       onClick={() => setSelectedFilter(filter)}
-                      className={`px-3 py-1 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors ${isSelected ? 'bg-[#183B28] text-white font-semibold' : 'text-[#617065] hover:bg-[#F5F5F0]'}`}
+                      className={`px-3 py-1 rounded-card text-xs font-medium flex items-center space-x-1.5 transition-colors ${isSelected ? 'bg-[#183B28] text-white font-semibold' : 'text-[#617065] hover:bg-[#F5F5F0]'}`}
                     >
-                      <span className={`w-2 h-2 rounded-full ${filter === 'All' ? 'bg-gray-400' : filter === 'Milestone' ? 'bg-[#B39353]' : filter === 'Meeting' ? 'bg-[#183B28]' : filter === 'Deadline' ? 'bg-[#B93838]' : 'bg-[#1E3E2B]'}`} />
+                      <span className={`w-2 h-2 rounded-full ${filter === 'All' ? 'bg-sage-400' : filter === 'Milestone' ? 'bg-[#B39353]' : filter === 'Meeting' ? 'bg-[#183B28]' : filter === 'Deadline' ? 'bg-[#B93838]' : 'bg-[#1E3E2B]'}`} />
                       <span>{filter}</span>
                     </button>
                   );
@@ -428,7 +428,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
 
               <button 
                 onClick={() => { setIsEventModalOpen(true); showToast('New event drawer opened.'); }}
-                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
+                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
               >
                 <Plus size={15} />
                 <span>+ Event</span>
@@ -436,7 +436,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
             </div>
           </div>
 
-          <div className="bg-white border border-[#E8E8E2] rounded-2xl shadow-xs overflow-hidden">
+          <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
             <div className="grid grid-cols-8 border-b border-[#E8E8E2] bg-[#F9F9F6] text-center">
               <div className="py-3 text-[10px] font-bold text-[#8E9B90] tracking-wider border-r border-[#E8E8E2]">TIME</div>
               {WEEK_DAYS_LIST.map((d, idx) => (
@@ -475,10 +475,10 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
       {activeTab === 'Agenda' && (
         <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-serif text-[#1C2621] tracking-tight">Agenda</h1>
+            <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Agenda</h1>
             <button 
               onClick={() => { setIsEventModalOpen(true); showToast('New event drawer opened.'); }}
-              className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
+              className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
             >
               <Plus size={15} />
               <span>+ Event</span>
@@ -494,7 +494,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                     <div
                       key={iIdx}
                       onClick={() => showToast(`Opened agenda item: ${item.title}`)}
-                      className={`bg-white border border-[#E8E8E2] rounded-xl p-5 shadow-xs flex items-center justify-between border-l-4 ${item.borderColor} hover:border-[#D5DDD6] transition-all cursor-pointer`}
+                      className={`bg-white border border-[#E8E8E2] rounded-modal p-5 shadow-xs flex items-center justify-between border-l-4 ${item.borderColor} hover:border-[#D5DDD6] transition-all cursor-pointer`}
                     >
                       <div className="flex items-center space-x-6">
                         <span className="text-xs font-semibold text-[#8E9B90] w-12 shrink-0">{item.time}</span>
@@ -519,12 +519,12 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
       {activeTab === 'Milestones' && (
         <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
           <div className="flex items-end justify-between">
-            <h1 className="text-3xl font-serif text-[#1C2621] tracking-tight">Milestones</h1>
+            <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Milestones</h1>
             <div className="flex items-center space-x-3">
               <span className="text-xs font-medium text-[#617065]">3 of 7 complete this quarter</span>
               <button 
                 onClick={() => { setIsEventModalOpen(true); showToast('New milestone drawer opened.'); }}
-                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
+                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
               >
                 <Plus size={15} />
                 <span>+ Milestone</span>
@@ -537,11 +537,11 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
               <div 
                 key={idx}
                 onClick={() => showToast(`Opened milestone: ${item.title}`)}
-                className={`bg-white border ${item.cardBorderClass || 'border-[#E8E8E2]'} rounded-2xl p-6 shadow-xs space-y-4 cursor-pointer hover:border-[#D5DDD6] transition-all`}
+                className={`bg-white border ${item.cardBorderClass || 'border-[#E8E8E2]'} rounded-[24px] p-6 shadow-xs space-y-4 cursor-pointer hover:border-[#D5DDD6] transition-all`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3.5">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${item.iconType === 'progress' ? 'bg-[#F2ECE1] text-[#7A6025]' : item.iconType === 'risk' ? 'bg-[#FDF2F2] text-[#B93838]' : item.iconType === 'complete' ? 'bg-[#183B28] text-white' : 'bg-[#F5F5F0] text-[#617065]'}`}>
+                    <div className={`w-8 h-8 rounded-card flex items-center justify-center shrink-0 ${item.iconType === 'progress' ? 'bg-[#F2ECE1] text-[#7A6025]' : item.iconType === 'risk' ? 'bg-[#FDF2F2] text-[#B93838]' : item.iconType === 'complete' ? 'bg-[#183B28] text-white' : 'bg-[#F5F5F0] text-[#617065]'}`}>
                       {item.iconType === 'progress' && <Clock size={16} />}
                       {item.iconType === 'risk' && <AlertCircle size={16} />}
                       {item.iconType === 'complete' && <Check size={16} />}
@@ -574,15 +574,15 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
       {activeTab === 'Sync' && (
         <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
           <div className="space-y-1">
-            <h1 className="text-3xl font-serif text-[#1C2621] tracking-tight">Calendar sync</h1>
+            <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Calendar sync</h1>
             <p className="text-xs text-[#617065]">Bring your real calendar in so your mission never collides with a meeting.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Google Calendar */}
-            <div className="bg-white border border-[#E8E8E2] rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
               <div className="flex items-start space-x-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#EAF2ED] text-[#183B28] flex items-center justify-center font-bold text-sm shrink-0">G</div>
+                <div className="w-10 h-10 rounded-modal bg-[#EAF2ED] text-[#183B28] flex items-center justify-center font-bold text-sm shrink-0">G</div>
                 <div className="space-y-0.5">
                   <h2 className="font-semibold text-xs text-[#1E2923]">Google Calendar</h2>
                   <p className="text-xs text-[#617065]">{isGoogleConnected ? 'Connected as amara@kolo.africa' : 'Not connected'}</p>
@@ -593,16 +593,16 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                   if (isGoogleConnected) { setIsGoogleConnected(false); showToast('Google Calendar disconnected.'); }
                   else { setIsGoogleConnected(true); showToast('Google Calendar connected as amara@kolo.africa.'); }
                 }}
-                className={`w-full py-2 rounded-xl text-xs font-semibold transition-colors border shadow-xs ${isGoogleConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
+                className={`w-full py-2 rounded-modal text-xs font-semibold transition-colors border shadow-xs ${isGoogleConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
               >
                 {isGoogleConnected ? 'Disconnect' : 'Connect'}
               </button>
             </div>
 
             {/* Outlook */}
-            <div className="bg-white border border-[#E8E8E2] rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
               <div className="flex items-start space-x-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#F5F5F0] text-[#617065] flex items-center justify-center font-bold text-sm shrink-0">O</div>
+                <div className="w-10 h-10 rounded-modal bg-[#F5F5F0] text-[#617065] flex items-center justify-center font-bold text-sm shrink-0">O</div>
                 <div className="space-y-0.5">
                   <h2 className="font-semibold text-xs text-[#1E2923]">Outlook</h2>
                   <p className="text-xs text-[#617065]">{isOutlookConnected ? 'Connected' : 'Not connected'}</p>
@@ -613,16 +613,16 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                   if (isOutlookConnected) { setIsOutlookConnected(false); showToast('Outlook disconnected.'); }
                   else { setIsOutlookConnected(true); showToast('Connecting to Outlook...'); }
                 }}
-                className={`w-full py-2 rounded-xl text-xs font-semibold transition-colors border shadow-xs ${isOutlookConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
+                className={`w-full py-2 rounded-modal text-xs font-semibold transition-colors border shadow-xs ${isOutlookConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
               >
                 {isOutlookConnected ? 'Disconnect' : 'Connect'}
               </button>
             </div>
 
             {/* Apple Calendar */}
-            <div className="bg-white border border-[#E8E8E2] rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
               <div className="flex items-start space-x-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#F5F5F0] text-[#617065] flex items-center justify-center font-bold text-sm shrink-0">A</div>
+                <div className="w-10 h-10 rounded-modal bg-[#F5F5F0] text-[#617065] flex items-center justify-center font-bold text-sm shrink-0">A</div>
                 <div className="space-y-0.5">
                   <h2 className="font-semibold text-xs text-[#1E2923]">Apple Calendar</h2>
                   <p className="text-xs text-[#617065]">{isAppleConnected ? 'Connected' : 'Not connected'}</p>
@@ -633,21 +633,21 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                   if (isAppleConnected) { setIsAppleConnected(false); showToast('Apple Calendar disconnected.'); }
                   else { setIsAppleConnected(true); showToast('Connecting to Apple Calendar...'); }
                 }}
-                className={`w-full py-2 rounded-xl text-xs font-semibold transition-colors border shadow-xs ${isAppleConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
+                className={`w-full py-2 rounded-modal text-xs font-semibold transition-colors border shadow-xs ${isAppleConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
               >
                 {isAppleConnected ? 'Disconnect' : 'Connect'}
               </button>
             </div>
           </div>
 
-          <div className="bg-white border border-[#E8E8E2] rounded-2xl divide-y divide-[#E8E8E2] shadow-xs overflow-hidden">
+          <div className="bg-white border border-[#E8E8E2] rounded-[24px] divide-y divide-[#E8E8E2] shadow-xs overflow-hidden">
             <div className="p-5 flex items-center justify-between">
               <div className="space-y-0.5">
                 <h3 className="font-semibold text-xs text-[#1E2923]">Block focus time for missions</h3>
                 <p className="text-xs text-[#617065]">Reserve a window each morning for your daily mission.</p>
               </div>
               <button onClick={() => { setBlockFocusTime(!blockFocusTime); showToast(`Focus time blocking ${!blockFocusTime ? 'enabled' : 'disabled'}.`); }} className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${blockFocusTime ? 'bg-[#183B28]' : 'bg-[#D5DDD6]'}`}>
-                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${blockFocusTime ? 'translate-x-5' : 'translate-x-0'}`} />
+                <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform duration-300 ${blockFocusTime ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
 
@@ -657,7 +657,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                 <p className="text-xs text-[#617065]">A nudge 3 days and 1 day before anything with a penalty.</p>
               </div>
               <button onClick={() => { setRemindDeadlines(!remindDeadlines); showToast(`Deadline reminders ${!remindDeadlines ? 'enabled' : 'disabled'}.`); }} className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${remindDeadlines ? 'bg-[#183B28]' : 'bg-[#D5DDD6]'}`}>
-                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${remindDeadlines ? 'translate-x-5' : 'translate-x-0'}`} />
+                <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform duration-300 ${remindDeadlines ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
 
@@ -667,7 +667,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                 <p className="text-xs text-[#617065]">Include Saturday and Sunday in week view.</p>
               </div>
               <button onClick={() => { setShowWeekends(!showWeekends); showToast(`Weekends view ${!showWeekends ? 'enabled' : 'disabled'}.`); }} className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${showWeekends ? 'bg-[#183B28]' : 'bg-[#D5DDD6]'}`}>
-                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${showWeekends ? 'translate-x-5' : 'translate-x-0'}`} />
+                <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform duration-300 ${showWeekends ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
           </div>
@@ -677,12 +677,12 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
       {/* MODAL: NEW EVENT / MILESTONE DRAWER */}
       {isEventModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white border border-[#E8E8E2] rounded-2xl p-6 sm:p-8 shadow-2xl max-w-md w-full space-y-6 relative animate-in zoom-in-95 duration-200">
+          <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-8 shadow-accent max-w-md w-full space-y-6 relative animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-serif text-[#1E2923]">
+              <h2 className="text-lg font-display text-[#1E2923]">
                 {activeTab === 'Milestones' ? 'Create calendar milestone' : 'Create calendar event'}
               </h2>
-              <button onClick={() => setIsEventModalOpen(false)} className="p-1 rounded-lg text-[#617065] hover:bg-[#F5F5F0]">
+              <button onClick={() => setIsEventModalOpen(false)} className="p-1 rounded-card text-[#617065] hover:bg-[#F5F5F0]">
                 <X size={16} />
               </button>
             </div>
@@ -698,7 +698,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                   placeholder={activeTab === 'Milestones' ? 'e.g. Series A term sheet signed' : 'e.g. Investor pitch meeting'}
                   value={eventTitle}
                   onChange={(e) => setEventTitle(e.target.value)}
-                  className="w-full bg-white border border-[#E8E8E2] rounded-lg px-3 py-2 text-xs text-[#1E2923] placeholder-[#9CA8A0] focus:outline-none focus:ring-1 focus:ring-[#A07C44]"
+                  className="w-full bg-white border border-[#E8E8E2] rounded-card px-3 py-2 text-xs text-[#1E2923] placeholder-[#9CA8A0] focus:outline-none focus:ring-1 focus:ring-[#A07C44]"
                 />
               </div>
 
@@ -711,7 +711,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                         type="button"
                         key={t}
                         onClick={() => setEventType(t)}
-                        className={`py-1.5 rounded-lg text-xs font-semibold capitalize border transition-all ${eventType === t ? 'bg-[#1C3B2B] text-white border-[#1C3B2B]' : 'bg-white text-[#617065] border-[#E8E8E2] hover:bg-[#F5F5F0]'}`}
+                        className={`py-1.5 rounded-card text-xs font-semibold capitalize border transition-all ${eventType === t ? 'bg-[#1C3B2B] text-white border-[#1C3B2B]' : 'bg-white text-[#617065] border-[#E8E8E2] hover:bg-[#F5F5F0]'}`}
                       >
                         {t}
                       </button>
@@ -727,7 +727,7 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                   required
                   value={eventDate}
                   onChange={(e) => setEventDate(e.target.value)}
-                  className="w-full bg-white border border-[#E8E8E2] rounded-lg px-3 py-2 text-xs text-[#1E2923] focus:outline-none focus:ring-1 focus:ring-[#A07C44]"
+                  className="w-full bg-white border border-[#E8E8E2] rounded-card px-3 py-2 text-xs text-[#1E2923] focus:outline-none focus:ring-1 focus:ring-[#A07C44]"
                 />
               </div>
 
@@ -735,13 +735,13 @@ export default function CalendarUnifiedPage(): React.JSX.Element {
                 <button
                   type="button"
                   onClick={() => setIsEventModalOpen(false)}
-                  className="flex-1 px-4 py-2 bg-white border border-[#E8E8E2] rounded-lg text-xs font-semibold text-[#1E2923] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex-1 px-4 py-2 bg-white border border-[#E8E8E2] rounded-card text-xs font-semibold text-[#1E2923] hover:bg-[#F5F5F0] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors"
+                  className="flex-1 px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-card text-xs font-semibold shadow-xs transition-colors"
                 >
                   {activeTab === 'Milestones' ? 'Save milestone' : 'Save event'}
                 </button>

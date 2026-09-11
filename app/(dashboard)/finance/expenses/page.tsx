@@ -25,7 +25,7 @@ export default function ExpensesPage() {
         </div>
         <button 
           onClick={() => triggerToast("Add manual expense dialog would open here.")}
-          className="bg-[#9C5B34] text-white px-4 py-2 rounded-card text-sm font-medium flex items-center gap-1.5 hover:bg-[#8A5330] transition-colors shadow-sm w-fit"
+          className="bg-[#9C5B34] text-white px-4 py-2 rounded-card text-sm font-medium flex items-center gap-1.5 hover:bg-[#8A5330] transition-colors shadow-card w-fit"
         >
           <Plus className="w-4 h-4" /> Add Expense
         </button>

@@ -153,7 +153,7 @@ export default function PipelinePage() {
                         {formatCurrency(deal.value)}
                       </div>
                       <div className="flex items-center justify-between pt-1">
-                        <span className={`text-xs font-medium truncate ${deal.isOverdue ? 'text-red-500' : 'text-sage-500'}`}>
+                        <span className={`text-xs font-medium truncate ${deal.isOverdue ? 'text-red-600' : 'text-sage-500'}`}>
                           {deal.nextStep} · {deal.nextStepDue}
                         </span>
                         {(deal.isStalled || deal.daysInactive > 14) && (
@@ -180,7 +180,7 @@ export default function PipelinePage() {
       {/* LOST REASON MODAL */}
       {lostModalDealId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-modal p-6 md:p-8 w-full max-w-sm shadow-xl space-y-6">
+          <div className="bg-white rounded-modal p-6 md:p-8 w-full max-w-sm shadow-accent space-y-6">
             <h2 className="text-xl font-display font-bold text-sage-900">Why was this deal lost?</h2>
             <div className="grid grid-cols-2 gap-3">
               {(['Price', 'Timing', 'Competitor', 'No budget', 'Ghosted', 'Other'] as LostReason[]).map(reason => (

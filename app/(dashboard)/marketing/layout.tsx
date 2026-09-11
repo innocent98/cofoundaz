@@ -104,7 +104,7 @@ function MarketingLayoutContent({ children }: { children: React.ReactNode }) {
                 </span>
               </button>
 
-              <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs sm:text-sm transition-colors shadow-card">
+              <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs md:text-sm transition-colors shadow-card">
                 <span>+ Invite</span>
               </button>
             </div>

@@ -145,7 +145,7 @@ export default function ChatViewPage() {
               startNewChat();
               setChatInput('');
             }}
-            className="w-full flex items-center justify-center gap-2 bg-[#A8894B] hover:bg-[#967941] text-[#12291F] font-semibold text-sm py-2.5 rounded-lg transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 bg-[#A8894B] hover:bg-[#967941] text-[#12291F] font-semibold text-sm py-2.5 rounded-card transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             New chat
@@ -191,7 +191,7 @@ export default function ChatViewPage() {
                 <button 
                   key={conv.id}
                   onClick={() => selectConversation(conv.id)}
-                  className={`w-full text-left p-3 rounded-xl transition-colors cursor-pointer flex flex-col gap-1.5 ${
+                  className={`w-full text-left p-3 rounded-modal transition-colors cursor-pointer flex flex-col gap-1.5 ${
                     activeConvId === conv.id ? 'bg-[#FBFBFA]' : 'hover:bg-[#FBFBFA]'
                   }`}
                 >
@@ -225,7 +225,7 @@ export default function ChatViewPage() {
                 {conversations.find(c => c.id === activeConvId)?.agentsInvolved.join(' · ') || 'Co-Founder'}
               </p>
             </div>
-            <button className="text-xs font-semibold text-[#1E2923] border border-[#EBEBE6] px-3 py-1.5 rounded-lg hover:bg-[#FBFBFA] transition-colors cursor-pointer">
+            <button className="text-xs font-semibold text-[#1E2923] border border-[#EBEBE6] px-3 py-1.5 rounded-card hover:bg-[#FBFBFA] transition-colors cursor-pointer">
               Open full view
             </button>
           </div>
@@ -246,7 +246,7 @@ export default function ChatViewPage() {
               <p className="text-sm text-[#617065] mb-8 leading-relaxed">
                 I know your startup — your stage, your numbers, your plan. Ask me anything, and I'll bring in the right specialist.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
                 {[
                   'What should I focus on this week?',
                   'Poke holes in my business model',
@@ -257,7 +257,7 @@ export default function ChatViewPage() {
                     key={idx}
                     type="button"
                     onClick={() => handleSendMessage(suggestion)}
-                    className="text-xs font-medium text-[#1E2923] bg-white border border-[#EBEBE6] px-4 py-3 rounded-xl hover:border-[#D0D0C8] hover:bg-[#FBFBFA] transition-all cursor-pointer text-left shadow-sm"
+                    className="text-xs font-medium text-[#1E2923] bg-white border border-[#EBEBE6] px-4 py-3 rounded-modal hover:border-[#D0D0C8] hover:bg-[#FBFBFA] transition-all cursor-pointer text-left shadow-card"
                   >
                     {suggestion}
                   </button>
@@ -271,7 +271,7 @@ export default function ChatViewPage() {
               
               {msg.role === 'assistant' && (
                 <div className="flex items-center gap-2 mb-2">
-                  <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${msg.agentKey === 'cofounder' ? 'bg-[#A8894B]' : 'bg-[#1F4D3A]'}`}>
+                  <div className={`w-6 h-6 rounded-input flex items-center justify-center shrink-0 ${msg.agentKey === 'cofounder' ? 'bg-[#A8894B]' : 'bg-[#1F4D3A]'}`}>
                     <Sparkles className={`w-3.5 h-3.5 ${msg.agentKey === 'cofounder' ? 'fill-[#1F4D3A] text-[#1F4D3A]' : 'fill-[#A8894B] text-[#A8894B]'}`} />
                   </div>
                   <span className="text-xs font-bold text-[#1E2923]">
@@ -281,7 +281,7 @@ export default function ChatViewPage() {
                 </div>
               )}
 
-              <div className={`text-sm px-5 py-4 rounded-2xl shadow-sm max-w-[85%] lg:max-w-[75%] ${
+              <div className={`text-sm px-5 py-4 rounded-[24px] shadow-card max-w-[85%] lg:max-w-[75%] ${
                 msg.role === 'user'
                   ? 'bg-[#1F4D3A] text-white rounded-tr-sm'
                   : 'bg-white border border-[#EBEBE6] text-[#1E2923] rounded-tl-sm'
@@ -311,7 +311,7 @@ export default function ChatViewPage() {
 
                       if (isExecuted) {
                         return (
-                          <div key={chip.id} className="w-full flex flex-col sm:flex-row sm:items-center justify-between text-xs font-semibold bg-[#EBF5F0] text-[#12291F] px-4 py-3 rounded-lg gap-2">
+                          <div key={chip.id} className="w-full flex flex-col md:flex-row md:items-center justify-between text-xs font-semibold bg-[#EBF5F0] text-[#12291F] px-4 py-3 rounded-card gap-2">
                             <div className="flex items-center gap-2">
                               <div className="w-5 h-5 rounded-full bg-[#1F4D3A] text-white flex items-center justify-center shrink-0">
                                 <Check className="w-3 h-3" />
@@ -334,7 +334,7 @@ export default function ChatViewPage() {
                         <button
                           key={chip.id}
                           onClick={() => handleAction(msg.id, chip.action, chip.artifactTitle || chip.label)}
-                          className="text-xs font-semibold text-[#1F4D3A] bg-white border border-[#EBEBE6] px-3 py-1.5 rounded-lg hover:border-[#D0D0C8] transition-colors cursor-pointer text-left"
+                          className="text-xs font-semibold text-[#1F4D3A] bg-white border border-[#EBEBE6] px-3 py-1.5 rounded-card hover:border-[#D0D0C8] transition-colors cursor-pointer text-left"
                         >
                           {chip.label}
                         </button>
@@ -356,7 +356,7 @@ export default function ChatViewPage() {
                 onClick={stopGenerating}
                 className="flex items-center gap-2 bg-white border border-[#EBEBE6] shadow-card text-xs font-semibold text-[#1E2923] px-4 py-1.5 rounded-full hover:bg-[#FBFBFA] transition-colors cursor-pointer"
               >
-                <div className="w-2 h-2 bg-red-500 rounded-sm" />
+                <div className="w-2 h-2 bg-red-600 rounded-[2px]" />
                 Stop generating
               </button>
             </div>
@@ -367,11 +367,11 @@ export default function ChatViewPage() {
               e.preventDefault();
               handleSendMessage(chatInput);
             }}
-            className="flex items-center bg-[#F9F9F8] border border-[#EBEBE6] rounded-xl px-2 py-2 focus-within:ring-2 focus-within:ring-[#A8894B] focus-within:border-transparent transition-all"
+            className="flex items-center bg-[#F9F9F8] border border-[#EBEBE6] rounded-modal px-2 py-2 focus-within:ring-2 focus-within:ring-[#A8894B] focus-within:border-transparent transition-all"
           >
             <div className="flex flex-col w-full px-2 relative">
               {chatInput.startsWith('/') && (
-                <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-[#EBEBE6] rounded-xl shadow-card overflow-hidden">
+                <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-[#EBEBE6] rounded-modal shadow-card overflow-hidden">
                   <p className="px-3 py-2 text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider bg-[#FBFBFA] border-b border-[#EBEBE6]">Slash Commands</p>
                   {['/draft', '/analyze', '/plan', '/agents'].map(cmd => (
                     <button 
@@ -400,7 +400,7 @@ export default function ChatViewPage() {
               />
               <div className="flex items-center justify-between mt-1">
                 <div className="flex items-center gap-2 text-[11px] text-[#8E9B90]">
-                  <button type="button" className="w-6 h-6 rounded-md bg-white border border-[#EBEBE6] flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
+                  <button type="button" className="w-6 h-6 rounded-input bg-white border border-[#EBEBE6] flex items-center justify-center hover:bg-sage-50 transition-colors cursor-pointer">
                     <Plus className="w-3.5 h-3.5" />
                   </button>
                   <span>Try <span className="font-semibold text-[#1E2923]">/draft</span> · <span className="font-semibold text-[#1E2923]">/analyze</span> · <span className="font-semibold text-[#1E2923]">/plan</span></span>
@@ -408,7 +408,7 @@ export default function ChatViewPage() {
                 <button
                   type="submit"
                   disabled={!chatInput.trim() || isStreaming}
-                  className={`font-semibold text-xs px-4 py-1.5 rounded-lg shadow-sm transition-colors flex items-center justify-center min-w-[64px] ${
+                  className={`font-semibold text-xs px-4 py-1.5 rounded-card shadow-card transition-colors flex items-center justify-center min-w-[64px] ${
                     chatInput.trim() && !isStreaming
                       ? 'bg-[#A8894B] hover:bg-[#967941] text-[#12291F] cursor-pointer'
                       : 'bg-[#EBEBE6] text-[#8E9B90] cursor-not-allowed'
@@ -433,7 +433,7 @@ export default function ChatViewPage() {
             </summary>
             <div className="space-y-2">
               {suggestions.slice(0,2).map(sugg => (
-                <div key={sugg.id} className="p-3 bg-[#FBFBFA] rounded-xl border border-[#EBEBE6] cursor-pointer hover:border-[#D0D0C8] transition-colors">
+                <div key={sugg.id} className="p-3 bg-[#FBFBFA] rounded-modal border border-[#EBEBE6] cursor-pointer hover:border-[#D0D0C8] transition-colors">
                   <p className="text-xs font-semibold text-[#1E2923]">{sugg.suggestion}</p>
                 </div>
               ))}

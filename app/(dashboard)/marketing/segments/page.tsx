@@ -54,7 +54,7 @@ export default function MarketingSegmentsPage() {
       {isBuilderOpen && (
         <>
           <div className="fixed inset-0 bg-black/30 z-50 backdrop-blur-sm" onClick={() => setIsBuilderOpen(false)} />
-          <div className="fixed inset-y-0 right-0 w-full max-w-lg bg-white z-50 shadow-2xl border-l border-sage-200 flex flex-col animate-fadeIn duration-300">
+          <div className="fixed inset-y-0 right-0 w-full max-w-lg bg-white z-50 shadow-accent border-l border-sage-200 flex flex-col animate-fadeIn duration-300">
             <div className="flex items-center justify-between p-6 border-b border-sage-200">
               <h3 className="text-xl font-display font-semibold text-sage-900">Rule Builder</h3>
               <button onClick={() => setIsBuilderOpen(false)} className="text-sage-500 hover:text-sage-900 text-lg">

@@ -19,7 +19,7 @@ export default function ArticlesPage() {
           <div key={article.id} className="bg-white rounded-modal border border-sage-200 shadow-card p-6 flex flex-col h-full space-y-4 hover:border-[#EAD5C6] transition-colors group cursor-pointer">
             <div className="flex items-center gap-2 mb-2">
               {article.tags.map(tag => (
-                <span key={tag} className="text-[10px] font-bold uppercase tracking-wider text-sage-500 bg-sage-50 px-2 py-0.5 rounded-sm">
+                <span key={tag} className="text-[10px] font-bold uppercase tracking-wider text-sage-500 bg-sage-50 px-2 py-0.5 rounded-[2px]">
                   {tag}
                 </span>
               ))}

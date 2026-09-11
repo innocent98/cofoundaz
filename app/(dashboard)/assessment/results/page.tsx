@@ -101,7 +101,7 @@ export default function AssessmentResultsPage() {
         })}
         
         {history.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-modal border border-sage-200/80 shadow-sm">
+          <div className="text-center py-12 bg-white rounded-modal border border-sage-200/80 shadow-card">
             <p className="text-sage-500">No past results found. Complete your first assessment!</p>
           </div>
         )}

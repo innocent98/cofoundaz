@@ -80,7 +80,7 @@ export default function MilestonesPage() {
                         Break down
                       </button>
                       
-                      <button className="p-1.5 text-[#768478] hover:bg-[#EBEBE6] rounded-md transition-colors">
+                      <button className="p-1.5 text-[#768478] hover:bg-[#EBEBE6] rounded-input transition-colors">
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
                     </div>

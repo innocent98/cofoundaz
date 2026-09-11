@@ -72,7 +72,7 @@ export default function FormationPage() {
       </div>
 
       {allCompleted && (
-        <div className="bg-green-50 border border-green-200 rounded-modal p-6 text-center animate-fadeIn shadow-sm">
+        <div className="bg-green-50 border border-green-200 rounded-modal p-6 text-center animate-fadeIn shadow-card">
           <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center mx-auto mb-3">
             <Check className="w-6 h-6 stroke-[3]" />
           </div>

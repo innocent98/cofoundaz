@@ -109,7 +109,7 @@ export default function AccountsPage() {
               />
               <button 
                 onClick={handleLogActivity}
-                className="bg-[#1e4836] hover:bg-[#153427] text-white font-semibold px-4 py-2 rounded-input text-sm transition-colors shadow-sm shrink-0"
+                className="bg-[#1e4836] hover:bg-[#153427] text-white font-semibold px-4 py-2 rounded-input text-sm transition-colors shadow-card shrink-0"
               >
                 Log
               </button>

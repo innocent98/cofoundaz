@@ -59,7 +59,7 @@ export default function IntegrationsPage() {
 
               <button
                 onClick={() => requestToggle(item.id, item.name, item.status)}
-                className={`w-full py-2.5 px-4 rounded-card text-sm font-medium transition-all cursor-pointer flex items-center justify-center shadow-sm ${
+                className={`w-full py-2.5 px-4 rounded-card text-sm font-medium transition-all cursor-pointer flex items-center justify-center shadow-card ${
                   isConnected
                     ? "bg-white text-[#B0483B] border border-[#ffcccc] hover:bg-[#fff0f0]"
                     : "bg-[#9C5B34] text-white hover:bg-[#8A5330]"
@@ -74,7 +74,7 @@ export default function IntegrationsPage() {
 
       {modalState.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 animate-fadeIn">
-          <div className="bg-white rounded-modal p-6 md:p-8 w-full max-w-sm shadow-xl space-y-6">
+          <div className="bg-white rounded-modal p-6 md:p-8 w-full max-w-sm shadow-accent space-y-6">
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-[#fff0f0] text-[#B0483B] flex items-center justify-center">
                 <AlertTriangle className="w-6 h-6" />
@@ -88,13 +88,13 @@ export default function IntegrationsPage() {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setModalState({ isOpen: false, targetId: "", targetName: "" })}
-                className="flex-1 px-4 py-2 bg-sage-100 hover:bg-sage-200 text-sage-700 rounded-card text-sm font-semibold transition-colors shadow-sm"
+                className="flex-1 px-4 py-2 bg-sage-100 hover:bg-sage-200 text-sage-700 rounded-card text-sm font-semibold transition-colors shadow-card"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDisconnect}
-                className="flex-1 bg-[#B0483B] hover:bg-[#9a3a2e] text-white font-semibold px-4 py-2 rounded-card text-sm transition-colors shadow-sm"
+                className="flex-1 bg-[#B0483B] hover:bg-[#9a3a2e] text-white font-semibold px-4 py-2 rounded-card text-sm transition-colors shadow-card"
               >
                 Disconnect
               </button>

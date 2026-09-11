@@ -70,7 +70,7 @@ export default function ServicesPage() {
                 </div>
                 <button
                   onClick={() => handleBook(service.title)}
-                  className="bg-[#1e4836] hover:bg-[#153427] text-white font-semibold py-2.5 px-6 rounded-card text-sm transition-colors shadow-sm"
+                  className="bg-[#1e4836] hover:bg-[#153427] text-white font-semibold py-2.5 px-6 rounded-card text-sm transition-colors shadow-card"
                 >
                   Book this
                 </button>

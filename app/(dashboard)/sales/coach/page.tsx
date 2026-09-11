@@ -198,7 +198,7 @@ export default function AICoachPage() {
                 </div>
                 <button
                   onClick={() => setRolePlayState("scorecard")}
-                  className="bg-red-50 hover:bg-red-100 text-red-700 font-semibold px-4 py-2 rounded-card text-sm border border-red-200 transition-colors shadow-sm"
+                  className="bg-red-50 hover:bg-red-100 text-red-700 font-semibold px-4 py-2 rounded-card text-sm border border-red-200 transition-colors shadow-card"
                 >
                   End session
                 </button>
@@ -228,7 +228,7 @@ export default function AICoachPage() {
                   onChange={(e) => setUserInputValue(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") handleSendMessage(); }}
                   placeholder="Your response to the buyer..."
-                  className="flex-1 bg-sage-50 border border-sage-200 rounded-card px-4 py-3 text-sm focus:outline-none focus:border-sage-400 shadow-inner"
+                  className="flex-1 bg-sage-50 border border-sage-200 rounded-card px-4 py-3 text-sm focus:outline-none focus:border-sage-400 shadow-card"
                 />
                 <button
                   onClick={handleSendMessage}

@@ -119,7 +119,7 @@ export default function CoursesCatalogPage() {
             <div className="p-4 border-t border-sage-200 bg-sage-50">
               <button
                 onClick={handleLessonComplete}
-                className="w-full bg-[#1e4836] hover:bg-[#153427] text-white font-semibold py-3 px-4 rounded-card text-sm transition-colors shadow-sm"
+                className="w-full bg-[#1e4836] hover:bg-[#153427] text-white font-semibold py-3 px-4 rounded-card text-sm transition-colors shadow-card"
               >
                 Mark complete & Continue
               </button>
@@ -143,7 +143,7 @@ export default function CoursesCatalogPage() {
           <input
             type="text"
             placeholder="Search courses..."
-            className="pl-9 pr-4 py-2 bg-white border border-sage-200 rounded-full text-sm text-sage-900 focus:outline-none focus:border-[#1e4836] shadow-sm w-64"
+            className="pl-9 pr-4 py-2 bg-white border border-sage-200 rounded-full text-sm text-sage-900 focus:outline-none focus:border-[#1e4836] shadow-card w-64"
           />
         </div>
       </div>
@@ -166,10 +166,10 @@ export default function CoursesCatalogPage() {
             
             <div className="p-5 flex-1 flex flex-col">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-sage-500 bg-sage-50 px-2 py-0.5 rounded-sm">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-sage-500 bg-sage-50 px-2 py-0.5 rounded-[2px]">
                   {course.level}
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A5330] bg-[#f5efe6] px-2 py-0.5 rounded-sm">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A5330] bg-[#f5efe6] px-2 py-0.5 rounded-[2px]">
                   {course.stageTag}
                 </span>
               </div>

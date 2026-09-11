@@ -60,7 +60,7 @@ export default function TimelinePage() {
                 onClick={() => setZoom(z)}
                 className={`px-3 py-1.5 rounded-[6px] text-xs font-medium transition-all ${
                   zoom === z
-                    ? 'bg-white text-[#1E2923] font-bold shadow-sm'
+                    ? 'bg-white text-[#1E2923] font-bold shadow-card'
                     : 'bg-transparent text-[#768478] hover:text-[#1E2923]'
                 }`}
               >
@@ -97,7 +97,7 @@ export default function TimelinePage() {
                     <div 
                       key={ms.id} 
                       onClick={() => openDrawer(ms)}
-                      className="relative z-20 bg-white border border-[#EBEBE6] rounded-card p-3 shadow-sm hover:shadow-md hover:border-[#C5CFC7] transition-all cursor-pointer flex flex-col gap-2 w-[300px]"
+                      className="relative z-20 bg-white border border-[#EBEBE6] rounded-card p-3 shadow-card hover:shadow-raised hover:border-[#C5CFC7] transition-all cursor-pointer flex flex-col gap-2 w-[300px]"
                       style={{ marginLeft: `${(msIdx * 20) + 10}%` }} // Mock positioning
                     >
                       <div className="flex items-start justify-between gap-2">

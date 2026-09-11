@@ -27,7 +27,7 @@ export function InsightSynthesizer() {
     <>
       <button 
         onClick={handleSynthesize}
-        className="bg-[#FDF4E3] hover:bg-[#F5ECDC] text-[#8A5330] border border-[#EAD5C6] px-4 py-2.5 rounded-card font-bold text-sm transition-colors flex items-center gap-2 shadow-sm"
+        className="bg-[#FDF4E3] hover:bg-[#F5ECDC] text-[#8A5330] border border-[#EAD5C6] px-4 py-2.5 rounded-card font-bold text-sm transition-colors flex items-center gap-2 shadow-card"
       >
         <Sparkles className="w-4 h-4 fill-[#8A5330]" />
         <span>Synthesize insights</span>
@@ -35,7 +35,7 @@ export function InsightSynthesizer() {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex justify-end bg-[#1E2923]/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+          <div className="w-full max-w-md bg-white h-full shadow-accent flex flex-col animate-in slide-in-from-right duration-300">
             
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEBE6] bg-[#F7F7F5]">
               <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export function InsightSynthesizer() {
                   <div className="flex flex-col gap-4">
                     <h3 className="text-sm font-bold text-[#1E2923] uppercase tracking-wider">Recommended Actions</h3>
                     
-                    <div className="bg-white border border-[#EBEBE6] rounded-card p-4 flex flex-col gap-4 shadow-sm">
+                    <div className="bg-white border border-[#EBEBE6] rounded-card p-4 flex flex-col gap-4 shadow-card">
                       <div className="flex flex-col gap-1">
                         <span className="text-xs text-[#617065] font-medium">Assumption Tracker</span>
                         <p className="text-sm font-bold text-[#1E2923]">"Users will trust a non-bank app with their daily income"</p>

@@ -25,7 +25,7 @@ export default function ComplianceCalendarPage() {
           <p className="text-sm text-sage-600">Track and manage mandatory filings and deadlines.</p>
         </div>
         
-        <div className="flex bg-white rounded-card border border-sage-200 overflow-hidden shadow-sm">
+        <div className="flex bg-white rounded-card border border-sage-200 overflow-hidden shadow-card">
           <button 
             onClick={() => setViewMode("List")}
             className={`px-4 py-2 text-sm font-semibold transition-colors ${viewMode === "List" ? "bg-sage-100 text-sage-900" : "text-sage-500 hover:bg-sage-50"}`}
@@ -45,7 +45,7 @@ export default function ComplianceCalendarPage() {
       </div>
 
       {overdueCount > 0 && (
-        <div className="bg-[#fff0f0] border border-[#ffcccc] text-[#B0483B] px-5 py-3.5 rounded-card text-sm font-medium flex items-center gap-3 shadow-sm">
+        <div className="bg-[#fff0f0] border border-[#ffcccc] text-[#B0483B] px-5 py-3.5 rounded-card text-sm font-medium flex items-center gap-3 shadow-card">
           <AlertTriangle className="w-5 h-5 flex-shrink-0" />
           <span>{overdueCount} filing overdue. These carry penalties, handle it first.</span>
         </div>

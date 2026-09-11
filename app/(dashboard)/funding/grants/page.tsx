@@ -29,7 +29,7 @@ export default function GrantsPage() {
 
         <div className="space-y-4">
           {grantMatches.length === 0 ? (
-            <div className="bg-white rounded-modal border border-sage-200 p-8 text-center space-y-2 shadow-sm">
+            <div className="bg-white rounded-modal border border-sage-200 p-8 text-center space-y-2 shadow-card">
               <p className="text-sage-900 font-semibold">I scan for grants that fit your profile.</p>
               <p className="text-sage-500 text-sm">New matches land here.</p>
             </div>

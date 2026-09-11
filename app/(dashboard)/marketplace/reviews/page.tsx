@@ -61,7 +61,7 @@ export default function ReviewsPage() {
                     >
                       <Star className={`w-8 h-8 ${
                         star <= (hoverRating || rating)
-                          ? "fill-amber-400 text-amber-400"
+                          ? "fill-copper-400 text-copper-400"
                           : "text-sage-300"
                       }`} />
                     </button>
@@ -98,7 +98,7 @@ export default function ReviewsPage() {
         <div className="space-y-4">
           <h3 className="font-semibold text-sm text-sage-900">Submitted reviews</h3>
           {submittedReviews.map((review) => (
-            <div key={review.id} className="bg-white rounded-modal border border-sage-200 shadow-sm p-6 space-y-3">
+            <div key={review.id} className="bg-white rounded-modal border border-sage-200 shadow-card p-6 space-y-3">
               <div className="flex items-start justify-between">
                 <div>
                   <h4 className="font-semibold text-sage-900">{review.providerName}</h4>
@@ -109,7 +109,7 @@ export default function ReviewsPage() {
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star key={star} className={`w-3.5 h-3.5 ${
-                    star <= review.rating ? "fill-amber-400 text-amber-400" : "text-sage-200"
+                    star <= review.rating ? "fill-copper-400 text-copper-400" : "text-sage-200"
                   }`} />
                 ))}
               </div>

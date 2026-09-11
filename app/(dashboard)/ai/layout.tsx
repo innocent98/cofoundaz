@@ -37,7 +37,7 @@ export default function AICoFounderLayout({
             </button>
 
             {/* Responsive Breadcrumbs */}
-            <div className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm md:text-lg font-semibold">
+            <div className="flex items-center gap-2 md:gap-2.5 text-xs md:text-sm md:text-lg font-semibold">
               <span className="text-[#8E9B90]">Workspace</span>
               <span className="text-[#8E9B90]">/</span>
               <h1 className="text-[#1E2923] font-bold truncate">AI Co-Founder</h1>
@@ -49,10 +49,10 @@ export default function AICoFounderLayout({
             <div className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]">
               <span>Health</span>
               <span className="font-bold">72</span>
-              <span className="text-emerald-600 font-bold">↑</span>
+              <span className="text-green-600 font-bold">↑</span>
             </div>
 
-            <button className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+            <button className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors">
               <Bell className="w-4 h-4 text-[#66756F]" />
               <span className="absolute -top-1 -right-1 bg-[#12291F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                 5
@@ -77,7 +77,7 @@ export default function AICoFounderLayout({
                   href={tab.href}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-[#E9DDBE] text-[#12291F] shadow-sm'
+                      ? 'bg-[#E9DDBE] text-[#12291F] shadow-card'
                       : 'text-[#67716C] hover:bg-[#F5EEDC] hover:text-[#12291F]'
                   }`}
                 >

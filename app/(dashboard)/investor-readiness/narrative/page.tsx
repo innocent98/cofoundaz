@@ -40,7 +40,7 @@ export default function NarrativePage() {
             <h3 className="font-semibold text-sm text-sage-900">The Financial Story Draft</h3>
             <button
               onClick={handleSave}
-              className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold py-1.5 px-3 rounded-card text-xs transition-colors shadow-sm flex items-center gap-1.5"
+              className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold py-1.5 px-3 rounded-card text-xs transition-colors shadow-card flex items-center gap-1.5"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Save draft</span>

@@ -48,7 +48,7 @@ export default function MarketingAnalyticsPage() {
         <select 
           value={dateRange}
           onChange={e => setDateRange(e.target.value)}
-          className="bg-white border border-sage-300 rounded-card px-4 py-2.5 text-sm font-semibold text-sage-900 outline-none focus:border-sage-400 shadow-sm"
+          className="bg-white border border-sage-300 rounded-card px-4 py-2.5 text-sm font-semibold text-sage-900 outline-none focus:border-sage-400 shadow-card"
         >
           <option value="7d">Last 7 Days</option>
           <option value="30d">Last 30 Days</option>

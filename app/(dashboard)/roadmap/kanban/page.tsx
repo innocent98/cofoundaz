@@ -43,7 +43,7 @@ export default function KanbanPage() {
                   onClick={() => setGroupBy(g)}
                   className={`px-3 py-1.5 rounded-[6px] text-xs font-medium transition-all ${
                     groupBy === g
-                      ? 'bg-white text-[#1E2923] font-bold shadow-sm'
+                      ? 'bg-white text-[#1E2923] font-bold shadow-card'
                       : 'bg-transparent text-[#768478] hover:text-[#1E2923]'
                   }`}
                 >
@@ -80,7 +80,7 @@ export default function KanbanPage() {
                       <div 
                         key={task.id}
                         onClick={() => openDrawer(parentMilestone)}
-                        className="bg-white border border-[#EBEBE6] rounded-card p-4 shadow-sm hover:shadow-md hover:border-[#C5CFC7] transition-all cursor-pointer flex flex-col gap-3 group"
+                        className="bg-white border border-[#EBEBE6] rounded-card p-4 shadow-card hover:shadow-raised hover:border-[#C5CFC7] transition-all cursor-pointer flex flex-col gap-3 group"
                       >
                         <div className="flex items-start gap-2">
                           <GripVertical className="w-4 h-4 text-[#C5CFC7] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab shrink-0" />
@@ -115,7 +115,7 @@ export default function KanbanPage() {
                     <div 
                       key={ms.id}
                       onClick={() => openDrawer(ms)}
-                      className="bg-white border border-[#EBEBE6] rounded-card p-4 shadow-sm hover:shadow-md hover:border-[#C5CFC7] transition-all cursor-pointer flex flex-col gap-3 group"
+                      className="bg-white border border-[#EBEBE6] rounded-card p-4 shadow-card hover:shadow-raised hover:border-[#C5CFC7] transition-all cursor-pointer flex flex-col gap-3 group"
                     >
                       <div className="flex items-start gap-2">
                         <GripVertical className="w-4 h-4 text-[#C5CFC7] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab shrink-0" />

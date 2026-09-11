@@ -113,7 +113,7 @@ export default function MockQAPage() {
           </div>
           <button
             onClick={endSession}
-            className="bg-white hover:bg-sage-100 text-sage-800 border border-sage-300 font-semibold py-1.5 px-4 rounded-card text-xs transition-colors shadow-sm"
+            className="bg-white hover:bg-sage-100 text-sage-800 border border-sage-300 font-semibold py-1.5 px-4 rounded-card text-xs transition-colors shadow-card"
           >
             End session
           </button>
@@ -178,7 +178,7 @@ export default function MockQAPage() {
 
         <div className="bg-white rounded-modal border border-sage-200 shadow-card p-6 space-y-4">
           <h3 className="font-semibold text-sm text-sage-900 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-red-500" />
+            <AlertCircle className="w-4 h-4 text-red-600" />
             Weakest answer
           </h3>
           <div className="bg-red-50/50 p-4 rounded-card text-sm text-sage-800 italic border border-red-100">

@@ -15,9 +15,9 @@ export default function CashFlowPage() {
       </div>
 
       {runwayMonths < 6 && (
-        <div className="bg-[#fff0f0] border border-[#ffcccc] rounded-card p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+        <div className="bg-[#fff0f0] border border-[#ffcccc] rounded-card p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-card">
           <div className="flex items-center gap-3">
-            <div className="bg-white p-2 rounded-full shadow-sm text-[#B0483B]">
+            <div className="bg-white p-2 rounded-full shadow-card text-[#B0483B]">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
@@ -25,14 +25,14 @@ export default function CashFlowPage() {
               <p className="text-sm text-[#B0483B] opacity-90 mt-0.5">Let's look at levers — costs, pricing, or funding.</p>
             </div>
           </div>
-          <button className="bg-white border border-[#ffcccc] text-[#B0483B] hover:bg-[#fff5f5] px-4 py-2 rounded-card text-sm font-semibold shadow-sm transition-colors flex items-center gap-2">
+          <button className="bg-white border border-[#ffcccc] text-[#B0483B] hover:bg-[#fff5f5] px-4 py-2 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">
             <MessageSquare className="w-4 h-4" />
             Ask Finance Advisor
           </button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
           <p className="text-xs text-sage-500 font-medium uppercase">Cash on Hand</p>
           <p className="text-2xl font-bold text-sage-900 mt-1">{formatCurrency(cashOnHandMinor)}</p>

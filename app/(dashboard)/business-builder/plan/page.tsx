@@ -91,7 +91,7 @@ export default function BusinessPlanPage() {
                   AUDIENCE
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  <button className="bg-[#EAD5C6] text-[#522F1A] border border-[#D89A6E] px-4 py-2 rounded-full text-xs font-bold shadow-sm">
+                  <button className="bg-[#EAD5C6] text-[#522F1A] border border-[#D89A6E] px-4 py-2 rounded-full text-xs font-bold shadow-card">
                     Investors
                   </button>
                   <button className="bg-white text-[#617065] border border-[#EBEBE6] hover:border-[#C5CFC7] px-4 py-2 rounded-full text-xs font-medium">
@@ -108,7 +108,7 @@ export default function BusinessPlanPage() {
                   LENGTH
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  <button className="bg-[#EAD5C6] text-[#522F1A] border border-[#D89A6E] px-4 py-2 rounded-full text-xs font-bold shadow-sm">
+                  <button className="bg-[#EAD5C6] text-[#522F1A] border border-[#D89A6E] px-4 py-2 rounded-full text-xs font-bold shadow-card">
                     1-Pager (Exec Summary)
                   </button>
                   <button className="bg-white text-[#617065] border border-[#EBEBE6] hover:border-[#C5CFC7] px-4 py-2 rounded-full text-xs font-medium">
@@ -150,7 +150,7 @@ export default function BusinessPlanPage() {
 
       {genState === 'ready' && (
         <div className="bg-white rounded-modal p-8 border border-[#EBEBE6] shadow-card flex flex-col items-center justify-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="w-20 h-20 bg-[#E6EFEA] rounded-full flex items-center justify-center shadow-inner relative">
+          <div className="w-20 h-20 bg-[#E6EFEA] rounded-full flex items-center justify-center shadow-card relative">
             <BookOpen className="w-8 h-8 text-[#183B28]" />
             <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#D89A6E] rounded-full flex items-center justify-center border-2 border-white">
               <Check className="w-3 h-3 text-white stroke-[3]" />

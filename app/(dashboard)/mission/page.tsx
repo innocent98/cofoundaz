@@ -164,7 +164,7 @@ export default function MissionTodayPage() {
                         
                         {/* Action Menu Popover */}
                         {openMenuId === task.id && (
-                          <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#EBEBE6] shadow-lg rounded-modal z-10 py-1 overflow-hidden">
+                          <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#EBEBE6] shadow-accent rounded-modal z-10 py-1 overflow-hidden">
                             <button
                               onClick={() => { reprioritizeUp(task.id); setOpenMenuId(null); }}
                               disabled={index === 0}
@@ -220,7 +220,7 @@ export default function MissionTodayPage() {
           ))}
 
           {isAddingTask ? (
-            <form onSubmit={handleAddTask} className="bg-white rounded-modal p-4 border border-[#183B28] shadow-sm flex items-center gap-3">
+            <form onSubmit={handleAddTask} className="bg-white rounded-modal p-4 border border-[#183B28] shadow-card flex items-center gap-3">
               <input
                 type="text"
                 autoFocus

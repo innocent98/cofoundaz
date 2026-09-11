@@ -5,6 +5,32 @@ import { useRouter } from "next/navigation";
 import { useLegalApi, TemplateItem } from "@/hooks/useLegalApi";
 import { X, Wand2 } from "lucide-react";
 
+const TemplateGrid = ({ title, templates, setActiveTemplate }: { title: string, templates: TemplateItem[], setActiveTemplate: (t: TemplateItem) => void }) => (
+  <div className="space-y-3">
+    <h3 className="text-xs font-bold uppercase tracking-wider text-[#9C5B34]">{title}</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {templates.map((template) => (
+        <div key={template.id} className="bg-white rounded-modal border border-sage-200/90 p-5 shadow-card flex flex-col justify-between gap-4">
+          <div>
+            <h4 className="font-semibold text-base text-sage-900">{template.title}</h4>
+            <p className="text-sm text-sage-600 mt-0.5">{template.description}</p>
+          </div>
+          <div className="flex items-center justify-between pt-2">
+            <span className="bg-[#e2ede6] text-[#1e4836] text-xs font-medium px-2.5 py-1 rounded-full">{template.badge}</span>
+            <button
+              onClick={() => setActiveTemplate(template)}
+              className="text-xs font-semibold text-sage-900 hover:text-[#9C5B34] transition-colors flex items-center gap-1 cursor-pointer"
+            >
+              <span>Use template</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export default function TemplatesPage() {
   const { ndaTemplates, employmentTemplates, fundraisingTemplates, ipAssignmentTemplates } = useLegalApi();
   const router = useRouter();
@@ -16,32 +42,6 @@ export default function TemplatesPage() {
     router.push("/legal/review");
   };
 
-  const TemplateGrid = ({ title, templates }: { title: string, templates: TemplateItem[] }) => (
-    <div className="space-y-3">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-[#9C5B34]">{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {templates.map((template) => (
-          <div key={template.id} className="bg-white rounded-modal border border-sage-200/90 p-5 shadow-card flex flex-col justify-between gap-4">
-            <div>
-              <h4 className="font-semibold text-base text-sage-900">{template.title}</h4>
-              <p className="text-sm text-sage-600 mt-0.5">{template.description}</p>
-            </div>
-            <div className="flex items-center justify-between pt-2">
-              <span className="bg-[#e2ede6] text-[#1e4836] text-xs font-medium px-2.5 py-1 rounded-full">{template.badge}</span>
-              <button
-                onClick={() => setActiveTemplate(template)}
-                className="text-xs font-semibold text-sage-900 hover:text-[#9C5B34] transition-colors flex items-center gap-1 cursor-pointer"
-              >
-                <span>Use template</span>
-                <span>→</span>
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
     <div className="space-y-8 animate-fadeIn pb-10">
       <div>
@@ -49,10 +49,10 @@ export default function TemplatesPage() {
         <p className="text-sm text-sage-600">Standardized, jurisdiction-aware templates for everyday use.</p>
       </div>
 
-      <TemplateGrid title="NDAs" templates={ndaTemplates} />
-      <TemplateGrid title="Employment & Contractors" templates={employmentTemplates} />
-      <TemplateGrid title="Fundraising" templates={fundraisingTemplates} />
-      <TemplateGrid title="IP Assignment" templates={ipAssignmentTemplates} />
+      <TemplateGrid title="NDAs" templates={ndaTemplates} setActiveTemplate={setActiveTemplate} />
+      <TemplateGrid title="Employment & Contractors" templates={employmentTemplates} setActiveTemplate={setActiveTemplate} />
+      <TemplateGrid title="Fundraising" templates={fundraisingTemplates} setActiveTemplate={setActiveTemplate} />
+      <TemplateGrid title="IP Assignment" templates={ipAssignmentTemplates} setActiveTemplate={setActiveTemplate} />
 
       {/* PARAMETER DRAWER OVERLAY */}
       {activeTemplate && (
@@ -61,7 +61,7 @@ export default function TemplatesPage() {
             className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[60] animate-fadeIn"
             onClick={() => setActiveTemplate(null)}
           ></div>
-          <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl z-[70] border-l border-sage-200 flex flex-col animate-[slideInRight_0.3s_ease-out]">
+          <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-accent z-[70] border-l border-sage-200 flex flex-col animate-[slideInRight_0.3s_ease-out]">
             <div className="flex items-center justify-between p-6 border-b border-sage-100">
               <h2 className="text-xl font-display font-bold text-sage-900">{activeTemplate.title}</h2>
               <button 

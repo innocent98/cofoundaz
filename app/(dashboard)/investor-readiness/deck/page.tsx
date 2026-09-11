@@ -50,7 +50,7 @@ export default function PitchDeckReviewPage() {
         <button
           onClick={handleUpload}
           disabled={isUploading}
-          className="bg-white hover:bg-sage-50 text-sage-800 border border-sage-200 font-semibold py-2 px-4 rounded-card text-sm transition-colors shadow-sm"
+          className="bg-white hover:bg-sage-50 text-sage-800 border border-sage-200 font-semibold py-2 px-4 rounded-card text-sm transition-colors shadow-card"
         >
           {isUploading ? "Reviewing..." : "Re-review new version"}
         </button>

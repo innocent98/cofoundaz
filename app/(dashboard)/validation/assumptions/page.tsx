@@ -141,7 +141,7 @@ export default function AssumptionsPage() {
               />
               <button 
                 onClick={handleQuickAdd}
-                className="bg-[#183B28] text-white p-2 rounded-card shadow-sm hover:bg-[#11291C]"
+                className="bg-[#183B28] text-white p-2 rounded-card shadow-card hover:bg-[#11291C]"
               >
                 +
               </button>

@@ -62,7 +62,7 @@ export default function MissionLayout({
             </div>
 
             {/* + Invite Button (maintain text label, avoid collapsing into a square button) */}
-            <button className="px-3.5 py-1.5 rounded-lg bg-[#a27e46] text-white text-xs font-medium hover:bg-[#8f6e3c] transition-colors flex items-center gap-1">
+            <button className="px-3.5 py-1.5 rounded-card bg-[#a27e46] text-white text-xs font-medium hover:bg-[#8f6e3c] transition-colors flex items-center gap-1">
               <span>+ Invite</span>
             </button>
           </div>

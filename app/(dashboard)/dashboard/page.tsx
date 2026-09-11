@@ -305,7 +305,7 @@ export default function DashboardPage() {
 
       {/* MISSION TOAST */}
       {missionToastVisible && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#0F1E16] text-white px-5 py-3 rounded-xl shadow-xl shadow-black/25 inline-flex items-center gap-2.5 border border-[#1E3A29] animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#0F1E16] text-white px-5 py-3 rounded-modal shadow-accent shadow-black/25 inline-flex items-center gap-2.5 border border-[#1E3A29] animate-in fade-in slide-in-from-top-2 duration-300">
           <Check className="w-4 h-4 text-[#D4A359] stroke-[3] shrink-0" />
           <p className="text-sm font-medium text-white">Nice. Mission progress saved.</p>
         </div>

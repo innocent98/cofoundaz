@@ -146,17 +146,17 @@ export default function AssessmentComparePage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {history.length >= 2 && (
           <>
-            <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-sm space-y-2">
+            <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card space-y-2">
               <h4 className="text-sm font-semibold text-sage-600">Biggest Improvement</h4>
               <p className="text-2xl font-bold text-[#1e4836]">+30% Legal</p>
               <p className="text-xs text-sage-500">Driven by successful incorporation.</p>
             </div>
-            <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-sm space-y-2">
+            <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card space-y-2">
               <h4 className="text-sm font-semibold text-sage-600">Core Strength</h4>
               <p className="text-2xl font-bold text-sage-900">Product</p>
               <p className="text-xs text-sage-500">Consistently scoring above 80%.</p>
             </div>
-            <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-sm space-y-2">
+            <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card space-y-2">
               <h4 className="text-sm font-semibold text-[#9C5B34]">Focus Area</h4>
               <p className="text-2xl font-bold text-sage-900">Money</p>
               <p className="text-xs text-sage-500">Currently lowest at 60%.</p>

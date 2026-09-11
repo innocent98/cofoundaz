@@ -85,7 +85,7 @@ export default function AssessmentRunnerPage() {
         </div>
         <button 
           onClick={() => router.push('/dashboard')}
-          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-8 py-3 rounded-card transition-colors w-full shadow-sm mt-4"
+          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-8 py-3 rounded-card transition-colors w-full shadow-card mt-4"
         >
           See my dashboard
         </button>
@@ -117,7 +117,7 @@ export default function AssessmentRunnerPage() {
           <span className="uppercase tracking-wider">Section {currentQ.sectionNumber}: {currentQ.sectionName}</span>
           <button
             onClick={handleSaveAndExit}
-            className="text-sage-700 hover:text-sage-900 cursor-pointer border border-sage-200 px-3 py-1.5 rounded bg-white shadow-sm"
+            className="text-sage-700 hover:text-sage-900 cursor-pointer border border-sage-200 px-3 py-1.5 rounded bg-white shadow-card"
           >
             Save & exit
           </button>
@@ -150,7 +150,7 @@ export default function AssessmentRunnerPage() {
                 <div
                   key={opt.value}
                   onClick={() => handleOptionSelect(opt.value)}
-                  className={`bg-white rounded-modal p-5 border transition-all cursor-pointer shadow-sm font-medium text-sm md:text-base ${
+                  className={`bg-white rounded-modal p-5 border transition-all cursor-pointer shadow-card font-medium text-sm md:text-base ${
                     isSelected
                       ? "border-[#1e4836] bg-[#f0f5f2] text-[#0e271f]"
                       : "border-sage-200 hover:border-sage-300 text-sage-800"
@@ -173,7 +173,7 @@ export default function AssessmentRunnerPage() {
                   <div
                     key={num}
                     onClick={() => handleOptionSelect(num)}
-                    className={`bg-white rounded-modal p-6 text-center border transition-all cursor-pointer shadow-sm font-display font-bold text-xl md:text-2xl ${
+                    className={`bg-white rounded-modal p-6 text-center border transition-all cursor-pointer shadow-card font-display font-bold text-xl md:text-2xl ${
                       isSelected
                         ? "border-[#1e4836] bg-[#f0f5f2] text-[#0e271f]"
                         : "border-sage-200 hover:border-sage-300 text-sage-800"
@@ -202,7 +202,7 @@ export default function AssessmentRunnerPage() {
                   <div
                     key={opt.value}
                     onClick={() => handleMultiSelect(opt.value)}
-                    className={`bg-white rounded-modal p-5 border transition-all cursor-pointer shadow-sm font-medium text-sm md:text-base flex items-center gap-3 ${
+                    className={`bg-white rounded-modal p-5 border transition-all cursor-pointer shadow-card font-medium text-sm md:text-base flex items-center gap-3 ${
                       isSelected
                         ? "border-[#1e4836] bg-[#f0f5f2] text-[#0e271f]"
                         : "border-sage-200 hover:border-sage-300 text-sage-800"
@@ -238,7 +238,7 @@ export default function AssessmentRunnerPage() {
                 type="number" 
                 value={activeSession.answers[currentQ.id] || ''}
                 onChange={(e) => handleTextInput(e.target.value)}
-                className={`w-full bg-white border border-sage-300 rounded-modal p-4 shadow-sm text-lg outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400 ${currentQ.currencyPrefix ? 'pl-10' : ''}`}
+                className={`w-full bg-white border border-sage-300 rounded-modal p-4 shadow-card text-lg outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400 ${currentQ.currencyPrefix ? 'pl-10' : ''}`}
                 placeholder="0"
               />
             </div>
@@ -258,7 +258,7 @@ export default function AssessmentRunnerPage() {
             <textarea 
               value={activeSession.answers[currentQ.id] || ''}
               onChange={(e) => handleTextInput(e.target.value)}
-              className="w-full h-32 bg-white border border-sage-300 rounded-modal p-4 shadow-sm text-base outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400 resize-none"
+              className="w-full h-32 bg-white border border-sage-300 rounded-modal p-4 shadow-card text-base outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400 resize-none"
               placeholder="Type your answer here..."
             />
             <button 

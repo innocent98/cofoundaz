@@ -39,7 +39,7 @@ export default function LearningPathsPage() {
         {paths.map((path) => (
           <div key={path.id} className="bg-white rounded-modal border border-sage-200 shadow-card p-6 md:p-8 flex flex-col h-full space-y-6 hover:border-[#1e4836] transition-colors group">
             <div className="flex items-start justify-between gap-4">
-              <div className="w-12 h-12 rounded-xl bg-sage-50 border border-sage-200 text-[#1e4836] flex items-center justify-center shrink-0 shadow-sm group-hover:bg-[#1e4836] group-hover:text-white transition-colors">
+              <div className="w-12 h-12 rounded-modal bg-sage-50 border border-sage-200 text-[#1e4836] flex items-center justify-center shrink-0 shadow-card group-hover:bg-[#1e4836] group-hover:text-white transition-colors">
                 <Map className="w-6 h-6" />
               </div>
               <span className="bg-[#f5efe6] text-[#8A5330] px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
@@ -73,7 +73,7 @@ export default function LearningPathsPage() {
               
               <button
                 onClick={() => router.push("/academy/courses")}
-                className="w-full bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-2.5 px-4 rounded-card text-sm transition-colors shadow-sm flex items-center justify-center gap-2"
+                className="w-full bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-2.5 px-4 rounded-card text-sm transition-colors shadow-card flex items-center justify-center gap-2"
               >
                 <span>{path.progress > 0 ? "Continue Path" : "Start Path"}</span>
                 <ArrowRight className="w-4 h-4" />

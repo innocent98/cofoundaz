@@ -26,7 +26,7 @@ export default function IPTrackerPage() {
         </div>
         <button
           onClick={() => setIsDrawerOpen(true)}
-          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
+          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-4 py-2.5 rounded-card text-sm transition-colors cursor-pointer flex items-center gap-1 shadow-card"
         >
           <Plus className="w-4 h-4" />
           <span>Add asset</span>
@@ -90,7 +90,7 @@ export default function IPTrackerPage() {
             className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[60] animate-fadeIn"
             onClick={() => setIsDrawerOpen(false)}
           ></div>
-          <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl z-[70] border-l border-sage-200 flex flex-col animate-[slideInRight_0.3s_ease-out]">
+          <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-accent z-[70] border-l border-sage-200 flex flex-col animate-[slideInRight_0.3s_ease-out]">
             <div className="flex items-center justify-between p-6 border-b border-sage-100">
               <h2 className="text-xl font-display font-bold text-sage-900">Add IP Asset</h2>
               <button 
@@ -165,7 +165,7 @@ export default function IPTrackerPage() {
               <div className="p-6 border-t border-sage-100 bg-sage-50/50">
                 <button
                   type="submit"
-                  className="w-full bg-[#1e3b30] hover:bg-[#152a22] text-white font-semibold py-3 px-4 rounded-card transition-colors flex items-center justify-center shadow-sm"
+                  className="w-full bg-[#1e3b30] hover:bg-[#152a22] text-white font-semibold py-3 px-4 rounded-card transition-colors flex items-center justify-center shadow-card"
                 >
                   Save IP Asset
                 </button>

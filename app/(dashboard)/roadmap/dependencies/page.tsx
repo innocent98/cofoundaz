@@ -64,7 +64,7 @@ export default function DependenciesPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-[#617065]">This task...</label>
               <select 
-                className="bg-[#F7F7F5] border border-[#EBEBE6] rounded-md px-3 py-2 text-sm font-semibold outline-none focus:border-[#2D5A3F] transition-colors"
+                className="bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-3 py-2 text-sm font-semibold outline-none focus:border-[#2D5A3F] transition-colors"
                 value={fromTask}
                 onChange={(e) => setFromTask(e.target.value)}
               >
@@ -84,7 +84,7 @@ export default function DependenciesPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-[#617065]">...must finish before</label>
               <select 
-                className="bg-[#F7F7F5] border border-[#EBEBE6] rounded-md px-3 py-2 text-sm font-semibold outline-none focus:border-[#2D5A3F] transition-colors"
+                className="bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-3 py-2 text-sm font-semibold outline-none focus:border-[#2D5A3F] transition-colors"
                 value={toTask}
                 onChange={(e) => setToTask(e.target.value)}
               >
@@ -97,20 +97,20 @@ export default function DependenciesPage() {
 
             <button 
               type="submit"
-              className="mt-2 w-full bg-[#183B28] hover:bg-[#11291C] text-white font-bold py-2.5 rounded-card transition-colors shadow-sm text-sm"
+              className="mt-2 w-full bg-[#183B28] hover:bg-[#11291C] text-white font-bold py-2.5 rounded-card transition-colors shadow-card text-sm"
             >
               Add Dependency
             </button>
 
             {errorMsg && (
-              <div className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-md p-3 flex items-start gap-2 mt-2">
+              <div className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-input p-3 flex items-start gap-2 mt-2">
                 <AlertCircle className="w-4 h-4 text-[#B0483B] shrink-0 mt-0.5" />
                 <span className="text-xs font-semibold text-[#B0483B] leading-snug">{errorMsg}</span>
               </div>
             )}
 
             {successMsg && (
-              <div className="bg-[#EAF2ED] border border-[#CDE1D3] rounded-md p-3 flex items-start gap-2 mt-2">
+              <div className="bg-[#EAF2ED] border border-[#CDE1D3] rounded-input p-3 flex items-start gap-2 mt-2">
                 <CheckCircle2 className="w-4 h-4 text-[#2D5A3F] shrink-0 mt-0.5" />
                 <span className="text-xs font-semibold text-[#2D5A3F] leading-snug">{successMsg}</span>
               </div>

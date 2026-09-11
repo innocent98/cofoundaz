@@ -67,7 +67,7 @@ export function DashboardNavbar({
         <div className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]">
           <span>Health</span>
           <span className="font-bold">72</span>
-          <span className="text-emerald-600 font-bold">↑</span>
+          <span className="text-green-600 font-bold">↑</span>
         </div>
 
         {/* Notification Bell */}
@@ -75,7 +75,7 @@ export function DashboardNavbar({
           type="button"
           aria-label="Toggle notifications"
           onClick={() => setIsNotificationsOpen((prev) => !prev)}
-          className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+          className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors"
         >
           <Bell className="w-4 h-4 text-[#66756F]" />
           {unreadCount > 0 && (
@@ -89,7 +89,7 @@ export function DashboardNavbar({
         <button
           type="button"
           onClick={() => setIsInviteOpen(true)}
-          className="bg-[#A8894B] text-[#12291F] font-semibold text-xs px-4 h-[36px] rounded-[8px] hover:bg-[#967941] transition-colors"
+          className="bg-copper-600 text-white font-semibold text-xs px-4 h-[36px] rounded-input hover:bg-copper-700 transition-colors"
         >
           + Invite
         </button>

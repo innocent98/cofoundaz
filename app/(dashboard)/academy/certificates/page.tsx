@@ -45,21 +45,21 @@ export default function CertificatesPage() {
                 </div>
                 <div className="flex justify-between text-xs text-sage-500">
                   <span className="uppercase font-bold tracking-wider">Credential ID</span>
-                  <span className="font-mono text-sage-900 bg-sage-50 px-1.5 py-0.5 rounded">{cert.credentialCode}</span>
+                  <span className="font-body text-sage-900 bg-sage-50 px-1.5 py-0.5 rounded">{cert.credentialCode}</span>
                 </div>
               </div>
 
               <div className="pt-4 border-t border-sage-100 flex gap-3">
                 <button
                   onClick={() => handleDownload(cert.id)}
-                  className="flex-1 bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-2 px-4 rounded-card text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
+                  className="flex-1 bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-2 px-4 rounded-card text-xs transition-colors shadow-card flex items-center justify-center gap-2"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download</span>
                 </button>
                 <button
                   onClick={() => handleShare(cert.id)}
-                  className="flex-1 bg-[#0A66C2] hover:bg-[#004182] text-white font-semibold py-2 px-4 rounded-card text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
+                  className="flex-1 bg-[#0A66C2] hover:bg-[#004182] text-white font-semibold py-2 px-4 rounded-card text-xs transition-colors shadow-card flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                   <span>Share</span>

@@ -17,14 +17,14 @@ export default function AssessmentStartPage() {
     <div className="space-y-6 animate-fadeIn max-w-2xl mx-auto pt-8">
       
       {activeSession && activeSession.status === 'in_progress' && (
-        <div className="bg-[#EAD5C6] rounded-card p-4 border border-[#D89A6E]/30 shadow-sm flex items-center justify-between">
+        <div className="bg-[#EAD5C6] rounded-card p-4 border border-[#D89A6E]/30 shadow-card flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="text-[#1E2923] font-semibold text-sm">You have an assessment in progress</h3>
             <p className="text-[#617065] text-xs">Resume where you left off to calibrate your Health Score.</p>
           </div>
           <button 
             onClick={() => router.push('/assessment/in-progress')}
-            className="shrink-0 bg-white text-[#12291F] font-bold text-xs px-4 py-2 rounded-[8px] hover:bg-gray-50 transition-colors shadow-sm"
+            className="shrink-0 bg-white text-[#12291F] font-bold text-xs px-4 py-2 rounded-[8px] hover:bg-sage-50 transition-colors shadow-card"
           >
             Resume
           </button>

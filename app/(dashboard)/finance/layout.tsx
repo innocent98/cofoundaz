@@ -43,9 +43,9 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <div className="bg-green-100 text-green-900 px-2 py-1 rounded-full text-[10px] sm:text-xs font-medium flex items-center gap-1 border border-green-200">
+              <div className="bg-green-100 text-green-900 px-2 py-1 rounded-full text-[10px] md:text-xs font-medium flex items-center gap-1 border border-green-200">
                 <span>Health</span>
-                <span className="font-bold text-[10px] sm:text-xs text-green-900">72</span>
+                <span className="font-bold text-[10px] md:text-xs text-green-900">72</span>
                 <span className="text-[10px]">↑</span>
               </div>
 

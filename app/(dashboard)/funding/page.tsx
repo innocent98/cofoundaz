@@ -131,7 +131,7 @@ export default function PipelinePage() {
             className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[60] animate-fadeIn"
             onClick={() => setSelectedInvestor(null)}
           ></div>
-          <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl z-[70] border-l border-sage-200 flex flex-col animate-[slideInRight_0.3s_ease-out]">
+          <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-accent z-[70] border-l border-sage-200 flex flex-col animate-[slideInRight_0.3s_ease-out]">
             <div className="flex items-center justify-between p-6 border-b border-sage-100">
               <h2 className="text-xl font-display font-bold text-sage-900">{selectedInvestor.name}</h2>
               <button 
@@ -170,7 +170,7 @@ export default function PipelinePage() {
               <div className="pt-4">
                 <button
                   onClick={() => triggerToast(`Generating meeting brief for ${selectedInvestor.name}...`)}
-                  className="w-full bg-[#1e3b30] hover:bg-[#152a22] text-white font-semibold py-3 px-4 rounded-card transition-colors shadow-sm flex items-center justify-center gap-2"
+                  className="w-full bg-[#1e3b30] hover:bg-[#152a22] text-white font-semibold py-3 px-4 rounded-card transition-colors shadow-card flex items-center justify-center gap-2"
                 >
                   <span className="text-lg leading-none">✨</span>
                   <span>Prep me for this meeting</span>
@@ -184,7 +184,7 @@ export default function PipelinePage() {
       {/* Passed Reason Modal */}
       {passedModalInvestor && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 animate-fadeIn">
-          <div className="bg-white rounded-modal p-6 w-full max-w-sm shadow-xl space-y-6">
+          <div className="bg-white rounded-modal p-6 w-full max-w-sm shadow-accent space-y-6">
             <h2 className="text-lg font-display font-bold text-sage-900">Why did they pass?</h2>
             <div className="space-y-2">
               {['Valuation', 'Stage mismatch', 'Sector conflict', 'Ghosted', 'Other'].map(reason => (
