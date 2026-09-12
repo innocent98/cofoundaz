@@ -62,7 +62,7 @@ for (const file of files) {
 }
 
 // ESLint on the staged files (array args → safe with (parens) and & in paths).
-const eslint = spawnSync('npx', ['--no-install', 'eslint', ...files], { stdio: 'inherit' });
+const eslint = spawnSync('npx', ['--no-install', 'eslint', ...files], { stdio: 'inherit', shell: true });
 
 if (violations > 0 || eslint.status !== 0) {
   console.error(
