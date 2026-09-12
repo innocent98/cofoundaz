@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
@@ -151,7 +151,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={confirmPlanChange}
-                className="flex-1 bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2.5 px-4 rounded-modal text-xs transition-colors shadow-xs cursor-pointer text-center"
+                className="flex-1 bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2.5 px-4 rounded-modal text-xs transition-colors shadow-card cursor-pointer text-center"
               >
                 Confirm
               </button>
@@ -197,7 +197,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                   setShowCancelModal(false);
                   showToast('Plan paused for 2 months.');
                 }}
-                className="flex-1 bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2.5 px-4 rounded-modal text-xs transition-colors shadow-xs cursor-pointer text-center"
+                className="flex-1 bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2.5 px-4 rounded-modal text-xs transition-colors shadow-card cursor-pointer text-center"
               >
                 Pause instead
               </button>
@@ -222,7 +222,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
         <div className="flex items-center space-x-3">
           <button 
             onClick={openSidebar}
-            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-xs"
+            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-card"
             aria-label="Toggle Sidebar"
           >
             <Menu size={18} />
@@ -244,7 +244,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
             <span>{currentPlan} plan</span>
           </button>
 
-          <div className="relative w-9 h-9 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center text-[#55635C] shadow-xs">
+          <div className="relative w-9 h-9 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center text-[#55635C] shadow-card">
             <History className="w-4 h-4" />
             <span className="absolute -top-1 -right-1 bg-[#B39353] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
               5
@@ -267,7 +267,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                 }}
                 className={
                   isActive
-                    ? "px-4 py-1.5 rounded-full text-xs font-semibold bg-[#EAD5C6] text-[#1E2923] shadow-2xs transition-colors shrink-0 cursor-pointer border border-[#DFC4B2]"
+                    ? "px-4 py-1.5 rounded-full text-xs font-semibold bg-[#EAD5C6] text-[#1E2923] shadow-card transition-colors shrink-0 cursor-pointer border border-[#DFC4B2]"
                     : "px-4 py-1.5 rounded-full text-xs font-medium text-[#617065] hover:bg-[#EFEFEE] transition-colors shrink-0 cursor-pointer border border-transparent"
                 }
               >
@@ -286,7 +286,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
           <div className="space-y-6 animate-in fade-in duration-200">
             
             {/* Payment Failed Alert Banner */}
-            <div className="bg-[#FDF0ED] border border-[#F3D5CE] rounded-[24px] p-4 md:px-6 md:py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
+            <div className="bg-[#FDF0ED] border border-[#F3D5CE] rounded-[24px] p-4 md:px-6 md:py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-card">
               <div className="flex items-start space-x-3.5">
                 <div className="w-7 h-7 rounded-full bg-[#E5573B] text-white flex items-center justify-center font-bold shrink-0 text-xs mt-0.5">
                   !
@@ -300,7 +300,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => setActiveTab('Payment')}
-                className="bg-[#A63326] hover:bg-[#8D2A20] text-white font-semibold px-4 py-2 rounded-modal text-xs transition-colors shrink-0 cursor-pointer shadow-xs"
+                className="bg-[#A63326] hover:bg-[#8D2A20] text-white font-semibold px-4 py-2 rounded-modal text-xs transition-colors shrink-0 cursor-pointer shadow-card"
               >
                 Update card
               </button>
@@ -310,7 +310,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
               
               {/* Current Plan Dark Card (spanning 2 columns) */}
-              <div className="md:col-span-2 bg-[#12291F] text-white border border-[#12291F] rounded-[24px] p-8 flex flex-col justify-between shadow-xs relative overflow-hidden">
+              <div className="md:col-span-2 bg-[#12291F] text-white border border-[#12291F] rounded-[24px] p-8 flex flex-col justify-between shadow-card relative overflow-hidden">
                 <div className="space-y-6">
                   <div className="flex items-start justify-between">
                     <span className="text-[10px] font-bold text-[#A3B3A6] uppercase tracking-wider">Current Plan</span>
@@ -335,7 +335,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                     <button
                       type="button"
                       onClick={() => setActiveTab('Plans')}
-                      className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold px-5 py-2.5 rounded-modal text-xs transition-colors cursor-pointer shadow-xs"
+                      className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold px-5 py-2.5 rounded-modal text-xs transition-colors cursor-pointer shadow-card"
                     >
                       Change plan
                     </button>
@@ -351,7 +351,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               </div>
 
               {/* Next Invoice Card (1 column) */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-8 flex flex-col justify-between shadow-xs space-y-6">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-8 flex flex-col justify-between shadow-card space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Next invoice</span>
@@ -378,7 +378,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
               {/* AI Credits Metric */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-4 shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-4 shadow-card">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">AI Credits</span>
                   <span className="text-xs font-bold text-[#B39353]">78%</span>
@@ -395,7 +395,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               </div>
 
               {/* Seats Metric */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-4 shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-4 shadow-card">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Seats</span>
                   <span className="text-xs font-bold text-[#183B28]">60%</span>
@@ -412,7 +412,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               </div>
 
               {/* Storage Metric */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-4 shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-4 shadow-card">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Storage</span>
                   <span className="text-xs font-bold text-[#183B28]">11%</span>
@@ -431,20 +431,20 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
             </div>
 
             {/* Banner Callout at bottom of Overview */}
-            <div className="bg-[#FAF6EE] border border-[#F2E5D0] rounded-[24px] p-4 md:px-6 md:py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
+            <div className="bg-[#FAF6EE] border border-[#F2E5D0] rounded-[24px] p-4 md:px-6 md:py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-card">
               <div className="flex items-start space-x-3.5">
                 <div className="w-7 h-7 rounded-full bg-[#B39353] text-white flex items-center justify-center shrink-0 text-xs mt-0.5">
                   <Sparkles size={14} />
                 </div>
                 <p className="text-xs text-[#6B5A35] leading-relaxed">
-                  You have used 78% of this month's AI credits with 9 days to go. Big jobs like a business plan cost more, plan accordingly.
+                  You have used 78% of this month&apos;s AI credits with 9 days to go. Big jobs like a business plan cost more, plan accordingly.
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('Add-ons')}
-                className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold px-4 py-2 rounded-modal text-xs transition-colors shrink-0 cursor-pointer shadow-xs"
+                className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold px-4 py-2 rounded-modal text-xs transition-colors shrink-0 cursor-pointer shadow-card"
               >
                 Add credits
               </button>
@@ -470,7 +470,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                     }}
                     className={
                       billingInterval === interval
-                        ? "px-5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#1E2923] shadow-xs cursor-pointer"
+                        ? "px-5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#1E2923] shadow-card cursor-pointer"
                         : "px-5 py-1.5 rounded-full text-xs font-medium text-[#617065] hover:text-[#1E2923] cursor-pointer"
                     }
                   >
@@ -489,7 +489,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               <div className={`rounded-[24px] p-8 flex flex-col justify-between transition-all duration-200 relative ${
                 currentPlan === 'Starter'
                   ? 'bg-[#12291F] text-white border-2 border-[#12291F] shadow-accent'
-                  : 'bg-white text-[#1E2923] border border-[#E8E8E2] shadow-xs'
+                  : 'bg-white text-[#1E2923] border border-[#E8E8E2] shadow-card'
               }`}>
                 {currentPlan === 'Starter' && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#1C4230] border border-[#2E5E43] text-white text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-card">
@@ -516,7 +516,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                     className={`w-full py-2.5 rounded-modal text-xs font-semibold transition-colors text-center ${
                       currentPlan === 'Starter'
                         ? 'bg-[#1C4230] text-white border border-[#2E5E43] cursor-default'
-                        : 'bg-white hover:bg-sage-50 text-[#1E2923] border border-[#E0E0DA] cursor-pointer shadow-xs'
+                        : 'bg-white hover:bg-sage-50 text-[#1E2923] border border-[#E0E0DA] cursor-pointer shadow-card'
                     }`}
                   >
                     {currentPlan === 'Starter' ? 'Current plan' : 'Downgrade'}
@@ -555,7 +555,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               <div className={`rounded-[24px] p-8 flex flex-col justify-between transition-all duration-200 relative ${
                 currentPlan === 'Growth'
                   ? 'bg-[#12291F] text-white border-2 border-[#12291F] shadow-accent'
-                  : 'bg-white text-[#1E2923] border border-[#E8E8E2] shadow-xs'
+                  : 'bg-white text-[#1E2923] border border-[#E8E8E2] shadow-card'
               }`}>
                 {currentPlan === 'Growth' && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#1C4230] border border-[#2E5E43] text-white text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-card">
@@ -586,8 +586,8 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                       currentPlan === 'Growth'
                         ? 'bg-[#1C4230] text-white border border-[#2E5E43] cursor-default'
                         : currentPlan === 'Scale'
-                          ? 'bg-white hover:bg-sage-50 text-[#1E2923] border border-[#E0E0DA] cursor-pointer shadow-xs'
-                          : 'bg-[#B39353] hover:bg-[#A38346] text-white cursor-pointer shadow-xs'
+                          ? 'bg-white hover:bg-sage-50 text-[#1E2923] border border-[#E0E0DA] cursor-pointer shadow-card'
+                          : 'bg-[#B39353] hover:bg-[#A38346] text-white cursor-pointer shadow-card'
                     }`}
                   >
                     {currentPlan === 'Growth' ? 'Current plan' : currentPlan === 'Scale' ? 'Downgrade' : 'Upgrade'}
@@ -622,7 +622,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               <div className={`rounded-[24px] p-8 flex flex-col justify-between transition-all duration-200 relative ${
                 currentPlan === 'Scale'
                   ? 'bg-[#12291F] text-white border-2 border-[#12291F] shadow-accent'
-                  : 'bg-white text-[#1E2923] border border-[#E8E8E2] shadow-xs'
+                  : 'bg-white text-[#1E2923] border border-[#E8E8E2] shadow-card'
               }`}>
                 {currentPlan === 'Scale' && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#1C4230] border border-[#2E5E43] text-white text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-card">
@@ -652,7 +652,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                     className={`w-full py-2.5 rounded-modal text-xs font-semibold transition-colors text-center ${
                       currentPlan === 'Scale'
                         ? 'bg-[#1C4230] text-white border border-[#2E5E43] cursor-default'
-                        : 'bg-[#B39353] hover:bg-[#A38346] text-white cursor-pointer shadow-xs'
+                        : 'bg-[#B39353] hover:bg-[#A38346] text-white cursor-pointer shadow-card'
                     }`}
                   >
                     {currentPlan === 'Scale' ? 'Current plan' : 'Upgrade'}
@@ -701,7 +701,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
             </div>
 
             {/* Daily Consumption Card */}
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-8 space-y-6 shadow-xs">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-8 space-y-6 shadow-card">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#1E2923]">Daily consumption</span>
                 <span className="text-xs font-medium text-[#8E9B90]">3,900 of 5,000 credits used</span>
@@ -734,7 +734,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
             </div>
 
             {/* What Used Credits Table */}
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-xs">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -769,13 +769,13 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => showToast('All invoices downloaded.')}
-                className="bg-white hover:bg-sage-50 text-[#1E2923] border border-[#E0E0DA] px-4 py-2 rounded-modal text-xs font-semibold transition-colors shadow-xs cursor-pointer flex items-center space-x-2"
+                className="bg-white hover:bg-sage-50 text-[#1E2923] border border-[#E0E0DA] px-4 py-2 rounded-modal text-xs font-semibold transition-colors shadow-card cursor-pointer flex items-center space-x-2"
               >
                 <span>Download all</span>
               </button>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-xs">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -831,7 +831,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
             </div>
 
             <div className="space-y-4">
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 flex items-center justify-between shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 flex items-center justify-between shadow-card">
                 <div className="flex items-center space-x-4">
                   <div className="bg-[#183B28] text-white font-bold text-[11px] px-2.5 py-1.5 rounded-card tracking-wider">
                     VISA
@@ -865,7 +865,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               </button>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-8 shadow-xs space-y-6">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-8 shadow-card space-y-6">
               <h3 className="text-sm font-bold text-[#1E2923]">Billing details</h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -901,7 +901,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                 <button
                   type="button"
                   onClick={() => showToast('Billing details saved.')}
-                  className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2.5 px-5 rounded-modal text-xs transition-colors shadow-xs cursor-pointer"
+                  className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2.5 px-5 rounded-modal text-xs transition-colors shadow-card cursor-pointer"
                 >
                   Save details
                 </button>
@@ -919,7 +919,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 flex flex-col justify-between shadow-xs space-y-6">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 flex flex-col justify-between shadow-card space-y-6">
                 <div className="flex items-start space-x-4">
                   <div className="w-9 h-9 rounded-modal bg-[#EAF2ED] text-[#183B28] flex items-center justify-center shrink-0">
                     <Sparkles size={18} />
@@ -935,14 +935,14 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                   <button
                     type="button"
                     onClick={() => showToast('2,000 AI credits added.')}
-                    className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2 px-5 rounded-modal text-xs transition-colors cursor-pointer shadow-xs"
+                    className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2 px-5 rounded-modal text-xs transition-colors cursor-pointer shadow-card"
                   >
                     Add
                   </button>
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 flex flex-col justify-between shadow-xs space-y-6">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 flex flex-col justify-between shadow-card space-y-6">
                 <div className="flex items-start space-x-4">
                   <div className="w-9 h-9 rounded-modal bg-[#EAF2ED] text-[#183B28] flex items-center justify-center shrink-0">
                     <Users size={18} />
@@ -958,7 +958,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
                   <button
                     type="button"
                     onClick={() => showToast('Extra seat added.')}
-                    className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2 px-5 rounded-modal text-xs transition-colors cursor-pointer shadow-xs"
+                    className="bg-[#B39353] hover:bg-[#A38346] text-white font-semibold py-2 px-5 rounded-modal text-xs transition-colors cursor-pointer shadow-card"
                   >
                     Add
                   </button>
@@ -967,7 +967,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
             </div>
 
             {/* Cancel Subscription Card */}
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 flex items-center justify-between shadow-xs">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 flex items-center justify-between shadow-card">
               <div className="space-y-1">
                 <h3 className="text-xs font-bold text-[#1E2923]">Cancel subscription</h3>
                 <p className="text-[11px] text-[#8E9B90]">Your plan stays active until the end of the billing period.</p>
@@ -976,7 +976,7 @@ export default function SubscriptionBillingPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => setShowCancelModal(true)}
-                className="bg-white hover:bg-red-50 text-[#A63326] border border-[#E0E0DA] font-semibold py-2 px-4 rounded-modal text-xs transition-colors cursor-pointer shadow-xs shrink-0"
+                className="bg-white hover:bg-red-50 text-[#A63326] border border-[#E0E0DA] font-semibold py-2 px-4 rounded-modal text-xs transition-colors cursor-pointer shadow-card shrink-0"
               >
                 Cancel plan
               </button>

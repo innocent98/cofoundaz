@@ -312,7 +312,7 @@ export default function NotificationsPage(): React.JSX.Element {
         <div className="flex items-center space-x-3">
           <button 
             onClick={openSidebar}
-            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-xs"
+            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-card"
             aria-label="Toggle Sidebar"
           >
             <Menu size={18} />
@@ -326,13 +326,13 @@ export default function NotificationsPage(): React.JSX.Element {
         </div>
 
         <div className="flex items-center space-x-3">
-          <div className="bg-[#EAF2ED] text-[#183B28] border border-[#D5E6DC] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1 shadow-2xs">
+          <div className="bg-[#EAF2ED] text-[#183B28] border border-[#D5E6DC] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1 shadow-card">
             <span>Health</span>
             <span className="font-bold">72</span>
             <span>↑</span>
           </div>
 
-          <div className="relative w-9 h-9 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center text-[#55635C] shadow-xs">
+          <div className="relative w-9 h-9 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center text-[#55635C] shadow-card">
             <History className="w-4 h-4" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-[#B39353] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
@@ -343,7 +343,7 @@ export default function NotificationsPage(): React.JSX.Element {
 
           <button 
             onClick={() => showToast('Invite modal opened.')}
-            className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-1.5 rounded-full text-xs font-semibold transition-colors shadow-xs cursor-pointer flex items-center space-x-1"
+            className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-1.5 rounded-full text-xs font-semibold transition-colors shadow-card cursor-pointer flex items-center space-x-1"
           >
             <span>+ Invite</span>
           </button>
@@ -364,7 +364,7 @@ export default function NotificationsPage(): React.JSX.Element {
                 }}
                 className={
                   isActive
-                    ? "px-4 py-1.5 rounded-full text-xs font-semibold bg-[#EAD5C6] text-[#1E2923] shadow-xs transition-colors shrink-0 cursor-pointer"
+                    ? "px-4 py-1.5 rounded-full text-xs font-semibold bg-[#EAD5C6] text-[#1E2923] shadow-card transition-colors shrink-0 cursor-pointer"
                     : "px-4 py-1.5 rounded-full text-xs font-medium text-[#617065] hover:bg-[#EFEFEE] transition-colors shrink-0 cursor-pointer"
                 }
               >
@@ -392,7 +392,7 @@ export default function NotificationsPage(): React.JSX.Element {
                 <button
                   type="button"
                   onClick={handleMarkAllRead}
-                  className="bg-white border border-[#D5D5CF] hover:bg-sage-50 text-[#1E2923] px-4 py-2 rounded-modal text-xs font-medium shadow-2xs transition-colors cursor-pointer"
+                  className="bg-white border border-[#D5D5CF] hover:bg-sage-50 text-[#1E2923] px-4 py-2 rounded-modal text-xs font-medium shadow-card transition-colors cursor-pointer"
                 >
                   Mark all read
                 </button>
@@ -402,7 +402,7 @@ export default function NotificationsPage(): React.JSX.Element {
                     setActiveTab('Preferences');
                     showToast('Switched to Preferences.');
                   }}
-                  className="bg-white border border-[#D5D5CF] hover:bg-sage-50 text-[#1E2923] px-4 py-2 rounded-modal text-xs font-medium shadow-2xs transition-colors cursor-pointer"
+                  className="bg-white border border-[#D5D5CF] hover:bg-sage-50 text-[#1E2923] px-4 py-2 rounded-modal text-xs font-medium shadow-card transition-colors cursor-pointer"
                 >
                   Preferences
                 </button>
@@ -429,7 +429,7 @@ export default function NotificationsPage(): React.JSX.Element {
                     }}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shrink-0 ${
                       isActive
-                        ? 'bg-[#183B28] text-white shadow-xs'
+                        ? 'bg-[#183B28] text-white shadow-card'
                         : 'bg-white border border-[#E8E8E2] text-[#617065] hover:bg-sage-50'
                     }`}
                   >
@@ -458,14 +458,14 @@ export default function NotificationsPage(): React.JSX.Element {
                       <div
                         key={item.id}
                         onClick={() => showToast(`Opened notification: ${item.title}`)}
-                        className={`bg-white border rounded-[24px] p-4 md:p-5 shadow-xs transition-all cursor-pointer relative group flex items-start justify-between gap-4 ${
+                        className={`bg-white border rounded-[24px] p-4 md:p-5 shadow-card transition-all cursor-pointer relative group flex items-start justify-between gap-4 ${
                           item.category === 'Urgent' || item.category === 'Finance'
                             ? 'border-[#F2D6D0] hover:border-[#E8B5AC]'
                             : 'border-[#E8E8E2] hover:border-[#D1D1CB]'
                         }`}
                       >
                         <div className="flex items-start space-x-3.5 flex-1 min-w-0">
-                          <div className={`w-9 h-9 rounded-modal ${item.iconBg} flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-2xs`}>
+                          <div className={`w-9 h-9 rounded-modal ${item.iconBg} flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-card`}>
                             {item.iconText}
                           </div>
 
@@ -528,7 +528,7 @@ export default function NotificationsPage(): React.JSX.Element {
               <p className="text-xs text-[#8E9B90] mt-0.5">We default to quiet. Turn on only what genuinely needs you.</p>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
               <div className="grid grid-cols-12 px-6 py-3.5 border-b border-[#E8E8E2] bg-[#FAF8F5] text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">
                 <div className="col-span-6 md:col-span-7">Category</div>
                 <div className="col-span-2 md:col-span-2 text-center">In App</div>
@@ -594,7 +594,7 @@ export default function NotificationsPage(): React.JSX.Element {
             </div>
 
             {/* Daily Digest Section Card */}
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-6">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-6">
               <div className="space-y-1">
                 <h3 className="text-xs font-bold text-[#1E2923]">Daily digest</h3>
               </div>
@@ -616,7 +616,7 @@ export default function NotificationsPage(): React.JSX.Element {
                       }}
                       className={`border rounded-modal p-4 cursor-pointer transition-all ${
                         isSelected 
-                          ? 'border-[#183B28] bg-[#EAF2ED]/40 shadow-xs ring-1 ring-[#183B28]' 
+                          ? 'border-[#183B28] bg-[#EAF2ED]/40 shadow-card ring-1 ring-[#183B28]' 
                           : 'border-[#E8E8E2] bg-white hover:border-[#D1D1CB]'
                       }`}
                     >
@@ -673,7 +673,7 @@ export default function NotificationsPage(): React.JSX.Element {
             </div>
 
             {/* Quiet Hours Section Card */}
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-6">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <h3 className="text-xs font-bold text-[#1E2923]">Quiet hours</h3>
@@ -806,7 +806,7 @@ export default function NotificationsPage(): React.JSX.Element {
                 <div
                   key={item.id}
                   onClick={() => showToast(`Selected announcement: ${item.title}`)}
-                  className="bg-white border border-[#E8E8E2] hover:border-[#D1D1CB] rounded-[24px] p-6 shadow-xs space-y-3 cursor-pointer transition-all"
+                  className="bg-white border border-[#E8E8E2] hover:border-[#D1D1CB] rounded-[24px] p-6 shadow-card space-y-3 cursor-pointer transition-all"
                 >
                   <div className="flex items-center space-x-2">
                     <span className={`px-2 py-0.5 rounded-input text-[10px] font-bold tracking-wider ${item.tagBg}`}>

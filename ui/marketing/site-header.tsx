@@ -22,8 +22,8 @@ export function SiteHeader() {
                     </svg>
                   </button>
                   <div className="invisible absolute top-full left-0 mt-1 flex w-48 flex-col rounded-input bg-white p-2 shadow-raised opacity-0 transition-all group-hover:visible group-hover:opacity-100">
-                    <Link href="#blog" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-md">Blog</Link>
-                    <Link href="#guides" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-md">Guides & Tools</Link>
+                    <Link href="#blog" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-input">Blog</Link>
+                    <Link href="#guides" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-input">Guides & Tools</Link>
                   </div>
                 </div>
               )

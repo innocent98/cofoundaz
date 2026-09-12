@@ -45,7 +45,7 @@ export default function DocumentsLibraryPage() {
           <div className="flex justify-end items-center space-x-3 -mt-12 mb-4">
             <button 
               onClick={() => triggerToast('Upload dialog opened.')}
-              className="px-4 py-1.5 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-xs font-semibold shadow-xs transition-colors h-[34px]"
+              className="px-4 py-1.5 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-xs font-semibold shadow-card transition-colors h-[34px]"
             >
               Upload
             </button>
@@ -54,7 +54,7 @@ export default function DocumentsLibraryPage() {
                 window.location.href = '/documents/templates';
                 triggerToast('Navigated to template page.');
               }}
-              className="px-4 py-1.5 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-card text-xs font-semibold flex items-center space-x-1 shadow-xs transition-colors h-[34px]"
+              className="px-4 py-1.5 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-card text-xs font-semibold flex items-center space-x-1 shadow-card transition-colors h-[34px]"
             >
               <Plus size={14} />
               <span>+ New document</span>
@@ -62,7 +62,7 @@ export default function DocumentsLibraryPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start pt-2">
-            <div className="lg:col-span-1 bg-white border border-[#E8E8E2] rounded-modal p-2 shadow-xs space-y-0.5">
+            <div className="lg:col-span-1 bg-white border border-[#E8E8E2] rounded-modal p-2 shadow-card space-y-0.5">
               {[
                 { name: 'All documents', count: 38, icon: true },
                 { name: 'Corporate', count: 6, arrow: true },
@@ -103,11 +103,11 @@ export default function DocumentsLibraryPage() {
                     placeholder="Search documents..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-white border border-[#E8E8E2] rounded-card pl-10 pr-4 py-2 text-xs text-[#1E2923] placeholder-[#9CA8A0] focus:outline-none focus:ring-1 focus:ring-[#A07C44] shadow-xs"
+                    className="w-full bg-white border border-[#E8E8E2] rounded-card pl-10 pr-4 py-2 text-xs text-[#1E2923] placeholder-[#9CA8A0] focus:outline-none focus:ring-1 focus:ring-[#A07C44] shadow-card"
                   />
                 </div>
 
-                <div className="flex items-center space-x-0.5 bg-white border border-[#E8E8E2] p-0.5 rounded-card shadow-xs shrink-0">
+                <div className="flex items-center space-x-0.5 bg-white border border-[#E8E8E2] p-0.5 rounded-card shadow-card shrink-0">
                   <button
                     onClick={() => setLibraryViewMode('Grid')}
                     className={`px-3 py-1 rounded-input text-xs font-medium transition-colors ${
@@ -133,7 +133,7 @@ export default function DocumentsLibraryPage() {
                     <div 
                       key={doc.id}
                       onClick={() => { ; triggerToast(`Opened ${doc.title}`); }}
-                      className="bg-white border border-[#E8E8E2] rounded-modal p-5 shadow-xs flex flex-col justify-between h-44 hover:border-[#D5DDD6] transition-all cursor-pointer relative"
+                      className="bg-white border border-[#E8E8E2] rounded-modal p-5 shadow-card flex flex-col justify-between h-44 hover:border-[#D5DDD6] transition-all cursor-pointer relative"
                     >
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -166,7 +166,7 @@ export default function DocumentsLibraryPage() {
               )}
 
               {libraryViewMode === 'List' && (
-                <div className="bg-white border border-[#E8E8E2] rounded-modal shadow-xs overflow-hidden">
+                <div className="bg-white border border-[#E8E8E2] rounded-modal shadow-card overflow-hidden">
                   <table className="w-full text-left border-collapse min-w-[500px]">
                     <thead>
                       <tr className="border-b border-[#E8E8E2] text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider bg-white">

@@ -54,7 +54,7 @@ export default function TemplatesPage() {
                   {catTemplates.map((tmpl, idx) => (
                     <div 
                       key={idx} 
-                      className="bg-white border border-[#E8E8E2] rounded-modal p-6 shadow-xs flex flex-col justify-between h-44 hover:border-[#D5DDD6] transition-all"
+                      className="bg-white border border-[#E8E8E2] rounded-modal p-6 shadow-card flex flex-col justify-between h-44 hover:border-[#D5DDD6] transition-all"
                     >
                       <div className="space-y-3">
                         <div className="w-7 h-7 rounded-full bg-[#E5EFEA] flex items-center justify-center">

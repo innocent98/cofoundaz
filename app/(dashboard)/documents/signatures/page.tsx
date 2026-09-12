@@ -17,7 +17,7 @@ export default function SignaturesPage() {
     triggerToast(req.actionText + ' • ' + req.title);
   };
   
-  const handleSignSubmit = (e: any) => {
+  const handleSignSubmit = (e: unknown) => {
     e.preventDefault();
     setIsSignModalOpen(false);
     triggerToast('Signature request sent.');
@@ -49,7 +49,7 @@ export default function SignaturesPage() {
 
           <div className="space-y-4">
             {signatureRequests.map((req, idx) => (
-              <div key={idx} className="bg-white border border-[#E8E8E2] rounded-modal p-6 shadow-xs space-y-4">
+              <div key={idx} className="bg-white border border-[#E8E8E2] rounded-modal p-6 shadow-card space-y-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                   <div className="flex items-center space-x-3.5">
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-[#FDF2F2] text-[#B93838]">PDF</span>

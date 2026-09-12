@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
@@ -157,7 +157,7 @@ export default function JournalPage(): React.JSX.Element {
           <div className="flex items-center space-x-3">
             <button 
               onClick={openSidebar}
-              className="md:hidden w-9 h-9 rounded-modal border border-[#1E4233] bg-[#122B21] text-white hover:bg-[#1A382C] flex items-center justify-center transition-colors shrink-0 shadow-xs"
+              className="md:hidden w-9 h-9 rounded-modal border border-[#1E4233] bg-[#122B21] text-white hover:bg-[#1A382C] flex items-center justify-center transition-colors shrink-0 shadow-card"
               aria-label="Toggle Sidebar"
             >
               <Menu size={18} />
@@ -167,7 +167,7 @@ export default function JournalPage(): React.JSX.Element {
               <span className="text-[#556F60]">/</span>
               <span className="text-white flex items-center space-x-1.5">
                 <span>Journal</span>
-                <span className="text-copper-400 text-xs">🔒</span>
+                <span className="text-copper-500 text-xs">🔒</span>
               </span>
             </div>
           </div>
@@ -180,7 +180,7 @@ export default function JournalPage(): React.JSX.Element {
         </header>
 
         <div className="flex-1 flex flex-col items-center justify-center px-4 max-w-md mx-auto text-center space-y-6">
-          <div className="w-14 h-14 rounded-[24px] bg-[#163326] border border-[#234F3A] flex items-center justify-center text-copper-400 shadow-accent">
+          <div className="w-14 h-14 rounded-[24px] bg-[#163326] border border-[#234F3A] flex items-center justify-center text-copper-500 shadow-accent">
             <Lock size={24} />
           </div>
 
@@ -243,7 +243,7 @@ export default function JournalPage(): React.JSX.Element {
         <div className="flex items-center space-x-3">
           <button 
             onClick={openSidebar}
-            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-xs"
+            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-card"
             aria-label="Toggle Sidebar"
           >
             <Menu size={18} />
@@ -265,7 +265,7 @@ export default function JournalPage(): React.JSX.Element {
               setIsLocked(true);
               showToast('Journal locked.');
             }}
-            className="border border-[#E0E0DA] bg-white hover:bg-sage-50 text-[#1E2923] px-3.5 py-1.5 rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-2xs transition-colors h-[36px] cursor-pointer"
+            className="border border-[#E0E0DA] bg-white hover:bg-sage-50 text-[#1E2923] px-3.5 py-1.5 rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[36px] cursor-pointer"
           >
             <Lock size={13} className="text-[#7A8A80]" />
             <span>Lock journal</span>
@@ -273,7 +273,7 @@ export default function JournalPage(): React.JSX.Element {
 
           <button 
             onClick={() => showToast('Activity history drawer opened.')}
-            className="relative w-9 h-9 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-xs shrink-0"
+            className="relative w-9 h-9 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-card shrink-0"
           >
             <History className="w-4 h-4 text-[#55635C]" />
             <span className="absolute -top-1 -right-1 bg-[#B39353] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
@@ -297,7 +297,7 @@ export default function JournalPage(): React.JSX.Element {
                 }}
                 className={
                   isActive
-                    ? "px-4 py-1.5 rounded-full text-xs font-semibold bg-[#EAD5C6] text-[#1E2923] shadow-xs transition-colors shrink-0 cursor-pointer"
+                    ? "px-4 py-1.5 rounded-full text-xs font-semibold bg-[#EAD5C6] text-[#1E2923] shadow-card transition-colors shrink-0 cursor-pointer"
                     : "px-4 py-1.5 rounded-full text-xs font-medium text-[#617065] hover:bg-[#EFEFEE] transition-colors shrink-0 cursor-pointer"
                 }
               >
@@ -325,7 +325,7 @@ export default function JournalPage(): React.JSX.Element {
               </div>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs space-y-3">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card space-y-3">
               <span className="text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">How is today going?</span>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
@@ -345,7 +345,7 @@ export default function JournalPage(): React.JSX.Element {
                       }}
                       className={`border rounded-modal py-3.5 px-2 flex flex-col items-center justify-center space-y-2 transition-all cursor-pointer ${
                         isSelected 
-                          ? 'border-[#183B28] bg-[#EAF2ED] shadow-xs' 
+                          ? 'border-[#183B28] bg-[#EAF2ED] shadow-card' 
                           : 'border-[#E8E8E2] hover:bg-sage-50 bg-[#FCFCFB]'
                       }`}
                     >
@@ -360,7 +360,7 @@ export default function JournalPage(): React.JSX.Element {
             <div className="bg-[#F4EFE6] border border-[#EBE3D3] rounded-[24px] p-4 flex items-center justify-between text-xs">
               <div className="flex items-center space-x-3 text-[#5A4D35]">
                 <span className="p-2 bg-[#E2D4BC] rounded-card">✏️</span>
-                <span className="font-medium"><strong>Today's prompt:</strong> What did you learn today that you did not know yesterday?</span>
+                <span className="font-medium"><strong>Today&apos;s prompt:</strong> What did you learn today that you did not know yesterday?</span>
               </div>
               <button 
                 onClick={() => showToast('Loaded new journal prompt.')}
@@ -370,7 +370,7 @@ export default function JournalPage(): React.JSX.Element {
               </button>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs p-6 space-y-4">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card p-6 space-y-4">
               <textarea
                 value={journalText}
                 onChange={(e) => setJournalText(e.target.value)}
@@ -398,7 +398,7 @@ export default function JournalPage(): React.JSX.Element {
                   </button>
                   <button
                     onClick={handleSaveEntry}
-                    className="px-5 py-2 rounded-modal text-xs font-semibold bg-[#B39353] hover:bg-[#A38346] text-white transition-colors shadow-xs cursor-pointer"
+                    className="px-5 py-2 rounded-modal text-xs font-semibold bg-[#B39353] hover:bg-[#A38346] text-white transition-colors shadow-card cursor-pointer"
                   >
                     Save entry
                   </button>
@@ -432,11 +432,11 @@ export default function JournalPage(): React.JSX.Element {
                 .map((entry) => {
                   const isExpanded = !!expandedEntries[entry.id];
                   return (
-                    <div key={entry.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-4 hover:border-[#D1D1CB] transition-all">
+                    <div key={entry.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-4 hover:border-[#D1D1CB] transition-all">
                       
                       <div className="flex items-center justify-between border-b border-[#F2F2EC] pb-3">
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-card bg-[#FAF3EC] flex items-center justify-center text-sm shadow-2xs">
+                          <div className="w-8 h-8 rounded-card bg-[#FAF3EC] flex items-center justify-center text-sm shadow-card">
                             {entry.mood === 'Great' ? '😁' : entry.mood === 'Steady' ? '😐' : '🙂'}
                           </div>
                           <div>
@@ -494,26 +494,26 @@ export default function JournalPage(): React.JSX.Element {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs space-y-1">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card space-y-1">
                 <span className="text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">Entries this month</span>
                 <div className="text-3xl font-display text-[#1C2621] pt-1">12</div>
                 <div className="text-xs text-[#8E9B90] pt-0.5">about 3 a week</div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs space-y-1">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card space-y-1">
                 <span className="text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">Average mood</span>
                 <div className="text-3xl font-display text-[#1C2621] pt-1">Steady</div>
                 <div className="text-xs text-[#8E9B90] pt-0.5">up from Heavy in June</div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs space-y-1">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card space-y-1">
                 <span className="text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">Longest streak</span>
                 <div className="text-3xl font-display text-[#1C2621] pt-1">9 days</div>
                 <div className="text-xs text-[#8E9B90] pt-0.5">in May</div>
               </div>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-6">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-6">
               <div className="text-xs font-bold tracking-wider text-[#8E9B90] uppercase">Last 12 weeks</div>
               
               <div className="relative h-48 w-full pt-4 pb-2">
@@ -560,7 +560,7 @@ export default function JournalPage(): React.JSX.Element {
             </div>
 
             <div className="bg-[#12231B] border border-[#1A382C] rounded-[24px] p-5 flex items-start space-x-4 shadow-raised text-white">
-              <div className="w-8 h-8 rounded-modal bg-[#1B382C] border border-[#234D3A] flex items-center justify-center text-copper-400 shrink-0 mt-0.5">
+              <div className="w-8 h-8 rounded-modal bg-[#1B382C] border border-[#234D3A] flex items-center justify-center text-copper-500 shrink-0 mt-0.5">
                 ✦
               </div>
               <div className="space-y-1">
@@ -582,14 +582,14 @@ export default function JournalPage(): React.JSX.Element {
                 <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Reflections</h1>
                 <p className="text-xs text-[#8E9B90] mt-0.5">Patterns drawn from your own words. Nothing here leaves your workspace.</p>
               </div>
-              <div className="bg-[#FAF3EC] text-[#9E7C3E] border border-[#F2E5D5] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 w-fit shadow-2xs">
+              <div className="bg-[#FAF3EC] text-[#9E7C3E] border border-[#F2E5D5] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 w-fit shadow-card">
                 <span>🔒</span>
                 <span>Processed privately</span>
               </div>
             </div>
 
             <div className="space-y-4">
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-3 hover:border-[#D1D1CB] transition-all">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-3 hover:border-[#D1D1CB] transition-all">
                 <div className="flex items-center space-x-2">
                   <span className="w-6 h-6 rounded-input bg-[#FAF3EC] flex items-center justify-center text-xs">⌛</span>
                   <span className="text-[10px] font-bold tracking-wider text-[#9E7C3E] uppercase">Recurring theme</span>
@@ -602,7 +602,7 @@ export default function JournalPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-3 hover:border-[#D1D1CB] transition-all">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-3 hover:border-[#D1D1CB] transition-all">
                 <div className="flex items-center space-x-2">
                   <span className="w-6 h-6 rounded-input bg-[#EAF2ED] flex items-center justify-center text-xs">↗</span>
                   <span className="text-[10px] font-bold tracking-wider text-[#183B28] uppercase">Pattern</span>
@@ -615,7 +615,7 @@ export default function JournalPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-3 hover:border-[#D1D1CB] transition-all">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-3 hover:border-[#D1D1CB] transition-all">
                 <div className="flex items-center space-x-2">
                   <span className="w-6 h-6 rounded-input bg-[#EAF2ED] flex items-center justify-center text-xs">✍️</span>
                   <span className="text-[10px] font-bold tracking-wider text-[#183B28] uppercase">Something you said</span>
@@ -628,7 +628,7 @@ export default function JournalPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-3 hover:border-[#D1D1CB] transition-all">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-3 hover:border-[#D1D1CB] transition-all">
                 <div className="flex items-center space-x-2">
                   <span className="w-6 h-6 rounded-input bg-[#FAF3EC] flex items-center justify-center text-xs">◑</span>
                   <span className="text-[10px] font-bold tracking-wider text-[#9E7C3E] uppercase">Gentle flag</span>
@@ -654,7 +654,7 @@ export default function JournalPage(): React.JSX.Element {
             </div>
 
             {/* Privacy Toggles Box */}
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-6">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-6">
               
               {/* Toggle 1 */}
               <div className="flex items-center justify-between pb-5 border-b border-[#F2F2EC]">
@@ -751,7 +751,7 @@ export default function JournalPage(): React.JSX.Element {
             </div>
 
             {/* How your journal is protected Box */}
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-4">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-4">
               <h3 className="text-xs font-bold text-[#1E2923]">How your journal is protected</h3>
               <div className="space-y-2.5 text-xs text-[#55635C]">
                 <div className="flex items-start space-x-2.5">
@@ -764,7 +764,7 @@ export default function JournalPage(): React.JSX.Element {
                 </div>
                 <div className="flex items-start space-x-2.5">
                   <span className="w-4 h-4 rounded-full bg-[#EAF2ED] text-[#183B28] flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">✓</span>
-                  <span>Never used to train AI models, ours or anyone else's.</span>
+                  <span>Never used to train AI models, ours or anyone else&apos;s.</span>
                 </div>
                 <div className="flex items-start space-x-2.5">
                   <span className="w-4 h-4 rounded-full bg-[#EAF2ED] text-[#183B28] flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">✓</span>
@@ -778,7 +778,7 @@ export default function JournalPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => showToast('Encrypted export downloaded.')}
-                className="w-full md:w-1/2 bg-white border border-[#D5D5CF] hover:bg-sage-50 text-[#1E2923] font-medium py-3 rounded-modal text-xs tracking-wide transition-colors shadow-2xs cursor-pointer flex items-center justify-center"
+                className="w-full md:w-1/2 bg-white border border-[#D5D5CF] hover:bg-sage-50 text-[#1E2923] font-medium py-3 rounded-modal text-xs tracking-wide transition-colors shadow-card cursor-pointer flex items-center justify-center"
               >
                 Export all entries
               </button>
@@ -789,7 +789,7 @@ export default function JournalPage(): React.JSX.Element {
                   setDeleteConfirmText('');
                   setShowDeleteModal(true);
                 }}
-                className="w-full md:w-1/2 bg-white border border-[#D97762]/60 hover:bg-[#FDF8F7] text-[#C2410C] font-medium py-3 rounded-modal text-xs tracking-wide transition-colors shadow-2xs cursor-pointer flex items-center justify-center"
+                className="w-full md:w-1/2 bg-white border border-[#D97762]/60 hover:bg-[#FDF8F7] text-[#C2410C] font-medium py-3 rounded-modal text-xs tracking-wide transition-colors shadow-card cursor-pointer flex items-center justify-center"
               >
                 Delete journal permanently
               </button>

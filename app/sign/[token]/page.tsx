@@ -43,7 +43,7 @@ export default function PublicSignerPage({ params }: { params: { token: string }
             </button>
           </div>
           
-          <div className="p-12 min-h-[600px] flex flex-col gap-4 font-serif text-sage-800">
+          <div className="p-12 min-h-[600px] flex flex-col gap-4 font-body text-sage-800">
             <h1 className="text-2xl font-bold text-center mb-8">INDEPENDENT CONTRACTOR AGREEMENT</h1>
             <p>This Independent Contractor Agreement (the &quot;Agreement&quot;) is entered into as of the date of signing.</p>
             <p><strong>1. SERVICES.</strong> The Contractor agrees to perform the services described in Exhibit A attached hereto.</p>
@@ -58,7 +58,7 @@ export default function PublicSignerPage({ params }: { params: { token: string }
               </div>
               <div className="flex-1">
                 <p className="font-bold mb-8">The Contractor:</p>
-                <div className="border-b border-copper-300 bg-copper-50 w-full h-8 mb-2 flex items-end px-2 pb-1 text-copper-800 text-sm cursor-pointer" onClick={() => setHasSigned(true)}>Click to sign</div>
+                <div className="border-b border-copper-200 bg-copper-100 w-full h-8 mb-2 flex items-end px-2 pb-1 text-copper-800 text-sm cursor-pointer" onClick={() => setHasSigned(true)}>Click to sign</div>
                 <p className="text-sm text-sage-600">Contractor Signature</p>
               </div>
             </div>

@@ -62,14 +62,14 @@ export default function CalendarPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
               <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">July 2026</h1>
-              <div className="flex items-center space-x-1 border border-[#E8E8E2] rounded-card bg-white p-0.5 shadow-xs">
+              <div className="flex items-center space-x-1 border border-[#E8E8E2] rounded-card bg-white p-0.5 shadow-card">
                 <button onClick={() => showToast('Switched to previous month.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronLeft size={16} /></button>
                 <button onClick={() => showToast('Switched to next month.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronRight size={16} /></button>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center space-x-1 bg-white border border-[#E8E8E2] p-1 rounded-modal shadow-xs overflow-x-auto">
+              <div className="flex items-center space-x-1 bg-white border border-[#E8E8E2] p-1 rounded-modal shadow-card overflow-x-auto">
                 {(['All', 'Milestone', 'Meeting', 'Deadline', 'Task'] as FilterType[]).map((filter) => {
                   const isSelected = selectedFilter === filter;
                   return (
@@ -87,7 +87,7 @@ export default function CalendarPage() {
 
               <button 
                 onClick={() => { setIsEventModalOpen(true); showToast('New event drawer opened.'); }}
-                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
+                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[36px]"
               >
                 <Plus size={15} />
                 <span>+ Event</span>
@@ -95,7 +95,7 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
+          <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
             <div className="grid grid-cols-7 border-b border-[#E8E8E2] bg-[#F9F9F6] text-center">
               {daysOfWeek.map((day, idx) => (
                 <div key={idx} className="py-3 text-[10px] font-bold text-[#8E9B90] tracking-wider">{day}</div>
@@ -112,7 +112,7 @@ export default function CalendarPage() {
                     </div>
                     <div className="space-y-1 mt-1 flex-1 overflow-hidden">
                       {dayEvents.map((ev, eIdx) => (
-                        <div key={eIdx} onClick={() => showToast(`Opened event: ${ev.title}`)} className={`px-2 py-1 rounded text-[10px] font-medium truncate cursor-pointer transition-all hover:opacity-90 shadow-xs ${getEventBadgeStyles(ev.type)}`}>
+                        <div key={eIdx} onClick={() => showToast(`Opened event: ${ev.title}`)} className={`px-2 py-1 rounded text-[10px] font-medium truncate cursor-pointer transition-all hover:opacity-90 shadow-card ${getEventBadgeStyles(ev.type)}`}>
                           {ev.title}
                         </div>
                       ))}
@@ -130,14 +130,14 @@ export default function CalendarPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
               <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">July 12 – 18, 2026</h1>
-              <div className="flex items-center space-x-1 border border-[#E8E8E2] rounded-card bg-white p-0.5 shadow-xs">
+              <div className="flex items-center space-x-1 border border-[#E8E8E2] rounded-card bg-white p-0.5 shadow-card">
                 <button onClick={() => showToast('Switched to previous week.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronLeft size={16} /></button>
                 <button onClick={() => showToast('Switched to next week.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronRight size={16} /></button>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center space-x-1 bg-white border border-[#E8E8E2] p-1 rounded-modal shadow-xs overflow-x-auto">
+              <div className="flex items-center space-x-1 bg-white border border-[#E8E8E2] p-1 rounded-modal shadow-card overflow-x-auto">
                 {(['All', 'Milestone', 'Meeting', 'Deadline', 'Task'] as FilterType[]).map((filter) => {
                   const isSelected = selectedFilter === filter;
                   return (
@@ -155,7 +155,7 @@ export default function CalendarPage() {
 
               <button 
                 onClick={() => { setIsEventModalOpen(true); showToast('New event drawer opened.'); }}
-                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
+                className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[36px]"
               >
                 <Plus size={15} />
                 <span>+ Event</span>
@@ -163,7 +163,7 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
+          <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
             <div className="grid grid-cols-8 border-b border-[#E8E8E2] bg-[#F9F9F6] text-center">
               <div className="py-3 text-[10px] font-bold text-[#8E9B90] tracking-wider border-r border-[#E8E8E2]">TIME</div>
               {weekDaysList.map((d, idx) => (
@@ -183,7 +183,7 @@ export default function CalendarPage() {
                     return (
                       <div key={dIdx} className="p-1.5 bg-white hover:bg-[#FAF9F5] transition-colors relative space-y-1">
                         {matchingEvents.map((ev, eIdx) => (
-                          <div key={eIdx} onClick={() => showToast(`Opened event: ${ev.title}`)} className={`p-2 rounded text-[11px] font-medium cursor-pointer transition-all hover:opacity-90 shadow-xs ${getEventBadgeStyles(ev.type)}`}>
+                          <div key={eIdx} onClick={() => showToast(`Opened event: ${ev.title}`)} className={`p-2 rounded text-[11px] font-medium cursor-pointer transition-all hover:opacity-90 shadow-card ${getEventBadgeStyles(ev.type)}`}>
                             <p className="font-semibold leading-tight">{ev.title}</p>
                             <p className="text-[9px] opacity-80 mt-0.5">{ev.time}</p>
                           </div>
@@ -204,7 +204,7 @@ export default function CalendarPage() {
             <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Agenda</h1>
             <button 
               onClick={() => { setIsEventModalOpen(true); showToast('New event drawer opened.'); }}
-              className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
+              className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[36px]"
             >
               <Plus size={15} />
               <span>+ Event</span>
@@ -220,7 +220,7 @@ export default function CalendarPage() {
                     <div
                       key={iIdx}
                       onClick={() => showToast(`Opened agenda item: ${item.title}`)}
-                      className={`bg-white border border-[#E8E8E2] rounded-modal p-5 shadow-xs flex items-center justify-between border-l-4 ${item.borderColor} hover:border-[#D5DDD6] transition-all cursor-pointer`}
+                      className={`bg-white border border-[#E8E8E2] rounded-modal p-5 shadow-card flex items-center justify-between border-l-4 ${item.borderColor} hover:border-[#D5DDD6] transition-all cursor-pointer`}
                     >
                       <div className="flex items-center space-x-6">
                         <span className="text-xs font-semibold text-[#8E9B90] w-12 shrink-0">{item.time}</span>
@@ -302,7 +302,7 @@ export default function CalendarPage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-card text-xs font-semibold shadow-xs transition-colors"
+                  className="flex-1 px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-card text-xs font-semibold shadow-card transition-colors"
                 >
                   Save event
                 </button>

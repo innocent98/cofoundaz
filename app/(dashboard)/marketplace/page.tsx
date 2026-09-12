@@ -97,7 +97,7 @@ export default function MarketplaceDirectoryPage() {
               <p className="text-sm text-sage-500 font-medium">{provider.specialty}</p>
               
               <div className="flex items-center gap-1.5 pt-2">
-                <Star className="w-4 h-4 fill-copper-400 text-copper-400" />
+                <Star className="w-4 h-4 fill-copper-500 text-copper-500" />
                 <span className="text-sm font-bold text-sage-900">{provider.rating}</span>
                 <span className="text-xs text-sage-400">({provider.reviewCount} reviews)</span>
               </div>

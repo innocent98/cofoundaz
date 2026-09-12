@@ -424,7 +424,7 @@ export default function TeamSectionPage(): React.JSX.Element {
         <div className="flex items-center space-x-2.5">
           <button 
             onClick={openSidebar}
-            className="md:hidden w-8 h-8 rounded-card border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-xs"
+            className="md:hidden w-8 h-8 rounded-card border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-card"
             aria-label="Toggle Sidebar"
           >
             <Menu size={16} />
@@ -441,7 +441,7 @@ export default function TeamSectionPage(): React.JSX.Element {
         <div className="flex items-center space-x-2.5 md:space-x-3">
           <button 
             onClick={() => showToast('Notifications opened.')}
-            className="relative w-8 h-8 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-xs shrink-0"
+            className="relative w-8 h-8 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-card shrink-0"
             aria-label="Notifications"
           >
             <Bell className="w-3.5 h-3.5 text-[#66756F]" />
@@ -460,7 +460,7 @@ export default function TeamSectionPage(): React.JSX.Element {
               setTeamSubTab('Roles'); 
               setIsInviteModalOpen(true); 
             }}
-            className="bg-[#B39353] hover:bg-[#A38346] text-white px-2.5 md:px-4 py-1.5 rounded-[8px] text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[34px] shrink-0"
+            className="bg-[#B39353] hover:bg-[#A38346] text-white px-2.5 md:px-4 py-1.5 rounded-[8px] text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[34px] shrink-0"
           >
             <Plus size={15} />
             <span className="font-medium"> Invite</span>
@@ -481,7 +481,7 @@ export default function TeamSectionPage(): React.JSX.Element {
               }}
               className={
                 isActive
-                  ? "px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#EAD5C6] text-[#1E2923] shadow-xs transition-colors"
+                  ? "px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#EAD5C6] text-[#1E2923] shadow-card transition-colors"
                   : "px-3.5 py-1.5 rounded-full text-xs font-medium text-[#617065] hover:bg-[#EFEFEE] transition-colors"
               }
             >
@@ -503,13 +503,13 @@ export default function TeamSectionPage(): React.JSX.Element {
               </div>
               <button
                 onClick={() => showToast('Audit log exported.')}
-                className="px-4 py-2 bg-white border border-[#E8E8E2] hover:bg-[#F5F5F0] text-[#1E2923] rounded-modal text-xs font-semibold shadow-xs transition-colors h-[36px] w-fit"
+                className="px-4 py-2 bg-white border border-[#E8E8E2] hover:bg-[#F5F5F0] text-[#1E2923] rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px] w-fit"
               >
                 Export log
               </button>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
               <div className="grid grid-cols-12 border-b border-[#E8E8E2] bg-[#F9F9F6] text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider px-6 py-3.5">
                 <div className="col-span-3">Actor</div>
                 <div className="col-span-3">Action</div>
@@ -545,7 +545,7 @@ export default function TeamSectionPage(): React.JSX.Element {
               {threads.map((thread) => {
                 const isResolved = thread.status === 'resolved';
                 return (
-                  <div key={thread.id} className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
+                  <div key={thread.id} className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
                     <div className="px-6 py-3 bg-[#F9F9F6] border-b border-[#E8E8E2] flex items-center justify-between text-xs">
                       <div className="flex items-center space-x-2">
                         <span className="bg-[#EAEFEA] text-[#183B28] font-semibold px-2.5 py-0.5 rounded-input text-[11px]">{thread.tag}</span>
@@ -601,13 +601,13 @@ export default function TeamSectionPage(): React.JSX.Element {
                           <div className="flex items-center space-x-2 w-full md:w-auto shrink-0 justify-end">
                             <button
                               onClick={() => handleReplySubmit(thread.id)}
-                              className="px-4 py-2 bg-[#183B28] hover:bg-[#12291F] text-white rounded-card text-xs font-semibold shadow-xs transition-colors"
+                              className="px-4 py-2 bg-[#183B28] hover:bg-[#12291F] text-white rounded-card text-xs font-semibold shadow-card transition-colors"
                             >
                               Reply
                             </button>
                             <button
                               onClick={() => handleResolveThread(thread.id)}
-                              className="px-4 py-2 bg-white border border-[#E8E8E2] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-xs font-semibold shadow-xs transition-colors"
+                              className="px-4 py-2 bg-white border border-[#E8E8E2] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-xs font-semibold shadow-card transition-colors"
                             >
                               Resolve
                             </button>
@@ -635,7 +635,7 @@ export default function TeamSectionPage(): React.JSX.Element {
                       onClick={() => setActivityFilter(filter)}
                       className={
                         isFilterActive
-                          ? "px-3 py-1 rounded-card text-xs font-semibold bg-[#183B28] text-white shadow-xs transition-colors"
+                          ? "px-3 py-1 rounded-card text-xs font-semibold bg-[#183B28] text-white shadow-card transition-colors"
                           : "px-3 py-1 rounded-card text-xs font-medium text-[#617065] hover:text-[#1E2923] transition-colors"
                       }
                     >
@@ -651,7 +651,7 @@ export default function TeamSectionPage(): React.JSX.Element {
                 <h3 className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Today</h3>
                 <div className="space-y-2.5">
                   {todayActivities.map((act) => (
-                    <div key={act.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-4 flex items-center justify-between shadow-xs hover:border-[#D0D0CA] transition-all">
+                    <div key={act.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-4 flex items-center justify-between shadow-card hover:border-[#D0D0CA] transition-all">
                       <div className="flex items-center space-x-3.5">
                         <div className={`w-8 h-8 rounded-full ${act.bgColor} flex items-center justify-center font-bold text-xs shrink-0`}>
                           {act.initials}
@@ -676,7 +676,7 @@ export default function TeamSectionPage(): React.JSX.Element {
                 <h3 className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Yesterday</h3>
                 <div className="space-y-2.5">
                   {yesterdayActivities.map((act) => (
-                    <div key={act.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-4 flex items-center justify-between shadow-xs hover:border-[#D0D0CA] transition-all">
+                    <div key={act.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-4 flex items-center justify-between shadow-card hover:border-[#D0D0CA] transition-all">
                       <div className="flex items-center space-x-3.5">
                         <div className={`w-8 h-8 rounded-full ${act.bgColor} flex items-center justify-center font-bold text-xs shrink-0`}>
                           {act.initials}
@@ -704,7 +704,7 @@ export default function TeamSectionPage(): React.JSX.Element {
               <p className="text-xs text-[#617065]">Everyone sees only what their work needs. Your journal is invisible to all of them.</p>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
               <div className="grid grid-cols-12 border-b border-[#E8E8E2] bg-[#F9F9F6] text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider px-6 py-3.5">
                 <div className="col-span-4">Capability</div>
                 <div className="col-span-2 text-center">Owner</div>
@@ -754,7 +754,7 @@ export default function TeamSectionPage(): React.JSX.Element {
               <div className="flex items-center space-x-3">
                 <button 
                   onClick={() => { setTeamSubTab('Roles'); showToast('Switched to Roles view.'); }}
-                  className="px-4 py-2 bg-white border border-[#E8E8E2] hover:bg-[#F5F5F0] text-[#1E2923] rounded-modal text-xs font-semibold shadow-xs transition-colors h-[36px]"
+                  className="px-4 py-2 bg-white border border-[#E8E8E2] hover:bg-[#F5F5F0] text-[#1E2923] rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px]"
                 >
                   Manage roles
                 </button>
@@ -763,14 +763,14 @@ export default function TeamSectionPage(): React.JSX.Element {
                     setTeamSubTab('Roles'); 
                     setIsInviteModalOpen(true); 
                   }}
-                  className="px-4 py-2 bg-[#B39353] hover:bg-[#A38346] text-white rounded-modal text-xs font-semibold shadow-xs transition-colors h-[36px]"
+                  className="px-4 py-2 bg-[#B39353] hover:bg-[#A38346] text-white rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px]"
                 >
                   + Invite someone
                 </button>
               </div>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
               <div className="grid grid-cols-12 border-b border-[#E8E8E2] bg-[#F9F9F6] text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider px-6 py-3">
                 <div className="col-span-5">Member</div>
                 <div className="col-span-4">Role</div>
@@ -899,7 +899,7 @@ export default function TeamSectionPage(): React.JSX.Element {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-[#B39353] hover:bg-[#A38346] text-white rounded-modal text-xs font-semibold shadow-xs transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-[#B39353] hover:bg-[#A38346] text-white rounded-modal text-xs font-semibold shadow-card transition-colors"
                 >
                   Send invite
                 </button>

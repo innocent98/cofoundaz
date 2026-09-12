@@ -61,7 +61,7 @@ export default function ReviewsPage() {
                     >
                       <Star className={`w-8 h-8 ${
                         star <= (hoverRating || rating)
-                          ? "fill-copper-400 text-copper-400"
+                          ? "fill-copper-500 text-copper-500"
                           : "text-sage-300"
                       }`} />
                     </button>
@@ -109,7 +109,7 @@ export default function ReviewsPage() {
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star key={star} className={`w-3.5 h-3.5 ${
-                    star <= review.rating ? "fill-copper-400 text-copper-400" : "text-sage-200"
+                    star <= review.rating ? "fill-copper-500 text-copper-500" : "text-sage-200"
                   }`} />
                 ))}
               </div>

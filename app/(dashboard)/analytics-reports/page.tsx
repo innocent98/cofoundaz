@@ -72,7 +72,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
         <div className="flex items-center space-x-3">
           <button 
             onClick={openSidebar}
-            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-xs"
+            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-card"
             aria-label="Toggle Sidebar"
           >
             <Menu size={18} />
@@ -88,7 +88,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
         {/* Right Controls */}
         <div className="flex items-center space-x-3">
           {/* Health Status Pill */}
-          <div className="flex items-center space-x-2 bg-[#EAF2ED] hover:bg-[#E2ECE5] border border-[#DCE8DF] px-3.5 py-1.5 rounded-full text-xs transition-colors cursor-pointer shadow-2xs">
+          <div className="flex items-center space-x-2 bg-[#EAF2ED] hover:bg-[#E2ECE5] border border-[#DCE8DF] px-3.5 py-1.5 rounded-full text-xs transition-colors cursor-pointer shadow-card">
             <div className="flex items-center space-x-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#183B28]" />
               <span className="font-semibold text-[#183B28]">Health</span>
@@ -98,7 +98,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
 
           <button 
             onClick={() => showToast('Activity history drawer opened.')}
-            className="relative w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-xs shrink-0"
+            className="relative w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-card shrink-0"
             aria-label="Notifications"
           >
             <History className="w-4 h-4 text-[#55635C]" />
@@ -109,7 +109,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
 
           <button 
             onClick={() => showToast('Workspace invite modal opened.')}
-            className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-2 rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px] shrink-0"
+            className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-2 rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[36px] shrink-0"
           >
             <Plus size={15} />
             <span className="font-semibold">+ Invite</span>
@@ -131,7 +131,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                 }}
                 className={
                   isActive
-                    ? "px-4 py-1.5 rounded-full text-xs font-semibold bg-[#E2D4BC] text-[#1E2923] shadow-xs transition-colors shrink-0"
+                    ? "px-4 py-1.5 rounded-full text-xs font-semibold bg-[#E2D4BC] text-[#1E2923] shadow-card transition-colors shrink-0"
                     : "px-4 py-1.5 rounded-full text-xs font-medium text-[#617065] hover:bg-[#EFEFEE] transition-colors shrink-0"
                 }
               >
@@ -153,7 +153,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                 }}
                 className={
                   isRangeActive
-                    ? "px-3.5 py-1.5 rounded-modal text-xs font-semibold bg-[#11291E] text-white shadow-xs transition-colors border border-[#11291E]"
+                    ? "px-3.5 py-1.5 rounded-modal text-xs font-semibold bg-[#11291E] text-white shadow-card transition-colors border border-[#11291E]"
                     : "px-3.5 py-1.5 rounded-modal text-xs font-medium text-[#617065] bg-white hover:bg-sage-50 border border-[#E8E8E2] transition-colors"
                 }
               >
@@ -177,7 +177,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
               </div>
               <button
                 onClick={() => showToast('Overview report successfully exported to PDF.')}
-                className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-2 rounded-modal text-xs font-semibold shadow-xs transition-colors h-[36px] flex items-center space-x-1.5"
+                className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-2 rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px] flex items-center space-x-1.5"
               >
                 <Download size={14} />
                 <span>Export report</span>
@@ -186,7 +186,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
 
             {/* Top Stat Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex flex-col justify-between space-y-4">
                 <div className="space-y-1">
                   <span className="text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">Monthly Revenue</span>
                   <div className="text-2xl font-display font-bold text-[#1E2923]">₦1.6M</div>
@@ -201,7 +201,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex flex-col justify-between space-y-4">
                 <div className="space-y-1">
                   <span className="text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">Active Savers</span>
                   <div className="text-2xl font-display font-bold text-[#1E2923]">1,240</div>
@@ -216,7 +216,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex flex-col justify-between space-y-4">
                 <div className="space-y-1">
                   <span className="text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">Net Burn</span>
                   <div className="text-2xl font-display font-bold text-[#1E2923]">₦4.9M</div>
@@ -231,7 +231,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex flex-col justify-between space-y-4">
                 <div className="space-y-1">
                   <span className="text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">Runway</span>
                   <div className="text-2xl font-display font-bold text-[#1E2923]">8.4 mo</div>
@@ -249,7 +249,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
 
             {/* Bottom Content Area */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-6 flex flex-col justify-between">
+              <div className="lg:col-span-2 bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-6 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-sm text-[#1E2923]">Revenue and active savers growth</h3>
                   <span className="text-xs text-[#8E9B90]">{timeRange} view</span>
@@ -273,7 +273,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-[#11291E] border border-[#1A382A] rounded-[24px] p-6 shadow-xs flex flex-col justify-between space-y-6 text-white">
+              <div className="bg-[#11291E] border border-[#1A382A] rounded-[24px] p-6 shadow-card flex flex-col justify-between space-y-6 text-white">
                 <div className="flex items-center space-x-2">
                   <Sparkles size={16} className="text-[#B39353]" />
                   <h3 className="font-semibold text-sm text-white tracking-wide">What the data says</h3>
@@ -303,7 +303,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
               </div>
 
               {/* Hub Sub-filter pills */}
-              <div className="flex items-center space-x-1.5 bg-white border border-[#E8E8E2] p-1 rounded-modal shadow-xs">
+              <div className="flex items-center space-x-1.5 bg-white border border-[#E8E8E2] p-1 rounded-modal shadow-card">
                 {(['All', 'Marketing', 'Sales', 'Finance', 'Validation'] as const).map((h) => (
                   <button
                     key={h}
@@ -321,7 +321,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(hubFilter === 'All' || hubFilter === 'Marketing') && (
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs flex flex-col justify-between space-y-6">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card flex flex-col justify-between space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2.5">
                       <div className="w-8 h-8 rounded-card bg-[#EAF2ED] flex items-center justify-center text-[#183B28]">
@@ -354,7 +354,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
               )}
 
               {(hubFilter === 'All' || hubFilter === 'Sales') && (
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs flex flex-col justify-between space-y-6">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card flex flex-col justify-between space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2.5">
                       <div className="w-8 h-8 rounded-card bg-[#EAF2ED] flex items-center justify-center text-[#183B28]">
@@ -387,7 +387,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
               )}
 
               {(hubFilter === 'All' || hubFilter === 'Finance') && (
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs flex flex-col justify-between space-y-6">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card flex flex-col justify-between space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2.5">
                       <div className="w-8 h-8 rounded-card bg-[#EAF2ED] flex items-center justify-center text-[#183B28]">
@@ -420,7 +420,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
               )}
 
               {(hubFilter === 'All' || hubFilter === 'Validation') && (
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs flex flex-col justify-between space-y-6">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card flex flex-col justify-between space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2.5">
                       <div className="w-8 h-8 rounded-card bg-[#EAF2ED] flex items-center justify-center text-[#183B28]">
@@ -468,14 +468,14 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                   setBenchmarkSort(benchmarkSort === 'percentile' ? 'name' : 'percentile');
                   showToast(`Sorted benchmarks by ${benchmarkSort === 'percentile' ? 'metric name' : 'percentile'}.`);
                 }}
-                className="bg-white border border-[#E8E8E2] text-[#1E2923] hover:bg-sage-50 px-3.5 py-2 rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px] w-fit"
+                className="bg-white border border-[#E8E8E2] text-[#1E2923] hover:bg-sage-50 px-3.5 py-2 rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[36px] w-fit"
               >
                 <ArrowDownUp size={14} />
                 <span>Sort: {benchmarkSort === 'percentile' ? 'Percentile' : 'Name'}</span>
               </button>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-xs overflow-hidden">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#E8E8E2] text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider bg-[#FAF9F6]">
@@ -492,7 +492,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                     <td className="py-4 px-6 w-1/2">
                       <div className="relative flex items-center">
                         <div className="w-full bg-[#EAEAEA] h-2 rounded-full overflow-hidden flex"><div className="w-[60%] bg-[#D6D6D0]" /></div>
-                        <div className="absolute left-[65%] w-3 h-3 bg-[#1B4332] rounded-full border-2 border-white shadow-xs" />
+                        <div className="absolute left-[65%] w-3 h-3 bg-[#1B4332] rounded-full border-2 border-white shadow-card" />
                       </div>
                     </td>
                     <td className="py-4 px-6 text-right"><span className="inline-block bg-[#EAF2ED] text-[#183B28] font-bold px-2.5 py-1 rounded-card text-xs">78th</span></td>
@@ -503,7 +503,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                     <td className="py-4 px-6 w-1/2">
                       <div className="relative flex items-center">
                         <div className="w-full bg-[#EAEAEA] h-2 rounded-full overflow-hidden flex"><div className="w-[75%] bg-[#D6D6D0]" /></div>
-                        <div className="absolute left-[80%] w-3 h-3 bg-[#1B4332] rounded-full border-2 border-white shadow-xs" />
+                        <div className="absolute left-[80%] w-3 h-3 bg-[#1B4332] rounded-full border-2 border-white shadow-card" />
                       </div>
                     </td>
                     <td className="py-4 px-6 text-right"><span className="inline-block bg-[#EAF2ED] text-[#183B28] font-bold px-2.5 py-1 rounded-card text-xs">91st</span></td>
@@ -514,7 +514,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                     <td className="py-4 px-6 w-1/2">
                       <div className="relative flex items-center">
                         <div className="w-full bg-[#EAEAEA] h-2 rounded-full overflow-hidden flex"><div className="w-[50%] bg-[#D6D6D0]" /></div>
-                        <div className="absolute left-[58%] w-3 h-3 bg-[#1B4332] rounded-full border-2 border-white shadow-xs" />
+                        <div className="absolute left-[58%] w-3 h-3 bg-[#1B4332] rounded-full border-2 border-white shadow-card" />
                       </div>
                     </td>
                     <td className="py-4 px-6 text-right"><span className="inline-block bg-[#EAF2ED] text-[#183B28] font-bold px-2.5 py-1 rounded-card text-xs">74th</span></td>
@@ -535,7 +535,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
               <button
                 onClick={handleBuildReport}
                 disabled={isBuildingReport}
-                className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-2 rounded-modal text-xs font-semibold shadow-xs transition-colors h-[36px] flex items-center space-x-1.5 cursor-pointer disabled:opacity-70"
+                className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-2 rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px] flex items-center space-x-1.5 cursor-pointer disabled:opacity-70"
               >
                 <span>✦</span>
                 <span>Build a report</span>
@@ -544,7 +544,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
 
             {/* Loading State Container */}
             {isBuildingReport && (
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-16 shadow-xs flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-200">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-16 shadow-card flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-200">
                 <Loader2 className="w-8 h-8 text-[#B39353] animate-spin" />
                 <p className="text-sm font-medium text-[#1E2923]">Compiling your report...</p>
               </div>
@@ -553,7 +553,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
             {/* Reports List Cards */}
             <div className="space-y-4">
               
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex items-center justify-between">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 rounded-modal bg-[#FDF2F2] text-[#C53030] flex items-center justify-center font-bold text-xs">PDF</div>
                   <div className="space-y-0.5">
@@ -567,7 +567,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex items-center justify-between">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 rounded-modal bg-[#FDF2F2] text-[#C53030] flex items-center justify-center font-bold text-xs">PDF</div>
                   <div className="space-y-0.5">
@@ -580,7 +580,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex items-center justify-between">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 rounded-modal bg-[#FDF2F2] text-[#C53030] flex items-center justify-center font-bold text-xs">PDF</div>
                   <div className="space-y-0.5">
@@ -593,7 +593,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex items-center justify-between">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 rounded-modal bg-[#EAF2ED] text-[#2D6A4F] flex items-center justify-center font-bold text-xs">XLS</div>
                   <div className="space-y-0.5">
@@ -610,7 +610,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
             </div>
 
             {/* Scheduled delivery Section */}
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-6">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-6">
               <h3 className="font-semibold text-sm text-[#1E2923]">Scheduled delivery</h3>
 
               <div className="divide-y divide-[#EFEFEE]">
@@ -675,7 +675,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
               <p className="text-xs text-[#617065]">Download raw data tables, granular metric histories, and custom workspace records.</p>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-xs space-y-6">
+            <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 shadow-card space-y-6">
               <h3 className="font-semibold text-sm text-[#1E2923]">Select dataset & format</h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -724,7 +724,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                             setExportFormat(fmt);
                             showToast(`Selected format: ${fmt}`);
                           }}
-                          className={`py-4 rounded-modal border text-xs font-semibold flex flex-col items-center justify-center space-y-2 transition-all cursor-pointer ${exportFormat === fmt ? 'border-[#183B28] bg-[#183B28] text-white shadow-xs' : 'border-[#E8E8E2] bg-white text-[#1E2923] hover:bg-sage-50'}`}
+                          className={`py-4 rounded-modal border text-xs font-semibold flex flex-col items-center justify-center space-y-2 transition-all cursor-pointer ${exportFormat === fmt ? 'border-[#183B28] bg-[#183B28] text-white shadow-card' : 'border-[#E8E8E2] bg-white text-[#1E2923] hover:bg-sage-50'}`}
                         >
                           <Download size={16} />
                           <span>{fmt}</span>
@@ -737,7 +737,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
                     <button
                       onClick={handleRunExport}
                       disabled={isExporting}
-                      className="w-full bg-[#183B28] hover:bg-[#122B1D] text-white py-3.5 rounded-modal text-xs font-semibold transition-colors shadow-xs flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-70"
+                      className="w-full bg-[#183B28] hover:bg-[#122B1D] text-white py-3.5 rounded-modal text-xs font-semibold transition-colors shadow-card flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-70"
                     >
                       {isExporting ? (
                         <>

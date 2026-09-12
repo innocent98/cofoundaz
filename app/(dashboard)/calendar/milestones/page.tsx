@@ -32,7 +32,7 @@ export default function MilestonesPage() {
             <span className="text-xs font-medium text-[#617065]">3 of 7 complete this quarter</span>
             <button 
               onClick={() => { setIsEventModalOpen(true); showToast('New milestone drawer opened.'); }}
-              className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition-colors h-[36px]"
+              className="px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[36px]"
             >
               <Plus size={15} />
               <span>+ Milestone</span>
@@ -45,7 +45,7 @@ export default function MilestonesPage() {
             <div 
               key={idx}
               onClick={() => showToast(`Opened milestone: ${item.title}`)}
-              className={`bg-white border ${item.cardBorderClass || 'border-[#E8E8E2]'} rounded-[24px] p-6 shadow-xs space-y-4 cursor-pointer hover:border-[#D5DDD6] transition-all`}
+              className={`bg-white border ${item.cardBorderClass || 'border-[#E8E8E2]'} rounded-[24px] p-6 shadow-card space-y-4 cursor-pointer hover:border-[#D5DDD6] transition-all`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3.5">
@@ -122,7 +122,7 @@ export default function MilestonesPage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-card text-xs font-semibold shadow-xs transition-colors"
+                  className="flex-1 px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-card text-xs font-semibold shadow-card transition-colors"
                 >
                   Save milestone
                 </button>

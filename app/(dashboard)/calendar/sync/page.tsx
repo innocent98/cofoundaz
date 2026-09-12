@@ -25,7 +25,7 @@ export default function SyncPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Google Calendar */}
-        <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex flex-col justify-between space-y-4">
           <div className="flex items-start space-x-3.5">
             <div className="w-10 h-10 rounded-modal bg-[#EAF2ED] text-[#183B28] flex items-center justify-center font-bold text-sm shrink-0">G</div>
             <div className="space-y-0.5">
@@ -38,14 +38,14 @@ export default function SyncPage() {
               if (isGoogleConnected) { setIsGoogleConnected(false); showToast('Google Calendar disconnected.'); }
               else { setIsGoogleConnected(true); showToast('Google Calendar connected as amara@kolo.africa.'); }
             }}
-            className={`w-full py-2 rounded-modal text-xs font-semibold transition-colors border shadow-xs ${isGoogleConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
+            className={`w-full py-2 rounded-modal text-xs font-semibold transition-colors border shadow-card ${isGoogleConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
           >
             {isGoogleConnected ? 'Disconnect' : 'Connect'}
           </button>
         </div>
 
         {/* Outlook */}
-        <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex flex-col justify-between space-y-4">
           <div className="flex items-start space-x-3.5">
             <div className="w-10 h-10 rounded-modal bg-[#F5F5F0] text-[#617065] flex items-center justify-center font-bold text-sm shrink-0">O</div>
             <div className="space-y-0.5">
@@ -58,14 +58,14 @@ export default function SyncPage() {
               if (isOutlookConnected) { setIsOutlookConnected(false); showToast('Outlook disconnected.'); }
               else { setIsOutlookConnected(true); showToast('Connecting to Outlook...'); }
             }}
-            className={`w-full py-2 rounded-modal text-xs font-semibold transition-colors border shadow-xs ${isOutlookConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
+            className={`w-full py-2 rounded-modal text-xs font-semibold transition-colors border shadow-card ${isOutlookConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
           >
             {isOutlookConnected ? 'Disconnect' : 'Connect'}
           </button>
         </div>
 
         {/* Apple Calendar */}
-        <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-5 shadow-card flex flex-col justify-between space-y-4">
           <div className="flex items-start space-x-3.5">
             <div className="w-10 h-10 rounded-modal bg-[#F5F5F0] text-[#617065] flex items-center justify-center font-bold text-sm shrink-0">A</div>
             <div className="space-y-0.5">
@@ -78,14 +78,14 @@ export default function SyncPage() {
               if (isAppleConnected) { setIsAppleConnected(false); showToast('Apple Calendar disconnected.'); }
               else { setIsAppleConnected(true); showToast('Connecting to Apple Calendar...'); }
             }}
-            className={`w-full py-2 rounded-modal text-xs font-semibold transition-colors border shadow-xs ${isAppleConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
+            className={`w-full py-2 rounded-modal text-xs font-semibold transition-colors border shadow-card ${isAppleConnected ? 'bg-white text-[#B93838] border-[#E8E8E2] hover:bg-[#FDF2F2]' : 'bg-[#A07C44] text-white border-transparent hover:bg-[#906D3A]'}`}
           >
             {isAppleConnected ? 'Disconnect' : 'Connect'}
           </button>
         </div>
       </div>
 
-      <div className="bg-white border border-[#E8E8E2] rounded-[24px] divide-y divide-[#E8E8E2] shadow-xs overflow-hidden">
+      <div className="bg-white border border-[#E8E8E2] rounded-[24px] divide-y divide-[#E8E8E2] shadow-card overflow-hidden">
         <div className="p-5 flex items-center justify-between">
           <div className="space-y-0.5">
             <h3 className="font-semibold text-xs text-[#1E2923]">Block focus time for missions</h3>

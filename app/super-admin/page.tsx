@@ -340,7 +340,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                   setActiveModalAction(null);
                   setReasonText('');
                 }}
-                className="py-2.5 rounded-modal text-xs font-semibold bg-[#D59A8D] hover:bg-[#C98A7D] text-white transition-colors cursor-pointer shadow-xs"
+                className="py-2.5 rounded-modal text-xs font-semibold bg-[#D59A8D] hover:bg-[#C98A7D] text-white transition-colors cursor-pointer shadow-card"
               >
                 Request approval
               </button>
@@ -512,25 +512,25 @@ export default function SuperAdminDashboard(): React.JSX.Element {
 
               {/* 4 Stat Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Workspaces</span>
                   <div className="text-3xl font-display font-medium text-[#1E2923]">2,847</div>
                   <div className="text-xs text-[#8E9B90]">across 4 regions</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Uptime, 30d</span>
                   <div className="text-3xl font-display font-medium text-[#1E2923]">99.97%</div>
                   <div className="text-xs font-semibold text-[#137333]">within SLA</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">AI spend, MTD</span>
                   <div className="text-3xl font-display font-medium text-[#1E2923]">$18.4K</div>
                   <div className="text-xs text-[#8E9B90]">74% of budget</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Open incidents</span>
                   <div className="text-3xl font-display font-medium text-[#1E2923]">1</div>
                   <div className="text-xs font-semibold text-[#A63326]">AI gateway degraded</div>
@@ -541,7 +541,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 {/* Infrastructure Box */}
-                <div className="lg:col-span-7 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-xs">
+                <div className="lg:col-span-7 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-card">
                   <h3 className="text-sm font-bold text-[#1E2923]">Infrastructure</h3>
 
                   <div className="space-y-4 text-xs font-medium text-[#1E2923]">
@@ -588,7 +588,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 </div>
 
                 {/* Recent Privileged Actions Box */}
-                <div className="lg:col-span-5 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-xs">
+                <div className="lg:col-span-5 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-card">
                   <h3 className="text-sm font-bold text-[#1E2923]">Recent privileged actions</h3>
 
                   <div className="space-y-4">
@@ -620,7 +620,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
 
               <div className="space-y-4">
                 {features.map((feature) => (
-                  <div key={feature.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-4 shadow-xs">
+                  <div key={feature.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-4 shadow-card">
                     
                     {/* Top Row */}
                     <div className="flex items-center justify-between">
@@ -667,7 +667,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                             onClick={() => handleSetPercentage(feature.id, pct)}
                             className={`py-2 rounded-modal text-xs font-semibold border transition-colors cursor-pointer ${
                               isSelected 
-                                ? 'bg-[#183B28] text-white border-[#183B28] shadow-xs' 
+                                ? 'bg-[#183B28] text-white border-[#183B28] shadow-card' 
                                 : 'bg-white text-[#1E2923] border-[#E8E8E2] hover:bg-[#FAFAF8]'
                             }`}
                           >
@@ -692,7 +692,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               </div>
 
               {/* Surfaces Table */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -713,7 +713,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                                 <button
                                   type="button"
                                   onClick={() => setIsAiDropdownOpen(!isAiDropdownOpen)}
-                                  className="w-full max-w-xs bg-white border border-[#B39353] rounded-modal px-3.5 py-2 text-xs font-medium text-[#1E2923] flex items-center justify-between shadow-xs cursor-pointer focus:outline-none"
+                                  className="w-full max-w-xs bg-white border border-[#B39353] rounded-modal px-3.5 py-2 text-xs font-medium text-[#1E2923] flex items-center justify-between shadow-card cursor-pointer focus:outline-none"
                                 >
                                   <span>{selectedAiModel}</span>
                                   <ChevronDown size={14} className="text-[#8E9B90]" />
@@ -756,7 +756,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 {/* Guardrails Card */}
-                <div className="lg:col-span-7 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-6 shadow-xs">
+                <div className="lg:col-span-7 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-6 shadow-card">
                   <h3 className="text-sm font-bold text-[#1E2923]">Guardrails</h3>
 
                   <div className="space-y-5">
@@ -805,7 +805,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 </div>
 
                 {/* Spend this month Card */}
-                <div className="lg:col-span-5 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-xs">
+                <div className="lg:col-span-5 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-card">
                   <h3 className="text-sm font-bold text-[#1E2923]">Spend this month</h3>
 
                   <div className="space-y-2">
@@ -835,14 +835,14 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 <button
                   type="button"
                   onClick={() => showToast('Opened add staff member modal')}
-                  className="bg-[#B34024] hover:bg-[#9E351C] text-white px-5 py-2.5 rounded-modal text-xs font-semibold transition-colors shadow-xs cursor-pointer w-fit"
+                  className="bg-[#B34024] hover:bg-[#9E351C] text-white px-5 py-2.5 rounded-modal text-xs font-semibold transition-colors shadow-card cursor-pointer w-fit"
                 >
                   + Add staff member
                 </button>
               </div>
 
               {/* Staff Table */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -858,7 +858,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                       {staffMembers.map((staff, i) => (
                         <tr key={i} className="hover:bg-[#FAFAF8] transition-colors">
                           <td className="py-4 px-6 flex items-center space-x-3.5">
-                            <div className={`w-8 h-8 rounded-modal ${staff.initialBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}>
+                            <div className={`w-8 h-8 rounded-modal ${staff.initialBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-card`}>
                               {staff.initial}
                             </div>
                             <div>
@@ -906,7 +906,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 <p className="text-xs text-[#8E9B90]">Region, data residency, and lifecycle for individual workspaces.</p>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -948,19 +948,19 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               
               {/* 3 Metric Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Failed logins, 24h</span>
                   <div className="text-3xl font-display font-medium text-[#1E2923]">38</div>
                   <div className="text-xs text-[#8E9B90]">no pattern detected</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Staff without MFA</span>
                   <div className="text-3xl font-display font-medium text-[#A63326]">1</div>
                   <div className="text-xs text-[#1E2923]">Tomi Williams</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
                   <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Last penetration test</span>
                   <div className="text-3xl font-display font-medium text-[#1E2923]">May 2026</div>
                   <div className="text-xs text-[#137333]">no criticals</div>
@@ -968,7 +968,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               </div>
 
               {/* Security Toggles Card */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-6 shadow-xs">
+              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-6 shadow-card">
                 
                 <div className="space-y-5">
                   
@@ -1050,7 +1050,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               <div className="space-y-4">
                 <h3 className="text-sm font-bold text-[#1E2923]">Global audit log</h3>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-xs">
+                <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
@@ -1093,7 +1093,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
 
               <div className="space-y-4">
                 {dangerActions.map((danger, index) => (
-                  <div key={index} className="bg-white border border-[#F3D5CE] rounded-[24px] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+                  <div key={index} className="bg-white border border-[#F3D5CE] rounded-[24px] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
                     <div className="space-y-1 max-w-2xl">
                       <h3 className="text-sm font-bold text-[#1E2923]">{danger.title}</h3>
                       <p className="text-xs text-[#8E9B90] leading-relaxed">{danger.description}</p>
@@ -1102,7 +1102,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                     <button
                       type="button"
                       onClick={() => setActiveModalAction(danger)}
-                      className="bg-white hover:bg-[#FDF0ED] text-[#A63326] border border-[#F3D5CE] px-5 py-2.5 rounded-modal text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-2xs"
+                      className="bg-white hover:bg-[#FDF0ED] text-[#A63326] border border-[#F3D5CE] px-5 py-2.5 rounded-modal text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-card"
                     >
                       {danger.buttonText}
                     </button>

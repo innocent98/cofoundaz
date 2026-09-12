@@ -14,7 +14,7 @@ export default function SharedPage() {
   const [accessLevel, setAccessLevel] = useState('View');
   const [linkExpires, setLinkExpires] = useState(true);
 
-  const handleShareSubmit = (e: any) => {
+  const handleShareSubmit = (e: unknown) => {
     e.preventDefault();
     setIsShareModalOpen(false);
     triggerToast('Document shared.');
@@ -36,7 +36,7 @@ export default function SharedPage() {
         <p className="text-xs text-[#738279]">Files shared with external collaborators and advisors.</p>
       </div>
 
-      <div className="bg-white border border-[#E8E8E2] rounded-modal shadow-xs overflow-hidden">
+      <div className="bg-white border border-[#E8E8E2] rounded-modal shadow-card overflow-hidden">
         <table className="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr className="border-b border-[#E8E8E2] text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider bg-white">
@@ -102,7 +102,7 @@ export default function SharedPage() {
                       onClick={() => setAccessLevel(level)}
                       className={`py-2 rounded-input text-xs font-semibold border transition-all ${
                         accessLevel === level 
-                          ? 'border-[#183B28] bg-[#EAF2ED] text-[#183B28] shadow-xs' 
+                          ? 'border-[#183B28] bg-[#EAF2ED] text-[#183B28] shadow-card' 
                           : 'border-[#E8E8E2] text-[#617065] hover:bg-[#F5F5F0]'
                       }`}
                     >
@@ -137,7 +137,7 @@ export default function SharedPage() {
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-[#183B28] hover:bg-[#122E21] text-white rounded-card text-sm font-bold transition-colors shadow-xs"
+                  className="flex-1 px-4 py-2 bg-[#183B28] hover:bg-[#122E21] text-white rounded-card text-sm font-bold transition-colors shadow-card"
                 >
                   Send invite
                 </button>
