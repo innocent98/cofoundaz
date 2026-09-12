@@ -74,7 +74,7 @@ const LIBRARY_DOCS: LibraryItem[] = [
 const INITIAL_SIGNATURE_REQUESTS: SignatureRequestItem[] = [
   {
     title: 'Contractor agreement, Chidi A.',
-    meta: 'Sent Jul 24 • 1 of 2 signed',
+    meta: 'Sent Jul 24 ï¿½ 1 of 2 signed',
     status: 'Awaiting',
     actionText: 'Remind',
     signers: [
@@ -84,7 +84,7 @@ const INITIAL_SIGNATURE_REQUESTS: SignatureRequestItem[] = [
   },
   {
     title: 'Mutual NDA, Thrive SACCO',
-    meta: 'Sent Jul 18 • 2 of 2 signed',
+    meta: 'Sent Jul 18 ï¿½ 2 of 2 signed',
     status: 'Complete',
     actionText: 'Download',
     signers: [
@@ -94,7 +94,7 @@ const INITIAL_SIGNATURE_REQUESTS: SignatureRequestItem[] = [
   },
   {
     title: 'Founder IP assignment',
-    meta: 'Sent Jul 2 • 1 of 2 signed',
+    meta: 'Sent Jul 2 ï¿½ 1 of 2 signed',
     status: 'Expired',
     actionText: 'Resend',
     signers: [

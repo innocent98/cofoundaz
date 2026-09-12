@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { Search, Plus, FileText, Check, X } from 'lucide-react';
@@ -14,7 +14,7 @@ export default function SharedPage() {
   const [accessLevel, setAccessLevel] = useState('View');
   const [linkExpires, setLinkExpires] = useState(true);
 
-  const handleShareSubmit = (e: unknown) => {
+  const handleShareSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsShareModalOpen(false);
     triggerToast('Document shared.');

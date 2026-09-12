@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { Search, Plus, Mail } from 'lucide-react';
@@ -17,7 +17,7 @@ export default function SignaturesPage() {
     triggerToast(req.actionText + ' • ' + req.title);
   };
   
-  const handleSignSubmit = (e: unknown) => {
+  const handleSignSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSignModalOpen(false);
     triggerToast('Signature request sent.');
