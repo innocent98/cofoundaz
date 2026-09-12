@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useValidationApi, SmokeTest } from '@/hooks/useValidationApi';
@@ -81,7 +81,7 @@ export default function SmokeTestsPage() {
                 
                 <div className="flex flex-col gap-1.5 pt-2">
                   <label className="text-xs font-bold text-[#1E2923] uppercase tracking-wider">Post-signup message</label>
-                  <input type="text" defaultValue="You're on the list — we'll be in touch soon." className="w-full bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-4 py-2.5 text-sm outline-none focus:border-[#183B28] focus:ring-1 focus:ring-[#183B28]" />
+                  <input type="text" defaultValue="You&apos;re on the list — we'll be in touch soon." className="w-full bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-4 py-2.5 text-sm outline-none focus:border-[#183B28] focus:ring-1 focus:ring-[#183B28]" />
                 </div>
               </div>
 

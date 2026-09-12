@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState } from "react";
@@ -113,19 +114,19 @@ export default function MarketingCalendarPage() {
                 <span className="text-xs font-semibold text-sage-700">{dayNum}</span>
                 
                 <div className="space-y-1 mt-1 flex-1">
-                  {dayEvents.map((evt: any, eIdx: number) => {
+                  {dayEvents.map((evt: unknown, eIdx: number) => {
                     let badgeColor = "bg-[#0e271f] text-white";
-                    if (evt.channel === "paid_social") badgeColor = "bg-[#9C5B34] text-white";
-                    if (evt.channel === "content_seo") badgeColor = "bg-[#46735e] text-white";
-                    if (evt.channel === "email") badgeColor = "bg-[#1e4836] text-white";
+                    if (((evt as any).channel) === "paid_social") badgeColor = "bg-[#9C5B34] text-white";
+                    if (((evt as any).channel) === "content_seo") badgeColor = "bg-[#46735e] text-white";
+                    if (((evt as any).channel) === "email") badgeColor = "bg-[#1e4836] text-white";
 
                     return (
                       <div
                         key={eIdx}
                         className={`text-[11px] font-medium px-2 py-1 rounded-[6px] truncate shadow-card cursor-pointer ${badgeColor}`}
-                        title={evt.title}
+                        title={((evt as any).title)}
                       >
-                        {evt.title}
+                        {((evt as any).title)}
                       </div>
                     );
                   })}

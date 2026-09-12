@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
@@ -105,7 +105,7 @@ const ACTIVITIES_DATA: ActivityItem[] = [
     user: 'Amara Okafor',
     initials: 'AO',
     action: 'completed a mission task',
-    target: "Today's Mission · 2h ago",
+    target: "Today&apos;s Mission · 2h ago",
     timeAgo: '2h ago',
     category: 'Edits',
     day: 'TODAY',

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -71,7 +71,7 @@ export default function AssessmentRunnerPage() {
           <h1 className="text-3xl font-display font-semibold text-sage-900">
             Your Health Score is now {completedScore}.
           </h1>
-          <p className="text-sage-500">Here's what changed.</p>
+          <p className="text-sage-500">Here&apos;s what changed.</p>
         </div>
         <div className="w-full space-y-3 pt-2">
           <div className="bg-white rounded-modal p-4 border border-sage-200/80 shadow-card flex items-center justify-between font-medium">
@@ -131,7 +131,7 @@ export default function AssessmentRunnerPage() {
         </div>
 
         <p className="text-xs text-sage-400 italic">
-          Adaptive: I skip anything that doesn't apply to you.
+          Adaptive: I skip anything that doesn&apos;t apply to you.
         </p>
       </div>
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -37,7 +37,7 @@ export default function AssessmentStartPage() {
         </div>
         
         <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">
-          Let's calibrate Cofoundaz
+          Let&apos;s calibrate Cofoundaz
         </h1>
         
         <p className="text-sage-600 text-sm md:text-base max-w-lg leading-relaxed">

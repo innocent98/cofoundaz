@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+﻿import { useState, useCallback, useEffect } from 'react';
 
 export interface MissionTask {
   id: string;
@@ -74,15 +74,7 @@ export function useMissionApi() {
       }
     ];
 
-    setTasks(mockTasks);
-    setMissionDay({
-      id: 'm-1',
-      date: new Date().toISOString(),
-      streakCount: 6,
-      status: 'pending',
-      tasks: mockTasks,
-    });
-    setIsReady(true);
+    queueMicrotask(() => { setTasks(mockTasks); queueMicrotask(() => { setIsReady(true); }); });
   }, []);
 
   const toggleTask = useCallback((id: string) => {

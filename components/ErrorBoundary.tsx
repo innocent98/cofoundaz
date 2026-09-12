@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
 
@@ -28,7 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center p-6 h-full min-h-[200px] text-center bg-white rounded-card border border-green-100 shadow-card">
-          <p className="text-sm text-sage-500 mb-3">Couldn't load this.</p>
+          <p className="text-sm text-sage-500 mb-3">Couldn&apos;t load this.</p>
           <button 
             onClick={() => {
               this.setState({ hasError: false });

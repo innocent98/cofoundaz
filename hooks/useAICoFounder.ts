@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+﻿import { useState, useCallback, useRef, useEffect } from 'react';
 import type { 
   AIConversation, 
   AIMessage, 
@@ -211,7 +211,7 @@ export function useAISuggestions() {
     }
   }, []);
 
-  useEffect(() => { fetchSuggestions(); }, [fetchSuggestions]);
+  useEffect(() => { queueMicrotask(() => { fetchSuggestions(); }); }, [fetchSuggestions]);
 
   const handleSuggestion = useCallback(async (id: string, action: 'accept' | 'dismiss' | 'snooze') => {
     try {
@@ -240,7 +240,7 @@ export function useAIMemory() {
     }
   }, []);
 
-  useEffect(() => { fetchMemory(); }, [fetchMemory]);
+  useEffect(() => { queueMicrotask(() => { fetchMemory(); }); }, [fetchMemory]);
 
   const forgetMemoryFact = useCallback(async (id: string) => {
     try {

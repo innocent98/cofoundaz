@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { useAISuggestions } from '../../../../hooks/useAICoFounder';
@@ -55,7 +55,7 @@ export default function SuggestedActionsPage() {
         {loading ? (
           <p className="text-sm text-sage-500">Loading suggestions...</p>
         ) : suggestions.length === 0 ? (
-          <p className="text-sm text-sage-500">Nothing right now. When I spot something worth your time, it'll be here.</p>
+          <p className="text-sm text-sage-500">Nothing right now. When I spot something worth your time, it&apos;ll be here.</p>
         ) : (
           suggestions.map((item) => (
             <div

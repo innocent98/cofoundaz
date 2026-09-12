@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { Suspense, useState, useRef, useEffect } from 'react';
 import { 
   Search, Plus, Sparkles, ArrowUp, Loader2, 
   Check, Hash, Database
@@ -47,7 +47,7 @@ function ReasoningBlock({ reasoningSummary }: { reasoningSummary: string }) {
   );
 }
 
-export default function ChatViewPage() {
+function ChatViewContent() {
   const searchParams = useSearchParams();
   const agentParam = searchParams.get('agent') as AgentKey | null;
 
@@ -84,7 +84,7 @@ export default function ChatViewPage() {
   // Handle agent query parameter
   useEffect(() => {
     if (agentParam && !activeConvId && messages.length === 0) {
-      setChatInput(`/${agentParam} `);
+      queueMicrotask(() => { setChatInput(`/${agentParam} `); });
     }
   }, [agentParam, activeConvId, messages.length]);
 
@@ -244,7 +244,7 @@ export default function ChatViewPage() {
               <Sparkles className="w-12 h-12 text-[#A8894B] mb-4" />
               <h3 className="font-bold text-xl text-[#1E2923] mb-2">Meet your AI Co-Founder.</h3>
               <p className="text-sm text-[#617065] mb-8 leading-relaxed">
-                I know your startup — your stage, your numbers, your plan. Ask me anything, and I'll bring in the right specialist.
+                I know your startup — your stage, your numbers, your plan. Ask me anything, and I&apos;ll bring in the right specialist.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
                 {[
@@ -490,5 +490,13 @@ export default function ChatViewPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ChatViewPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-sm text-[#617065]">Loading AI co-founder...</div>}>
+      <ChatViewContent />
+    </Suspense>
   );
 }

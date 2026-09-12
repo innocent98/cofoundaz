@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { Sparkles, ArrowRight, Check } from 'lucide-react';
@@ -68,7 +68,7 @@ export function InsightSynthesizer() {
                     <h3 className="text-sm font-bold text-[#1E2923] uppercase tracking-wider">Detected Patterns</h3>
                     
                     <div className="bg-[#E6EFEA] border border-[#D5E3DB] p-4 rounded-card flex flex-col gap-2">
-                      <h4 className="font-bold text-[#183B28]">Strong signal on "Trust"</h4>
+                      <h4 className="font-bold text-[#183B28]">Strong signal on &quot;Trust&quot;</h4>
                       <p className="text-sm text-[#2D5A3F]">Mentioned positively in 8/10 recent interactions. Your fake-door MVP tests correlate with high CTR.</p>
                     </div>
 
@@ -87,7 +87,7 @@ export function InsightSynthesizer() {
                     <div className="bg-white border border-[#EBEBE6] rounded-card p-4 flex flex-col gap-4 shadow-card">
                       <div className="flex flex-col gap-1">
                         <span className="text-xs text-[#617065] font-medium">Assumption Tracker</span>
-                        <p className="text-sm font-bold text-[#1E2923]">"Users will trust a non-bank app with their daily income"</p>
+                        <p className="text-sm font-bold text-[#1E2923]">&quot;Users will trust a non-bank app with their daily income&quot;</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#FDF4E3] text-[#8A5330]">Testing</span>

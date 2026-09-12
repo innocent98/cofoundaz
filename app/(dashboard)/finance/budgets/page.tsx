@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { Plus, Copy, FileText } from "lucide-react";
@@ -48,7 +48,7 @@ export default function BudgetsPage() {
           </div>
           <h3 className="text-xl font-display font-bold text-sage-900 mb-2">No budget set for {selectedMonth}</h3>
           <p className="text-sm text-sage-500 mb-6 max-w-sm">
-            You haven't defined category limits for this period. Draft a new one or carry over from last month.
+            You haven&apos;t defined category limits for this period. Draft a new one or carry over from last month.
           </p>
           <div className="flex gap-3">
             <button 
@@ -78,7 +78,7 @@ export default function BudgetsPage() {
               onClick={() => triggerToast(`Copied budget from previous month into ${selectedMonth}.`)}
               className="text-xs font-bold text-[#9c5b34] hover:underline flex items-center gap-1"
             >
-              <Copy className="w-3.5 h-3.5" /> Copy last month's budget
+              <Copy className="w-3.5 h-3.5" /> Copy last month&apos;s budget
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

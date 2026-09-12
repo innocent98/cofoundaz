@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { useFinanceApi, formatCurrency } from "@/hooks/useFinanceApi";
@@ -22,7 +22,7 @@ export default function CashFlowPage() {
             </div>
             <div>
               <h4 className="text-sm font-bold text-[#B0483B]">Runway under 6 months.</h4>
-              <p className="text-sm text-[#B0483B] opacity-90 mt-0.5">Let's look at levers — costs, pricing, or funding.</p>
+              <p className="text-sm text-[#B0483B] opacity-90 mt-0.5">Let&apos;s look at levers — costs, pricing, or funding.</p>
             </div>
           </div>
           <button className="bg-white border border-[#ffcccc] text-[#B0483B] hover:bg-[#fff5f5] px-4 py-2 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">
@@ -61,8 +61,8 @@ export default function CashFlowPage() {
           {[1,2,3,4,5,6].map((i) => (
             <div key={i} className="flex-1 flex flex-col justify-end gap-1 items-center h-full group">
               <div className="w-full flex gap-1 justify-center items-end h-[80%]">
-                <div className="w-1/3 bg-[#1e3b30] rounded-t-sm transition-all" style={{ height: `${Math.random() * 60 + 20}%` }}></div>
-                <div className="w-1/3 bg-[#B0483B] rounded-t-sm transition-all" style={{ height: `${Math.random() * 80 + 20}%` }}></div>
+                <div className="w-1/3 bg-[#1e3b30] rounded-t-sm transition-all" style={{ height: `${(((i * 17 + 23) % 60) + 20)}%` }}></div>
+                <div className="w-1/3 bg-[#B0483B] rounded-t-sm transition-all" style={{ height: `${(((i * 29 + 13) % 70) + 20)}%` }}></div>
               </div>
               <span className="text-[10px] text-sage-400 font-medium">M{i}</span>
             </div>

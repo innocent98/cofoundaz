@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,7 @@ export default function AssessmentInProgressPage() {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
         <h2 className="text-xl font-display font-semibold text-sage-900 mb-2">No active assessment</h2>
-        <p className="text-sage-500 mb-6">You don't have any assessments currently in progress.</p>
+        <p className="text-sage-500 mb-6">You don&apos;t have any assessments currently in progress.</p>
         <button 
           onClick={() => router.push('/assessment')}
           className="bg-[#1e4836] hover:bg-[#153427] text-white font-bold text-sm px-5 py-2.5 rounded-[8px] transition-colors"
@@ -33,7 +33,7 @@ export default function AssessmentInProgressPage() {
           Pick up where you left off
         </h1>
         <p className="text-sage-500 text-sm md:text-base">
-          You're {activeSession.progressPct}% through your calibration.
+          You&apos;re {activeSession.progressPct}% through your calibration.
         </p>
       </div>
 

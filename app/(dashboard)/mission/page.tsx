@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -83,7 +83,7 @@ export default function MissionTodayPage() {
       <div className="flex items-start justify-between gap-4 pt-2">
         <div>
           <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">
-            Today's Mission
+            Today&apos;s Mission
           </h2>
           <p className="text-sm text-[#768478] mt-1 font-medium">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
@@ -102,7 +102,7 @@ export default function MissionTodayPage() {
             <span className="text-3xl">🎉</span>
           </div>
           <h3 className="text-3xl font-display font-bold text-[#1E2923]">Mission complete.</h3>
-          <p className="text-lg text-[#617065]">That's what compounding looks like. See you tomorrow.</p>
+          <p className="text-lg text-[#617065]">That&apos;s what compounding looks like. See you tomorrow.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4">

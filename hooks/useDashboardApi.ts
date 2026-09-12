@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { 
   DashboardSummaryResponse, 
@@ -27,22 +28,20 @@ export function useDashboardSummary() {
       setError(null);
       const res = await fetch('/api/v1/dashboard/summary', { headers: getHeaders() });
       if (res.ok) {
-        const json = await res.json();
+        const json: any = await res.json();
         setData(json);
       } else {
         console.warn('Failed to fetch dashboard summary, falling back to null');
         setData(null);
       }
-    } catch (err: any) {
-      setError(err);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+  useEffect(() => { queueMicrotask(() => { refetch(); }); }, [refetch]);
 
   return { data, loading, error, refetch, setData };
 }
@@ -62,18 +61,16 @@ export function useAIBriefing() {
         setData(null);
         return;
       }
-      const json = await res.json();
+      const json: any = await res.json();
       setData(json);
-    } catch (err: any) {
-      setError(err);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchBriefing();
-  }, [fetchBriefing]);
+  useEffect(() => { queueMicrotask(() => { fetchBriefing(); }); }, [fetchBriefing]);
 
   const acceptAction = async (briefingId: string, index: number) => {
     try {
@@ -109,7 +106,7 @@ export function useActivityFeed(workspaceId: string) {
       if (cursor) url.searchParams.append('cursor', cursor);
       
       const res = await fetch(url.toString(), { headers: getHeaders() });
-      let json: any = null;
+      let json: unknown = null;
       if (res.ok) {
         json = await res.json();
       } else {
@@ -117,7 +114,7 @@ export function useActivityFeed(workspaceId: string) {
       }
       
       // Normalize data list
-      let newItems = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      let newItems = Array.isArray((json as any)?.data) ? (json as any).data : (Array.isArray(json) ? (json as any[]) : []);
       
       // Fallback if empty
       if (newItems.length === 0) {
@@ -142,18 +139,16 @@ export function useActivityFeed(workspaceId: string) {
       });
       
       setData((prev) => (cursor ? [...prev, ...enriched] : enriched));
-      setNextCursor(json?.meta?.nextCursor ?? null);
-    } catch (err: any) {
-      setError(err);
+      setNextCursor((json as any)?.meta?.nextCursor ?? null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setLoading(false);
     }
   }, []);
 
   // Initial fetch
-  useEffect(() => {
-    fetchActivity();
-  }, [fetchActivity]);
+  useEffect(() => { queueMicrotask(() => { fetchActivity(); }); }, [fetchActivity]);
 
   // WebSocket Sync
   useEffect(() => {

@@ -1,4 +1,4 @@
-// components/Sidebar.tsx
+﻿// components/Sidebar.tsx
 'use client';
 
 import React from 'react';
@@ -58,7 +58,7 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
       { label: 'AI Co-Founder', href: '/ai', icon: Sparkles },
-      { label: "Today's Mission", href: '/mission', icon: Target },
+      { label: "Today&apos;s Mission", href: '/mission', icon: Target },
       { label: 'Health Score', href: '/health', icon: Activity },
       { label: 'Roadmap', href: '/roadmap', icon: ArrowRight },
     ],

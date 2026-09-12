@@ -1,16 +1,17 @@
-'use client';
+﻿'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+
+function getGreeting(): string {
+  if (typeof window === 'undefined') return 'Good day';
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
 
 export function GreetingHeader({ firstName, startupName }: { firstName: string; startupName: string }) {
-  const [greeting, setGreeting] = useState('Good morning');
-
-  useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting('Good morning');
-    else if (hour < 18) setGreeting('Good afternoon');
-    else setGreeting('Good evening');
-  }, []);
+  const [greeting] = useState<string>(getGreeting);
 
   return (
     <section className="mb-6 w-full col-span-1 md:col-span-12">

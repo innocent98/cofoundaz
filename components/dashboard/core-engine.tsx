@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -30,7 +31,7 @@ export function CoreEngine({
         </div>
       </DashboardErrorBoundary>
 
-      {/* Today's Mission */}
+      {/* Today&apos;s Mission */}
       <DashboardErrorBoundary onRetry={onRefetch}>
         <MissionCard missions={data.mission?.tasks ?? []} onToggle={onMissionUpdate} />
       </DashboardErrorBoundary>
@@ -163,7 +164,7 @@ function AIBriefingCard({ briefing }: { briefing: any }) {
     <div className="col-span-1 md:col-span-4 bg-[#12291F] text-white p-6 rounded-card shadow-card flex flex-col justify-between min-h-[300px]">
       <div>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#1E4D3B] flex items-center justify-center shadow-inner">
+          <div className="w-10 h-10 rounded-full bg-[#1E4D3B] flex items-center justify-center shadow-card">
             <Sparkles className="w-5 h-5 text-[#A8894B]" />
           </div>
           <div>

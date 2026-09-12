@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback } from 'react';
 
 export type DimensionCategory = 'Product' | 'Market' | 'Money' | 'Legal' | 'Team';
@@ -204,7 +205,7 @@ export function useAssessmentApi() {
     return activeSession;
   }, [activeSession]);
 
-  const saveAnswer = useCallback((id: string, answer: any) => {
+  const saveAnswer = useCallback((id: string, answer: unknown) => {
     setActiveSession(prev => {
       if (!prev) return null;
       

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
@@ -25,7 +25,7 @@ export default function HistoryPage() {
             Conversation history
           </h2>
           <p className="text-xs text-[#617065]">
-            Everything you've worked through, grouped by topic.
+            Everything you&apos;ve worked through, grouped by topic.
           </p>
         </div>
 

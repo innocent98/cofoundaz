@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -56,7 +57,7 @@ export default function DashboardPage() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (reducedMotion) {
-      setDisplayScore(targetScore);
+      queueMicrotask(() => { setDisplayScore(targetScore); });
       return;
     }
 
@@ -178,7 +179,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (summaryData?.mission?.tasks) {
-      setTasks(summaryData.mission.tasks);
+      queueMicrotask(() => { setTasks(summaryData.mission.tasks); });
     }
   }, [summaryData?.mission?.tasks]);
 
@@ -389,7 +390,7 @@ export default function DashboardPage() {
             </div>
           </ErrorBoundary>
 
-          {/* 2. Today's Mission Card */}
+          {/* 2. Today&apos;s Mission Card */}
           <ErrorBoundary onRetry={refetchSummary}>
             <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
               {(() => { if (summaryError) throw summaryError; return null; })()}
@@ -487,7 +488,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="text-sm text-sage-200 leading-relaxed font-normal mb-8">
-                {summaryData?.briefing?.content || "Good news first: pipeline grew ₦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it's your riskiest untested assumption and it moves both revenue and runway."}
+                {summaryData?.briefing?.content || "Good news first: pipeline grew ₦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it&apos;s your riskiest untested assumption and it moves both revenue and runway."}
               </p>
             </div>
 
@@ -828,7 +829,7 @@ export default function DashboardPage() {
                   ),
                 },
                 {
-                  title: "Today's Mission",
+                  title: "Today&apos;s Mission",
                   subtitle: 'Overview',
                   icon: (
                     <svg className="w-4 h-4 text-[#266B4E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

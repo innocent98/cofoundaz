@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -117,11 +118,11 @@ export function AiDrawer() {
             className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
           />
 
-          <div className="relative w-full max-w-md h-full bg-[#FAFAFA] shadow-2xl flex flex-col transform transition-transform border-l border-sage-200">
+          <div className="relative w-full max-w-md h-full bg-[#FAFAFA] shadow-raised flex flex-col transform transition-transform border-l border-sage-200">
             {/* Header */}
             <div className="p-4 border-b border-sage-100 flex items-center justify-between bg-white shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-card bg-[#1F4D3A] text-white flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 rounded-card bg-[#1F4D3A] text-white flex items-center justify-center shadow-card">
                   <Sparkles className="w-4 h-4 fill-[#A8894B] text-[#A8894B]" />
                 </div>
                 <div>
@@ -161,7 +162,7 @@ export function AiDrawer() {
                           key={idx}
                           type="button"
                           onClick={() => handleSendMessage(suggestion)}
-                          className="text-xs font-medium text-[#1C201D] bg-white border border-sage-200 px-3 py-2.5 rounded-card hover:border-[#1F4D3A] transition-colors cursor-pointer shadow-sm text-left"
+                          className="text-xs font-medium text-[#1C201D] bg-white border border-sage-200 px-3 py-2.5 rounded-card hover:border-[#1F4D3A] transition-colors cursor-pointer shadow-card text-left"
                         >
                           {suggestion}
                         </button>
@@ -186,12 +187,12 @@ export function AiDrawer() {
                     
                     <div className={`flex items-start gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''} w-full`}>
                       {msg.role === 'assistant' && (
-                        <div className="w-7 h-7 rounded-md bg-[#1F4D3A] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                        <div className="w-7 h-7 rounded-input bg-[#1F4D3A] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-card">
                           <Sparkles className="w-3.5 h-3.5 fill-[#A8894B] text-[#A8894B]" />
                         </div>
                       )}
                       <div
-                        className={`max-w-[85%] p-3.5 text-sm leading-relaxed rounded-2xl shadow-sm ${
+                        className={`max-w-[85%] p-3.5 text-sm leading-relaxed rounded-card shadow-card ${
                           msg.role === 'user'
                             ? 'bg-[#1F4D3A] text-white rounded-tr-sm'
                             : 'bg-white border border-sage-100 text-[#1C201D] rounded-tl-sm'
@@ -249,7 +250,7 @@ export function AiDrawer() {
                     onClick={stopGenerating}
                     className="flex items-center gap-2 bg-white border border-sage-200 shadow-raised text-xs font-semibold text-sage-700 px-4 py-2 rounded-full hover:bg-sage-50 transition-colors cursor-pointer"
                   >
-                    <div className="w-2 h-2 bg-red-500 rounded-sm" />
+                    <div className="w-2 h-2 bg-red-500 rounded-input" />
                     Stop generating
                   </button>
                 </div>
@@ -260,10 +261,10 @@ export function AiDrawer() {
                   e.preventDefault();
                   handleSendMessage(chatInput);
                 }}
-                className="relative flex flex-col bg-[#F9F9F8] border border-[#EBEBE6] rounded-xl px-2 py-2 focus-within:ring-2 focus-within:ring-[#A8894B] focus-within:border-transparent transition-all"
+                className="relative flex flex-col bg-[#F9F9F8] border border-[#EBEBE6] rounded-card px-2 py-2 focus-within:ring-2 focus-within:ring-[#A8894B] focus-within:border-transparent transition-all"
               >
                 {chatInput.startsWith('/') && (
-                  <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-[#EBEBE6] rounded-xl shadow-card overflow-hidden">
+                  <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-[#EBEBE6] rounded-card shadow-card overflow-hidden">
                     <p className="px-3 py-2 text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider bg-[#FBFBFA] border-b border-[#EBEBE6]">Slash Commands</p>
                     {['/draft', '/analyze', '/plan', '/agents'].map(cmd => (
                       <button 
@@ -294,7 +295,7 @@ export function AiDrawer() {
                   <button
                     type="submit"
                     disabled={!chatInput.trim() || isStreaming}
-                    className={`font-semibold text-xs px-4 py-1.5 rounded-lg shadow-sm transition-colors flex items-center justify-center min-w-[64px] ${
+                    className={`font-semibold text-xs px-4 py-1.5 rounded-card shadow-card transition-colors flex items-center justify-center min-w-[64px] ${
                       chatInput.trim() && !isStreaming
                         ? 'bg-[#A8894B] hover:bg-[#967941] text-[#12291F] cursor-pointer'
                         : 'bg-[#EBEBE6] text-[#8E9B90] cursor-not-allowed'

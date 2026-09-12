@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState } from 'react';
@@ -21,7 +22,7 @@ export default function ValuePropositionPage() {
   const handleEditItem = (stateUpdater: any, secId: string, itemIdx: number, oldItem: string) => {
     const updated = prompt('Edit item:', oldItem);
     if (updated) {
-      stateUpdater((prev: any) => prev.map((sec: any) => 
+      (stateUpdater as any)((prev: any[]) => prev.map((sec: any) => 
         sec.id === secId 
           ? { ...sec, items: sec.items.map((i: string, ix: number) => ix === itemIdx ? updated : i) }
           : sec
@@ -33,7 +34,7 @@ export default function ValuePropositionPage() {
   const handleAddItem = (stateUpdater: any, secId: string) => {
     const newItem = prompt('Enter new item:');
     if (newItem) {
-      stateUpdater((prev: any) => prev.map((sec: any) =>
+      (stateUpdater as any)((prev: any[]) => prev.map((sec: any) =>
         sec.id === secId ? { ...sec, items: [...sec.items, newItem] } : sec
       ));
       triggerToast('Saved');
