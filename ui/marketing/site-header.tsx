@@ -18,7 +18,7 @@ export function SiteHeader() {
                   <button
                     type="button"
                     aria-expanded="false"
-                    aria-haspopup="true"
+                    aria-haspopup="menu"
                     className="flex items-center gap-1.5 px-3 py-2 text-[15px] font-normal text-[#33413B] hover:text-sage-500 transition-colors cursor-pointer focus:outline-none"
                   >
                     Resources
@@ -26,9 +26,17 @@ export function SiteHeader() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                  <div className="invisible absolute top-full left-0 mt-1 flex w-48 flex-col rounded-input bg-white p-2 shadow-raised opacity-0 transition-all group-hover:visible group-hover:opacity-100" aria-hidden="true">
-                    <Link href="#blog" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-input">Blog</Link>
-                    <Link href="#guides" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-input">Guides & Tools</Link>
+                  <div
+                    role="menu"
+                    aria-label="Resources"
+                    className="invisible absolute top-full left-0 mt-1 flex w-48 flex-col rounded-input bg-white p-2 shadow-raised opacity-0 transition-all group-hover:visible group-hover:opacity-100"
+                  >
+                    <Link role="menuitem" href="#blog" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-input">
+                      Blog
+                    </Link>
+                    <Link role="menuitem" href="#guides" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-input">
+                      Guides & Tools
+                    </Link>
                   </div>
                 </div>
               )
@@ -49,7 +57,7 @@ export function SiteHeader() {
           <Button href={headerCtas.login.href} variant="ghost" size="sm" className="hidden lg:inline-flex text-[#1B4B38] hover:text-[#12291F]">
             {headerCtas.login.label}
           </Button>
-          <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex bg-copper-600 bg-copper-600 hover:bg-copper-700 text-white">
+          <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex">
             {headerCtas.signup.label}
           </Button>
           <MobileNav />

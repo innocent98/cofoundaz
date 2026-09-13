@@ -92,11 +92,11 @@ export function TestimonialCarousel() {
               className="flex h-11 w-11 flex-none items-center justify-center text-white/70 hover:text-white transition-colors"
             >
               {paused ? (
-                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               ) : (
-                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                 </svg>
               )}
