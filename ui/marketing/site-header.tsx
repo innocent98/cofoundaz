@@ -49,7 +49,7 @@ export function SiteHeader() {
           <Button href={headerCtas.login.href} variant="ghost" size="sm" className="hidden lg:inline-flex text-[#1B4B38] hover:text-[#12291F]">
             {headerCtas.login.label}
           </Button>
-          <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex bg-copper-600 bg-[#A68A48] hover:bg-[#9E8043] text-[#1B382B]">
+          <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex bg-copper-600 bg-copper-600 hover:bg-copper-700 text-white">
             {headerCtas.signup.label}
           </Button>
           <MobileNav />
