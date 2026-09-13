@@ -61,7 +61,9 @@ for (const file of files) {
   });
 }
 
-// ESLint on the staged files (array args → safe with (parens) and & in paths).
+// ESLint on the staged files. No `shell: true` — with it, the shell re-parses
+// argv and chokes on route-group paths like app/(dashboard)/… and the `&` in
+// legal&compliance/. Passing the array directly keeps every path literal.
 const eslint = spawnSync('npx', ['--no-install', 'eslint', ...files], { stdio: 'inherit' });
 
 if (violations > 0 || eslint.status !== 0) {

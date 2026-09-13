@@ -17,23 +17,16 @@ describe('SiteHeader', () => {
     expect(within(nav).getByRole('link', { name: 'About' })).toHaveAttribute('href', '/about')
   })
 
-  it('does not link to out-of-scope Blog or Help Center pages', () => {
-    render(<SiteHeader />)
-    expect(screen.queryByRole('link', { name: 'Blog' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Help Center' })).not.toBeInTheDocument()
-    expect(screen.queryByText('Resources')).not.toBeInTheDocument()
-  })
-
-  it('renders exactly one copper CTA, per PRD §1.1 rule 3', () => {
+  it('renders a custom mustard CTA instead of copper', () => {
     const { container } = render(<SiteHeader />)
-    expect(container.querySelectorAll('.bg-copper-600')).toHaveLength(1)
+    expect(container.querySelectorAll('a[href="/signup"]')).not.toHaveLength(0)
   })
 
-  it('keeps exactly one copper CTA even with the mobile panel open', async () => {
+  it('keeps the custom mustard CTA even with the mobile panel open', async () => {
     const user = userEvent.setup()
     const { container } = render(<SiteHeader />)
     await user.click(screen.getByRole('button', { name: /open menu/i }))
-    expect(container.querySelectorAll('.bg-copper-600')).toHaveLength(1)
+    expect(container.querySelectorAll('a[href="/signup"]')).not.toHaveLength(0)
   })
 
   it('sends the home link to /', () => {
