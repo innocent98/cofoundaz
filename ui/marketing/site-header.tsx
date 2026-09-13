@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { Button } from '@/ui/primitives'
 import { headerCtas, headerLinks } from '@/content/nav'
 import { Logo } from './logo'
@@ -15,7 +15,12 @@ export function SiteHeader() {
             if (link.label === 'Resources') {
               return (
                 <div key={link.href} className="group relative">
-                  <button className="flex items-center gap-1.5 px-3 py-2 text-[15px] font-normal text-[#33413B] hover:text-sage-500 transition-colors cursor-pointer focus:outline-none">
+                  <button 
+                    type="button"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    className="flex items-center gap-1.5 px-3 py-2 text-[15px] font-normal text-[#33413B] hover:text-sage-500 transition-colors cursor-pointer focus:outline-none"
+                  >
                     Resources
                     <svg className="h-3 w-3 text-[#33413B] transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
@@ -44,7 +49,7 @@ export function SiteHeader() {
           <Button href={headerCtas.login.href} variant="ghost" size="sm" className="hidden lg:inline-flex text-[#1B4B38] hover:text-[#12291F]">
             {headerCtas.login.label}
           </Button>
-          <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex bg-[#A68A48] hover:bg-[#9E8043] text-[#1B382B]">
+          <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex bg-copper-600 hover:bg-copper-700 text-white">
             {headerCtas.signup.label}
           </Button>
           <MobileNav />

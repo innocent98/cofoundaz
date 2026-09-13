@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { Container } from '@/ui/primitives'
@@ -18,21 +18,9 @@ export function TestimonialCarousel() {
   const { title, quotes } = home.testimonials
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
-  // Only *user-initiated* changes are announced. Putting `aria-live` on the
-  // auto-rotating quote itself would read a whole testimonial to a screen
-  // reader every 6 seconds, forever (WCAG 4.1.3 with 2.2.2) — so the quote
-  // region carries no live semantics and this sr-only region is populated
-  // solely by prev/next/dot activation.
   const [announcement, setAnnouncement] = useState('')
-  // Bumped by every manual selection so the rotation effect tears down and
-  // restarts. Keying the restart off `index` alone would miss the case where
-  // the user re-selects the quote already on screen (or steps back and forth),
-  // which must still restart the dwell.
   const [cycle, setCycle] = useState(0)
-  // The server snapshot is `false` (there is no media query to read during a
-  // static render), so SSR and hydration agree; the client snapshot is read
-  // during the very first client render, well before any 6s tick could fire,
-  // and re-reads if the user changes the OS setting mid-session.
+
   const reducedMotion = useSyncExternalStore(
     subscribeToMotionPreference,
     () => window.matchMedia(REDUCED_MOTION).matches,
@@ -40,10 +28,6 @@ export function TestimonialCarousel() {
   )
 
   useEffect(() => {
-    // Deviation D-2 / WCAG 2.2.2: never auto-advance under reduced motion, and
-    // never while the user has pressed Pause. `cycle` is a dependency so any
-    // manual selection restarts the full 6s dwell instead of inheriting the
-    // remainder of an interval already in flight.
     if (reducedMotion || paused) return
 
     const timer = setInterval(
@@ -65,6 +49,10 @@ export function TestimonialCarousel() {
     )
   }
 
+  function togglePause() {
+    setPaused((prev) => !prev)
+  }
+
   return (
     <section className="bg-green-950 text-green-100">
       <Container width="narrow" className="py-16 text-center md:py-22">
@@ -72,8 +60,8 @@ export function TestimonialCarousel() {
           {title}
         </h2>
 
-        <div 
-          role="group" 
+        <div
+          role="group"
           aria-label={title}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
@@ -96,7 +84,24 @@ export function TestimonialCarousel() {
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-center">
+          <div className="mt-6 flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={togglePause}
+              aria-label={paused ? 'Resume quote rotation' : 'Pause quote rotation'}
+              className="flex h-11 w-11 flex-none items-center justify-center text-white/70 hover:text-white transition-colors"
+            >
+              {paused ? (
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              ) : (
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                </svg>
+              )}
+            </button>
+
             {quotes.map((_, i) => (
               <button
                 key={i}
@@ -106,9 +111,6 @@ export function TestimonialCarousel() {
                 onClick={() => select(i)}
                 className="flex h-11 w-11 flex-none items-center justify-center"
               >
-                {/* The visible indicator stays a small 8px dot; the button
-                    itself is the full 44px touch target (Lighthouse's
-                    target-size audit flagged the dot alone at 8x8px). */}
                 <span
                   aria-hidden="true"
                   className={cn(
