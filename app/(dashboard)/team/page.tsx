@@ -105,7 +105,7 @@ const ACTIVITIES_DATA: ActivityItem[] = [
     user: 'Amara Okafor',
     initials: 'AO',
     action: 'completed a mission task',
-    target: "Today&apos;s Mission · 2h ago",
+    target: "Today's Mission · 2h ago",
     timeAgo: '2h ago',
     category: 'Edits',
     day: 'TODAY',

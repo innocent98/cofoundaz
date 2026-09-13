@@ -55,7 +55,7 @@ function HealthGauge({ score, delta }: { score: number; delta: number }) {
   // Color logic
   let color = '#2E7256'; // green-500
   if (score < 40) color = '#B0483B'; // red-600
-  else if (score < 70) color = '#A8894B'; // brass-600
+  else if (score < 70) color = '#9C5B34'; // copper-600
 
   const deltaText = delta >= 0 ? `+${delta}` : `${delta}`;
 
@@ -93,7 +93,7 @@ function MissionCard({ missions, onToggle }: { missions: MissionTask[]; onToggle
   if (allCompleted) {
     return (
       <div className="col-span-1 md:col-span-4 bg-white p-6 rounded-card border border-sage-100 shadow-card flex flex-col items-center justify-center min-h-[300px]">
-        <Flame className="w-12 h-12 text-[#A8894B] mb-4 animate-bounce" />
+        <Flame className="w-12 h-12 text-copper-600 mb-4 animate-bounce" />
         <h3 className="font-bold text-lg text-sage-900 text-center">Mission complete. 🔥 {streak}-day streak.</h3>
       </div>
     );
@@ -149,7 +149,7 @@ function AIBriefingCard({ briefing }: { briefing: any }) {
       <div className="col-span-1 md:col-span-4 bg-[#12291F] text-white p-6 rounded-card shadow-card flex flex-col justify-between min-h-[300px]">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-8 h-8 rounded-full bg-[#1E4D3B] flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-[#A8894B]" />
+            <Sparkles className="w-4 h-4 text-copper-600" />
           </div>
           <span className="font-bold text-sm text-sage-200">Co-Founder</span>
         </div>
@@ -165,7 +165,7 @@ function AIBriefingCard({ briefing }: { briefing: any }) {
       <div>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-[#1E4D3B] flex items-center justify-center shadow-card">
-            <Sparkles className="w-5 h-5 text-[#A8894B]" />
+            <Sparkles className="w-5 h-5 text-copper-600" />
           </div>
           <div>
             <h3 className="font-bold text-base text-white leading-snug">Your AI Briefing</h3>
@@ -181,7 +181,7 @@ function AIBriefingCard({ briefing }: { briefing: any }) {
           type="button"
           onClick={handleDoIt}
           disabled={isAccepting}
-          className="flex-1 bg-[#A8894B] hover:bg-[#8A5330] disabled:opacity-50 text-white text-sm font-bold py-2.5 rounded-card transition-colors text-center cursor-pointer"
+          className="flex-1 bg-copper-600 hover:bg-[#8A5330] disabled:opacity-50 text-white text-sm font-bold py-2.5 rounded-card transition-colors text-center cursor-pointer"
         >
           {isAccepting ? 'Accepting...' : 'Do it'}
         </button>

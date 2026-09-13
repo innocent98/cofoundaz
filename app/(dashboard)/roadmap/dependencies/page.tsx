@@ -137,7 +137,7 @@ export default function DependenciesPage() {
                     const depTask = tasks.find(x => x.id === depId);
                     return (
                       <div key={depId} className="flex items-center gap-2 bg-[#F7F7F5] rounded px-3 py-2 border border-[#EBEBE6] w-fit">
-                        <span className="w-2 h-2 rounded-full bg-[#A8894B]"></span>
+                        <span className="w-2 h-2 rounded-full bg-copper-600"></span>
                         <span className="text-xs font-semibold text-[#617065]">{depTask?.title || depId}</span>
                       </div>
                     );

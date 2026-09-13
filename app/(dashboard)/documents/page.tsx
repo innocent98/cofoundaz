@@ -155,7 +155,7 @@ export default function DocumentsLibraryPage() {
                       </div>
 
                       {doc.aiGenerated && (
-                        <div className="flex items-center space-x-1 text-[11px] text-[#A8894B] font-medium pt-2 border-t border-[#F2F2EC]">
+                        <div className="flex items-center space-x-1 text-[11px] text-copper-600 font-medium pt-2 border-t border-[#F2F2EC]">
                           <Sparkles size={12} />
                           <span>AI generated</span>
                         </div>

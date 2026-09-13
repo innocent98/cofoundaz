@@ -76,7 +76,7 @@ export default function DashboardPage() {
 
   const getScoreColor = (score: number): string => {
     if (score < 40) return 'var(--red-600, #B0483B)';
-    if (score < 70) return 'var(--brass-600, #A8894B)';
+    if (score < 70) return 'var(--color-copper-600, #9C5B34)';
     return 'var(--green-500, #2E7256)';
   };
 
@@ -488,7 +488,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="text-sm text-sage-200 leading-relaxed font-normal mb-8">
-                {summaryData?.briefing?.content || "Good news first: pipeline grew ₦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it&apos;s your riskiest untested assumption and it moves both revenue and runway."}
+                {summaryData?.briefing?.content || "Good news first: pipeline grew ₦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it's your riskiest untested assumption and it moves both revenue and runway."}
               </p>
             </div>
 
@@ -829,7 +829,7 @@ export default function DashboardPage() {
                   ),
                 },
                 {
-                  title: "Today&apos;s Mission",
+                  title: "Today's Mission",
                   subtitle: 'Overview',
                   icon: (
                     <svg className="w-4 h-4 text-[#266B4E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -73,7 +73,7 @@ export default function MilestonesPage() {
                   <td className="py-4 px-6 text-right relative">
                     <div className="flex items-center justify-end gap-2">
                       <button 
-                        className="hidden group-hover:flex items-center gap-1.5 text-xs font-semibold text-[#8A5330] hover:text-[#967941] px-3 py-1.5 rounded-card hover:bg-[#FDFBF7] transition-colors border border-transparent hover:border-[#F2E8D5]"
+                        className="hidden group-hover:flex items-center gap-1.5 text-xs font-semibold text-[#8A5330] hover:text-copper-700 px-3 py-1.5 rounded-card hover:bg-[#FDFBF7] transition-colors border border-transparent hover:border-[#F2E8D5]"
                         title="Ask AI to break this down"
                       >
                         <Sparkles className="w-3 h-3" />

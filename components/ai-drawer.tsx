@@ -106,7 +106,7 @@ export function AiDrawer() {
           className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#1F4D3A] text-white rounded-full shadow-card flex items-center justify-center hover:bg-[#15382A] transition-colors group cursor-pointer"
           aria-label="Toggle AI Co-Founder"
         >
-          <Sparkles className="w-6 h-6 fill-[#A8894B] text-[#A8894B] group-hover:scale-110 transition-transform" />
+          <Sparkles className="w-6 h-6 fill-copper-600 text-copper-600 group-hover:scale-110 transition-transform" />
         </button>
       )}
 
@@ -123,7 +123,7 @@ export function AiDrawer() {
             <div className="p-4 border-b border-sage-100 flex items-center justify-between bg-white shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-card bg-[#1F4D3A] text-white flex items-center justify-center shadow-card">
-                  <Sparkles className="w-4 h-4 fill-[#A8894B] text-[#A8894B]" />
+                  <Sparkles className="w-4 h-4 fill-copper-600 text-copper-600" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-[#1E2923]">AI Co-Founder</h3>
@@ -188,7 +188,7 @@ export function AiDrawer() {
                     <div className={`flex items-start gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''} w-full`}>
                       {msg.role === 'assistant' && (
                         <div className="w-7 h-7 rounded-input bg-[#1F4D3A] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-card">
-                          <Sparkles className="w-3.5 h-3.5 fill-[#A8894B] text-[#A8894B]" />
+                          <Sparkles className="w-3.5 h-3.5 fill-copper-600 text-copper-600" />
                         </div>
                       )}
                       <div
@@ -261,7 +261,7 @@ export function AiDrawer() {
                   e.preventDefault();
                   handleSendMessage(chatInput);
                 }}
-                className="relative flex flex-col bg-[#F9F9F8] border border-[#EBEBE6] rounded-card px-2 py-2 focus-within:ring-2 focus-within:ring-[#A8894B] focus-within:border-transparent transition-all"
+                className="relative flex flex-col bg-[#F9F9F8] border border-[#EBEBE6] rounded-card px-2 py-2 focus-within:ring-2 focus-within:ring-copper-600 focus-within:border-transparent transition-all"
               >
                 {chatInput.startsWith('/') && (
                   <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-[#EBEBE6] rounded-card shadow-card overflow-hidden">
@@ -297,7 +297,7 @@ export function AiDrawer() {
                     disabled={!chatInput.trim() || isStreaming}
                     className={`font-semibold text-xs px-4 py-1.5 rounded-card shadow-card transition-colors flex items-center justify-center min-w-[64px] ${
                       chatInput.trim() && !isStreaming
-                        ? 'bg-[#A8894B] hover:bg-[#967941] text-[#12291F] cursor-pointer'
+                        ? 'bg-copper-600 hover:bg-copper-700 text-white cursor-pointer'
                         : 'bg-[#EBEBE6] text-[#8E9B90] cursor-not-allowed'
                     }`}
                   >

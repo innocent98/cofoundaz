@@ -93,7 +93,7 @@ export function RoadmapDrawer({ isOpen, onClose, milestone }: RoadmapDrawerProps
             <div className="flex flex-col gap-3 mt-2">
               {milestone.tasks.map((task) => (
                 <div key={task.id} className="flex items-start gap-3 p-3 rounded-card border border-[#EBEBE6] bg-[#FAFAFA]">
-                  <button className="mt-0.5 text-[#A8894B]">
+                  <button className="mt-0.5 text-copper-600">
                     {task.status === 'done' ? <CheckCircle2 className="w-4 h-4" /> : <Circle className="w-4 h-4" />}
                   </button>
                   <div className="flex flex-col gap-1 flex-1">

@@ -145,7 +145,7 @@ function ChatViewContent() {
               startNewChat();
               setChatInput('');
             }}
-            className="w-full flex items-center justify-center gap-2 bg-[#A8894B] hover:bg-[#967941] text-[#12291F] font-semibold text-sm py-2.5 rounded-card transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 bg-copper-600 hover:bg-copper-700 text-white font-semibold text-sm py-2.5 rounded-card transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             New chat
@@ -241,7 +241,7 @@ function ChatViewContent() {
           
           {messages.length === 0 && (
             <div className="flex flex-col h-full items-center justify-center text-center max-w-lg mx-auto">
-              <Sparkles className="w-12 h-12 text-[#A8894B] mb-4" />
+              <Sparkles className="w-12 h-12 text-copper-600 mb-4" />
               <h3 className="font-bold text-xl text-[#1E2923] mb-2">Meet your AI Co-Founder.</h3>
               <p className="text-sm text-[#617065] mb-8 leading-relaxed">
                 I know your startup — your stage, your numbers, your plan. Ask me anything, and I&apos;ll bring in the right specialist.
@@ -271,8 +271,8 @@ function ChatViewContent() {
               
               {msg.role === 'assistant' && (
                 <div className="flex items-center gap-2 mb-2">
-                  <div className={`w-6 h-6 rounded-input flex items-center justify-center shrink-0 ${msg.agentKey === 'cofounder' ? 'bg-[#A8894B]' : 'bg-[#1F4D3A]'}`}>
-                    <Sparkles className={`w-3.5 h-3.5 ${msg.agentKey === 'cofounder' ? 'fill-[#1F4D3A] text-[#1F4D3A]' : 'fill-[#A8894B] text-[#A8894B]'}`} />
+                  <div className={`w-6 h-6 rounded-input flex items-center justify-center shrink-0 ${msg.agentKey === 'cofounder' ? 'bg-copper-600' : 'bg-[#1F4D3A]'}`}>
+                    <Sparkles className={`w-3.5 h-3.5 ${msg.agentKey === 'cofounder' ? 'fill-[#1F4D3A] text-[#1F4D3A]' : 'fill-copper-600 text-copper-600'}`} />
                   </div>
                   <span className="text-xs font-bold text-[#1E2923]">
                     {agentRoleName(msg.agentKey)}
@@ -367,7 +367,7 @@ function ChatViewContent() {
               e.preventDefault();
               handleSendMessage(chatInput);
             }}
-            className="flex items-center bg-[#F9F9F8] border border-[#EBEBE6] rounded-modal px-2 py-2 focus-within:ring-2 focus-within:ring-[#A8894B] focus-within:border-transparent transition-all"
+            className="flex items-center bg-[#F9F9F8] border border-[#EBEBE6] rounded-modal px-2 py-2 focus-within:ring-2 focus-within:ring-copper-600 focus-within:border-transparent transition-all"
           >
             <div className="flex flex-col w-full px-2 relative">
               {chatInput.startsWith('/') && (
@@ -410,7 +410,7 @@ function ChatViewContent() {
                   disabled={!chatInput.trim() || isStreaming}
                   className={`font-semibold text-xs px-4 py-1.5 rounded-card shadow-card transition-colors flex items-center justify-center min-w-[64px] ${
                     chatInput.trim() && !isStreaming
-                      ? 'bg-[#A8894B] hover:bg-[#967941] text-[#12291F] cursor-pointer'
+                      ? 'bg-copper-600 hover:bg-copper-700 text-white cursor-pointer'
                       : 'bg-[#EBEBE6] text-[#8E9B90] cursor-not-allowed'
                   }`}
                 >
@@ -479,7 +479,7 @@ function ChatViewContent() {
                 Finance Advisor
               </div>
               <div className="flex items-center gap-3 text-xs font-semibold text-[#1E2923]">
-                <div className="w-6 h-6 rounded bg-[#A8894B] text-[#1F4D3A] flex items-center justify-center">
+                <div className="w-6 h-6 rounded bg-copper-600 text-[#1F4D3A] flex items-center justify-center">
                   <Sparkles className="w-3.5 h-3.5 fill-[#1F4D3A]" />
                 </div>
                 Co-Founder
