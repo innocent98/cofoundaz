@@ -1,4 +1,5 @@
-﻿import { apiClient } from './client';
+type ApiResponse<T = unknown> = { data?: T } & Record<string, unknown>;
+import { apiClient } from './client';
 
 export type CanvasType = 'lean' | 'bmc' | 'value_prop' | 'swot';
 
@@ -11,7 +12,7 @@ export interface CanvasBlockItem {
 
 export interface CanvasSavePayload {
   version: number;
-  blocks: Record<string, CanvasBlockItem[] | any>;
+  blocks: Record<string, CanvasBlockItem[] | unknown>;
 }
 
 export interface BusinessBuilderOverview {
@@ -46,135 +47,141 @@ function getWorkspaceHeaders(workspaceId?: string): HeadersInit {
 export const businessBuilderApi = {
   // 1. Overview
   async getOverview(workspaceId?: string): Promise<BusinessBuilderOverview> {
-    const res = await apiClient<any>('/business-builder/overview', {
+    const res = await apiClient<ApiResponse>('/business-builder/overview', {
       headers: getWorkspaceHeaders(workspaceId),
     });
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
   // 2. Canvases
-  async getCanvas(type: CanvasType | string, workspaceId?: string): Promise<any> {
-    const res = await apiClient<any>(`/business-builder/canvases/${type}`, {
+  async getCanvas(type: CanvasType | string, workspaceId?: string): Promise<unknown> {
+    const res = await apiClient<ApiResponse>(`/business-builder/canvases/${type}`, {
       headers: getWorkspaceHeaders(workspaceId),
     });
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
   async saveCanvas(
     type: CanvasType | string,
     payload: CanvasSavePayload,
     workspaceId?: string
-  ): Promise<any> {
-    const res = await apiClient<any>(`/business-builder/canvases/${type}`, {
+  ): Promise<unknown> {
+    const res = await apiClient<ApiResponse>(`/business-builder/canvases/${type}`, {
       method: 'PUT',
       headers: getWorkspaceHeaders(workspaceId),
       body: JSON.stringify(payload),
     });
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
   async aiFillCanvas(
     type: CanvasType | string,
-    promptParams?: Record<string, any>,
+    promptParams?: Record<string, unknown>,
     workspaceId?: string
-  ): Promise<any> {
-    const res = await apiClient<any>(`/business-builder/canvases/${type}/ai-fill`, {
+  ): Promise<unknown> {
+    const res = await apiClient<ApiResponse>(`/business-builder/canvases/${type}/ai-fill`, {
       method: 'POST',
       headers: getWorkspaceHeaders(workspaceId),
       body: JSON.stringify(promptParams || {}),
     });
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
   // 3. Generic Entity Endpoints (personas, competitors, swot, pricing, etc.)
-  async getEntities(kind: string, workspaceId?: string): Promise<any[]> {
-    const res = await apiClient<any>(`/business-builder/${kind}`, {
+  async getEntities(kind: string, workspaceId?: string): Promise<unknown[]> {
+    const res = await apiClient<ApiResponse>(`/business-builder/${kind}`, {
       headers: getWorkspaceHeaders(workspaceId),
     });
-    const data = res?.data || res;
-    return Array.isArray(data) ? data : data?.items || [];
+    const data = (res as ApiResponse)?.data ?? res;
+    const parsed = data as { items?: unknown[] } | undefined; return Array.isArray(data) ? data : ((parsed?.items || []) as Suggestion[]);
   },
 
-  async createEntity(kind: string, payload: any, workspaceId?: string): Promise<any> {
-    const res = await apiClient<any>(`/business-builder/${kind}`, {
+  async createEntity(kind: string, payload: unknown, workspaceId?: string): Promise<unknown> {
+    const res = await apiClient<ApiResponse>(`/business-builder/${kind}`, {
       method: 'POST',
       headers: getWorkspaceHeaders(workspaceId),
       body: JSON.stringify(payload),
     });
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
   async updateEntity(
     kind: string,
     recordId: string,
-    payload: any,
+    payload: unknown,
     workspaceId?: string
-  ): Promise<any> {
-    const res = await apiClient<any>(`/business-builder/${kind}/${recordId}`, {
+  ): Promise<unknown> {
+    const res = await apiClient<ApiResponse>(`/business-builder/${kind}/${recordId}`, {
       method: 'PUT',
       headers: getWorkspaceHeaders(workspaceId),
       body: JSON.stringify(payload),
     });
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
   async deleteEntity(
     kind: string,
     recordId: string,
     workspaceId?: string
-  ): Promise<any> {
-    const res = await apiClient<any>(`/business-builder/${kind}/${recordId}`, {
+  ): Promise<unknown> {
+    const res = await apiClient<ApiResponse>(`/business-builder/${kind}/${recordId}`, {
       method: 'DELETE',
       headers: getWorkspaceHeaders(workspaceId),
     });
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
   // 4. Suggestions
   async getSuggestions(workspaceId?: string): Promise<Suggestion[]> {
-    const res = await apiClient<any>('/business-builder/suggestions', {
+    const res = await apiClient<ApiResponse>('/business-builder/suggestions', {
       headers: getWorkspaceHeaders(workspaceId),
     });
-    const data = res?.data || res;
-    return Array.isArray(data) ? data : data?.items || [];
+    const data = (res as ApiResponse)?.data ?? res;
+    const parsed = data as { items?: unknown[] } | undefined; return Array.isArray(data) ? data : ((parsed?.items || []) as Suggestion[]);
   },
 
-  async approveSuggestion(suggestionId: string, workspaceId?: string): Promise<any> {
-    const res = await apiClient<any>(
+  async approveSuggestion(suggestionId: string, workspaceId?: string): Promise<unknown> {
+    const res = await apiClient<ApiResponse>(
       `/business-builder/suggestions/${suggestionId}/approve`,
       {
         method: 'POST',
         headers: getWorkspaceHeaders(workspaceId),
       }
     );
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
-  async rejectSuggestion(suggestionId: string, workspaceId?: string): Promise<any> {
-    const res = await apiClient<any>(
+  async rejectSuggestion(suggestionId: string, workspaceId?: string): Promise<unknown> {
+    const res = await apiClient<ApiResponse>(
       `/business-builder/suggestions/${suggestionId}/reject`,
       {
         method: 'POST',
         headers: getWorkspaceHeaders(workspaceId),
       }
     );
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
   // 5. Positioning Map
-  async getPositioningMap(workspaceId?: string): Promise<any> {
-    const res = await apiClient<any>('/business-builder/positioning-map', {
+  async getPositioningMap(workspaceId?: string): Promise<unknown> {
+    const res = await apiClient<ApiResponse>('/business-builder/positioning-map', {
       headers: getWorkspaceHeaders(workspaceId),
     });
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
-  async savePositioningMap(payload: any, workspaceId?: string): Promise<any> {
-    const res = await apiClient<any>('/business-builder/positioning-map', {
+  async savePositioningMap(payload: unknown, workspaceId?: string): Promise<unknown> {
+    const res = await apiClient<ApiResponse>('/business-builder/positioning-map', {
       method: 'PUT',
       headers: getWorkspaceHeaders(workspaceId),
       body: JSON.stringify(payload),
     });
-    return res?.data || res;
+    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 };
+
+
+
+
+
+
