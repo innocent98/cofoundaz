@@ -53,6 +53,7 @@ function VerifyEmailContent() {
     if (tokenFromUrl) {
       void (async () => { await executeVerification(tokenFromUrl); })();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenFromUrl]);
 
   async function handleResend() {
@@ -190,6 +191,7 @@ export default function VerifyEmailPage() {
     </Suspense>
   );
 }
+
 
 
 
