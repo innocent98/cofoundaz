@@ -1,5 +1,7 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+﻿'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { apiClient } from '@/lib/api/client';
+
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -47,7 +49,76 @@ export default function DashboardPage() {
   const { data: briefingData, acceptAction, fallbackText, error: briefingError, refetch: refetchBriefing } = useAIBriefing();
   const { data: activityData, error: activityError, fetchMore: refetchActivity } = useActivityFeed('workspace_123'); // Example ID
 
-  const targetScore = summaryData?.health?.score ?? 72;
+    // Dynamic greeting, time, and user info
+        const [userProfile, setUserProfile] = useState<{ first_name?: string; full_name?: string; startup_name?: string } | null>(null);
+
+    useEffect(() => {
+      let isMounted = true;
+
+      // 1. Fetch user profile from /auth/me
+      apiClient<any>('/auth/me')
+        .then((res) => {
+          if (!isMounted) return;
+          const data = res?.data || res;
+          if (data?.first_name || data?.name) {
+            setUserProfile(data);
+            if (data.first_name) localStorage.setItem('cf_user_name', data.first_name);
+            return;
+          }
+          throw new Error('No name in auth/me');
+        })
+        .catch(() => {
+          // 2. Fallback to onboarding state where name and startup were saved
+          return apiClient<any>('/onboarding/state')
+            .then((res) => {
+              if (!isMounted) return;
+              const state = res?.data || res;
+              if (state?.profile || state?.startup) {
+                const combined = {
+                  first_name: state?.profile?.first_name,
+                  full_name: `${state?.profile?.first_name || ''} ${state?.profile?.last_name || ''}`.trim(),
+                  startup_name: state?.startup?.name,
+                };
+                setUserProfile(combined);
+                if (combined.first_name) localStorage.setItem('cf_user_name', combined.first_name);
+                if (combined.startup_name) localStorage.setItem('cf_startup_name', combined.startup_name);
+              }
+            })
+            .catch(() => {});
+        });
+
+      return () => {
+        isMounted = false;
+      };
+    }, []);
+
+    const currentHour = new Date().getHours();
+    const timeGreeting = currentHour < 12 ? 'Good morning' : currentHour < 18 ? 'Good afternoon' : 'Good evening';
+    const formattedDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(new Date());
+
+    const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const localUserName = mounted && typeof window !== 'undefined' ? localStorage.getItem('cf_user_name') : null;
+  const localStartupName = mounted && typeof window !== 'undefined' ? localStorage.getItem('cf_startup_name') : null;
+
+  const userName =
+    userProfile?.first_name ||
+    userProfile?.full_name ||
+    (summaryData as any)?.user?.first_name ||
+    (summaryData as any)?.user?.name ||
+    localUserName ||
+    'Founder';
+
+  const startupName =
+    userProfile?.startup_name ||
+    (summaryData as any)?.startup?.name ||
+    localStartupName ||
+    'your workspace';
+
+  const targetScore = summaryData?.health?.score ?? 0;
 
   // ScoreGauge Animation State
   const [displayScore, setDisplayScore] = useState(0);
@@ -316,12 +387,12 @@ export default function DashboardPage() {
       <main className="flex-1 w-full min-w-0 max-w-none px-6 lg:px-8 pt-4 pb-12 space-y-6">
         {/* GREETING SECTION */}
         <section className="mb-6 w-full">
-          <h1 className="text-3xl font-display font-bold text-sage-900 mb-1">
-            Good evening, Amara.
+          <h1 className="text-3xl font-display font-bold text-sage-900 mb-1" suppressHydrationWarning>
+            {timeGreeting}, {userName}.
           </h1>
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-sage-400">
-            <p>Here&apos;s where Kolo stands today.</p>
-            <span className="text-sage-500">Monday, Aug 17</span>
+            <p>Here&apos;s where {startupName} stands today.</p>
+            <span className="text-sage-500">{formattedDate}</span>
           </div>
         </section>
 
@@ -1010,7 +1081,7 @@ export default function DashboardPage() {
 
           <div className="relative w-full max-w-md bg-white rounded-[24px] shadow-raised overflow-visible p-8 border border-sage-100 z-10">
             <h2 className="text-2xl font-bold text-[#1C201D] font-display mb-2">
-              Invite to Kolo
+              Invite to {startupName}
             </h2>
             <p className="text-sm text-sage-500 mb-6 leading-relaxed">
               Teammates, mentors, or your accountant and lawyer (free seats).

@@ -1,128 +1,157 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { AuthForm } from "@/ui/marketing/auth/auth-form";
+import { apiClient, ApiError } from "@/lib/api/client";
+
+interface LoginData {
+  access_token?: string;
+  refresh_token?: string;
+  mfa_required?: boolean;
+}
+
+interface LoginEnvelope {
+  data?: LoginData;
+  access_token?: string;
+  refresh_token?: string;
+  token?: string;
+}
+
+interface UserMeResponse {
+  data?: {
+    user?: {
+      id: string;
+      email: string;
+      status: string;
+    };
+    profile?: {
+      full_name?: string | null;
+      role_title?: string | null;
+      avatar_url?: string | null;
+    };
+  };
+}
+
+interface OnboardingStateResponse {
+  step?: number;
+  completed?: boolean;
+}
 
 export default function LoginPage() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push("/dashboard");
-  };
+  async function handleLogin(data: { email: string; password: string }) {
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      const res = await apiClient<LoginEnvelope>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      const accessToken =
+        res.data?.access_token ||
+        res.access_token ||
+        res.token;
+
+      const refreshToken =
+        res.data?.refresh_token ||
+        res.refresh_token;
+
+      if (!accessToken) {
+        throw new Error("No access token returned from server.");
+      }
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cf_token", accessToken);
+        if (refreshToken) {
+          localStorage.setItem("cf_refresh_token", refreshToken);
+        }
+      }
+
+      // Check current user status and profile
+      let meRes: UserMeResponse | null = null;
+      try {
+        meRes = await apiClient<UserMeResponse>("/auth/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (meRes?.data?.profile?.full_name) {
+          localStorage.setItem("cf_user_name", meRes.data.profile.full_name);
+        }
+        if (meRes?.data?.user) {
+          localStorage.setItem("cf_user", JSON.stringify(meRes.data.user));
+        }
+      } catch (meErr) {
+        console.warn("Could not fetch user profile details on login:", meErr);
+      }
+
+      // Handle unverified user status
+      if (meRes?.data?.user?.status === "pending_verification") {
+        router.push(`/verify?email=${encodeURIComponent(data.email)}`);
+        return;
+      }
+
+      // Check onboarding state for verified accounts
+      try {
+        const state = await apiClient<OnboardingStateResponse>("/onboarding/state", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (state.completed || (typeof state.step === "number" && state.step > 6)) {
+          router.push("/dashboard");
+        } else {
+          router.push("/onboarding");
+        }
+      } catch (onberr: unknown) {
+        if (onbErr?.status === 403) {
+          router.push(`/verify?email=${encodeURIComponent(data.email)}`);
+        } else {
+          router.push("/dashboard");
+        }
+      }
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        const d = err.data as any;
+        const serverMessage =
+          d?.error?.message ||
+          (typeof d?.detail === "string" ? d.detail : null) ||
+          (Array.isArray(d?.detail) && d.detail[0]?.msg ? String(d.detail[0].msg) : null);
+
+        if (err.status === 401) {
+          setError(serverMessage || "Invalid email or password. Please check your credentials and try again.");
+        } else if (err.status === 403) {
+          setError("Account pending verification. Please check your email inbox to verify your account.");
+        } else if (err.status === 429) {
+          setError("Too many attempts. Please wait a moment and try again.");
+        } else {
+          setError(serverMessage || "Unable to sign in. Please verify your credentials and try again.");
+        }
+      } else {
+        setError(err instanceof Error ? err.message : "An unexpected network error occurred. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <div className="w-full max-w-md space-y-6">
-      {/* Header */}
-      <div className="space-y-2">
-        <h2 className="font-display text-3xl lg:text-4xl text-[#1a2e22]">
-          Log in to Cofoundaz
-        </h2>
-        <p className="text-sm text-sage-500">
-          Enter your credentials to access your account.
-        </p>
-      </div>
-
-      {/* Social Logins */}
-      <div className="space-y-3 pt-2">
-        <button
-          type="button"
-          onClick={() => router.push("/dashboard")}
-          className="w-full py-3 px-4 bg-white border border-sage-200 rounded-input text-sm font-medium text-sage-700 hover:bg-sage-50 flex items-center justify-center gap-2 shadow-card transition"
-        >
-          <span className="font-bold text-green-700">G</span>
-          <span>Continue with Google</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => router.push("/dashboard")}
-          className="w-full py-3 px-4 bg-white border border-sage-200 rounded-input text-sm font-medium text-sage-700 hover:bg-sage-50 flex items-center justify-center gap-2 shadow-card transition"
-        >
-          <span>Continue with Apple</span>
-        </button>
-      </div>
-
-      {/* Divider */}
-      <div className="relative flex items-center py-2">
-        <div className="flex-grow border-t border-sage-200"></div>
-        <span className="flex-shrink mx-4 text-xs text-sage-600">or</span>
-        <div className="flex-grow border-t border-sage-200"></div>
-      </div>
-
-      {/* Form */}
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-xs font-semibold text-sage-700 mb-1.5"
-          >
-            Work email
-          </label>
-          <input
-            id="email"
-            type="email"
-            placeholder="you@startup.com"
-            required
-            className="w-full px-3.5 py-2.5 bg-white border border-sage-200 rounded-input text-sm text-sage-800 placeholder-sage-500 focus:outline-none focus:ring-2 focus:ring-[#0e2a1f]/20 focus:border-[#0e2a1f]"
-          />
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label
-              htmlFor="password"
-              className="block text-xs font-semibold text-sage-700"
-            >
-              Password
-            </label>
-            <Link
-              href="#"
-              className="text-xs font-medium text-[#0e2a1f] hover:underline"
-            >
-              Forgot password?
-            </Link>
-          </div>
-          <input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            required
-            className="w-full px-3.5 py-2.5 bg-white border border-sage-200 rounded-input text-sm text-sage-800 placeholder-sage-500 focus:outline-none focus:ring-2 focus:ring-[#0e2a1f]/20 focus:border-[#0e2a1f]"
-          />
-        </div>
-
-        {/* Remember me Checkbox */}
-        <div className="flex items-center gap-2.5 pt-1">
-          <input
-            id="remember"
-            type="checkbox"
-            className="h-4 w-4 rounded border-sage-300 text-[#0e2a1f] focus:ring-[#0e2a1f]"
-          />
-          <label htmlFor="remember" className="text-xs text-sage-600">
-            Remember me for 30 days
-          </label>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full py-3 px-4 bg-[#9C5B34] hover:bg-[#9C5B34] text-white text-sm font-semibold rounded-input shadow-card transition duration-150 mt-4"
-        >
-          Log in
-        </button>
-      </form>
-
-      {/* Signup Link */}
-      <div className="text-center text-xs text-sage-500 pt-2">
-        Don&apos;t have an account?{" "}
-        <Link
-          href="/signup"
-          className="font-semibold text-sage-900 hover:underline"
-        >
-          Sign up
-        </Link>
-      </div>
-    </div>
+    <AuthForm
+      mode="login"
+      onSubmit={handleLogin}
+      error={error}
+      isSubmitting={isSubmitting}
+    />
   );
 }

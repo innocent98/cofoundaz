@@ -1,6 +1,16 @@
-import type { NextConfig } from "next";
+﻿import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return {
+      fallback: [
+        {
+          source: '/api/v1/:path*',
+          destination: 'https://staging-api.cofoundaz.com/api/v1/:path*',
+        },
+      ],
+    };
+  },
   async redirects() {
     return [
       {
