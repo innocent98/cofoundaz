@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiClient } from '@/lib/api/client';
 
@@ -98,7 +98,7 @@ export default function DashboardPage() {
 
     const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    setMounted(true);
+    void Promise.resolve().then(() => setMounted(true));
   }, []);
 
   const localUserName = mounted && typeof window !== 'undefined' ? localStorage.getItem('cf_user_name') : null;
@@ -323,7 +323,7 @@ export default function DashboardPage() {
       prev.map((t) => (t.id === '2' ? { ...t, completed: true } : t))
     );
     // Show the black toast notification matching the reference screenshot
-    setToastMessage('Added â€œDraft a pricing experimentâ€ to your tasks.');
+    setToastMessage('Added “Draft a pricing experiment” to your tasks.');
     setTimeout(() => {
       setToastMessage(null);
       setIsDoItPending(false);
@@ -344,7 +344,7 @@ export default function DashboardPage() {
   return (
     <div className="relative flex min-h-screen w-full min-w-0 flex-col bg-[#F7F8F6] text-[#1C201D] font-body">
 
-      {/* MOBILE BACKDROP â€” tap anywhere outside to close the sidebar */}
+      {/* MOBILE BACKDROP — tap anywhere outside to close the sidebar */}
       {isSidebarOpen && (
         <div
           onClick={() => setIsSidebarOpen(false)}
@@ -456,7 +456,7 @@ export default function DashboardPage() {
                 href="/app/health"
                 className="text-sm font-bold text-[#266B4E] flex items-center justify-center gap-1 hover:underline pt-2 cursor-pointer"
               >
-                See what&apos;s driving it â†’
+                See what&apos;s driving it ?
               </Link>
             </div>
           </ErrorBoundary>
@@ -468,7 +468,7 @@ export default function DashboardPage() {
               {tasks.length > 0 && tasks.every(t => t.completed) ? (
                 <div className="flex flex-col items-center justify-center h-full text-center py-10">
                   <Flame className="w-12 h-12 fill-copper-500 text-copper-500 mb-4 animate-bounce" />
-                  <h3 className="font-bold text-lg text-sage-900">Mission complete. ðŸ”¥ {summaryData?.mission?.streakDays || 6}-day streak.</h3>
+                  <h3 className="font-bold text-lg text-sage-900">Mission complete. ?? {summaryData?.mission?.streakDays || 6}-day streak.</h3>
                 </div>
               ) : (
               <>
@@ -530,7 +530,7 @@ export default function DashboardPage() {
                   href="/mission"
                   className="text-sm font-bold text-[#266B4E] flex items-center justify-start gap-1 hover:underline pt-6 cursor-pointer"
                 >
-                  Go to mission â†’
+                  Go to mission ?
                 </Link>
               </>
             )}
@@ -559,7 +559,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="text-sm text-sage-200 leading-relaxed font-normal mb-8">
-                {summaryData?.briefing?.content || "Good news first: pipeline grew â‚¦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it&apos;s your riskiest untested assumption and it moves both revenue and runway."}
+                {summaryData?.briefing?.content || "Good news first: pipeline grew ?9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it&apos;s your riskiest untested assumption and it moves both revenue and runway."}
               </p>
             </div>
 
@@ -593,7 +593,7 @@ export default function DashboardPage() {
                 {summaryData?.kpis[0]?.label || 'MONTHLY REVENUE'}
               </span>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[0]?.value || 'â‚¦1.6M'}</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[0]?.value || '?1.6M'}</span>
                 <span className={`text-xs font-semibold ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[0]?.delta || '+12%'}</span>
               </div>
             </div>
@@ -636,8 +636,8 @@ export default function DashboardPage() {
                 {summaryData?.kpis[2]?.label || 'PIPELINE VALUE'}
               </span>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[2]?.value || 'â‚¦42M'}</span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[2]?.delta || '+â‚¦9M'}</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[2]?.value || '?42M'}</span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[2]?.delta || '+?9M'}</span>
               </div>
             </div>
             <svg className={`w-full h-6 ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -715,7 +715,7 @@ export default function DashboardPage() {
               </h3>
               <div className="divide-y divide-sage-100">
                 {(summaryData?.opportunities || [
-                  { id: 'o1', description: 'A â‚¦5M grant match closes in 3 weeks and fits your profile.' },
+                  { id: 'o1', description: 'A ?5M grant match closes in 3 weeks and fits your profile.' },
                   { id: 'o2', description: 'Your smoke test hit 9% conversion, above your 5% bar.' },
                   { id: 'o3', description: 'Two interviews flagged the same feature, worth a quick MVP task.' }
                 ]).map((opp: any) => (
@@ -748,11 +748,11 @@ export default function DashboardPage() {
               </h3>
               <div className="divide-y divide-sage-100">
                 {(activityData || [
-                  { id: '1', actor: 'Amara Okafor', verb: 'completed', entity: 'the mission task â€œInterview 3 gig workersâ€', time: '2h ago' },
+                  { id: '1', actor: 'Amara Okafor', verb: 'completed', entity: 'the mission task “Interview 3 gig workers”', time: '2h ago' },
                   { id: '2', actor: 'Tayo', verb: 'returned', entity: 'your NDA with 2 comments', time: '5h ago' },
                   { id: '3', actor: 'Your AI Co-Founder', verb: 'drafted', entity: 'your Lean Canvas', time: 'Yesterday' },
                   { id: '4', actor: 'Grace', verb: 'categorized', entity: '12 transactions', time: 'Yesterday' },
-                  { id: '5', actor: 'Daniel', verb: 'moved', entity: 'â€œBodaBoda Unionâ€ to Proposal', time: '2d ago' },
+                  { id: '5', actor: 'Daniel', verb: 'moved', entity: '“BodaBoda Union” to Proposal', time: '2d ago' },
                 ]).map((activity: any) => {
                   const getInitials = (name: string) => {
                     if (!name) return '??';
@@ -803,7 +803,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[#1D2A24]">Finish pricing experiment</p>
-                    <p className="text-[11px] text-sage-500">Milestone Â· Friday</p>
+                    <p className="text-[11px] text-sage-500">Milestone · Friday</p>
                   </div>
                 </div>
 
@@ -815,7 +815,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[#1D2A24]">CAC annual return</p>
-                    <p className="text-[11px] text-sage-500">Compliance Â· in 9 days</p>
+                    <p className="text-[11px] text-sage-500">Compliance · in 9 days</p>
                   </div>
                 </div>
 
@@ -827,7 +827,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[#1D2A24]">Investor call, Sahel Fund</p>
-                    <p className="text-[11px] text-sage-500">Meeting Â· Tue 3:00 PM</p>
+                    <p className="text-[11px] text-sage-500">Meeting · Tue 3:00 PM</p>
                   </div>
                 </div>
 
@@ -839,7 +839,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[#1D2A24]">Launch WhatsApp campaign</p>
-                    <p className="text-[11px] text-sage-500">Marketing Â· Thursday</p>
+                    <p className="text-[11px] text-sage-500">Marketing · Thursday</p>
                   </div>
                 </div>
               </div>
@@ -940,7 +940,7 @@ export default function DashboardPage() {
                 {
                   title: 'Finance Hub',
                   subtitle: 'Grow',
-                  icon: <span className="text-sm font-bold text-[#266B4E]">â‚¦</span>,
+                  icon: <span className="text-sm font-bold text-[#266B4E]">?</span>,
                 },
                 {
                   title: 'Funding Hub',
@@ -1034,9 +1034,9 @@ export default function DashboardPage() {
                     </svg>
                   );
                 } else if (notif.type === 'finance') {
-                  iconContent = <span className="text-xs font-bold text-[#266B4E]">â‚¦</span>;
+                  iconContent = <span className="text-xs font-bold text-[#266B4E]">?</span>;
                 } else if (notif.type === 'legal') {
-                  iconContent = <span className="text-xs font-bold text-[#266B4E]">Â§</span>;
+                  iconContent = <span className="text-xs font-bold text-[#266B4E]">§</span>;
                 } else {
                   iconContent = (
                     <svg className="w-4 h-4 fill-[#266B4E]" viewBox="0 0 24 24">

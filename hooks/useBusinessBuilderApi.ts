@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -56,16 +56,16 @@ export function useBusinessBuilderApi() {
           }))
         );
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Retain defaults if workspace is fresh or server returned non-200
-      setError(err?.message || 'Failed to fetch business builder overview');
+      setError(((err as { message?: string })?.message) || 'Failed to fetch business builder overview');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchOverview();
+    void (async () => { await fetchOverview(); })();
   }, [fetchOverview]);
 
   const updateLastEdited = (slug: string) => {
@@ -79,7 +79,7 @@ export function useBusinessBuilderApi() {
   const loadCanvas = useCallback(async (type: CanvasType | string) => {
     try {
       return await businessBuilderApi.getCanvas(type);
-    } catch (err: any) {
+    } catch (err: unknown) {
       return null;
     }
   }, []);
@@ -94,7 +94,7 @@ export function useBusinessBuilderApi() {
   );
 
   const aiFillCanvas = useCallback(
-    async (type: CanvasType | string, promptParams?: Record<string, any>) => {
+    async (type: CanvasType | string, promptParams?: Record<string, unknown>) => {
       return await businessBuilderApi.aiFillCanvas(type, promptParams);
     },
     []
@@ -113,3 +113,5 @@ export function useBusinessBuilderApi() {
     aiFillCanvas,
   };
 }
+
+

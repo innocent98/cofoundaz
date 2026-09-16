@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const mockCanvases: Record<string, any> = {
+const mockCanvases: Record<string, unknown> = {
   lean: {
     id: "canvas_lean_dev_123",
     type: "lean",
@@ -127,3 +127,6 @@ export async function PUT(
     meta: { status: 200, message: "Canvas updated successfully" }
   });
 }
+
+
+

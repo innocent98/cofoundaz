@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const store: Record<string, any[]> = {
+const store: Record<string, unknown[]> = {
   personas: [
     { id: "p1", name: "Alex the Founder", role: "CEO", primary_pain: "Time-consuming board updates" }
   ],
@@ -31,3 +31,6 @@ export async function POST(
   store[kind].push(newItem);
   return NextResponse.json({ data: newItem, meta: { status: 201 } });
 }
+
+
+

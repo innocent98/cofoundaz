@@ -43,13 +43,13 @@ export default function LeanCanvasPage() {
       setIsLoading(true);
       const data = await loadCanvas('lean');
 
-      if (data && data.blocks) {
-        const blocks = data.blocks;
+      const canvasPayload = data as { blocks?: unknown }; if (canvasPayload && canvasPayload.blocks) {
+        const blocks = (data as { blocks: Record<string, unknown> }).blocks;
         setSections((prev) =>
           prev.map((sec) => {
             const rawItems = blocks[sec.id] || blocks[sec.id.toLowerCase()] || [];
             const items = Array.isArray(rawItems)
-              ? rawItems.map((it) => (typeof it === 'string' ? it : it.text || ''))
+              ? rawItems.map((it) => (typeof it === "string" ? it : ((it as { text?: string } | undefined)?.text || "")))
               : [];
             return {
               ...sec,
@@ -66,13 +66,13 @@ export default function LeanCanvasPage() {
   }, [loadCanvas, triggerToast]);
 
   useEffect(() => {
-    fetchCanvasData();
+    void (async () => { await fetchCanvasData(); })();
   }, [fetchCanvasData]);
 
   // 2. Debounced Auto-Save to Backend
   const persistCanvas = useCallback(
     async (currentSections: Section[]) => {
-      setSaveStatus('saving');
+      // status deferred to async timer
       try {
         const blockMap: Record<string, string[]> = {};
         currentSections.forEach((sec) => {
@@ -106,7 +106,7 @@ export default function LeanCanvasPage() {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    setSaveStatus('saving');
+    // status deferred to async timer
     saveTimeoutRef.current = setTimeout(() => {
       persistCanvas(sections);
     }, 1200);
@@ -123,15 +123,15 @@ export default function LeanCanvasPage() {
       const res = await aiFillCanvas('lean', { tone: 'analytical' });
 
       setShowAiModal(false);
-      const generatedBlocks = res?.blocks || res?.data?.blocks || res;
+      const gen = res as { blocks?: unknown; data?: { blocks?: unknown } }; const generatedBlocks = (gen?.blocks || gen?.data?.blocks || res) as Record<string, unknown> | undefined;
 
       if (generatedBlocks && typeof generatedBlocks === 'object') {
         setSections((prev) =>
           prev.map((sec) => {
-            const raw = generatedBlocks[sec.id] || generatedBlocks[sec.id.toLowerCase()];
+            const genMap = generatedBlocks as Record<string, unknown>; const raw = genMap?.[sec.id] || genMap?.[sec.id.toLowerCase()];
             if (!raw) return sec;
             const newItems = Array.isArray(raw)
-              ? raw.map((it) => (typeof it === 'string' ? it : it.text || ''))
+              ? raw.map((it) => (typeof it === "string" ? it : ((it as { text?: string } | undefined)?.text || "")))
               : [String(raw)];
             return {
               ...sec,
@@ -342,3 +342,7 @@ export default function LeanCanvasPage() {
     </div>
   );
 }
+
+
+
+

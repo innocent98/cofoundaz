@@ -1,4 +1,4 @@
-﻿import { apiClient } from './client';
+import { apiClient } from './client';
 
 export interface ForgotPasswordPayload {
   email: string;
@@ -31,7 +31,7 @@ export const authApi = {
     }),
 
   verifyEmail: (data: VerifyTokenPayload) =>
-    apiClient<{ message?: string; user?: any }>('/auth/verify', {
+    apiClient<{ message?: string; user?: unknown }>('/auth/verify', {
       method: 'POST',
       body: JSON.stringify(data),
     }),

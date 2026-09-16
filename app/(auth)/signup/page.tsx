@@ -82,9 +82,9 @@ export default function SignupPage() {
       router.push(`/verify?email=${encodeURIComponent(data.email)}`);
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        const d = err.data as any;
+        const d = err.data as Record<string, unknown> | undefined;
         const serverMessage =
-          d?.error?.message ||
+          ((d?.error as { message?: string } | undefined)?.message) ||
           (typeof d?.detail === "string" ? d.detail : null) ||
           (Array.isArray(d?.detail) && d.detail[0]?.msg ? String(d.detail[0].msg) : null);
 
@@ -113,3 +113,5 @@ export default function SignupPage() {
     />
   );
 }
+
+
