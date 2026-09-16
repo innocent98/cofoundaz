@@ -19,14 +19,14 @@ export default function ForgotPasswordPage() {
       await authApi.forgotPassword({ email });
       setSubmitted(true);
     } catch (err: unknown) {
-      setError(err?.message || 'Failed to send reset email. Please try again.');
+      setError(((err as { message?: string })?.message) || 'Failed to send reset email. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-2xl shadow-card border border-sage-100">
+    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-[16px] shadow-card border border-sage-100">
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold font-display text-sage-900">Reset your password</h1>
         <p className="text-sm text-sage-500 mt-2">
@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
 
       {submitted ? (
         <div className="text-center space-y-4">
-          <div className="p-4 bg-green-50 text-green-800 rounded-xl text-sm border border-green-200">
+          <div className="p-4 bg-green-50 text-green-800 rounded-[12px] text-sm border border-green-200">
             We&apos;ve sent a reset link to <strong>{email}</strong>. Check your inbox to proceed.
           </div>
           <Link
@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
+            <div className="p-3 bg-red-50 text-red-700 text-sm rounded-[8px] border border-red-200">
               {error}
             </div>
           )}
@@ -64,14 +64,14 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="founder@example.com"
-              className="w-full px-4 py-3 rounded-xl border border-sage-200 focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600 transition"
+              className="w-full px-4 py-3 rounded-[12px] border border-sage-200 focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600 transition"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-green-900 hover:bg-green-800 disabled:opacity-50 text-white font-semibold rounded-xl transition cursor-pointer"
+            className="w-full py-3 bg-green-900 hover:bg-green-800 disabled:opacity-50 text-white font-semibold rounded-[12px] transition cursor-pointer"
           >
             {loading ? 'Sending link...' : 'Send reset link'}
           </button>
@@ -86,3 +86,4 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+

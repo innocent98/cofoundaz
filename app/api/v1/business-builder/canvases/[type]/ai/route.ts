@@ -44,7 +44,7 @@ export async function POST(
   };
 
   const selectedSuggestions =
-    suggestions[type]?.[section] || [
+    ((suggestions as Record<string, Record<string, unknown>>)[String(type)]?.[String(section)]) || [
       `AI Suggested insight for ${type} - ${section}: Option A`,
       `AI Suggested insight for ${type} - ${section}: Option B`
     ];
@@ -60,3 +60,5 @@ export async function POST(
     meta: { status: 200 }
   });
 }
+
+

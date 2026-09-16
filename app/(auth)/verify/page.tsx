@@ -37,9 +37,9 @@ function VerifyEmailContent() {
     } catch (err: unknown) {
       setStatus('error');
       if (err instanceof ApiError) {
-        const d = err.data as any;
+        const d = err.data as Record<string, unknown> | undefined;
         const msg =
-          d?.error?.message ||
+          (d?.error as { message?: string } | undefined)?.message ||
           (typeof d?.detail === 'string' ? d.detail : null) ||
           'Verification token is invalid or has expired.';
         setErrorMessage(msg);
@@ -51,7 +51,7 @@ function VerifyEmailContent() {
 
   useEffect(() => {
     if (tokenFromUrl) {
-      executeVerification(tokenFromUrl);
+      void (async () => { await executeVerification(tokenFromUrl); })();
     }
   }, [tokenFromUrl]);
 
@@ -75,9 +75,9 @@ function VerifyEmailContent() {
     } catch (err: unknown) {
       setResendStatus('error');
       if (err instanceof ApiError) {
-        const d = err.data as any;
+        const d = err.data as Record<string, unknown> | undefined;
         setResendMessage(
-          d?.error?.message ||
+          (d?.error as { message?: string } | undefined)?.message ||
           (typeof d?.detail === 'string' ? d.detail : null) ||
           'Failed to resend verification email.'
         );
@@ -150,7 +150,7 @@ function VerifyEmailContent() {
               <button
                 type="button"
                 onClick={() => executeVerification(tokenInput)}
-                disabled={!tokenInput.trim() || status === 'verifying'}
+                disabled={!tokenInput.trim()}
                 className="px-4 py-2 bg-green-900 hover:bg-green-800 disabled:opacity-50 text-white text-sm font-semibold rounded-[12px] transition"
               >
                 Verify
@@ -190,3 +190,7 @@ export default function VerifyEmailPage() {
     </Suspense>
   );
 }
+
+
+
+

@@ -15,7 +15,7 @@ export async function POST(
   const section = body.section;
 
   // Mock AI generated content tailored per canvas type
-  const generatedData: Record<string, any> = {
+  const generatedData: Record<string, Record<string, unknown>> = {
     lean: {
       problem: [
         "High customer acquisition costs across standard paid channels",
@@ -49,7 +49,9 @@ export async function POST(
   };
 
   // If a specific section was targeted, return only that section's payload
-  const result = section && canvasResult[section] ? { [section]: canvasResult[section] } : canvasResult;
+  const sKey = String(section || '');
+  const typedResult = canvasResult as Record<string, unknown>;
+  const result = sKey && typedResult[sKey] ? { [sKey]: typedResult[sKey] } : typedResult;
 
   return NextResponse.json({
     data: {
@@ -62,3 +64,7 @@ export async function POST(
     meta: { status: 200, message: "AI fill generated successfully" }
   });
 }
+
+
+
+
