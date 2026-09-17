@@ -1,9 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthForm } from "@/ui/marketing/auth/auth-form";
 import { apiClient, ApiError } from "@/lib/api/client";
+
+// A `?next=` param (set by the global 401 redirect on session expiry) is honored
+// only when it's a safe internal path — never an external or auth URL.
+function safeNextPath(): string | null {
+  if (typeof window === "undefined") return null;
+  const next = new URLSearchParams(window.location.search).get("next");
+  if (next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/login") && !next.startsWith("/signup")) {
+    return next;
+  }
+  return null;
+}
 
 interface LoginData {
   access_token?: string;
@@ -47,6 +58,13 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Surface a friendly notice when we were bounced here by an expired session.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("session") === "expired") {
+      queueMicrotask(() => setError("Your session expired. Please sign in again."));
+    }
+  }, []);
 
   async function handleLogin(data: { email: string; password: string }) {
     setError(null);
@@ -120,7 +138,7 @@ export default function LoginPage() {
 
         const onb = state.data;
         if (onb?.completed || (typeof onb?.step === "number" && onb.step > 6)) {
-          router.push("/dashboard");
+          router.push(safeNextPath() || "/dashboard");
         } else {
           router.push("/onboarding");
         }
@@ -128,7 +146,7 @@ export default function LoginPage() {
         if (((onberr as { status?: number })?.status) === 403) {
           router.push(`/verify?email=${encodeURIComponent(data.email)}`);
         } else {
-          router.push("/dashboard");
+          router.push(safeNextPath() || "/dashboard");
         }
       }
     } catch (err: unknown) {

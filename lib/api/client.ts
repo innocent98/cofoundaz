@@ -10,6 +10,35 @@ export class ApiError extends Error {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
 
+// Guard so parallel 401s (the dashboard fires many calls at once) trigger a
+// single redirect, not a storm of them.
+let sessionRedirectInFlight = false;
+
+function isAuthEndpoint(endpoint: string): boolean {
+  // A 401 on the auth endpoints themselves means "bad credentials", handled by
+  // the login/verify pages — not an expired session, so never redirect there.
+  return /\/auth\//.test(endpoint) || endpoint.includes('/shared/') || endpoint.includes('/sign/');
+}
+
+// A 401 from any authenticated call means the access token is missing or
+// expired. Clear the stale session and send the user to /login instead of
+// letting the page hard-crash to an error boundary.
+function handleSessionExpired(endpoint: string): void {
+  if (typeof window === 'undefined' || isAuthEndpoint(endpoint)) return;
+  try {
+    localStorage.removeItem('cf_token');
+    localStorage.removeItem('cf_refresh_token');
+    localStorage.removeItem('cf_workspace_id');
+  } catch {
+    /* ignore storage errors */
+  }
+  const path = window.location.pathname;
+  if (sessionRedirectInFlight || path.startsWith('/login') || path.startsWith('/signup')) return;
+  sessionRedirectInFlight = true;
+  const next = encodeURIComponent(window.location.pathname + window.location.search);
+  window.location.assign(`/login?session=expired&next=${next}`);
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -57,6 +86,10 @@ export async function apiClient<T>(
       }
     } catch {
       errData = null;
+    }
+    // Expired/missing session → clear and redirect to login (not a hard crash).
+    if (res.status === 401) {
+      handleSessionExpired(endpoint);
     }
     throw new ApiError(res.status, res.statusText, errData);
   }
