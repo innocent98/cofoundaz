@@ -4,7 +4,9 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSidebar } from '@/components/sidebar-context';
-import { Bell, Menu, Plus } from 'lucide-react';
+import { Menu, Plus } from 'lucide-react';
+import { HealthPill } from '@/components/health-pill';
+import { NotificationBell } from '@/components/notification-bell';
 import { ToastProvider, useToast } from './ToastContext';
 
 function DocumentsHeader() {
@@ -30,22 +32,9 @@ function DocumentsHeader() {
       </div>
 
       <div className="flex items-center space-x-2.5 md:space-x-3">
-        <div className="hidden md:flex bg-green-50 text-green-900 px-3 py-1 rounded-full text-xs font-semibold items-center space-x-1.5 border border-green-200">
-          <span>Health</span>
-          <span className="font-bold">72</span>
-          <span className="text-xs">?</span>
-        </div>
-        
-        <button 
-          onClick={() => triggerToast('Notifications opened.')}
-          className="relative w-8 h-8 rounded-full border border-sage-200 bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-card shrink-0"
-          aria-label="Notifications"
-        >
-          <Bell className="w-3.5 h-3.5 text-sage-500" />
-          <span className="absolute -top-1 -right-1 bg-green-900 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-            5
-          </span>
-        </button>
+        <HealthPill className="hidden md:flex bg-green-50 text-green-900 px-3 py-1 rounded-full text-xs font-semibold items-center space-x-1.5 border border-green-200" />
+
+        <NotificationBell className="relative w-8 h-8 rounded-full border border-sage-200 bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-card shrink-0" iconClassName="w-3.5 h-3.5 text-sage-500" />
 
         <button 
           onClick={() => triggerToast('Invite modal opened.')}
