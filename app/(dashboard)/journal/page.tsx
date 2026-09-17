@@ -2,20 +2,11 @@
 
 import React, { useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
+import { useJournal } from '@/hooks/useJournal';
 import { Menu, History, Lock, Search } from 'lucide-react';
 
 type JournalSubTab = 'Today' | 'All entries' | 'Mood' | 'Reflections' | 'Privacy';
 type MoodType = 'Rough' | 'Heavy' | 'Steady' | 'Good' | 'Great';
-
-interface JournalEntry {
-  id: string;
-  date: string;
-  mood: MoodType;
-  snippet: string;
-  fullText: string;
-  words: number;
-  tags: string[];
-}
 
 export default function JournalPage(): React.JSX.Element {
   const { openSidebar } = useSidebar();
@@ -48,54 +39,14 @@ export default function JournalPage(): React.JSX.Element {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState<string>('');
 
-  // Sample stored entries matching reference images
-  const [entries, setEntries] = useState<JournalEntry[]>([
-    {
-      id: '1',
-      date: 'Sunday, Jul 26',
-      mood: 'Great',
-      snippet: 'The pricing test is stuck and I know it is because I am scared of the answer.',
-      fullText: 'The pricing test is stuck and I know it is because I am scared of the answer.\n\nIf riders will not pay ₦500 then the whole unit economics story falls apart and I have to go back to the drawing board with eight months of runway left. So instead of sending the survey I spent the day rewriting the deck, which is exactly the kind of productive-looking avoidance I promised myself I would stop doing.\n\nSending it tomorrow. Before 10am. No more edits.',
-      words: 142,
-      tags: ['Pricing', 'Doubt']
-    },
-    {
-      id: '2',
-      date: 'Friday, Jul 24',
-      mood: 'Great',
-      snippet: 'Daniel pushed back on my unfair advantage slide and he was right.',
-      fullText: 'Daniel pushed back on my unfair advantage slide and he was right.\n\nI had written something about our tech being faster, which is both untrue and boring. He said it plainly: the agents are the moat. Three hundred and forty people who already handle cash for these riders every single day. You cannot buy that in a funding round.\n\nGood co-founders save you from your own pitch.',
-      words: 96,
-      tags: ['Team', 'Wins']
-    },
-    {
-      id: '3',
-      date: 'Wednesday, Jul 22',
-      mood: 'Steady',
-      snippet: 'Ran the runway numbers three times hoping they would change.',
-      fullText: 'Ran the runway numbers three times hoping they would change.\n\n8.4 months. Same every time. It is not a crisis but it is not comfortable either, and I notice I am the only person in this company who feels the weight of that number. Grace sees the spreadsheet. Daniel sees the roadmap. I see the date the money runs out.\n\nMaybe that is just the job. But I should say it loud to someone this week.',
-      words: 118,
-      tags: ['Money', 'Fear']
-    },
-    {
-      id: '4',
-      date: 'Monday, Jul 20',
-      mood: 'Steady',
-      snippet: 'Interviewed three riders. One of them cried.',
-      fullText: 'Interviewed three riders. One of them cried.',
-      words: 87,
-      tags: ['Customers']
-    },
-    {
-      id: '5',
-      date: 'Thursday, Jul 16',
-      mood: 'Great',
-      snippet: 'Thrive SACCO signed. First real contract.',
-      fullText: 'Thrive SACCO signed. First real contract.',
-      words: 64,
-      tags: ['Wins']
-    }
-  ]);
+  // Real journal data (prompt + entries list + mood trend) from the API.
+  const {
+    prompt: todayPrompt,
+    entries,
+    setEntries,
+    saveEntry,
+    saving: isSaving,
+  } = useJournal();
 
   const showToast = (msg: string): void => {
     setToastMessage(msg);
@@ -117,28 +68,24 @@ export default function JournalPage(): React.JSX.Element {
 
   const wordCount = journalText.trim() ? journalText.trim().split(/\s+/).length : 0;
 
-  const handleSaveEntry = () => {
+  const handleSaveEntry = async () => {
     if (!journalText.trim()) {
       showToast('Please write something before saving.');
       return;
     }
-
-    const newEntry: JournalEntry = {
-      id: Date.now().toString(),
-      date: 'Saturday, September 5',
-      mood: selectedMood || 'Steady',
-      snippet: journalText.slice(0, 80) + '...',
-      fullText: journalText,
-      words: wordCount,
-      tags: ['General', selectedMood || 'Reflection']
-    };
-
-    setEntries([newEntry, ...entries]);
+    const res = await saveEntry(journalText, selectedMood);
+    if (!res.ok) {
+      showToast(
+        res.unavailable
+          ? 'Journal storage is temporarily unavailable. Please try again later.'
+          : 'Could not save your entry. Please try again.'
+      );
+      return;
+    }
     setJournalText('');
     setSelectedMood(null);
     setSubTab('All entries');
-    setExpandedEntries(prev => ({ ...prev, [newEntry.id]: true }));
-    showToast('Entry saved and encrypted.');
+    showToast('Entry saved.');
   };
 
   const handleDiscard = () => {
@@ -360,7 +307,7 @@ export default function JournalPage(): React.JSX.Element {
             <div className="bg-[#F4EFE6] border border-[#EBE3D3] rounded-[24px] p-4 flex items-center justify-between text-xs">
               <div className="flex items-center space-x-3 text-[#5A4D35]">
                 <span className="p-2 bg-[#E2D4BC] rounded-card">✏️</span>
-                <span className="font-medium"><strong>Today&apos;s prompt:</strong> What did you learn today that you did not know yesterday?</span>
+                <span className="font-medium"><strong>Today&apos;s prompt:</strong> {todayPrompt || 'What did you learn today that you did not know yesterday?'}</span>
               </div>
               <button 
                 onClick={() => showToast('Loaded new journal prompt.')}
@@ -398,9 +345,10 @@ export default function JournalPage(): React.JSX.Element {
                   </button>
                   <button
                     onClick={handleSaveEntry}
-                    className="px-5 py-2 rounded-modal text-xs font-semibold bg-[#B39353] hover:bg-[#A38346] text-white transition-colors shadow-card cursor-pointer"
+                    disabled={isSaving}
+                    className="px-5 py-2 rounded-modal text-xs font-semibold bg-[#B39353] hover:bg-[#A38346] text-white transition-colors shadow-card cursor-pointer disabled:opacity-60"
                   >
-                    Save entry
+                    {isSaving ? 'Saving…' : 'Save entry'}
                   </button>
                 </div>
               </div>
