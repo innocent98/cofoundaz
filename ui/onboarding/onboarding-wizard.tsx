@@ -148,7 +148,9 @@ export function OnboardingWizard({
       return
     }
 
-    await onSaveStep(currentStep, { ...values, step: currentStep }); const nextStep = currentStep + 1; setCurrentStep(nextStep);
+    const nextStep = currentStep + 1
+    await onSaveStep(nextStep, { ...values, step: nextStep })
+    setCurrentStep(nextStep)
   }
 
   async function handleBack() {
