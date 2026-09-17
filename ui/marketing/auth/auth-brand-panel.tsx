@@ -15,11 +15,14 @@ export function AuthBrandPanel() {
 
       {/* Main Content */}
       <div className="my-12 lg:my-0 space-y-8 max-w-md">
-        <h1 className="font-display italic text-4xl lg:text-5xl leading-tight font-light text-white">
+        {/* Decorative brand tagline — not a heading. The page's single <h1>
+            is the auth form's own heading (see auth-form.tsx); keeping this a
+            <p> avoids two <h1>s per auth page (a11y: one h1 per page). */}
+        <p className="font-display italic text-4xl lg:text-5xl leading-tight font-light text-white">
           The co-founder
           <br />
           who never sleeps.
-        </h1>
+        </p>
 
         <div className="space-y-4 pt-2">
           {/* Feature Item 1 */}
