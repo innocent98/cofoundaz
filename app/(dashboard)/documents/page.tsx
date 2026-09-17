@@ -1,19 +1,79 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { Search, Plus, ChevronRight, Sparkles, Trash2 } from 'lucide-react';
+import React, { useMemo, useRef, useState } from 'react';
+import { Search, Plus, ChevronRight, Sparkles, Trash2, Share2, X, Check, Copy } from 'lucide-react';
 import { useDocumentFiles } from '@/hooks/useDocumentFiles';
+import { useDocuments } from '@/hooks/useDocuments';
+import { useDocumentShares } from '@/hooks/useDocumentShares';
 import { useToast } from './ToastContext';
 
 const CATEGORIES = ['Corporate', 'Financials', 'Legal', 'Fundraising', 'Marketing', 'Archive'];
 
+interface LibItem {
+  id: string;
+  title: string;
+  type: string;
+  category: string;
+  owner: string;
+  modified: string;
+  status: string;
+  aiGenerated?: boolean;
+  source: 'document' | 'file';
+}
+
 export default function DocumentsLibraryPage() {
-  const { files: libraryDocs, uploading, uploadFile, deleteFile } = useDocumentFiles();
+  const { files, uploading, uploadFile, deleteFile } = useDocumentFiles();
+  const { documents } = useDocuments();
+  const { createShare } = useDocumentShares();
   const { triggerToast } = useToast();
   const [libraryViewMode, setLibraryViewMode] = useState<'Grid' | 'List'>('List');
   const [selectedCategory, setSelectedCategory] = useState<string>('All documents');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Rich documents (shareable/signable) + uploaded files, in one library list.
+  const libraryDocs = useMemo<LibItem[]>(() => {
+    const docItems: LibItem[] = documents.map((d) => ({
+      id: d.id, title: d.title, type: 'DOC', category: d.category, owner: d.owner,
+      modified: d.modified, status: d.status, aiGenerated: d.aiGenerated, source: 'document',
+    }));
+    const fileItems: LibItem[] = files.map((f) => ({
+      id: f.id, title: f.title, type: f.type, category: f.category, owner: f.owner,
+      modified: f.modified, status: f.status, aiGenerated: f.aiGenerated, source: 'file',
+    }));
+    return [...docItems, ...fileItems];
+  }, [documents, files]);
+
+  // Share modal state
+  const [shareDoc, setShareDoc] = useState<LibItem | null>(null);
+  const [shareEmail, setShareEmail] = useState('');
+  const [shareAccess, setShareAccess] = useState<'view' | 'comment'>('view');
+  const [shareExpires, setShareExpires] = useState(true);
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+
+  const openShare = (e: React.MouseEvent, doc: LibItem) => {
+    e.stopPropagation();
+    setShareDoc(doc);
+    setShareEmail('');
+    setShareAccess('view');
+    setShareExpires(true);
+    setShareLink(null);
+  };
+
+  const handleShareSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!shareDoc) return;
+    setSharing(true);
+    const res = await createShare(shareDoc.id, shareEmail, shareAccess, shareExpires ? 30 : null);
+    setSharing(false);
+    if (res.ok) {
+      setShareLink(res.link || null);
+      triggerToast(`Shared with ${shareEmail}.`);
+    } else {
+      triggerToast(res.error || 'Could not share.');
+    }
+  };
 
   const filteredLibraryDocs = libraryDocs.filter(doc => {
     const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) || doc.owner.toLowerCase().includes(searchQuery.toLowerCase());
@@ -243,14 +303,28 @@ export default function DocumentsLibraryPage() {
                               <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeStyles(doc.status)}`}>
                                 {doc.status}
                               </span>
-                              <button
-                                type="button"
-                                aria-label={`Delete ${doc.title}`}
-                                onClick={(e) => handleDelete(e, doc.id, doc.title)}
-                                className="text-[#9CA8A0] hover:text-[#B93838] transition-colors shrink-0"
-                              >
-                                <Trash2 size={14} />
-                              </button>
+                              <div className="flex items-center gap-2.5 shrink-0">
+                                {doc.source === 'document' && (
+                                  <button
+                                    type="button"
+                                    aria-label={`Share ${doc.title}`}
+                                    onClick={(e) => openShare(e, doc)}
+                                    className="text-[#9CA8A0] hover:text-[#183B28] transition-colors"
+                                  >
+                                    <Share2 size={14} />
+                                  </button>
+                                )}
+                                {doc.source === 'file' && (
+                                  <button
+                                    type="button"
+                                    aria-label={`Delete ${doc.title}`}
+                                    onClick={(e) => handleDelete(e, doc.id, doc.title)}
+                                    className="text-[#9CA8A0] hover:text-[#B93838] transition-colors"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </td>
                         </tr>
@@ -261,6 +335,104 @@ export default function DocumentsLibraryPage() {
               )}
             </div>
           </div>
+
+          {/* Share document modal */}
+          {shareDoc && (
+            <div className="fixed inset-0 bg-[#061A12]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-modal w-full max-w-md shadow-raised overflow-hidden">
+                <div className="px-6 py-4 border-b border-[#E8E8E2] flex items-center justify-between bg-[#FBFBFA]">
+                  <h3 className="font-bold text-[#1E2923] truncate pr-4">Share “{shareDoc.title}”</h3>
+                  <button onClick={() => setShareDoc(null)} className="text-[#8E9B90] hover:text-[#1E2923] transition-colors p-1 rounded-input hover:bg-[#E8E8E2]">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {shareLink ? (
+                  <div className="p-6 space-y-4">
+                    <p className="text-sm text-[#1E2923] font-semibold">Share link created</p>
+                    <p className="text-xs text-[#738279]">This link is shown once — copy it now, it can’t be retrieved later.</p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        readOnly
+                        value={shareLink}
+                        className="flex-1 border border-[#D5DDD6] rounded-input px-3 py-2 text-xs text-[#1E2923] bg-[#FBFBFA] truncate"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { navigator.clipboard?.writeText(shareLink); triggerToast('Link copied.'); }}
+                        className="shrink-0 px-3 py-2 bg-[#183B28] hover:bg-[#122E21] text-white rounded-input text-xs font-bold flex items-center gap-1.5"
+                      >
+                        <Copy size={13} /> Copy
+                      </button>
+                    </div>
+                    <div className="pt-2 flex justify-end">
+                      <button onClick={() => setShareDoc(null)} className="px-4 py-2 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-sm font-bold transition-colors">
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleShareSubmit} className="p-6 space-y-5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider">Email address</label>
+                      <input
+                        type="email"
+                        required
+                        value={shareEmail}
+                        onChange={(e) => setShareEmail(e.target.value)}
+                        placeholder="name@company.com"
+                        className="w-full border border-[#D5DDD6] rounded-input px-3 py-2 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58]"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider">Access level</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {(['view', 'comment'] as const).map((level) => (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() => setShareAccess(level)}
+                            className={`py-2 rounded-input text-xs font-semibold border transition-all capitalize ${
+                              shareAccess === level
+                                ? 'border-[#183B28] bg-[#EAF2ED] text-[#183B28] shadow-card'
+                                : 'border-[#E8E8E2] text-[#617065] hover:bg-[#F5F5F0]'
+                            }`}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShareExpires(!shareExpires)}
+                        className={`w-4 h-4 rounded shrink-0 flex items-center justify-center border transition-colors ${
+                          shareExpires ? 'bg-[#183B28] border-[#183B28]' : 'border-[#DCDCD6] bg-white'
+                        }`}
+                      >
+                        {shareExpires && <Check size={12} className="text-white" />}
+                      </button>
+                      <span className="text-xs text-[#55625A] font-medium cursor-pointer select-none" onClick={() => setShareExpires(!shareExpires)}>
+                        Link expires in 30 days
+                      </span>
+                    </div>
+
+                    <div className="pt-2 flex gap-3">
+                      <button type="button" onClick={() => setShareDoc(null)} className="flex-1 px-4 py-2 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-sm font-bold transition-colors">
+                        Cancel
+                      </button>
+                      <button type="submit" disabled={sharing} className="flex-1 px-4 py-2 bg-[#183B28] hover:bg-[#122E21] text-white rounded-card text-sm font-bold transition-colors shadow-card disabled:opacity-60">
+                        {sharing ? 'Sharing…' : 'Create link'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+          )}
         </main>
   );
 }
