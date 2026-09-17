@@ -28,6 +28,8 @@ export interface OnboardingWizardProps {
   onComplete: () => Promise<void>
   isSubmitting?: boolean
   error?: string | null
+  // ISO country options for the step-1 Country select (passed in to keep ui/ portable).
+  countries?: Array<{ code: string; name: string }>
 }
 
 const TOTAL_STEPS = 6
@@ -77,6 +79,7 @@ export function OnboardingWizard({
   onComplete,
   isSubmitting = false,
   error,
+  countries = [],
 }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState<number>(initialValues?.step || 1)
   const [values, setValues] = useState<OnboardingFormValues>({
@@ -228,14 +231,20 @@ export function OnboardingWizard({
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field label="Country" htmlFor="onboard-country" help={null}>
                   {() => (
-                    <input
+                    // The API stores country as an ISO code — submit the code, not the name.
+                    <select
                       id="onboard-country"
-                      type="text"
                       value={values.country}
                       onChange={(e) => updateField('country', e.target.value)}
                       className={fieldControlClasses}
-                      placeholder="United States"
-                    />
+                    >
+                      <option value="">Select a country</option>
+                      {countries.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
                   )}
                 </Field>
 
