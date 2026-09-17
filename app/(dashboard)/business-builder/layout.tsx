@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useBusinessBuilderApi } from '@/hooks/useBusinessBuilderApi';
 import { Bell, Plus, Check } from 'lucide-react';
 import { useSidebar } from '@/components/sidebar-context';
+import { useHealthScore } from '@/hooks/useHealthScore';
 
 type ToastContextType = {
   triggerToast: (msg: string) => void;
@@ -28,6 +29,8 @@ export default function BusinessBuilderLayout({
   const pathname = usePathname();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const { userRole } = useBusinessBuilderApi();
+  const { data: health, loading: healthLoading } = useHealthScore();
+  const showHealth = !healthLoading && health.status === 'ok';
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -87,11 +90,17 @@ export default function BusinessBuilderLayout({
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
-                <span className="text-[#556358]">Health</span>
-                <span className="font-bold text-sm">72</span>
-                <span className="text-[10px] text-[#2D5A3F]">↑</span>
-              </div>
+              {showHealth && (
+                <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
+                  <span className="text-[#556358]">Health</span>
+                  <span className="font-bold text-sm">{health.score}</span>
+                  {health.weeklyDelta !== 0 && (
+                    <span className={`text-[10px] ${health.weeklyDelta > 0 ? 'text-[#2D5A3F]' : 'text-[#B0483B]'}`}>
+                      {health.weeklyDelta > 0 ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
+              )}
 
               <button className="relative p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]">
                 <Bell className="w-4 h-4" />
