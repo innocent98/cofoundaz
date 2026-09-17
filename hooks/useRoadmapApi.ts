@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { apiClient } from '@/lib/api/client';
 
 export type Stage = 'Idea' | 'Validation' | 'Launch' | 'Traction' | 'Scale';
 export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'overdue';
@@ -37,152 +38,241 @@ export interface RoadmapPhase {
   milestones: RoadmapMilestone[];
 }
 
-const initialPhases: RoadmapPhase[] = [
-  {
-    id: 'ph-1',
-    name: 'Customer Discovery',
-    order: 1,
-    startsOn: '2023-09-01',
-    endsOn: '2023-09-30',
-    milestones: [
-      {
-        id: 'ms-1',
-        phaseId: 'ph-1',
-        title: 'Conduct 20 user interviews',
-        dueOn: '2023-09-15',
-        ownerId: 'usr-1',
-        status: 'completed',
-        progress: 100,
-        tasks: [
-          { id: 't-1', milestoneId: 'ms-1', title: 'Write interview script', effort: 'Low', status: 'done', dueOn: '2023-09-02' },
-          { id: 't-2', milestoneId: 'ms-1', title: 'Recruit participants', effort: 'Medium', status: 'done', dueOn: '2023-09-05', dependsOn: ['t-1'] },
-          { id: 't-3', milestoneId: 'ms-1', title: 'Synthesize findings', effort: 'Medium', status: 'done', dueOn: '2023-09-15', dependsOn: ['t-2'] },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'ph-2',
-    name: 'MVP Build',
-    order: 2,
-    startsOn: '2023-10-01',
-    endsOn: '2023-11-15',
-    milestones: [
-      {
-        id: 'ms-2',
-        phaseId: 'ph-2',
-        title: 'Core App Engine',
-        dueOn: '2023-10-20',
-        ownerId: 'usr-1',
-        status: 'overdue',
-        progress: 60,
-        tasks: [
-          { id: 't-4', milestoneId: 'ms-2', title: 'Database schema design', effort: 'High', status: 'done', dueOn: '2023-10-05' },
-          { id: 't-5', milestoneId: 'ms-2', title: 'API scaffolding', effort: 'Medium', status: 'in_progress', dueOn: '2023-10-10', dependsOn: ['t-4'] },
-          { id: 't-6', milestoneId: 'ms-2', title: 'Auth implementation', effort: 'High', status: 'overdue', dueOn: '2023-10-15', dependsOn: ['t-5'] },
-        ]
-      },
-      {
-        id: 'ms-3',
-        phaseId: 'ph-2',
-        title: 'User Interface',
-        dueOn: '2023-11-10',
-        ownerId: 'usr-2',
-        status: 'pending',
-        progress: 10,
-        isReplanned: true,
-        replannedReason: 'Adjusted on Oct 1 because Core App Engine took longer than expected.',
-        tasks: [
-          { id: 't-7', milestoneId: 'ms-3', title: 'Design system setup', effort: 'Medium', status: 'in_progress', dueOn: '2023-10-25' },
-          { id: 't-8', milestoneId: 'ms-3', title: 'Implement Dashboard', effort: 'High', status: 'todo', dueOn: '2023-11-05', dependsOn: ['t-7', 't-6'] },
-        ]
-      }
-    ]
-  }
-];
+// --- API → FE mapping -------------------------------------------------------
+// GET /roadmap returns a phase → milestone → task tree (lazy-generated if none
+// exists). See cofoundaz-api/docs/fe-integration-guide-roadmap.md §1.
+
+const STAGE_LABEL: Record<string, Stage> = {
+  idea: 'Idea',
+  validation: 'Validation',
+  launch: 'Launch',
+  traction: 'Traction',
+  scale: 'Scale',
+};
+
+interface OwnerRef {
+  id: string;
+  name: string | null;
+}
+interface RawTask {
+  id: string;
+  title: string;
+  description: string | null;
+  effort: string;
+  status: string;
+  assignee: OwnerRef | null;
+  due_on: string | null;
+  overdue: boolean;
+  order: number;
+  depends_on: string[];
+}
+interface RawMilestone {
+  id: string;
+  title: string;
+  description: string | null;
+  due_on: string | null;
+  owner: OwnerRef | null;
+  status: string;
+  progress: number;
+  overdue: boolean;
+  order: number;
+  dependency_count: number;
+  replanned: { at: string; reason: string } | null;
+  tasks: RawTask[];
+}
+interface RawPhase {
+  id: string;
+  name: string;
+  order: number;
+  starts_on: string | null;
+  ends_on: string | null;
+  milestones: RawMilestone[];
+}
+interface RawTree {
+  roadmap: { id: string; stage: string; template_key?: string; generated_at?: string; drift?: { slipped_count: number } };
+  current_stage: string | null;
+  phases: RawPhase[];
+}
+
+function effortLabel(e: string): string {
+  if (e === 'small') return 'Small';
+  if (e === 'large') return 'Large';
+  return 'Medium';
+}
+
+function mapTaskStatus(t: RawTask): TaskStatus {
+  if (t.overdue) return 'overdue';
+  if (t.status === 'done' || t.status === 'in_progress' || t.status === 'todo') return t.status;
+  return 'todo';
+}
+
+function mapMilestoneStatus(m: RawMilestone): RoadmapMilestone['status'] {
+  if (m.overdue) return 'overdue';
+  if (m.status === 'done') return 'completed';
+  return 'pending';
+}
+
+function mapTask(t: RawTask, milestoneId: string): RoadmapTask {
+  return {
+    id: t.id,
+    milestoneId,
+    title: t.title,
+    description: t.description ?? undefined,
+    effort: effortLabel(t.effort),
+    status: mapTaskStatus(t),
+    assigneeId: t.assignee?.name ?? (t.assignee ? 'Member' : undefined),
+    dueOn: t.due_on ?? '',
+    dependsOn: t.depends_on ?? [],
+  };
+}
+
+function mapMilestone(m: RawMilestone, phaseId: string): RoadmapMilestone {
+  return {
+    id: m.id,
+    phaseId,
+    title: m.title,
+    dueOn: m.due_on ?? '',
+    // The FE displays this as the "Owner" label — show the name, not a raw UUID.
+    ownerId: m.owner?.name ?? (m.owner ? 'Member' : 'Unassigned'),
+    status: mapMilestoneStatus(m),
+    progress: m.progress ?? 0,
+    isReplanned: !!m.replanned,
+    replannedReason: m.replanned?.reason,
+    tasks: (m.tasks ?? []).map((t) => mapTask(t, m.id)).sort((a, b) => (a.dueOn > b.dueOn ? 1 : -1)),
+  };
+}
+
+function mapPhase(p: RawPhase): RoadmapPhase {
+  return {
+    id: p.id,
+    name: p.name,
+    order: p.order,
+    startsOn: p.starts_on ?? '',
+    endsOn: p.ends_on ?? '',
+    milestones: (p.milestones ?? []).map((m) => mapMilestone(m, p.id)).sort((a, b) => a.progress - b.progress),
+  };
+}
 
 export function useRoadmapApi() {
-  const [currentStage] = useState<Stage>('Validation');
-  const [phases, setPhases] = useState<RoadmapPhase[]>(initialPhases);
+  const [currentStage, setCurrentStage] = useState<Stage>('Idea');
+  const [phases, setPhases] = useState<RoadmapPhase[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const refetch = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await apiClient<{ data?: RawTree }>('/roadmap');
+      const d = res?.data;
+      if (d) {
+        const stageKey = (d.current_stage || d.roadmap?.stage || 'idea').toLowerCase();
+        setCurrentStage(STAGE_LABEL[stageKey] ?? 'Idea');
+        setPhases((d.phases ?? []).map(mapPhase).sort((a, b) => a.order - b.order));
+      } else {
+        setPhases([]);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+      setPhases([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      refetch();
+    });
+  }, [refetch]);
 
   // Helper to get all tasks in a flat list
   const getAllTasks = useCallback(() => {
-    return phases.flatMap(p => p.milestones.flatMap(m => m.tasks));
+    return phases.flatMap((p) => p.milestones.flatMap((m) => m.tasks));
   }, [phases]);
 
-  // Cycle Detection: returns true if adding an edge from "fromTaskId" to "toTaskId" creates a cycle
-  // (Meaning toTaskId already depends on fromTaskId, directly or transitively)
-  const wouldCreateCycle = useCallback((fromTaskId: string, toTaskId: string) => {
-    if (fromTaskId === toTaskId) return true;
-    
-    const tasks = getAllTasks();
-    const taskMap = new Map<string, RoadmapTask>();
-    tasks.forEach(t => taskMap.set(t.id, t));
+  // Cycle detection: returns true if adding an edge from "fromTaskId" to
+  // "toTaskId" creates a cycle (toTaskId already depends on fromTaskId,
+  // directly or transitively). Runs against the real fetched tree. The backend
+  // also rejects cycles with a 409 DEPENDENCY_CYCLE (guide §6); this is a
+  // client pre-check for instant feedback.
+  const wouldCreateCycle = useCallback(
+    (fromTaskId: string, toTaskId: string) => {
+      if (fromTaskId === toTaskId) return true;
 
-    // We want to check if toTaskId can reach fromTaskId through its dependencies.
-    // Because if we add (fromTaskId -> toTaskId), fromTaskId must happen before toTaskId.
-    // If toTaskId -> ... -> fromTaskId already exists, then we have a cycle.
-    
-    const visited = new Set<string>();
-    const queue = [toTaskId];
+      const tasks = getAllTasks();
+      const taskMap = new Map<string, RoadmapTask>();
+      tasks.forEach((t) => taskMap.set(t.id, t));
 
-    while (queue.length > 0) {
-      const currentId = queue.shift()!;
-      if (currentId === fromTaskId) return true; // Cycle detected
+      const visited = new Set<string>();
+      const queue = [toTaskId];
 
-      if (!visited.has(currentId)) {
-        visited.add(currentId);
-        const currentTask = taskMap.get(currentId);
-        if (currentTask && currentTask.dependsOn) {
-          queue.push(...currentTask.dependsOn);
+      while (queue.length > 0) {
+        const currentId = queue.shift()!;
+        if (currentId === fromTaskId) return true; // Cycle detected
+
+        if (!visited.has(currentId)) {
+          visited.add(currentId);
+          const currentTask = taskMap.get(currentId);
+          if (currentTask && currentTask.dependsOn) {
+            queue.push(...currentTask.dependsOn);
+          }
         }
       }
-    }
-    
-    return false;
-  }, [getAllTasks]);
 
-  const addDependency = useCallback((fromTaskId: string, toTaskId: string): { success: boolean, error?: string } => {
-    const tasks = getAllTasks();
-    const fromTask = tasks.find(t => t.id === fromTaskId);
-    const toTask = tasks.find(t => t.id === toTaskId);
+      return false;
+    },
+    [getAllTasks]
+  );
 
-    if (!fromTask || !toTask) return { success: false, error: 'Task not found' };
+  // NOTE: dependency persistence (POST /roadmap/tasks/{id}/dependencies) is a
+  // Roadmap follow-up — this applies the edge optimistically to the fetched
+  // tree so the dependencies UI is responsive, but does not yet write it back.
+  const addDependency = useCallback(
+    (fromTaskId: string, toTaskId: string): { success: boolean; error?: string } => {
+      const tasks = getAllTasks();
+      const fromTask = tasks.find((t) => t.id === fromTaskId);
+      const toTask = tasks.find((t) => t.id === toTaskId);
 
-    if (wouldCreateCycle(fromTaskId, toTaskId)) {
-      return { 
-        success: false, 
-        error: `That would create a loop — ${fromTask.title} already depends on ${toTask.title}.` 
-      };
-    }
+      if (!fromTask || !toTask) return { success: false, error: 'Task not found' };
 
-    // In a real app, send API request here.
-    // Optimistic update:
-    setPhases(prev => {
-      const newPhases = JSON.parse(JSON.stringify(prev)) as RoadmapPhase[];
-      for (const phase of newPhases) {
-        for (const ms of phase.milestones) {
-          for (const t of ms.tasks) {
-            if (t.id === toTaskId) {
-              if (!t.dependsOn) t.dependsOn = [];
-              if (!t.dependsOn.includes(fromTaskId)) {
-                t.dependsOn.push(fromTaskId);
+      if (wouldCreateCycle(fromTaskId, toTaskId)) {
+        return {
+          success: false,
+          error: `That would create a loop — ${fromTask.title} already depends on ${toTask.title}.`,
+        };
+      }
+
+      setPhases((prev) => {
+        const newPhases = JSON.parse(JSON.stringify(prev)) as RoadmapPhase[];
+        for (const phase of newPhases) {
+          for (const ms of phase.milestones) {
+            for (const t of ms.tasks) {
+              if (t.id === toTaskId) {
+                if (!t.dependsOn) t.dependsOn = [];
+                if (!t.dependsOn.includes(fromTaskId)) {
+                  t.dependsOn.push(fromTaskId);
+                }
               }
             }
           }
         }
-      }
-      return newPhases;
-    });
+        return newPhases;
+      });
 
-    return { success: true };
-  }, [getAllTasks, wouldCreateCycle]);
+      return { success: true };
+    },
+    [getAllTasks, wouldCreateCycle]
+  );
 
   return {
     currentStage,
     phases,
+    loading,
+    error,
+    refetch,
     wouldCreateCycle,
     addDependency,
-    getAllTasks
+    getAllTasks,
   };
 }
