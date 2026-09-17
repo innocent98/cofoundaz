@@ -1,6 +1,27 @@
 import type { NextConfig } from "next";
 
+// Local-dev only: any /api/v1 path not served by a local mock route handler
+// falls back to staging so the app stays usable offline. Never enabled in
+// preview/production builds — there, unmatched /api/v1 calls 404 instead of
+// silently proxying to staging.
+const devApiFallback: Pick<NextConfig, "rewrites"> =
+  process.env.NODE_ENV === "development"
+    ? {
+        async rewrites() {
+          return {
+            fallback: [
+              {
+                source: "/api/v1/:path*",
+                destination: "https://staging-api.cofoundaz.com/api/v1/:path*",
+              },
+            ],
+          };
+        },
+      }
+    : {};
+
 const nextConfig: NextConfig = {
+  ...devApiFallback,
   async redirects() {
     return [
       {
