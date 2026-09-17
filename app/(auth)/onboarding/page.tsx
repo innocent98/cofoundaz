@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -14,6 +14,7 @@ import {
   MembershipRole,
 } from '@/lib/api/onboarding'
 import { ApiError } from '@/lib/api/client'
+import { COUNTRIES } from '@/lib/countries'
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -110,8 +111,19 @@ export default function OnboardingPage() {
       await completeOnboarding()
       router.push('/dashboard')
     } catch (err: unknown) {
+      // 422 ONBOARDING_INCOMPLETE lists the still-missing fields — surface them.
       if (err instanceof ApiError) {
-        setError(`Failed to finalize onboarding: ${err.status}`)
+        const d = err.data as {
+          error?: { message?: string; field_errors?: Array<{ message?: string }> }
+        }
+        const fieldMsgs = (d?.error?.field_errors ?? [])
+          .map((f) => f.message)
+          .filter(Boolean)
+          .join(' ')
+        setError(
+          [d?.error?.message, fieldMsgs].filter(Boolean).join(' ') ||
+            'Could not complete onboarding. Please try again.'
+        )
       } else {
         setError('Could not complete onboarding. Please try again.')
       }
@@ -137,6 +149,7 @@ export default function OnboardingPage() {
       onComplete={handleComplete}
       isSubmitting={submitting}
       error={error}
+      countries={COUNTRIES}
     />
   )
 }
