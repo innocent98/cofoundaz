@@ -1,15 +1,57 @@
+﻿'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import { Button, Field, fieldControlClasses } from '@/ui/primitives'
 import { authModes, authShared } from '@/content/auth'
 
-/**
- * Presentational only. Submission is deliberately unwired for this phase.
- * TODO(auth): wire to PRD Module 01 — POST /api/v1/auth/signup and
- * POST /api/v1/auth/login, plus OAuth at /api/v1/auth/oauth/{google|apple}.
- */
-export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
+interface AuthFormProps {
+  mode: 'login' | 'signup'
+  onSubmit?: (data: { email: string; password: string; agreedTerms?: boolean }) => Promise<void>
+  error?: string | null
+  successMessage?: string | null
+  isSubmitting?: boolean
+}
+
+export function AuthForm({
+  mode,
+  onSubmit,
+  error: externalError,
+  successMessage,
+  isSubmitting = false,
+}: AuthFormProps) {
   const copy = authModes[mode]
   const isSignup = mode === 'signup'
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [agreedTerms, setAgreedTerms] = useState(false)
+  const [localError, setLocalError] = useState<string | null>(null)
+
+  const activeError = externalError || localError
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLocalError(null)
+
+    if (!email.trim() || !password) {
+      setLocalError('Please enter both email and password.')
+      return
+    }
+
+    if (isSignup && !agreedTerms) {
+      setLocalError('You must agree to the Terms of Service and Privacy Policy.')
+      return
+    }
+
+    if (onSubmit) {
+      await onSubmit({
+        email: email.trim(),
+        password,
+        agreedTerms,
+      })
+    }
+  }
 
   return (
     <div className="w-full max-w-[420px]">
@@ -33,16 +75,37 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
         <span className="h-px flex-1 bg-sage-300" />
       </div>
 
-      <div className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+        {activeError && (
+          <div
+            role="alert"
+            className="rounded-input border border-red-200 bg-red-50 p-3 text-[13px] text-red-700"
+          >
+            {activeError}
+          </div>
+        )}
+
+        {successMessage && (
+          <div
+            role="status"
+            className="rounded-input border border-green-200 bg-green-50 p-3 text-[13px] text-green-800"
+          >
+            {successMessage}
+          </div>
+        )}
+
         <Field label={authShared.emailLabel} htmlFor="auth-email" help={null}>
           {(describedById) => (
             <input
               id="auth-email"
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               className={fieldControlClasses}
               placeholder={authShared.emailPlaceholder}
-              aria-describedby={describedById}
+              {...(describedById ? { 'aria-describedby': describedById } : {})}
+              required
             />
           )}
         </Field>
@@ -52,10 +115,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
             <input
               id="auth-password"
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete={isSignup ? 'new-password' : 'current-password'}
               className={fieldControlClasses}
               placeholder="••••••••"
-              aria-describedby={describedById}
+              {...(describedById ? { 'aria-describedby': describedById } : {})}
+              required
             />
           )}
         </Field>
@@ -65,6 +131,8 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
             <input
               id="auth-terms"
               type="checkbox"
+              checked={agreedTerms}
+              onChange={(e) => setAgreedTerms(e.target.checked)}
               className="mt-0.5 h-4 w-4 accent-green-600"
             />
             <label htmlFor="auth-terms" className="text-[13px] leading-[1.4] text-sage-700">
@@ -80,17 +148,20 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           </div>
         ) : (
           <div className="-mt-1.5 text-right">
-            {/* Route out of scope this phase; rendered as plain text, not a dead link. */}
-            <span className="text-[13px] font-semibold text-sage-500">
-              {authShared.forgotPassword}
-            </span>
+            <Link href="/forgot-password" className="text-[13px] font-semibold text-green-700 hover:text-green-800 hover:underline transition-colors">{authShared.forgotPassword}</Link>
           </div>
         )}
 
-        <Button variant="accent" size="md" className="w-full" disabled>
-          {copy.cta}
+        <Button
+          type="submit"
+          variant="accent"
+          size="md"
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Submitting...' : copy.cta}
         </Button>
-      </div>
+      </form>
 
       <p className="mt-5 text-center text-sm text-sage-500">
         {copy.footerText}{' '}

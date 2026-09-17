@@ -3,7 +3,9 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "./ToastContext";
-import { Bell, UserPlus } from "lucide-react";
+import { UserPlus } from 'lucide-react';
+import { HealthPill } from '@/components/health-pill';
+import { NotificationBell } from '@/components/notification-bell';
 
 export default function FinanceLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -43,21 +45,9 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <div className="bg-green-100 text-green-900 px-2 py-1 rounded-full text-[10px] md:text-xs font-medium flex items-center gap-1 border border-green-200">
-                <span>Health</span>
-                <span className="font-bold text-[10px] md:text-xs text-green-900">72</span>
-                <span className="text-[10px]">↑</span>
-              </div>
+              <HealthPill className="bg-green-100 text-green-900 px-2 py-1 rounded-full text-[10px] md:text-xs font-medium flex items-center gap-1 border border-green-200" />
 
-              <button
-                aria-label="Notifications"
-                className="relative p-2 rounded-full bg-sage-100/80 border border-sage-200/60 text-sage-700 hover:bg-sage-200/60 transition-colors flex items-center justify-center cursor-pointer"
-              >
-                <Bell className="w-3.5 h-3.5" />
-                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
-                  5
-                </span>
-              </button>
+              <NotificationBell />
 
               <button className="bg-copper-600 hover:bg-copper-700 text-white font-semibold px-2.5 py-1.5 h-7 rounded-full text-xs transition-colors flex items-center gap-1 cursor-pointer leading-none">
                 <UserPlus className="w-3.5 h-3.5" />

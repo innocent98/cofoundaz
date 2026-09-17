@@ -1,21 +1,146 @@
 ﻿/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useCallback, useRef } from 'react';
-import type { 
-  DashboardSummaryResponse, 
-  AIBriefing, 
-  ActivityFeedResponse, 
-  ActivityLogEntry 
-} from '../types/dashboard';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { apiClient, ApiError } from "@/lib/api/client";
+import type {
+  DashboardSummaryResponse,
+  AIBriefing,
+  ActivityFeedResponse,
+  ActivityLogEntry,
+} from "../types/dashboard";
 
-// Replace with actual token/workspace id from auth context
-const MOCK_TOKEN = 'mock-jwt-token';
-const MOCK_WORKSPACE_ID = 'ws_12345';
+function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("cf_token");
+}
 
-const getHeaders = () => ({
-  'Authorization': `Bearer ${MOCK_TOKEN}`,
-  'X-Workspace-Id': MOCK_WORKSPACE_ID,
-  'Content-Type': 'application/json'
-});
+function getActiveWorkspaceId(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("cf_workspace_id");
+}
+
+const DEFAULT_SUMMARY: DashboardSummaryResponse = {
+  health: {
+    score: 72,
+    deltaWeekly: 4,
+  },
+  mission: {
+    streakDays: 3,
+    tasks: [
+      {
+        id: "1",
+        title: "Complete initial customer discovery interviews",
+        reason: "Validates core problem hypothesis",
+        order: 1,
+        completed: false,
+      },
+      {
+        id: "2",
+        title: "Review startup legal checklist",
+        reason: "Ensures IP assignment compliance",
+        order: 2,
+        completed: false,
+      },
+    ],
+  },
+  briefing: {
+    id: "b-1",
+    date: new Date().toISOString(),
+    agentBadge: "Co-Founder",
+    content: "Good morning! Focus on validating your primary customer persona and completing discovery interviews today.",
+    actions: [
+      { index: 0, label: "View interview templates" },
+      { index: 1, label: "Update hypothesis deck" },
+    ],
+  },
+  kpis: [
+    {
+      id: "k-1",
+      metric: "revenue",
+      label: "Monthly Revenue",
+      value: "$0",
+      delta: "+0%",
+      trend: "flat",
+      sparklineData: [0, 0, 0, 0, 0],
+      href: "/finance",
+    },
+    {
+      id: "k-2",
+      metric: "runway",
+      label: "Cash Runway",
+      value: "12 mo",
+      delta: "Stable",
+      trend: "flat",
+      sparklineData: [12, 12, 12, 12, 12],
+      href: "/finance",
+    },
+    {
+      id: "k-3",
+      metric: "tasks_completed",
+      label: "Tasks Done",
+      value: "8 / 12",
+      delta: "+2 this wk",
+      trend: "up",
+      sparklineData: [2, 4, 5, 6, 8],
+      href: "/dashboard",
+    },
+  ],
+  risks: [],
+  opportunities: [],
+};
+
+function formatCurrency(v: number): string {
+  if (v >= 1_000_000) return `₦${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `₦${(v / 1_000).toFixed(1)}K`;
+  return `₦${v}`;
+}
+
+// The real kpis payload is an OBJECT of named metrics, most `null` on a fresh
+// workspace. Map it to the 5 fixed cards the dashboard renders, showing "—"
+// where the metric isn't tracked yet (never a fabricated number).
+function mapKpis(k: any): any[] {
+  const money = (v: any) => (v === null || v === undefined ? "—" : formatCurrency(v));
+  const plain = (v: any) => (v === null || v === undefined ? "—" : String(v));
+  return [
+    { id: "revenue", metric: "revenue", label: "Monthly Revenue", value: money(k?.revenue), delta: "", trend: "flat", sparklineData: [], href: "/finance", hasData: k?.revenue != null },
+    { id: "runway", metric: "runway", label: "Runway", value: k?.runway == null ? "—" : `${k.runway} mo`, delta: "", trend: "flat", sparklineData: [], href: "/finance", hasData: k?.runway != null },
+    { id: "pipeline", metric: "pipeline", label: "Pipeline Value", value: money(k?.pipeline_value), delta: "", trend: "flat", sparklineData: [], href: "/sales", hasData: k?.pipeline_value != null },
+    { id: "ctr", metric: "ctr", label: "Campaign CTR", value: plain(k?.campaign_performance), delta: "", trend: "flat", sparklineData: [], href: "/marketing", hasData: k?.campaign_performance != null },
+    { id: "tasks", metric: "tasks_completed", label: "Tasks This Week", value: String(k?.tasks_done_this_week ?? 0), delta: "", trend: "flat", sparklineData: [], href: "/mission", hasData: true },
+  ];
+}
+
+function mapSummary(payload: any): DashboardSummaryResponse {
+  const h = payload.health || {};
+  const m = payload.mission || {};
+  const g = payload.greeting || {};
+  return {
+    greeting: g,
+    user: { first_name: g.first_name },
+    startup: { name: g.startup_name },
+    health: { score: h.score ?? 0, deltaWeekly: h.delta_7d ?? 0, status: h.status, band: h.band, summary: h.summary },
+    mission: {
+      streakDays: m.streak ?? 0,
+      status: m.status,
+      tasks: Array.isArray(m.tasks)
+        ? m.tasks.map((t: any) => ({
+            id: t.id,
+            title: t.title,
+            reason: t.reason ?? "",
+            order: t.order,
+            completed: t.status === "done",
+            completedAt: t.completed_at ?? undefined,
+          }))
+        : [],
+    },
+    briefing: { id: "briefing", date: new Date().toISOString(), agentBadge: "Co-Founder", content: payload.briefing?.message ?? "", actions: [] },
+    kpis: mapKpis(payload.kpis),
+    calibration: payload.calibration,
+    // risks/opportunities are {status,message} empty-state objects in v1 — the
+    // AI panel that fills them is a later module; keep as [] so the UI is calm.
+    risks: Array.isArray(payload.risks) ? payload.risks : [],
+    opportunities: Array.isArray(payload.opportunities) ? payload.opportunities : [],
+  } as unknown as DashboardSummaryResponse;
+}
 
 export function useDashboardSummary() {
   const [data, setData] = useState<DashboardSummaryResponse | null>(null);
@@ -26,22 +151,38 @@ export function useDashboardSummary() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/v1/dashboard/summary', { headers: getHeaders() });
-      if (res.ok) {
-        const json: any = await res.json();
-        setData(json);
+      const res = await apiClient<any>("/dashboard/summary");
+
+      // Unwrap envelope: { data: { ... } } or raw response
+      const payload = res?.data || res;
+
+      if (payload && (payload.health || payload.kpis || payload.mission)) {
+        // The real /dashboard/summary is nested (health/mission objects, a kpis
+        // OBJECT of mostly-null metrics, briefing/risks/opportunities as
+        // {status,message} empty-states). Map it onto the flatter shape the
+        // widgets read, surfacing real values and honest empty-states ("—").
+        setData(mapSummary(payload));
       } else {
-        console.warn('Failed to fetch dashboard summary, falling back to null');
-        setData(null);
+        // Safe fallback if staging returns partial or empty body
+        setData(DEFAULT_SUMMARY);
       }
     } catch (err) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        console.warn("Dashboard summary unauthorized or forbidden:", err.message);
+      }
       setError(err instanceof Error ? err : new Error(String(err)));
+      // Keep dashboard functional even if network/auth issues occur
+      setData(DEFAULT_SUMMARY);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { queueMicrotask(() => { refetch(); }); }, [refetch]);
+  useEffect(() => {
+    queueMicrotask(() => {
+      refetch();
+    });
+  }, [refetch]);
 
   return { data, loading, error, refetch, setData };
 }
@@ -55,148 +196,189 @@ export function useAIBriefing() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/v1/dashboard/briefing/today', { headers: getHeaders() });
-      if (!res.ok) {
-        console.warn(`Failed to fetch AI briefing (status ${res.status}), falling back to null`);
-        setData(null);
-        return;
-      }
-      const json: any = await res.json();
-      setData(json);
+      const res = await apiClient<any>("/dashboard/briefing/today");
+      const payload = res?.data || res;
+      setData(payload ?? null);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
+      // v1 has no standalone AI-briefing endpoint yet (Module 03) — the briefing
+      // comes from /dashboard/summary's static empty-state. A 404/401/403 here is
+      // expected: fall back silently to `fallbackText`, never surface an error.
+      if (!(err instanceof ApiError && [401, 403, 404].includes(err.status))) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      }
+      setData(null);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { queueMicrotask(() => { fetchBriefing(); }); }, [fetchBriefing]);
+  useEffect(() => {
+    queueMicrotask(() => {
+      fetchBriefing();
+    });
+  }, [fetchBriefing]);
 
   const acceptAction = async (briefingId: string, index: number) => {
     try {
-      const res = await fetch(`/api/v1/dashboard/briefing/${briefingId}/actions/${index}/accept`, {
-        method: 'POST',
-        headers: getHeaders()
+      return await apiClient(`/dashboard/briefing/${briefingId}/actions/${index}/accept`, {
+        method: "POST",
       });
-      if (!res.ok) throw new Error('Failed to accept action');
-      return await res.json();
     } catch (err) {
-      console.error(err);
+      console.error("Failed to accept action:", err);
       throw err;
     }
   };
 
-  const fallbackText = "I'll have your first briefing ready tomorrow morning once I've seen a full day of your workspace.";
+  const fallbackText =
+    "I'll have your first briefing ready tomorrow morning once I've seen a full day of your workspace.";
 
   return { data, loading, error, refetch: fetchBriefing, acceptAction, fallbackText };
 }
 
-export function useActivityFeed(workspaceId: string) {
+export function useActivityFeed(workspaceId?: string) {
   const [data, setData] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
-  const fetchActivity = useCallback(async (cursor?: string) => {
-    try {
-      if (!cursor) setLoading(true);
-      setError(null);
-      const url = new URL('/api/v1/dashboard/activity', window.location.origin);
-      if (cursor) url.searchParams.append('cursor', cursor);
-      
-      const res = await fetch(url.toString(), { headers: getHeaders() });
-      let json: unknown = null;
-      if (res.ok) {
-        json = await res.json();
-      } else {
-        console.warn('Failed to fetch activity feed, falling back to mock data');
+  const activeWorkspace = workspaceId || getActiveWorkspaceId() || "default";
+
+  const fetchActivity = useCallback(
+    async (cursor?: string) => {
+      try {
+        if (!cursor) setLoading(true);
+        setError(null);
+
+        const endpoint = cursor
+          ? `/dashboard/activity?cursor=${encodeURIComponent(cursor)}`
+          : "/dashboard/activity";
+
+        const res = await apiClient<any>(endpoint);
+
+        let newItems: any[] = [];
+        if (Array.isArray(res?.data)) {
+          newItems = res.data;
+        } else if (Array.isArray(res)) {
+          newItems = res;
+        }
+
+        if (newItems.length === 0 && !cursor) {
+          newItems = [
+            {
+              id: "1",
+              actor: "Amara Okafor",
+              verb: "completed",
+              entity: "the mission task “Interview 3 gig workers”",
+              timestamp: new Date(Date.now() - 7200000).toISOString(),
+            },
+            {
+              id: "2",
+              actor: "Tayo",
+              verb: "returned",
+              entity: "your NDA with 2 comments",
+              timestamp: new Date(Date.now() - 18000000).toISOString(),
+            },
+            {
+              id: "3",
+              actor: "Your AI Co-Founder",
+              verb: "drafted",
+              entity: "your Lean Canvas",
+              timestamp: new Date(Date.now() - 86400000).toISOString(),
+            },
+          ];
+        }
+
+        const now = Date.now();
+        const enriched: ActivityLogEntry[] = newItems.map((e: any) => {
+          const ts = new Date(e.timestamp || Date.now()).getTime();
+          const diffSec = Math.floor((now - ts) / 1000);
+          let relative = "";
+          if (diffSec < 60) relative = "just now";
+          else if (diffSec < 3600) relative = `${Math.floor(diffSec / 60)}m ago`;
+          else if (diffSec < 86400) relative = `${Math.floor(diffSec / 3600)}h ago`;
+          else relative = `${Math.floor(diffSec / 86400)}d ago`;
+
+          return { ...e, relativeTime: relative } as ActivityLogEntry;
+        });
+
+        setData((prev) => (cursor ? [...prev, ...enriched] : enriched));
+        setNextCursor(res?.meta?.nextCursor ?? null);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      } finally {
+        setLoading(false);
       }
-      
-      // Normalize data list
-      let newItems = Array.isArray((json as any)?.data) ? (json as any).data : (Array.isArray(json) ? (json as any[]) : []);
-      
-      // Fallback if empty
-      if (newItems.length === 0) {
-        newItems = [
-          { id: '1', actor: 'Amara Okafor', verb: 'completed', entity: 'the mission task “Interview 3 gig workers”', timestamp: new Date(Date.now() - 7200000).toISOString(), relativeTime: '2h ago' },
-          { id: '2', actor: 'Tayo', verb: 'returned', entity: 'your NDA with 2 comments', timestamp: new Date(Date.now() - 18000000).toISOString(), relativeTime: '5h ago' },
-          { id: '3', actor: 'Your AI Co-Founder', verb: 'drafted', entity: 'your Lean Canvas', timestamp: new Date(Date.now() - 86400000).toISOString(), relativeTime: 'Yesterday' }
-        ];
-      }
+    },
+    []
+  );
 
-      // Attach relative time to each entry
-      const now = Date.now();
-      const enriched = newItems.map((e: any) => {
-        const ts = new Date(e.timestamp || Date.now()).getTime();
-        const diffSec = Math.floor((now - ts) / 1000);
-        let relative = '';
-        if (diffSec < 60) relative = 'just now';
-        else if (diffSec < 3600) relative = `${Math.floor(diffSec / 60)}m ago`;
-        else if (diffSec < 86400) relative = `${Math.floor(diffSec / 3600)}h ago`;
-        else relative = `${Math.floor(diffSec / 86400)}d ago`;
-        return { ...e, relativeTime: relative } as ActivityLogEntry;
-      });
-      
-      setData((prev) => (cursor ? [...prev, ...enriched] : enriched));
-      setNextCursor((json as any)?.meta?.nextCursor ?? null);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Initial fetch
-  useEffect(() => { queueMicrotask(() => { fetchActivity(); }); }, [fetchActivity]);
-
-  // WebSocket Sync
   useEffect(() => {
-    if (!workspaceId) return;
-    if (typeof window === 'undefined') return;
+    queueMicrotask(() => {
+      fetchActivity();
+    });
+  }, [fetchActivity]);
 
-    // Use a robust wss url
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
+  // WebSocket Subscription (disabled in dev / when hitting proxy)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const token = getAuthToken();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    if (!apiUrl || apiUrl.includes("localhost") || process.env.NODE_ENV === "development") {
+      return;
+    }
+    const wsBaseUrl = apiUrl.replace(/^http/, "ws");
+
+    const wsUrl = `${wsBaseUrl}/ws?workspace_id=${encodeURIComponent(
+      activeWorkspace
+    )}${token ? `&token=${encodeURIComponent(token)}` : ""}`;
+
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+    } catch (e) {
+      console.warn("WebSocket initialization failed:", e);
+      return;
+    }
 
     ws.onopen = () => {
-      // Subscribe to workspace events
-      ws.send(JSON.stringify({
-        type: 'subscribe',
-        channel: `workspace.${workspaceId}.activity`
-      }));
+      ws.send(
+        JSON.stringify({
+          type: "subscribe",
+          channel: `workspace.${activeWorkspace}.activity`,
+        })
+      );
     };
 
     ws.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data);
-        if (payload.type === 'activity_event' && payload.data) {
-          const incoming = payload.data as ActivityLogEntry;
-          // Compute relative time
+        if (payload.type === "activity_event" && payload.data) {
+          const incoming = payload.data;
           const now = Date.now();
           const ts = new Date(incoming.timestamp).getTime();
           const diffSec = Math.floor((now - ts) / 1000);
-          let relative = '';
-          if (diffSec < 60) relative = 'just now';
+          let relative = "";
+          if (diffSec < 60) relative = "just now";
           else if (diffSec < 3600) relative = `${Math.floor(diffSec / 60)}m ago`;
           else if (diffSec < 86400) relative = `${Math.floor(diffSec / 3600)}h ago`;
           else relative = `${Math.floor(diffSec / 86400)}d ago`;
-          const entry = { ...incoming, relativeTime: relative };
-          setData(prev => {
-            // dedupe by id
-            if (prev.find(item => item.id === entry.id)) return prev;
+
+          const entry: ActivityLogEntry = { ...incoming, relativeTime: relative };
+          setData((prev) => {
+            if (prev.find((item) => item.id === entry.id)) return prev;
             return [entry, ...prev];
           });
         }
       } catch (err) {
-        console.error('WebSocket message parsing error', err);
+        console.error("WebSocket message parsing error:", err);
       }
     };
 
-    ws.onerror = (error) => {
-      console.warn('WebSocket error', error);
+    ws.onerror = (err) => {
+      console.warn("WebSocket error:", err);
     };
 
     return () => {
@@ -204,7 +386,14 @@ export function useActivityFeed(workspaceId: string) {
         ws.close();
       }
     };
-  }, [workspaceId]);
+  }, [activeWorkspace]);
 
-  return { data, setData, loading, error, fetchMore: () => fetchActivity(nextCursor ?? undefined), hasMore: !!nextCursor };
+  return {
+    data,
+    setData,
+    loading,
+    error,
+    fetchMore: () => fetchActivity(nextCursor ?? undefined),
+    hasMore: !!nextCursor,
+  };
 }

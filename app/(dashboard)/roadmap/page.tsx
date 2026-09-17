@@ -6,7 +6,7 @@ import { RoadmapDrawer } from './components/RoadmapDrawer';
 import { AlertCircle, RotateCw } from 'lucide-react';
 
 export default function TimelinePage() {
-  const { currentStage, phases } = useRoadmapApi();
+  const { currentStage, phases, loading } = useRoadmapApi();
   const [zoom, setZoom] = useState<'Week' | 'Month' | 'Quarter'>('Month');
   
   const [selectedMilestone, setSelectedMilestone] = useState<RoadmapMilestone | null>(null);
@@ -81,7 +81,22 @@ export default function TimelinePage() {
           </div>
 
           <div className="min-w-[800px] p-6 flex flex-col gap-8 pt-12">
-            {phases.map((phase) => (
+            {loading && (
+              <div className="flex flex-col gap-4 animate-pulse pt-8">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="h-[72px] w-[300px] bg-[#F0F0EC] rounded-card" style={{ marginLeft: `${i * 20 + 10}%` }} />
+                ))}
+              </div>
+            )}
+            {!loading && phases.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-24 text-center gap-2">
+                <p className="text-base font-semibold text-[#1E2923]">No roadmap yet</p>
+                <p className="text-sm text-[#768478] max-w-sm">
+                  Your roadmap will appear here once it&apos;s generated from your startup stage.
+                </p>
+              </div>
+            )}
+            {!loading && phases.map((phase) => (
               <div key={phase.id} className="flex flex-col gap-4">
                 <h4 className="text-xs font-bold text-[#617065] uppercase tracking-wider">
                   Phase {phase.order}: {phase.name}

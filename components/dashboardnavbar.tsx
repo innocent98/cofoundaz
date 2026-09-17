@@ -3,6 +3,7 @@
 import React from 'react';
 import { Search, Bell, Plus, Sparkles } from 'lucide-react';
 import { useSidebar } from '@/components/sidebar-context';
+import { useHealthScore } from '@/hooks/useHealthScore';
 
 interface DashboardNavbarProps {
   isNotificationsOpen: boolean;
@@ -27,6 +28,10 @@ export function DashboardNavbar({
 }: DashboardNavbarProps) {
   const sidebar = useSidebar();
   const unreadCount = notifications.filter(n => n.unread).length;
+  // Real Health Score (GET /health-score). Hidden until an assessment exists —
+  // no fabricated number in the shell while status is pending/loading.
+  const { data: health, loading: healthLoading } = useHealthScore();
+  const showHealth = !healthLoading && health.status === 'ok';
 
   return (
     <header className="sticky top-0 z-40 w-full shrink-0 bg-white border-b border-sage-200/80 px-4 md:px-8 py-2.5 flex items-center justify-between gap-4 shadow-card">
@@ -63,12 +68,18 @@ export function DashboardNavbar({
 
       {/* Actions */}
       <div className="flex items-center gap-4 shrink-0">
-        {/* Health Badge */}
-        <div className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]">
-          <span>Health</span>
-          <span className="font-bold">72</span>
-          <span className="text-green-600 font-bold">↑</span>
-        </div>
+        {/* Health Badge — real score, only once an assessment exists */}
+        {showHealth && (
+          <div className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]">
+            <span>Health</span>
+            <span className="font-bold">{health.score}</span>
+            {health.weeklyDelta !== 0 && (
+              <span className={`font-bold ${health.weeklyDelta > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {health.weeklyDelta > 0 ? '↑' : '↓'}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Notification Bell */}
         <button

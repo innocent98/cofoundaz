@@ -3,7 +3,9 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider, useToast } from "./ToastContext";
-import { Bell } from "lucide-react";
+import {  } from 'lucide-react';
+import { HealthPill } from '@/components/health-pill';
+import { NotificationBell } from '@/components/notification-bell';
 
 export default function SalesLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -34,21 +36,9 @@ export default function SalesLayout({ children }: { children: React.ReactNode })
             </div>
 
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
-                <span className="text-[#556358]">Health</span>
-                <span className="font-bold text-sm">72</span>
-                <span className="text-[10px] text-[#2D5A3F]">↑</span>
-              </div>
+              <HealthPill className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium" />
 
-              <button
-                aria-label="Notifications"
-                className="relative shrink-0 p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]"
-              >
-                <Bell className="w-4 h-4 text-[#66756F]" />
-                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                  5
-                </span>
-              </button>
+              <NotificationBell />
 
               <button className="shrink-0 flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs md:text-sm transition-colors shadow-card">
                 <span>+ Invite</span>

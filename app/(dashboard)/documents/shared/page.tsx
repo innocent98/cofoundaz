@@ -1,33 +1,33 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { Search, Plus, FileText, Check, X } from 'lucide-react';
-import { useDocumentsApi } from '@/hooks/useDocumentsApi';
+import { FileText, X, Trash2, Check } from 'lucide-react';
+import { useDocumentShares } from '@/hooks/useDocumentShares';
 import { useToast } from '../ToastContext';
 
 export default function SharedPage() {
-  const { sharedListItems } = useDocumentsApi();
+  const { shares, loading, revokeShare } = useDocumentShares();
   const { triggerToast } = useToast();
-  
+
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareEmail, setShareEmail] = useState('');
-  const [accessLevel, setAccessLevel] = useState('View');
+  const [accessLevel, setAccessLevel] = useState<'View' | 'Comment'>('View');
   const [linkExpires, setLinkExpires] = useState(true);
 
   const handleShareSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Sharing is initiated per-document (from a document's own view); this
+    // overview modal is a follow-up once the rich-documents list is wired.
     setIsShareModalOpen(false);
-    triggerToast('Document shared.');
+    triggerToast('Open a document to share it.');
   };
 
-  const getAccessBadgeStyles = (access: string) => {
-    switch (access) {
-      case 'View': return 'bg-[#E5EFEA] text-[#1E3E2B]';
-      case 'Edit': return 'bg-[#E5EFEA] text-[#1E3E2B]';
-      case 'Comment': return 'bg-[#E5EFEA] text-[#1E3E2B]';
-      default: return 'bg-[#E5EFEA] text-[#1E3E2B]';
-    }
+  const handleRevoke = async (documentId: string, shareId: string) => {
+    await revokeShare(documentId, shareId);
+    triggerToast('Access revoked.');
   };
+
+  const accessBadgeStyles = 'bg-[#E5EFEA] text-[#1E3E2B]';
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
@@ -44,11 +44,12 @@ export default function SharedPage() {
               <th className="py-3 px-6">Shared with</th>
               <th className="py-3 px-6">Access</th>
               <th className="py-3 px-6">Last viewed</th>
+              <th className="py-3 px-6"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#E8E8E2] text-xs">
-            {sharedListItems.map((item, idx) => (
-              <tr key={idx} className="hover:bg-[#FBFBFA] transition-colors">
+            {shares.map((item) => (
+              <tr key={item.id} className="hover:bg-[#FBFBFA] transition-colors">
                 <td className="py-3 px-6">
                   <div className="flex items-center space-x-3">
                     <FileText className="w-4 h-4 text-[#8E9B90]" />
@@ -57,15 +58,33 @@ export default function SharedPage() {
                 </td>
                 <td className="py-3 px-6 text-[#55625A]">{item.sharedWith}</td>
                 <td className="py-3 px-6">
-                  <span className={`px-2 py-0.5 rounded font-medium text-[10px] ${getAccessBadgeStyles(item.access)}`}>
+                  <span className={`px-2 py-0.5 rounded font-medium text-[10px] ${accessBadgeStyles}`}>
                     {item.access}
                   </span>
                 </td>
                 <td className="py-3 px-6 text-[#8E9B90]">{item.lastViewed}</td>
+                <td className="py-3 px-6 text-right">
+                  <button
+                    type="button"
+                    aria-label={`Revoke access for ${item.sharedWith}`}
+                    onClick={() => handleRevoke(item.documentId, item.id)}
+                    className="text-[#9CA8A0] hover:text-[#B93838] transition-colors"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        {!loading && shares.length === 0 && (
+          <div className="px-6 py-12 text-center">
+            <p className="text-sm font-semibold text-[#1E2923]">Nothing shared yet</p>
+            <p className="text-xs text-[#8E9B90] mt-1">
+              Open a document and share it with a collaborator to see it here.
+            </p>
+          </div>
+        )}
       </div>
       
       {/* Share Modal */}
@@ -94,8 +113,8 @@ export default function SharedPage() {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider">Access level</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['View', 'Comment', 'Edit'] as const).map(level => (
+                <div className="grid grid-cols-2 gap-2">
+                  {(['View', 'Comment'] as const).map(level => (
                     <button
                       key={level}
                       type="button"

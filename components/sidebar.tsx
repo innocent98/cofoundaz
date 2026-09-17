@@ -5,6 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import CofaundazLogo from '@/components/CofaundazLogo';
+import { useNotifications } from '@/hooks/useNotifications';
 import {
   LayoutGrid,
   Sparkles,
@@ -132,6 +133,7 @@ export default function Sidebar({
   onClose,
 }: SidebarProps) {
   const pathname = usePathname();
+  const { unreadCount } = useNotifications();
 
   const handleClose = () => {
     if (onClose) onClose();
@@ -256,9 +258,11 @@ export default function Sidebar({
               </span>
             </div>
 
-            <span className="shrink-0 bg-[#D89A6E] text-[#061A12] text-xs font-bold px-1.5 py-0.5 rounded-full">
-              5
-            </span>
+            {unreadCount > 0 && (
+              <span className="shrink-0 bg-[#D89A6E] text-[#061A12] text-xs font-bold px-1.5 py-0.5 rounded-full">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </Link>
 
           <Link

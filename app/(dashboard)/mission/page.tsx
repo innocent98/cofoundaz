@@ -13,11 +13,13 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
-import { useMissionApi, MissionTask } from '@/hooks/useMissionApi';
+import { useMissionApi } from '@/hooks/useMissionApi';
 
 export default function MissionTodayPage() {
   const {
     isReady,
+    state,
+    streak,
     todayTasks,
     allCompleted,
     toggleTask,
@@ -90,13 +92,32 @@ export default function MissionTodayPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 bg-[#F7EEDC] text-[#8A5330] px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-card shrink-0">
-          <Flame className="w-4 h-4 fill-[#D89A6E] text-[#D89A6E]" />
-          <span>6-day streak</span>
-        </div>
+        {streak > 0 && (
+          <div className="flex items-center gap-1.5 bg-[#F7EEDC] text-[#8A5330] px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-card shrink-0">
+            <Flame className="w-4 h-4 fill-[#D89A6E] text-[#D89A6E]" />
+            <span>{streak}-day streak</span>
+          </div>
+        )}
       </div>
 
-      {allCompleted ? (
+      {state === 'no_roadmap' ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+          <div className="w-16 h-16 bg-[#EAF2ED] rounded-full flex items-center justify-center mb-2">
+            <Flag className="w-7 h-7 text-[#2D5A3F]" />
+          </div>
+          <h3 className="text-2xl md:text-3xl font-display font-bold text-[#1E2923]">Your mission comes from your roadmap</h3>
+          <p className="text-base text-[#617065] max-w-md">
+            Finish setting up your roadmap and your daily mission will start pulling the next best tasks from it.
+          </p>
+          <Link
+            href="/roadmap"
+            className="inline-flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white text-sm font-bold px-6 py-3 rounded-card transition-colors shadow-card"
+          >
+            <span>Go to your roadmap</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      ) : allCompleted ? (
         <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
           <div className="w-16 h-16 bg-[#EAF2ED] rounded-full flex items-center justify-center mb-2">
             <span className="text-3xl">🎉</span>
@@ -199,9 +220,11 @@ export default function MissionTodayPage() {
                       </div>
                     </div>
 
-                    <p className="text-xs text-[#617065] leading-relaxed mt-1 mb-3">
-                      {task.reason}
-                    </p>
+                    {task.reason && (
+                      <p className="text-xs text-[#617065] leading-relaxed mt-1 mb-3">
+                        {task.reason}
+                      </p>
+                    )}
 
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="inline-flex items-center gap-1.5 bg-[#EAF2ED] text-[#2D5A3F] text-xs font-medium px-3 py-1 rounded-full">

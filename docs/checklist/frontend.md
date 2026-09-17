@@ -5,9 +5,27 @@ and the design spec (`docs/superpowers/specs/`). Keep it honest — an item is
 checked only when done **and** verified (gates green).
 
 ## Snapshot
-- ✅ Done: Marketing site · Design-token system · CI + pre-commit hook · Product-app **UI scaffolding**
-- 🟡 In progress: Product app (static mock UI, pending API wiring)
-- ⛔ Not started: API integration · Auth wiring · Dashboard e2e/a11y coverage
+- ✅ Done: Marketing site · Design-token system · CI + pre-commit hook · Product-app UI scaffolding · Local mock API + typed client · **Real API — Auth/session (Module 0)** · **Onboarding (Module 1)**
+- 🟡 In progress: Real `cofoundaz-api` integration, module by module (✅ auth → ✅ onboarding → ~ dashboard → ~ health score → …)
+- ⛔ Not started: Dashboard e2e/a11y coverage
+
+## Real API integration (replacing the mocks, module by module)
+Client points at the real API (`NEXT_PUBLIC_API_BASE_URL`; local dev proxies `/api/v1` → staging same-origin via `next.config`). Each module: build to its `cofoundaz-api/docs/fe-integration-guide-*.md`, verify live, retire its mock.
+- [x] **Module 0 — Auth & session** — login authenticates live; post-login routing (→ onboarding/dashboard) via `/onboarding/state` (envelope fix); `/verify-email/{token}` + `/reset-password/{token}` email-link routes; verified live on staging
+- [x] **Module 1 — Onboarding** — wizard runs live: resume/autosave (`PATCH /onboarding/state`), envelope+nesting flattened, Country as ISO select (fixes a backend 500), complete-gate `field_errors` surfaced; verified on staging
+- [x] **Module 2 — Dashboard** — `X-Workspace-Id` header (cross-cutting, in client), `summary`+`activity` live; **widgets finished**: hook `mapSummary()` maps the real nested shape (health/mission objects, kpis metric-object → 5 cards, briefing/risks/opps empty-states), page shows real values + honest "—" for untracked KPIs (no fabricated ₦1.6M/streak), sparklines hidden on no-data. **Verified live** (greeting "Ade", health 90/thriving summary, real tasks, KPIs `— — — — 1`). Follow-up: error path still falls back to sample `DEFAULT_SUMMARY`
+- [~] **Module 3 — Health Score** — overview (`/health`) wired to real `GET /health-score`: two-state machine, array-of-5 dims → Record (`money`→`financial`), real `summary`/`delta_7d`/`band`, `est.`-hedged recs; Health pills (route shell + `/dashboard` navbar) show real score or hide (no more hardcoded `72`). **Both states verified live** — `pending_assessment` empty-state AND the `ok` state (score 90/thriving, 5 real dims). **Follow-up:** wire sub-routes (dimensions/recommendations/history/benchmarks); other route shells still hardcode `72`
+- [~] **Module 4 — Today's Mission** — `/mission` + `/mission/settings` wired to real `/api/v1/missions/*`: `GET /today` state machine, real streak, task actions, settings GET + **PATCH round-trip verified live** (3→2→3), `weekend_missions`↔`weekendsOff` + `HH:MM:SS`↔12h conversions, Health pill de-hardcoded. **Verified live:** `no_roadmap` empty-state AND (post-roadmap) real roadmap-drawn tasks + a **task-complete round-trip** (checkbox → server `done`). **Follow-up:** snooze/reject/reorder/add live; mentor role-gating; wire completed/upcoming/streaks to `/history`
+- [~] **Module 5 — Roadmap (tree read)** — `GET /roadmap` (lazy-generated tree) wired into `useRoadmapApi`, feeding real phase→milestone→task data to Timeline + Kanban + Milestones + drawer + `getAllTasks`; API→FE mapping, loading/empty states, Health pill de-hardcoded; **verified live** (real phases/milestones/tasks). **Follow-up (writes):** phase/milestone/task CRUD, dependencies persist + `409` cycle, templates, AI re-plan, generate, mentor role-gating
+- [~] **Module 6 — Business Builder (overview)** — `/business-builder` grid wired to real `GET /business-builder/overview`: 9 rows (5 canvases `completion_pct` + 4 record kinds `count`), real ring/count per card, Health pill de-hardcoded; **verified live** (created a persona → card shows "1 item"; health pill "90"). **Follow-up (editors):** canvas GET/PUT via `block_defs` + `409` conflict, record CRUD (plural paths `personas`/`revenue-streams`/`competitors`/`pricing`) from `fields`, positioning map, AI-fill, suggestions approve/reject
+- [~] **Module 7 — Notifications (Inbox feed)** — `/notifications` Inbox wired to real `GET /notifications` + `unread-count`, `useNotifications` hook maps `type`→icon/category/section, **mark-one/mark-all read POST to the API**; **verified live** (2 real notifications render; `Mark all read` drove server unread 2→0). **Follow-up:** bell badge still hardcoded in shells (poll unread-count); keyset pagination; preferences/digest (Slice 2); deep-linking
+- [~] **Module 8 — Journal** — `/journal` reads real daily prompt + entries list + mood via `useJournal`; **save writes to `POST /journal/entries`** (upsert; sends date/mood-enum/stress, maps FE mood↔API enum). **Verified live:** real prompt renders, entries/mood 200; save fires correctly but staging returns **500 `JOURNAL_NOT_CONFIGURED`** (missing journal encryption key) → UI shows graceful "unavailable". **Backend follow-up:** set the journal encryption key. FE follow-ups: entry detail/edit/delete, search, mood chart, autosave
+- [~] **Module 9 — Documents · Files** — `/documents` Library wired to real `GET/POST/DELETE /documents/files`: `useDocumentFiles` hook, **multipart upload** (client allowlist + 15 MB gate per guide §5), real per-folder counts, empty state, per-row delete; **verified live end-to-end** (uploaded a .txt → server stored + row rendered → deleted → back to empty). **Follow-up:** file open/preview via `url`; mentor role-gating
+- [~] **Module 11 — Documents · Sharing** — `/documents/shared` wired to real `GET /documents/shares` (workspace overview, title joined from `GET /documents`), active-only filter, per-row **revoke** (`DELETE …/{share_id}`), access levels fixed to view/comment; `useDocumentShares` also has `createShare`. **Verified live end-to-end** (created a doc → shared → row rendered with joined title → revoked → filtered out)
+- [~] **Module 12 — Documents · rich-documents list + Share UI** — Library now lists real rich documents (`GET /documents` via `useDocuments`) merged with files, source-aware actions (docs → Share, files → Delete); **per-document Share modal** (email + view/comment + expiry → `createShare` → shows the **one-time `link`** with copy + "shown once" warning). **Verified live end-to-end** (shared "Mutual NDA" → real `/shared/…` link → server active share confirmed). **Follow-up:** document open/detail/edit/delete; public `/shared/{token}`
+- [ ] Documents remaining: **E-signature** · **Templates** (unblocked)
+- [x] **Cross-cutting shell fixes** — shared `<HealthPill>` (real score or hidden) + `<NotificationBell>` (real unread, hidden at 0, links to /notifications) replace the hardcoded `72` pill + `5` badge across 14 shells + the shared Sidebar; **verified live** (shells show "Health 90", badges hidden at 0 unread, no `72`/`5` remain). Follow-up: migrate the 4 early module shells' inline pill logic to `<HealthPill>`
+- [ ] Backend/ops: confirm `APP_BASE_URL` = FE origin (email links); CORS for app origin (or keep dev proxy)
 
 Legend: `[x]` done+verified · `[ ]` not done · 🟡 partial
 
@@ -35,8 +53,11 @@ UI scaffolding shipped and tokenized (PR #10, #14). **All pages are static mock 
 - [x] Hubs: Business Builder, Validation, Marketing, Sales, Finance, Funding, Investor Readiness, Legal & Compliance
 - [x] Ops screens: Settings, Team, Notifications, Calendar, Journal, Documents, Analytics/Reports, Marketplace, Learning Academy
 - [x] Admin: Admin Portal, Super-Admin
-- [ ] **Wire every screen to `cofoundaz-api`** (auth, Health Score, Assessment, Roadmap, …) ← next major body of work
-- [ ] Replace mock data with real fetching + loading/empty/error states
+- [x] **Local mock API layer** (PR #17) — 78 `app/api/v1/*` handlers (canned JSON, OpenAPI-shaped) + typed client SDK (`lib/api/*`) + `useDashboardApi`/`useBusinessBuilderApi` hooks
+- [x] Auth + onboarding pages consume the mock API (`/api/v1/auth/*`, onboarding)
+- [ ] Consume the API from the **dashboard pages** (hooks exist; most pages still render static inline data)
+- [ ] **Wire to the real `cofoundaz-api`** — flip `NEXT_PUBLIC_API_BASE_URL` off the mocks; replace canned data with real fetching + loading/empty/error states ← next major body of work
+- [ ] Decide mock-handler fate in production (they currently ship as app routes)
 - [ ] Add dashboard routes to the e2e + axe sweep (currently marketing-only)
 
 ## 4. Backlog / upcoming

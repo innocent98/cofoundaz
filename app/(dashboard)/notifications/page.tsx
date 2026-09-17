@@ -2,24 +2,13 @@
 
 import React, { useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
+import { useNotifications } from '@/hooks/useNotifications';
+import { HealthPill } from '@/components/health-pill';
 import { Menu, History, Check, X, ChevronDown } from 'lucide-react';
 
 type NotificationTab = 'Inbox' | 'Preferences' | 'Digest & quiet hours' | 'Announcements';
 type FilterCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team';
 type DigestMode = 'Off' | 'Daily' | 'Weekly';
-
-interface NotificationItem {
-  id: string;
-  section: 'TODAY' | 'EARLIER THIS WEEK';
-  category: FilterCategory;
-  title: string;
-  description: string;
-  time: string;
-  actionText?: string;
-  isUnread: boolean;
-  iconBg: string;
-  iconText: string;
-}
 
 interface PreferenceRow {
   id: string;
@@ -93,104 +82,14 @@ export default function NotificationsPage(): React.JSX.Element {
     }
   ]);
 
-  // Initial notifications state
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
-    {
-      id: '1',
-      section: 'TODAY',
-      category: 'Missions',
-      title: 'Your mission for today is ready',
-      description: 'Three actions, about 90 minutes total. Interviews are still your highest leverage.',
-      time: '6:00 AM',
-      actionText: 'Open today\'s mission →',
-      isUnread: true,
-      iconBg: 'bg-[#EAF2ED]',
-      iconText: '◎'
-    },
-    {
-      id: '2',
-      section: 'TODAY',
-      category: 'Urgent',
-      title: 'VAT filing is overdue',
-      description: 'FIRS filing was due Jul 10. Late filings attract penalties, handle this first.',
-      time: '2h ago',
-      actionText: 'Go to compliance →',
-      isUnread: true,
-      iconBg: 'bg-[#FDF2F2]',
-      iconText: '⚠'
-    },
-    {
-      id: '3',
-      section: 'TODAY',
-      category: 'Finance',
-      title: 'Invoice overdue: INV-013',
-      description: 'MarketPlus pilot, ₦1.2M, 17 days past due. A reminder was sent automatically.',
-      time: '4h ago',
-      actionText: 'View invoice →',
-      isUnread: true,
-      iconBg: 'bg-[#FDF2F2]',
-      iconText: '₦'
-    },
-    {
-      id: '4',
-      section: 'TODAY',
-      category: 'Missions',
-      title: 'Sahel Fund viewed your data room',
-      description: 'Six minutes on the financial model. That is real interest, follow up today.',
-      time: '5h ago',
-      actionText: 'Open pipeline →',
-      isUnread: true,
-      iconBg: 'bg-[#EAF2ED]',
-      iconText: '◆'
-    },
-    {
-      id: '5',
-      section: 'EARLIER THIS WEEK',
-      category: 'Team',
-      title: 'Daniel commented on the Lean Canvas',
-      description: '“I think our unfair advantage is the agent network, not the tech. Thoughts?”',
-      time: 'Yesterday',
-      actionText: 'Reply →',
-      isUnread: true,
-      iconBg: 'bg-[#EAF2ED]',
-      iconText: '≡'
-    },
-    {
-      id: '6',
-      section: 'EARLIER THIS WEEK',
-      category: 'Urgent',
-      title: 'Your weekly AI briefing is ready',
-      description: 'Retention is up 4 points, but your pricing test is still blocked on the survey send.',
-      time: 'Yesterday',
-      actionText: 'Read briefing →',
-      isUnread: true,
-      iconBg: 'bg-[#EAF2ED]',
-      iconText: '+'
-    },
-    {
-      id: '7',
-      section: 'EARLIER THIS WEEK',
-      category: 'Finance',
-      title: 'Chidi has not signed yet',
-      description: 'Contractor agreement sent Jul 24. One of two signatures collected.',
-      time: '2d ago',
-      actionText: 'Send a reminder →',
-      isUnread: true,
-      iconBg: 'bg-[#EAF2ED]',
-      iconText: '▦'
-    },
-    {
-      id: '8',
-      section: 'EARLIER THIS WEEK',
-      category: 'Missions',
-      title: 'Six days straight',
-      description: 'You have completed your mission six days in a row. Most founders never build this habit.',
-      time: '2d ago',
-      isUnread: true,
-      iconBg: 'bg-[#FAF3EC]',
-      iconText: '🔥'
-    }
-  ]);
+  // Real notification feed (GET /api/v1/notifications). markRead/markAllRead
+  // POST to the API; the page's local NotificationItem shape is produced by the hook.
+  const {
+    items: notifications,
+    setItems: setNotifications,
+    markRead: apiMarkRead,
+    markAllRead: apiMarkAllRead,
+  } = useNotifications();
 
   // Preferences table state
   const [preferences, setPreferences] = useState<PreferenceRow[]>([
@@ -258,13 +157,13 @@ export default function NotificationsPage(): React.JSX.Element {
   };
 
   const handleMarkAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isUnread: false })));
+    void apiMarkAllRead();
     showToast('All caught up.');
   };
 
   const handleMarkSingleRead = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isUnread: false } : n));
+    void apiMarkRead(id);
     showToast('Marked as read.');
   };
 
@@ -326,11 +225,7 @@ export default function NotificationsPage(): React.JSX.Element {
         </div>
 
         <div className="flex items-center space-x-3">
-          <div className="bg-[#EAF2ED] text-[#183B28] border border-[#D5E6DC] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1 shadow-card">
-            <span>Health</span>
-            <span className="font-bold">72</span>
-            <span>↑</span>
-          </div>
+          <HealthPill className="bg-[#EAF2ED] text-[#183B28] border border-[#D5E6DC] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1 shadow-card" />
 
           <div className="relative w-9 h-9 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center text-[#55635C] shadow-card">
             <History className="w-4 h-4" />

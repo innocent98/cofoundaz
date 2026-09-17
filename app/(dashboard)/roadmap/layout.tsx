@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Bell } from 'lucide-react';
 import { useSidebar } from '@/components/sidebar-context';
+import { useHealthScore } from '@/hooks/useHealthScore';
 
 export default function RoadmapLayout({
   children,
@@ -13,6 +14,8 @@ export default function RoadmapLayout({
 }) {
   const { openSidebar } = useSidebar();
   const pathname = usePathname();
+  const { data: health, loading: healthLoading } = useHealthScore();
+  const showHealth = !healthLoading && health.status === 'ok';
 
   const tabs = [
     { name: 'Timeline', href: '/roadmap' },
@@ -46,11 +49,17 @@ export default function RoadmapLayout({
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]">
-              <span>Health</span>
-              <span className="font-bold">72</span>
-              <span className="text-green-600 font-bold">↑</span>
-            </div>
+            {showHealth && (
+              <div className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]">
+                <span>Health</span>
+                <span className="font-bold">{health.score}</span>
+                {health.weeklyDelta !== 0 && (
+                  <span className={`font-bold ${health.weeklyDelta > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {health.weeklyDelta > 0 ? '↑' : '↓'}
+                  </span>
+                )}
+              </div>
+            )}
 
             <button className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors">
               <Bell className="w-4 h-4 text-[#66756F]" />

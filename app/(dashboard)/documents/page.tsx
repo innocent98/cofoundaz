@@ -1,22 +1,106 @@
 'use client';
 
-import React, { useState } from 'react';
-import { FileText, Search, Plus, List, Grid as GridIcon, Check, ChevronRight, Sparkles } from 'lucide-react';
-import { useDocumentsApi } from '@/hooks/useDocumentsApi';
+import React, { useMemo, useRef, useState } from 'react';
+import { Search, Plus, ChevronRight, Sparkles, Trash2, Share2, X, Check, Copy } from 'lucide-react';
+import { useDocumentFiles } from '@/hooks/useDocumentFiles';
+import { useDocuments } from '@/hooks/useDocuments';
+import { useDocumentShares } from '@/hooks/useDocumentShares';
 import { useToast } from './ToastContext';
 
+const CATEGORIES = ['Corporate', 'Financials', 'Legal', 'Fundraising', 'Marketing', 'Archive'];
+
+interface LibItem {
+  id: string;
+  title: string;
+  type: string;
+  category: string;
+  owner: string;
+  modified: string;
+  status: string;
+  aiGenerated?: boolean;
+  source: 'document' | 'file';
+}
+
 export default function DocumentsLibraryPage() {
-  const { libraryDocs } = useDocumentsApi();
+  const { files, uploading, uploadFile, deleteFile } = useDocumentFiles();
+  const { documents } = useDocuments();
+  const { createShare } = useDocumentShares();
   const { triggerToast } = useToast();
   const [libraryViewMode, setLibraryViewMode] = useState<'Grid' | 'List'>('List');
   const [selectedCategory, setSelectedCategory] = useState<string>('All documents');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Rich documents (shareable/signable) + uploaded files, in one library list.
+  const libraryDocs = useMemo<LibItem[]>(() => {
+    const docItems: LibItem[] = documents.map((d) => ({
+      id: d.id, title: d.title, type: 'DOC', category: d.category, owner: d.owner,
+      modified: d.modified, status: d.status, aiGenerated: d.aiGenerated, source: 'document',
+    }));
+    const fileItems: LibItem[] = files.map((f) => ({
+      id: f.id, title: f.title, type: f.type, category: f.category, owner: f.owner,
+      modified: f.modified, status: f.status, aiGenerated: f.aiGenerated, source: 'file',
+    }));
+    return [...docItems, ...fileItems];
+  }, [documents, files]);
+
+  // Share modal state
+  const [shareDoc, setShareDoc] = useState<LibItem | null>(null);
+  const [shareEmail, setShareEmail] = useState('');
+  const [shareAccess, setShareAccess] = useState<'view' | 'comment'>('view');
+  const [shareExpires, setShareExpires] = useState(true);
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+
+  const openShare = (e: React.MouseEvent, doc: LibItem) => {
+    e.stopPropagation();
+    setShareDoc(doc);
+    setShareEmail('');
+    setShareAccess('view');
+    setShareExpires(true);
+    setShareLink(null);
+  };
+
+  const handleShareSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!shareDoc) return;
+    setSharing(true);
+    const res = await createShare(shareDoc.id, shareEmail, shareAccess, shareExpires ? 30 : null);
+    setSharing(false);
+    if (res.ok) {
+      setShareLink(res.link || null);
+      triggerToast(`Shared with ${shareEmail}.`);
+    } else {
+      triggerToast(res.error || 'Could not share.');
+    }
+  };
 
   const filteredLibraryDocs = libraryDocs.filter(doc => {
     const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) || doc.owner.toLowerCase().includes(searchQuery.toLowerCase());
     if (selectedCategory === 'All documents') return matchesSearch;
     return matchesSearch && doc.category.toLowerCase() === selectedCategory.toLowerCase();
   });
+
+  // Real per-folder counts for the sidebar (from the fetched files).
+  const countFor = (name: string) =>
+    name === 'All documents' ? libraryDocs.length : libraryDocs.filter(d => d.category.toLowerCase() === name.toLowerCase()).length;
+
+  const handleUploadClick = () => fileInputRef.current?.click();
+
+  const handleFileChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-picking the same file
+    if (!file) return;
+    const folder = selectedCategory !== 'All documents' ? selectedCategory : undefined;
+    const res = await uploadFile(file, folder);
+    triggerToast(res.ok ? `Uploaded ${file.name}.` : (res.error || 'Upload failed.'));
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string, title: string) => {
+    e.stopPropagation();
+    await deleteFile(id);
+    triggerToast(`Deleted ${title}.`);
+  };
 
   const getStatusBadgeStyles = (status: string) => {
     switch (status) {
@@ -43,11 +127,19 @@ export default function DocumentsLibraryPage() {
           </div>
 
           <div className="flex justify-end items-center space-x-3 -mt-12 mb-4">
-            <button 
-              onClick={() => triggerToast('Upload dialog opened.')}
-              className="px-4 py-1.5 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-xs font-semibold shadow-card transition-colors h-[34px]"
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.txt,.csv"
+              onChange={handleFileChosen}
+              className="hidden"
+            />
+            <button
+              onClick={handleUploadClick}
+              disabled={uploading}
+              className="px-4 py-1.5 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-xs font-semibold shadow-card transition-colors h-[34px] disabled:opacity-60"
             >
-              Upload
+              {uploading ? 'Uploading…' : 'Upload'}
             </button>
             <button 
               onClick={() => {
@@ -64,13 +156,8 @@ export default function DocumentsLibraryPage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start pt-2">
             <div className="lg:col-span-1 bg-white border border-[#E8E8E2] rounded-modal p-2 shadow-card space-y-0.5">
               {[
-                { name: 'All documents', count: 38, icon: true },
-                { name: 'Corporate', count: 6, arrow: true },
-                { name: 'Financials', count: 9, arrow: true },
-                { name: 'Legal', count: 7, arrow: true },
-                { name: 'Fundraising', count: 8, arrow: true },
-                { name: 'Marketing', count: 5, arrow: true },
-                { name: 'Archive', count: 3, arrow: true },
+                { name: 'All documents', icon: true, arrow: false },
+                ...CATEGORIES.map((name) => ({ name, icon: false, arrow: true })),
               ].map((cat) => {
                 const isSelected = selectedCategory === cat.name;
                 return (
@@ -88,7 +175,7 @@ export default function DocumentsLibraryPage() {
                       {cat.arrow && <ChevronRight size={12} className="text-[#C4C9C5]" />}
                       <span>{cat.name}</span>
                     </span>
-                    <span className="text-[11px] text-[#8E9B90]">{cat.count}</span>
+                    <span className="text-[11px] text-[#8E9B90]">{countFor(cat.name)}</span>
                   </button>
                 );
               })}
@@ -127,7 +214,23 @@ export default function DocumentsLibraryPage() {
                 </div>
               </div>
 
-              {libraryViewMode === 'Grid' && (
+              {filteredLibraryDocs.length === 0 && (
+                <div className="bg-white border border-[#E8E8E2] rounded-modal shadow-card p-12 text-center">
+                  <p className="text-sm font-semibold text-[#1E2923]">No documents yet</p>
+                  <p className="text-xs text-[#8E9B90] mt-1">
+                    Upload a PDF, Office doc, image, text or CSV to get started.
+                  </p>
+                  <button
+                    onClick={handleUploadClick}
+                    disabled={uploading}
+                    className="mt-4 px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-card text-xs font-semibold shadow-card transition-colors disabled:opacity-60"
+                  >
+                    {uploading ? 'Uploading…' : 'Upload a file'}
+                  </button>
+                </div>
+              )}
+
+              {filteredLibraryDocs.length > 0 && libraryViewMode === 'Grid' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredLibraryDocs.map((doc) => (
                     <div 
@@ -165,7 +268,7 @@ export default function DocumentsLibraryPage() {
                 </div>
               )}
 
-              {libraryViewMode === 'List' && (
+              {filteredLibraryDocs.length > 0 && libraryViewMode === 'List' && (
                 <div className="bg-white border border-[#E8E8E2] rounded-modal shadow-card overflow-hidden">
                   <table className="w-full text-left border-collapse min-w-[500px]">
                     <thead>
@@ -196,9 +299,33 @@ export default function DocumentsLibraryPage() {
                           <td className="py-3.5 px-5 text-[#617065]">{doc.owner}</td>
                           <td className="py-3.5 px-5 text-[#617065]">{doc.modified}</td>
                           <td className="py-3.5 px-5">
-                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeStyles(doc.status)}`}>
-                              {doc.status}
-                            </span>
+                            <div className="flex items-center justify-between gap-3">
+                              <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeStyles(doc.status)}`}>
+                                {doc.status}
+                              </span>
+                              <div className="flex items-center gap-2.5 shrink-0">
+                                {doc.source === 'document' && (
+                                  <button
+                                    type="button"
+                                    aria-label={`Share ${doc.title}`}
+                                    onClick={(e) => openShare(e, doc)}
+                                    className="text-[#9CA8A0] hover:text-[#183B28] transition-colors"
+                                  >
+                                    <Share2 size={14} />
+                                  </button>
+                                )}
+                                {doc.source === 'file' && (
+                                  <button
+                                    type="button"
+                                    aria-label={`Delete ${doc.title}`}
+                                    onClick={(e) => handleDelete(e, doc.id, doc.title)}
+                                    className="text-[#9CA8A0] hover:text-[#B93838] transition-colors"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -208,6 +335,104 @@ export default function DocumentsLibraryPage() {
               )}
             </div>
           </div>
+
+          {/* Share document modal */}
+          {shareDoc && (
+            <div className="fixed inset-0 bg-[#061A12]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-modal w-full max-w-md shadow-raised overflow-hidden">
+                <div className="px-6 py-4 border-b border-[#E8E8E2] flex items-center justify-between bg-[#FBFBFA]">
+                  <h3 className="font-bold text-[#1E2923] truncate pr-4">Share “{shareDoc.title}”</h3>
+                  <button onClick={() => setShareDoc(null)} className="text-[#8E9B90] hover:text-[#1E2923] transition-colors p-1 rounded-input hover:bg-[#E8E8E2]">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {shareLink ? (
+                  <div className="p-6 space-y-4">
+                    <p className="text-sm text-[#1E2923] font-semibold">Share link created</p>
+                    <p className="text-xs text-[#738279]">This link is shown once — copy it now, it can’t be retrieved later.</p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        readOnly
+                        value={shareLink}
+                        className="flex-1 border border-[#D5DDD6] rounded-input px-3 py-2 text-xs text-[#1E2923] bg-[#FBFBFA] truncate"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { navigator.clipboard?.writeText(shareLink); triggerToast('Link copied.'); }}
+                        className="shrink-0 px-3 py-2 bg-[#183B28] hover:bg-[#122E21] text-white rounded-input text-xs font-bold flex items-center gap-1.5"
+                      >
+                        <Copy size={13} /> Copy
+                      </button>
+                    </div>
+                    <div className="pt-2 flex justify-end">
+                      <button onClick={() => setShareDoc(null)} className="px-4 py-2 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-sm font-bold transition-colors">
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleShareSubmit} className="p-6 space-y-5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider">Email address</label>
+                      <input
+                        type="email"
+                        required
+                        value={shareEmail}
+                        onChange={(e) => setShareEmail(e.target.value)}
+                        placeholder="name@company.com"
+                        className="w-full border border-[#D5DDD6] rounded-input px-3 py-2 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58]"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider">Access level</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {(['view', 'comment'] as const).map((level) => (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() => setShareAccess(level)}
+                            className={`py-2 rounded-input text-xs font-semibold border transition-all capitalize ${
+                              shareAccess === level
+                                ? 'border-[#183B28] bg-[#EAF2ED] text-[#183B28] shadow-card'
+                                : 'border-[#E8E8E2] text-[#617065] hover:bg-[#F5F5F0]'
+                            }`}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShareExpires(!shareExpires)}
+                        className={`w-4 h-4 rounded shrink-0 flex items-center justify-center border transition-colors ${
+                          shareExpires ? 'bg-[#183B28] border-[#183B28]' : 'border-[#DCDCD6] bg-white'
+                        }`}
+                      >
+                        {shareExpires && <Check size={12} className="text-white" />}
+                      </button>
+                      <span className="text-xs text-[#55625A] font-medium cursor-pointer select-none" onClick={() => setShareExpires(!shareExpires)}>
+                        Link expires in 30 days
+                      </span>
+                    </div>
+
+                    <div className="pt-2 flex gap-3">
+                      <button type="button" onClick={() => setShareDoc(null)} className="flex-1 px-4 py-2 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-sm font-bold transition-colors">
+                        Cancel
+                      </button>
+                      <button type="submit" disabled={sharing} className="flex-1 px-4 py-2 bg-[#183B28] hover:bg-[#122E21] text-white rounded-card text-sm font-bold transition-colors shadow-card disabled:opacity-60">
+                        {sharing ? 'Sharing…' : 'Create link'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+          )}
         </main>
   );
 }
