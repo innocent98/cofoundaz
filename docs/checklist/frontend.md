@@ -5,9 +5,9 @@ and the design spec (`docs/superpowers/specs/`). Keep it honest — an item is
 checked only when done **and** verified (gates green).
 
 ## Snapshot
-- ✅ Done: Marketing site · Design-token system · CI + pre-commit hook · Product-app **UI scaffolding**
-- 🟡 In progress: Product app (static mock UI, pending API wiring)
-- ⛔ Not started: API integration · Auth wiring · Dashboard e2e/a11y coverage
+- ✅ Done: Marketing site · Design-token system · CI + pre-commit hook · Product-app UI scaffolding · **Local mock API + typed client** (auth/onboarding wired)
+- 🟡 In progress: Dashboard pages consuming the API (hooks exist, pages still static)
+- ⛔ Not started: **Real `cofoundaz-api` integration** · Dashboard e2e/a11y coverage
 
 Legend: `[x]` done+verified · `[ ]` not done · 🟡 partial
 
@@ -35,8 +35,11 @@ UI scaffolding shipped and tokenized (PR #10, #14). **All pages are static mock 
 - [x] Hubs: Business Builder, Validation, Marketing, Sales, Finance, Funding, Investor Readiness, Legal & Compliance
 - [x] Ops screens: Settings, Team, Notifications, Calendar, Journal, Documents, Analytics/Reports, Marketplace, Learning Academy
 - [x] Admin: Admin Portal, Super-Admin
-- [ ] **Wire every screen to `cofoundaz-api`** (auth, Health Score, Assessment, Roadmap, …) ← next major body of work
-- [ ] Replace mock data with real fetching + loading/empty/error states
+- [x] **Local mock API layer** (PR #17) — 78 `app/api/v1/*` handlers (canned JSON, OpenAPI-shaped) + typed client SDK (`lib/api/*`) + `useDashboardApi`/`useBusinessBuilderApi` hooks
+- [x] Auth + onboarding pages consume the mock API (`/api/v1/auth/*`, onboarding)
+- [ ] Consume the API from the **dashboard pages** (hooks exist; most pages still render static inline data)
+- [ ] **Wire to the real `cofoundaz-api`** — flip `NEXT_PUBLIC_API_BASE_URL` off the mocks; replace canned data with real fetching + loading/empty/error states ← next major body of work
+- [ ] Decide mock-handler fate in production (they currently ship as app routes)
 - [ ] Add dashboard routes to the e2e + axe sweep (currently marketing-only)
 
 ## 4. Backlog / upcoming
