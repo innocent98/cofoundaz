@@ -14,13 +14,13 @@ interface Section {
 const DEFAULT_SECTIONS: Section[] = [
   { id: 'problem', title: 'PROBLEM', items: [] },
   { id: 'solution', title: 'SOLUTION', items: [] },
-  { id: 'uvp', title: 'UNIQUE VALUE PROPOSITION', items: [] },
-  { id: 'advantage', title: 'UNFAIR ADVANTAGE', items: [] },
-  { id: 'segments', title: 'CUSTOMER SEGMENTS', items: [] },
-  { id: 'metrics', title: 'KEY METRICS', items: [] },
+  { id: 'unique_value_proposition', title: 'UNIQUE VALUE PROPOSITION', items: [] },
+  { id: 'unfair_advantage', title: 'UNFAIR ADVANTAGE', items: [] },
+  { id: 'customer_segments', title: 'CUSTOMER SEGMENTS', items: [] },
+  { id: 'key_metrics', title: 'KEY METRICS', items: [] },
   { id: 'channels', title: 'CHANNELS', items: [] },
-  { id: 'costs', title: 'COST STRUCTURE', items: [] },
-  { id: 'revenue', title: 'REVENUE STREAMS', items: [] },
+  { id: 'cost_structure', title: 'COST STRUCTURE', items: [] },
+  { id: 'revenue_streams', title: 'REVENUE STREAMS', items: [] },
 ];
 
 export default function LeanCanvasPage() {
@@ -79,10 +79,7 @@ export default function LeanCanvasPage() {
           blockMap[sec.id] = sec.items;
         });
 
-        await saveCanvas('lean', {
-          version: 1,
-          blocks: blockMap,
-        });
+        await saveCanvas('lean', { blocks: blockMap });
 
         setSaveStatus('saved');
         setLastSavedTime(new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric' }).format(new Date()));
