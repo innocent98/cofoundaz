@@ -88,6 +88,60 @@ const DEFAULT_SUMMARY: DashboardSummaryResponse = {
   opportunities: [],
 };
 
+function formatCurrency(v: number): string {
+  if (v >= 1_000_000) return `₦${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `₦${(v / 1_000).toFixed(1)}K`;
+  return `₦${v}`;
+}
+
+// The real kpis payload is an OBJECT of named metrics, most `null` on a fresh
+// workspace. Map it to the 5 fixed cards the dashboard renders, showing "—"
+// where the metric isn't tracked yet (never a fabricated number).
+function mapKpis(k: any): any[] {
+  const money = (v: any) => (v === null || v === undefined ? "—" : formatCurrency(v));
+  const plain = (v: any) => (v === null || v === undefined ? "—" : String(v));
+  return [
+    { id: "revenue", metric: "revenue", label: "Monthly Revenue", value: money(k?.revenue), delta: "", trend: "flat", sparklineData: [], href: "/finance", hasData: k?.revenue != null },
+    { id: "runway", metric: "runway", label: "Runway", value: k?.runway == null ? "—" : `${k.runway} mo`, delta: "", trend: "flat", sparklineData: [], href: "/finance", hasData: k?.runway != null },
+    { id: "pipeline", metric: "pipeline", label: "Pipeline Value", value: money(k?.pipeline_value), delta: "", trend: "flat", sparklineData: [], href: "/sales", hasData: k?.pipeline_value != null },
+    { id: "ctr", metric: "ctr", label: "Campaign CTR", value: plain(k?.campaign_performance), delta: "", trend: "flat", sparklineData: [], href: "/marketing", hasData: k?.campaign_performance != null },
+    { id: "tasks", metric: "tasks_completed", label: "Tasks This Week", value: String(k?.tasks_done_this_week ?? 0), delta: "", trend: "flat", sparklineData: [], href: "/mission", hasData: true },
+  ];
+}
+
+function mapSummary(payload: any): DashboardSummaryResponse {
+  const h = payload.health || {};
+  const m = payload.mission || {};
+  const g = payload.greeting || {};
+  return {
+    greeting: g,
+    user: { first_name: g.first_name },
+    startup: { name: g.startup_name },
+    health: { score: h.score ?? 0, deltaWeekly: h.delta_7d ?? 0, status: h.status, band: h.band, summary: h.summary },
+    mission: {
+      streakDays: m.streak ?? 0,
+      status: m.status,
+      tasks: Array.isArray(m.tasks)
+        ? m.tasks.map((t: any) => ({
+            id: t.id,
+            title: t.title,
+            reason: t.reason ?? "",
+            order: t.order,
+            completed: t.status === "done",
+            completedAt: t.completed_at ?? undefined,
+          }))
+        : [],
+    },
+    briefing: { id: "briefing", date: new Date().toISOString(), agentBadge: "Co-Founder", content: payload.briefing?.message ?? "", actions: [] },
+    kpis: mapKpis(payload.kpis),
+    calibration: payload.calibration,
+    // risks/opportunities are {status,message} empty-state objects in v1 — the
+    // AI panel that fills them is a later module; keep as [] so the UI is calm.
+    risks: Array.isArray(payload.risks) ? payload.risks : [],
+    opportunities: Array.isArray(payload.opportunities) ? payload.opportunities : [],
+  } as unknown as DashboardSummaryResponse;
+}
+
 export function useDashboardSummary() {
   const [data, setData] = useState<DashboardSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -103,16 +157,11 @@ export function useDashboardSummary() {
       const payload = res?.data || res;
 
       if (payload && (payload.health || payload.kpis || payload.mission)) {
-        setData({
-          health: payload.health ?? DEFAULT_SUMMARY.health,
-          mission: payload.mission ?? DEFAULT_SUMMARY.mission,
-          briefing: payload.briefing ?? DEFAULT_SUMMARY.briefing,
-          kpis: payload.kpis ?? DEFAULT_SUMMARY.kpis,
-          // risks/opportunities are `{status,message}` empty-state objects in v1
-          // (Module 03 adds the AI panel), NOT arrays — normalize so the UI can .map().
-          risks: Array.isArray(payload.risks) ? payload.risks : [],
-          opportunities: Array.isArray(payload.opportunities) ? payload.opportunities : [],
-        });
+        // The real /dashboard/summary is nested (health/mission objects, a kpis
+        // OBJECT of mostly-null metrics, briefing/risks/opportunities as
+        // {status,message} empty-states). Map it onto the flatter shape the
+        // widgets read, surfacing real values and honest empty-states ("—").
+        setData(mapSummary(payload));
       } else {
         // Safe fallback if staging returns partial or empty body
         setData(DEFAULT_SUMMARY);

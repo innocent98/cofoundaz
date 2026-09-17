@@ -44,7 +44,37 @@ mismatches crashed the page once real data flowed.
   workspace "Kolo" in the sidebar — all real. No crashes.
 - Gates: `typecheck` 0 · `lint` 0 errors · **188** unit · `build` ✓.
 
-## Follow-ups (important — the plumbing works, the widgets need finishing)
+## Update — widgets finished (real values + honest empty-states)
+
+The Module 2 follow-up is now done. The dashboard home renders **real** summary
+data instead of static sample numbers:
+
+- **Hook now maps the real nested shape.** `useDashboardSummary` gained
+  `mapSummary()` which transforms the live payload (`health`/`mission` objects,
+  a `kpis` **object** of mostly-null metrics, `briefing`/`risks`/`opportunities`
+  `{status,message}` empty-states, `greeting`) onto the flatter shape the widgets
+  read: `health.deltaWeekly` ← `delta_7d`, `mission.streakDays` ← `streak`,
+  `mission.tasks[].completed` ← `status === 'done'`, and a fixed 5-card `kpis[]`
+  array from the metric object.
+- **KPIs show "—" for untracked metrics** (revenue/runway/pipeline/CTR are `null`
+  on this account) and the real integer for tasks-this-week — never a fabricated
+  `₦1.6M`/`8.4 mo`. Decorative sparklines are hidden on no-data cards (`hasData`).
+- **Page fallbacks that masked real zeros were removed** — the health weekly
+  delta (`|| '+4'` → real `0`), mission streak (`|| 6` → real, pill hidden at 0),
+  the health blurb (hardcoded → real `health.summary`), and the AI-briefing
+  paragraph (fake → real `briefing.message`).
+- **Verified live (account onboarded + assessed this session):** greeting "Good
+  evening, Ade" / "Here's where Kolo stands", health summary "…is 90 (thriving).
+  Your weakest area is Financial.", 3 real mission tasks (one already `done`),
+  KPIs `— — — — 1`, real briefing empty-state. No fake numbers remain. Gates:
+  typecheck 0 · lint 0 errors · 188 unit · build ✓.
+
+Remaining follow-up: on a hard API error the hook still falls back to
+`DEFAULT_SUMMARY` (sample numbers) rather than an empty state — acceptable
+graceful-degradation, but could be made an explicit error state later. The
+`risks`/`opportunities` AI panel is a later module (kept as `[]`).
+
+## Follow-ups (original — plumbing)
 
 - **Widgets still mask empty/pending state with static sample data.** For this
   fresh account the real values are empty (`health.status:"pending_assessment"`,
