@@ -121,7 +121,6 @@ export default function JournalPage(): React.JSX.Element {
           <div className="flex items-center space-x-3">
             <div className="relative w-9 h-9 rounded-full border border-[#1E4233] bg-[#122B21] flex items-center justify-center text-white">
               <History className="w-4 h-4 text-[#A3B2A8]" />
-              <span className="absolute -top-1 -right-1 bg-[#B39353] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">5</span>
             </div>
           </div>
         </header>

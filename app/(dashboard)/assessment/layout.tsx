@@ -4,7 +4,9 @@ import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider, useToast } from "./ToastContext";
 import { useAssessmentApi } from "@/hooks/useAssessmentApi";
-import { Bell } from "lucide-react";
+import {  } from 'lucide-react';
+import { HealthPill } from '@/components/health-pill';
+import { NotificationBell } from '@/components/notification-bell';
 
 export default function AssessmentLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -37,21 +39,9 @@ export default function AssessmentLayout({ children }: { children: React.ReactNo
             </div>
 
             <div className="flex shrink-0 items-center gap-4">
-              <div className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]">
-                <span>Health</span>
-                <span className="font-bold">72</span>
-                <span className="text-green-600 font-bold">↑</span>
-              </div>
+              <HealthPill className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]" />
 
-              <button
-                aria-label="Notifications"
-                className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors"
-              >
-                <Bell className="w-4 h-4 text-[#66756F]" />
-                <span className="absolute -top-1 -right-1 bg-[#12291F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                  5
-                </span>
-              </button>
+              <NotificationBell />
 
               <button className="shrink-0 whitespace-nowrap bg-copper-600 text-white font-semibold text-xs px-4 h-[36px] rounded-[8px] hover:bg-copper-700 transition-colors">
                 <span>+ Invite</span>

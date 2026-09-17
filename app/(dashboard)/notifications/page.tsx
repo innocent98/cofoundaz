@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
 import { useNotifications } from '@/hooks/useNotifications';
+import { HealthPill } from '@/components/health-pill';
 import { Menu, History, Check, X, ChevronDown } from 'lucide-react';
 
 type NotificationTab = 'Inbox' | 'Preferences' | 'Digest & quiet hours' | 'Announcements';
@@ -224,11 +225,7 @@ export default function NotificationsPage(): React.JSX.Element {
         </div>
 
         <div className="flex items-center space-x-3">
-          <div className="bg-[#EAF2ED] text-[#183B28] border border-[#D5E6DC] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1 shadow-card">
-            <span>Health</span>
-            <span className="font-bold">72</span>
-            <span>↑</span>
-          </div>
+          <HealthPill className="bg-[#EAF2ED] text-[#183B28] border border-[#D5E6DC] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1 shadow-card" />
 
           <div className="relative w-9 h-9 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center text-[#55635C] shadow-card">
             <History className="w-4 h-4" />

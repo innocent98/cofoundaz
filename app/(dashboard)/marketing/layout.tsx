@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Sidebar from "@/components/sidebar";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider, useToast } from "./ToastContext";
+import { HealthPill } from '@/components/health-pill';
+import { NotificationBell } from '@/components/notification-bell';
 
 type TabName =
   | "Overview"
@@ -86,23 +88,9 @@ function MarketingLayoutContent({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium">
-                <span className="text-[#556358]">Health</span>
-                <span className="font-bold text-sm">72</span>
-                <span className="text-[10px] text-[#2D5A3F]">↑</span>
-              </div>
+              <HealthPill className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium" />
 
-              <button
-                aria-label="Notifications"
-                className="relative p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923]"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span className="absolute -top-1 -right-1 bg-[#9C5B34] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                  5
-                </span>
-              </button>
+              <NotificationBell className="relative p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923] flex items-center justify-center" />
 
               <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs md:text-sm transition-colors shadow-card">
                 <span>+ Invite</span>

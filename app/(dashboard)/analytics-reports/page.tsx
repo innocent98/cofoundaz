@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
 import { Plus, Menu, History, ArrowUpRight, CheckCircle2, Clock, Loader2, Download, FileText, ArrowDownUp, RefreshCw, Filter, Sparkles, AlertCircle } from 'lucide-react';
+import { HealthPill } from '@/components/health-pill';
 
 type AnalyticsSubTab = 'Overview' | 'By hub' | 'Benchmarks' | 'Reports' | 'Export';
 type TimeRange = '30 days' | '90 days' | '12 months';
@@ -88,13 +89,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
         {/* Right Controls */}
         <div className="flex items-center space-x-3">
           {/* Health Status Pill */}
-          <div className="flex items-center space-x-2 bg-[#EAF2ED] hover:bg-[#E2ECE5] border border-[#DCE8DF] px-3.5 py-1.5 rounded-full text-xs transition-colors cursor-pointer shadow-card">
-            <div className="flex items-center space-x-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#183B28]" />
-              <span className="font-semibold text-[#183B28]">Health</span>
-            </div>
-            <span className="bg-[#183B28] text-white px-1.5 py-0.5 rounded-input text-[10px] font-bold">72 ↑</span>
-          </div>
+          <HealthPill className="flex items-center space-x-2 bg-[#EAF2ED] hover:bg-[#E2ECE5] border border-[#DCE8DF] px-3.5 py-1.5 rounded-full text-xs transition-colors cursor-pointer shadow-card" />
 
           <button 
             onClick={() => showToast('Activity history drawer opened.')}
