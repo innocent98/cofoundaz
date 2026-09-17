@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSidebar } from '@/components/sidebar-context';
 import { Bell, Plus } from 'lucide-react';
+import { useHealthScore } from '@/hooks/useHealthScore';
 
 export default function MissionLayout({
   children,
@@ -13,6 +14,8 @@ export default function MissionLayout({
 }) {
   const { openSidebar } = useSidebar();
   const pathname = usePathname();
+  const { data: health, loading: healthLoading } = useHealthScore();
+  const showHealth = !healthLoading && health.status === 'ok';
 
   const tabs = [
     { name: 'Today', href: '/mission' },
@@ -44,12 +47,14 @@ export default function MissionLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Health Pill (do not hide on mobile/tablet) */}
-            <div className="px-3 py-1 rounded-full bg-[#e8f1ec] text-[#203a31] text-xs font-medium flex items-center gap-1">
-              <span>Health</span>
-              <span className="font-semibold">72</span>
-              <span>↑</span>
-            </div>
+            {/* Health Pill — real score, only once an assessment exists */}
+            {showHealth && (
+              <div className="px-3 py-1 rounded-full bg-[#e8f1ec] text-[#203a31] text-xs font-medium flex items-center gap-1">
+                <span>Health</span>
+                <span className="font-semibold">{health.score}</span>
+                {health.weeklyDelta !== 0 && <span>{health.weeklyDelta > 0 ? '↑' : '↓'}</span>}
+              </div>
+            )}
 
             {/* Notification Bell */}
             <div className="relative">
