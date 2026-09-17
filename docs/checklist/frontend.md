@@ -5,9 +5,17 @@ and the design spec (`docs/superpowers/specs/`). Keep it honest — an item is
 checked only when done **and** verified (gates green).
 
 ## Snapshot
-- ✅ Done: Marketing site · Design-token system · CI + pre-commit hook · Product-app UI scaffolding · **Local mock API + typed client** (auth/onboarding wired)
-- 🟡 In progress: Dashboard pages consuming the API (hooks exist, pages still static)
-- ⛔ Not started: **Real `cofoundaz-api` integration** · Dashboard e2e/a11y coverage
+- ✅ Done: Marketing site · Design-token system · CI + pre-commit hook · Product-app UI scaffolding · Local mock API + typed client · **Real API — Auth/session (Module 0)**
+- 🟡 In progress: Real `cofoundaz-api` integration, module by module (onboarding → dashboard → …)
+- ⛔ Not started: Dashboard e2e/a11y coverage
+
+## Real API integration (replacing the mocks, module by module)
+Client points at the real API (`NEXT_PUBLIC_API_BASE_URL`; local dev proxies `/api/v1` → staging same-origin via `next.config`). Each module: build to its `cofoundaz-api/docs/fe-integration-guide-*.md`, verify live, retire its mock.
+- [x] **Module 0 — Auth & session** — login authenticates live; post-login routing (→ onboarding/dashboard) via `/onboarding/state` (envelope fix); `/verify-email/{token}` + `/reset-password/{token}` email-link routes; verified live on staging
+- [ ] Module 1 — Onboarding (create workspace/profile; account has no workspace yet)
+- [ ] Module 2 — Dashboard (per `fe-integration-guide-dashboard.md`)
+- [ ] Health Score · Mission · Roadmap · Business Builder · Journal · Notifications · Documents
+- [ ] Backend/ops: confirm `APP_BASE_URL` = FE origin (email links); CORS for app origin (or keep dev proxy)
 
 Legend: `[x]` done+verified · `[ ]` not done · 🟡 partial
 
