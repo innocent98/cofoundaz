@@ -24,6 +24,14 @@ export async function apiClient<T>(
     headers.set('Authorization', `Bearer ${token}`);
   }
 
+  // Workspace-scoped endpoints (dashboard, roadmap, health, …) require the active
+  // workspace via X-Workspace-Id, sourced from /auth/me → active_workspace_id and
+  // stored at login. Harmless on auth endpoints, which ignore it.
+  const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('cf_workspace_id') : null;
+  if (workspaceId && !headers.has('X-Workspace-Id')) {
+    headers.set('X-Workspace-Id', workspaceId);
+  }
+
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const normalizedEndpoint = cleanEndpoint.startsWith('/api/v1')
     ? cleanEndpoint.replace('/api/v1', '')
