@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { ApiError } from '@/lib/api/client';
 import {
   businessBuilderApi,
   CanvasType,
-  CanvasSavePayload,
   BusinessBuilderOverview,
   Suggestion,
 } from '@/lib/api/business-builder';
@@ -76,19 +76,42 @@ export function useBusinessBuilderApi() {
     );
   };
 
+  // Canvas PUT is optimistic-concurrency: the FE must echo the version it last
+  // read, and the server bumps it on every save (guide §3). We track the current
+  // version per canvas type so autosave doesn't 409 after the first save.
+  const canvasVersions = useRef<Record<string, number>>({});
+
   const loadCanvas = useCallback(async (type: CanvasType | string) => {
     try {
-      return await businessBuilderApi.getCanvas(type);
-    } catch (err: unknown) {
+      const data = (await businessBuilderApi.getCanvas(type)) as { version?: number } | null;
+      if (data && typeof data.version === 'number') canvasVersions.current[String(type)] = data.version;
+      return data;
+    } catch {
       return null;
     }
   }, []);
 
   const saveCanvas = useCallback(
-    async (type: CanvasType | string, payload: CanvasSavePayload) => {
-      const res = await businessBuilderApi.saveCanvas(type, payload);
-      updateLastEdited(type);
-      return res;
+    async (type: CanvasType | string, payload: { blocks: Record<string, unknown> }) => {
+      const t = String(type);
+      const put = async (version: number) =>
+        (await businessBuilderApi.saveCanvas(t, { version, blocks: payload.blocks })) as { version?: number };
+      try {
+        const res = await put(canvasVersions.current[t] ?? 0);
+        if (typeof res?.version === 'number') canvasVersions.current[t] = res.version;
+        updateLastEdited(t);
+        return res;
+      } catch (err) {
+        // On a 409 version conflict, re-read to get the latest version and retry once.
+        if (err instanceof ApiError && err.status === 409) {
+          const fresh = (await businessBuilderApi.getCanvas(t)) as { version?: number };
+          const res = await put(typeof fresh?.version === 'number' ? fresh.version : 0);
+          if (typeof res?.version === 'number') canvasVersions.current[t] = res.version;
+          updateLastEdited(t);
+          return res;
+        }
+        throw err;
+      }
     },
     []
   );
