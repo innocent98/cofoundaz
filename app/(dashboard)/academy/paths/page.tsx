@@ -3,30 +3,25 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Map, ArrowRight } from "lucide-react";
+import { useAcademyApi } from "@/hooks/useAcademyApi";
+
+function fmtDuration(min: number): string {
+  if (min >= 60) return `${(min / 60).toFixed(1).replace(/\.0$/, "")} hours`;
+  return `${min} min`;
+}
 
 export default function LearningPathsPage() {
   const router = useRouter();
+  const { paths: rawPaths, loading } = useAcademyApi();
 
-  const paths = [
-    {
-      id: "p-1",
-      title: "From Idea to MVP",
-      description: "A complete step-by-step track covering customer discovery, lean prototyping, and initial go-to-market strategies.",
-      coursesCount: 4,
-      totalDuration: "5.5 hours",
-      progress: 25,
-      stage: "Ideation"
-    },
-    {
-      id: "p-2",
-      title: "Seed Fundraise Prep",
-      description: "Master financial modeling, pitch deck design, and term sheet negotiation to close your round.",
-      coursesCount: 3,
-      totalDuration: "4 hours",
-      progress: 0,
-      stage: "Funding"
-    }
-  ];
+  const paths = rawPaths.map((p) => ({
+    id: p.id,
+    title: p.title,
+    coursesCount: p.courseCount,
+    totalDuration: fmtDuration(p.durationMinutes),
+    progress: p.progressPct,
+    stage: p.stage,
+  }));
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
@@ -34,6 +29,13 @@ export default function LearningPathsPage() {
         <h1 className="text-3xl font-display font-semibold text-sage-900">Learning Paths</h1>
         <p className="text-sm text-sage-500">Structured tracks designed to get you from point A to point B.</p>
       </div>
+
+      {!loading && paths.length === 0 && (
+        <div className="bg-white rounded-modal border border-sage-200 shadow-card p-12 text-center">
+          <p className="text-sm font-semibold text-sage-900">No learning paths yet</p>
+          <p className="text-xs text-sage-500 mt-1">Check back soon.</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
         {paths.map((path) => (
@@ -49,8 +51,8 @@ export default function LearningPathsPage() {
 
             <div className="flex-1 space-y-3">
               <h3 className="font-semibold text-xl text-sage-900">{path.title}</h3>
-              <p className="text-sm text-sage-600 leading-relaxed">{path.description}</p>
-              
+              <p className="text-sm text-sage-600 leading-relaxed">A structured track for the {path.stage} stage.</p>
+
               <div className="flex items-center gap-4 text-xs font-medium text-sage-500 pt-2">
                 <span>{path.coursesCount} courses</span>
                 <span>•</span>
