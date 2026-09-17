@@ -60,7 +60,7 @@ export function TemporalFeeds({
               <div className="p-3 bg-sage-50 rounded-card border border-sage-100">
                 <div className="flex justify-between items-start mb-1">
                   <h4 className="text-sm font-bold text-sage-900">Weekly Sync</h4>
-                  <span className="bg-[#A8894B] text-white text-[10px] font-bold px-2 py-0.5 rounded-pill">
+                  <span className="bg-copper-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-pill">
                     Tomorrow
                   </span>
                 </div>

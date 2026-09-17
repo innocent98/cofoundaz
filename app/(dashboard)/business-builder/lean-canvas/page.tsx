@@ -204,7 +204,7 @@ export default function LeanCanvasPage() {
             {saveStatus === 'error' && (
               <span className="text-red-600 font-medium">Sync error</span>
             )}
-            <span>·</span>
+            <span>Â·</span>
             <span>last synced {lastSavedTime}</span>
           </div>
         </div>

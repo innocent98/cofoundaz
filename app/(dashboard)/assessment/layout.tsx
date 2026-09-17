@@ -53,7 +53,7 @@ export default function AssessmentLayout({ children }: { children: React.ReactNo
                 </span>
               </button>
 
-              <button className="shrink-0 whitespace-nowrap bg-[#A8894B] text-[#12291F] font-semibold text-xs px-4 h-[36px] rounded-[8px] hover:bg-[#967941] transition-colors">
+              <button className="shrink-0 whitespace-nowrap bg-copper-600 text-white font-semibold text-xs px-4 h-[36px] rounded-[8px] hover:bg-copper-700 transition-colors">
                 <span>+ Invite</span>
               </button>
             </div>

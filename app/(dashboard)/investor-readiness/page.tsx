@@ -11,11 +11,11 @@ export default function ReadinessScorePage() {
 
   let verdictCopy = "";
   if (score.overall < 40) {
-    verdictCopy = "Not yet — and that&apos;s fine. Here&apos;s the shortest path.";
+    verdictCopy = "Not yet — and that's fine. Here's the shortest path.";
   } else if (score.overall < 70) {
     verdictCopy = "Getting close. Close these gaps before outreach.";
   } else {
-    verdictCopy = "You&apos;re ready to run a process.";
+    verdictCopy = "You're ready to run a process.";
   }
 
   const dimensionsList = [

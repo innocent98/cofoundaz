@@ -147,7 +147,7 @@ export default function DashboardPage() {
 
   const getScoreColor = (score: number): string => {
     if (score < 40) return 'var(--red-600, #B0483B)';
-    if (score < 70) return 'var(--brass-600, #A8894B)';
+    if (score < 70) return 'var(--color-copper-600, #9C5B34)';
     return 'var(--green-500, #2E7256)';
   };
 
@@ -323,7 +323,7 @@ export default function DashboardPage() {
       prev.map((t) => (t.id === '2' ? { ...t, completed: true } : t))
     );
     // Show the black toast notification matching the reference screenshot
-    setToastMessage('Added “Draft a pricing experiment” to your tasks.');
+    setToastMessage('Added â€œDraft a pricing experimentâ€ to your tasks.');
     setTimeout(() => {
       setToastMessage(null);
       setIsDoItPending(false);
@@ -344,7 +344,7 @@ export default function DashboardPage() {
   return (
     <div className="relative flex min-h-screen w-full min-w-0 flex-col bg-[#F7F8F6] text-[#1C201D] font-body">
 
-      {/* MOBILE BACKDROP — tap anywhere outside to close the sidebar */}
+      {/* MOBILE BACKDROP â€” tap anywhere outside to close the sidebar */}
       {isSidebarOpen && (
         <div
           onClick={() => setIsSidebarOpen(false)}
@@ -559,7 +559,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="text-sm text-sage-200 leading-relaxed font-normal mb-8">
-                {summaryData?.briefing?.content || "Good news first: pipeline grew ?9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it&apos;s your riskiest untested assumption and it moves both revenue and runway."}
+                {summaryData?.briefing?.content || "Good news first: pipeline grew â‚¦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it's your riskiest untested assumption and it moves both revenue and runway."}
               </p>
             </div>
 
@@ -748,11 +748,11 @@ export default function DashboardPage() {
               </h3>
               <div className="divide-y divide-sage-100">
                 {(activityData || [
-                  { id: '1', actor: 'Amara Okafor', verb: 'completed', entity: 'the mission task “Interview 3 gig workers”', time: '2h ago' },
+                  { id: '1', actor: 'Amara Okafor', verb: 'completed', entity: 'the mission task â€œInterview 3 gig workersâ€', time: '2h ago' },
                   { id: '2', actor: 'Tayo', verb: 'returned', entity: 'your NDA with 2 comments', time: '5h ago' },
                   { id: '3', actor: 'Your AI Co-Founder', verb: 'drafted', entity: 'your Lean Canvas', time: 'Yesterday' },
                   { id: '4', actor: 'Grace', verb: 'categorized', entity: '12 transactions', time: 'Yesterday' },
-                  { id: '5', actor: 'Daniel', verb: 'moved', entity: '“BodaBoda Union” to Proposal', time: '2d ago' },
+                  { id: '5', actor: 'Daniel', verb: 'moved', entity: 'â€œBodaBoda Unionâ€ to Proposal', time: '2d ago' },
                 ]).map((activity: any) => {
                   const getInitials = (name: string) => {
                     if (!name) return '??';
@@ -803,7 +803,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[#1D2A24]">Finish pricing experiment</p>
-                    <p className="text-[11px] text-sage-500">Milestone · Friday</p>
+                    <p className="text-[11px] text-sage-500">Milestone Â· Friday</p>
                   </div>
                 </div>
 
@@ -815,7 +815,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[#1D2A24]">CAC annual return</p>
-                    <p className="text-[11px] text-sage-500">Compliance · in 9 days</p>
+                    <p className="text-[11px] text-sage-500">Compliance Â· in 9 days</p>
                   </div>
                 </div>
 
@@ -827,7 +827,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[#1D2A24]">Investor call, Sahel Fund</p>
-                    <p className="text-[11px] text-sage-500">Meeting · Tue 3:00 PM</p>
+                    <p className="text-[11px] text-sage-500">Meeting Â· Tue 3:00 PM</p>
                   </div>
                 </div>
 
@@ -839,7 +839,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[#1D2A24]">Launch WhatsApp campaign</p>
-                    <p className="text-[11px] text-sage-500">Marketing · Thursday</p>
+                    <p className="text-[11px] text-sage-500">Marketing Â· Thursday</p>
                   </div>
                 </div>
               </div>
@@ -900,7 +900,7 @@ export default function DashboardPage() {
                   ),
                 },
                 {
-                  title: "Today&apos;s Mission",
+                  title: "Today's Mission",
                   subtitle: 'Overview',
                   icon: (
                     <svg className="w-4 h-4 text-[#266B4E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1036,7 +1036,7 @@ export default function DashboardPage() {
                 } else if (notif.type === 'finance') {
                   iconContent = <span className="text-xs font-bold text-[#266B4E]">?</span>;
                 } else if (notif.type === 'legal') {
-                  iconContent = <span className="text-xs font-bold text-[#266B4E]">§</span>;
+                  iconContent = <span className="text-xs font-bold text-[#266B4E]">Â§</span>;
                 } else {
                   iconContent = (
                     <svg className="w-4 h-4 fill-[#266B4E]" viewBox="0 0 24 24">

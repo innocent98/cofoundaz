@@ -113,7 +113,7 @@ export default function TimelinePage() {
                         )}
                         {ms.isReplanned && (
                           <div 
-                            className="flex items-center gap-1 bg-[#F5F2DF] text-[#A8894B] px-2 py-0.5 rounded text-[10px] font-bold shrink-0 border border-[#EBE3C5]"
+                            className="flex items-center gap-1 bg-copper-100 text-copper-600 px-2 py-0.5 rounded text-[10px] font-bold shrink-0 border border-copper-200"
                             title={ms.replannedReason}
                           >
                             <RotateCw className="w-3 h-3" />

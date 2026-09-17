@@ -31,7 +31,7 @@ function RadialGauge({ targetScore }: { targetScore: number }) {
   // Determine stroke color strictly based on target score (decoupled from animation)
   let strokeColor = '#B0483B'; // --red-600
   if (targetScore >= 70) strokeColor = '#2E7256'; // --green-500
-  else if (targetScore >= 40) strokeColor = '#A8894B'; // --brass-600
+  else if (targetScore >= 40) strokeColor = '#9C5B34'; // copper-600
 
   // Circumference calculation for 100 max
   const radius = 42;

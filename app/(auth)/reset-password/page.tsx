@@ -94,7 +94,7 @@ function ResetPasswordForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               className="w-full px-4 py-3 rounded-[12px] border border-sage-200 focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600 transition"
             />
           </div>
@@ -108,7 +108,7 @@ function ResetPasswordForm() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               className="w-full px-4 py-3 rounded-[12px] border border-sage-200 focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600 transition"
             />
           </div>
