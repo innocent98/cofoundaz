@@ -30,6 +30,7 @@ interface UserMeResponse {
       role_title?: string | null;
       avatar_url?: string | null;
     };
+    active_workspace_id?: string | null;
   };
 }
 
@@ -94,6 +95,10 @@ export default function LoginPage() {
         }
         if (meRes?.data?.user) {
           localStorage.setItem("cf_user", JSON.stringify(meRes.data.user));
+        }
+        // Workspace-scoped API calls need this via X-Workspace-Id (see apiClient).
+        if (meRes?.data?.active_workspace_id) {
+          localStorage.setItem("cf_workspace_id", meRes.data.active_workspace_id);
         }
       } catch (meErr) {
         console.warn("Could not fetch user profile details on login:", meErr);

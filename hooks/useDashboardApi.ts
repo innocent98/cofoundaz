@@ -108,8 +108,10 @@ export function useDashboardSummary() {
           mission: payload.mission ?? DEFAULT_SUMMARY.mission,
           briefing: payload.briefing ?? DEFAULT_SUMMARY.briefing,
           kpis: payload.kpis ?? DEFAULT_SUMMARY.kpis,
-          risks: payload.risks ?? [],
-          opportunities: payload.opportunities ?? [],
+          // risks/opportunities are `{status,message}` empty-state objects in v1
+          // (Module 03 adds the AI panel), NOT arrays — normalize so the UI can .map().
+          risks: Array.isArray(payload.risks) ? payload.risks : [],
+          opportunities: Array.isArray(payload.opportunities) ? payload.opportunities : [],
         });
       } else {
         // Safe fallback if staging returns partial or empty body
@@ -149,10 +151,12 @@ export function useAIBriefing() {
       const payload = res?.data || res;
       setData(payload ?? null);
     } catch (err) {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        console.warn("Briefing unauthorized:", err.message);
+      // v1 has no standalone AI-briefing endpoint yet (Module 03) — the briefing
+      // comes from /dashboard/summary's static empty-state. A 404/401/403 here is
+      // expected: fall back silently to `fallbackText`, never surface an error.
+      if (!(err instanceof ApiError && [401, 403, 404].includes(err.status))) {
+        setError(err instanceof Error ? err : new Error(String(err)));
       }
-      setError(err instanceof Error ? err : new Error(String(err)));
       setData(null);
     } finally {
       setLoading(false);

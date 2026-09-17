@@ -13,8 +13,8 @@ checked only when done **and** verified (gates green).
 Client points at the real API (`NEXT_PUBLIC_API_BASE_URL`; local dev proxies `/api/v1` → staging same-origin via `next.config`). Each module: build to its `cofoundaz-api/docs/fe-integration-guide-*.md`, verify live, retire its mock.
 - [x] **Module 0 — Auth & session** — login authenticates live; post-login routing (→ onboarding/dashboard) via `/onboarding/state` (envelope fix); `/verify-email/{token}` + `/reset-password/{token}` email-link routes; verified live on staging
 - [x] **Module 1 — Onboarding** — wizard runs live: resume/autosave (`PATCH /onboarding/state`), envelope+nesting flattened, Country as ISO select (fixes a backend 500), complete-gate `field_errors` surfaced; verified on staging
-- [ ] Module 2 — Dashboard (per `fe-integration-guide-dashboard.md`)
-- [ ] Health Score · Mission · Roadmap · Business Builder · Journal · Notifications · Documents
+- [~] **Module 2 — Dashboard** — plumbing done: `X-Workspace-Id` header (cross-cutting, in client), `summary`+`activity` live (200), real greeting/workspace, crashes fixed (briefing 404, risks/opps shape). **Follow-up:** widgets still mask empty/pending state with static sample data — finish widget-by-widget; verify non-empty path after completing onboarding+assessment
+- [ ] Health Score · Mission · Roadmap · Business Builder · Journal · Notifications · Documents (all now unblocked by the `X-Workspace-Id` header)
 - [ ] Backend/ops: confirm `APP_BASE_URL` = FE origin (email links); CORS for app origin (or keep dev proxy)
 
 Legend: `[x]` done+verified · `[ ]` not done · 🟡 partial
