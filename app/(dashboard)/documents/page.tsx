@@ -1,22 +1,46 @@
 'use client';
 
-import React, { useState } from 'react';
-import { FileText, Search, Plus, List, Grid as GridIcon, Check, ChevronRight, Sparkles } from 'lucide-react';
-import { useDocumentsApi } from '@/hooks/useDocumentsApi';
+import React, { useRef, useState } from 'react';
+import { Search, Plus, ChevronRight, Sparkles, Trash2 } from 'lucide-react';
+import { useDocumentFiles } from '@/hooks/useDocumentFiles';
 import { useToast } from './ToastContext';
 
+const CATEGORIES = ['Corporate', 'Financials', 'Legal', 'Fundraising', 'Marketing', 'Archive'];
+
 export default function DocumentsLibraryPage() {
-  const { libraryDocs } = useDocumentsApi();
+  const { files: libraryDocs, uploading, uploadFile, deleteFile } = useDocumentFiles();
   const { triggerToast } = useToast();
   const [libraryViewMode, setLibraryViewMode] = useState<'Grid' | 'List'>('List');
   const [selectedCategory, setSelectedCategory] = useState<string>('All documents');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const filteredLibraryDocs = libraryDocs.filter(doc => {
     const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) || doc.owner.toLowerCase().includes(searchQuery.toLowerCase());
     if (selectedCategory === 'All documents') return matchesSearch;
     return matchesSearch && doc.category.toLowerCase() === selectedCategory.toLowerCase();
   });
+
+  // Real per-folder counts for the sidebar (from the fetched files).
+  const countFor = (name: string) =>
+    name === 'All documents' ? libraryDocs.length : libraryDocs.filter(d => d.category.toLowerCase() === name.toLowerCase()).length;
+
+  const handleUploadClick = () => fileInputRef.current?.click();
+
+  const handleFileChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-picking the same file
+    if (!file) return;
+    const folder = selectedCategory !== 'All documents' ? selectedCategory : undefined;
+    const res = await uploadFile(file, folder);
+    triggerToast(res.ok ? `Uploaded ${file.name}.` : (res.error || 'Upload failed.'));
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string, title: string) => {
+    e.stopPropagation();
+    await deleteFile(id);
+    triggerToast(`Deleted ${title}.`);
+  };
 
   const getStatusBadgeStyles = (status: string) => {
     switch (status) {
@@ -43,11 +67,19 @@ export default function DocumentsLibraryPage() {
           </div>
 
           <div className="flex justify-end items-center space-x-3 -mt-12 mb-4">
-            <button 
-              onClick={() => triggerToast('Upload dialog opened.')}
-              className="px-4 py-1.5 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-xs font-semibold shadow-card transition-colors h-[34px]"
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.txt,.csv"
+              onChange={handleFileChosen}
+              className="hidden"
+            />
+            <button
+              onClick={handleUploadClick}
+              disabled={uploading}
+              className="px-4 py-1.5 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-xs font-semibold shadow-card transition-colors h-[34px] disabled:opacity-60"
             >
-              Upload
+              {uploading ? 'Uploading…' : 'Upload'}
             </button>
             <button 
               onClick={() => {
@@ -64,13 +96,8 @@ export default function DocumentsLibraryPage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start pt-2">
             <div className="lg:col-span-1 bg-white border border-[#E8E8E2] rounded-modal p-2 shadow-card space-y-0.5">
               {[
-                { name: 'All documents', count: 38, icon: true },
-                { name: 'Corporate', count: 6, arrow: true },
-                { name: 'Financials', count: 9, arrow: true },
-                { name: 'Legal', count: 7, arrow: true },
-                { name: 'Fundraising', count: 8, arrow: true },
-                { name: 'Marketing', count: 5, arrow: true },
-                { name: 'Archive', count: 3, arrow: true },
+                { name: 'All documents', icon: true, arrow: false },
+                ...CATEGORIES.map((name) => ({ name, icon: false, arrow: true })),
               ].map((cat) => {
                 const isSelected = selectedCategory === cat.name;
                 return (
@@ -88,7 +115,7 @@ export default function DocumentsLibraryPage() {
                       {cat.arrow && <ChevronRight size={12} className="text-[#C4C9C5]" />}
                       <span>{cat.name}</span>
                     </span>
-                    <span className="text-[11px] text-[#8E9B90]">{cat.count}</span>
+                    <span className="text-[11px] text-[#8E9B90]">{countFor(cat.name)}</span>
                   </button>
                 );
               })}
@@ -127,7 +154,23 @@ export default function DocumentsLibraryPage() {
                 </div>
               </div>
 
-              {libraryViewMode === 'Grid' && (
+              {filteredLibraryDocs.length === 0 && (
+                <div className="bg-white border border-[#E8E8E2] rounded-modal shadow-card p-12 text-center">
+                  <p className="text-sm font-semibold text-[#1E2923]">No documents yet</p>
+                  <p className="text-xs text-[#8E9B90] mt-1">
+                    Upload a PDF, Office doc, image, text or CSV to get started.
+                  </p>
+                  <button
+                    onClick={handleUploadClick}
+                    disabled={uploading}
+                    className="mt-4 px-4 py-2 bg-[#A07C44] hover:bg-[#906D3A] text-white rounded-card text-xs font-semibold shadow-card transition-colors disabled:opacity-60"
+                  >
+                    {uploading ? 'Uploading…' : 'Upload a file'}
+                  </button>
+                </div>
+              )}
+
+              {filteredLibraryDocs.length > 0 && libraryViewMode === 'Grid' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredLibraryDocs.map((doc) => (
                     <div 
@@ -165,7 +208,7 @@ export default function DocumentsLibraryPage() {
                 </div>
               )}
 
-              {libraryViewMode === 'List' && (
+              {filteredLibraryDocs.length > 0 && libraryViewMode === 'List' && (
                 <div className="bg-white border border-[#E8E8E2] rounded-modal shadow-card overflow-hidden">
                   <table className="w-full text-left border-collapse min-w-[500px]">
                     <thead>
@@ -196,9 +239,19 @@ export default function DocumentsLibraryPage() {
                           <td className="py-3.5 px-5 text-[#617065]">{doc.owner}</td>
                           <td className="py-3.5 px-5 text-[#617065]">{doc.modified}</td>
                           <td className="py-3.5 px-5">
-                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeStyles(doc.status)}`}>
-                              {doc.status}
-                            </span>
+                            <div className="flex items-center justify-between gap-3">
+                              <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${getStatusBadgeStyles(doc.status)}`}>
+                                {doc.status}
+                              </span>
+                              <button
+                                type="button"
+                                aria-label={`Delete ${doc.title}`}
+                                onClick={(e) => handleDelete(e, doc.id, doc.title)}
+                                className="text-[#9CA8A0] hover:text-[#B93838] transition-colors shrink-0"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
