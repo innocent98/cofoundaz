@@ -5,8 +5,8 @@ and the design spec (`docs/superpowers/specs/`). Keep it honest — an item is
 checked only when done **and** verified (gates green).
 
 ## Snapshot
-- ✅ Done: Marketing site · Design-token system · CI + pre-commit hook · Product-app UI scaffolding · Local mock API + typed client · **Real API — Auth/session (Module 0)**
-- 🟡 In progress: Real `cofoundaz-api` integration, module by module (onboarding → dashboard → …)
+- ✅ Done: Marketing site · Design-token system · CI + pre-commit hook · Product-app UI scaffolding · Local mock API + typed client · **Real API — Auth/session (Module 0)** · **Onboarding (Module 1)**
+- 🟡 In progress: Real `cofoundaz-api` integration, module by module (✅ auth → ✅ onboarding → ~ dashboard → ~ health score → …)
 - ⛔ Not started: Dashboard e2e/a11y coverage
 
 ## Real API integration (replacing the mocks, module by module)
@@ -14,7 +14,8 @@ Client points at the real API (`NEXT_PUBLIC_API_BASE_URL`; local dev proxies `/a
 - [x] **Module 0 — Auth & session** — login authenticates live; post-login routing (→ onboarding/dashboard) via `/onboarding/state` (envelope fix); `/verify-email/{token}` + `/reset-password/{token}` email-link routes; verified live on staging
 - [x] **Module 1 — Onboarding** — wizard runs live: resume/autosave (`PATCH /onboarding/state`), envelope+nesting flattened, Country as ISO select (fixes a backend 500), complete-gate `field_errors` surfaced; verified on staging
 - [~] **Module 2 — Dashboard** — plumbing done: `X-Workspace-Id` header (cross-cutting, in client), `summary`+`activity` live (200), real greeting/workspace, crashes fixed (briefing 404, risks/opps shape). **Follow-up:** widgets still mask empty/pending state with static sample data — finish widget-by-widget; verify non-empty path after completing onboarding+assessment
-- [ ] Health Score · Mission · Roadmap · Business Builder · Journal · Notifications · Documents (all now unblocked by the `X-Workspace-Id` header)
+- [~] **Module 3 — Health Score** — overview (`/health`) wired to real `GET /health-score`: two-state machine (`pending_assessment` empty-state verified live; `ok` coded to capture), array-of-5 dims → Record (`money`→`financial`), real `summary`/`delta_7d`/`band`, `est.`-hedged recs; Health pills (route shell + `/dashboard` navbar) show real score or hide (no more hardcoded `72`). **Follow-up:** verify `ok` path post-assessment; wire sub-routes (dimensions/recommendations/history/benchmarks); other route shells still hardcode `72`
+- [ ] Mission · Roadmap · Business Builder · Journal · Notifications · Documents (all now unblocked by the `X-Workspace-Id` header)
 - [ ] Backend/ops: confirm `APP_BASE_URL` = FE origin (email links); CORS for app origin (or keep dev proxy)
 
 Legend: `[x]` done+verified · `[ ]` not done · 🟡 partial
