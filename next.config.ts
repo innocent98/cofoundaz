@@ -1,18 +1,23 @@
 import type { NextConfig } from "next";
 
-// Local-dev only: any /api/v1 path not served by a local mock route handler
-// falls back to staging so the app stays usable offline. Never enabled in
-// preview/production builds — there, unmatched /api/v1 calls 404 instead of
-// silently proxying to staging.
-const devApiFallback: Pick<NextConfig, "rewrites"> =
+// Local-dev only: proxy ALL /api/v1 calls to the real API server-side. The
+// browser then talks same-origin (localhost:3000) so there's no CORS, and
+// `beforeFiles` runs ahead of the local mock route handlers, so real endpoints
+// win over the mocks. Override the target with API_PROXY_TARGET. Never enabled
+// in preview/production — there the client calls the API origin directly (which
+// must allow the app origin via CORS) through NEXT_PUBLIC_API_BASE_URL.
+const API_PROXY_TARGET =
+  process.env.API_PROXY_TARGET || "https://staging-api.cofoundaz.com";
+
+const devApiProxy: Pick<NextConfig, "rewrites"> =
   process.env.NODE_ENV === "development"
     ? {
         async rewrites() {
           return {
-            fallback: [
+            beforeFiles: [
               {
                 source: "/api/v1/:path*",
-                destination: "https://staging-api.cofoundaz.com/api/v1/:path*",
+                destination: `${API_PROXY_TARGET}/api/v1/:path*`,
               },
             ],
           };
@@ -21,7 +26,7 @@ const devApiFallback: Pick<NextConfig, "rewrites"> =
     : {};
 
 const nextConfig: NextConfig = {
-  ...devApiFallback,
+  ...devApiProxy,
   async redirects() {
     return [
       {

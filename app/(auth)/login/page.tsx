@@ -33,9 +33,13 @@ interface UserMeResponse {
   };
 }
 
+// GET /onboarding/state returns the standard {data, meta} envelope, e.g.
+// {"data":{"step":1,"completed":false,"assessment_pending":true,…}}.
 interface OnboardingStateResponse {
-  step?: number;
-  completed?: boolean;
+  data?: {
+    step?: number;
+    completed?: boolean;
+  };
 }
 
 export default function LoginPage() {
@@ -109,7 +113,8 @@ export default function LoginPage() {
           },
         });
 
-        if (state.completed || (typeof state.step === "number" && state.step > 6)) {
+        const onb = state.data;
+        if (onb?.completed || (typeof onb?.step === "number" && onb.step > 6)) {
           router.push("/dashboard");
         } else {
           router.push("/onboarding");
