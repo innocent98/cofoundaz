@@ -406,7 +406,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-bold text-base text-sage-900">Startup Health</h3>
                   <span className="text-xs font-semibold bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                    {(summaryData?.health?.deltaWeekly || 0) > 0 ? '+' : ''}{summaryData?.health?.deltaWeekly || '+4'} this week
+                    {(summaryData?.health?.deltaWeekly ?? 0) > 0 ? '+' : ''}{summaryData?.health?.deltaWeekly ?? 0} this week
                   </span>
                 </div>
 
@@ -448,7 +448,7 @@ export default function DashboardPage() {
                 </div>
 
                 <p className="text-sm text-center text-sage-600 leading-relaxed px-2 mb-6">
-                  Strong for validation stage. Product is carrying you; financials are holding you back.
+                  {(summaryData as any)?.health?.summary || 'Complete your kickoff assessment to see what’s driving your score.'}
                 </p>
               </div>
 
@@ -468,17 +468,19 @@ export default function DashboardPage() {
               {tasks.length > 0 && tasks.every(t => t.completed) ? (
                 <div className="flex flex-col items-center justify-center h-full text-center py-10">
                   <Flame className="w-12 h-12 fill-copper-500 text-copper-500 mb-4 animate-bounce" />
-                  <h3 className="font-bold text-lg text-sage-900">Mission complete. ?? {summaryData?.mission?.streakDays || 6}-day streak.</h3>
+                  <h3 className="font-bold text-lg text-sage-900">Mission complete. {(summaryData?.mission?.streakDays ?? 0) > 0 ? `${summaryData?.mission?.streakDays}-day streak.` : ''}</h3>
                 </div>
               ) : (
               <>
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="font-bold text-base text-sage-900">Today&apos;s Mission</h3>
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-copper-700">
-                      <Flame className="w-4 h-4 fill-copper-500 text-copper-500" />
-                      <span>{summaryData?.mission?.streakDays || 6}-day streak</span>
-                    </div>
+                    {(summaryData?.mission?.streakDays ?? 0) > 0 && (
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-copper-700">
+                        <Flame className="w-4 h-4 fill-copper-500 text-copper-500" />
+                        <span>{summaryData?.mission?.streakDays}-day streak</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-5">
@@ -559,7 +561,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="text-sm text-sage-200 leading-relaxed font-normal mb-8">
-                {summaryData?.briefing?.content || "Good news first: pipeline grew ₦9M this week and your smoke test cleared its bar. The watch item is runway, now 8.4 months and tightening. I'd spend today on pricing, it's your riskiest untested assumption and it moves both revenue and runway."}
+                {summaryData?.briefing?.content || "I’ll have your first briefing ready tomorrow morning once I’ve seen a full day of your workspace."}
               </p>
             </div>
 
@@ -593,13 +595,15 @@ export default function DashboardPage() {
                 {summaryData?.kpis[0]?.label || 'MONTHLY REVENUE'}
               </span>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[0]?.value || '?1.6M'}</span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[0]?.delta || '+12%'}</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[0]?.value ?? '—'}</span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[0]?.delta}</span>
               </div>
             </div>
-            <svg className={`w-full h-6 ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M 0,16 L 25,12 L 45,14 L 65,8 L 100,3" />
-            </svg>
+            {(summaryData?.kpis[0] as any)?.hasData && (
+              <svg className={`w-full h-6 ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M 0,16 L 25,12 L 45,14 L 65,8 L 100,3" />
+              </svg>
+            )}
           </Link>
 
           <Link 
@@ -618,16 +622,18 @@ export default function DashboardPage() {
                 <span className={`text-2xl font-display font-extrabold ${
                   summaryData?.kpis[1]?.isAlert ? 'text-[var(--red-600)]' : 'text-[#1D2A24]'
                 }`}>
-                  {summaryData?.kpis[1]?.value || '8.4 mo'}
+                  {summaryData?.kpis[1]?.value ?? '—'}
                 </span>
                 <span className={`text-xs font-semibold ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`}>
-                  {summaryData?.kpis[1]?.delta || '-0.6'}
+                  {summaryData?.kpis[1]?.delta}
                 </span>
               </div>
             </div>
-            <svg className={`w-full h-6 ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M 0,4 L 35,7 L 70,12 L 100,17" />
-            </svg>
+            {(summaryData?.kpis[1] as any)?.hasData && (
+              <svg className={`w-full h-6 ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M 0,4 L 35,7 L 70,12 L 100,17" />
+              </svg>
+            )}
           </Link>
 
           <Link href="/app/sales" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
@@ -636,13 +642,15 @@ export default function DashboardPage() {
                 {summaryData?.kpis[2]?.label || 'PIPELINE VALUE'}
               </span>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[2]?.value || '?42M'}</span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[2]?.delta || '+?9M'}</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[2]?.value ?? '—'}</span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[2]?.delta}</span>
               </div>
             </div>
-            <svg className={`w-full h-6 ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M 0,17 L 35,12 L 65,10 L 100,4" />
-            </svg>
+            {(summaryData?.kpis[2] as any)?.hasData && (
+              <svg className={`w-full h-6 ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M 0,17 L 35,12 L 65,10 L 100,4" />
+              </svg>
+            )}
           </Link>
 
           <Link href="/app/marketing" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
@@ -651,13 +659,15 @@ export default function DashboardPage() {
                 {summaryData?.kpis[3]?.label || 'CAMPAIGN CTR'}
               </span>
               <div className="flex items-baseline gap-1.5 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[3]?.value || '3.8%'}</span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[3]?.delta || '+0.4pt'}</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[3]?.value ?? '—'}</span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[3]?.delta}</span>
               </div>
             </div>
-            <svg className={`w-full h-6 ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M 0,15 L 25,13 L 45,14 L 65,9 L 100,7" />
-            </svg>
+            {(summaryData?.kpis[3] as any)?.hasData && (
+              <svg className={`w-full h-6 ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M 0,15 L 25,13 L 45,14 L 65,9 L 100,7" />
+              </svg>
+            )}
           </Link>
 
           <Link href="/app/team" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
@@ -666,13 +676,15 @@ export default function DashboardPage() {
                 {summaryData?.kpis[4]?.label || 'TASKS THIS WEEK'}
               </span>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[4]?.value || '14'}</span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[4]?.delta || '+3'}</span>
+                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[4]?.value ?? '—'}</span>
+                <span className={`text-xs font-semibold ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[4]?.delta}</span>
               </div>
             </div>
-            <svg className={`w-full h-6 ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M 0,17 L 30,13 L 65,12 L 100,6" />
-            </svg>
+            {(summaryData?.kpis[4] as any)?.hasData && (
+              <svg className={`w-full h-6 ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M 0,17 L 30,13 L 65,12 L 100,6" />
+              </svg>
+            )}
           </Link>
           </section>
         </ErrorBoundary>
