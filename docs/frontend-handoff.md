@@ -88,10 +88,22 @@ All must be green. `lint` must be **0 errors**.
 ## 5. How to continue
 
 1. `git checkout develop && git pull`
-2. `git checkout -b feat/<your-thing>`
-3. Build against §2/§3 and `docs/dashboard-styling.md`.
-4. Keep all gates green; open a PR **into `develop`**.
-5. One logical change per commit; clear messages.
+2. `npm install` — **this wires the pre-commit hook** (see below). Do it once per clone.
+3. `git checkout -b feat/<your-thing>`
+4. Build against §2/§3 and `docs/dashboard-styling.md`.
+5. Keep all gates green; open a PR **into `develop`**.
+6. One logical change per commit; clear messages.
+
+### Pre-commit hook (catches the token mistakes before you push)
+`npm install` runs a `prepare` script that points git at `.githooks/`. On every
+commit, `scripts/precommit-checks.mjs` scans your **staged** `.ts/.tsx` under
+`app/ ui/ components/` for the §2a violations (default palette, `sm:`, cleared
+radii/shadows/fonts) and runs ESLint on them — printing the exact `file:line`.
+If it finds anything, the commit is blocked. Fix the lines it names (per
+`docs/dashboard-styling.md`). Emergency bypass: `git commit --no-verify` — but
+CI runs the same checks, so a bypassed commit just fails the PR instead.
+
+If the hook isn't firing, run `git config core.hooksPath .githooks` once.
 
 ---
 
