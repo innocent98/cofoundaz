@@ -2,7 +2,7 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ToastProvider, useToast } from "./ToastContext";
+import { ToastProvider } from "./ToastContext";
 import {  } from 'lucide-react';
 import { HealthPill } from '@/components/health-pill';
 import { NotificationBell } from '@/components/notification-bell';

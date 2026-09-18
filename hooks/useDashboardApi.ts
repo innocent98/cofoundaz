@@ -4,7 +4,6 @@ import { apiClient, ApiError } from "@/lib/api/client";
 import type {
   DashboardSummaryResponse,
   AIBriefing,
-  ActivityFeedResponse,
   ActivityLogEntry,
 } from "../types/dashboard";
 

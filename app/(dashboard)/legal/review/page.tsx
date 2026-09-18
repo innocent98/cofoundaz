@@ -3,7 +3,6 @@
 import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UploadCloud, FileText } from "lucide-react";
-import { useLegalApi } from "@/hooks/useLegalApi";
 import { useToast } from "../ToastContext";
 
 export default function ContractReviewPage() {

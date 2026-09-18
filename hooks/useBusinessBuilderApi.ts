@@ -6,7 +6,6 @@ import {
   businessBuilderApi,
   CanvasType,
   BusinessBuilderOverview,
-  Suggestion,
 } from '@/lib/api/business-builder';
 
 export type UserRole = 'F' | 'BC';

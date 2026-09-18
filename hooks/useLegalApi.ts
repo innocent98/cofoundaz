@@ -113,14 +113,14 @@ export function useLegalApi() {
     setAdvisorRequests(prev => [newReq, ...prev]);
   };
 
-  const [ipAssets, setIpAssets] = useState<IPAsset[]>([
+  const [ipAssets] = useState<IPAsset[]>([
     { id: "ip-1", type: "Trademark", name: "Kolo (wordmark)", jurisdiction: "Nigeria", status: "Filed", statusBg: "bg-[#f5efe6] text-[#8A5330]", renewal: "Renews 2034" },
     { id: "ip-2", type: "Domain", name: "kolo.africa", jurisdiction: "Global", status: "Registered", statusBg: "bg-[#e2ede6] text-[#1e4836]", renewal: "Renews Feb 2027" },
     { id: "ip-3", type: "Copyright", name: "App source code", jurisdiction: "Nigeria", status: "Registered", statusBg: "bg-[#e2ede6] text-[#1e4836]", renewal: "No renewal" },
     { id: "ip-4", type: "Trademark", name: "Logo mark", jurisdiction: "Nigeria", status: "Expired", statusBg: "bg-red-100 text-red-700", renewal: "Renew now" },
   ]);
 
-  const [complianceItems, setComplianceItems] = useState<ComplianceItem[]>([
+  const [complianceItems] = useState<ComplianceItem[]>([
     { id: "comp-1", filing: "VAT filing", authority: "FIRS", due: "Was due Jul 10", dueColor: "text-red-700", status: "Overdue", statusBg: "bg-red-100 text-red-700" },
     { id: "comp-2", filing: "Annual return", authority: "CAC", due: "in 9 days", dueColor: "text-copper-700", status: "Due soon", statusBg: "bg-copper-100 text-copper-800" },
     { id: "comp-3", filing: "PAYE remittance", authority: "State IRS", due: "Aug 10", dueColor: "text-sage-600", status: "Upcoming", statusBg: "bg-copper-100/60 text-copper-900" },

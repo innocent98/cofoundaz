@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useToast } from "../ToastContext";
-import { Download, ExternalLink } from "lucide-react";
+import { Download } from "lucide-react";
 
 export default function PurchasesPage() {
   const { triggerToast } = useToast();

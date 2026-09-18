@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from "react";
-import { useMarketingApi, Campaign, CampaignObjective, MarketingChannel } from "@/hooks/useMarketingApi";
+import { useMarketingApi, Campaign, CampaignObjective } from "@/hooks/useMarketingApi";
 import { useToast } from "../ToastContext";
 
 export default function MarketingCampaignsPage() {

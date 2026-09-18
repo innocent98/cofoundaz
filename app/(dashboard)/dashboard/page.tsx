@@ -6,15 +6,12 @@ import { apiClient } from '@/lib/api/client';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { DashboardNavbar } from '@/components/dashboardnavbar';
-import Sidebar from '@/components/sidebar';
 import { 
   Flame, 
   Check, 
   Search, 
   X, 
-  ChevronDown,
-  ArrowUp,
-  Sparkles
+  ChevronDown
 } from 'lucide-react';
 import { useDashboardSummary, useAIBriefing, useActivityFeed } from '@/hooks/useDashboardApi';
 import { useAiDrawer } from '@/components/ai-drawer-context';
@@ -29,12 +26,6 @@ export interface NotificationItem {
   type: 'ai' | 'finance' | 'legal' | 'funding';
 }
 
-interface ChatMessage {
-  id: string;
-  sender: 'user' | 'assistant';
-  text: string;
-}
-
 export default function DashboardPage() {
   // STATE MANAGEMENT
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -45,8 +36,8 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // DATA HOOKS
-  const { data: summaryData, loading: summaryLoading, refetch: refetchSummary, error: summaryError } = useDashboardSummary();
-  const { data: briefingData, acceptAction, fallbackText, error: briefingError, refetch: refetchBriefing } = useAIBriefing();
+  const { data: summaryData, refetch: refetchSummary, error: summaryError } = useDashboardSummary();
+  const { error: briefingError, refetch: refetchBriefing } = useAIBriefing();
   const { data: activityData, error: activityError, fetchMore: refetchActivity } = useActivityFeed('workspace_123'); // Example ID
 
     // Dynamic greeting, time, and user info
@@ -288,6 +279,8 @@ export default function DashboardPage() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // Mount-once keyboard listener; closeAllOverlays is intentionally not a dep.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // The sidebar is always visible from `lg` up, so drop the mobile open state there

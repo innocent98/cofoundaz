@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Search, Bell, Plus, Sparkles } from 'lucide-react';
+import { Search, Bell, Sparkles } from 'lucide-react';
 import { useSidebar } from '@/components/sidebar-context';
 import { useHealthScore } from '@/hooks/useHealthScore';
 
@@ -21,8 +21,6 @@ export function DashboardNavbar({
   setIsNotificationsOpen,
   setIsSearchOpen,
   setIsInviteOpen,
-  isSidebarOpen = false,
-  setIsSidebarOpen,
   notifications = [],
   markAllNotificationsRead,
 }: DashboardNavbarProps) {

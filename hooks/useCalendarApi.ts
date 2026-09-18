@@ -1,4 +1,3 @@
-import { useState } from 'react';
 
 export type CalendarSubTab = 'Month' | 'Week' | 'Agenda' | 'Milestones' | 'Sync';
 export type FilterType = 'All' | 'Milestone' | 'Meeting' | 'Deadline' | 'Task';

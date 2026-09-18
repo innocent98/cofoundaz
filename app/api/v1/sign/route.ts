@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({
     data: [
       { id: "sig1", document: "Founders Agreement", status: "pending" }
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   });
 }
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   return NextResponse.json({
     data: { id: `sig${Date.now()}`, status: "sent" },
     meta: { status: 201, message: "Signature Request Sent" }

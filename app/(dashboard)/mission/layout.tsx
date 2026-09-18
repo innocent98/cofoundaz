@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSidebar } from '@/components/sidebar-context';
-import { Bell, Plus } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { useHealthScore } from '@/hooks/useHealthScore';
 
 export default function MissionLayout({
