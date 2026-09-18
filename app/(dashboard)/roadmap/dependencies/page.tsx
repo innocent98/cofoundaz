@@ -2,18 +2,19 @@
 
 import React, { useState } from 'react';
 import { useRoadmapApi } from '@/hooks/useRoadmapApi';
-import { Link2, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Link2, AlertCircle, CheckCircle2, ArrowRight, X } from 'lucide-react';
 
 export default function DependenciesPage() {
-  const { getAllTasks, addDependency } = useRoadmapApi();
+  const { getAllTasks, addDependency, removeDependency } = useRoadmapApi();
   const tasks = getAllTasks();
 
   const [fromTask, setFromTask] = useState('');
   const [toTask, setToTask] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const handleAddDependency = (e: React.FormEvent) => {
+  const handleAddDependency = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
@@ -23,18 +24,29 @@ export default function DependenciesPage() {
       return;
     }
 
-    const result = addDependency(fromTask, toTask);
-    
+    setBusy(true);
+    const result = await addDependency(fromTask, toTask);
+    setBusy(false);
+
     if (!result.success) {
       setErrorMsg(result.error || 'Failed to add dependency.');
     } else {
       setSuccessMsg('Dependency added successfully.');
       setFromTask('');
       setToTask('');
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMsg(''), 3000);
     }
+  };
+
+  const handleRemove = async (dependentId: string, prereqId: string) => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    setBusy(true);
+    const result = await removeDependency(dependentId, prereqId);
+    setBusy(false);
+    if (!result.success) setErrorMsg(result.error || 'Failed to remove dependency.');
   };
 
   // Build graph lines (just a simple list mapping for this implementation)
@@ -95,11 +107,12 @@ export default function DependenciesPage() {
               </select>
             </div>
 
-            <button 
+            <button
               type="submit"
-              className="mt-2 w-full bg-[#183B28] hover:bg-[#11291C] text-white font-bold py-2.5 rounded-card transition-colors shadow-card text-sm"
+              disabled={busy}
+              className="mt-2 w-full bg-[#183B28] hover:bg-[#11291C] disabled:opacity-60 text-white font-bold py-2.5 rounded-card transition-colors shadow-card text-sm"
             >
-              Add Dependency
+              {busy ? 'Saving…' : 'Add Dependency'}
             </button>
 
             {errorMsg && (
@@ -136,9 +149,17 @@ export default function DependenciesPage() {
                   {t.dependsOn?.map(depId => {
                     const depTask = tasks.find(x => x.id === depId);
                     return (
-                      <div key={depId} className="flex items-center gap-2 bg-[#F7F7F5] rounded px-3 py-2 border border-[#EBEBE6] w-fit">
+                      <div key={depId} className="flex items-center gap-2 bg-[#F7F7F5] rounded px-3 py-2 border border-[#EBEBE6] w-fit group/edge">
                         <span className="w-2 h-2 rounded-full bg-copper-600"></span>
                         <span className="text-xs font-semibold text-[#617065]">{depTask?.title || depId}</span>
+                        <button
+                          onClick={() => handleRemove(t.id, depId)}
+                          disabled={busy}
+                          className="ml-1 p-0.5 rounded text-[#A3B0A6] hover:text-[#A34B4B] hover:bg-[#FBEBEB] opacity-0 group-hover/edge:opacity-100 transition disabled:opacity-30"
+                          aria-label="Remove dependency"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
                       </div>
                     );
                   })}
