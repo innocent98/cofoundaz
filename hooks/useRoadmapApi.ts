@@ -265,6 +265,116 @@ export function useRoadmapApi() {
     [getAllTasks, wouldCreateCycle]
   );
 
+  // --- Writes (guide §3–§5) -------------------------------------------------
+  // Every mutation re-fetches the tree afterwards: single create/patch responses
+  // are flat (no server-derived `progress`/`overdue`, no nested tasks), so only a
+  // re-read gives the UI the correct derived state. `progress` and `overdue` are
+  // backend-owned and never sent. Never send an explicit `null` for a required
+  // field (phase name/order; milestone title/status/order; task title/effort/
+  // status/order) — that 422s; omit the field to leave it unchanged.
+
+  const createPhase = useCallback(
+    async (name: string) => {
+      const res = await apiClient<{ data?: RawPhase }>('/roadmap/phases', {
+        method: 'POST',
+        body: JSON.stringify({ name }),
+      });
+      await refetch();
+      return res?.data;
+    },
+    [refetch]
+  );
+
+  const updatePhase = useCallback(
+    async (id: string, patch: { name?: string; order?: number; starts_on?: string | null; ends_on?: string | null }) => {
+      const res = await apiClient<{ data?: RawPhase }>(`/roadmap/phases/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(patch),
+      });
+      await refetch();
+      return res?.data;
+    },
+    [refetch]
+  );
+
+  const deletePhase = useCallback(
+    async (id: string) => {
+      await apiClient(`/roadmap/phases/${id}`, { method: 'DELETE' });
+      await refetch();
+    },
+    [refetch]
+  );
+
+  const createMilestone = useCallback(
+    async (phaseId: string, title: string) => {
+      const res = await apiClient<{ data?: RawMilestone }>('/roadmap/milestones', {
+        method: 'POST',
+        body: JSON.stringify({ phase_id: phaseId, title }),
+      });
+      await refetch();
+      return res?.data;
+    },
+    [refetch]
+  );
+
+  const updateMilestone = useCallback(
+    async (
+      id: string,
+      patch: { title?: string; description?: string | null; due_on?: string | null; owner_id?: string | null; status?: string; order?: number }
+    ) => {
+      const res = await apiClient<{ data?: RawMilestone }>(`/roadmap/milestones/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(patch),
+      });
+      await refetch();
+      return res?.data;
+    },
+    [refetch]
+  );
+
+  const deleteMilestone = useCallback(
+    async (id: string) => {
+      await apiClient(`/roadmap/milestones/${id}`, { method: 'DELETE' });
+      await refetch();
+    },
+    [refetch]
+  );
+
+  const createTask = useCallback(
+    async (milestoneId: string, title: string) => {
+      const res = await apiClient<{ data?: RawTask }>('/roadmap/tasks', {
+        method: 'POST',
+        body: JSON.stringify({ milestone_id: milestoneId, title }),
+      });
+      await refetch();
+      return res?.data;
+    },
+    [refetch]
+  );
+
+  const updateTask = useCallback(
+    async (
+      id: string,
+      patch: { title?: string; description?: string | null; effort?: string; status?: string; assignee_id?: string | null; due_on?: string | null; order?: number }
+    ) => {
+      const res = await apiClient<{ data?: RawTask }>(`/roadmap/tasks/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(patch),
+      });
+      await refetch();
+      return res?.data;
+    },
+    [refetch]
+  );
+
+  const deleteTask = useCallback(
+    async (id: string) => {
+      await apiClient(`/roadmap/tasks/${id}`, { method: 'DELETE' });
+      await refetch();
+    },
+    [refetch]
+  );
+
   return {
     currentStage,
     phases,
@@ -274,5 +384,14 @@ export function useRoadmapApi() {
     wouldCreateCycle,
     addDependency,
     getAllTasks,
+    createPhase,
+    updatePhase,
+    deletePhase,
+    createMilestone,
+    updateMilestone,
+    deleteMilestone,
+    createTask,
+    updateTask,
+    deleteTask,
   };
 }

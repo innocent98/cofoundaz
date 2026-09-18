@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRoadmapApi, RoadmapMilestone, RoadmapTask } from '@/hooks/useRoadmapApi';
+import { useRoadmapApi, RoadmapMilestone } from '@/hooks/useRoadmapApi';
 import { RoadmapDrawer } from '../components/RoadmapDrawer';
-import { MoreHorizontal, GripVertical } from 'lucide-react';
+import { GripVertical } from 'lucide-react';
 
 export default function KanbanPage() {
-  const { phases } = useRoadmapApi();
+  const { phases, createTask, updateTask, deleteTask, updateMilestone, deleteMilestone } = useRoadmapApi();
   const [groupBy, setGroupBy] = useState<'Phase' | 'Status'>('Status');
-  
-  const [selectedMilestone, setSelectedMilestone] = useState<RoadmapMilestone | null>(null);
+
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Grouping logic for Status
@@ -20,9 +20,12 @@ export default function KanbanPage() {
   ];
 
   const allMilestones = phases.flatMap(p => p.milestones);
+  // Derive the open milestone from live state by id, so it reflects edits after
+  // each mutation re-fetches the tree (a stored snapshot would go stale).
+  const selectedMilestone = allMilestones.find((m) => m.id === selectedMilestoneId) ?? null;
 
   const openDrawer = (milestone: RoadmapMilestone) => {
-    setSelectedMilestone(milestone);
+    setSelectedMilestoneId(milestone.id);
     setIsDrawerOpen(true);
   };
 
@@ -145,10 +148,15 @@ export default function KanbanPage() {
         </div>
       </div>
 
-      <RoadmapDrawer 
-        isOpen={isDrawerOpen} 
-        onClose={() => setIsDrawerOpen(false)} 
-        milestone={selectedMilestone} 
+      <RoadmapDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        milestone={selectedMilestone}
+        onCreateTask={createTask}
+        onUpdateTask={updateTask}
+        onDeleteTask={deleteTask}
+        onUpdateMilestone={updateMilestone}
+        onDeleteMilestone={deleteMilestone}
       />
     </>
   );
