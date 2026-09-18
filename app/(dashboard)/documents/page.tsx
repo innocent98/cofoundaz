@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, Plus, ChevronRight, Sparkles, Trash2, Share2, X, Check, Copy } from 'lucide-react';
 import { useDocumentFiles } from '@/hooks/useDocumentFiles';
 import { useDocuments } from '@/hooks/useDocuments';
@@ -25,6 +26,13 @@ export default function DocumentsLibraryPage() {
   const { files, uploading, uploadFile, deleteFile } = useDocumentFiles();
   const { documents } = useDocuments();
   const { createShare } = useDocumentShares();
+  const router = useRouter();
+
+  // Rich documents open in the editor; uploaded files aren't editable documents.
+  const openItem = (doc: LibItem) => {
+    if (doc.source === 'document') router.push(`/documents/${doc.id}`);
+    else triggerToast('Preview isn’t available for uploaded files yet.');
+  };
   const { triggerToast } = useToast();
   const [libraryViewMode, setLibraryViewMode] = useState<'Grid' | 'List'>('List');
   const [selectedCategory, setSelectedCategory] = useState<string>('All documents');
@@ -235,7 +243,7 @@ export default function DocumentsLibraryPage() {
                   {filteredLibraryDocs.map((doc) => (
                     <div 
                       key={doc.id}
-                      onClick={() => { ; triggerToast(`Opened ${doc.title}`); }}
+                      onClick={() => openItem(doc)}
                       className="bg-white border border-[#E8E8E2] rounded-modal p-5 shadow-card flex flex-col justify-between h-44 hover:border-[#D5DDD6] transition-all cursor-pointer relative"
                     >
                       <div className="space-y-3">
@@ -283,7 +291,7 @@ export default function DocumentsLibraryPage() {
                       {filteredLibraryDocs.map((doc) => (
                         <tr 
                           key={doc.id}
-                          onClick={() => { ; triggerToast(`Opened ${doc.title}`); }}
+                          onClick={() => openItem(doc)}
                           className="hover:bg-[#F9F9F6] transition-colors cursor-pointer"
                         >
                           <td className="py-3.5 px-5 font-semibold text-[#1E2923] flex items-center space-x-3">
