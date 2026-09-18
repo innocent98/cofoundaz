@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Plus, Pencil, Trash2, Swords } from 'lucide-react';
+import { Plus, Pencil, Trash2, Swords, SlidersHorizontal } from 'lucide-react';
 import { useToast } from '../layout';
 import { useBusinessRecords, errMessage } from '@/hooks/useBusinessRecords';
+import { useBusinessPositioningMap, PositioningAxes } from '@/hooks/useBusinessPositioningMap';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
+import { AxesEditModal } from '@/components/business-builder/axes-edit-modal';
 import { BusinessRecord, RecordField } from '@/lib/api/business-builder';
 
 const KIND = 'competitors';
@@ -15,7 +17,9 @@ function threatOptions(fields: RecordField[]): string[] {
   return fields.find((f) => f.key === 'threat_level')?.choices ?? ['low', 'medium', 'high'];
 }
 
-function buildFields(fields: RecordField[]): FormField[] {
+// map_x/map_y labels track the real positioning-map axes, so the founder knows
+// which corner each coordinate maps to.
+function buildFields(fields: RecordField[], axes: PositioningAxes): FormField[] {
   return [
     { key: 'name', label: 'Competitor', type: 'text', required: true, half: true },
     { key: 'threat_level', label: 'Threat level', type: 'select', options: threatOptions(fields), half: true },
@@ -23,8 +27,8 @@ function buildFields(fields: RecordField[]): FormField[] {
     { key: 'price', label: 'Price', type: 'text', half: true, placeholder: 'e.g. Free / ₦1,000/mo' },
     { key: 'strengths', label: 'Strengths', type: 'list' },
     { key: 'weaknesses', label: 'Weaknesses', type: 'list' },
-    { key: 'map_x', label: 'Map X · low→high cost (0–1)', type: 'number', half: true, placeholder: '0.0 – 1.0' },
-    { key: 'map_y', label: 'Map Y · low→high trust (0–1)', type: 'number', half: true, placeholder: '0.0 – 1.0' },
+    { key: 'map_x', label: `Map X · ${axes.x.label} (${axes.x.low}→${axes.x.high}, 0–1)`, type: 'number', half: true, placeholder: '0.0 – 1.0' },
+    { key: 'map_y', label: `Map Y · ${axes.y.label} (${axes.y.low}→${axes.y.high}, 0–1)`, type: 'number', half: true, placeholder: '0.0 – 1.0' },
   ];
 }
 
@@ -48,13 +52,29 @@ const DOT_COLORS = ['#1A422D', '#3B7A57', '#9C5B34', '#75B29B', '#C08457', '#4D6
 export default function CompetitiveAnalysisPage() {
   const { triggerToast } = useToast();
   const { records, fields, loading, error, create, update, remove } = useBusinessRecords(KIND);
+  const { axes, saveAxes } = useBusinessPositioningMap();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<BusinessRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [axesOpen, setAxesOpen] = useState(false);
+  const [axesSaving, setAxesSaving] = useState(false);
 
-  const formFields = useMemo(() => buildFields(fields), [fields]);
+  const formFields = useMemo(() => buildFields(fields, axes), [fields, axes]);
+
+  const handleSaveAxes = async (next: PositioningAxes) => {
+    setAxesSaving(true);
+    try {
+      await saveAxes(next);
+      triggerToast('Axes updated');
+      setAxesOpen(false);
+    } catch (err) {
+      triggerToast(errMessage(err) || 'Could not update axes');
+    } finally {
+      setAxesSaving(false);
+    }
+  };
 
   const openCreate = () => { setEditing(null); setFormError(null); setModalOpen(true); };
   const openEdit = (rec: BusinessRecord) => { setEditing(rec); setFormError(null); setModalOpen(true); };
@@ -156,10 +176,22 @@ export default function CompetitiveAnalysisPage() {
           </div>
 
           <div className="lg:col-span-5 bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-4">
-            <h3 className="text-xs font-bold text-[#1E2923]">Positioning map</h3>
-            <div className="relative w-full h-64 border-l border-b border-[#A0AABA] mt-2 mb-2">
-              <span className="absolute top-0 left-2 text-[10px] font-medium text-[#556358]">High trust</span>
-              <span className="absolute bottom-1 right-2 text-[10px] font-medium text-[#556358]">High cost →</span>
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-xs font-bold text-[#1E2923]">Positioning map</h3>
+              <button
+                onClick={() => setAxesOpen(true)}
+                className="flex items-center gap-1 text-[11px] font-semibold text-[#183B28] hover:text-[#11291C]"
+              >
+                <SlidersHorizontal className="w-3 h-3" /> Edit axes
+              </button>
+            </div>
+            <div className="relative w-full h-64 border-l border-b border-[#A0AABA] mt-2 mb-6">
+              {/* Y axis: high at top */}
+              <span className="absolute top-0 left-2 text-[10px] font-medium text-[#556358]">{axes.y.high} {axes.y.label}</span>
+              <span className="absolute bottom-1 left-2 text-[10px] font-medium text-[#A3B899]">{axes.y.low}</span>
+              {/* X axis: high at right */}
+              <span className="absolute -bottom-5 right-0 text-[10px] font-medium text-[#556358]">{axes.x.high} {axes.x.label} →</span>
+              <span className="absolute -bottom-5 left-0 text-[10px] font-medium text-[#A3B899]">{axes.x.low}</span>
               {mapped.length === 0 && (
                 <span className="absolute inset-0 flex items-center justify-center text-[11px] text-[#A3B899] px-4 text-center">
                   Set a competitor&apos;s map X/Y to plot it here.
@@ -189,6 +221,15 @@ export default function CompetitiveAnalysisPage() {
           error={formError}
           onSubmit={handleSubmit}
           onClose={() => setModalOpen(false)}
+        />
+      )}
+
+      {axesOpen && (
+        <AxesEditModal
+          axes={axes}
+          saving={axesSaving}
+          onSave={handleSaveAxes}
+          onClose={() => setAxesOpen(false)}
         />
       )}
     </div>
