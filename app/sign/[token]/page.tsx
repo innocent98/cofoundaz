@@ -1,69 +1,187 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Check, Edit3, X } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { Check, FileText, Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
+import { apiClient, ApiError } from '@/lib/api/client';
 
-export default function PublicSignerPage({ params }: { params: { token: string } }) {
-  const [hasSigned, setHasSigned] = useState(false);
+// Public signing view — GET /sign/{token} (no auth). See
+// cofoundaz-api/docs/fe-integration-guide-documents-esignature.md §3–§4.
+interface SignView {
+  request: { title: string; status: string };
+  file: { id: string; filename: string; content_type: string; size_bytes: number; url: string };
+  signer: { email: string; name: string };
+}
+// POST /sign/{token} response (no signers[] — privacy-scoped, §4).
+interface SignResult {
+  title: string;
+  status: string;
+  signed_count: number;
+  total: number;
+  completed_at: string | null;
+}
 
-  if (hasSigned) {
-    return (
-      <div className="min-h-screen bg-sage-50 flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-card shadow-raised p-8 text-center border border-sage-200">
-          <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-8 h-8 text-green-600" />
-          </div>
-          <h1 className="text-2xl font-display font-bold text-[#1E2923] mb-2">Document Signed</h1>
-          <p className="text-sage-600 mb-6 font-body">Thank you. You can safely close this tab. A copy has been emailed to you.</p>
-        </div>
-      </div>
-    );
-  }
+function fmtSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export default function PublicSignerPage() {
+  const params = useParams<{ token: string }>();
+  const token = params?.token as string;
+
+  const [view, setView] = useState<SignView | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [invalid, setInvalid] = useState(false);
+  const [typedName, setTypedName] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<SignResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient<{ data?: SignView }>(`/sign/${token}`);
+      const d = res?.data ?? (res as unknown as SignView);
+      setView(d);
+      if (d?.signer?.name) setTypedName(d.signer.name);
+    } catch (err) {
+      // Uniform 404 = unknown / already-signed / expired link.
+      if (err instanceof ApiError && err.status === 404) setInvalid(true);
+      else setInvalid(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+    void (async () => {
+      await load();
+    })();
+  }, [token, load]);
+
+  const sign = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = typedName.trim();
+    if (!name) {
+      setError('Please type your full name to sign.');
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await apiClient<{ data?: SignResult }>(`/sign/${token}`, {
+        method: 'POST',
+        body: JSON.stringify({ typed_name: name }),
+      });
+      setResult(res?.data ?? (res as unknown as SignResult));
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) {
+        setError('This link has already been used or is no longer valid.');
+      } else {
+        const d = (err as ApiError)?.data as { error?: { message?: string } } | undefined;
+        setError(d?.error?.message || 'Could not record your signature. Please try again.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-sage-50 font-body text-[#1E2923]">
-      <header className="bg-white border-b border-sage-200 px-6 py-4 flex items-center justify-between">
-        <div className="font-display font-bold text-xl tracking-tight text-[#1E2923]">Cofaundaz.</div>
-        <div className="text-sm font-medium text-sage-600">Review and Sign</div>
+    <div className="min-h-screen bg-[#F6F7F4] font-body text-[#1E2923]">
+      <header className="bg-white border-b border-[#E8E8E2] px-6 py-4 flex items-center justify-between">
+        <div className="font-display font-bold text-xl tracking-tight text-[#1E2923]">Cofoundaz</div>
+        <div className="text-sm font-medium text-[#617065]">Review &amp; Sign</div>
       </header>
 
-      <main className="max-w-4xl mx-auto py-8 px-4">
-        <div className="bg-white rounded-card shadow-card border border-sage-200 overflow-hidden">
-          <div className="border-b border-sage-200 px-6 py-4 flex items-center justify-between bg-sage-50">
-            <div>
-              <h2 className="text-lg font-semibold text-[#1E2923]">Contractor Agreement</h2>
-              <p className="text-sm text-sage-600">Please review the document below before signing.</p>
-            </div>
-            <button
-              onClick={() => setHasSigned(true)}
-              className="bg-copper-600 hover:bg-copper-700 text-white px-6 py-2 rounded-input font-medium shadow-raised transition-colors flex items-center gap-2"
-            >
-              <Edit3 size={16} />
-              <span>Sign Document</span>
-            </button>
+      <main className="max-w-2xl mx-auto py-10 px-4">
+        {loading && (
+          <div className="flex items-center justify-center gap-2 text-[#617065] py-24">
+            <Loader2 className="w-5 h-5 animate-spin" /> Loading document…
           </div>
-          
-          <div className="p-12 min-h-[600px] flex flex-col gap-4 font-body text-sage-800">
-            <h1 className="text-2xl font-bold text-center mb-8">INDEPENDENT CONTRACTOR AGREEMENT</h1>
-            <p>This Independent Contractor Agreement (the &quot;Agreement&quot;) is entered into as of the date of signing.</p>
-            <p><strong>1. SERVICES.</strong> The Contractor agrees to perform the services described in Exhibit A attached hereto.</p>
-            <p><strong>2. COMPENSATION.</strong> As full compensation for the Services, the Company shall pay the Contractor the fees outlined in Exhibit A.</p>
-            <p><strong>3. TERM AND TERMINATION.</strong> This Agreement shall commence on the Effective Date and shall continue until the Services are completed, unless earlier terminated in accordance with this Agreement.</p>
-            
-            <div className="mt-20 border-t border-sage-300 pt-8 flex gap-20">
-              <div className="flex-1">
-                <p className="font-bold mb-8">The Company:</p>
-                <div className="border-b border-sage-300 w-full mb-2">Amara Okafor</div>
-                <p className="text-sm text-sage-600">Authorized Signature</p>
+        )}
+
+        {!loading && invalid && (
+          <div className="bg-white rounded-modal shadow-card border border-[#E8E8E2] p-10 text-center flex flex-col items-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-[#FBEBEB] text-[#B0483B] flex items-center justify-center">
+              <AlertTriangle className="w-7 h-7" />
+            </div>
+            <h1 className="text-xl font-display font-bold">This link is no longer valid</h1>
+            <p className="text-sm text-[#617065] max-w-sm">
+              It may have already been signed, been cancelled, or expired. Ask the sender for a fresh link.
+            </p>
+          </div>
+        )}
+
+        {!loading && !invalid && result && (
+          <div className="bg-white rounded-modal shadow-card border border-[#E8E8E2] p-10 text-center flex flex-col items-center gap-3">
+            <div className="w-16 h-16 rounded-full bg-[#EAF2ED] text-[#2D5A3F] flex items-center justify-center">
+              <Check className="w-8 h-8" />
+            </div>
+            <h1 className="text-2xl font-display font-bold">Signed — thank you</h1>
+            <p className="text-sm text-[#617065]">
+              {result.status === 'complete'
+                ? `All ${result.total} signature${result.total === 1 ? '' : 's'} are in — this document is complete.`
+                : `${result.signed_count} of ${result.total} signed — we’ll let the others know it’s their turn.`}
+            </p>
+            <p className="text-xs text-[#8E9B90]">You can safely close this tab.</p>
+          </div>
+        )}
+
+        {!loading && !invalid && !result && view && (
+          <div className="bg-white rounded-modal shadow-card border border-[#E8E8E2] overflow-hidden">
+            <div className="border-b border-[#E8E8E2] px-6 py-4 bg-[#FBFBFA]">
+              <h2 className="text-lg font-semibold">{view.request.title}</h2>
+              <p className="text-sm text-[#617065]">Hi {view.signer.name || view.signer.email} — please review and sign below.</p>
+            </div>
+
+            <div className="p-6 flex flex-col gap-6">
+              <div className="flex items-center gap-3 bg-[#F7F7F5] border border-[#E8E8E2] rounded-card p-4">
+                <div className="w-10 h-10 rounded-input bg-white border border-[#E8E8E2] flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-[#617065]" />
+                </div>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-sm font-bold truncate">{view.file.filename}</span>
+                  <span className="text-xs text-[#8E9B90]">{fmtSize(view.file.size_bytes)}</span>
+                </div>
+                {/^https?:\/\//.test(view.file.url) && (
+                  <a
+                    href={view.file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-xs font-semibold text-[#183B28] hover:text-[#11291C]"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> Open
+                  </a>
+                )}
               </div>
-              <div className="flex-1">
-                <p className="font-bold mb-8">The Contractor:</p>
-                <div className="border-b border-copper-200 bg-copper-100 w-full h-8 mb-2 flex items-end px-2 pb-1 text-copper-800 text-sm cursor-pointer" onClick={() => setHasSigned(true)}>Click to sign</div>
-                <p className="text-sm text-sage-600">Contractor Signature</p>
-              </div>
+
+              <form onSubmit={sign} className="flex flex-col gap-3">
+                <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider">Type your full name to sign</label>
+                <input
+                  type="text"
+                  value={typedName}
+                  onChange={(e) => setTypedName(e.target.value)}
+                  placeholder="Your full name"
+                  className="w-full border border-[#D5DDD6] rounded-input px-3 py-2.5 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58]"
+                />
+                <p className="text-[11px] text-[#8E9B90]">
+                  By typing your name and clicking Sign, you agree this is your electronic signature.
+                </p>
+                {error && <p className="text-xs font-semibold text-[#B0483B]">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="mt-1 bg-[#183B28] hover:bg-[#11291C] disabled:opacity-60 text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card"
+                >
+                  {submitting ? 'Signing…' : 'Sign document'}
+                </button>
+              </form>
             </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
