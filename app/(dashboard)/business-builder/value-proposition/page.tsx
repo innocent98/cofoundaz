@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { useToast } from '../layout';
+import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 
 export default function ValuePropositionPage() {
   const { triggerToast } = useToast();
@@ -43,10 +44,12 @@ export default function ValuePropositionPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
+      <div className="flex items-start justify-between gap-4">
         <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
           Value Proposition
         </h2>
+        {/* Honest AI-fill: enqueues the real (deferred) job; no fake results. */}
+        <AiDraftButton canvasType="value_prop" label="Fill with AI" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

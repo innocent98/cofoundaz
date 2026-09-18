@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Sparkles, Download, Loader2, Plus, X, Check } from 'lucide-react';
+import { Download, Loader2, Plus, X, Check } from 'lucide-react';
 import { useToast } from '../layout';
 import { useBusinessBuilderApi } from '@/hooks/useBusinessBuilderApi';
+import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 
 interface Section {
   id: string;
@@ -25,12 +26,10 @@ const DEFAULT_SECTIONS: Section[] = [
 
 export default function LeanCanvasPage() {
   const { triggerToast } = useToast();
-  const { loadCanvas, saveCanvas, aiFillCanvas } = useBusinessBuilderApi();
+  const { loadCanvas, saveCanvas } = useBusinessBuilderApi();
 
   const [sections, setSections] = useState<Section[]>(DEFAULT_SECTIONS);
-  const [showAiModal, setShowAiModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
   const [lastSavedTime, setLastSavedTime] = useState<string>('just now');
 
@@ -113,40 +112,6 @@ export default function LeanCanvasPage() {
     };
   }, [sections, isLoading, persistCanvas]);
 
-  // 3. AI Fill Canvas
-  const handleDraftAI = async () => {
-    try {
-      setIsAiGenerating(true);
-      const res = await aiFillCanvas('lean', { tone: 'analytical' });
-
-      setShowAiModal(false);
-      const gen = res as { blocks?: unknown; data?: { blocks?: unknown } }; const generatedBlocks = (gen?.blocks || gen?.data?.blocks || res) as Record<string, unknown> | undefined;
-
-      if (generatedBlocks && typeof generatedBlocks === 'object') {
-        setSections((prev) =>
-          prev.map((sec) => {
-            const genMap = generatedBlocks as Record<string, unknown>; const raw = genMap?.[sec.id] || genMap?.[sec.id.toLowerCase()];
-            if (!raw) return sec;
-            const newItems = Array.isArray(raw)
-              ? raw.map((it) => (typeof it === "string" ? it : ((it as { text?: string } | undefined)?.text || "")))
-              : [String(raw)];
-            return {
-              ...sec,
-              items: Array.from(new Set([...sec.items, ...newItems])),
-            };
-          })
-        );
-        triggerToast('? Lean Canvas drafted with AI.');
-      } else {
-        triggerToast('AI draft received.');
-      }
-    } catch {
-      triggerToast('AI generation timed out or failed. Please try again.');
-    } finally {
-      setIsAiGenerating(false);
-    }
-  };
-
   const addItem = (sectionId: string) => {
     const newItem = prompt('Enter new canvas point:');
     if (!newItem || !newItem.trim()) return;
@@ -207,13 +172,11 @@ export default function LeanCanvasPage() {
         </div>
 
         <div className="flex items-center gap-3 self-start md:self-auto">
-          <button
-            onClick={() => setShowAiModal(true)}
-            className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2 rounded-card text-xs transition-colors border border-[#EAD5C6]"
-          >
-            <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />
-            <span>Fill with AI</span>
-          </button>
+          <AiDraftButton
+            canvasType="lean"
+            label="Fill with AI"
+            className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2 rounded-card text-xs transition-colors border border-[#EAD5C6] disabled:opacity-60"
+          />
 
           <button
             onClick={handleExport}
@@ -300,42 +263,6 @@ export default function LeanCanvasPage() {
         </div>
       )}
 
-      {showAiModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E2923]/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-modal shadow-raised w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 flex flex-col gap-4">
-              <div className="w-12 h-12 bg-[#F5ECDC] rounded-full flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-[#8A5330] fill-[#8A5330]" />
-              </div>
-              <div>
-                <h3 className="text-xl font-display font-bold text-[#1E2923]">
-                  Fill with AI
-                </h3>
-                <p className="text-sm text-[#617065] mt-2 leading-relaxed">
-                  I&apos;ll analyze your startup profile and draft recommendations for each canvas block.
-                </p>
-              </div>
-            </div>
-            <div className="bg-[#FAFAFA] p-4 flex justify-end gap-3 border-t border-[#EBEBE6]">
-              <button
-                disabled={isAiGenerating}
-                onClick={() => setShowAiModal(false)}
-                className="px-4 py-2 text-sm font-bold text-[#617065] hover:text-[#1E2923] transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                disabled={isAiGenerating}
-                onClick={handleDraftAI}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#183B28] hover:bg-[#11291C] rounded-card shadow-card transition-colors disabled:opacity-50"
-              >
-                {isAiGenerating && <Loader2 className="w-4 h-4 animate-spin text-white" />}
-                <span>{isAiGenerating ? 'Drafting...' : 'Draft it'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
