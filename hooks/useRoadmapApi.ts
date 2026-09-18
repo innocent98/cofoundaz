@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { apiClient } from '@/lib/api/client';
+import { apiClient, ApiError } from '@/lib/api/client';
 
 export type Stage = 'Idea' | 'Validation' | 'Launch' | 'Traction' | 'Scale';
 export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'overdue';
@@ -191,32 +191,30 @@ export function useRoadmapApi() {
     return phases.flatMap((p) => p.milestones.flatMap((m) => m.tasks));
   }, [phases]);
 
-  // Cycle detection: returns true if adding an edge from "fromTaskId" to
-  // "toTaskId" creates a cycle (toTaskId already depends on fromTaskId,
-  // directly or transitively). Runs against the real fetched tree. The backend
-  // also rejects cycles with a 409 DEPENDENCY_CYCLE (guide §6); this is a
-  // client pre-check for instant feedback.
+  // Cycle pre-check for instant feedback. The edge being added is
+  // "dependentId depends on prereqId" (the form: prereq "must finish before"
+  // dependent). A cycle would form iff prereqId already depends — transitively —
+  // on dependentId, so BFS from prereqId along `dependsOn` and see if it reaches
+  // dependentId. The backend is the authority (409 DEPENDENCY_CYCLE, guide §6);
+  // this just avoids a round-trip for obvious loops.
   const wouldCreateCycle = useCallback(
-    (fromTaskId: string, toTaskId: string) => {
-      if (fromTaskId === toTaskId) return true;
+    (prereqId: string, dependentId: string) => {
+      if (prereqId === dependentId) return true;
 
-      const tasks = getAllTasks();
       const taskMap = new Map<string, RoadmapTask>();
-      tasks.forEach((t) => taskMap.set(t.id, t));
+      getAllTasks().forEach((t) => taskMap.set(t.id, t));
 
       const visited = new Set<string>();
-      const queue = [toTaskId];
+      const queue = [prereqId];
 
       while (queue.length > 0) {
         const currentId = queue.shift()!;
-        if (currentId === fromTaskId) return true; // Cycle detected
+        if (currentId === dependentId) return true; // path prereq → dependent exists
 
         if (!visited.has(currentId)) {
           visited.add(currentId);
           const currentTask = taskMap.get(currentId);
-          if (currentTask && currentTask.dependsOn) {
-            queue.push(...currentTask.dependsOn);
-          }
+          if (currentTask?.dependsOn) queue.push(...currentTask.dependsOn);
         }
       }
 
@@ -225,44 +223,60 @@ export function useRoadmapApi() {
     [getAllTasks]
   );
 
-  // NOTE: dependency persistence (POST /roadmap/tasks/{id}/dependencies) is a
-  // Roadmap follow-up — this applies the edge optimistically to the fetched
-  // tree so the dependencies UI is responsive, but does not yet write it back.
+  // Persist a dependency: "prereqTask must finish before dependentTask" →
+  // dependentTask depends on prereqTask → POST /roadmap/tasks/{dependentId}/
+  // dependencies {depends_on_task_id: prereqId}. 201 new / 200 idempotent both
+  // succeed; the tree carries `depends_on` since Slice 2, so refetch reflects it.
+  // On a 409 (cycle) / 422 (self) / 404, surface the server's message directly —
+  // its 409 names the two conflicting tasks by title (guide §6).
   const addDependency = useCallback(
-    (fromTaskId: string, toTaskId: string): { success: boolean; error?: string } => {
+    async (prereqId: string, dependentId: string): Promise<{ success: boolean; error?: string }> => {
       const tasks = getAllTasks();
-      const fromTask = tasks.find((t) => t.id === fromTaskId);
-      const toTask = tasks.find((t) => t.id === toTaskId);
-
-      if (!fromTask || !toTask) return { success: false, error: 'Task not found' };
-
-      if (wouldCreateCycle(fromTaskId, toTaskId)) {
+      const prereq = tasks.find((t) => t.id === prereqId);
+      const dependent = tasks.find((t) => t.id === dependentId);
+      if (!prereq || !dependent) return { success: false, error: 'Task not found.' };
+      if (prereqId === dependentId) return { success: false, error: "A task can't depend on itself." };
+      if (wouldCreateCycle(prereqId, dependentId)) {
         return {
           success: false,
-          error: `That would create a loop — ${fromTask.title} already depends on ${toTask.title}.`,
+          error: `That would create a loop — ${prereq.title} already depends on ${dependent.title}.`,
         };
       }
-
-      setPhases((prev) => {
-        const newPhases = JSON.parse(JSON.stringify(prev)) as RoadmapPhase[];
-        for (const phase of newPhases) {
-          for (const ms of phase.milestones) {
-            for (const t of ms.tasks) {
-              if (t.id === toTaskId) {
-                if (!t.dependsOn) t.dependsOn = [];
-                if (!t.dependsOn.includes(fromTaskId)) {
-                  t.dependsOn.push(fromTaskId);
-                }
-              }
-            }
-          }
+      try {
+        await apiClient(`/roadmap/tasks/${dependentId}/dependencies`, {
+          method: 'POST',
+          body: JSON.stringify({ depends_on_task_id: prereqId }),
+        });
+        await refetch();
+        return { success: true };
+      } catch (err) {
+        if (err instanceof ApiError) {
+          const d = err.data as { error?: { message?: string } } | undefined;
+          return { success: false, error: d?.error?.message || 'Could not add that dependency.' };
         }
-        return newPhases;
-      });
-
-      return { success: true };
+        return { success: false, error: 'Could not add that dependency.' };
+      }
     },
-    [getAllTasks, wouldCreateCycle]
+    [getAllTasks, wouldCreateCycle, refetch]
+  );
+
+  // Remove one edge: dependentTask no longer depends on prereqTask →
+  // DELETE /roadmap/tasks/{dependentId}/dependencies/{prereqId}.
+  const removeDependency = useCallback(
+    async (dependentId: string, prereqId: string): Promise<{ success: boolean; error?: string }> => {
+      try {
+        await apiClient(`/roadmap/tasks/${dependentId}/dependencies/${prereqId}`, { method: 'DELETE' });
+        await refetch();
+        return { success: true };
+      } catch (err) {
+        if (err instanceof ApiError) {
+          const d = err.data as { error?: { message?: string } } | undefined;
+          return { success: false, error: d?.error?.message || 'Could not remove that dependency.' };
+        }
+        return { success: false, error: 'Could not remove that dependency.' };
+      }
+    },
+    [refetch]
   );
 
   // --- Writes (guide §3–§5) -------------------------------------------------
@@ -383,6 +397,7 @@ export function useRoadmapApi() {
     refetch,
     wouldCreateCycle,
     addDependency,
+    removeDependency,
     getAllTasks,
     createPhase,
     updatePhase,
