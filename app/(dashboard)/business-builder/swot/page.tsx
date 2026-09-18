@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Sparkles, ArrowUpRight, ArrowDownRight, Target, AlertTriangle } from 'lucide-react';
+import React from 'react';
+import { ArrowUpRight, ArrowDownRight, Target, AlertTriangle } from 'lucide-react';
+import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 
 export default function SwotPage() {
-  const [showAiModal, setShowAiModal] = useState(false);
-  
   const swotData = [
     {
       id: 'strengths',
@@ -72,13 +71,8 @@ export default function SwotPage() {
           SWOT
         </h2>
 
-        <button
-          onClick={() => setShowAiModal(true)}
-          className="bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 border border-[#EAD5C6] shadow-card"
-        >
-          <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />
-          <span>Seed each quadrant</span>
-        </button>
+        {/* Honest AI-fill: enqueues the real (deferred) job; no fake results. */}
+        <AiDraftButton canvasType="swot" label="Seed with AI" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -110,40 +104,6 @@ export default function SwotPage() {
           </div>
         ))}
       </div>
-
-      {showAiModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E2923]/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-modal shadow-raised w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 flex flex-col gap-4">
-              <div className="w-12 h-12 bg-[#F5ECDC] rounded-full flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-[#8A5330] fill-[#8A5330]" />
-              </div>
-              <div>
-                <h3 className="text-xl font-display font-bold text-[#1E2923]">
-                  Seed each quadrant
-                </h3>
-                <p className="text-sm text-[#617065] mt-2 leading-relaxed">
-                  I&apos;ll seed each quadrant using your data.
-                </p>
-              </div>
-            </div>
-            <div className="bg-[#FAFAFA] p-4 flex justify-end gap-3 border-t border-[#EBEBE6]">
-              <button
-                onClick={() => setShowAiModal(false)}
-                className="px-4 py-2 text-sm font-bold text-[#617065] hover:text-[#1E2923] transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setShowAiModal(false)}
-                className="px-4 py-2 text-sm font-bold text-white bg-[#183B28] hover:bg-[#11291C] rounded-card shadow-card transition-colors"
-              >
-                Draft it
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

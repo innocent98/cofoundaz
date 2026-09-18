@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles } from 'lucide-react';
 import { useToast } from '../layout';
+import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 
 export default function MissionVisionPage() {
   const { triggerToast } = useToast();
@@ -15,30 +15,19 @@ export default function MissionVisionPage() {
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl">
-      <div>
+      <div className="flex items-start justify-between gap-4">
         <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
           Mission & Vision
         </h2>
+        {/* Honest AI-fill: enqueues the real (deferred) job; no fake results. */}
+        <AiDraftButton canvasType="mission_vision" label="Draft with AI" />
       </div>
 
       <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-[#1E2923]">Mission</h3>
-            <p className="text-xs text-[#768478]">
-              Why you exist, one sentence, no jargon.
-            </p>
-          </div>
-
-          <button
-            onClick={() => triggerToast('✦ 3 Mission suggestions generated!')}
-            className="flex items-center gap-1 text-xs font-bold text-[#183B28] hover:text-[#2D5A3F] transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5 fill-[#183B28]" />
-            <span>Give me 3 options</span>
-          </button>
+        <div>
+          <h3 className="text-sm font-bold text-[#1E2923]">Mission</h3>
+          <p className="text-xs text-[#768478]">Why you exist, one sentence, no jargon.</p>
         </div>
-
         <div className="mt-1">
           <textarea
             rows={3}
@@ -53,21 +42,10 @@ export default function MissionVisionPage() {
       </div>
 
       <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-[#1E2923]">Vision</h3>
-            <p className="text-xs text-[#768478]">The world if you win.</p>
-          </div>
-
-          <button
-            onClick={() => triggerToast('✦ 3 Vision suggestions generated!')}
-            className="flex items-center gap-1 text-xs font-bold text-[#183B28] hover:text-[#2D5A3F] transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5 fill-[#183B28]" />
-            <span>Give me 3 options</span>
-          </button>
+        <div>
+          <h3 className="text-sm font-bold text-[#1E2923]">Vision</h3>
+          <p className="text-xs text-[#768478]">The world if you win.</p>
         </div>
-
         <div className="mt-1">
           <textarea
             rows={3}

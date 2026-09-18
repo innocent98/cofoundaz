@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { useToast } from '../layout';
+import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 
 export default function BusinessModelCanvasPage() {
   const { triggerToast } = useToast();
-  const [showAiModal, setShowAiModal] = useState(false);
   const [sections, setSections] = useState([
     { id: 'partners', title: 'KEY PARTNERS', items: ['Mobile money agents', 'Microfinance banks'] },
     { id: 'activities', title: 'KEY ACTIVITIES', items: ['Automated savings', 'Payouts'] },
@@ -21,11 +21,6 @@ export default function BusinessModelCanvasPage() {
 
   const handleExport = () => {
     triggerToast('Exported to Documents.');
-  };
-
-  const handleDraftAI = () => {
-    setShowAiModal(false);
-    triggerToast('✦ AI draft added. Review before using.');
   };
 
   const addItem = (sectionId: string) => {
@@ -52,13 +47,11 @@ export default function BusinessModelCanvasPage() {
         </div>
 
         <div className="flex items-center gap-3 self-start md:self-auto">
-          <button
-            onClick={() => setShowAiModal(true)}
-            className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2 rounded-card text-xs transition-colors border border-[#EAD5C6]"
-          >
-            <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />
-            <span>Fill with AI</span>
-          </button>
+          <AiDraftButton
+            canvasType="business_model"
+            label="Fill with AI"
+            className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2 rounded-card text-xs transition-colors border border-[#EAD5C6] disabled:opacity-60"
+          />
 
           <button
             onClick={handleExport}
@@ -108,40 +101,6 @@ export default function BusinessModelCanvasPage() {
           </div>
         ))}
       </div>
-
-      {showAiModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E2923]/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-modal shadow-raised w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 flex flex-col gap-4">
-              <div className="w-12 h-12 bg-[#F5ECDC] rounded-full flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-[#8A5330] fill-[#8A5330]" />
-              </div>
-              <div>
-                <h3 className="text-xl font-display font-bold text-[#1E2923]">
-                  Fill with AI
-                </h3>
-                <p className="text-sm text-[#617065] mt-2 leading-relaxed">
-                  I&apos;ll draft this from your profile, assessment, and market data. You can always edit it later.
-                </p>
-              </div>
-            </div>
-            <div className="bg-[#FAFAFA] p-4 flex justify-end gap-3 border-t border-[#EBEBE6]">
-              <button
-                onClick={() => setShowAiModal(false)}
-                className="px-4 py-2 text-sm font-bold text-[#617065] hover:text-[#1E2923] transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDraftAI}
-                className="px-4 py-2 text-sm font-bold text-white bg-[#183B28] hover:bg-[#11291C] rounded-card shadow-card transition-colors"
-              >
-                Draft it
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
