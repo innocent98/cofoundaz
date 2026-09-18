@@ -86,7 +86,7 @@ UI scaffolding shipped and tokenized (PR #10, #14). **All pages are static mock 
 - [ ] Blog + Help Center (nav/footer links already stubbed)
 
 ## 5. Deferred follow-ups (non-blocking)
-- [ ] Sync `main` with `develop` (currently 18 commits behind)
-- [ ] Clear 91 `no-unused-vars` warnings across dashboard pages
+- [x] Clear the lint warnings — **done** (109 → 0: removed unused `request` params from mock route handlers, unused imports/vars/setters across pages/hooks/components, and resolved the 2 `react-hooks/exhaustive-deps` warnings; `lint` now 0 warnings / 0 errors)
+- [ ] Sync `main` with `develop`
 - [ ] Resolve the two homes (`app/home/page.tsx` vs `app/(marketing)/page.tsx`)
 - [ ] Convert remaining hardcoded green/neutral hexes in dashboard to token classes

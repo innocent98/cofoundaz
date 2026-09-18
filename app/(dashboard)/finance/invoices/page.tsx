@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Download, Send, Check } from "lucide-react";
+import { Plus, Download, Send } from "lucide-react";
 import { useFinanceApi, formatCurrency } from "@/hooks/useFinanceApi";
 import { useToast } from "../ToastContext";
 

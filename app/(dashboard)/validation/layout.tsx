@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
-import { useValidationApi } from '@/hooks/useValidationApi';
 import { HealthPill } from '@/components/health-pill';
 import { NotificationBell } from '@/components/notification-bell';
 

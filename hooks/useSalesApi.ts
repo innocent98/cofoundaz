@@ -145,8 +145,8 @@ const INITIAL_SEQUENCES: SequenceItem[] = [
 export function useSalesApi() {
   const [deals, setDeals] = useState<Deal[]>(INITIAL_DEALS);
   const [leads, setLeads] = useState<LeadItem[]>(INITIAL_LEADS);
-  const [accounts, setAccounts] = useState<AccountItem[]>(INITIAL_ACCOUNTS);
-  const [sequences, setSequences] = useState<SequenceItem[]>(INITIAL_SEQUENCES);
+  const [accounts] = useState<AccountItem[]>(INITIAL_ACCOUNTS);
+  const [sequences] = useState<SequenceItem[]>(INITIAL_SEQUENCES);
   const [chatMessages, setChatMessages] = useState<string[]>([
     "Honestly, I am not sure my riders will trust an app to hold their money. Convince me."
   ]);

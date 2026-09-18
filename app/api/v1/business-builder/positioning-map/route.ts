@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from "next/server";
 
 let mockPositioning = {
   x_axis_label: "Execution Speed (Slow to Rapid)",
@@ -11,7 +11,7 @@ let mockPositioning = {
   ]
 };
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({ data: mockPositioning, meta: { status: 200 } });
 }
 

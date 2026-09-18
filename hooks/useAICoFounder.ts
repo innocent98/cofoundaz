@@ -165,7 +165,7 @@ export function useAICoFounder() {
         abortControllerRef.current = null;
       }
     },
-    [activeConversationId, isStreaming, conversations]
+    [activeConversationId, isStreaming]
   );
   
   const executeAction = useCallback(async (messageId: string, actionKey: string) => {

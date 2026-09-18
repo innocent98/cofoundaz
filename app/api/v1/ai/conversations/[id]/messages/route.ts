@@ -17,8 +17,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   });
 }
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
+export async function POST(request: Request) {
   
   // Create a ReadableStream to simulate Server-Sent Events (SSE)
   const stream = new ReadableStream({

@@ -3,11 +3,9 @@
 import React, { useState } from 'react';
 import { useValidationApi } from '@/hooks/useValidationApi';
 import { Sparkles, ChevronDown } from 'lucide-react';
-import { useToast } from '../layout';
 
 export default function ScriptsPage() {
   const { assumptions } = useValidationApi();
-  const { triggerToast } = useToast();
 
   const scriptOptions = assumptions.map(a => a.statement);
   

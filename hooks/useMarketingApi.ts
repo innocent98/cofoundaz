@@ -146,8 +146,8 @@ const initialSegments: AudienceSegment[] = [
 export function useMarketingApi() {
   const [calendar, setCalendar] = useState<CalendarEntry[]>(initialCalendar);
   const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
-  const [keywords, setKeywords] = useState<SEOKeyword[]>(initialKeywords);
-  const [segments, setSegments] = useState<AudienceSegment[]>(initialSegments);
+  const [keywords] = useState<SEOKeyword[]>(initialKeywords);
+  const [segments] = useState<AudienceSegment[]>(initialSegments);
 
   // Stats for overview
   const stats = {

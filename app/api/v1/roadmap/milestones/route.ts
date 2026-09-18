@@ -6,7 +6,7 @@ const milestones = [
   { id: "ms3", title: "Beta Launch", status: "todo", dueDate: "2026-11-01" }
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({
     data: milestones,
     meta: { status: 200, message: "Success" }
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       data: newMilestone,
       meta: { status: 201, message: "Created" }
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ meta: { status: 400, message: "Bad Request" } }, { status: 400 });
   }
 }

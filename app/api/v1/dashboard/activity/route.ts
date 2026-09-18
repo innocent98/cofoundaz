@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 const activities = [
   { id: "a1", type: "commit", message: "Initial push to main", timestamp: "2026-09-15T10:00:00Z" },
@@ -6,7 +6,7 @@ const activities = [
   { id: "a3", type: "task_completion", message: "Completed: Register Domain", timestamp: "2026-09-16T09:15:00Z" }
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({
     data: activities,
     meta: { status: 200, message: "Success" }

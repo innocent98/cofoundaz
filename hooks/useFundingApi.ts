@@ -96,7 +96,7 @@ export function useFundingApi() {
     }
   ]);
 
-  const [capTable, setCapTable] = useState<CapTableEntry[]>([
+  const [capTable] = useState<CapTableEntry[]>([
     { id: "cap-1", holder: "Founders", security: "Common", shares: 7000000, ownershipPct: 70, vesting: "4-year" },
     { id: "cap-2", holder: "Option Pool", security: "Option", shares: 1800000, ownershipPct: 18, vesting: "N/A" },
     { id: "cap-3", holder: "Kola Angels", security: "SAFE", shares: 1200000, ownershipPct: 12, vesting: "Fully vested" }

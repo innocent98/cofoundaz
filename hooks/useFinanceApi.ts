@@ -68,7 +68,7 @@ export function useFinanceApi() {
   const [cashOnHandMinor] = useState<number>(2104200000); // 21,042,000 * 100
   const [monthlyRevenueMinor] = useState<number>(160000000); // 1,600,000 * 100
 
-  const [transactions, setTransactions] = useState<Transaction[]>([
+  const [transactions] = useState<Transaction[]>([
     { id: "1", date: "2026-03-10", description: "Stripe Payout", category: "Revenue", amountMinor: 45000000, currency: "₦", direction: "in", source: "stripe" as 'bank' },
     { id: "2", date: "2026-03-09", description: "AWS Cloud", category: "Infrastructure", amountMinor: 12050000, currency: "₦", direction: "out", source: "bank" },
     { id: "3", date: "2026-03-08", description: "Google Workspace", category: "", amountMinor: 4500000, currency: "₦", direction: "out", source: "bank" },
@@ -80,7 +80,7 @@ export function useFinanceApi() {
     { id: "3", number: "INV-2026-003", clientName: "Enterprise Partner 3", totalMinor: 180000000, status: 'overdue', issuedOn: "2026-01-20", dueOn: "2026-02-20", autoRemind: true },
   ]);
 
-  const [expenses, setExpenses] = useState<Expense[]>([
+  const [expenses] = useState<Expense[]>([
     { id: "1", vendor: "AWS Cloud Services", category: "Infrastructure & SaaS", date: "Feb 15, 2026", amountMinor: 12050000, currency: "₦", recurring: true, receiptAttached: true },
     { id: "2", vendor: "Google Workspace", category: "Infrastructure & SaaS", date: "Feb 16, 2026", amountMinor: 24100000, currency: "₦", recurring: true, receiptAttached: false },
     { id: "3", vendor: "Office Lease", category: "Infrastructure & SaaS", date: "Feb 17, 2026", amountMinor: 36150000, currency: "₦", recurring: true, receiptAttached: true },

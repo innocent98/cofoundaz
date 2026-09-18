@@ -1,9 +1,8 @@
 ﻿"use client";
 
 import React, { useState } from "react";
-import { useSalesApi, DealStage, Deal, LostReason } from "@/hooks/useSalesApi";
+import { useSalesApi, DealStage, LostReason } from "@/hooks/useSalesApi";
 import { useToast } from "./ToastContext";
-import confetti from "canvas-confetti"; // I'll assume they have it or I can just simulate it. Actually, the prompt says "Triggers ConfettiBurst animation". I'll use a local function for confetti if canvas-confetti isn't installed. Better yet, since we can&apos;t be sure canvas-confetti is installed, I'll write a simple DOM based one or use canvas-confetti. I will just try importing canvas-confetti and fallback gracefully if it fails, or since this is a typical requirement, just write a small burst simulator using a div if needed. Wait, I will just use `canvas-confetti` and add it if it&apos;s missing, or assume it&apos;s installed. The standard `canvas-confetti` package might not be installed. Let's just create a small Confetti element.
 // To be safe, I'll use a simple CSS animation burst for "ConfettiBurst" instead of relying on external lib, or just skip the actual particles and just show the toast if I can&apos;t. Wait, I'll just write a basic one.
 
 const STAGES: { id: DealStage; label: string }[] = [
