@@ -153,8 +153,8 @@ const initialFeedbackThemes: FeedbackTheme[] = [
 
 export function useValidationApi() {
   const [assumptions, setAssumptions] = useState<Assumption[]>(initialAssumptions);
-  const [smokeTests, setSmokeTests] = useState<SmokeTest[]>(initialSmokeTests);
-  const [interviews, setInterviews] = useState<InterviewRecord[]>(initialInterviews);
+  const [smokeTests] = useState<SmokeTest[]>(initialSmokeTests);
+  const [interviews] = useState<InterviewRecord[]>(initialInterviews);
   const [feedbackThemes] = useState<FeedbackTheme[]>(initialFeedbackThemes);
 
   const updateAssumptionStatus = useCallback((id: string, newStatus: AssumptionStatus) => {

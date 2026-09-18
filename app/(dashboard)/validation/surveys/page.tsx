@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useValidationApi } from '@/hooks/useValidationApi';
 import { useToast } from '../layout';
 import { InsightSynthesizer } from '../components/InsightSynthesizer';
 

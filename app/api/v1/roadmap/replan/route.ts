@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   return NextResponse.json({
     data: {
       suggestion: "Consider delaying the 'Beta Launch' by 2 weeks to prioritize core feature stability.",

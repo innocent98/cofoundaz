@@ -35,6 +35,30 @@ export interface Suggestion {
   status: 'pending' | 'approved' | 'rejected';
 }
 
+// A stored Business Builder record (persona / competitor / pricing / revenue
+// stream). `data` is the kind-specific validated payload; `kind` is the API's
+// snake_case value (e.g. `revenue_stream`), NOT the plural URL segment.
+export interface BusinessRecord {
+  id: string;
+  kind: string;
+  data: Record<string, unknown>;
+  position: number;
+}
+
+// FE field descriptor served alongside the list. `choices` is non-null only for
+// enum fields (its members' values); `type` is the raw Python annotation string.
+export interface RecordField {
+  key: string;
+  required: boolean;
+  type: string;
+  choices: string[] | null;
+}
+
+export interface RecordListResponse {
+  records: BusinessRecord[];
+  fields: RecordField[];
+}
+
 function getWorkspaceHeaders(workspaceId?: string): HeadersInit {
   const wsId =
     workspaceId ||
@@ -87,48 +111,54 @@ export const businessBuilderApi = {
     return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
-  // 3. Generic Entity Endpoints (personas, competitors, swot, pricing, etc.)
-  async getEntities(kind: string, workspaceId?: string): Promise<unknown[]> {
+  // 3. Records (personas / competitors / pricing / revenue-streams).
+  // NOTE: `kind` here is the PLURAL, hyphenated URL segment the API routes on
+  // (`personas`, `competitors`, `pricing`, `revenue-streams`) — not the enum
+  // value. The list endpoint returns both the records and their field schema;
+  // create/update wrap the payload in `{ data }`.
+  async listRecords(kind: string, workspaceId?: string): Promise<RecordListResponse> {
     const res = await apiClient<ApiResponse>(`/business-builder/${kind}`, {
       headers: getWorkspaceHeaders(workspaceId),
     });
-    const data = (res as ApiResponse)?.data ?? res;
-    const parsed = data as { items?: unknown[] } | undefined; return Array.isArray(data) ? data : ((parsed?.items || []) as Suggestion[]);
+    const data = ((res as ApiResponse)?.data ?? res) as Partial<RecordListResponse>;
+    return {
+      records: Array.isArray(data?.records) ? data.records : [],
+      fields: Array.isArray(data?.fields) ? data.fields : [],
+    };
   },
 
-  async createEntity(kind: string, payload: unknown, workspaceId?: string): Promise<unknown> {
+  async createRecord(
+    kind: string,
+    data: Record<string, unknown>,
+    workspaceId?: string
+  ): Promise<BusinessRecord> {
     const res = await apiClient<ApiResponse>(`/business-builder/${kind}`, {
       method: 'POST',
       headers: getWorkspaceHeaders(workspaceId),
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ data }),
     });
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
+    return ((res as ApiResponse)?.data ?? res) as BusinessRecord;
   },
 
-  async updateEntity(
+  async updateRecord(
     kind: string,
     recordId: string,
-    payload: unknown,
+    data: Record<string, unknown>,
     workspaceId?: string
-  ): Promise<unknown> {
+  ): Promise<BusinessRecord> {
     const res = await apiClient<ApiResponse>(`/business-builder/${kind}/${recordId}`, {
       method: 'PUT',
       headers: getWorkspaceHeaders(workspaceId),
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ data }),
     });
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
+    return ((res as ApiResponse)?.data ?? res) as BusinessRecord;
   },
 
-  async deleteEntity(
-    kind: string,
-    recordId: string,
-    workspaceId?: string
-  ): Promise<unknown> {
-    const res = await apiClient<ApiResponse>(`/business-builder/${kind}/${recordId}`, {
+  async deleteRecord(kind: string, recordId: string, workspaceId?: string): Promise<void> {
+    await apiClient<ApiResponse>(`/business-builder/${kind}/${recordId}`, {
       method: 'DELETE',
       headers: getWorkspaceHeaders(workspaceId),
     });
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
   },
 
   // 4. Suggestions

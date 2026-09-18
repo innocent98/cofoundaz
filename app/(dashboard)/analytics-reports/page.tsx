@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
-import { Plus, Menu, History, ArrowUpRight, CheckCircle2, Clock, Loader2, Download, FileText, ArrowDownUp, RefreshCw, Filter, Sparkles, AlertCircle } from 'lucide-react';
+import { Plus, Menu, History, ArrowUpRight, CheckCircle2, Clock, Loader2, Download, ArrowDownUp, Sparkles } from 'lucide-react';
 import { HealthPill } from '@/components/health-pill';
 
 type AnalyticsSubTab = 'Overview' | 'By hub' | 'Benchmarks' | 'Reports' | 'Export';

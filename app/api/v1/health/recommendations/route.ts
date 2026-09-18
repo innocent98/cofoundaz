@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({
     data: [
       { id: "rec1", priority: "high", domain: "finance", message: "Decrease monthly burn rate by 15% to extend runway." },

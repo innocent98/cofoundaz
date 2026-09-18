@@ -4,20 +4,12 @@ import React, { useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
 import { useNotifications } from '@/hooks/useNotifications';
 import { HealthPill } from '@/components/health-pill';
+import { NotificationPreferences } from '@/components/notifications/notification-preferences';
 import { Menu, History, Check, X, ChevronDown } from 'lucide-react';
 
 type NotificationTab = 'Inbox' | 'Preferences' | 'Digest & quiet hours' | 'Announcements';
 type FilterCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team';
 type DigestMode = 'Off' | 'Daily' | 'Weekly';
-
-interface PreferenceRow {
-  id: string;
-  category: string;
-  description: string;
-  inApp: boolean;
-  email: boolean;
-  push: boolean;
-}
 
 interface AnnouncementItem {
   id: string;
@@ -91,66 +83,6 @@ export default function NotificationsPage(): React.JSX.Element {
     markAllRead: apiMarkAllRead,
   } = useNotifications();
 
-  // Preferences table state
-  const [preferences, setPreferences] = useState<PreferenceRow[]>([
-    {
-      id: 'missions',
-      category: 'Missions',
-      description: 'Your daily mission and streaks.',
-      inApp: true,
-      email: false,
-      push: false
-    },
-    {
-      id: 'compliance',
-      category: 'Compliance',
-      description: 'Filing deadlines that carry penalties.',
-      inApp: true,
-      email: true,
-      push: true
-    },
-    {
-      id: 'finance',
-      category: 'Finance',
-      description: 'Invoices, runway warnings, payment failures.',
-      inApp: true,
-      email: true,
-      push: false
-    },
-    {
-      id: 'fundraising',
-      category: 'Fundraising',
-      description: 'Data room views, investor activity, grant matches.',
-      inApp: true,
-      email: false,
-      push: false
-    },
-    {
-      id: 'team',
-      category: 'Team',
-      description: 'Comments, mentions, and shared edits.',
-      inApp: true,
-      email: false,
-      push: false
-    },
-    {
-      id: 'ai',
-      category: 'AI',
-      description: 'Briefings, insights, and generated artifacts.',
-      inApp: true,
-      email: false,
-      push: false
-    },
-    {
-      id: 'documents',
-      category: 'Documents',
-      description: 'Signature requests and shared file activity.',
-      inApp: true,
-      email: false,
-      push: false
-    }
-  ]);
-
   const showToast = (msg: string): void => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
@@ -173,15 +105,6 @@ export default function NotificationsPage(): React.JSX.Element {
     showToast('Notification dismissed.');
   };
 
-  const togglePreference = (id: string, field: 'inApp' | 'email' | 'push') => {
-    setPreferences(prev => prev.map(row => {
-      if (row.id === id) {
-        return { ...row, [field]: !row[field] };
-      }
-      return row;
-    }));
-    showToast('Preference updated.');
-  };
 
   const unreadCount = notifications.filter(n => n.isUnread).length;
   const needYouCount = notifications.filter(n => n.category === 'Urgent' && n.isUnread).length;
@@ -416,70 +339,7 @@ export default function NotificationsPage(): React.JSX.Element {
           </div>
         )}
 
-        {activeTab === 'Preferences' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <div>
-              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Notification preferences</h1>
-              <p className="text-xs text-[#8E9B90] mt-0.5">We default to quiet. Turn on only what genuinely needs you.</p>
-            </div>
-
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
-              <div className="grid grid-cols-12 px-6 py-3.5 border-b border-[#E8E8E2] bg-[#FAF8F5] text-[10px] font-bold tracking-wider text-[#8E9B90] uppercase">
-                <div className="col-span-6 md:col-span-7">Category</div>
-                <div className="col-span-2 md:col-span-2 text-center">In App</div>
-                <div className="col-span-2 md:col-span-2 text-center">Email</div>
-                <div className="col-span-2 md:col-span-1 text-center">Push</div>
-              </div>
-
-              <div className="divide-y divide-[#F2F2EC]">
-                {preferences.map((row) => (
-                  <div key={row.id} className="grid grid-cols-12 px-6 py-4 items-center hover:bg-sage-50/50 transition-colors">
-                    <div className="col-span-6 md:col-span-7 space-y-0.5 pr-4">
-                      <h3 className="text-xs font-bold text-[#1E2923]">{row.category}</h3>
-                      <p className="text-[11px] text-[#8E9B90]">{row.description}</p>
-                    </div>
-
-                    <div className="col-span-2 md:col-span-2 flex justify-center">
-                      <button
-                        type="button"
-                        onClick={() => togglePreference(row.id, 'inApp')}
-                        className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
-                          row.inApp ? 'bg-[#183B28]' : 'bg-sage-300'
-                        }`}
-                      >
-                        <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${row.inApp ? 'translate-x-5' : 'translate-x-0'}`} />
-                      </button>
-                    </div>
-
-                    <div className="col-span-2 md:col-span-2 flex justify-center">
-                      <button
-                        type="button"
-                        onClick={() => togglePreference(row.id, 'email')}
-                        className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
-                          row.email ? 'bg-[#183B28]' : 'bg-sage-300'
-                        }`}
-                      >
-                        <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${row.email ? 'translate-x-5' : 'translate-x-0'}`} />
-                      </button>
-                    </div>
-
-                    <div className="col-span-2 md:col-span-1 flex justify-center">
-                      <button
-                        type="button"
-                        onClick={() => togglePreference(row.id, 'push')}
-                        className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
-                          row.push ? 'bg-[#183B28]' : 'bg-sage-300'
-                        }`}
-                      >
-                        <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${row.push ? 'translate-x-5' : 'translate-x-0'}`} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {activeTab === 'Preferences' && <NotificationPreferences />}
 
         {activeTab === 'Digest & quiet hours' && (
           <div className="space-y-6 animate-in fade-in duration-200">

@@ -3,11 +3,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { X, Sparkles, ArrowUp, Loader2, Check } from 'lucide-react';
+import { X, Sparkles, Loader2, Check } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useAiDrawer } from './ai-drawer-context';
 import { useAICoFounder } from '../hooks/useAICoFounder';
-import type { AgentKey } from '../types/ai';
+import type {  } from '../types/ai';
 
 const agentRoleName = (agentKey?: string) => {
   if (!agentKey || agentKey === 'cofounder') return 'Co-Founder';

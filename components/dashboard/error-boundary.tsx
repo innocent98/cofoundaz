@@ -16,7 +16,7 @@ export class DashboardErrorBoundary extends Component<Props, State> {
     hasError: false
   };
 
-  public static getDerivedStateFromError(_: Error): State {
+  public static getDerivedStateFromError(): State {
     return { hasError: true };
   }
 
@@ -34,13 +34,13 @@ export class DashboardErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center p-6 bg-white border border-red-100 rounded-card shadow-sm h-full w-full min-h-[120px]">
+        <div className="flex flex-col items-center justify-center p-6 bg-white border border-red-100 rounded-card shadow-card h-full w-full min-h-[120px]">
           <p className="text-sm font-medium text-sage-600 mb-3 text-center">
             Couldn&apos;t load this.
           </p>
           <button
             onClick={this.handleRetry}
-            className="text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded-input transition-colors shadow-sm"
+            className="text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded-input transition-colors shadow-card"
           >
             Retry
           </button>

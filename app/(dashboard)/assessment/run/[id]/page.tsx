@@ -1,13 +1,12 @@
 ﻿"use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAssessmentApi } from "@/hooks/useAssessmentApi";
 import { useToast } from "../../ToastContext";
 
 export default function AssessmentRunnerPage() {
   const router = useRouter();
-  const { id } = useParams();
   const { triggerToast } = useToast();
   const { activeSession, questions, saveAnswer, completeAssessment } = useAssessmentApi();
 

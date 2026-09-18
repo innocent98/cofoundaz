@@ -3,20 +3,51 @@
 import React, { useState } from 'react';
 import { useRoadmapApi, RoadmapMilestone, Stage } from '@/hooks/useRoadmapApi';
 import { RoadmapDrawer } from './components/RoadmapDrawer';
-import { AlertCircle, RotateCw } from 'lucide-react';
+import { AlertCircle, RotateCw, Plus, Trash2 } from 'lucide-react';
 
 export default function TimelinePage() {
-  const { currentStage, phases, loading } = useRoadmapApi();
+  const {
+    currentStage,
+    phases,
+    loading,
+    createPhase,
+    deletePhase,
+    createMilestone,
+    createTask,
+    updateTask,
+    deleteTask,
+    updateMilestone,
+    deleteMilestone,
+  } = useRoadmapApi();
   const [zoom, setZoom] = useState<'Week' | 'Month' | 'Quarter'>('Month');
-  
-  const [selectedMilestone, setSelectedMilestone] = useState<RoadmapMilestone | null>(null);
+
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const stages: Stage[] = ['Idea', 'Validation', 'Launch', 'Traction', 'Scale'];
 
+  // Derive the open milestone from live state so it reflects edits after refetch.
+  const selectedMilestone =
+    phases.flatMap((p) => p.milestones).find((m) => m.id === selectedMilestoneId) ?? null;
+
   const openDrawer = (milestone: RoadmapMilestone) => {
-    setSelectedMilestone(milestone);
+    setSelectedMilestoneId(milestone.id);
     setIsDrawerOpen(true);
+  };
+
+  const handleAddPhase = async () => {
+    const name = window.prompt('New phase name');
+    if (name && name.trim()) await createPhase(name.trim());
+  };
+
+  const handleAddMilestone = async (phaseId: string) => {
+    const title = window.prompt('New milestone title');
+    if (title && title.trim()) await createMilestone(phaseId, title.trim());
+  };
+
+  const handleDeletePhase = async (phaseId: string, name: string) => {
+    if (!window.confirm(`Delete phase "${name}" and everything under it? This cannot be undone.`)) return;
+    await deletePhase(phaseId);
   };
 
   return (
@@ -53,6 +84,14 @@ export default function TimelinePage() {
 
         <div className="flex items-center justify-between mt-2">
           <h3 className="font-bold text-[#1E2923] text-sm">Timeline Canvas</h3>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleAddPhase}
+              className="flex items-center gap-1.5 bg-[#183B28] hover:bg-[#11291C] text-white font-bold px-3 py-1.5 rounded-card text-xs transition-colors shadow-card"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add phase</span>
+            </button>
           <div className="flex items-center gap-1 bg-[#F5F5F0] p-1 rounded-card border border-[#EBEBE6]">
             {(['Week', 'Month', 'Quarter'] as const).map((z) => (
               <button
@@ -67,6 +106,7 @@ export default function TimelinePage() {
                 {z}
               </button>
             ))}
+          </div>
           </div>
         </div>
 
@@ -98,10 +138,27 @@ export default function TimelinePage() {
             )}
             {!loading && phases.map((phase) => (
               <div key={phase.id} className="flex flex-col gap-4">
-                <h4 className="text-xs font-bold text-[#617065] uppercase tracking-wider">
-                  Phase {phase.order}: {phase.name}
-                </h4>
-                
+                <div className="flex items-center gap-3 group/phase">
+                  <h4 className="text-xs font-bold text-[#617065] uppercase tracking-wider">
+                    Phase {phase.order}: {phase.name}
+                  </h4>
+                  <div className="flex items-center gap-1 opacity-0 group-hover/phase:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleAddMilestone(phase.id)}
+                      className="flex items-center gap-1 text-[11px] font-semibold text-[#183B28] hover:text-[#11291C]"
+                    >
+                      <Plus className="w-3 h-3" /> Milestone
+                    </button>
+                    <button
+                      onClick={() => handleDeletePhase(phase.id, phase.name)}
+                      className="p-1 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors"
+                      aria-label="Delete phase"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex flex-col gap-3 relative">
                   {/* Timeline track background lines */}
                   <div className="absolute top-0 bottom-0 left-0 right-0 border-l border-[#F0F0EC] ml-[15%]" />
@@ -158,10 +215,15 @@ export default function TimelinePage() {
         </div>
       </div>
 
-      <RoadmapDrawer 
-        isOpen={isDrawerOpen} 
-        onClose={() => setIsDrawerOpen(false)} 
-        milestone={selectedMilestone} 
+      <RoadmapDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        milestone={selectedMilestone}
+        onCreateTask={createTask}
+        onUpdateTask={updateTask}
+        onDeleteTask={deleteTask}
+        onUpdateMilestone={updateMilestone}
+        onDeleteMilestone={deleteMilestone}
       />
     </>
   );

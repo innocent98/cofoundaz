@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from "react";
-import { useMarketingApi } from "@/hooks/useMarketingApi";
 
 interface ChannelCard {
   title: string;

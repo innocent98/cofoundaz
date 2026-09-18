@@ -2,12 +2,12 @@
 
 import React, { Suspense, useState, useRef, useEffect } from 'react';
 import { 
-  Search, Plus, Sparkles, ArrowUp, Loader2, 
+  Search, Plus, Sparkles, Loader2, 
   Check, Hash, Database
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useAICoFounder, useAISuggestions } from '../../../hooks/useAICoFounder';
-import type { AIMessage, AgentKey } from '../../../types/ai';
+import type { AgentKey } from '../../../types/ai';
 
 const agentRoleName = (agentKey?: string) => {
   if (!agentKey || agentKey === 'cofounder') return 'Co-Founder';
@@ -112,7 +112,7 @@ function ChatViewContent() {
     await sendMessage(text, agentParam || undefined);
   };
 
-  const handleAction = async (msgId: string, actionKey: string, artifactTitle: string) => {
+  const handleAction = async (msgId: string, actionKey: string) => {
     const key = `${msgId}_${actionKey}`;
     setActionStates(prev => ({ ...prev, [key]: { executed: true, timer: 10 } }));
     await executeAction(msgId, actionKey);
@@ -333,7 +333,7 @@ function ChatViewContent() {
                       return (
                         <button
                           key={chip.id}
-                          onClick={() => handleAction(msg.id, chip.action, chip.artifactTitle || chip.label)}
+                          onClick={() => handleAction(msg.id, chip.action)}
                           className="text-xs font-semibold text-[#1F4D3A] bg-white border border-[#EBEBE6] px-3 py-1.5 rounded-card hover:border-[#D0D0C8] transition-colors cursor-pointer text-left"
                         >
                           {chip.label}

@@ -136,7 +136,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
   ]);
 
   // Content Library State
-  const [contentItems, setContentItems] = useState<ContentItem[]>([
+  const [contentItems] = useState<ContentItem[]>([
     {
       id: 'cnt-1',
       title: 'Pricing experiments that actually tell you something',

@@ -14,7 +14,7 @@ let kanbanBoard = {
   ]
 };
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({
     data: kanbanBoard,
     meta: { status: 200, message: "Success" }
@@ -29,7 +29,7 @@ export async function PUT(request: NextRequest) {
       data: kanbanBoard,
       meta: { status: 200, message: "Updated" }
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ meta: { status: 400, message: "Bad Request" } }, { status: 400 });
   }
 }

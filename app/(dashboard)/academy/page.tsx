@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useAcademyApi, Course } from "@/hooks/useAcademyApi";
+import { useAcademyApi } from "@/hooks/useAcademyApi";
 import { Sparkles, PlayCircle, Clock, BookOpen } from "lucide-react";
 
 export default function AcademyRecommendedPage() {

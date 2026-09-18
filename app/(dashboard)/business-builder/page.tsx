@@ -13,6 +13,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { apiClient } from '@/lib/api/client';
+import { SuggestionsPanel } from '@/components/business-builder/suggestions-panel';
 
 // The 9 Business Builder modules, keyed to the API's `type` on
 // GET /business-builder/overview. Titles/descriptions/icons/paths are FE copy;
@@ -92,6 +93,9 @@ export default function BusinessBuilderOverviewPage() {
           Define the business. Every artifact you finish here feeds your plan, your score, and your pitch.
         </p>
       </div>
+
+      {/* Pending teammate suggestions to approve/reject (renders nothing when empty). */}
+      <SuggestionsPanel />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {MODULES.map((card) => {

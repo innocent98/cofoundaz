@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, Plus } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { useSidebar } from '@/components/sidebar-context';
 import { useHealthScore } from '@/hooks/useHealthScore';
 
