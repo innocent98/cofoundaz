@@ -1,40 +1,106 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRoadmapApi } from '@/hooks/useRoadmapApi';
-import { AlertTriangle, Sparkles, ArrowRight, Check } from 'lucide-react';
+import { useRoadmapReplan, ReplanPreview, ReplanApplyResult } from '@/hooks/useRoadmapReplan';
+import { AlertTriangle, Sparkles, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
+
+function fmtDate(iso: string): string {
+  if (!iso) return '—';
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function fmtDateTime(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
 
 export default function ReplanPage() {
-  const { getAllTasks } = useRoadmapApi();
-  const tasks = getAllTasks();
-  
-  const slippedTasks = tasks.filter(t => t.status === 'overdue');
-  
-  // Mock Diff state
-  const [diffs, setDiffs] = useState([
-    { id: 'd1', milestone: 'Core App Engine', oldDate: 'Oct 20', newDate: 'Nov 02', reason: '+2 weeks (Auth complexity)', accepted: true },
-    { id: 'd2', milestone: 'User Interface', oldDate: 'Nov 10', newDate: 'Nov 24', reason: '+2 weeks (Blocked by Engine)', accepted: true },
-    { id: 'd3', milestone: 'Beta Launch', oldDate: 'Dec 01', newDate: 'Dec 15', reason: '+2 weeks (Downstream shift)', accepted: false },
-  ]);
+  const { slippedCount, refetch: refetchTree } = useRoadmapApi();
+  const { history, previewReplan, applyReplan, loadHistory } = useRoadmapReplan();
 
-  const toggleAccept = (id: string) => {
-    setDiffs(prev => prev.map(d => d.id === id ? { ...d, accepted: !d.accepted } : d));
+  const [proposal, setProposal] = useState<ReplanPreview | null>(null);
+  const [accepted, setAccepted] = useState<Set<string>>(new Set());
+  const [generating, setGenerating] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [applyResult, setApplyResult] = useState<ReplanApplyResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void loadHistory();
+  }, [loadHistory]);
+
+  const generate = async () => {
+    setGenerating(true);
+    setError(null);
+    setApplyResult(null);
+    try {
+      const p = await previewReplan();
+      setProposal(p);
+      setAccepted(new Set(p.changes.map((c) => c.change_id))); // default: accept all
+    } catch {
+      setError('Could not generate a re-plan. Please try again.');
+    } finally {
+      setGenerating(false);
+    }
   };
 
-  const acceptedCount = diffs.filter(d => d.accepted).length;
+  const toggle = (id: string) =>
+    setAccepted((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const apply = async () => {
+    if (!proposal || accepted.size === 0) return;
+    setApplying(true);
+    setError(null);
+    try {
+      const res = await applyReplan([...accepted]);
+      setApplyResult(res);
+      setProposal(null);
+      setAccepted(new Set());
+      await refetchTree();
+      await loadHistory();
+    } catch {
+      setError('Could not apply the re-plan. Please try again.');
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  const changes = proposal?.changes ?? [];
 
   return (
     <div className="flex flex-col gap-8 h-full pb-12">
       <div>
-        <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">
-          AI Re-Plan
-        </h2>
-        <p className="text-xs text-[#617065] mt-1.5">
-          Review adjustments to your roadmap before applying them.
-        </p>
+        <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">AI Re-Plan</h2>
+        <p className="text-xs text-[#617065] mt-1.5">Review adjustments to your roadmap before applying them.</p>
       </div>
 
-      {slippedTasks.length > 0 && (
+      {error && (
+        <div className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-card p-3 text-xs font-semibold text-[#B0483B]">{error}</div>
+      )}
+
+      {applyResult && (
+        <div className="bg-[#EAF2ED] border border-[#CDE1D3] rounded-modal p-4 flex items-start gap-3 shadow-card">
+          <CheckCircle2 className="w-5 h-5 text-[#2D5A3F] shrink-0 mt-0.5" />
+          <div className="text-sm text-[#2D5A3F]">
+            <p className="font-bold">{applyResult.summary || 'Nothing to apply'}</p>
+            <p className="text-xs mt-0.5">
+              {applyResult.applied.length} applied
+              {applyResult.skipped.length > 0 && ` · ${applyResult.skipped.length} skipped (no longer needed)`}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Drift banner — offer the flow when milestones have slipped (guide §9) */}
+      {slippedCount > 0 ? (
         <div className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-modal p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
           <div className="flex items-start gap-4">
             <div className="p-2 bg-white rounded-full shrink-0 shadow-card border border-[#FAD7D7]">
@@ -42,96 +108,134 @@ export default function ReplanPage() {
             </div>
             <div>
               <h3 className="text-sm font-bold text-[#993A2E]">
-                {slippedTasks.length} tasks have slipped. Want me to re-plan?
+                {slippedCount} milestone{slippedCount === 1 ? '' : 's'} {slippedCount === 1 ? 'has' : 'have'} slipped. Want me to re-plan?
               </h3>
               <p className="text-xs text-[#B0483B] mt-1 leading-relaxed">
-                Your target launch dates are currently mathematically impossible based on current velocity. Let me propose a realistic shift.
+                Some target dates are now in the past. Let me propose a realistic shift — you choose what to accept.
               </p>
             </div>
           </div>
-          <button className="bg-[#B0483B] hover:bg-[#993A2E] text-white text-xs font-bold py-2.5 px-5 rounded-card transition-colors shadow-card shrink-0 whitespace-nowrap">
-            Generate Re-plan
+          <button
+            onClick={generate}
+            disabled={generating}
+            className="bg-[#B0483B] hover:bg-[#993A2E] disabled:opacity-60 text-white text-xs font-bold py-2.5 px-5 rounded-card transition-colors shadow-card shrink-0 whitespace-nowrap"
+          >
+            {generating ? 'Generating…' : 'Generate Re-plan'}
+          </button>
+        </div>
+      ) : (
+        <div className="bg-[#EAF2ED] border border-[#CDE1D3] rounded-modal p-6 flex items-center justify-between gap-4 shadow-card">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-[#2D5A3F] shrink-0" />
+            <p className="text-sm font-bold text-[#2D5A3F]">You&apos;re on track — no milestones have slipped.</p>
+          </div>
+          <button
+            onClick={generate}
+            disabled={generating}
+            className="bg-white hover:bg-[#F5F5F0] border border-[#CDE1D3] text-[#2D5A3F] text-xs font-bold py-2 px-4 rounded-card transition-colors shrink-0 disabled:opacity-60"
+          >
+            {generating ? 'Checking…' : 'Check for adjustments'}
           </button>
         </div>
       )}
 
-      <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card flex flex-col">
-        <div className="p-6 border-b border-[#EBEBE6] flex items-center gap-3">
-          <div className="p-1.5 bg-[#F7EEDC] rounded-[6px]">
-            <Sparkles className="w-5 h-5 fill-[#8A5330] text-[#8A5330]" />
+      {/* Proposal — only after Generate, only if there are changes */}
+      {proposal && changes.length > 0 && (
+        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card flex flex-col">
+          <div className="p-6 border-b border-[#EBEBE6] flex items-center gap-3">
+            <div className="p-1.5 bg-[#F7EEDC] rounded-[6px]">
+              <Sparkles className="w-5 h-5 fill-[#8A5330] text-[#8A5330]" />
+            </div>
+            <div>
+              <h3 className="font-bold text-[#1E2923]">Proposed Adjustments</h3>
+              <p className="text-xs text-[#768478]">Review carefully. Unchecked items keep their current dates.</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-bold text-[#1E2923]">Proposed Adjustments</h3>
-            <p className="text-xs text-[#768478]">Review changes carefully. Unchecked items remain on their current dates.</p>
-          </div>
-        </div>
 
-        <div className="flex flex-col divide-y divide-[#EBEBE6]">
-          {diffs.map((diff) => (
-            <div key={diff.id} className={`p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors ${diff.accepted ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
-              
-              <div className="flex flex-col gap-1.5 flex-1">
-                <span className="text-sm font-bold text-[#1E2923]">{diff.milestone}</span>
-                <span className="text-xs text-[#9C5B34] font-semibold">{diff.reason}</span>
-              </div>
-
-              <div className="flex items-center gap-4 flex-1">
-                <div className="bg-[#F5F5F0] border border-[#EBEBE6] px-3 py-1.5 rounded text-xs font-bold text-[#768478] line-through">
-                  {diff.oldDate}
-                </div>
-                <ArrowRight className="w-4 h-4 text-[#C5CFC7]" />
-                <div className="bg-[#EAF2ED] border border-[#CDE1D3] px-3 py-1.5 rounded text-xs font-bold text-[#2D5A3F]">
-                  {diff.newDate}
-                </div>
-              </div>
-
-              <div className="shrink-0 flex items-center justify-end">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <span className={`text-xs font-bold ${diff.accepted ? 'text-[#2D5A3F]' : 'text-[#768478]'}`}>
-                    {diff.accepted ? 'Accepted' : 'Reject'}
-                  </span>
-                  <div className={`relative w-12 h-6 rounded-full transition-colors ${diff.accepted ? 'bg-[#183B28]' : 'bg-[#DCE6E1]'}`}>
-                    <div className={`absolute top-1 bottom-1 w-4 bg-white rounded-full transition-all shadow-card ${diff.accepted ? 'left-7' : 'left-1'}`} />
+          <div className="flex flex-col divide-y divide-[#EBEBE6]">
+            {changes.map((c) => {
+              const isAccepted = accepted.has(c.change_id);
+              return (
+                <div key={c.change_id} className={`p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors ${isAccepted ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
+                  <div className="flex flex-col gap-1.5 flex-1">
+                    <span className="text-sm font-bold text-[#1E2923]">{c.title}</span>
+                    <span className="text-xs text-[#9C5B34] font-semibold">{c.reason}</span>
                   </div>
-                  <input 
-                    type="checkbox" 
-                    className="hidden" 
-                    checked={diff.accepted} 
-                    onChange={() => toggleAccept(diff.id)} 
-                  />
-                </label>
-              </div>
 
-            </div>
-          ))}
-        </div>
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="bg-[#F5F5F0] border border-[#EBEBE6] px-3 py-1.5 rounded text-xs font-bold text-[#768478] line-through">
+                      {fmtDate(c.old_due)}
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-[#C5CFC7]" />
+                    <div className="bg-[#EAF2ED] border border-[#CDE1D3] px-3 py-1.5 rounded text-xs font-bold text-[#2D5A3F]">
+                      {fmtDate(c.new_due)}
+                    </div>
+                  </div>
 
-        <div className="p-6 bg-[#F7F7F5] rounded-b-modal border-t border-[#EBEBE6] flex justify-end">
-          <button 
-            className={`py-2.5 px-6 rounded-card font-bold text-xs transition-all shadow-card flex items-center gap-2 ${
-              acceptedCount > 0 
-                ? 'bg-[#183B28] hover:bg-[#11291C] text-white' 
-                : 'bg-[#EBEBE6] text-[#A3B1A6] cursor-not-allowed'
-            }`}
-            disabled={acceptedCount === 0}
-          >
-            <Check className="w-4 h-4" />
-            Apply {acceptedCount} changes
-          </button>
-        </div>
-      </div>
-      
-      <div className="flex flex-col gap-4 mt-4">
-        <h3 className="text-sm font-bold text-[#1E2923]">Re-plan History</h3>
-        <div className="bg-white rounded-card border border-[#EBEBE6] p-5 shadow-card">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-[#1E2923]">Applied on October 1st</span>
-              <span className="text-[11px] text-[#768478]">Pushed MVP Build milestones back by 1 week due to prolonged Customer Discovery.</span>
-            </div>
-            <span className="bg-[#F5F5F0] px-2 py-1 rounded text-[10px] font-bold text-[#617065]">2 changes</span>
+                  <div className="shrink-0 flex items-center justify-end">
+                    <button type="button" onClick={() => toggle(c.change_id)} className="flex items-center gap-2 cursor-pointer group">
+                      <span className={`text-xs font-bold ${isAccepted ? 'text-[#2D5A3F]' : 'text-[#768478]'}`}>
+                        {isAccepted ? 'Accepted' : 'Rejected'}
+                      </span>
+                      <div className={`relative w-12 h-6 rounded-full transition-colors ${isAccepted ? 'bg-[#183B28]' : 'bg-[#DCE6E1]'}`}>
+                        <div className={`absolute top-1 bottom-1 w-4 bg-white rounded-full transition-all shadow-card ${isAccepted ? 'left-7' : 'left-1'}`} />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="p-6 bg-[#F7F7F5] rounded-b-modal border-t border-[#EBEBE6] flex justify-end">
+            <button
+              onClick={apply}
+              disabled={accepted.size === 0 || applying}
+              className={`py-2.5 px-6 rounded-card font-bold text-xs transition-all shadow-card flex items-center gap-2 ${
+                accepted.size > 0 && !applying ? 'bg-[#183B28] hover:bg-[#11291C] text-white' : 'bg-[#EBEBE6] text-[#A3B1A6] cursor-not-allowed'
+              }`}
+            >
+              <Check className="w-4 h-4" />
+              {applying ? 'Applying…' : `Apply ${accepted.size} change${accepted.size === 1 ? '' : 's'}`}
+            </button>
           </div>
         </div>
+      )}
+
+      {proposal && changes.length === 0 && (
+        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-8 text-center">
+          <p className="text-sm font-bold text-[#1E2923]">No adjustments needed</p>
+          <p className="text-xs text-[#768478] mt-1">Your milestone dates are all still realistic.</p>
+        </div>
+      )}
+
+      {/* Re-plan history — real audit trail */}
+      <div className="flex flex-col gap-4 mt-2">
+        <h3 className="text-sm font-bold text-[#1E2923]">Re-plan History</h3>
+        {history.length === 0 ? (
+          <div className="bg-white rounded-card border border-[#EBEBE6] p-5 shadow-card">
+            <p className="text-xs text-[#768478] italic">No re-plans applied yet.</p>
+          </div>
+        ) : (
+          history.map((h) => (
+            <div key={h.id} className="bg-white rounded-card border border-[#EBEBE6] p-5 shadow-card">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-bold text-[#1E2923]">
+                    {h.summary} · {fmtDateTime(h.created_at)}
+                  </span>
+                  <span className="text-[11px] text-[#768478]">
+                    {h.applied_by?.name ? `By ${h.applied_by.name}` : 'Applied'} —{' '}
+                    {h.changes.map((c) => c.title).join(', ')}
+                  </span>
+                </div>
+                <span className="bg-[#F5F5F0] px-2 py-1 rounded text-[10px] font-bold text-[#617065] shrink-0">
+                  {h.change_count} change{h.change_count === 1 ? '' : 's'}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
