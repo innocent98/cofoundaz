@@ -248,7 +248,9 @@ export function useMissionApi() {
       // reject_reason must be one of the three allowed strings (guide §5); the UI
       // only ever passes those chips.
       setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'rejected' } : t)));
-      void patchTask(id, { action: 'reject', reject_reason: reason ?? 'Doesn’t apply' });
+      // reject_reason must EXACTLY match a server VALID_REJECT_REASONS string —
+      // note the straight apostrophe in "Doesn't apply" (a curly one 422s).
+      void patchTask(id, { action: 'reject', reject_reason: reason ?? "Doesn't apply" });
     },
     [patchTask]
   );
