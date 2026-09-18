@@ -156,6 +156,9 @@ function mapPhase(p: RawPhase): RoadmapPhase {
 export function useRoadmapApi() {
   const [currentStage, setCurrentStage] = useState<Stage>('Idea');
   const [phases, setPhases] = useState<RoadmapPhase[]>([]);
+  // Count of slipped milestones (due_on < today, not done). Lives at
+  // roadmap.drift.slipped_count in the tree — NOT data.drift (guide §9 trap).
+  const [slippedCount, setSlippedCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -169,8 +172,10 @@ export function useRoadmapApi() {
         const stageKey = (d.current_stage || d.roadmap?.stage || 'idea').toLowerCase();
         setCurrentStage(STAGE_LABEL[stageKey] ?? 'Idea');
         setPhases((d.phases ?? []).map(mapPhase).sort((a, b) => a.order - b.order));
+        setSlippedCount(d.roadmap?.drift?.slipped_count ?? 0);
       } else {
         setPhases([]);
+        setSlippedCount(0);
       }
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)));
@@ -392,6 +397,7 @@ export function useRoadmapApi() {
   return {
     currentStage,
     phases,
+    slippedCount,
     loading,
     error,
     refetch,
