@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, Loader2, Check, AlertTriangle, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Loader2, Check, AlertTriangle, Plus, Trash2, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
 import { useDocumentEditor, DocSection } from '@/hooks/useDocumentEditor';
+import { useChipReorder } from '@/components/business-builder/use-chip-reorder';
 
 export default function DocumentEditorPage() {
   const params = useParams<{ id: string }>();
@@ -55,16 +56,23 @@ export default function DocumentEditorPage() {
     touch();
   };
 
-  const moveSection = (idx: number, dir: -1 | 1) => {
+  const moveSection = (idx: number, dir: -1 | 1) => moveSectionTo(idx, idx + dir);
+
+  // Move a section from one index to another (drag-reorder + the up/down buttons).
+  const moveSectionTo = (from: number, to: number) => {
     setSections((prev) => {
-      const target = idx + dir;
-      if (target < 0 || target >= prev.length) return prev;
+      if (from === to || to < 0 || to >= prev.length) return prev;
       const next = [...prev];
-      [next[idx], next[target]] = [next[target], next[idx]];
+      const [m] = next.splice(from, 1);
+      next.splice(to, 0, m);
       return next;
     });
     touch();
   };
+
+  // Drag-reorder via a grip handle (a single list, so the reorder hook's block key
+  // is a constant). The up/down buttons remain as the keyboard-accessible path.
+  const reorder = useChipReorder((_key, from, to) => moveSectionTo(from, to));
 
   const onSave = async () => {
     setSaving(true);
@@ -156,8 +164,19 @@ export default function DocumentEditorPage() {
                 <p className="text-sm text-[#8E9B90] italic">No sections yet — add one below.</p>
               )}
               {sections.map((sec, idx) => (
-                <section key={sec.id ?? `new-${idx}`} className="flex flex-col gap-2 group/sec">
+                <section
+                  key={sec.id ?? `new-${idx}`}
+                  {...reorder.dropProps('sec', idx)}
+                  className={`flex flex-col gap-2 group/sec rounded-card p-2 -m-2 transition-colors ${reorder.isOver('sec', idx) ? 'ring-1 ring-[#183B28] bg-[#FAFAFA]' : ''}`}
+                >
                   <div className="flex items-center gap-2">
+                    <span
+                      {...reorder.handleProps('sec', idx)}
+                      className="cursor-grab text-[#C5CFC7] hover:text-[#8E9B90] opacity-0 group-hover/sec:opacity-100 transition-opacity shrink-0"
+                      aria-label="Drag to reorder section"
+                    >
+                      <GripVertical className="w-4 h-4" />
+                    </span>
                     <input
                       type="text"
                       value={sec.heading}
