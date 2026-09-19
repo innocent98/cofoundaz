@@ -105,5 +105,16 @@ export function useCanvasEditor(type: string) {
     commit({ ...blocks, [key]: value });
   }, [blocks, commit]);
 
-  return { blocks, blockDefs, loading, saveStatus, listOf, textOf, addItem, removeItem, editItem, setText };
+  // Reorder an item within its block (drag-to-reorder). Splices `from` out and
+  // reinserts it at `to`; persists via the same autosave as every other edit.
+  const moveItem = useCallback((key: string, from: number, to: number) => {
+    const list = listOf(key);
+    if (from === to || from < 0 || from >= list.length || to < 0 || to >= list.length) return;
+    const next = [...list];
+    const [m] = next.splice(from, 1);
+    next.splice(to, 0, m);
+    commit({ ...blocks, [key]: next });
+  }, [blocks, listOf, commit]);
+
+  return { blocks, blockDefs, loading, saveStatus, listOf, textOf, addItem, removeItem, editItem, moveItem, setText };
 }
