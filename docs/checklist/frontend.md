@@ -99,8 +99,8 @@ Frontend features the Technical PRD / UI comp specify that are **not built** (in
 
 ### 6a. Missing screens/flows (no route, no tab equivalent)
 - [ ] **MFA setup** (`/setup/mfa`) + **MFA challenge** (`/login/mfa`) — PRD 01.4
-- [ ] **Accept-invitation** landing (`/invite/{token}`) — invites are *sent* in onboarding but not *accepted* — PRD 01 / Part 3 §3.5
-- [ ] **E-signature signing UI** on `/sign/{token}` — route exists but has **no SignaturePad / adopt-&-sign / consent** — PRD 18.5
+- [x] **Accept-invitation** landing (`/invite/{token}`) — **done** (`GET /invitations/{token}` preview + `POST /invitations/accept`; auth-aware). SOP `module-26-invite-accept-and-sign-polish`
+- [x] **E-signature signing UI** on `/sign/{token}` — **done** (adopt-&-sign polish: inline doc preview + signature-font adopt + consent checkbox). Was already a working typed-signature flow; a drawn pad is not buildable — API stores `typed_name` only. SOP `module-26-…`
 - [ ] **Calendar reminders** (per-event-type offset rules) — PRD 19.4
 - [ ] **Journal → Retrospectives** — PRD 21.5
 - [ ] **Team → Directory** (member cards, external collaborators) — PRD 23.5
