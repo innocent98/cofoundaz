@@ -101,10 +101,10 @@ Frontend features the Technical PRD / UI comp specify that are **not built** (in
 - [x] **MFA setup** (`/setup/mfa`) + **MFA challenge** (`/login/mfa`) — **done** (TOTP: QR+key→verify→backup codes; login `mfa_required`→challenge with backup-code fallback). SMS shown disabled (backend `FeatureNotEnabled`); no disable endpoint yet. SOP `module-27-mfa-totp`. PRD 01.4
 - [x] **Accept-invitation** landing (`/invite/{token}`) — **done** (`GET /invitations/{token}` preview + `POST /invitations/accept`; auth-aware). SOP `module-26-invite-accept-and-sign-polish`
 - [x] **E-signature signing UI** on `/sign/{token}` — **done** (adopt-&-sign polish: inline doc preview + signature-font adopt + consent checkbox). Was already a working typed-signature flow; a drawn pad is not buildable — API stores `typed_name` only. SOP `module-26-…`
-- [ ] **Calendar reminders** (per-event-type offset rules) — PRD 19.4
-- [ ] **Journal → Retrospectives** — PRD 21.5
-- [ ] **Team → Directory** (member cards, external collaborators) — PRD 23.5
-- [ ] **Notifications → Archived** (with restore) — PRD 20.4
+- ⛔ **Calendar reminders** (per-event-type offset rules) — PRD 19.4 — **backend-blocked**: no calendar API. See `docs/backend-requests-ui-gaps.md`.
+- ⛔ **Journal → Retrospectives** — PRD 21.5 — **backend-blocked**: no retro concept (journal writes also blocked on encryption key). See backend-requests doc.
+- ⛔ **Team → Directory** (member cards, external collaborators) — PRD 23.5 — **backend-blocked**: no members API (list/role/remove/seats). See backend-requests doc.
+- ⛔ **Notifications → Archived** (with restore) — PRD 20.4 — **backend-blocked**: no archive/restore endpoint. See backend-requests doc.
 - [ ] **Analytics → Saved reports** — PRD 22.2
 - [ ] **Admin → Reported-issues** queue — PRD 25.5
 - [ ] **Super-Admin → Impersonate user** + **Billing overrides** — PRD 26.1 / 26.6
@@ -115,7 +115,7 @@ Frontend features the Technical PRD / UI comp specify that are **not built** (in
 - [ ] **Super-Admin** — missing impersonation, billing overrides, AI-config diff/deploy/rollback/playground depth — PRD 26
 - [ ] **Billing** — folded into Settings tabs rather than `/billing/*` routes; confirm plan-change/prorate/cancel + 90%-usage states exist — PRD 24
 - [ ] **Onboarding wizard** — no `Stepper`, no persistent streaming AI assistant panel vs 6-step spec — PRD 01.6
-- [ ] **Roadmap Kanban** — static columns, **no drag-and-drop** (Sales/Funding boards have it) — PRD 05.2
+- [x] **Roadmap Kanban** — **done**: drag a task card between To Do/In Progress/Done to change status (optimistic + persisted via `updateTask`), verified live. SOP `module-28-roadmap-kanban-dnd`. PRD 05.2
 
 ### 6c. Cross-cutting components/interactions unbuilt
 - [ ] **Charting library** — none installed (no recharts/d3/nivo/chart.js); charts are hand-rolled static `<svg>`, no animated `ScoreGauge` — PRD §1.2
