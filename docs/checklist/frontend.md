@@ -120,7 +120,7 @@ Frontend features the Technical PRD / UI comp specify that are **not built** (in
 ### 6c. Cross-cutting components/interactions unbuilt
 - [ ] **Charting library** — none installed (no recharts/d3/nivo/chart.js); charts are hand-rolled static `<svg>`, no animated `ScoreGauge` — PRD §1.2
 - [~] **DiffViewer** — **re-plan done** (`components/roadmap/date-diff.tsx`: old→new + day-delta; proposal summary; expandable history diffs). SOP `module-29-roadmap-replan-diffviewer`. Still to do for doc versions / AI-config prompts / assessment. PRD 05.6/07.3/18.4/26.2
-- [ ] **CanvasGrid drag** (BMC/Lean sticky notes, competitive 2×2 draggable dots) — canvases are static — PRD 08.x
+- [~] **Canvas item editing** — **edit-in-place done** (click a BMC/SWOT/Value-Prop item → inline edit → autosave; `components/business-builder/inline-editable.tsx`). SOP `module-30-canvas-edit-in-place`. Item **reorder/drag** still open. PRD 08.x
 - [ ] **SignaturePad** — none — PRD 18.5
 - [ ] **Stepper / wizard** component (onboarding, campaign/smoke-test/sequence builders) — multi-step flows are flat forms — PRD §1.2
 - [ ] **⌘K SearchCommandPalette** — global search unbuilt — PRD §1.2/§2.1

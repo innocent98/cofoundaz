@@ -5,10 +5,11 @@ import { Download, Check, Loader2, Plus, X } from 'lucide-react';
 import { useToast } from '../layout';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { useCanvasEditor } from '@/hooks/useCanvasEditor';
+import { InlineEditable } from '@/components/business-builder/inline-editable';
 
 export default function BusinessModelCanvasPage() {
   const { triggerToast } = useToast();
-  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem } = useCanvasEditor('business_model');
+  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem } = useCanvasEditor('business_model');
 
   const handleExport = () => triggerToast('Exported to Documents.');
   const onAdd = (key: string) => {
@@ -61,7 +62,7 @@ export default function BusinessModelCanvasPage() {
                 {listOf(b.key).length === 0 && <span className="text-[11px] text-[#B7C0B8] italic">Empty</span>}
                 {listOf(b.key).map((item, idx) => (
                   <span key={idx} className="group/item flex items-center gap-1 bg-[#E6EFEA] text-[#183B28] text-xs font-medium pl-3 pr-1.5 py-1.5 rounded-input border border-[#D5E3DB]">
-                    {item}
+                    <InlineEditable value={item} onSave={(t) => editItem(b.key, idx, t)} />
                     <button onClick={() => removeItem(b.key, idx)} className="text-[#7DA890] hover:text-[#A34B4B] opacity-0 group-hover/item:opacity-100 transition-opacity" aria-label="Remove">
                       <X className="w-3 h-3" />
                     </button>
