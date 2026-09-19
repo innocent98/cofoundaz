@@ -3,14 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRoadmapApi } from '@/hooks/useRoadmapApi';
 import { useRoadmapReplan, ReplanPreview, ReplanApplyResult } from '@/hooks/useRoadmapReplan';
-import { AlertTriangle, Sparkles, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, Sparkles, Check, CheckCircle2, ChevronDown } from 'lucide-react';
+import { DateDiff, dayDelta } from '@/components/roadmap/date-diff';
 
-function fmtDate(iso: string): string {
-  if (!iso) return '—';
-  const d = new Date(`${iso}T00:00:00`);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
 function fmtDateTime(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
@@ -27,6 +22,15 @@ export default function ReplanPage() {
   const [applying, setApplying] = useState(false);
   const [applyResult, setApplyResult] = useState<ReplanApplyResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [expandedHistory, setExpandedHistory] = useState<Set<string>>(new Set());
+
+  const toggleHistory = (id: string) =>
+    setExpandedHistory((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   useEffect(() => {
     void loadHistory();
@@ -74,6 +78,16 @@ export default function ReplanPage() {
   };
 
   const changes = proposal?.changes ?? [];
+
+  // Honest, computed summary of the proposal's magnitude (no invented numbers).
+  const deltas = changes.map((c) => dayDelta(c.old_due, c.new_due)).filter((d): d is number => d !== null);
+  const laterCount = deltas.filter((d) => d > 0).length;
+  const maxLater = deltas.length ? Math.max(0, ...deltas) : 0;
+  const proposalSummary =
+    changes.length === 0
+      ? ''
+      : `${changes.length} milestone${changes.length === 1 ? '' : 's'} adjusting` +
+        (laterCount > 0 ? ` — up to +${maxLater} day${maxLater === 1 ? '' : 's'} later` : '');
 
   return (
     <div className="flex flex-col gap-8 h-full pb-12">
@@ -148,7 +162,9 @@ export default function ReplanPage() {
             </div>
             <div>
               <h3 className="font-bold text-[#1E2923]">Proposed Adjustments</h3>
-              <p className="text-xs text-[#768478]">Review carefully. Unchecked items keep their current dates.</p>
+              <p className="text-xs text-[#768478]">
+                {proposalSummary}. Review carefully — rejected items keep their current dates.
+              </p>
             </div>
           </div>
 
@@ -162,14 +178,8 @@ export default function ReplanPage() {
                     <span className="text-xs text-[#9C5B34] font-semibold">{c.reason}</span>
                   </div>
 
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="bg-[#F5F5F0] border border-[#EBEBE6] px-3 py-1.5 rounded text-xs font-bold text-[#768478] line-through">
-                      {fmtDate(c.old_due)}
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-[#C5CFC7]" />
-                    <div className="bg-[#EAF2ED] border border-[#CDE1D3] px-3 py-1.5 rounded text-xs font-bold text-[#2D5A3F]">
-                      {fmtDate(c.new_due)}
-                    </div>
+                  <div className="flex items-center flex-1">
+                    <DateDiff oldDue={c.old_due} newDue={c.new_due} />
                   </div>
 
                   <div className="shrink-0 flex items-center justify-end">
@@ -217,24 +227,48 @@ export default function ReplanPage() {
             <p className="text-xs text-[#768478] italic">No re-plans applied yet.</p>
           </div>
         ) : (
-          history.map((h) => (
-            <div key={h.id} className="bg-white rounded-card border border-[#EBEBE6] p-5 shadow-card">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-[#1E2923]">
-                    {h.summary} · {fmtDateTime(h.created_at)}
-                  </span>
-                  <span className="text-[11px] text-[#768478]">
-                    {h.applied_by?.name ? `By ${h.applied_by.name}` : 'Applied'} —{' '}
-                    {h.changes.map((c) => c.title).join(', ')}
-                  </span>
-                </div>
-                <span className="bg-[#F5F5F0] px-2 py-1 rounded text-[10px] font-bold text-[#617065] shrink-0">
-                  {h.change_count} change{h.change_count === 1 ? '' : 's'}
-                </span>
+          history.map((h) => {
+            const open = expandedHistory.has(h.id);
+            return (
+              <div key={h.id} className="bg-white rounded-card border border-[#EBEBE6] shadow-card overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleHistory(h.id)}
+                  className="w-full p-5 flex items-center justify-between gap-4 text-left hover:bg-[#FBFBFA] transition-colors"
+                >
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <span className="text-xs font-bold text-[#1E2923]">
+                      {h.summary} · {fmtDateTime(h.created_at)}
+                    </span>
+                    <span className="text-[11px] text-[#768478] truncate">
+                      {h.applied_by?.name ? `By ${h.applied_by.name}` : 'Applied'} —{' '}
+                      {h.changes.map((c) => c.title).join(', ')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="bg-[#F5F5F0] px-2 py-1 rounded text-[10px] font-bold text-[#617065]">
+                      {h.change_count} change{h.change_count === 1 ? '' : 's'}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-[#8E9B90] transition-transform ${open ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+
+                {open && (
+                  <div className="border-t border-[#EBEBE6] divide-y divide-[#F2F2EE]">
+                    {h.changes.map((c, i) => (
+                      <div key={`${h.id}-${c.milestone_id}-${i}`} className="px-5 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div className="flex flex-col gap-1 min-w-0 flex-1">
+                          <span className="text-xs font-bold text-[#1E2923]">{c.title}</span>
+                          {c.reason && <span className="text-[11px] text-[#9C5B34] font-semibold">{c.reason}</span>}
+                        </div>
+                        <DateDiff oldDue={c.old_due} newDue={c.new_due} />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
