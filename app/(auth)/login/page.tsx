@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthForm } from "@/ui/marketing/auth/auth-form";
 import { apiClient, ApiError } from "@/lib/api/client";
+import { completePostLogin } from "@/lib/auth/post-login";
 
 // A `?next=` param (set by the global 401 redirect on session expiry) is honored
 // only when it's a safe internal path — never an external or auth URL.
@@ -20,6 +21,7 @@ interface LoginData {
   access_token?: string;
   refresh_token?: string;
   mfa_required?: boolean;
+  mfa_ticket?: string;
 }
 
 interface LoginEnvelope {
@@ -29,30 +31,9 @@ interface LoginEnvelope {
   token?: string;
 }
 
-interface UserMeResponse {
-  data?: {
-    user?: {
-      id: string;
-      email: string;
-      status: string;
-    };
-    profile?: {
-      full_name?: string | null;
-      role_title?: string | null;
-      avatar_url?: string | null;
-    };
-    active_workspace_id?: string | null;
-  };
-}
-
-// GET /onboarding/state returns the standard {data, meta} envelope, e.g.
-// {"data":{"step":1,"completed":false,"assessment_pending":true,…}}.
-interface OnboardingStateResponse {
-  data?: {
-    step?: number;
-    completed?: boolean;
-  };
-}
+// Handed to the MFA challenge page in sessionStorage (never the URL — the ticket
+// is a short-lived, single-use secret).
+const MFA_HANDOFF_KEY = "cf_mfa_handoff";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -79,6 +60,22 @@ export default function LoginPage() {
         }),
       });
 
+      // Second factor required → the server withholds tokens and returns a
+      // short-lived mfa_ticket. Hand it to the challenge page (via sessionStorage,
+      // not the URL) and stop here — no token is stored yet.
+      if (res.data?.mfa_required && res.data?.mfa_ticket) {
+        try {
+          sessionStorage.setItem(
+            MFA_HANDOFF_KEY,
+            JSON.stringify({ ticket: res.data.mfa_ticket, email: data.email, next: safeNextPath() })
+          );
+        } catch {
+          /* ignore storage errors — the challenge page falls back to /login */
+        }
+        router.push("/login/mfa");
+        return;
+      }
+
       const accessToken =
         res.data?.access_token ||
         res.access_token ||
@@ -92,63 +89,13 @@ export default function LoginPage() {
         throw new Error("No access token returned from server.");
       }
 
-      if (typeof window !== "undefined") {
-        localStorage.setItem("cf_token", accessToken);
-        if (refreshToken) {
-          localStorage.setItem("cf_refresh_token", refreshToken);
-        }
-      }
-
-      // Check current user status and profile
-      let meRes: UserMeResponse | null = null;
-      try {
-        meRes = await apiClient<UserMeResponse>("/auth/me", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (meRes?.data?.profile?.full_name) {
-          localStorage.setItem("cf_user_name", meRes.data.profile.full_name);
-        }
-        if (meRes?.data?.user) {
-          localStorage.setItem("cf_user", JSON.stringify(meRes.data.user));
-        }
-        // Workspace-scoped API calls need this via X-Workspace-Id (see apiClient).
-        if (meRes?.data?.active_workspace_id) {
-          localStorage.setItem("cf_workspace_id", meRes.data.active_workspace_id);
-        }
-      } catch (meErr) {
-        console.warn("Could not fetch user profile details on login:", meErr);
-      }
-
-      // Handle unverified user status
-      if (meRes?.data?.user?.status === "pending_verification") {
-        router.push(`/verify?email=${encodeURIComponent(data.email)}`);
-        return;
-      }
-
-      // Check onboarding state for verified accounts
-      try {
-        const state = await apiClient<OnboardingStateResponse>("/onboarding/state", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        const onb = state.data;
-        if (onb?.completed || (typeof onb?.step === "number" && onb.step > 6)) {
-          router.push(safeNextPath() || "/dashboard");
-        } else {
-          router.push("/onboarding");
-        }
-      } catch (onberr: unknown) {
-        if (((onberr as { status?: number })?.status) === 403) {
-          router.push(`/verify?email=${encodeURIComponent(data.email)}`);
-        } else {
-          router.push(safeNextPath() || "/dashboard");
-        }
-      }
+      await completePostLogin({
+        accessToken,
+        refreshToken,
+        email: data.email,
+        router,
+        nextPath: safeNextPath(),
+      });
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         const d = err.data as Record<string, unknown> | undefined;

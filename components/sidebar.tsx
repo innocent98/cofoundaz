@@ -277,6 +277,18 @@ export default function Sidebar({
             </span>
           </Link>
 
+          <Link
+            href="/setup/mfa"
+            onClick={handleClose}
+            className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-[#0A2217] transition-colors"
+          >
+            <Lock className="w-4 h-4 shrink-0 text-[#7B9382]" />
+
+            <span className="truncate">
+              Security (2FA)
+            </span>
+          </Link>
+
           {/* User Profile */}
           <div className="pt-4 mt-2 flex w-full items-center justify-between gap-2 px-2 cursor-pointer">
             <div className="flex min-w-0 items-center gap-3">
