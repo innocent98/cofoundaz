@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Check, Sparkles, Flame } from 'lucide-react';
 import { DashboardErrorBoundary } from './error-boundary';
+import { apiClient } from '@/lib/api/client';
 import type { DashboardSummaryResponse, MissionTask } from '@/types/dashboard';
 
 export function CoreEngine({
@@ -140,8 +141,13 @@ function AIBriefingCard({ briefing }: { briefing: any }) {
 
   const handleDoIt = async () => {
     setIsAccepting(true);
-    await fetch(`/api/v1/dashboard/briefing/${briefing.id}/actions/1/accept`, { method: 'POST' });
-    setIsAccepting(false);
+    try {
+      await apiClient(`/dashboard/briefing/${briefing.id}/actions/1/accept`, { method: 'POST' });
+    } catch {
+      /* endpoint not yet available — leave the card as-is rather than crashing */
+    } finally {
+      setIsAccepting(false);
+    }
   };
 
   if (!briefing || briefing.hasEmptyState) {

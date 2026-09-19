@@ -140,26 +140,17 @@ export async function patchOnboardingState(
 }
 
 export async function uploadOnboardingLogo(file: File): Promise<{ logo_url?: string }> {
+  // apiClient omits Content-Type for FormData (letting the browser set the
+  // multipart boundary) and applies the real API base URL, auth, and refresh —
+  // same path as every other call, no same-origin fallback.
   const formData = new FormData()
   formData.append('file', file)
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null
-  const headers: HeadersInit = {}
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-
-  const response = await fetch('/api/v1/onboarding/logo', {
-    method: 'POST',
-    headers,
-    body: formData,
-  })
-
-  if (!response.ok) {
-    throw new Error(`Upload failed with status ${response.status}`)
-  }
-
-  return response.json()
+  const res = await apiClient<{ logo_url?: string; data?: { logo_url?: string } }>(
+    '/onboarding/logo',
+    { method: 'POST', body: formData }
+  )
+  return res.data ?? res
 }
 
 export async function sendOnboardingInvites(

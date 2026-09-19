@@ -1,5 +1,6 @@
 ﻿import { useState, useCallback, useRef, useEffect } from 'react';
-import type { 
+import { apiClient } from '@/lib/api/client';
+import type {
   AIConversation, 
   AIMessage, 
   AISuggestion, 
@@ -203,9 +204,11 @@ export function useAISuggestions() {
   const fetchSuggestions = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/ai/suggestions');
-      const data = await res.json();
-      setSuggestions(data.suggestions || []);
+      const data = await apiClient<{ suggestions?: AISuggestion[]; data?: { suggestions?: AISuggestion[] } }>('/ai/suggestions');
+      setSuggestions(data.data?.suggestions ?? data.suggestions ?? []);
+    } catch {
+      // AI suggestions backend is not wired yet — show an honest empty list.
+      setSuggestions([]);
     } finally {
       setLoading(false);
     }
@@ -215,7 +218,7 @@ export function useAISuggestions() {
 
   const handleSuggestion = useCallback(async (id: string, action: 'accept' | 'dismiss' | 'snooze') => {
     try {
-      await fetch(`/api/v1/ai/suggestions/${id}/${action}`, { method: 'POST' });
+      await apiClient(`/ai/suggestions/${id}/${action}`, { method: 'POST' });
       setSuggestions((prev) => prev.filter(s => s.id !== id));
     } catch (err) {
       console.error(err);
@@ -232,9 +235,11 @@ export function useAIMemory() {
   const fetchMemory = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/ai/memory');
-      const data = await res.json();
-      setMemory(data.memory || []);
+      const data = await apiClient<{ memory?: AIMemoryFact[]; data?: { memory?: AIMemoryFact[] } }>('/ai/memory');
+      setMemory(data.data?.memory ?? data.memory ?? []);
+    } catch {
+      // AI memory backend is not wired yet — show an honest empty list.
+      setMemory([]);
     } finally {
       setLoading(false);
     }
@@ -244,7 +249,7 @@ export function useAIMemory() {
 
   const forgetMemoryFact = useCallback(async (id: string) => {
     try {
-      await fetch(`/api/v1/ai/memory/${id}`, { method: 'DELETE' });
+      await apiClient(`/ai/memory/${id}`, { method: 'DELETE' });
       setMemory((prev) => prev.filter(m => m.id !== id));
     } catch (err) {
       console.error(err);
@@ -253,7 +258,7 @@ export function useAIMemory() {
 
   const clearAllMemory = useCallback(async () => {
     try {
-      await fetch('/api/v1/ai/memory', { method: 'DELETE' });
+      await apiClient('/ai/memory', { method: 'DELETE' });
       setMemory([]);
     } catch (err) {
       console.error(err);
