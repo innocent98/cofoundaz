@@ -4,6 +4,7 @@ import React from 'react';
 import { ArrowUpRight, ArrowDownRight, Target, AlertTriangle, Check, Loader2, Plus, X } from 'lucide-react';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { useCanvasEditor } from '@/hooks/useCanvasEditor';
+import { InlineEditable } from '@/components/business-builder/inline-editable';
 
 const QUAD_STYLE: Record<string, { icon: React.ReactNode; bg: string; border: string; title: string; dot: string }> = {
   strengths: { icon: <ArrowUpRight className="w-4 h-4" />, bg: 'bg-[#F2F7F4]', border: 'border-[#D5E3DB]', title: 'text-[#183B28]', dot: 'bg-[#183B28]' },
@@ -14,7 +15,7 @@ const QUAD_STYLE: Record<string, { icon: React.ReactNode; bg: string; border: st
 const DEFAULT_STYLE = { icon: <Target className="w-4 h-4" />, bg: 'bg-white', border: 'border-[#EBEBE6]', title: 'text-[#1E2923]', dot: 'bg-[#768478]' };
 
 export default function SwotPage() {
-  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem } = useCanvasEditor('swot');
+  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem } = useCanvasEditor('swot');
 
   const onAdd = (key: string) => {
     const v = window.prompt('Enter a point:');
@@ -61,7 +62,7 @@ export default function SwotPage() {
                   {listOf(b.key).map((item, idx) => (
                     <li key={idx} className="group/item flex items-center gap-2.5 text-xs md:text-sm text-[#2D3830] font-medium">
                       <span className={`w-1.5 h-1.5 rounded-full ${s.dot} shrink-0`} />
-                      <span className="flex-1">{item}</span>
+                      <InlineEditable value={item} onSave={(t) => editItem(b.key, idx, t)} className="flex-1" />
                       <button onClick={() => removeItem(b.key, idx)} className="text-[#A3B0A6] hover:text-[#A34B4B] opacity-0 group-hover/item:opacity-100 transition-opacity" aria-label="Remove">
                         <X className="w-3.5 h-3.5" />
                       </button>

@@ -4,9 +4,10 @@ import React from 'react';
 import { Check, Loader2, Plus, X } from 'lucide-react';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { useCanvasEditor, BlockDef } from '@/hooks/useCanvasEditor';
+import { InlineEditable } from '@/components/business-builder/inline-editable';
 
 export default function ValuePropositionPage() {
-  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem } = useCanvasEditor('value_prop');
+  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem } = useCanvasEditor('value_prop');
 
   const onAdd = (key: string) => {
     const v = window.prompt('Enter a point:');
@@ -38,7 +39,7 @@ export default function ValuePropositionPage() {
                     tone === 'sand' ? 'bg-[#F5F2E9] text-[#522F1A] border-[#EAE3D2]' : 'bg-[#E6EFEA] text-[#183B28] border-[#D5E3DB]'
                   }`}
                 >
-                  {item}
+                  <InlineEditable value={item} onSave={(t) => editItem(b.key, idx, t)} />
                   <button onClick={() => removeItem(b.key, idx)} className="opacity-0 group-hover/item:opacity-100 transition-opacity hover:text-[#A34B4B]" aria-label="Remove">
                     <X className="w-3 h-3" />
                   </button>

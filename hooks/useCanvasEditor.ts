@@ -88,9 +88,22 @@ export function useCanvasEditor(type: string) {
     commit({ ...blocks, [key]: listOf(key).filter((_, i) => i !== idx) });
   }, [blocks, listOf, commit]);
 
+  // Edit a single list item in place. Empty text removes it (an emptied chip is a
+  // delete); a no-op edit skips the save.
+  const editItem = useCallback((key: string, idx: number, text: string) => {
+    const t = text.trim();
+    const list = listOf(key);
+    if (idx < 0 || idx >= list.length) return;
+    if (t === list[idx]) return;
+    const next = t
+      ? list.map((v, i) => (i === idx ? t : v))
+      : list.filter((_, i) => i !== idx);
+    commit({ ...blocks, [key]: next });
+  }, [blocks, listOf, commit]);
+
   const setText = useCallback((key: string, value: string) => {
     commit({ ...blocks, [key]: value });
   }, [blocks, commit]);
 
-  return { blocks, blockDefs, loading, saveStatus, listOf, textOf, addItem, removeItem, setText };
+  return { blocks, blockDefs, loading, saveStatus, listOf, textOf, addItem, removeItem, editItem, setText };
 }
