@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight, Target, AlertTriangle, Check, Loader2, Plus, X } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Target, AlertTriangle, Check, Loader2, Plus, X, GripVertical } from 'lucide-react';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { useCanvasEditor } from '@/hooks/useCanvasEditor';
 import { InlineEditable } from '@/components/business-builder/inline-editable';
+import { useChipReorder } from '@/components/business-builder/use-chip-reorder';
 
 const QUAD_STYLE: Record<string, { icon: React.ReactNode; bg: string; border: string; title: string; dot: string }> = {
   strengths: { icon: <ArrowUpRight className="w-4 h-4" />, bg: 'bg-[#F2F7F4]', border: 'border-[#D5E3DB]', title: 'text-[#183B28]', dot: 'bg-[#183B28]' },
@@ -15,7 +16,8 @@ const QUAD_STYLE: Record<string, { icon: React.ReactNode; bg: string; border: st
 const DEFAULT_STYLE = { icon: <Target className="w-4 h-4" />, bg: 'bg-white', border: 'border-[#EBEBE6]', title: 'text-[#1E2923]', dot: 'bg-[#768478]' };
 
 export default function SwotPage() {
-  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem } = useCanvasEditor('swot');
+  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem, moveItem } = useCanvasEditor('swot');
+  const reorder = useChipReorder(moveItem);
 
   const onAdd = (key: string) => {
     const v = window.prompt('Enter a point:');
@@ -60,7 +62,14 @@ export default function SwotPage() {
                 <ul className="flex flex-col gap-3 pt-1">
                   {listOf(b.key).length === 0 && <li className="text-xs text-[#A3B0A6] italic">Empty</li>}
                   {listOf(b.key).map((item, idx) => (
-                    <li key={idx} className="group/item flex items-center gap-2.5 text-xs md:text-sm text-[#2D3830] font-medium">
+                    <li
+                      key={idx}
+                      {...reorder.dropProps(b.key, idx)}
+                      className={`group/item flex items-center gap-2 text-xs md:text-sm text-[#2D3830] font-medium rounded px-1 -mx-1 transition-colors ${reorder.isOver(b.key, idx) ? 'bg-[#EAF2ED] ring-1 ring-[#2D5A3F]' : ''}`}
+                    >
+                      <span {...reorder.handleProps(b.key, idx)} className="cursor-grab text-[#A3B0A6] opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0" aria-label="Drag to reorder">
+                        <GripVertical className="w-3.5 h-3.5" />
+                      </span>
                       <span className={`w-1.5 h-1.5 rounded-full ${s.dot} shrink-0`} />
                       <InlineEditable value={item} onSave={(t) => editItem(b.key, idx, t)} className="flex-1" />
                       <button onClick={() => removeItem(b.key, idx)} className="text-[#A3B0A6] hover:text-[#A34B4B] opacity-0 group-hover/item:opacity-100 transition-opacity" aria-label="Remove">

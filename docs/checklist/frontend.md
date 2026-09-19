@@ -121,7 +121,7 @@ Frontend features the Technical PRD / UI comp specify that are **not built** (in
 ### 6c. Cross-cutting components/interactions unbuilt
 - [~] **Charting library** — **recharts added**; real charts on **Health** (history area chart, 5-dimension radar, dimension-detail trend), verified live. Fabricated dashboard KPI sparkline **removed** (no real series exists). `components/health/health-charts.tsx`, SOP `module-32-real-charts-health`. Other surfaces (finance etc.) stay mock until their APIs ship. PRD §1.2
 - [~] **DiffViewer** — **re-plan done** (`components/roadmap/date-diff.tsx`: old→new + day-delta; proposal summary; expandable history diffs). SOP `module-29-roadmap-replan-diffviewer`. Still to do for doc versions / AI-config prompts / assessment. PRD 05.6/07.3/18.4/26.2
-- [~] **Canvas item editing** — **edit-in-place done** (click a BMC/SWOT/Value-Prop item → inline edit → autosave; `components/business-builder/inline-editable.tsx`). SOP `module-30-canvas-edit-in-place`. Item **reorder/drag** still open. PRD 08.x
+- [x] **Canvas item editing** — **done**: edit-in-place (SOP `module-30`) **+ drag-to-reorder** within a block via a grip handle (`components/business-builder/use-chip-reorder.ts`, `useCanvasEditor.moveItem`), verified live. SOP `module-33-canvas-item-reorder`. (Records `position` reorder + lean-canvas migration remain separate follow-ups.) PRD 08.x
 - [ ] **SignaturePad** — none — PRD 18.5
 - [ ] **Stepper / wizard** component (onboarding, campaign/smoke-test/sequence builders) — multi-step flows are flat forms — PRD §1.2
 - [ ] **⌘K SearchCommandPalette** — global search unbuilt — PRD §1.2/§2.1
