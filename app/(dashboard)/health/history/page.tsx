@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useHealthHistory } from '@/hooks/useHealthDetails';
+import { ScoreHistoryChart } from '@/components/health/health-charts';
 
 const RANGES = ['7d', '30d', '90d', 'all'] as const;
 type Range = (typeof RANGES)[number];
@@ -16,14 +17,6 @@ export default function TrendHistoryPage() {
   const { points, loading } = useHealthHistory(range);
 
   const latest = points[points.length - 1];
-  const W = 1000;
-  const H = 240;
-  const coords = points.map((p, i) => ({
-    x: points.length === 1 ? W / 2 : (i / (points.length - 1)) * W,
-    y: H - (Math.max(0, Math.min(100, p.score)) / 100) * H,
-    p,
-  }));
-  const pathD = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ');
 
   return (
     <div className="flex flex-col gap-6 pt-2 pb-12">
@@ -54,20 +47,8 @@ export default function TrendHistoryPage() {
           </div>
         ) : (
           <>
-            <div className="relative w-full h-64 mt-4">
-              <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-                <div className="border-b border-[#F0F0EC] w-full h-0" />
-                <div className="border-b border-[#F0F0EC] w-full h-0" />
-                <div className="border-b border-[#F0F0EC] w-full h-0" />
-              </div>
-              <svg className="w-full h-full overflow-visible" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
-                {points.length > 1 && (
-                  <path d={pathD} fill="none" stroke="#2D5A3F" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-                )}
-                {coords.map((c, i) => (
-                  <circle key={i} cx={c.x} cy={c.y} r={points.length === 1 ? 6 : 4} fill="#2D5A3F" />
-                ))}
-              </svg>
+            <div className="w-full mt-4">
+              <ScoreHistoryChart points={points} height={264} />
             </div>
             <div className="flex justify-between items-center text-xs font-medium text-[#768478] pt-6">
               <span>{fmtDate(points[0].computed_at)}</span>

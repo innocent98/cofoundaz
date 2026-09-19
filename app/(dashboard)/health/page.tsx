@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Sparkles, X, ClipboardCheck } from 'lucide-react';
 import { useHealthScore } from '@/hooks/useHealthScore';
 import type { HealthBand } from '@/hooks/useHealthScore';
+import { DimensionsRadar } from '@/components/health/health-charts';
 
 function RadialGauge({ targetScore }: { targetScore: number }) {
   const [displayScore, setDisplayScore] = useState(0);
@@ -222,6 +223,20 @@ export default function HealthOverviewPage() {
           <MetricCard title="Financial" score={dims.financial.score} band={dims.financial.band} dimKey="financial" />
           <MetricCard title="Legal" score={dims.legal.score} band={dims.legal.band} dimKey="legal" />
           <MetricCard title="Team" score={dims.team.score} band={dims.team.band} dimKey="team" />
+        </div>
+
+        <div className="bg-white rounded-[24px] p-6 md:p-8 border border-[#EBEBE6] shadow-card">
+          <h2 className="text-sm font-bold text-[#1E2923] uppercase tracking-wide mb-2">Dimension balance</h2>
+          <p className="text-xs text-[#768478] mb-2">How your five dimensions compare right now.</p>
+          <DimensionsRadar
+            data={[
+              { dimension: 'Product', score: dims.product.score },
+              { dimension: 'Market', score: dims.market.score },
+              { dimension: 'Financial', score: dims.financial.score },
+              { dimension: 'Legal', score: dims.legal.score },
+              { dimension: 'Team', score: dims.team.score },
+            ]}
+          />
         </div>
 
         {data.topRecommendations.length > 0 && (
