@@ -39,8 +39,20 @@ only if the product wants per-keystroke saves with conflict surfacing).
 | build / e2e | clean / 153 |
 | **Live (staging)** | On the real "Business Plan" doc (9 sections): **added** a "TEMP verify" section, **edited its heading**, **moved it up**, **Saved** → server showed 10 sections with "TEMP verify" persisted at position 8 (version 1→2). Then **removed** it + Saved → server back to the original 9 sections in order (version →3). Add / heading-edit / reorder / remove / save all confirmed end-to-end, then restored. |
 
+## Update — drag-reorder (shipped)
+
+Sections can now be **dragged to reorder** by a grip handle (hover-revealed on the
+heading row), in addition to the up/down buttons. Reuses the canvas reorder hook
+`components/business-builder/use-chip-reorder.ts` with a constant key (a document is a
+single list) via a new `moveSectionTo(from, to)`; the up/down buttons remain as the
+keyboard-accessible path. Persists through the same explicit Save.
+
+**Verified live:** on the Business Plan doc, dragged "Problem" above "Executive
+Summary", Saved → server order became `[Problem, Executive Summary, …]` (v3→4), then
+restored the original order (v→5). Gates: typecheck 0 / lint 0 / 188 unit / clean build
+/ 153 e2e.
+
 ## Follow-ups
 
-- Drag-reorder (currently up/down buttons).
 - Optional debounced autosave that surfaces (never auto-resolves) the 409 conflict.
 - Inline file preview on `/sign` (separate, tracked elsewhere).
