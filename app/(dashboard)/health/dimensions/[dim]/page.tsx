@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, redirect } from 'next/navigation';
 import { useHealthScore, DimensionKey } from '@/hooks/useHealthScore';
 import { useHealthDimension } from '@/hooks/useHealthDetails';
+import { DimensionTrendChart } from '@/components/health/health-charts';
 
 const DIM_KEYS: DimensionKey[] = ['product', 'market', 'financial', 'legal', 'team'];
 
@@ -64,6 +65,13 @@ export default function DimensionBreakdownPage() {
 
       {!loading && detail && (
         <>
+          {detail.trend.length > 0 && (
+            <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-6">
+              <h3 className="text-sm font-bold text-[#1E2923] uppercase tracking-wide mb-3">{label} over time</h3>
+              <DimensionTrendChart points={detail.trend} />
+            </div>
+          )}
+
           <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[520px]">

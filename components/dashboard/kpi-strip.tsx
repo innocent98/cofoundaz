@@ -51,19 +51,8 @@ function StatCard({ kpi }: { kpi: KPISnapshot }) {
         >
           {kpi.delta}
         </span>
-        {/* Lightweight monochrome SVG sparkline */}
-        <div className="w-12 h-6 opacity-40 group-hover:opacity-100 transition-opacity">
-          <svg viewBox="0 0 48 24" className="w-full h-full" preserveAspectRatio="none">
-            <polyline
-              points="0,20 10,15 20,18 30,8 40,12 48,4"
-              fill="none"
-              stroke={isAlert ? '#B0483B' : '#7FB09A'}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+        {/* No sparkline: the API returns point-in-time KPI values, not a series,
+            so a trend line here would be fabricated. */}
       </div>
     </Link>
   );

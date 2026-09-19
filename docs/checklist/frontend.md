@@ -119,7 +119,7 @@ Frontend features the Technical PRD / UI comp specify that are **not built** (in
 - [x] **Document editor — section editing** — **done**: add / remove / reorder (up-down) sections + editable headings (was body-only), explicit Save with the 409 conflict model, verified live. SOP `module-31-document-section-editing`. (Drag-reorder + optional autosave remain follow-ups.)
 
 ### 6c. Cross-cutting components/interactions unbuilt
-- [ ] **Charting library** — none installed (no recharts/d3/nivo/chart.js); charts are hand-rolled static `<svg>`, no animated `ScoreGauge` — PRD §1.2
+- [~] **Charting library** — **recharts added**; real charts on **Health** (history area chart, 5-dimension radar, dimension-detail trend), verified live. Fabricated dashboard KPI sparkline **removed** (no real series exists). `components/health/health-charts.tsx`, SOP `module-32-real-charts-health`. Other surfaces (finance etc.) stay mock until their APIs ship. PRD §1.2
 - [~] **DiffViewer** — **re-plan done** (`components/roadmap/date-diff.tsx`: old→new + day-delta; proposal summary; expandable history diffs). SOP `module-29-roadmap-replan-diffviewer`. Still to do for doc versions / AI-config prompts / assessment. PRD 05.6/07.3/18.4/26.2
 - [~] **Canvas item editing** — **edit-in-place done** (click a BMC/SWOT/Value-Prop item → inline edit → autosave; `components/business-builder/inline-editable.tsx`). SOP `module-30-canvas-edit-in-place`. Item **reorder/drag** still open. PRD 08.x
 - [ ] **SignaturePad** — none — PRD 18.5
