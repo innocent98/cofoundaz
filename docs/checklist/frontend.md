@@ -116,6 +116,7 @@ Frontend features the Technical PRD / UI comp specify that are **not built** (in
 - [ ] **Billing** — folded into Settings tabs rather than `/billing/*` routes; confirm plan-change/prorate/cancel + 90%-usage states exist — PRD 24
 - [ ] **Onboarding wizard** — no `Stepper`, no persistent streaming AI assistant panel vs 6-step spec — PRD 01.6
 - [x] **Roadmap Kanban** — **done**: drag a task card between To Do/In Progress/Done to change status (optimistic + persisted via `updateTask`), verified live. SOP `module-28-roadmap-kanban-dnd`. PRD 05.2
+- [x] **Document editor — section editing** — **done**: add / remove / reorder (up-down) sections + editable headings (was body-only), explicit Save with the 409 conflict model, verified live. SOP `module-31-document-section-editing`. (Drag-reorder + optional autosave remain follow-ups.)
 
 ### 6c. Cross-cutting components/interactions unbuilt
 - [ ] **Charting library** — none installed (no recharts/d3/nivo/chart.js); charts are hand-rolled static `<svg>`, no animated `ScoreGauge` — PRD §1.2
