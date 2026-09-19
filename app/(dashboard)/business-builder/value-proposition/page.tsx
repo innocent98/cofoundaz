@@ -1,12 +1,15 @@
 'use client';
 
 import React from 'react';
-import { Check, Loader2, Plus, X } from 'lucide-react';
+import { Check, Loader2, Plus, X, GripVertical } from 'lucide-react';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { useCanvasEditor, BlockDef } from '@/hooks/useCanvasEditor';
+import { InlineEditable } from '@/components/business-builder/inline-editable';
+import { useChipReorder } from '@/components/business-builder/use-chip-reorder';
 
 export default function ValuePropositionPage() {
-  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem } = useCanvasEditor('value_prop');
+  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem, moveItem } = useCanvasEditor('value_prop');
+  const reorder = useChipReorder(moveItem);
 
   const onAdd = (key: string) => {
     const v = window.prompt('Enter a point:');
@@ -34,11 +37,17 @@ export default function ValuePropositionPage() {
               {listOf(b.key).map((item, idx) => (
                 <span
                   key={idx}
-                  className={`group/item flex items-center gap-1 text-xs font-medium pl-3.5 pr-2 py-2 rounded-card border ${
-                    tone === 'sand' ? 'bg-[#F5F2E9] text-[#522F1A] border-[#EAE3D2]' : 'bg-[#E6EFEA] text-[#183B28] border-[#D5E3DB]'
+                  {...reorder.dropProps(b.key, idx)}
+                  className={`group/item flex items-center gap-1 text-xs font-medium pl-2 pr-2 py-2 rounded-card border transition-colors ${
+                    reorder.isOver(b.key, idx)
+                      ? 'ring-1 ring-[#2D5A3F] border-[#2D5A3F]'
+                      : tone === 'sand' ? 'bg-[#F5F2E9] text-[#522F1A] border-[#EAE3D2]' : 'bg-[#E6EFEA] text-[#183B28] border-[#D5E3DB]'
                   }`}
                 >
-                  {item}
+                  <span {...reorder.handleProps(b.key, idx)} className="cursor-grab opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0" aria-label="Drag to reorder">
+                    <GripVertical className="w-3 h-3" />
+                  </span>
+                  <InlineEditable value={item} onSave={(t) => editItem(b.key, idx, t)} />
                   <button onClick={() => removeItem(b.key, idx)} className="opacity-0 group-hover/item:opacity-100 transition-opacity hover:text-[#A34B4B]" aria-label="Remove">
                     <X className="w-3 h-3" />
                   </button>

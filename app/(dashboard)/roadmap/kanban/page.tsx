@@ -12,12 +12,51 @@ export default function KanbanPage() {
   const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // Drag-and-drop: an optimistic taskId→status override that a drop applies
+  // immediately, then reconciles when updateTask re-fetches the tree. dragOverCol
+  // highlights the drop target; dndError surfaces a failed move (e.g. mentor 403).
+  const [pending, setPending] = useState<Record<string, string>>({});
+  const [dragOverCol, setDragOverCol] = useState<string | null>(null);
+  const [dndError, setDndError] = useState<string | null>(null);
+
   // Grouping logic for Status
   const statusColumns = [
     { id: 'todo', label: 'To Do' },
     { id: 'in_progress', label: 'In Progress' },
     { id: 'done', label: 'Done' }
   ];
+
+  const allTasks = phases.flatMap((p) => p.milestones.flatMap((m) => m.tasks));
+  // Effective status = the in-flight optimistic override, else the server value.
+  const effStatus = (t: { id: string; status: string }) => pending[t.id] ?? t.status;
+
+  const handleDragStart = (e: React.DragEvent, taskId: string) => {
+    e.dataTransfer.setData('taskId', taskId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDrop = async (e: React.DragEvent, colId: string) => {
+    e.preventDefault();
+    setDragOverCol(null);
+    const taskId = e.dataTransfer.getData('taskId');
+    if (!taskId) return;
+    const task = allTasks.find((t) => t.id === taskId);
+    // An 'overdue' card lives in To Do, so a drop back onto To Do is still a move.
+    if (!task || effStatus(task) === colId) return;
+    setDndError(null);
+    setPending((p) => ({ ...p, [taskId]: colId })); // optimistic
+    try {
+      await updateTask(taskId, { status: colId }); // PATCH + refetch = source of truth
+    } catch {
+      setDndError('Could not move that task — you may not have edit access.');
+    } finally {
+      setPending((p) => {
+        const next = { ...p };
+        delete next[taskId];
+        return next;
+      });
+    }
+  };
 
   const allMilestones = phases.flatMap(p => p.milestones);
   // Derive the open milestone from live state by id, so it reflects edits after
@@ -57,14 +96,24 @@ export default function KanbanPage() {
           </div>
         </div>
 
+        {groupBy === 'Status' && (
+          <p className="text-xs text-[#8E9B90] -mt-2">Drag a task card between columns to change its status.</p>
+        )}
+        {dndError && (
+          <div className="bg-[#FBEBEB] border border-[#EBC9C4] text-[#B0483B] text-xs font-semibold rounded-card px-3 py-2 -mt-2">
+            {dndError}
+          </div>
+        )}
+
         <div className="flex-1 flex gap-6 overflow-x-auto no-scrollbar pb-4">
-          
+
           {groupBy === 'Status' ? (
             statusColumns.map(col => {
-              // Group tasks by status for mockup
-              const colTasks = phases.flatMap(p => 
-                p.milestones.flatMap(m => 
-                  m.tasks.filter(t => t.status === col.id || (col.id === 'todo' && t.status === 'overdue'))
+              // Tasks in this column by effective (optimistic-aware) status. An
+              // overdue task is a past-due To Do, so it shows under To Do.
+              const colTasks = phases.flatMap(p =>
+                p.milestones.flatMap(m =>
+                  m.tasks.filter(t => effStatus(t) === col.id || (col.id === 'todo' && effStatus(t) === 'overdue'))
                     .map(t => ({ task: t, parentMilestone: m }))
                 )
               );
@@ -77,13 +126,29 @@ export default function KanbanPage() {
                       {colTasks.length}
                     </span>
                   </div>
-                  
-                  <div className="flex-1 bg-[#F0F0EC] rounded-modal p-3 flex flex-col gap-3 min-h-[200px]">
+
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                      if (dragOverCol !== col.id) setDragOverCol(col.id);
+                    }}
+                    onDragLeave={(e) => {
+                      // Only clear when the pointer actually leaves the column box.
+                      if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverCol(null);
+                    }}
+                    onDrop={(e) => handleDrop(e, col.id)}
+                    className={`flex-1 bg-[#F0F0EC] rounded-modal p-3 flex flex-col gap-3 min-h-[200px] transition-colors ${
+                      dragOverCol === col.id ? 'ring-2 ring-[#2D5A3F] ring-inset bg-[#E7EEE9]' : ''
+                    }`}
+                  >
                     {colTasks.map(({ task, parentMilestone }) => (
-                      <div 
+                      <div
                         key={task.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, task.id)}
                         onClick={() => openDrawer(parentMilestone)}
-                        className="bg-white border border-[#EBEBE6] rounded-card p-4 shadow-card hover:shadow-raised hover:border-[#C5CFC7] transition-all cursor-pointer flex flex-col gap-3 group"
+                        className="bg-white border border-[#EBEBE6] rounded-card p-4 shadow-card hover:shadow-raised hover:border-[#C5CFC7] transition-all cursor-pointer flex flex-col gap-3 group active:cursor-grabbing"
                       >
                         <div className="flex items-start gap-2">
                           <GripVertical className="w-4 h-4 text-[#C5CFC7] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab shrink-0" />

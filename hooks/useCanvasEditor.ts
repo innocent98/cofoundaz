@@ -88,9 +88,33 @@ export function useCanvasEditor(type: string) {
     commit({ ...blocks, [key]: listOf(key).filter((_, i) => i !== idx) });
   }, [blocks, listOf, commit]);
 
+  // Edit a single list item in place. Empty text removes it (an emptied chip is a
+  // delete); a no-op edit skips the save.
+  const editItem = useCallback((key: string, idx: number, text: string) => {
+    const t = text.trim();
+    const list = listOf(key);
+    if (idx < 0 || idx >= list.length) return;
+    if (t === list[idx]) return;
+    const next = t
+      ? list.map((v, i) => (i === idx ? t : v))
+      : list.filter((_, i) => i !== idx);
+    commit({ ...blocks, [key]: next });
+  }, [blocks, listOf, commit]);
+
   const setText = useCallback((key: string, value: string) => {
     commit({ ...blocks, [key]: value });
   }, [blocks, commit]);
 
-  return { blocks, blockDefs, loading, saveStatus, listOf, textOf, addItem, removeItem, setText };
+  // Reorder an item within its block (drag-to-reorder). Splices `from` out and
+  // reinserts it at `to`; persists via the same autosave as every other edit.
+  const moveItem = useCallback((key: string, from: number, to: number) => {
+    const list = listOf(key);
+    if (from === to || from < 0 || from >= list.length || to < 0 || to >= list.length) return;
+    const next = [...list];
+    const [m] = next.splice(from, 1);
+    next.splice(to, 0, m);
+    commit({ ...blocks, [key]: next });
+  }, [blocks, listOf, commit]);
+
+  return { blocks, blockDefs, loading, saveStatus, listOf, textOf, addItem, removeItem, editItem, moveItem, setText };
 }

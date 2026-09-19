@@ -35,6 +35,7 @@ export default function PublicSignerPage() {
   const [loading, setLoading] = useState(true);
   const [invalid, setInvalid] = useState(false);
   const [typedName, setTypedName] = useState('');
+  const [consented, setConsented] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SignResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +68,10 @@ export default function PublicSignerPage() {
     const name = typedName.trim();
     if (!name) {
       setError('Please type your full name to sign.');
+      return;
+    }
+    if (!consented) {
+      setError('Please confirm your consent to sign electronically.');
       return;
     }
     setSubmitting(true);
@@ -158,23 +163,71 @@ export default function PublicSignerPage() {
                 )}
               </div>
 
-              <form onSubmit={sign} className="flex flex-col gap-3">
-                <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider">Type your full name to sign</label>
+              {/* Inline preview so the signer can read the document without leaving
+                  the page. Only for previewable types over an absolute URL; other
+                  files fall back to the "Open" link above. */}
+              {/^https?:\/\//.test(view.file.url) &&
+                (view.file.content_type?.includes('pdf') ? (
+                  <iframe
+                    src={view.file.url}
+                    title={view.file.filename}
+                    className="w-full h-80 rounded-card border border-[#E8E8E2] bg-[#F7F7F5]"
+                  />
+                ) : view.file.content_type?.startsWith('image/') ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={view.file.url}
+                    alt={view.file.filename}
+                    className="w-full max-h-80 object-contain rounded-card border border-[#E8E8E2] bg-[#F7F7F5]"
+                  />
+                ) : null)}
+
+              <form onSubmit={sign} className="flex flex-col gap-4">
+                <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider" htmlFor="typed-name">
+                  Type your full name to sign
+                </label>
                 <input
+                  id="typed-name"
                   type="text"
                   value={typedName}
                   onChange={(e) => setTypedName(e.target.value)}
                   placeholder="Your full name"
                   className="w-full border border-[#D5DDD6] rounded-input px-3 py-2.5 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58]"
                 />
-                <p className="text-[11px] text-[#8E9B90]">
-                  By typing your name and clicking Sign, you agree this is your electronic signature.
-                </p>
+
+                {/* Adopt-your-signature: render the typed name in a script face so
+                    the signer sees their signature before committing. What we
+                    submit is still the typed name — the API records typed_name only. */}
+                <div className="rounded-card border border-dashed border-[#D5DDD6] bg-[#FBFBFA] px-4 py-3">
+                  <span className="block text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider mb-1">
+                    Your signature
+                  </span>
+                  <span
+                    className="block text-2xl text-[#1E2923] leading-tight min-h-[2rem]"
+                    style={{ fontFamily: "'Snell Roundhand', 'Segoe Script', 'Brush Script MT', cursive", fontStyle: 'italic' }}
+                  >
+                    {typedName.trim() || <span className="text-[#C3CBC4]">Your signature appears here</span>}
+                  </span>
+                </div>
+
+                <label className="flex items-start gap-2 text-[11px] text-[#617065] leading-relaxed cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={consented}
+                    onChange={(e) => setConsented(e.target.checked)}
+                    className="mt-0.5 accent-[#183B28] w-3.5 h-3.5 shrink-0"
+                  />
+                  <span>
+                    I agree that typing my name above is my electronic signature, and I consent to sign this
+                    document electronically.
+                  </span>
+                </label>
+
                 {error && <p className="text-xs font-semibold text-[#B0483B]">{error}</p>}
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className="mt-1 bg-[#183B28] hover:bg-[#11291C] disabled:opacity-60 text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card"
+                  disabled={submitting || !consented || !typedName.trim()}
+                  className="mt-1 bg-[#183B28] hover:bg-[#11291C] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card"
                 >
                   {submitting ? 'Signing…' : 'Sign document'}
                 </button>

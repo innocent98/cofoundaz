@@ -74,10 +74,11 @@ UI scaffolding shipped and tokenized (PR #10, #14). **All pages are static mock 
 - [x] Admin: Admin Portal, Super-Admin
 - [x] **Local mock API layer** (PR #17) — 78 `app/api/v1/*` handlers (canned JSON, OpenAPI-shaped) + typed client SDK (`lib/api/*`) + `useDashboardApi`/`useBusinessBuilderApi` hooks
 - [x] Auth + onboarding pages consume the mock API (`/api/v1/auth/*`, onboarding)
-- [ ] Consume the API from the **dashboard pages** (hooks exist; most pages still render static inline data)
-- [ ] **Wire to the real `cofoundaz-api`** — flip `NEXT_PUBLIC_API_BASE_URL` off the mocks; replace canned data with real fetching + loading/empty/error states ← next major body of work
-- [ ] Decide mock-handler fate in production (they currently ship as app routes)
+- [x] Consume the API from the **dashboard pages** — done across the integrated modules
+- [x] **Wire to the real `cofoundaz-api`** — **25 modules integrated & verified live against staging** (auth/refresh, onboarding, dashboard, health +subroutes, mission +actions/history, roadmap +all write slices, business-builder canvases/records/suggestions/positioning/ai-fill, notifications +prefs, journal, learning, documents +sharing/e-sign/templates/editor/recipient pages). See [`docs/api-integration-handoff.md`](../api-integration-handoff.md) + `docs/sop/module-*`.
+- [x] Decide mock-handler fate in production — **removed** all 78 `app/api/v1/*` handlers; every call now goes through `apiClient` → real API base URL. See `docs/sop/mock-api-routes-removal.md`
 - [ ] Add dashboard routes to the e2e + axe sweep (currently marketing-only)
+- ⛔ Backend-blocked (not FE bugs): Assessment question prompts, AI-fill worker, journal encryption key on staging, emailed sign/share link host. See handoff §⛔.
 
 ## 4. Backlog / upcoming
 - [ ] API integration guide consumption (per `cofoundaz-api` fe-integration guides)
@@ -87,6 +88,43 @@ UI scaffolding shipped and tokenized (PR #10, #14). **All pages are static mock 
 
 ## 5. Deferred follow-ups (non-blocking)
 - [x] Clear the lint warnings — **done** (109 → 0: removed unused `request` params from mock route handlers, unused imports/vars/setters across pages/hooks/components, and resolved the 2 `react-hooks/exhaustive-deps` warnings; `lint` now 0 warnings / 0 errors)
-- [ ] Sync `main` with `develop`
+- [x] Sync `main` with `develop` — done (main content-identical to develop)
+- [x] Remove local mock API route handlers — done (`docs/sop/mock-api-routes-removal.md`)
 - [ ] Resolve the two homes (`app/home/page.tsx` vs `app/(marketing)/page.tsx`)
 - [ ] Convert remaining hardcoded green/neutral hexes in dashboard to token classes
+- [ ] Manual API test pass by product owner — see [`docs/checklist/api-test-checklist.md`](./api-test-checklist.md)
+
+## 6. UI / functionality gaps vs PRD + UI handoff (audit 2026-09-19)
+Frontend features the Technical PRD / UI comp specify that are **not built** (independent of API readiness). Sourced from PRD Modules 01–26; the 14 MB `UI.html` corroborates the module set but couldn't be decoded per-screen, so component-level items are inferred from PRD + code.
+
+### 6a. Missing screens/flows (no route, no tab equivalent)
+- [x] **MFA setup** (`/setup/mfa`) + **MFA challenge** (`/login/mfa`) — **done** (TOTP: QR+key→verify→backup codes; login `mfa_required`→challenge with backup-code fallback). SMS shown disabled (backend `FeatureNotEnabled`); no disable endpoint yet. SOP `module-27-mfa-totp`. PRD 01.4
+- [x] **Accept-invitation** landing (`/invite/{token}`) — **done** (`GET /invitations/{token}` preview + `POST /invitations/accept`; auth-aware). SOP `module-26-invite-accept-and-sign-polish`
+- [x] **E-signature signing UI** on `/sign/{token}` — **done** (adopt-&-sign polish: inline doc preview + signature-font adopt + consent checkbox). Was already a working typed-signature flow; a drawn pad is not buildable — API stores `typed_name` only. SOP `module-26-…`
+- ⛔ **Calendar reminders** (per-event-type offset rules) — PRD 19.4 — **backend-blocked**: no calendar API. See `docs/backend-requests-ui-gaps.md`.
+- ⛔ **Journal → Retrospectives** — PRD 21.5 — **backend-blocked**: no retro concept (journal writes also blocked on encryption key). See backend-requests doc.
+- ⛔ **Team → Directory** (member cards, external collaborators) — PRD 23.5 — **backend-blocked**: no members API (list/role/remove/seats). See backend-requests doc.
+- ⛔ **Notifications → Archived** (with restore) — PRD 20.4 — **backend-blocked**: no archive/restore endpoint. See backend-requests doc.
+- [ ] **Analytics → Saved reports** — PRD 22.2
+- [ ] **Admin → Reported-issues** queue — PRD 25.5
+- [ ] **Super-Admin → Impersonate user** + **Billing overrides** — PRD 26.1 / 26.6
+- [ ] Marketing **Blog & Help Center** — *deliberately deferred v1* (`content/nav.ts`)
+
+### 6b. Pages present but thin vs spec
+- [ ] **Admin Portal** — one condensed dashboard, missing the 5 distinct workflow screens (user lookup+suspend, full ticket thread, marketplace moderation actions, reported issues) — PRD 25
+- [ ] **Super-Admin** — missing impersonation, billing overrides, AI-config diff/deploy/rollback/playground depth — PRD 26
+- [ ] **Billing** — folded into Settings tabs rather than `/billing/*` routes; confirm plan-change/prorate/cancel + 90%-usage states exist — PRD 24
+- [ ] **Onboarding wizard** — no `Stepper`, no persistent streaming AI assistant panel vs 6-step spec — PRD 01.6
+- [x] **Roadmap Kanban** — **done**: drag a task card between To Do/In Progress/Done to change status (optimistic + persisted via `updateTask`), verified live. SOP `module-28-roadmap-kanban-dnd`. PRD 05.2
+- [x] **Document editor — section editing** — **done**: add / remove / reorder sections (**drag-to-reorder** via grip handle + up/down buttons) + editable headings (was body-only), explicit Save with the 409 conflict model, verified live. SOP `module-31-document-section-editing`. (Optional autosave remains a follow-up.)
+
+### 6c. Cross-cutting components/interactions unbuilt
+- [~] **Charting library** — **recharts added**; real charts on **Health** (history area chart, 5-dimension radar, dimension-detail trend), verified live. Fabricated dashboard KPI sparkline **removed** (no real series exists). `components/health/health-charts.tsx`, SOP `module-32-real-charts-health`. Other surfaces (finance etc.) stay mock until their APIs ship. PRD §1.2
+- [~] **DiffViewer** — **re-plan done** (`components/roadmap/date-diff.tsx`: old→new + day-delta; proposal summary; expandable history diffs). SOP `module-29-roadmap-replan-diffviewer`. Still to do for doc versions / AI-config prompts / assessment. PRD 05.6/07.3/18.4/26.2
+- [x] **Canvas item editing** — **done**: edit-in-place (SOP `module-30`) **+ drag-to-reorder** within a block via a grip handle (`components/business-builder/use-chip-reorder.ts`, `useCanvasEditor.moveItem`), verified live. SOP `module-33-canvas-item-reorder`. (Records `position` reorder + lean-canvas migration remain separate follow-ups.) PRD 08.x
+- [ ] **SignaturePad** — none — PRD 18.5
+- [ ] **Stepper / wizard** component (onboarding, campaign/smoke-test/sequence builders) — multi-step flows are flat forms — PRD §1.2
+- [ ] **⌘K SearchCommandPalette** — global search unbuilt — PRD §1.2/§2.1
+- [ ] **RichTextEditor** (docs/journal/notes) — no Tiptap/Slate/ProseMirror; plain textareas — PRD §1.2
+- [ ] Marketing **content-calendar drag-to-reschedule** — PRD 10.2
+- ✓ *Built for balance:* confetti bursts, global AI Co-Founder dock drawer, kanban DnD on Sales/Funding/Validation-assumptions

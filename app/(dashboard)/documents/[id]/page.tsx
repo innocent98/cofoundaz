@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, Loader2, Check, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Loader2, Check, AlertTriangle, Plus, Trash2, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
 import { useDocumentEditor, DocSection } from '@/hooks/useDocumentEditor';
+import { useChipReorder } from '@/components/business-builder/use-chip-reorder';
 
 export default function DocumentEditorPage() {
   const params = useParams<{ id: string }>();
@@ -29,11 +30,49 @@ export default function DocumentEditorPage() {
     });
   }, [doc]);
 
-  const setSectionBody = (idx: number, body: string) => {
-    setSections((prev) => prev.map((s, i) => (i === idx ? { ...s, body } : s)));
+  const touch = () => {
     setDirty(true);
     setSavedAt(false);
   };
+
+  const setSectionBody = (idx: number, body: string) => {
+    setSections((prev) => prev.map((s, i) => (i === idx ? { ...s, body } : s)));
+    touch();
+  };
+
+  const setSectionHeading = (idx: number, heading: string) => {
+    setSections((prev) => prev.map((s, i) => (i === idx ? { ...s, heading } : s)));
+    touch();
+  };
+
+  const addSection = () => {
+    // New sections carry no id; the server assigns one on save.
+    setSections((prev) => [...prev, { heading: 'New section', body: '' }]);
+    touch();
+  };
+
+  const removeSection = (idx: number) => {
+    setSections((prev) => prev.filter((_, i) => i !== idx));
+    touch();
+  };
+
+  const moveSection = (idx: number, dir: -1 | 1) => moveSectionTo(idx, idx + dir);
+
+  // Move a section from one index to another (drag-reorder + the up/down buttons).
+  const moveSectionTo = (from: number, to: number) => {
+    setSections((prev) => {
+      if (from === to || to < 0 || to >= prev.length) return prev;
+      const next = [...prev];
+      const [m] = next.splice(from, 1);
+      next.splice(to, 0, m);
+      return next;
+    });
+    touch();
+  };
+
+  // Drag-reorder via a grip handle (a single list, so the reorder hook's block key
+  // is a constant). The up/down buttons remain as the keyboard-accessible path.
+  const reorder = useChipReorder((_key, from, to) => moveSectionTo(from, to));
 
   const onSave = async () => {
     setSaving(true);
@@ -121,19 +160,77 @@ export default function DocumentEditorPage() {
             </div>
 
             <div className="flex flex-col gap-7">
-              {sections.length === 0 && <p className="text-sm text-[#8E9B90] italic">This document has no sections.</p>}
+              {sections.length === 0 && (
+                <p className="text-sm text-[#8E9B90] italic">No sections yet — add one below.</p>
+              )}
               {sections.map((sec, idx) => (
-                <section key={sec.id ?? idx} className="flex flex-col gap-2">
-                  <h2 className="text-sm font-bold text-[#1E2923] uppercase tracking-wide">{sec.heading}</h2>
+                <section
+                  key={sec.id ?? `new-${idx}`}
+                  {...reorder.dropProps('sec', idx)}
+                  className={`flex flex-col gap-2 group/sec rounded-card p-2 -m-2 transition-colors ${reorder.isOver('sec', idx) ? 'ring-1 ring-[#183B28] bg-[#FAFAFA]' : ''}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      {...reorder.handleProps('sec', idx)}
+                      className="cursor-grab text-[#C5CFC7] hover:text-[#8E9B90] opacity-0 group-hover/sec:opacity-100 transition-opacity shrink-0"
+                      aria-label="Drag to reorder section"
+                    >
+                      <GripVertical className="w-4 h-4" />
+                    </span>
+                    <input
+                      type="text"
+                      value={sec.heading}
+                      onChange={(e) => setSectionHeading(idx, e.target.value)}
+                      placeholder="Section heading"
+                      className="flex-1 text-sm font-bold text-[#1E2923] uppercase tracking-wide bg-transparent focus:outline-none focus:bg-[#FAFAFA] rounded px-1 -mx-1 py-0.5 placeholder:text-[#C5CFC7] placeholder:normal-case"
+                    />
+                    {/* Reorder + remove — appear on row hover to keep the page calm. */}
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover/sec:opacity-100 focus-within:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, -1)}
+                        disabled={idx === 0}
+                        aria-label="Move section up"
+                        className="p-1 rounded text-[#8E9B90] hover:text-[#1E2923] hover:bg-[#F0F0EC] disabled:opacity-30 disabled:hover:bg-transparent"
+                      >
+                        <ChevronUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, 1)}
+                        disabled={idx === sections.length - 1}
+                        aria-label="Move section down"
+                        className="p-1 rounded text-[#8E9B90] hover:text-[#1E2923] hover:bg-[#F0F0EC] disabled:opacity-30 disabled:hover:bg-transparent"
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeSection(idx)}
+                        aria-label="Remove section"
+                        className="p-1 rounded text-[#8E9B90] hover:text-[#B0483B] hover:bg-[#FBEBEB]"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                   <textarea
                     value={sec.body}
                     onChange={(e) => setSectionBody(idx, e.target.value)}
-                    placeholder={`Write the ${sec.heading.toLowerCase()}…`}
+                    placeholder={`Write the ${(sec.heading || 'section').toLowerCase()}…`}
                     rows={5}
                     className="w-full bg-[#FAFAFA] border border-[#E0E0DB] rounded-card p-4 text-sm text-[#1E2923] focus:outline-none focus:border-[#183B28] focus:bg-white transition-all resize-y leading-relaxed"
                   />
                 </section>
               ))}
+
+              <button
+                type="button"
+                onClick={addSection}
+                className="flex items-center justify-center gap-1.5 text-sm font-semibold text-[#617065] hover:text-[#183B28] border border-dashed border-[#D5DDD6] hover:border-[#4D6D58] rounded-card py-3 transition-colors"
+              >
+                <Plus className="w-4 h-4" /> Add section
+              </button>
             </div>
           </div>
         </>
