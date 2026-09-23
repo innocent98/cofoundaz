@@ -33,6 +33,9 @@ hit during integration). Complements the developer record in
 | 1.6 ⚠️ | `/onboarding` logo step | Upload a logo | Uploads via `POST /onboarding/logo` (multipart), preview shows | Now routed through `apiClient` (real API), not a local mock — verify it actually reaches staging |
 | 1.7 ✅ | `/dashboard` | Load the dashboard | Widgets populate from `GET /dashboard/summary` + `/activity`; health pill + notification bell show **real** numbers | No hardcoded `72`/`5` |
 | 1.8 ⚠️ | `/dashboard` | Click "Do it" on an AI briefing card | Fires `POST /dashboard/briefing/{id}/actions/1/accept` | If the endpoint isn't live it fails silently (card stays) — by design, no crash |
+| 1.9 ✅ | sidebar → **Security (2FA)** / `/setup/mfa` | Set up an authenticator: scan the QR (or copy the key), enter the 6-digit code, save the backup codes | `POST /auth/mfa/totp/setup` → `{secret, otpauth_uri}`; `POST …/totp/verify` → `{enabled, backup_codes}` | ⚠️ **Enabling is one-way — no disable endpoint yet, so use a throwaway account, NOT the shared test one.** **SMS** option is greyed "coming soon" (backend `FeatureNotEnabled`). Needs `MFA_ENCRYPTION_KEY` set (it is on staging) or every call 500s |
+| 1.10 ✅ | `/login` with a 2FA-enabled account | Log in → 6-digit challenge → enter the code (or a backup code) | Login returns `{mfa_required, mfa_ticket}` (no token); `POST /auth/mfa/challenge {mfa_ticket, code}` → tokens | The "Use a backup code" toggle accepts a saved code. Deep-linking `/login/mfa` with no ticket bounces to `/login` |
+| 1.11 ✅ | `/invite/{token}` | Open an invite link — try both logged out **and** logged in | `GET /invitations/{token}` previews inviter/workspace/role; `POST /invitations/accept` joins + lands `/dashboard` | Logged out → login/signup CTAs (login returns you here to accept). ⚠️ Logged in as a **different email** than invited → "log in with {email}" mismatch banner. Expired/used → 404 "no longer valid" |
 
 ---
 
@@ -45,6 +48,7 @@ hit during integration). Complements the developer record in
 | 2.3 ✅ | `/health/history` | Change the range selector | `GET /health-score/history?range=…` refetches | Chart matches range |
 | 2.4 ⚠️ | `/health/benchmarks` | Load benchmarks | Shows cohort data **or** an honest "not enough data" state | Empty cohort must say so — not fake percentiles |
 | 2.5 ⚠️ | `/health/recommendations` | Accept / dismiss a recommendation | `POST …/{id}/accept\|dismiss`, item resolves | Writes are **contract-verified but not run live** (test account has 0 recs) — **re-test on a lower-scoring workspace**. Expect `409 RECOMMENDATION_RESOLVED` if acted twice |
+| 2.6 ✅ | `/health` + `/health/history` + `/health/dimensions/[dim]` | Look at the charts (recharts) | Overview: a **5-dimension radar**; history: a **score area chart** (0–100 axis, tooltip); dimension detail: a **trend line** | All fed **real** API data — a single assessment renders one honest dot, not a fake line. Note the **dashboard** KPI cards deliberately have **no** sparkline now (no series exists — a trend there would be fabricated) |
 
 ---
 
@@ -69,6 +73,8 @@ hit during integration). Complements the developer record in
 | 4.3 ⚠️ | `/roadmap/dependencies` | Add a task dependency that would form a loop | Server rejects with `409` (cycle) | FE also pre-checks; confirm the cycle is blocked |
 | 4.4 ✅ | `/roadmap/templates` | Browse gallery, apply a template | `GET /roadmap/templates`, `POST …/apply`; roadmap updates | — |
 | 4.5 ✅ | `/roadmap/replan` | Preview then apply an AI re-plan; check history | `POST /roadmap/replan/preview\|apply`, `GET …/history` | Preview must not mutate until you **apply** |
+| 4.6 ✅ | `/roadmap/kanban` (Status view) | Drag a task card between **To Do / In Progress / Done** | Optimistic move; `PATCH /roadmap/tasks/{id}` persists the new status; refetch reconciles | Mentor/viewer → `403` and the card snaps back with a note. Phase view is click-to-open (no "move milestone to phase" API) |
+| 4.7 ✅ | `/roadmap/replan` | Generate a re-plan; expand a **history** entry | Each change shows **old → new date + a day-delta** ("+17 days"); history entries expand to their real before/after diffs | Deltas are computed from the real dates — nothing invented |
 
 ---
 
@@ -83,6 +89,7 @@ hit during integration). Complements the developer record in
 | 5.5 ⚠️ | `/business-builder` suggestions panel | Approve / reject a suggestion | `POST …/suggestions/{id}/approve\|reject` | `409` if the canvas moved on or suggestion no longer pending |
 | 5.6 ✅ | positioning map | Edit axes | `GET/PUT /positioning-map` | Competitors plot against saved axes |
 | 5.7 ⛔ | any canvas | Click **AI-fill / AI draft** | Fires `POST /canvases/{type}/ai-fill` → **202 queued**, shows "AI draft queued — coming soon" | **No worker drains the job** — it never completes. This is the honest stub, **not** a bug (see blocked list) |
+| 5.8 ✅ | `.../business-model-canvas`, `/value-proposition`, `/swot` | **Click an item to edit it in place**; **drag an item by its grip handle to reorder** within a block | Both autosave the full block via `PUT /canvases/{type}` | Edit: Enter/blur commits, Escape cancels, emptying it removes the item. Reorder stays **within one block**. `mission-vision` is text-only; `lean-canvas` doesn't have these yet |
 
 ---
 
@@ -108,6 +115,8 @@ hit during integration). Complements the developer record in
 | 7.4 ✅ | `/documents/templates` | Create a doc from a template | `GET /document-templates`, `POST /documents {template_key}` | — |
 | 7.5 ⚠️ | `/documents/[id]` | Open the editor, edit, save | `GET/PUT /documents/{id}` with `version` | ⚠️ On `409 DOCUMENT_VERSION_CONFLICT` the editor shows a **conflict banner** and does **NOT** auto-retry (unlike canvases) — reload to resolve |
 | 7.6 ⛔ | emailed `/sign/{token}` or `/shared/{token}` link | Open a **real emailed** link | The recipient pages are built and work when hit directly | ⚠️ A real email link currently opens **raw JSON**, because `SERVER_HOST` points at the API host, not the FE origin. Test by visiting `/sign/{token}` on the **FE** origin directly. Backend-blocked |
+| 7.7 ✅ | `/documents/[id]` editor | **Add / remove / reorder** sections (drag the grip handle **or** use up/down), edit **headings**, then Save | The full `sections[]` saves via `PUT /documents/{id}` | Explicit **Save** (documents don't autosave — 409 conflict model, item 7.5). Headings were previously read-only |
+| 7.8 ✅ | `/sign/{token}` (visit on the FE origin) | Review the inline doc preview, type your name → see the **signature-font "adopt"** render, tick **consent**, Sign | `POST /sign/{token} {typed_name}` records it; success/invalid states shown | Typed-signature only — **no drawn pad** (the API stores `typed_name`). The consent checkbox gates the Sign button |
 
 ---
 
@@ -124,6 +133,15 @@ Don't file these as FE bugs; they're waiting on the API team:
    (item 6.4).
 4. **Emailed sign/share links** — open raw JSON until `SERVER_HOST` points at the FE
    origin (item 7.6).
+5. **MFA — SMS + disable** — TOTP works (items 1.9/1.10), but the **SMS** option is a
+   `FeatureNotEnabled` stub (greyed) and there is **no disable/reset** endpoint, so
+   enabling 2FA is one-way. Also confirm `MFA_ENCRYPTION_KEY` in prod (set on staging).
+
+**Designed screens with no endpoints at all** (FE ready to build once the API ships —
+see [`docs/backend-requests-ui-gaps.md`](../backend-requests-ui-gaps.md)): **Team
+Directory** (no members API), **Notifications → Archived** (no archive endpoint),
+**Journal → Retrospectives** and **Calendar reminders** (no such objects). These pages
+either don't exist yet or are intentionally mock — not test targets.
 
 ## What is intentionally fake (🚫 mock-only — no backend exists)
 
@@ -136,10 +154,10 @@ Analytics/Reports, Marketplace, Admin/Super-Admin.
 
 ## Quick sign-off grid
 
-- [ ] 1. Auth / session / refresh / onboarding / dashboard
-- [ ] 2. Health score (+ dimensions/history/benchmarks/recommendations)
+- [ ] 1. Auth / session / refresh / onboarding / dashboard **+ MFA (setup/challenge) + invite-accept**
+- [ ] 2. Health score (+ dimensions/history/benchmarks/recommendations) **+ charts (radar/history/trend)**
 - [ ] 3. Mission (today / actions / settings / history)
-- [ ] 4. Roadmap (tree / CRUD / dependencies / templates / replan)
-- [ ] 5. Business Builder (canvases / records / suggestions / positioning / ai-fill stub)
+- [ ] 4. Roadmap (tree / CRUD / dependencies / templates / replan) **+ Kanban DnD + re-plan diff**
+- [ ] 5. Business Builder (canvases / records / suggestions / positioning / ai-fill stub) **+ canvas edit-in-place + reorder**
 - [ ] 6. Notifications / journal / learning
-- [ ] 7. Documents (files / sharing / e-sign / templates / editor / recipient pages)
+- [ ] 7. Documents (files / sharing / e-sign / templates / editor / recipient pages) **+ section editing + adopt-&-sign**
