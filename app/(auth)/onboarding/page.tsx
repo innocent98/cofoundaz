@@ -157,6 +157,7 @@ export default function OnboardingPage() {
       onUploadLogo={handleUploadLogo}
       onSendInvites={handleSendInvites}
       onComplete={handleComplete}
+      onFetchAiPanel={getOnboardingState}
       isSubmitting={submitting}
       error={error}
       countries={COUNTRIES}

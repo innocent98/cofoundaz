@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Sparkles } from 'lucide-react'
 import { Button, Field, fieldControlClasses } from '@/ui/primitives'
-import { getOnboardingState, type OnboardingState } from '@/lib/api/onboarding'
 
 export interface OnboardingFormValues {
   step: number
@@ -26,10 +25,11 @@ export interface OnboardingFormValues {
 export interface OnboardingWizardProps {
   initialValues?: Partial<OnboardingFormValues>
   aiPanel?: string | null
-  onSaveStep: (stepNumber: number, data: Partial<OnboardingFormValues>) => Promise<OnboardingState | void>
+  onSaveStep: (stepNumber: number, data: Partial<OnboardingFormValues>) => Promise<{ ai_panel?: string | null } | void>
   onUploadLogo?: (file: File) => Promise<void>
   onSendInvites?: (invites: Array<{ email: string; role: string }>) => Promise<void>
   onComplete: () => Promise<void>
+  onFetchAiPanel?: () => Promise<{ ai_panel?: string | null } | string | null | void>
   isSubmitting?: boolean
   error?: string | null
   // ISO country options for the step-1 Country select (passed in to keep ui/ portable).
@@ -113,6 +113,7 @@ export function OnboardingWizard({
   onUploadLogo,
   onSendInvites,
   onComplete,
+  onFetchAiPanel,
   isSubmitting = false,
   error,
   countries = [],
@@ -125,12 +126,14 @@ export function OnboardingWizard({
   // Single delayed re-fetch when arriving at the review/completion step if ai_panel is not yet loaded.
   // NO tight-loop polling.
   useEffect(() => {
-    if (currentStep === TOTAL_STEPS && !currentAiPanel && !hasRefetchedAiPanelRef.current) {
+    if (currentStep === TOTAL_STEPS && !currentAiPanel && !hasRefetchedAiPanelRef.current && onFetchAiPanel) {
       hasRefetchedAiPanelRef.current = true
       const timer = setTimeout(async () => {
         try {
-          const fresh = await getOnboardingState()
-          if (fresh?.ai_panel) {
+          const fresh = await onFetchAiPanel()
+          if (typeof fresh === 'string' && fresh) {
+            setLocalAiPanel(fresh)
+          } else if (fresh && typeof fresh === 'object' && 'ai_panel' in fresh && fresh.ai_panel) {
             setLocalAiPanel(fresh.ai_panel)
           }
         } catch {
@@ -139,7 +142,7 @@ export function OnboardingWizard({
       }, 1500)
       return () => clearTimeout(timer)
     }
-  }, [currentStep, currentAiPanel])
+  }, [currentStep, currentAiPanel, onFetchAiPanel])
 
   const [values, setValues] = useState<OnboardingFormValues>({
     step: initialValues?.step || 1,

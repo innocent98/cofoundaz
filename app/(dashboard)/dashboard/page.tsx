@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiClient } from '@/lib/api/client';
 
@@ -241,8 +241,9 @@ export default function DashboardPage() {
   ]);
 
   useEffect(() => {
-    if (summaryData?.mission?.tasks) {
-      queueMicrotask(() => { setTasks(summaryData.mission.tasks); });
+    const missionTasks = summaryData?.mission?.tasks;
+    if (missionTasks) {
+      queueMicrotask(() => { setTasks(missionTasks); });
     }
   }, [summaryData?.mission?.tasks]);
 
@@ -610,7 +611,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-10 h-10 rounded-full bg-[#1E4D3B] flex items-center justify-center shadow-card animate-pulse">
-                      <Sparkles className="w-5 h-5 text-copper-400 animate-spin" style={{ animationDuration: '3s' }} />
+                      <Sparkles className="w-5 h-5 text-copper-500 animate-spin" style={{ animationDuration: '3s' }} />
                     </div>
                     <div>
                       <h3 className="font-bold text-base text-white leading-snug">Your AI Briefing</h3>

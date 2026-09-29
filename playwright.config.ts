@@ -6,9 +6,10 @@ export default defineConfig({
   reporter: 'list',
   use: { baseURL: 'http://localhost:3000' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-webServer: {
-  command: 'npm run start', // or 'npm run dev', 'npm run build && npm run start'
-  port: 3000,
-  reuseExistingServer: !process.env.CI,
-},
+  webServer: {
+    command: 'npm run build && npm start',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
+  },
 })
