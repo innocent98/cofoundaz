@@ -25,24 +25,27 @@ export function TemporalFeeds({
               </p>
             ) : (
               <div className="space-y-4">
-                {activities.map((activity, index) => (
-                  <div key={activity.id} className="relative pl-6">
-                    {/* Timeline line connecting dots */}
-                    {index !== activities.length - 1 && (
-                      <div className="absolute top-5 left-[9px] bottom-[-20px] w-px bg-sage-200" />
-                    )}
-                    <span className="absolute left-1.5 top-2 w-2 h-2 rounded-full bg-sage-300 ring-4 ring-white" />
-                    
-                    <p className="text-sm text-sage-900">
-                      <span className="font-bold">{activity.actor}</span>{' '}
-                      <span className="text-sage-600">{activity.verb}</span>{' '}
-                      <span className="font-semibold">{activity.entity}</span>
-                    </p>
-                    <p className="text-[10px] font-bold text-sage-400 mt-0.5">
-                      {formatRelativeTime(activity.relativeTime || activity.timestamp || '')}
-                    </p>
-                  </div>
-                ))}
+                {activities.map((activity, index) => {
+                  const actorName = activity.actor || 'System';
+                  return (
+                    <div key={activity.id} className="relative pl-6">
+                      {/* Timeline line connecting dots */}
+                      {index !== activities.length - 1 && (
+                        <div className="absolute top-5 left-[9px] bottom-[-20px] w-px bg-sage-200" />
+                      )}
+                      <span className="absolute left-1.5 top-2 w-2 h-2 rounded-full bg-sage-300 ring-4 ring-white" />
+                      
+                      <p className="text-sm text-sage-900">
+                        <span className="font-bold">{actorName}</span>{' '}
+                        <span className="text-sage-600">{activity.verb}</span>{' '}
+                        <span className="font-semibold">{activity.entity}</span>
+                      </p>
+                      <p className="text-[10px] font-bold text-sage-400 mt-0.5">
+                        {formatRelativeTime(activity.relativeTime || activity.time || activity.timestamp || '')}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -55,7 +58,6 @@ export function TemporalFeeds({
           <h3 className="font-bold text-base text-sage-900 mb-4 shrink-0">Upcoming Schedule</h3>
           
           <div className="flex-1 overflow-y-auto pr-2 [scrollbar-width:thin]">
-            {/* Mock Schedule Data */}
             <div className="space-y-4">
               <div className="p-3 bg-sage-50 rounded-card border border-sage-100">
                 <div className="flex justify-between items-start mb-1">
@@ -95,8 +97,14 @@ export function TemporalFeeds({
 }
 
 // Helper to format time relative to now for < 7 days
-function formatRelativeTime(isoString: string) {
-  const date = new Date(isoString);
+function formatRelativeTime(raw: string) {
+  if (!raw) return 'just now';
+  if (raw.endsWith('ago') || raw === 'just now' || raw === 'Yesterday') {
+    return raw;
+  }
+  const date = new Date(raw);
+  if (isNaN(date.getTime())) return raw;
+
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);

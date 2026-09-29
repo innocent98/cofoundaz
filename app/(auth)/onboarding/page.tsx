@@ -19,6 +19,7 @@ import { COUNTRIES } from '@/lib/countries'
 export default function OnboardingPage() {
   const router = useRouter()
   const [initialData, setInitialData] = useState<Partial<OnboardingFormValues> | null>(null)
+  const [aiPanel, setAiPanel] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -27,6 +28,9 @@ export default function OnboardingPage() {
     async function loadState() {
       try {
         const state = await getOnboardingState()
+        if (state.ai_panel) {
+          setAiPanel(state.ai_panel)
+        }
         setInitialData({
           step: state.step || 1,
           full_name: state.full_name || '',
@@ -42,6 +46,7 @@ export default function OnboardingPage() {
           stage: state.stage || '',
           goals: state.goals || [],
           notes: state.notes || '',
+          ai_panel: state.ai_panel || null,
         })
       } catch {
         // Unauthenticated or fresh user starts on Step 1
@@ -57,7 +62,7 @@ export default function OnboardingPage() {
     setSubmitting(true)
     setError(null)
     try {
-      await patchOnboardingState({
+      const res = await patchOnboardingState({
         step,
         full_name: data.full_name || null,
         role_title: data.role_title || null,
@@ -73,6 +78,10 @@ export default function OnboardingPage() {
         goals: data.goals || null,
         notes: data.notes || null,
       })
+      if (res?.ai_panel) {
+        setAiPanel(res.ai_panel)
+      }
+      return res
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         setError(`Failed to save step: ${err.status}`)
@@ -143,6 +152,7 @@ export default function OnboardingPage() {
   return (
     <OnboardingWizard
       initialValues={initialData || { step: 1 }}
+      aiPanel={aiPanel}
       onSaveStep={handleSaveStep}
       onUploadLogo={handleUploadLogo}
       onSendInvites={handleSendInvites}

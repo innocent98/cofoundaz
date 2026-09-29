@@ -1,0 +1,17 @@
+[documents] POST /api/v1/documents/files/{file_id}/signature-requests - Create Signature Request Endpoint
+[documents] GET /api/v1/documents/signature-requests/{request_id} - Get Signature Request Endpoint
+[documents] POST /api/v1/documents/signature-requests/{request_id}/remind - Remind Signature Request Endpoint
+[documents] POST /api/v1/documents/signature-requests/{request_id}/cancel - Cancel Signature Request Endpoint
+[documents] GET /api/v1/sign/{token} - View For Signing Endpoint
+[documents] POST /api/v1/sign/{token} - Sign Endpoint
+[notifications] POST /api/v1/notifications/{notification_id}/read - Mark Read Endpoint
+[notifications] GET /api/v1/notifications/preferences - Get Preferences Endpoint
+[notifications] PUT /api/v1/notifications/preferences - Put Preferences Endpoint
+[learning] GET /api/v1/learning/recommendations - Get Recommendations
+[learning] GET /api/v1/learning/courses - List Courses
+[learning] GET /api/v1/learning/courses/{course_id} - Get Course Detail
+[learning] GET /api/v1/learning/paths - List Paths
+[learning] GET /api/v1/learning/articles - List Articles
+[learning] POST /api/v1/learning/enrollments - Create Enrollment
+[learning] PATCH /api/v1/learning/lessons/{lesson_id}/progress - Update Lesson Progress
+[learning] GET /api/v1/learning/certificates - List My Certificates

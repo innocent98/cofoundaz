@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiClient } from '@/lib/api/client';
 
@@ -11,7 +11,8 @@ import {
   Check, 
   Search, 
   X, 
-  ChevronDown
+  ChevronDown,
+  Sparkles
 } from 'lucide-react';
 import { useDashboardSummary, useAIBriefing, useActivityFeed } from '@/hooks/useDashboardApi';
 import { useAiDrawer } from '@/components/ai-drawer-context';
@@ -36,9 +37,9 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // DATA HOOKS
-  const { data: summaryData, refetch: refetchSummary, error: summaryError } = useDashboardSummary();
-  const { error: briefingError, refetch: refetchBriefing } = useAIBriefing();
-  const { data: activityData, error: activityError, fetchMore: refetchActivity } = useActivityFeed('workspace_123'); // Example ID
+  const { data: summaryData, refetch: refetchSummary } = useDashboardSummary();
+  const { refetch: refetchBriefing } = useAIBriefing();
+  const { data: activityData, fetchMore: refetchActivity } = useActivityFeed('workspace_123'); // Example ID
 
     // Dynamic greeting, time, and user info
         const [userProfile, setUserProfile] = useState<{ first_name?: string; full_name?: string; startup_name?: string } | null>(null);
@@ -393,78 +394,128 @@ export default function DashboardPage() {
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* 1. Startup Health Card */}
           <ErrorBoundary onRetry={refetchSummary}>
-            <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
-              {(() => { if (summaryError) throw summaryError; return null; })()}
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-bold text-base text-sage-900">Startup Health</h3>
-                  <span className="text-xs font-semibold bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                    {(summaryData?.health?.deltaWeekly ?? 0) > 0 ? '+' : ''}{summaryData?.health?.deltaWeekly ?? 0} this week
-                  </span>
+            {summaryData?.health?.error ? (
+              <div className="rounded-card border border-red-200/80 bg-white p-6 shadow-card flex flex-col items-center justify-center text-center min-h-[300px]">
+                <div className="w-8 h-8 rounded-full bg-red-50 text-[#B0483B] flex items-center justify-center mb-3">
+                  <X className="w-4 h-4" />
                 </div>
+                <h3 className="font-bold text-base text-sage-900 mb-1">Health Unavailable</h3>
+                <p className="text-xs text-sage-500 mb-4 max-w-[240px] leading-relaxed">
+                  {summaryData.health.errorMessage || 'Unable to load health metrics right now.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={refetchSummary}
+                  className="px-3.5 py-1.5 text-xs font-bold bg-sage-50 hover:bg-sage-100 text-sage-700 border border-sage-200 rounded-pill transition-colors cursor-pointer"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between min-h-[300px]">
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-bold text-base text-sage-900">Startup Health</h3>
+                    <span className="text-xs font-semibold bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                      {(summaryData?.health?.deltaWeekly ?? 0) > 0 ? '+' : ''}{summaryData?.health?.deltaWeekly ?? 0} this week
+                    </span>
+                  </div>
 
-                <div className="flex flex-col items-center justify-center my-4">
-                  <div className="relative w-40 h-40 flex items-center justify-center">
-                    <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        className="text-[#E4EFEA]"
-                        strokeWidth="9"
-                        stroke="currentColor"
-                        fill="none"
-                      />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        strokeWidth="9"
-                        strokeDasharray={2 * Math.PI * 40}
-                        strokeDashoffset={(2 * Math.PI * 40) * (1 - (displayScore / 100))}
-                        strokeLinecap="round"
-                        stroke={getScoreColor(targetScore)}
-                        fill="none"
-                        style={{ 
-                          transition: 'stroke 600ms ease-out, stroke-dashoffset 600ms ease-out',
-                        }}
-                        className="motion-reduce:transition-none"
-                      />
-                    </svg>
-                    <div className="absolute flex flex-col items-center justify-center text-center">
-                      <span className="text-5xl font-display font-extrabold text-[#1D2A24] leading-none mb-1">
-                        {displayScore}
-                      </span>
-                      <span className="text-xs text-sage-500 font-medium">of 100</span>
+                  <div className="flex flex-col items-center justify-center my-4">
+                    <div className="relative w-40 h-40 flex items-center justify-center">
+                      <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          className="text-[#E4EFEA]"
+                          strokeWidth="9"
+                          stroke="currentColor"
+                          fill="none"
+                        />
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          strokeWidth="9"
+                          strokeDasharray={2 * Math.PI * 40}
+                          strokeDashoffset={(2 * Math.PI * 40) * (1 - (displayScore / 100))}
+                          strokeLinecap="round"
+                          stroke={getScoreColor(targetScore)}
+                          fill="none"
+                          style={{ 
+                            transition: 'stroke 600ms ease-out, stroke-dashoffset 600ms ease-out',
+                          }}
+                          className="motion-reduce:transition-none"
+                        />
+                      </svg>
+                      <div className="absolute flex flex-col items-center justify-center text-center">
+                        <span className="text-5xl font-display font-extrabold text-[#1D2A24] leading-none mb-1">
+                          {displayScore}
+                        </span>
+                        <span className="text-xs text-sage-500 font-medium">of 100</span>
+                      </div>
                     </div>
                   </div>
+
+                  <p className="text-sm text-center text-sage-600 leading-relaxed px-2 mb-6">
+                    {(summaryData as any)?.health?.summary || 'Complete your kickoff assessment to see what’s driving your score.'}
+                  </p>
                 </div>
 
-                <p className="text-sm text-center text-sage-600 leading-relaxed px-2 mb-6">
-                  {(summaryData as any)?.health?.summary || 'Complete your kickoff assessment to see what’s driving your score.'}
-                </p>
+                <Link
+                  href="/app/health"
+                  className="text-sm font-bold text-[#266B4E] flex items-center justify-center gap-1 hover:underline pt-2 cursor-pointer"
+                >
+                  See what&apos;s driving it &rarr;
+                </Link>
               </div>
-
-              <Link
-                href="/app/health"
-                className="text-sm font-bold text-[#266B4E] flex items-center justify-center gap-1 hover:underline pt-2 cursor-pointer"
-              >
-                See what&apos;s driving it ?
-              </Link>
-            </div>
+            )}
           </ErrorBoundary>
 
-          {/* 2. Today&apos;s Mission Card */}
+          {/* 2. Today's Mission Card */}
           <ErrorBoundary onRetry={refetchSummary}>
-            <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between">
-              {(() => { if (summaryError) throw summaryError; return null; })()}
-              {tasks.length > 0 && tasks.every(t => t.completed) ? (
-                <div className="flex flex-col items-center justify-center h-full text-center py-10">
-                  <Flame className="w-12 h-12 fill-copper-500 text-copper-500 mb-4 animate-bounce" />
-                  <h3 className="font-bold text-lg text-sage-900">Mission complete. {(summaryData?.mission?.streakDays ?? 0) > 0 ? `${summaryData?.mission?.streakDays}-day streak.` : ''}</h3>
+            {summaryData?.mission?.error ? (
+              <div className="rounded-card border border-red-200/80 bg-white p-6 shadow-card flex flex-col items-center justify-center text-center min-h-[300px]">
+                <div className="w-8 h-8 rounded-full bg-red-50 text-[#B0483B] flex items-center justify-center mb-3">
+                  <X className="w-4 h-4" />
                 </div>
-              ) : (
-              <>
+                <h3 className="font-bold text-base text-sage-900 mb-1">Mission Unavailable</h3>
+                <p className="text-xs text-sage-500 mb-4 max-w-[240px] leading-relaxed">
+                  {summaryData.mission.errorMessage || 'Unable to load mission tasks right now.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={refetchSummary}
+                  className="px-3.5 py-1.5 text-xs font-bold bg-sage-50 hover:bg-sage-100 text-sage-700 border border-sage-200 rounded-pill transition-colors cursor-pointer"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : summaryData?.mission === null ? (
+              <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between min-h-[300px]">
+                <div>
+                  <h3 className="font-bold text-base text-sage-900 mb-4">Today&apos;s Mission</h3>
+                  <p className="text-sm text-sage-500 py-6">
+                    No active mission tasks right now. Check your roadmap to assign upcoming milestones.
+                  </p>
+                </div>
+                <Link
+                  href="/mission"
+                  className="text-sm font-bold text-[#266B4E] flex items-center justify-start gap-1 hover:underline pt-6 cursor-pointer"
+                >
+                  Go to mission &rarr;
+                </Link>
+              </div>
+            ) : tasks.length > 0 && tasks.every((t) => t.completed) ? (
+              <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col items-center justify-center h-full text-center py-10 min-h-[300px]">
+                <Flame className="w-12 h-12 fill-copper-500 text-copper-500 mb-4 animate-bounce" />
+                <h3 className="font-bold text-lg text-sage-900">
+                  Mission complete. {(summaryData?.mission?.streakDays ?? 0) > 0 ? `${summaryData?.mission?.streakDays}-day streak.` : ''}
+                </h3>
+              </div>
+            ) : (
+              <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between min-h-[300px]">
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="font-bold text-base text-sage-900">Today&apos;s Mission</h3>
@@ -525,272 +576,367 @@ export default function DashboardPage() {
                   href="/mission"
                   className="text-sm font-bold text-[#266B4E] flex items-center justify-start gap-1 hover:underline pt-6 cursor-pointer"
                 >
-                  Go to mission ?
+                  Go to mission &rarr;
                 </Link>
-              </>
+              </div>
             )}
-          </div>
           </ErrorBoundary>
 
           {/* 3. Your AI Briefing Card */}
           <ErrorBoundary onRetry={refetchBriefing}>
-            <div className="bg-green-900 text-white rounded-card p-6 shadow-card flex flex-col justify-between">
-              {(() => { if (briefingError) throw briefingError; return null; })()}
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-[#D89A6E] rounded-modal text-[#0F291E] flex items-center justify-center shrink-0">
-                  <svg
-                    className="w-5 h-5 fill-[#0F291E]"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                  </svg>
-                </div>
+            {summaryData?.briefing?.error ? (
+              <div className="bg-[#12291F] text-white rounded-card p-6 shadow-card flex flex-col justify-between min-h-[300px]">
                 <div>
-                  <h3 className="font-bold text-base text-white leading-snug">Your AI Briefing</h3>
-                  <p className="text-xs font-semibold text-[#5D826E]">Co-Founder</p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-[#1E4D3B] flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-copper-600" />
+                    </div>
+                    <span className="font-bold text-sm text-sage-200">Co-Founder</span>
+                  </div>
+                  <p className="text-sm text-sage-300 leading-relaxed mb-4">
+                    {summaryData.briefing.errorMessage || 'Unable to generate your briefing right now.'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={refetchSummary}
+                  className="self-start text-xs font-semibold text-sage-300 hover:text-white underline cursor-pointer"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : summaryData?.briefing?.status === 'generating' ? (
+              <div className="bg-[#12291F] text-white rounded-card p-6 shadow-card flex flex-col justify-between min-h-[300px] border border-[#1E4D3B]/40">
+                <div>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-full bg-[#1E4D3B] flex items-center justify-center shadow-card animate-pulse">
+                      <Sparkles className="w-5 h-5 text-copper-400 animate-spin" style={{ animationDuration: '3s' }} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-base text-white leading-snug">Your AI Briefing</h3>
+                      <p className="text-xs font-semibold text-[#4E8F73] flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-ping inline-block" />
+                        Co-Founder · Crafting update
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2.5 py-2">
+                    <div className="h-3.5 bg-[#1E4D3B]/70 rounded-pill w-5/6 animate-pulse" />
+                    <div className="h-3.5 bg-[#1E4D3B]/50 rounded-pill w-4/6 animate-pulse" />
+                    <div className="h-3.5 bg-[#1E4D3B]/30 rounded-pill w-3/4 animate-pulse" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-sage-400 pt-4">
+                  <Sparkles className="w-3.5 h-3.5 text-copper-500 shrink-0" />
+                  <span>Synthesizing today&apos;s workspace intelligence...</span>
                 </div>
               </div>
+            ) : (
+              <div className="bg-[#0F291E] text-white rounded-card p-6 shadow-card flex flex-col justify-between min-h-[300px]">
+                <div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-[#D89A6E] rounded-modal text-[#0F291E] flex items-center justify-center shrink-0">
+                      <Sparkles className="w-5 h-5 text-[#0F291E]" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-base text-white leading-snug">Your AI Briefing</h3>
+                      <p className="text-xs font-semibold text-[#5D826E]">Co-Founder</p>
+                    </div>
+                  </div>
 
-              <p className="text-sm text-sage-200 leading-relaxed font-normal mb-8">
-                {summaryData?.briefing?.content || "I’ll have your first briefing ready tomorrow morning once I’ve seen a full day of your workspace."}
-              </p>
-            </div>
+                  <p className="text-sm text-sage-200 leading-relaxed font-normal mb-8">
+                    {summaryData?.briefing?.content || "I’ll have your first briefing ready tomorrow morning once I’ve seen a full day of your workspace."}
+                  </p>
+                </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleBriefingDoIt}
-                className="flex-1 bg-[#D89A6E] hover:bg-[#9C5B34] text-white text-sm font-bold py-3 rounded-card transition-colors text-center cursor-pointer"
-              >
-                Do it
-              </button>
-              <button
-                type="button"
-                onClick={handleBriefingTellMeMore}
-                className="flex-1 bg-[#15382A] hover:bg-[#1A4533] border border-[#1F4C39] text-white text-sm font-bold py-3 rounded-card transition-colors text-center cursor-pointer"
-              >
-                Tell me more
-              </button>
-            </div>
-          </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleBriefingDoIt}
+                    className="flex-1 bg-[#D89A6E] hover:bg-[#9C5B34] text-white text-sm font-bold py-3 rounded-card transition-colors text-center cursor-pointer"
+                  >
+                    Do it
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBriefingTellMeMore}
+                    className="flex-1 bg-[#15382A] hover:bg-[#1A4533] border border-[#1F4C39] text-white text-sm font-bold py-3 rounded-card transition-colors text-center cursor-pointer"
+                  >
+                    Tell me more
+                  </button>
+                </div>
+              </div>
+            )}
           </ErrorBoundary>
         </section>
 
         {/* METRICS ROW */}
         <ErrorBoundary onRetry={refetchSummary}>
-          {(() => { if (summaryError) throw summaryError; return null; })()}
           <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <Link href="/app/finance" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
-            <div>
-              <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                {summaryData?.kpis[0]?.label || 'MONTHLY REVENUE'}
-              </span>
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[0]?.value ?? '—'}</span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[0]?.delta}</span>
+            {/* 1. Monthly Revenue */}
+            <Link href="/finance" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
+              <div>
+                <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
+                  {summaryData?.kpis[0]?.label || 'MONTHLY REVENUE'}
+                </span>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className={`font-display ${summaryData?.kpis[0]?.value === 'Coming Soon' ? 'text-base font-medium text-sage-400' : 'text-2xl font-extrabold text-[#1D2A24]'}`}>
+                    {summaryData?.kpis[0]?.value ?? 'Coming Soon'}
+                  </span>
+                  {summaryData?.kpis[0]?.delta && (
+                    <span className={`text-xs font-semibold ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>
+                      {summaryData?.kpis[0]?.delta}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-            {(summaryData?.kpis[0] as any)?.hasData && (
-              <svg className={`w-full h-6 ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M 0,16 L 25,12 L 45,14 L 65,8 L 100,3" />
-              </svg>
-            )}
-          </Link>
+              {(summaryData?.kpis[0] as any)?.hasData && (
+                <svg className={`w-full h-6 ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M 0,16 L 25,12 L 45,14 L 65,8 L 100,3" />
+                </svg>
+              )}
+            </Link>
 
-          <Link 
-            href="/app/finance/runway"
-            className={`bg-white p-5 rounded-card border shadow-card flex flex-col justify-between transition-colors duration-300 ${
-              summaryData?.kpis[1]?.isAlert ? 'border-[var(--red-600)] shadow-[0_4px_12px_var(--red-100)]' : 'border-green-100 hover:border-sage-300'
-            }`}
-          >
-            <div>
-              <span className={`text-[10px] font-bold uppercase tracking-wider block mb-3 ${
-                summaryData?.kpis[1]?.isAlert ? 'text-[var(--red-600)]' : 'text-sage-500'
-              }`}>
-                {summaryData?.kpis[1]?.label || 'RUNWAY'}
-              </span>
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className={`text-2xl font-display font-extrabold ${
-                  summaryData?.kpis[1]?.isAlert ? 'text-[var(--red-600)]' : 'text-[#1D2A24]'
+            {/* 2. Cash Runway */}
+            <Link 
+              href="/finance"
+              className={`bg-white p-5 rounded-card border shadow-card flex flex-col justify-between transition-colors duration-300 ${
+                summaryData?.kpis[1]?.isAlert ? 'border-[var(--red-600)] shadow-[0_4px_12px_var(--red-100)]' : 'border-green-100 hover:border-sage-300'
+              }`}
+            >
+              <div>
+                <span className={`text-[10px] font-bold uppercase tracking-wider block mb-3 ${
+                  summaryData?.kpis[1]?.isAlert ? 'text-[var(--red-600)]' : 'text-sage-500'
                 }`}>
-                  {summaryData?.kpis[1]?.value ?? '—'}
+                  {summaryData?.kpis[1]?.label || 'RUNWAY'}
                 </span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`}>
-                  {summaryData?.kpis[1]?.delta}
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className={`font-display ${summaryData?.kpis[1]?.value === 'Coming Soon' ? 'text-base font-medium text-sage-400' : 'text-2xl font-extrabold'} ${
+                    summaryData?.kpis[1]?.isAlert ? 'text-[var(--red-600)]' : 'text-[#1D2A24]'
+                  }`}>
+                    {summaryData?.kpis[1]?.value ?? 'Coming Soon'}
+                  </span>
+                  {summaryData?.kpis[1]?.delta && (
+                    <span className={`text-xs font-semibold ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`}>
+                      {summaryData?.kpis[1]?.delta}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {(summaryData?.kpis[1] as any)?.hasData && (
+                <svg className={`w-full h-6 ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M 0,4 L 35,7 L 70,12 L 100,17" />
+                </svg>
+              )}
+            </Link>
+
+            {/* 3. Pipeline Value */}
+            <Link href="/sales" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
+              <div>
+                <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
+                  {summaryData?.kpis[2]?.label || 'PIPELINE VALUE'}
                 </span>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className={`font-display ${summaryData?.kpis[2]?.value === 'Coming Soon' ? 'text-base font-medium text-sage-400' : 'text-2xl font-extrabold text-[#1D2A24]'}`}>
+                    {summaryData?.kpis[2]?.value ?? 'Coming Soon'}
+                  </span>
+                  {summaryData?.kpis[2]?.delta && (
+                    <span className={`text-xs font-semibold ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>
+                      {summaryData?.kpis[2]?.delta}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-            {(summaryData?.kpis[1] as any)?.hasData && (
-              <svg className={`w-full h-6 ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M 0,4 L 35,7 L 70,12 L 100,17" />
-              </svg>
-            )}
-          </Link>
+              {(summaryData?.kpis[2] as any)?.hasData && (
+                <svg className={`w-full h-6 ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M 0,17 L 35,12 L 65,10 L 100,4" />
+                </svg>
+              )}
+            </Link>
 
-          <Link href="/app/sales" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
-            <div>
-              <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                {summaryData?.kpis[2]?.label || 'PIPELINE VALUE'}
-              </span>
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[2]?.value ?? '—'}</span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[2]?.delta}</span>
+            {/* 4. Campaign CTR */}
+            <Link href="/marketing" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
+              <div>
+                <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
+                  {summaryData?.kpis[3]?.label || 'CAMPAIGN CTR'}
+                </span>
+                <div className="flex items-baseline gap-1.5 mb-4">
+                  <span className={`font-display ${summaryData?.kpis[3]?.value === 'Coming Soon' ? 'text-base font-medium text-sage-400' : 'text-2xl font-extrabold text-[#1D2A24]'}`}>
+                    {summaryData?.kpis[3]?.value ?? 'Coming Soon'}
+                  </span>
+                  {summaryData?.kpis[3]?.delta && (
+                    <span className={`text-xs font-semibold ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>
+                      {summaryData?.kpis[3]?.delta}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-            {(summaryData?.kpis[2] as any)?.hasData && (
-              <svg className={`w-full h-6 ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M 0,17 L 35,12 L 65,10 L 100,4" />
-              </svg>
-            )}
-          </Link>
+              {(summaryData?.kpis[3] as any)?.hasData && (
+                <svg className={`w-full h-6 ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M 0,15 L 25,13 L 45,14 L 65,9 L 100,7" />
+                </svg>
+              )}
+            </Link>
 
-          <Link href="/app/marketing" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
-            <div>
-              <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                {summaryData?.kpis[3]?.label || 'CAMPAIGN CTR'}
-              </span>
-              <div className="flex items-baseline gap-1.5 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[3]?.value ?? '—'}</span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[3]?.delta}</span>
+            {/* 5. Tasks This Week */}
+            <Link href="/mission" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
+              <div>
+                <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
+                  {summaryData?.kpis[4]?.label || 'TASKS THIS WEEK'}
+                </span>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-2xl font-display font-extrabold text-[#1D2A24]">
+                    {summaryData?.kpis[4]?.value ?? '0'}
+                  </span>
+                  {summaryData?.kpis[4]?.delta && (
+                    <span className={`text-xs font-semibold ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>
+                      {summaryData?.kpis[4]?.delta}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-            {(summaryData?.kpis[3] as any)?.hasData && (
-              <svg className={`w-full h-6 ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M 0,15 L 25,13 L 45,14 L 65,9 L 100,7" />
-              </svg>
-            )}
-          </Link>
-
-          <Link href="/app/team" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
-            <div>
-              <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                {summaryData?.kpis[4]?.label || 'TASKS THIS WEEK'}
-              </span>
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-display font-extrabold text-[#1D2A24]">{summaryData?.kpis[4]?.value ?? '—'}</span>
-                <span className={`text-xs font-semibold ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>{summaryData?.kpis[4]?.delta}</span>
-              </div>
-            </div>
-            {(summaryData?.kpis[4] as any)?.hasData && (
-              <svg className={`w-full h-6 ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M 0,17 L 30,13 L 65,12 L 100,6" />
-              </svg>
-            )}
-          </Link>
+              {(summaryData?.kpis[4] as any)?.hasData && (
+                <svg className={`w-full h-6 ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M 0,17 L 30,13 L 65,12 L 100,6" />
+                </svg>
+              )}
+            </Link>
           </section>
         </ErrorBoundary>
 
         {/* RISKS & OPPORTUNITIES ROW */}
         <ErrorBoundary onRetry={refetchSummary}>
-          {(() => { if (summaryError) throw summaryError; return null; })()}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
-            <div>
-              <h3 className="font-bold text-base text-[#1D2A24] pb-3 border-b border-sage-100">
-                Risks
-              </h3>
-              <div className="divide-y divide-sage-100">
-                {(summaryData?.risks || [
-                  { id: 'r1', description: 'Runway is under 9 months and revenue has been flat for two months.', severity: 'red' },
-                  { id: 'r2', description: 'A compliance filing is due in 9 days and hasn\'t been started.', severity: 'amber' },
-                  { id: 'r3', description: 'The GigPay HR deal has had no activity for 14 days.', severity: 'amber' }
-                ]).map((risk: any) => (
-                  <div key={risk.id} className="py-3.5 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className={`w-2.5 h-2.5 rounded-full ${risk.severity === 'red' ? 'bg-[#B84335]' : 'bg-[#9C5B34]'} shrink-0`} />
-                      <p className="text-sm text-sage-700 leading-snug">
-                        {risk.description}
-                      </p>
-                    </div>
-                    <Link href={risk.moduleLink || (risk.id === 'r1' ? '/app/finance' : '/app/sales')} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
-                      Review
-                    </Link>
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-sage-100">
+                  <h3 className="font-bold text-base text-[#1D2A24]">Risks</h3>
+                  {summaryData?.risksStatus === 'generating' && (
+                    <span className="text-xs text-sage-500 flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-copper-600 animate-spin" style={{ animationDuration: '3s' }} />
+                      Analyzing
+                    </span>
+                  )}
+                </div>
+                {summaryData?.risksStatus === 'generating' ? (
+                  <div className="space-y-3 py-4">
+                    <div className="h-3.5 bg-sage-100 rounded-pill w-4/5 animate-pulse" />
+                    <div className="h-3.5 bg-sage-100 rounded-pill w-3/5 animate-pulse" />
                   </div>
-                ))}
+                ) : (summaryData?.risks?.length ?? 0) === 0 ? (
+                  <p className="text-sm text-sage-500 py-6">
+                    No open risks. I&apos;m watching runway, deadlines, and pipeline for you.
+                  </p>
+                ) : (
+                  <div className="divide-y divide-sage-100">
+                    {summaryData?.risks.map((risk: any) => (
+                      <div key={risk.id} className="py-3.5 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className={`w-2.5 h-2.5 rounded-full ${risk.severity === 'red' || risk.severity === 'high' ? 'bg-[#B84335]' : 'bg-[#9C5B34]'} shrink-0`} />
+                          <p className="text-sm text-sage-700 leading-snug">
+                            {risk.description}
+                          </p>
+                        </div>
+                        <Link href={risk.moduleLink || (risk.id === 'r1' ? '/finance' : '/sales')} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
+                          Review
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          </div>
 
-          <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
-            <div>
-              <h3 className="font-bold text-base text-[#1D2A24] pb-3 border-b border-sage-100">
-                Opportunities
-              </h3>
-              <div className="divide-y divide-sage-100">
-                {(summaryData?.opportunities || [
-                  { id: 'o1', description: 'A ?5M grant match closes in 3 weeks and fits your profile.' },
-                  { id: 'o2', description: 'Your smoke test hit 9% conversion, above your 5% bar.' },
-                  { id: 'o3', description: 'Two interviews flagged the same feature, worth a quick MVP task.' }
-                ]).map((opp: any) => (
-                  <div key={opp.id} className="py-3.5 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#266B4E] shrink-0" />
-                      <p className="text-sm text-sage-700 leading-snug">
-                        {opp.description}
-                      </p>
-                    </div>
-                    <Link href={opp.moduleLink || (opp.id === 'o1' ? '/app/funding/grants' : '/app/validation')} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
-                      See fit
-                    </Link>
+            <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-sage-100">
+                  <h3 className="font-bold text-base text-[#1D2A24]">Opportunities</h3>
+                  {summaryData?.opportunitiesStatus === 'generating' && (
+                    <span className="text-xs text-sage-500 flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-copper-600 animate-spin" style={{ animationDuration: '3s' }} />
+                      Scanning
+                    </span>
+                  )}
+                </div>
+                {summaryData?.opportunitiesStatus === 'generating' ? (
+                  <div className="space-y-3 py-4">
+                    <div className="h-3.5 bg-sage-100 rounded-pill w-4/5 animate-pulse" />
+                    <div className="h-3.5 bg-sage-100 rounded-pill w-3/5 animate-pulse" />
                   </div>
-                ))}
+                ) : (summaryData?.opportunities?.length ?? 0) === 0 ? (
+                  <p className="text-sm text-sage-500 py-6">
+                    Opportunities I spot — grants, quick wins, market signals — will show up here.
+                  </p>
+                ) : (
+                  <div className="divide-y divide-sage-100">
+                    {summaryData?.opportunities.map((opp: any) => (
+                      <div key={opp.id} className="py-3.5 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#266B4E] shrink-0" />
+                          <p className="text-sm text-sage-700 leading-snug">
+                            {opp.description}
+                          </p>
+                        </div>
+                        <Link href={opp.moduleLink || (opp.id === 'o1' ? '/funding' : '/validation')} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
+                          See fit
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
         </ErrorBoundary>
 
         {/* BOTTOM ROW */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ErrorBoundary onRetry={refetchActivity}>
             <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
-              {(() => { if (activityError) throw activityError; return null; })()}
               <div>
                 <h3 className="font-bold text-base text-[#1D2A24] pb-4 border-b border-sage-100">
-                Team activity
-              </h3>
-              <div className="divide-y divide-sage-100">
-                {(activityData || [
-                  { id: '1', actor: 'Amara Okafor', verb: 'completed', entity: 'the mission task “Interview 3 gig workers”', time: '2h ago' },
-                  { id: '2', actor: 'Tayo', verb: 'returned', entity: 'your NDA with 2 comments', time: '5h ago' },
-                  { id: '3', actor: 'Your AI Co-Founder', verb: 'drafted', entity: 'your Lean Canvas', time: 'Yesterday' },
-                  { id: '4', actor: 'Grace', verb: 'categorized', entity: '12 transactions', time: 'Yesterday' },
-                  { id: '5', actor: 'Daniel', verb: 'moved', entity: '“BodaBoda Union” to Proposal', time: '2d ago' },
-                ]).map((activity: any) => {
-                  const getInitials = (name: string) => {
-                    if (!name) return '??';
-                    if (name.includes('AI')) return null;
-                    return name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
-                  };
-                  const initials = getInitials(activity.actor);
+                  Team activity
+                </h3>
+                <div className="divide-y divide-sage-100">
+                  {activityData.length === 0 ? (
+                    <p className="text-sm text-sage-500 py-6">
+                      Activity from you and your team will appear here.
+                    </p>
+                  ) : (
+                    activityData.map((activity: any) => {
+                      const actorName = activity.actor || 'System';
+                      const getInitials = (name: string) => {
+                        if (!name || name === 'System') return 'SYS';
+                        if (name.includes('AI')) return null;
+                        return name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+                      };
+                      const initials = getInitials(actorName);
 
-                  return (
-                    <div key={activity.id} className="py-3 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        {initials ? (
-                          <div className="w-7 h-7 rounded-full bg-[#1F4D3A] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                            {initials}
+                      return (
+                        <div key={activity.id} className="py-3 flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {initials ? (
+                              <div className="w-7 h-7 rounded-full bg-[#1F4D3A] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                                {initials}
+                              </div>
+                            ) : (
+                              <div className="w-7 h-7 rounded-full bg-[#9C5B34] text-[#1F4D3A] flex items-center justify-center shrink-0">
+                                <Sparkles className="w-3.5 h-3.5 text-[#1F4D3A]" />
+                              </div>
+                            )}
+                            <p className="text-xs text-sage-700 truncate">
+                              <span className="font-medium text-[#1D2A24]">{actorName}</span>{' '}
+                              {activity.verb} {activity.entity}.
+                            </p>
                           </div>
-                        ) : (
-                          <div className="w-7 h-7 rounded-full bg-[#9C5B34] text-[#1F4D3A] flex items-center justify-center shrink-0">
-                            <svg className="w-3 h-3 fill-[#1F4D3A]" viewBox="0 0 24 24">
-                              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                            </svg>
-                          </div>
-                        )}
-                        <p className="text-xs text-sage-700 truncate">
-                          <span className="font-medium text-[#1D2A24]">{activity.actor}</span> {activity.verb} {activity.entity}.
-                        </p>
-                      </div>
-                      <span className="text-[11px] text-sage-400 shrink-0">{activity.time}</span>
-                    </div>
-                  );
-                })}
+                          <span className="text-[11px] text-sage-400 shrink-0">{activity.time || activity.relativeTime}</span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </div>
-          </div>
           </ErrorBoundary>
 
           <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">

@@ -1,4 +1,4 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -7,6 +7,7 @@ import { X, Sparkles, Loader2, Check } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useAiDrawer } from './ai-drawer-context';
 import { useAICoFounder } from '../hooks/useAICoFounder';
+import { AiStatusBanner } from './ai/ai-status-banner';
 import type {  } from '../types/ai';
 
 const agentRoleName = (agentKey?: string) => {
@@ -144,6 +145,11 @@ export function AiDrawer() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
+            </div>
+
+            {/* Over-budget subtle banner */}
+            <div className="px-4 pt-3 pb-1 bg-white">
+              <AiStatusBanner />
             </div>
 
             {/* Chat Thread */}

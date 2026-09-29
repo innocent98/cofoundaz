@@ -1,0 +1,668 @@
+[
+  {
+    "tag": "health",
+    "method": "GET",
+    "swaggerPath": "/api/v1/health",
+    "file": "app/(dashboard)/academy/layout.tsx (+23 more)"
+  },
+  {
+    "tag": "health",
+    "method": "GET",
+    "swaggerPath": "/api/v1/health/ready",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "jobs",
+    "method": "GET",
+    "swaggerPath": "/api/v1/jobs/{job_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/signup",
+    "file": "app/(auth)/signup/page.tsx (+1 more)"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/verify",
+    "file": "app/(auth)/verify/page.tsx (+4 more)"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/verify/resend",
+    "file": "app/(auth)/verify/page.tsx (+2 more)"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/login",
+    "file": "app/(auth)/login/page.tsx (+2 more)"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/mfa/totp/setup",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/mfa/totp/verify",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/mfa/challenge",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/refresh",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/logout",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/password/forgot",
+    "file": "lib/api/auth.ts (+1 more)"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/password/reset",
+    "file": "lib/api/auth.ts (+2 more)"
+  },
+  {
+    "tag": "auth",
+    "method": "GET",
+    "swaggerPath": "/api/v1/auth/me",
+    "file": "app/(auth)/login/page.tsx (+3 more)"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/oauth/{provider}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/mfa/sms/setup",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "auth",
+    "method": "POST",
+    "swaggerPath": "/api/v1/auth/mfa/sms/verify",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "onboarding",
+    "method": "GET",
+    "swaggerPath": "/api/v1/onboarding/state",
+    "file": "app/(auth)/login/page.tsx (+3 more)"
+  },
+  {
+    "tag": "onboarding",
+    "method": "PATCH",
+    "swaggerPath": "/api/v1/onboarding/state",
+    "file": "app/(auth)/login/page.tsx (+3 more)"
+  },
+  {
+    "tag": "onboarding",
+    "method": "POST",
+    "swaggerPath": "/api/v1/onboarding/logo",
+    "file": "lib/api/onboarding.ts (+1 more)"
+  },
+  {
+    "tag": "onboarding",
+    "method": "POST",
+    "swaggerPath": "/api/v1/onboarding/invites",
+    "file": "lib/api/onboarding.ts (+1 more)"
+  },
+  {
+    "tag": "onboarding",
+    "method": "POST",
+    "swaggerPath": "/api/v1/onboarding/complete",
+    "file": "lib/api/onboarding.ts (+1 more)"
+  },
+  {
+    "tag": "invitations",
+    "method": "POST",
+    "swaggerPath": "/api/v1/invitations/accept",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "invitations",
+    "method": "GET",
+    "swaggerPath": "/api/v1/invitations/{token}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "assessments",
+    "method": "POST",
+    "swaggerPath": "/api/v1/assessments",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "assessments",
+    "method": "GET",
+    "swaggerPath": "/api/v1/assessments",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "assessments",
+    "method": "GET",
+    "swaggerPath": "/api/v1/assessments/{assessment_id}/next-question",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "assessments",
+    "method": "POST",
+    "swaggerPath": "/api/v1/assessments/{assessment_id}/answers",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "assessments",
+    "method": "POST",
+    "swaggerPath": "/api/v1/assessments/{assessment_id}/complete",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "assessments",
+    "method": "GET",
+    "swaggerPath": "/api/v1/assessments/compare",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "assessments",
+    "method": "GET",
+    "swaggerPath": "/api/v1/assessments/{assessment_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "health-score",
+    "method": "GET",
+    "swaggerPath": "/api/v1/health-score",
+    "file": "app/(dashboard)/health/page.tsx (+4 more)"
+  },
+  {
+    "tag": "health-score",
+    "method": "GET",
+    "swaggerPath": "/api/v1/health-score/dimensions/{dim}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "health-score",
+    "method": "GET",
+    "swaggerPath": "/api/v1/health-score/benchmarks",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "health-score",
+    "method": "GET",
+    "swaggerPath": "/api/v1/health-score/recommendations",
+    "file": "hooks/useHealthScore.ts (+1 more)"
+  },
+  {
+    "tag": "health-score",
+    "method": "GET",
+    "swaggerPath": "/api/v1/health-score/history",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "health-score",
+    "method": "POST",
+    "swaggerPath": "/api/v1/health-score/recommendations/{rec_id}/accept",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "health-score",
+    "method": "POST",
+    "swaggerPath": "/api/v1/health-score/recommendations/{rec_id}/dismiss",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "GET",
+    "swaggerPath": "/api/v1/roadmap",
+    "file": "app/(dashboard)/mission/page.tsx (+8 more)"
+  },
+  {
+    "tag": "roadmap",
+    "method": "POST",
+    "swaggerPath": "/api/v1/roadmap/generate",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "GET",
+    "swaggerPath": "/api/v1/roadmap/dependencies",
+    "file": "app/(dashboard)/roadmap/layout.tsx (+1 more)"
+  },
+  {
+    "tag": "roadmap",
+    "method": "GET",
+    "swaggerPath": "/api/v1/roadmap/templates",
+    "file": "app/(dashboard)/roadmap/layout.tsx (+1 more)"
+  },
+  {
+    "tag": "roadmap",
+    "method": "GET",
+    "swaggerPath": "/api/v1/roadmap/templates/{template_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "POST",
+    "swaggerPath": "/api/v1/roadmap/templates/{template_id}/apply",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "POST",
+    "swaggerPath": "/api/v1/roadmap/phases",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "PATCH",
+    "swaggerPath": "/api/v1/roadmap/phases/{phase_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "DELETE",
+    "swaggerPath": "/api/v1/roadmap/phases/{phase_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "POST",
+    "swaggerPath": "/api/v1/roadmap/milestones",
+    "file": "app/(dashboard)/roadmap/layout.tsx (+1 more)"
+  },
+  {
+    "tag": "roadmap",
+    "method": "PATCH",
+    "swaggerPath": "/api/v1/roadmap/milestones/{milestone_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "DELETE",
+    "swaggerPath": "/api/v1/roadmap/milestones/{milestone_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "POST",
+    "swaggerPath": "/api/v1/roadmap/tasks",
+    "file": "hooks/useRoadmapApi.ts (+1 more)"
+  },
+  {
+    "tag": "roadmap",
+    "method": "PATCH",
+    "swaggerPath": "/api/v1/roadmap/tasks/{task_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "DELETE",
+    "swaggerPath": "/api/v1/roadmap/tasks/{task_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "POST",
+    "swaggerPath": "/api/v1/roadmap/tasks/{task_id}/dependencies",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "DELETE",
+    "swaggerPath": "/api/v1/roadmap/tasks/{task_id}/dependencies/{depends_on_task_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "POST",
+    "swaggerPath": "/api/v1/roadmap/replan/preview",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "POST",
+    "swaggerPath": "/api/v1/roadmap/replan/apply",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "roadmap",
+    "method": "GET",
+    "swaggerPath": "/api/v1/roadmap/replan/history",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "missions",
+    "method": "GET",
+    "swaggerPath": "/api/v1/missions/today",
+    "file": "hooks/useMissionApi.ts (+1 more)"
+  },
+  {
+    "tag": "missions",
+    "method": "GET",
+    "swaggerPath": "/api/v1/missions/history",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "missions",
+    "method": "GET",
+    "swaggerPath": "/api/v1/missions/settings",
+    "file": "hooks/useMissionApi.ts (+1 more)"
+  },
+  {
+    "tag": "missions",
+    "method": "PATCH",
+    "swaggerPath": "/api/v1/missions/settings",
+    "file": "hooks/useMissionApi.ts (+1 more)"
+  },
+  {
+    "tag": "missions",
+    "method": "POST",
+    "swaggerPath": "/api/v1/missions/tasks",
+    "file": "hooks/useMissionApi.ts (+1 more)"
+  },
+  {
+    "tag": "missions",
+    "method": "PATCH",
+    "swaggerPath": "/api/v1/missions/tasks/{task_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "dashboard",
+    "method": "GET",
+    "swaggerPath": "/api/v1/dashboard/summary",
+    "file": "hooks/useDashboardApi.ts (+1 more)"
+  },
+  {
+    "tag": "dashboard",
+    "method": "GET",
+    "swaggerPath": "/api/v1/dashboard/activity",
+    "file": "hooks/useDashboardApi.ts (+1 more)"
+  },
+  {
+    "tag": "business-builder",
+    "method": "GET",
+    "swaggerPath": "/api/v1/business-builder/overview",
+    "file": "app/(dashboard)/business-builder/page.tsx (+2 more)"
+  },
+  {
+    "tag": "business-builder",
+    "method": "GET",
+    "swaggerPath": "/api/v1/business-builder/canvases/{type}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "business-builder",
+    "method": "PUT",
+    "swaggerPath": "/api/v1/business-builder/canvases/{type}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "business-builder",
+    "method": "POST",
+    "swaggerPath": "/api/v1/business-builder/canvases/{type}/ai-fill",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "business-builder",
+    "method": "POST",
+    "swaggerPath": "/api/v1/business-builder/suggestions",
+    "file": "lib/api/business-builder.ts (+1 more)"
+  },
+  {
+    "tag": "business-builder",
+    "method": "GET",
+    "swaggerPath": "/api/v1/business-builder/suggestions",
+    "file": "lib/api/business-builder.ts (+1 more)"
+  },
+  {
+    "tag": "business-builder",
+    "method": "POST",
+    "swaggerPath": "/api/v1/business-builder/suggestions/{suggestion_id}/approve",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "business-builder",
+    "method": "POST",
+    "swaggerPath": "/api/v1/business-builder/suggestions/{suggestion_id}/reject",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "business-builder",
+    "method": "GET",
+    "swaggerPath": "/api/v1/business-builder/positioning-map",
+    "file": "lib/api/business-builder.ts (+1 more)"
+  },
+  {
+    "tag": "business-builder",
+    "method": "PUT",
+    "swaggerPath": "/api/v1/business-builder/positioning-map",
+    "file": "lib/api/business-builder.ts (+1 more)"
+  },
+  {
+    "tag": "business-builder",
+    "method": "GET",
+    "swaggerPath": "/api/v1/business-builder/{kind}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "business-builder",
+    "method": "POST",
+    "swaggerPath": "/api/v1/business-builder/{kind}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "business-builder",
+    "method": "POST",
+    "swaggerPath": "/api/v1/business-builder/{kind}/ai-fill",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "business-builder",
+    "method": "PUT",
+    "swaggerPath": "/api/v1/business-builder/{kind}/{record_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "business-builder",
+    "method": "DELETE",
+    "swaggerPath": "/api/v1/business-builder/{kind}/{record_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "journal",
+    "method": "POST",
+    "swaggerPath": "/api/v1/journal/entries",
+    "file": "hooks/useJournal.ts (+1 more)"
+  },
+  {
+    "tag": "journal",
+    "method": "GET",
+    "swaggerPath": "/api/v1/journal/entries",
+    "file": "hooks/useJournal.ts (+1 more)"
+  },
+  {
+    "tag": "journal",
+    "method": "GET",
+    "swaggerPath": "/api/v1/journal/mood",
+    "file": "hooks/useJournal.ts (+1 more)"
+  },
+  {
+    "tag": "journal",
+    "method": "GET",
+    "swaggerPath": "/api/v1/journal/prompts/today",
+    "file": "hooks/useJournal.ts (+1 more)"
+  },
+  {
+    "tag": "journal",
+    "method": "GET",
+    "swaggerPath": "/api/v1/journal/entries/{entry_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "journal",
+    "method": "PATCH",
+    "swaggerPath": "/api/v1/journal/entries/{entry_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "journal",
+    "method": "DELETE",
+    "swaggerPath": "/api/v1/journal/entries/{entry_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/document-templates",
+    "file": "hooks/useDocumentTemplates.ts (+1 more)"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/document-templates/{key}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/documents",
+    "file": "app/(dashboard)/documents/layout.tsx (+9 more)"
+  },
+  {
+    "tag": "documents",
+    "method": "POST",
+    "swaggerPath": "/api/v1/documents",
+    "file": "app/(dashboard)/documents/layout.tsx (+9 more)"
+  },
+  {
+    "tag": "documents",
+    "method": "POST",
+    "swaggerPath": "/api/v1/documents/files",
+    "file": "hooks/useDocumentFiles.ts (+2 more)"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/documents/files",
+    "file": "hooks/useDocumentFiles.ts (+2 more)"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/documents/files/{file_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "DELETE",
+    "swaggerPath": "/api/v1/documents/files/{file_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/documents/shares",
+    "file": "hooks/useDocumentShares.ts (+1 more)"
+  },
+  {
+    "tag": "documents",
+    "method": "POST",
+    "swaggerPath": "/api/v1/documents/{document_id}/shares",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/documents/{document_id}/shares",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "DELETE",
+    "swaggerPath": "/api/v1/documents/{document_id}/shares/{share_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/shared/{token}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/documents/signature-requests",
+    "file": "hooks/useSignatureRequests.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "GET",
+    "swaggerPath": "/api/v1/documents/{document_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "PUT",
+    "swaggerPath": "/api/v1/documents/{document_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "documents",
+    "method": "DELETE",
+    "swaggerPath": "/api/v1/documents/{document_id}",
+    "file": "lib/api/schema.d.ts"
+  },
+  {
+    "tag": "notifications",
+    "method": "GET",
+    "swaggerPath": "/api/v1/notifications",
+    "file": "app/(dashboard)/dashboard/page.tsx (+4 more)"
+  },
+  {
+    "tag": "notifications",
+    "method": "GET",
+    "swaggerPath": "/api/v1/notifications/unread-count",
+    "file": "hooks/useNotifications.ts (+1 more)"
+  },
+  {
+    "tag": "notifications",
+    "method": "POST",
+    "swaggerPath": "/api/v1/notifications/read-all",
+    "file": "hooks/useNotifications.ts"
+  },
+  {
+    "tag": "General",
+    "method": "GET",
+    "swaggerPath": "/",
+    "file": "app/(auth)/forgot-password/page.tsx (+274 more)"
+  },
+  {
+    "tag": "General",
+    "method": "GET",
+    "swaggerPath": "/health",
+    "file": "app/(dashboard)/academy/layout.tsx (+23 more)"
+  }
+]

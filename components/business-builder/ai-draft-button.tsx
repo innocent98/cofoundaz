@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Check, AlertTriangle } from 'lucide-react';
 import { useBusinessAiFill } from '@/hooks/useBusinessAiFill';
+import { useAiStatus } from '@/hooks/useAiStatus';
 
 interface AiDraftButtonProps {
   /** Canvas type (business_model/lean/mission_vision/value_prop/swot) … */
@@ -16,9 +17,12 @@ interface AiDraftButtonProps {
 // Honest AI-fill affordance: enqueues the real deferred job (202, "queued") and
 // says so — no fake spinner, no fabricated results. The job has no worker yet
 // (guide §4/§10), so once requested we show "queued — coming soon" and stop.
+// Also quietly handles degradation when over budget or skipped by backend.
 export function AiDraftButton({ canvasType, kind, label = 'AI draft', className }: AiDraftButtonProps) {
   const { requesting, requestCanvasFill, requestRecordFill } = useBusinessAiFill();
+  const { isOverBudget, formattedResetsAt } = useAiStatus();
   const [requested, setRequested] = useState(false);
+  const [skipped, setSkipped] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const target = canvasType ?? kind ?? '';
@@ -27,9 +31,38 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className 
   const onClick = async () => {
     setError(null);
     const res = canvasType ? await requestCanvasFill(canvasType) : await requestRecordFill(kind || '');
-    if (res.ok) setRequested(true);
-    else setError(res.error || 'Could not request an AI draft.');
+    if (res.skipped) {
+      setSkipped(true);
+    } else if (res.ok) {
+      setRequested(true);
+    } else {
+      setError(res.error || 'Could not request an AI draft.');
+    }
   };
+
+  if (isOverBudget) {
+    return (
+      <span
+        className="flex items-center gap-1.5 bg-[#F9F7F2] text-[#8A5330] px-3 py-2 rounded-card text-xs font-semibold border border-[#EADBCA]"
+        title={`AI personalization is paused until ${formattedResetsAt} — your data is never affected.`}
+      >
+        <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />
+        AI draft paused (until {formattedResetsAt})
+      </span>
+    );
+  }
+
+  if (skipped) {
+    return (
+      <span
+        className="flex items-center gap-1.5 bg-[#F4F6F5] text-[#617065] px-3 py-2 rounded-card text-xs font-medium border border-[#EBEBE6]"
+        title="AI drafting was skipped for this canvas. You can edit directly."
+      >
+        <Sparkles className="w-3.5 h-3.5 text-[#8E9B90]" />
+        AI draft skipped — edit directly
+      </span>
+    );
+  }
 
   if (requested) {
     return (
