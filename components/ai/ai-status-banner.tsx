@@ -31,7 +31,7 @@ export function AiStatusBanner({ status: propStatus, className = '' }: AiStatusB
     <div
       role="status"
       aria-live="polite"
-      className={`bg-[#F9F7F2] border border-[#EADBCA] text-[#4F3C28] px-4 py-2.5 rounded-card flex items-center gap-2.5 text-xs font-medium transition-all shadow-xs ${className}`}
+      className={`bg-[#F9F7F2] border border-[#EADBCA] text-[#4F3C28] px-4 py-2.5 rounded-card flex items-center gap-2.5 text-xs font-medium transition-all shadow-card ${className}`}
     >
       <div className="w-5 h-5 rounded-full bg-[#EFE3D3] flex items-center justify-center shrink-0 text-[#8A5330]">
         <Sparkles className="w-3 h-3 fill-current" />

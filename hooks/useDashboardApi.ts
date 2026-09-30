@@ -394,15 +394,15 @@ export function useDashboardSummary() {
           }, 3500);
         }
       } else {
-        setData(DEFAULT_SUMMARY);
+        setData(null);
+        setError(new Error("Unable to load dashboard summary: Invalid response format"));
       }
     } catch (err) {
       if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
         console.warn("Dashboard summary unauthorized or forbidden:", err.message);
       }
       setError(err instanceof Error ? err : new Error(String(err)));
-      // Keep dashboard functional even if network/auth issues occur
-      setData(DEFAULT_SUMMARY);
+      setData(null);
     } finally {
       setLoading(false);
     }

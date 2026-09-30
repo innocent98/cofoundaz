@@ -26,9 +26,9 @@ export function AiUsageDisplay({
     return (
       <div className={`bg-white rounded-modal border border-[#EBEBE6] p-6 shadow-card ${className}`}>
         <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-[#F0F0EC] rounded w-1/3" />
-          <div className="h-8 bg-[#F0F0EC] rounded w-1/2" />
-          <div className="h-3 bg-[#F0F0EC] rounded w-2/3" />
+          <div className="h-4 bg-[#F0F0EC] rounded-card w-1/3" />
+          <div className="h-8 bg-[#F0F0EC] rounded-card w-1/2" />
+          <div className="h-3 bg-[#F0F0EC] rounded-card w-2/3" />
         </div>
       </div>
     );

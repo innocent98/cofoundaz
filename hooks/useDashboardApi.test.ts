@@ -332,5 +332,54 @@ describe('useDashboardApi & Dashboard Mappers', () => {
       expect(result.current.data?.briefing?.status).toBe('ready');
       expect(result.current.data?.briefing?.content).toBe('Ready briefing');
     });
+
+    it('surfaces an honest error state on fetch failure without falling back to DEFAULT_SUMMARY', async () => {
+      const networkError = new Error('500 Internal Server Error');
+      vi.mocked(dashboardApi.getDashboardSummary).mockRejectedValueOnce(networkError);
+
+      const { result } = renderHook(() => useDashboardSummary());
+
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(result.current.loading).toBe(false);
+      expect(result.current.error).toEqual(networkError);
+      expect(result.current.data).toBeNull();
+    });
+
+    it('allows retrying after a fetch failure and successfully recovers', async () => {
+      const networkError = new Error('Network failure');
+      const recoveredSummary = {
+        data: {
+          health: { score: 92 },
+          mission: null,
+          briefing: { status: 'ready' as const, message: 'Recovered briefing' },
+          kpis: {},
+        },
+      };
+
+      vi.mocked(dashboardApi.getDashboardSummary)
+        .mockRejectedValueOnce(networkError)
+        .mockResolvedValueOnce(recoveredSummary);
+
+      const { result } = renderHook(() => useDashboardSummary());
+
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(result.current.error).toEqual(networkError);
+      expect(result.current.data).toBeNull();
+
+      // Retry
+      await act(async () => {
+        await result.current.refetch();
+      });
+
+      expect(result.current.error).toBeNull();
+      expect(result.current.data?.health?.score).toBe(92);
+      expect(result.current.data?.briefing?.content).toBe('Recovered briefing');
+    });
   });
 });

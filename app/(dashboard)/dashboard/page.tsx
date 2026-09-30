@@ -12,12 +12,14 @@ import {
   Search, 
   X, 
   ChevronDown,
-  Sparkles
+  Sparkles,
+  AlertCircle
 } from 'lucide-react';
 import { useDashboardSummary, useAIBriefing, useActivityFeed } from '@/hooks/useDashboardApi';
 import { useAiDrawer } from '@/components/ai-drawer-context';
 import type { MissionTask } from '@/types/dashboard';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { KPIStrip } from '@/components/dashboard/kpi-strip';
 
 export interface NotificationItem {
   id: string;
@@ -37,9 +39,15 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // DATA HOOKS
-  const { data: summaryData, refetch: refetchSummary } = useDashboardSummary();
+  const { data: summaryData, error: summaryError, refetch: refetchSummary } = useDashboardSummary();
   const { refetch: refetchBriefing } = useAIBriefing();
-  const { data: activityData, fetchMore: refetchActivity } = useActivityFeed('workspace_123'); // Example ID
+  const [workspaceId, setWorkspaceId] = useState<string | undefined>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('cf_workspace_id') || undefined;
+    }
+    return undefined;
+  });
+  const { data: activityData, fetchMore: refetchActivity } = useActivityFeed(workspaceId);
 
     // Dynamic greeting, time, and user info
         const [userProfile, setUserProfile] = useState<{ first_name?: string; full_name?: string; startup_name?: string } | null>(null);
@@ -52,6 +60,10 @@ export default function DashboardPage() {
         .then((res) => {
           if (!isMounted) return;
           const data = res?.data || res;
+          if (data?.active_workspace_id) {
+            setWorkspaceId(data.active_workspace_id);
+            localStorage.setItem('cf_workspace_id', data.active_workspace_id);
+          }
           if (data?.first_name || data?.name) {
             setUserProfile(data);
             if (data.first_name) localStorage.setItem('cf_user_name', data.first_name);
@@ -65,6 +77,11 @@ export default function DashboardPage() {
             .then((res) => {
               if (!isMounted) return;
               const state = res?.data || res;
+              if (state?.startup?.workspace_id || state?.workspace_id) {
+                const wsId = state?.startup?.workspace_id || state?.workspace_id;
+                setWorkspaceId(wsId);
+                localStorage.setItem('cf_workspace_id', wsId);
+              }
               if (state?.profile || state?.startup) {
                 const combined = {
                   first_name: state?.profile?.first_name,
@@ -391,7 +408,26 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* TOP CARDS ROW */}
+        {summaryError && !summaryData ? (
+          <div className="rounded-card border border-red-200 bg-white p-8 shadow-card flex flex-col items-center justify-center text-center my-8">
+            <div className="w-12 h-12 rounded-full bg-red-50 text-[#B0483B] flex items-center justify-center mb-4">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <h2 className="font-bold text-lg text-sage-900 mb-2">Unable to load dashboard</h2>
+            <p className="text-sm text-sage-500 mb-6 max-w-md leading-relaxed">
+              {summaryError.message || 'We encountered an issue fetching your workspace summary. Please check your connection and try again.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => void refetchSummary()}
+              className="px-5 py-2.5 text-sm font-bold text-white bg-copper-600 hover:bg-copper-700 rounded-pill transition-colors shadow-card flex items-center gap-2 cursor-pointer"
+            >
+              Retry
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* TOP CARDS ROW */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* 1. Startup Health Card */}
           <ErrorBoundary onRetry={refetchSummary}>
@@ -672,138 +708,7 @@ export default function DashboardPage() {
         </section>
 
         {/* METRICS ROW */}
-        <ErrorBoundary onRetry={refetchSummary}>
-          <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {/* 1. Monthly Revenue */}
-            <Link href="/finance" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
-              <div>
-                <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                  {summaryData?.kpis[0]?.label || 'MONTHLY REVENUE'}
-                </span>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className={`font-display ${summaryData?.kpis[0]?.value === 'Coming Soon' ? 'text-base font-medium text-sage-400' : 'text-2xl font-extrabold text-[#1D2A24]'}`}>
-                    {summaryData?.kpis[0]?.value ?? 'Coming Soon'}
-                  </span>
-                  {summaryData?.kpis[0]?.delta && (
-                    <span className={`text-xs font-semibold ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>
-                      {summaryData?.kpis[0]?.delta}
-                    </span>
-                  )}
-                </div>
-              </div>
-              {(summaryData?.kpis[0] as any)?.hasData && (
-                <svg className={`w-full h-6 ${summaryData?.kpis[0]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M 0,16 L 25,12 L 45,14 L 65,8 L 100,3" />
-                </svg>
-              )}
-            </Link>
-
-            {/* 2. Cash Runway */}
-            <Link 
-              href="/finance"
-              className={`bg-white p-5 rounded-card border shadow-card flex flex-col justify-between transition-colors duration-300 ${
-                summaryData?.kpis[1]?.isAlert ? 'border-[var(--red-600)] shadow-[0_4px_12px_var(--red-100)]' : 'border-green-100 hover:border-sage-300'
-              }`}
-            >
-              <div>
-                <span className={`text-[10px] font-bold uppercase tracking-wider block mb-3 ${
-                  summaryData?.kpis[1]?.isAlert ? 'text-[var(--red-600)]' : 'text-sage-500'
-                }`}>
-                  {summaryData?.kpis[1]?.label || 'RUNWAY'}
-                </span>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className={`font-display ${summaryData?.kpis[1]?.value === 'Coming Soon' ? 'text-base font-medium text-sage-400' : 'text-2xl font-extrabold'} ${
-                    summaryData?.kpis[1]?.isAlert ? 'text-[var(--red-600)]' : 'text-[#1D2A24]'
-                  }`}>
-                    {summaryData?.kpis[1]?.value ?? 'Coming Soon'}
-                  </span>
-                  {summaryData?.kpis[1]?.delta && (
-                    <span className={`text-xs font-semibold ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`}>
-                      {summaryData?.kpis[1]?.delta}
-                    </span>
-                  )}
-                </div>
-              </div>
-              {(summaryData?.kpis[1] as any)?.hasData && (
-                <svg className={`w-full h-6 ${summaryData?.kpis[1]?.isAlert || summaryData?.kpis[1]?.trend === 'down' ? 'text-[var(--red-600)]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M 0,4 L 35,7 L 70,12 L 100,17" />
-                </svg>
-              )}
-            </Link>
-
-            {/* 3. Pipeline Value */}
-            <Link href="/sales" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
-              <div>
-                <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                  {summaryData?.kpis[2]?.label || 'PIPELINE VALUE'}
-                </span>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className={`font-display ${summaryData?.kpis[2]?.value === 'Coming Soon' ? 'text-base font-medium text-sage-400' : 'text-2xl font-extrabold text-[#1D2A24]'}`}>
-                    {summaryData?.kpis[2]?.value ?? 'Coming Soon'}
-                  </span>
-                  {summaryData?.kpis[2]?.delta && (
-                    <span className={`text-xs font-semibold ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>
-                      {summaryData?.kpis[2]?.delta}
-                    </span>
-                  )}
-                </div>
-              </div>
-              {(summaryData?.kpis[2] as any)?.hasData && (
-                <svg className={`w-full h-6 ${summaryData?.kpis[2]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M 0,17 L 35,12 L 65,10 L 100,4" />
-                </svg>
-              )}
-            </Link>
-
-            {/* 4. Campaign CTR */}
-            <Link href="/marketing" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
-              <div>
-                <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                  {summaryData?.kpis[3]?.label || 'CAMPAIGN CTR'}
-                </span>
-                <div className="flex items-baseline gap-1.5 mb-4">
-                  <span className={`font-display ${summaryData?.kpis[3]?.value === 'Coming Soon' ? 'text-base font-medium text-sage-400' : 'text-2xl font-extrabold text-[#1D2A24]'}`}>
-                    {summaryData?.kpis[3]?.value ?? 'Coming Soon'}
-                  </span>
-                  {summaryData?.kpis[3]?.delta && (
-                    <span className={`text-xs font-semibold ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>
-                      {summaryData?.kpis[3]?.delta}
-                    </span>
-                  )}
-                </div>
-              </div>
-              {(summaryData?.kpis[3] as any)?.hasData && (
-                <svg className={`w-full h-6 ${summaryData?.kpis[3]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M 0,15 L 25,13 L 45,14 L 65,9 L 100,7" />
-                </svg>
-              )}
-            </Link>
-
-            {/* 5. Tasks This Week */}
-            <Link href="/mission" className="bg-white p-5 rounded-card border border-green-100 shadow-card flex flex-col justify-between hover:border-sage-300 transition-colors">
-              <div>
-                <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
-                  {summaryData?.kpis[4]?.label || 'TASKS THIS WEEK'}
-                </span>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-2xl font-display font-extrabold text-[#1D2A24]">
-                    {summaryData?.kpis[4]?.value ?? '0'}
-                  </span>
-                  {summaryData?.kpis[4]?.delta && (
-                    <span className={`text-xs font-semibold ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`}>
-                      {summaryData?.kpis[4]?.delta}
-                    </span>
-                  )}
-                </div>
-              </div>
-              {(summaryData?.kpis[4] as any)?.hasData && (
-                <svg className={`w-full h-6 ${summaryData?.kpis[4]?.trend === 'down' ? 'text-[#A8382A]' : 'text-[#266B4E]'}`} viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M 0,17 L 30,13 L 65,12 L 100,6" />
-                </svg>
-              )}
-            </Link>
-          </section>
-        </ErrorBoundary>
+        <KPIStrip kpis={summaryData?.kpis ?? []} onRefetch={refetchSummary} />
 
         {/* RISKS & OPPORTUNITIES ROW */}
         <ErrorBoundary onRetry={refetchSummary}>
@@ -998,6 +903,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </section>
+        </>
+        )}
       </main>
 
       {/* FLOATING AI BUTTON */}
