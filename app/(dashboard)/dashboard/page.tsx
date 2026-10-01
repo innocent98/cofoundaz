@@ -16,6 +16,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useDashboardSummary, useAIBriefing, useActivityFeed } from '@/hooks/useDashboardApi';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useAiDrawer } from '@/components/ai-drawer-context';
 import type { MissionTask } from '@/types/dashboard';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -40,6 +41,18 @@ export default function DashboardPage() {
 
   // DATA HOOKS
   const { data: summaryData, error: summaryError, refetch: refetchSummary } = useDashboardSummary();
+
+  // Real "Next 7 days" items from the summary (handles array / {items} / error
+  // shapes). No hardcoded placeholder schedule.
+  // mapSummary doesn't surface `upcoming` as a top-level field, but it keeps the
+  // raw backend payload on `.raw` — read the real upcoming items from there.
+  const upRaw = (summaryData as { raw?: { upcoming?: unknown } } | null | undefined)?.raw?.upcoming;
+  const upcomingItems: Array<{ id?: string; title?: string; date?: string; time?: string; type?: string }> =
+    Array.isArray(upRaw)
+      ? (upRaw as Array<{ title?: string }>)
+      : upRaw && typeof upRaw === 'object' && Array.isArray((upRaw as { items?: unknown }).items)
+        ? ((upRaw as { items: Array<{ title?: string }> }).items)
+        : [];
   const { refetch: refetchBriefing } = useAIBriefing();
   const [workspaceId, setWorkspaceId] = useState<string | undefined>(() => {
     if (typeof window !== 'undefined') {
@@ -184,6 +197,7 @@ export default function DashboardPage() {
   // Invite Form State & Custom Role Dropdown State
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('Co-Founder');
+  const [inviteNotice, setInviteNotice] = useState<string | null>(null);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
 
   const roleOptions = [
@@ -195,67 +209,20 @@ export default function DashboardPage() {
     'Advisor',
   ];
 
-  // Notifications State
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
-    {
-      id: '1',
-      title: 'Your daily AI briefing is ready.',
-      time: '10 min ago',
-      unread: true,
-      type: 'ai',
-    },
-    {
-      id: '2',
-      title: 'Runway dropped below 9 months, worth a look.',
-      time: '1h ago',
-      unread: false,
-      type: 'finance',
-    },
-    {
-      id: '3',
-      title: 'Tayo returned your NDA with 2 comments.',
-      time: '5h ago',
-      unread: false,
-      type: 'legal',
-    },
-    {
-      id: '4',
-      title: 'Sahel Fund viewed your data room for 6 minutes.',
-      time: 'Yesterday',
-      unread: false,
-      type: 'funding',
-    },
-  ]);
+  // Notifications — real data from the notifications API (GET /notifications +
+  // /unread-count), mapped into the shape the navbar + dropdown already expect.
+  // No fabricated/seeded items.
+  const { items: realNotifications, markAllRead: markAllNotificationsRead } = useNotifications();
+  const notifications: NotificationItem[] = realNotifications.map((n) => ({
+    id: n.id,
+    title: n.title,
+    time: n.time,
+    unread: n.isUnread,
+    type: n.category === 'Finance' ? 'finance' : n.category === 'Team' ? 'legal' : 'ai',
+  }));
 
-  const markAllNotificationsRead = () => {
-    setNotifications((prev) =>
-      prev.map((n) => ({ ...n, unread: false }))
-    );
-  };
-
-  const [tasks, setTasks] = useState<MissionTask[]>([
-    {
-      id: '1',
-      title: 'Interview 3 gig workers',
-      reason: 'Why: closes out your riskiest validation task.',
-      completed: true,
-      order: 1,
-    },
-    {
-      id: '2',
-      title: 'Draft your pricing experiment',
-      reason: 'Why: pricing moves both revenue and runway.',
-      completed: false,
-      order: 2,
-    },
-    {
-      id: '3',
-      title: "Review Tayo's NDA comments",
-      reason: 'Why: unblocks your first contractor.',
-      completed: false,
-      order: 3,
-    },
-  ]);
+  // Starts empty (no seeded/fake tasks); populated from the real mission summary.
+  const [tasks, setTasks] = useState<MissionTask[]>([]);
 
   useEffect(() => {
     const missionTasks = summaryData?.mission?.tasks;
@@ -348,9 +315,10 @@ export default function DashboardPage() {
 
   const handleSendInvite = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Inviting:', inviteEmail, 'as', inviteRole);
-    setIsInviteOpen(false);
-    setInviteEmail('');
+    // There's no workspace-member invite endpoint from the dashboard yet
+    // (see docs/backend-requests-ui-gaps.md — Team members API). Don't fake a
+    // successful send; tell the user honestly instead.
+    setInviteNotice('Team invites from here are coming soon — this isn’t wired up yet.');
   };
 
   return (
@@ -852,53 +820,26 @@ export default function DashboardPage() {
               </h3>
 
               <div className="space-y-3.5 mt-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-card bg-[#EAF2ED] text-[#1F4D3A] flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                      <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[#1D2A24]">Finish pricing experiment</p>
-                    <p className="text-[11px] text-sage-500">Milestone · Friday</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-card bg-[#FBF0EE] text-[#C0564B] flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 stroke-current fill-none" strokeWidth="1.8" viewBox="0 0 24 24">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[#1D2A24]">CAC annual return</p>
-                    <p className="text-[11px] text-sage-500">Compliance · in 9 days</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-card bg-[#EAF2ED] text-[#1F4D3A] flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 stroke-current fill-none" strokeWidth="1.8" viewBox="0 0 24 24">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[#1D2A24]">Investor call, Sahel Fund</p>
-                    <p className="text-[11px] text-sage-500">Meeting · Tue 3:00 PM</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-card bg-[#FAF4E8] text-[#9C5B34] flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 stroke-current fill-none" strokeWidth="1.8" viewBox="0 0 24 24">
-                      <path d="M3 11l18-5v12L3 13v-2zM11.6 16.8a3 3 0 1 1-5.8-1.6" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[#1D2A24]">Launch WhatsApp campaign</p>
-                    <p className="text-[11px] text-sage-500">Marketing · Thursday</p>
-                  </div>
-                </div>
+                {upcomingItems.length === 0 ? (
+                  <p className="text-xs text-sage-500 py-4">Nothing scheduled in the next 7 days.</p>
+                ) : (
+                  upcomingItems.slice(0, 6).map((item, i) => {
+                    const meta = [item.type, item.date || item.time].filter(Boolean).join(' · ');
+                    return (
+                      <div key={item.id ?? i} className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-card bg-[#EAF2ED] text-[#1F4D3A] flex items-center justify-center shrink-0">
+                          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                            <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z" />
+                          </svg>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-[#1D2A24] truncate">{item.title || 'Untitled'}</p>
+                          {meta && <p className="text-[11px] text-sage-500">{meta}</p>}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
@@ -1210,6 +1151,12 @@ export default function DashboardPage() {
                   </>
                 )}
               </div>
+
+              {inviteNotice && (
+                <p className="text-xs font-semibold text-[#8A5330] bg-[#F9F7F2] border border-[#EADBCA] rounded-card px-3 py-2">
+                  {inviteNotice}
+                </p>
+              )}
 
               <div className="grid grid-cols-2 gap-3 pt-3">
                 <button
