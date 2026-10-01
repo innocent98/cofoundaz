@@ -29,7 +29,7 @@ export function IntelligenceFeeds({
               {risks.map(risk => (
                 <li key={risk.id} className="flex items-center justify-between py-2 border-b border-sage-100 last:border-0">
                   <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${risk.severity === 'high' ? 'bg-red-500' : 'bg-amber-500'}`} />
+                    <div className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${risk.severity === 'high' ? 'bg-red-600' : 'bg-copper-600'}`} />
                     <p className="text-sm text-sage-700 leading-snug">{risk.description}</p>
                   </div>
                   <Link href={risk.moduleLink || '#'} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">

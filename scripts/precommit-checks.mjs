@@ -61,15 +61,26 @@ for (const file of files) {
   });
 }
 
-// ESLint on the staged files. No `shell: true` — with it, the shell re-parses
-// argv and chokes on route-group paths like app/(dashboard)/… and the `&` in
-// legal&compliance/. Passing the array directly keeps every path literal.
-const eslint = spawnSync('npx', ['--no-install', 'eslint', ...files], { stdio: 'inherit' });
+// ESLint on the staged files. Run per-file to prevent V8 zone allocation
+// crashes on Windows when analyzing multiple large ASTs in a single invocation.
+let eslintStatus = 0;
+const eslintPath = './node_modules/eslint/bin/eslint.js';
+for (const file of files) {
+  const res = existsSync(eslintPath)
+    ? spawnSync(process.execPath, [eslintPath, file], { stdio: 'inherit' })
+    : spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['--no-install', 'eslint', file], {
+        stdio: 'inherit',
+        shell: process.platform === 'win32',
+      });
+  if (res.status !== 0) {
+    eslintStatus = res.status || 1;
+  }
+}
 
-if (violations > 0 || eslint.status !== 0) {
+if (violations > 0 || eslintStatus !== 0) {
   console.error(
     `\nCommit blocked (${violations} token violation(s)${
-      eslint.status !== 0 ? ' + ESLint errors' : ''
+      eslintStatus !== 0 ? ' + ESLint errors' : ''
     }). Fix the above, or bypass with: git commit --no-verify\n`
   );
   process.exit(1);

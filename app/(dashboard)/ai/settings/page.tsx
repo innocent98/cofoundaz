@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAIMemory } from '../../../../hooks/useAICoFounder';
+import { AiUsageDisplay } from '@/components/ai/ai-usage-display';
 
 export default function SettingsPage() {
   const [proactiveSuggestions, setProactiveSuggestions] = useState(true);
@@ -26,6 +27,9 @@ export default function SettingsPage() {
           Tune how your Co-Founder works and what it remembers.
         </p>
       </div>
+
+      {/* AI Usage, Quota, and Over-Budget Banner */}
+      <AiUsageDisplay />
 
       <div className="bg-white rounded-modal border border-[#EBEBE6] p-6 shadow-card flex flex-col divide-y divide-[#F0F0EC]">
         <div className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
