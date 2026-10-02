@@ -1,12 +1,14 @@
 ﻿// components/Sidebar.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import CofaundazLogo from '@/components/CofaundazLogo';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useStartupProfile } from '@/hooks/useStartupProfile';
+import { useMe } from '@/hooks/useMe';
+import { logout } from '@/lib/api/profile';
 import {
   LayoutGrid,
   Sparkles,
@@ -33,6 +35,9 @@ import {
   Settings,
   ChevronDown,
   X,
+  LogOut,
+  Check,
+  UserCircle,
 } from 'lucide-react';
 
 interface NavItem {
@@ -143,6 +148,7 @@ export default function Sidebar({
   const pathname = usePathname();
   const { unreadCount } = useNotifications();
   const { name, stageLabel, logoUrl, founderName, founderRole, loading } = useStartupProfile();
+  const { me } = useMe();
 
   // Real workspace identity with neutral (non-fabricated) fallbacks.
   const workspaceName = name?.trim() || (loading ? 'Loading…' : 'Your workspace');
@@ -150,10 +156,61 @@ export default function Sidebar({
   const founderDisplay = founderName?.trim() || (loading ? 'Loading…' : 'Your account');
   const founderInitials = initialsOf(founderName) || 'U';
   const founderRoleText = founderRole?.trim() || 'Founder';
+  const founderAvatar = me?.profile.avatar_url ?? null;
+  const founderEmail = me?.user.email ?? null;
+  const memberships = me?.memberships ?? [];
+  const activeWorkspaceId = me?.active_workspace_id ?? null;
+
+  // Dropdown menus for the workspace switcher (top) and profile (bottom).
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const switcherRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onDocMouseDown(e: MouseEvent) {
+      const target = e.target as Node;
+      if (switcherRef.current && !switcherRef.current.contains(target)) setSwitcherOpen(false);
+      if (profileRef.current && !profileRef.current.contains(target)) setProfileOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setSwitcherOpen(false);
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onDocMouseDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocMouseDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, []);
 
   const handleClose = () => {
     if (onClose) onClose();
     if (setIsOpen) setIsOpen(false);
+  };
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    await logout();
+    window.location.assign('/login');
+  };
+
+  const switchWorkspace = (startupId: string) => {
+    if (!startupId || startupId === activeWorkspaceId) {
+      setSwitcherOpen(false);
+      return;
+    }
+    try {
+      localStorage.setItem('cf_workspace_id', startupId);
+    } catch {
+      /* ignore */
+    }
+    window.location.assign('/dashboard');
   };
 
   return (
@@ -190,35 +247,84 @@ export default function Sidebar({
             </button>
           </div>
 
-          {/* Project Selector */}
-          <div className="w-full bg-[#0C2419] border border-[#183B2B] rounded-card p-3 mb-6 flex items-center justify-between gap-2 cursor-pointer hover:border-[#26533D] transition-colors">
-            <div className="flex min-w-0 items-center gap-3">
-              {logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={logoUrl}
-                  alt={`${workspaceName} logo`}
-                  className="h-8 w-8 shrink-0 rounded-input object-cover"
-                />
-              ) : (
-                <div className="bg-[#122E21] text-[#D89A6E] font-bold h-8 w-8 shrink-0 flex items-center justify-center rounded-input text-sm">
-                  {workspaceInitial}
-                </div>
-              )}
-
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-white text-sm">
-                  {workspaceName}
-                </p>
-                {stageLabel && (
-                  <p className="truncate text-xs text-[#7B9382]">
-                    {stageLabel}
-                  </p>
+          {/* Workspace switcher */}
+          <div ref={switcherRef} className="relative mb-6">
+            <button
+              type="button"
+              onClick={() => { setSwitcherOpen((v) => !v); setProfileOpen(false); }}
+              aria-haspopup="menu"
+              aria-expanded={switcherOpen}
+              className="w-full bg-[#0C2419] border border-[#183B2B] rounded-card p-3 flex items-center justify-between gap-2 cursor-pointer hover:border-[#26533D] transition-colors text-left"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logoUrl}
+                    alt={`${workspaceName} logo`}
+                    className="h-8 w-8 shrink-0 rounded-input object-cover"
+                  />
+                ) : (
+                  <div className="bg-[#122E21] text-[#D89A6E] font-bold h-8 w-8 shrink-0 flex items-center justify-center rounded-input text-sm">
+                    {workspaceInitial}
+                  </div>
                 )}
-              </div>
-            </div>
 
-            <ChevronDown className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-white text-sm">
+                    {workspaceName}
+                  </p>
+                  {stageLabel && (
+                    <p className="truncate text-xs text-[#7B9382]">
+                      {stageLabel}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <ChevronDown className={`w-4 h-4 shrink-0 text-[#7B9382] transition-transform ${switcherOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {switcherOpen && (
+              <div role="menu" className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#0C2419] border border-[#1F4332] rounded-card shadow-raised p-1.5">
+                <p className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#4D6D58]">Workspaces</p>
+                {(memberships.length > 0
+                  ? memberships
+                  : [{ startup_id: activeWorkspaceId ?? 'current', name: workspaceName, role: null }]
+                ).map((m) => {
+                  const isActive = m.startup_id === activeWorkspaceId || memberships.length === 0;
+                  return (
+                    <button
+                      key={m.startup_id}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => switchWorkspace(m.startup_id)}
+                      className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-input text-left hover:bg-[#122E21] transition-colors"
+                    >
+                      <span className="truncate text-sm text-white">{m.name?.trim() || 'Workspace'}</span>
+                      {isActive && <Check className="w-4 h-4 shrink-0 text-[#D89A6E]" />}
+                    </button>
+                  );
+                })}
+                <div className="my-1.5 border-t border-[#183B2B]" />
+                <Link
+                  href="/account"
+                  onClick={() => { setSwitcherOpen(false); handleClose(); }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                >
+                  <UserCircle className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  Account &amp; profile
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => { setSwitcherOpen(false); handleClose(); }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                >
+                  <Settings className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  Settings &amp; billing
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Navigation Groups */}
@@ -317,24 +423,74 @@ export default function Sidebar({
           </Link>
 
           {/* User Profile */}
-          <div className="pt-4 mt-2 flex w-full items-center justify-between gap-2 px-2 cursor-pointer">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="bg-[#122E21] text-white font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-full text-xs">
-                {founderInitials}
+          <div ref={profileRef} className="relative pt-4 mt-2">
+            <button
+              type="button"
+              onClick={() => { setProfileOpen((v) => !v); setSwitcherOpen(false); }}
+              aria-haspopup="menu"
+              aria-expanded={profileOpen}
+              className="flex w-full items-center justify-between gap-2 px-2 py-1 rounded-card cursor-pointer hover:bg-[#0A2217] transition-colors text-left"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                {founderAvatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={founderAvatar} alt="Your profile photo" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+                ) : (
+                  <div className="bg-[#122E21] text-white font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-full text-xs">
+                    {founderInitials}
+                  </div>
+                )}
+
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-white text-sm">
+                    {founderDisplay}
+                  </p>
+
+                  <p className="truncate text-xs text-[#7B9382]">
+                    {founderRoleText}
+                  </p>
+                </div>
               </div>
 
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-white text-sm">
-                  {founderDisplay}
-                </p>
+              <ChevronDown className={`w-3.5 h-3.5 shrink-0 text-[#7B9382] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-                <p className="truncate text-xs text-[#7B9382]">
-                  {founderRoleText}
-                </p>
+            {profileOpen && (
+              <div role="menu" className="absolute left-0 right-0 bottom-full mb-1.5 z-50 bg-[#0C2419] border border-[#1F4332] rounded-card shadow-raised p-1.5">
+                <div className="px-2.5 py-2">
+                  <p className="truncate text-sm font-semibold text-white">{founderDisplay}</p>
+                  {founderEmail && <p className="truncate text-xs text-[#7B9382]">{founderEmail}</p>}
+                </div>
+                <div className="my-1 border-t border-[#183B2B]" />
+                <Link
+                  href="/account"
+                  onClick={() => { setProfileOpen(false); handleClose(); }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                >
+                  <UserCircle className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  View account
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => { setProfileOpen(false); handleClose(); }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                >
+                  <Settings className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  Settings &amp; billing
+                </Link>
+                <div className="my-1 border-t border-[#183B2B]" />
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#E88B7D] hover:text-white hover:bg-[#3A1A16] disabled:opacity-60 transition-colors"
+                >
+                  <LogOut className="w-4 h-4 shrink-0" />
+                  {loggingOut ? 'Logging out…' : 'Log out'}
+                </button>
               </div>
-            </div>
-
-            <ChevronDown className="w-3.5 h-3.5 shrink-0 text-[#7B9382]" />
+            )}
           </div>
         </div>
       </aside>

@@ -32,14 +32,17 @@ hit during integration). Complements the developer record in
 | 1.5 ✅ | `/onboarding` | Start the 6-step wizard, refresh mid-way | Resumes on the step you left (server-persisted via `PATCH /onboarding/state`) | ⚠️ Country must be an **ISO code** (a free-text country 422s server-side — FE uses a select) |
 | 1.6 ⚠️ | `/onboarding` logo step | Upload a logo | Uploads via `POST /onboarding/logo` (multipart), preview shows | Now routed through `apiClient` (real API), not a local mock — verify it actually reaches staging |
 | 1.7 ✅ | `/dashboard` | Load the dashboard | Widgets populate from `GET /dashboard/summary`; greeting, health, mission, KPIs, briefing/risks/opportunities, and the **real** "Next 7 days" (`upcoming`) all show real data | KPIs with no backend series show **"Coming Soon"** (not fake `$0`); a per-card failure shows **"Unavailable" + Retry**; no seeded fake notifications/tasks/schedule |
-| 1.8 ⛔ | `/dashboard` | Click "Do it" on an AI briefing card | Acknowledges locally only | **No backend action endpoint exists** (`POST /dashboard/briefing/{id}/actions/{index}/accept` isn't implemented), so it won't persist — expected, not a bug |
+| 1.8 ✅ | `/dashboard` | Look at the AI Briefing card actions | Only **"Tell me more"** (opens the AI co-founder drawer) — the old **"Do it"** button is **gone** | "Do it" was removed: it faked completing a task with no backend (no action endpoint exists). "Tell me more" must open the AI drawer |
 | 1.9 ✅ | sidebar → **Security (2FA)** / `/setup/mfa` | Set up an authenticator: scan the QR (or copy the key), enter the 6-digit code, save the backup codes | `POST /auth/mfa/totp/setup` → `{secret, otpauth_uri}`; `POST …/totp/verify` → `{enabled, backup_codes}` | ⚠️ **Enabling is one-way — no disable endpoint yet, so use a throwaway account, NOT the shared test one.** **SMS** option is greyed "coming soon" (backend `FeatureNotEnabled`). Needs `MFA_ENCRYPTION_KEY` set (it is on staging) or every call 500s |
 | 1.10 ✅ | `/login` with a 2FA-enabled account | Log in → 6-digit challenge → enter the code (or a backup code) | Login returns `{mfa_required, mfa_ticket}` (no token); `POST /auth/mfa/challenge {mfa_ticket, code}` → tokens | The "Use a backup code" toggle accepts a saved code. Deep-linking `/login/mfa` with no ticket bounces to `/login` |
 | 1.11 ✅ | `/invite/{token}` | Open an invite link — try both logged out **and** logged in | `GET /invitations/{token}` previews inviter/workspace/role; `POST /invitations/accept` joins + lands `/dashboard` | Logged out → login/signup CTAs (login returns you here to accept). ⚠️ Logged in as a **different email** than invited → "log in with {email}" mismatch banner. Expired/used → 404 "no longer valid" |
 | 1.12 ⚠️ | `/dashboard` | Force a load failure (e.g. go offline, then open/refresh) | `GET /dashboard/summary` fails → an **"Unable to load dashboard" card with Retry** | ⚠️ Must show an **honest error**, never a fabricated "new account" (health 0 / "complete your assessment") |
-| 1.13 ✅ | `/dashboard` | Scroll the recent-activity feed; click "load more" if present | `GET /dashboard/activity` — real events with **real actor names** (e.g. "A signer signed a document"); keyset pagination pages older items | Empty → honest empty state |
+| 1.13 ✅ | `/dashboard` | Scroll the **Team activity** feed; click "load more" if present | `GET /dashboard/activity` — each row shows the **full sentence** (e.g. "Ade rejected 'QA snooze check'") and a **real relative time** (e.g. "13d ago"); keyset pagination pages older items | ⚠️ Must **not** show "{name} ." with blank action or "just now" on every row (the old bug). Empty → honest empty state |
 | 1.14 ✅ | `/onboarding` | Fill the first steps and watch the side panel | Once key details are in, an **AI co-founder calibration message** appears (`ai_panel` on `GET/PATCH /onboarding/state`) | Prose text; appears when the backend has generated/templated it |
 | 1.15 ✅ | left sidebar (any dashboard page) | Look at the workspace switcher (top) and your profile (bottom) | Both show **your real data** from `GET /onboarding/state`: your startup **name** + **stage** + uploaded **logo** (top), your **name** + **role** (bottom) | ⚠️ Must **not** show the old placeholders **"Kolo"/"Validation stage"** or **"Amara Okafor"/"Founder"** for every account — a different account must show its own name/logo. No logo → first letter of the name |
+| 1.16 ✅ | left sidebar → **workspace switcher** (top) | Click the workspace box | A dropdown opens: your workspace(s) with a check on the active one, plus **Account & profile** and **Settings & billing** links | Clicking outside or pressing Esc closes it. The Cofoundaz logo above it must be **visible** (it was dark-on-dark before) |
+| 1.17 ✅ | left sidebar → **profile** (bottom) | Click your name/avatar at the very bottom | A menu opens with your **name + email**, **View account**, **Settings & billing**, and **Log out** | **Log out** signs you out (`POST /auth/logout`), clears the session and returns you to `/login` |
+| 1.18 ✅ | `/account` (via the menus) | Open **Account & profile** / **View account** | A read-only page shows your real **name, email, role, country** and your **workspace name + stage + logo** from `GET /auth/me` | ⚠️ Editing and **Change photo** are intentionally **disabled / "coming soon"** — there's no backend update/avatar endpoint yet (not a bug). A **Log out** action is also here |
 
 ---
 
@@ -141,8 +144,14 @@ Don't file these as FE bugs; they're waiting on the API team:
 5. **MFA — SMS + disable** — TOTP works (items 1.9/1.10), but the **SMS** option is a
    `FeatureNotEnabled` stub (greyed) and there is **no disable/reset** endpoint, so
    enabling 2FA is one-way. Also confirm `MFA_ENCRYPTION_KEY` in prod (set on staging).
-6. **Dashboard briefing "Do it"** (item 1.8) — no `POST /dashboard/briefing/{id}/actions/{index}/accept`
-   endpoint exists, so the action can't persist; the button acknowledges locally only.
+6. **Dashboard briefing "Do it"** (item 1.8) — **removed**: no
+   `POST /dashboard/briefing/{id}/actions/{index}/accept` endpoint exists, so the button
+   could never persist anything. "Tell me more" (opens the AI drawer) remains.
+7. **Profile / account editing + photo** (item 1.18) — `/account` is **read-only**:
+   `/auth/me` is GET-only and `PATCH /onboarding/state` returns `409 ONBOARDING_ALREADY_COMPLETE`
+   once onboarding is done, and there's **no user-avatar upload** endpoint. So editing
+   name/role, startup name/logo, and the photo are all backend-blocked (shown as
+   "coming soon").
 
 **Designed screens with no endpoints at all** (FE ready to build once the API ships —
 see [`docs/backend-requests-ui-gaps.md`](../backend-requests-ui-gaps.md)): **Team

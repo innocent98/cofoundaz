@@ -173,9 +173,6 @@ export default function DashboardPage() {
     return 'var(--green-500, #2E7256)';
   };
 
-  // Toast State for Briefing Action
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
   // Mission Toast State
   const [missionToastVisible, setMissionToastVisible] = useState(false);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -290,25 +287,9 @@ export default function DashboardPage() {
     };
   }, [isSidebarOpen]);
 
-  // Handlers for AI Briefing Card Actions (Independent of the Chat Drawer)
-  const [isDoItPending, setIsDoItPending] = useState(false);
-
-  const handleBriefingDoIt = () => {
-    if (isDoItPending) return;
-    setIsDoItPending(true);
-
-    // Automatically marks the pricing task as complete
-    setTasks((prev) =>
-      prev.map((t) => (t.id === '2' ? { ...t, completed: true } : t))
-    );
-    // Show the black toast notification matching the reference screenshot
-    setToastMessage('Added “Draft a pricing experiment” to your tasks.');
-    setTimeout(() => {
-      setToastMessage(null);
-      setIsDoItPending(false);
-    }, 4000);
-  };
-
+  // The AI Briefing "Do it" action was removed: it faked completing a hardcoded
+  // task + toast with no backend (no briefing-action endpoint exists). "Tell me
+  // more" opens the AI co-founder drawer, which is the real, working action.
   const handleBriefingTellMeMore = () => {
     openAiDrawer();
   };
@@ -344,16 +325,6 @@ export default function DashboardPage() {
         notifications={notifications}
         markAllNotificationsRead={markAllNotificationsRead}
       />
-
-      {/* TOAST NOTIFICATION POPUP (MATCHING DESIGN REFERENCE) */}
-      {toastMessage && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#14231E] text-white px-5 py-3 rounded-modal shadow-raised flex items-center gap-3 border border-[#233A31] animate-in fade-in slide-in-from-top-4 duration-200">
-          <div className="w-5 h-5 rounded-full bg-[#266B4E] flex items-center justify-center shrink-0">
-            <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
-          </div>
-          <p className="text-sm font-medium">{toastMessage}</p>
-        </div>
-      )}
 
       {/* MISSION TOAST */}
       {missionToastVisible && (
@@ -657,15 +628,8 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={handleBriefingDoIt}
-                    className="flex-1 bg-[#D89A6E] hover:bg-[#9C5B34] text-white text-sm font-bold py-3 rounded-card transition-colors text-center cursor-pointer"
-                  >
-                    Do it
-                  </button>
-                  <button
-                    type="button"
                     onClick={handleBriefingTellMeMore}
-                    className="flex-1 bg-[#15382A] hover:bg-[#1A4533] border border-[#1F4C39] text-white text-sm font-bold py-3 rounded-card transition-colors text-center cursor-pointer"
+                    className="flex-1 bg-[#D89A6E] hover:bg-[#9C5B34] text-white text-sm font-bold py-3 rounded-card transition-colors text-center cursor-pointer"
                   >
                     Tell me more
                   </button>
@@ -799,8 +763,14 @@ export default function DashboardPage() {
                               </div>
                             )}
                             <p className="text-xs text-sage-700 truncate">
-                              <span className="font-medium text-[#1D2A24]">{actorName}</span>{' '}
-                              {activity.verb} {activity.entity}.
+                              {activity.summary
+                                ? activity.summary
+                                : (
+                                  <>
+                                    <span className="font-medium text-[#1D2A24]">{actorName}</span>{' '}
+                                    {[activity.verb, activity.entity].filter(Boolean).join(' ')}
+                                  </>
+                                )}
                             </p>
                           </div>
                           <span className="text-[11px] text-sage-400 shrink-0">{activity.time || activity.relativeTime}</span>
