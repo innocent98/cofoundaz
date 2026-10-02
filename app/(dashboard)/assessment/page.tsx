@@ -41,7 +41,7 @@ export default function AssessmentStartPage() {
         </h1>
         
         <p className="text-sage-600 text-sm md:text-base max-w-lg leading-relaxed">
-          Honest answers make everything smarter — your score, your roadmap, your advisors. There are no wrong answers, only accurate ones.
+          Honest answers make everything smarter, your score, your roadmap, your advisors. There are no wrong answers, only accurate ones.
         </p>
         
         <div className="pt-6 w-full max-w-xs">

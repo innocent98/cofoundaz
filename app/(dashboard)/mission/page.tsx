@@ -75,7 +75,7 @@ export default function MissionTodayPage() {
   const handleRejectAction = (id: string, reason: string) => {
     rejectTask(id, reason);
     setRejectingTaskId(null);
-    toast.success("Thanks — I'll calibrate.");
+    toast.success("Thanks, I'll calibrate.");
   };
 
   if (!isReady) return null;

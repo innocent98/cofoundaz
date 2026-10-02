@@ -81,7 +81,7 @@ export default function SmokeTestsPage() {
                 
                 <div className="flex flex-col gap-1.5 pt-2">
                   <label className="text-xs font-bold text-[#1E2923] uppercase tracking-wider">Post-signup message</label>
-                  <input type="text" defaultValue="You're on the list — we'll be in touch soon." className="w-full bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-4 py-2.5 text-sm outline-none focus:border-[#183B28] focus:ring-1 focus:ring-[#183B28]" />
+                  <input type="text" defaultValue="You're on the list, we'll be in touch soon." className="w-full bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-4 py-2.5 text-sm outline-none focus:border-[#183B28] focus:ring-1 focus:ring-[#183B28]" />
                 </div>
               </div>
 
@@ -117,7 +117,7 @@ export default function SmokeTestsPage() {
                 <div className="flex flex-col gap-1.5 pt-4">
                   <label className="text-xs font-bold text-[#1E2923] uppercase tracking-wider">Target Conversion Rate (%)</label>
                   <input type="number" defaultValue={5} className="w-full bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-4 py-2.5 text-sm outline-none focus:border-[#183B28] focus:ring-1 focus:ring-[#183B28]" />
-                  <span className="text-xs text-[#617065]">Typical validation bar: 5–10% cold traffic</span>
+                  <span className="text-xs text-[#617065]">Typical validation bar: 5-10% cold traffic</span>
                 </div>
               </div>
 

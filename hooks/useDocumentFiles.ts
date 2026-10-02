@@ -4,7 +4,7 @@ import { apiClient, ApiError } from '@/lib/api/client';
 export interface DocFileItem {
   id: string;
   title: string;
-  type: string; // PDF / DOCX / XLSX / PPTX / PNG / JPG / TXT / CSV — badge label
+  type: string; // PDF / DOCX / XLSX / PPTX / PNG / JPG / TXT / CSV, badge label
   category: string; // the file's folder
   owner: string;
   modified: string;

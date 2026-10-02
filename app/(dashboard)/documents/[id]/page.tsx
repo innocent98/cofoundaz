@@ -161,7 +161,7 @@ export default function DocumentEditorPage() {
 
             <div className="flex flex-col gap-7">
               {sections.length === 0 && (
-                <p className="text-sm text-[#8E9B90] italic">No sections yet — add one below.</p>
+                <p className="text-sm text-[#8E9B90] italic">No sections yet, add one below.</p>
               )}
               {sections.map((sec, idx) => (
                 <section

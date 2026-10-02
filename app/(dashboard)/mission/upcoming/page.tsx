@@ -30,7 +30,7 @@ export default function MissionUpcomingPage() {
         <div>
           <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">Upcoming</h2>
           <p className="text-xs md:text-sm text-[#768478] mt-1.5 font-normal">
-            What&apos;s next, drawn from your roadmap — grouped by milestone.
+            What&apos;s next, drawn from your roadmap, grouped by milestone.
           </p>
         </div>
 

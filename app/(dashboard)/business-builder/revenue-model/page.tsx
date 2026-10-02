@@ -84,7 +84,7 @@ export default function RevenueModelPage() {
             <TrendingUp className="w-6 h-6" />
           </div>
           <p className="text-sm font-bold text-[#1E2923]">No revenue streams yet</p>
-          <p className="text-xs text-[#768478] max-w-xs">Map out how the business makes money — each stream, its basis, and an estimate.</p>
+          <p className="text-xs text-[#768478] max-w-xs">Map out how the business makes money, each stream, its basis, and an estimate.</p>
           <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
             <Plus className="w-3.5 h-3.5" /><span>Add your first stream</span>
           </button>
@@ -106,8 +106,8 @@ export default function RevenueModelPage() {
               <tbody className="divide-y divide-[#F0F0EC]">
                 {records.map((rec) => (
                   <tr key={rec.id} className="hover:bg-[#FAF9F5] transition-colors group">
-                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">{(rec.data.name as string) || '—'}</td>
-                    <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.pricing_basis as string) || '—'}</td>
+                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">{(rec.data.name as string) || '-'}</td>
+                    <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.pricing_basis as string) || '-'}</td>
                     <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#183B28]">{fmtMoney(rec.data.est_monthly)}</td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

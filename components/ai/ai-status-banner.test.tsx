@@ -62,7 +62,7 @@ describe('AiStatusBanner', () => {
     const banner = screen.getByRole('status');
     expect(banner).toBeInTheDocument();
     expect(banner).toHaveTextContent(
-      `AI personalization is paused until ${formattedTime} — your data is never affected.`
+      `AI personalization is paused until ${formattedTime}, your data is never affected.`
     );
   });
 

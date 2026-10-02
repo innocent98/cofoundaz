@@ -88,7 +88,7 @@ function MetricCard({
   band: HealthBand | null;
   dimKey: string;
 }) {
-  const ui = band ? BAND_UI[band] : { label: '—', tone: 'warn' as const, path: 'M 0 15 L 150 15' };
+  const ui = band ? BAND_UI[band] : { label: '-', tone: 'warn' as const, path: 'M 0 15 L 150 15' };
   const strokeColor = ui.tone === 'good' ? '#2D5A3F' : '#9C5B34';
   const captionColor =
     ui.tone === 'good' ? 'text-[#2D5A3F]' : ui.tone === 'bad' ? 'text-[#B04C4C]' : 'text-[#768478]';
@@ -295,7 +295,7 @@ export default function HealthOverviewPage() {
             </button>
             <h3 className="text-xl font-display font-bold text-[#1E2923] mb-4">How is this calculated?</h3>
             <p className="text-sm text-[#617065] leading-relaxed">
-              Your Health Score weighs live signals from every hub — roadmap progress, runway, validation evidence, legal hygiene, and team activity — against benchmarks for your stage and industry. It&apos;s explainable: every point traces to something real, and every recommendation tells you the estimated lift.
+              Your Health Score weighs live signals from every hub (roadmap progress, runway, validation evidence, legal hygiene, and team activity) against benchmarks for your stage and industry. It&apos;s explainable: every point traces to something real, and every recommendation tells you the estimated lift.
             </p>
           </div>
         </div>

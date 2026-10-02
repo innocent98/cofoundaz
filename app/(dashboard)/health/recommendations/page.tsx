@@ -59,7 +59,7 @@ export default function RecommendationsPage() {
 
       {!loading && !error && recs.length === 0 && (
         <div className="text-center py-12 text-[#617065] text-sm">
-          {filter === 'pending' ? 'All caught up — no pending recommendations right now.' : `No ${filter} recommendations.`}
+          {filter === 'pending' ? 'All caught up, no pending recommendations right now.' : `No ${filter} recommendations.`}
         </div>
       )}
 

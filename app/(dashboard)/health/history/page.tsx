@@ -43,7 +43,7 @@ export default function TrendHistoryPage() {
         ) : points.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center gap-2">
             <p className="text-sm font-bold text-[#1E2923]">No history in this range</p>
-            <p className="text-xs text-[#768478] max-w-xs">Your score is recorded each time you complete an assessment — the trend fills in from there.</p>
+            <p className="text-xs text-[#768478] max-w-xs">Your score is recorded each time you complete an assessment, the trend fills in from there.</p>
           </div>
         ) : (
           <>

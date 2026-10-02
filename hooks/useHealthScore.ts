@@ -135,7 +135,7 @@ function mapOverview(raw: RawOverview): HealthScoreData {
   const dimensions = emptyDimensions();
   for (const d of raw.dimensions ?? []) {
     const meta = DIM_META[d.key];
-    if (!meta) continue; // unknown dimension key — ignore rather than crash
+    if (!meta) continue; // unknown dimension key, ignore rather than crash
     dimensions[meta.feKey] = {
       key: meta.feKey,
       label: d.label || meta.label,

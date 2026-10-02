@@ -13,7 +13,7 @@ export function dayDelta(oldIso: string, newIso: string): number | null {
 }
 
 export function fmtDay(iso: string): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });

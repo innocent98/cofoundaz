@@ -37,7 +37,7 @@ export function AiStatusBanner({ status: propStatus, className = '' }: AiStatusB
         <Sparkles className="w-3 h-3 fill-current" />
       </div>
       <p className="leading-relaxed">
-        AI personalization is paused until {formattedTime} — your data is never affected.
+        AI personalization is paused until {formattedTime}, your data is never affected.
       </p>
     </div>
   );

@@ -399,7 +399,7 @@ export default function JournalPage(): React.JSX.Element {
                           className="w-7 h-7 rounded-card border border-[#E0E0DA] bg-white hover:bg-sage-50 text-sage-600 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors"
                           aria-label={isExpanded ? 'Collapse entry' : 'Expand entry'}
                         >
-                          {isExpanded ? '–' : '+'}
+                          {isExpanded ? '-' : '+'}
                         </button>
                       </div>
 

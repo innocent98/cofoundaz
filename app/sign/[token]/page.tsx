@@ -125,11 +125,11 @@ export default function PublicSignerPage() {
             <div className="w-16 h-16 rounded-full bg-[#EAF2ED] text-[#2D5A3F] flex items-center justify-center">
               <Check className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-display font-bold">Signed — thank you</h1>
+            <h1 className="text-2xl font-display font-bold">Signed, thank you</h1>
             <p className="text-sm text-[#617065]">
               {result.status === 'complete'
-                ? `All ${result.total} signature${result.total === 1 ? '' : 's'} are in — this document is complete.`
-                : `${result.signed_count} of ${result.total} signed — we’ll let the others know it’s their turn.`}
+                ? `All ${result.total} signature${result.total === 1 ? '' : 's'} are in, this document is complete.`
+                : `${result.signed_count} of ${result.total} signed, we’ll let the others know it’s their turn.`}
             </p>
             <p className="text-xs text-[#8E9B90]">You can safely close this tab.</p>
           </div>
@@ -139,7 +139,7 @@ export default function PublicSignerPage() {
           <div className="bg-white rounded-modal shadow-card border border-[#E8E8E2] overflow-hidden">
             <div className="border-b border-[#E8E8E2] px-6 py-4 bg-[#FBFBFA]">
               <h2 className="text-lg font-semibold">{view.request.title}</h2>
-              <p className="text-sm text-[#617065]">Hi {view.signer.name || view.signer.email} — please review and sign below.</p>
+              <p className="text-sm text-[#617065]">Hi {view.signer.name || view.signer.email}, please review and sign below.</p>
             </div>
 
             <div className="p-6 flex flex-col gap-6">
@@ -197,7 +197,7 @@ export default function PublicSignerPage() {
 
                 {/* Adopt-your-signature: render the typed name in a script face so
                     the signer sees their signature before committing. What we
-                    submit is still the typed name — the API records typed_name only. */}
+                    submit is still the typed name, the API records typed_name only. */}
                 <div className="rounded-card border border-dashed border-[#D5DDD6] bg-[#FBFBFA] px-4 py-3">
                   <span className="block text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider mb-1">
                     Your signature

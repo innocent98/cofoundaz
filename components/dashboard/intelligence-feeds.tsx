@@ -48,7 +48,7 @@ export function IntelligenceFeeds({
           <h3 className="font-bold text-base text-sage-900 mb-4">Opportunities</h3>
           {opportunities.length === 0 ? (
             <p className="text-sm text-sage-500 py-4">
-              Opportunities I spot — grants, quick wins, market signals — will show up here.
+              Opportunities I spot (grants, quick wins, market signals) will show up here.
             </p>
           ) : (
             <ul className="space-y-3">

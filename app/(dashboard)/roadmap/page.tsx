@@ -58,7 +58,7 @@ export default function TimelinePage() {
             Roadmap
           </h2>
           <p className="text-xs text-[#617065]">
-            Your path from <span className="font-bold text-[#2D5A3F]">{currentStage}</span> to profitability — I re-plan it when reality changes.
+            Your path from <span className="font-bold text-[#2D5A3F]">{currentStage}</span> to profitability, I re-plan it when reality changes.
           </p>
         </div>
 

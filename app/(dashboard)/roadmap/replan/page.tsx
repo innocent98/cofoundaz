@@ -87,7 +87,7 @@ export default function ReplanPage() {
     changes.length === 0
       ? ''
       : `${changes.length} milestone${changes.length === 1 ? '' : 's'} adjusting` +
-        (laterCount > 0 ? ` — up to +${maxLater} day${maxLater === 1 ? '' : 's'} later` : '');
+        (laterCount > 0 ? `, up to +${maxLater} day${maxLater === 1 ? '' : 's'} later` : '');
 
   return (
     <div className="flex flex-col gap-8 h-full pb-12">
@@ -125,7 +125,7 @@ export default function ReplanPage() {
                 {slippedCount} milestone{slippedCount === 1 ? '' : 's'} {slippedCount === 1 ? 'has' : 'have'} slipped. Want me to re-plan?
               </h3>
               <p className="text-xs text-[#B0483B] mt-1 leading-relaxed">
-                Some target dates are now in the past. Let me propose a realistic shift — you choose what to accept.
+                Some target dates are now in the past. Let me propose a realistic shift, you choose what to accept.
               </p>
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function ReplanPage() {
         <div className="bg-[#EAF2ED] border border-[#CDE1D3] rounded-modal p-6 flex items-center justify-between gap-4 shadow-card">
           <div className="flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-[#2D5A3F] shrink-0" />
-            <p className="text-sm font-bold text-[#2D5A3F]">You&apos;re on track — no milestones have slipped.</p>
+            <p className="text-sm font-bold text-[#2D5A3F]">You&apos;re on track, no milestones have slipped.</p>
           </div>
           <button
             onClick={generate}
@@ -163,7 +163,7 @@ export default function ReplanPage() {
             <div>
               <h3 className="font-bold text-[#1E2923]">Proposed Adjustments</h3>
               <p className="text-xs text-[#768478]">
-                {proposalSummary}. Review carefully — rejected items keep their current dates.
+                {proposalSummary}. Review carefully, rejected items keep their current dates.
               </p>
             </div>
           </div>
@@ -241,7 +241,7 @@ export default function ReplanPage() {
                       {h.summary} · {fmtDateTime(h.created_at)}
                     </span>
                     <span className="text-[11px] text-[#768478] truncate">
-                      {h.applied_by?.name ? `By ${h.applied_by.name}` : 'Applied'} —{' '}
+                      {h.applied_by?.name ? `By ${h.applied_by.name}` : 'Applied'},{' '}
                       {h.changes.map((c) => c.title).join(', ')}
                     </span>
                   </div>

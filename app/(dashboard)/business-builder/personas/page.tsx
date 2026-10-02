@@ -116,7 +116,7 @@ export default function PersonasPage() {
           </div>
           <p className="text-sm font-bold text-[#1E2923]">No personas yet</p>
           <p className="text-xs text-[#768478] max-w-xs">
-            Capture who you&apos;re building for — their goals, frustrations, and where to reach them.
+            Capture who you&apos;re building for, their goals, frustrations, and where to reach them.
           </p>
           <button
             onClick={openCreate}

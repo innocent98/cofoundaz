@@ -24,7 +24,7 @@ export interface Suggestion {
 export interface ResolveResult {
   success: boolean;
   error?: string;
-  conflict?: boolean; // CANVAS_VERSION_CONFLICT — offer re-read/reject, never blind retry
+  conflict?: boolean; // CANVAS_VERSION_CONFLICT, offer re-read/reject, never blind retry
 }
 
 function apiErrMessage(err: unknown): { message: string; code?: string } {

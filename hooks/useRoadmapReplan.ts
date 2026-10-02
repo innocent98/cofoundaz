@@ -14,7 +14,7 @@ export interface ReplanChange {
   title: string;
   old_due: string;
   new_due: string;
-  reason: string; // opaque templated prose — never parse it
+  reason: string; // opaque templated prose, never parse it
 }
 
 export interface ReplanPreview {
