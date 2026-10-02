@@ -198,7 +198,12 @@ function ChatViewContent() {
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-bold text-[#1E2923] truncate pr-2">{conv.title}</h4>
                     <span className="text-[10px] text-[#8E9B90] shrink-0">
-                      {new Date(conv.lastMessageAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      {(() => {
+                        const d = new Date(conv.lastMessageAt);
+                        return isNaN(d.getTime())
+                          ? ''
+                          : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                      })()}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-[11px] text-[#617065]">
@@ -242,9 +247,12 @@ function ChatViewContent() {
           {messages.length === 0 && (
             <div className="flex flex-col h-full items-center justify-center text-center max-w-lg mx-auto">
               <Sparkles className="w-12 h-12 text-copper-600 mb-4" />
-              <h3 className="font-bold text-xl text-[#1E2923] mb-2">Meet your AI Co-Founder.</h3>
+              <span className="mb-3 inline-flex items-center gap-1.5 rounded-pill bg-[#FBF3E9] border border-[#E7D3BC] px-3 py-1 text-xs font-semibold text-[#9C5B34]">
+                Coming soon
+              </span>
+              <h3 className="font-bold text-xl text-[#1E2923] mb-2">Your AI Co-Founder is on the way.</h3>
               <p className="text-sm text-[#617065] mb-8 leading-relaxed">
-                I know your startup, your stage, your numbers, your plan. Ask me anything, and I&apos;ll bring in the right specialist.
+                Two-way chat with your co-founder and its specialist advisors isn&apos;t available yet. It already works behind the scenes though, in your dashboard briefing, today&apos;s mission reasons, and health tips. You can type below, but it can&apos;t answer yet.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
                 {[
