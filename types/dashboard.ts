@@ -112,6 +112,10 @@ export interface ActivityActorDetails {
 export interface ActivityLogEntry {
   id: string;
   actor: string;
+  /** Human-readable sentence from the API (e.g. "Ade rejected 'QA snooze check'"). Preferred for display. */
+  summary: string;
+  /** Dotted action key, e.g. "mission.task.rejected" (optional metadata). */
+  action?: string;
   verb: string;
   entity: string;
   timestamp: string;

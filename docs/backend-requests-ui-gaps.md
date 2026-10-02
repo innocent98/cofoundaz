@@ -44,6 +44,30 @@ decision that retros are just a saved-view over entries (then expose a filter).
 entirely mock. Needed: events CRUD + per-event-type reminder-offset rules before
 any of it can be wired.
 
+## 5. Profile / account editing  — *no post-onboarding update endpoint*
+The new Account page (`/account`) can **read** the profile (`GET /auth/me` →
+user, profile{full_name, role_title, country, avatar_url}, memberships) but
+cannot **edit** any of it. `/auth/me` is GET-only, and `PATCH /onboarding/state`
+returns **`409 ONBOARDING_ALREADY_COMPLETE`** once onboarding is done — so after
+onboarding there is no way to change the founder name/role, the startup name, or
+the startup logo. There is also **no user-avatar upload endpoint** (the field
+`profile.avatar_url` exists but is read-only; `/onboarding/logo` is the *startup*
+logo and is also gated by the onboarding-complete guard).
+Needed:
+- `PATCH /auth/me` (or `/profile`) → update `full_name`, `role_title`, `country`.
+- `POST /auth/me/avatar` (multipart) → upload/replace the **user** avatar.
+- A post-onboarding way to update the **startup** `name` + `logo` (e.g.
+  `PATCH /startups/{id}` + `POST /startups/{id}/logo`), since onboarding endpoints
+  409 once complete.
+Until these ship, the Account page shows the real data with an honest
+"editing coming soon" note and disabled controls.
+
+## 6. AI Briefing action  — *no accept/do endpoint*
+**Dashboard.** The AI Briefing "Do it" button was removed because
+`POST /dashboard/briefing/{id}/actions/{index}/accept` does not exist (dashboard
+only exposes `GET /summary` + `GET /activity`). Needed: an endpoint that performs
+/ persists the briefing's suggested action so "Do it" can be restored.
+
 ---
 
 ## Already relayed (from the integration pass) — still open
