@@ -175,6 +175,7 @@ export default function LeanCanvasPage() {
           <AiDraftButton
             canvasType="lean"
             label="Fill with AI"
+            onFilled={fetchCanvasData}
             className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2 rounded-card text-xs transition-colors border border-[#EAD5C6] disabled:opacity-60"
           />
 

@@ -10,7 +10,7 @@ import { useChipReorder } from '@/components/business-builder/use-chip-reorder';
 
 export default function BusinessModelCanvasPage() {
   const { triggerToast } = useToast();
-  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem, moveItem } = useCanvasEditor('business_model');
+  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem, moveItem, reload } = useCanvasEditor('business_model');
   const reorder = useChipReorder(moveItem);
 
   const handleExport = () => triggerToast('Exported to Documents.');
@@ -35,6 +35,7 @@ export default function BusinessModelCanvasPage() {
           <AiDraftButton
             canvasType="business_model"
             label="Fill with AI"
+            onFilled={reload}
             className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2 rounded-card text-xs transition-colors border border-[#EAD5C6] disabled:opacity-60"
           />
           <button onClick={handleExport} className="flex items-center gap-1.5 bg-white hover:bg-[#F5F5F0] text-[#1E2923] font-semibold px-4 py-2 rounded-card text-xs transition-colors border border-[#EBEBE6] shadow-card">

@@ -16,7 +16,7 @@ const QUAD_STYLE: Record<string, { icon: React.ReactNode; bg: string; border: st
 const DEFAULT_STYLE = { icon: <Target className="w-4 h-4" />, bg: 'bg-white', border: 'border-[#EBEBE6]', title: 'text-[#1E2923]', dot: 'bg-[#768478]' };
 
 export default function SwotPage() {
-  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem, moveItem } = useCanvasEditor('swot');
+  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem, moveItem, reload } = useCanvasEditor('swot');
   const reorder = useChipReorder(moveItem);
 
   const onAdd = (key: string) => {
@@ -35,7 +35,7 @@ export default function SwotPage() {
             {saveStatus === 'error' && <span className="text-[#B0483B] font-medium">Sync error, retrying</span>}
           </div>
         </div>
-        <AiDraftButton canvasType="swot" label="Seed with AI" />
+        <AiDraftButton canvasType="swot" label="Seed with AI" onFilled={reload} />
       </div>
 
       {loading ? (

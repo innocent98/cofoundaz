@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, TrendingUp } from 'lucide-react';
 import { useToast } from '../layout';
 import { useBusinessRecords, errMessage } from '@/hooks/useBusinessRecords';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
+import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { BusinessRecord } from '@/lib/api/business-builder';
 
 const KIND = 'revenue-streams';
@@ -24,7 +25,7 @@ function fmtMoney(n: unknown): string {
 
 export default function RevenueModelPage() {
   const { triggerToast } = useToast();
-  const { records, loading, error, create, update, remove } = useBusinessRecords(KIND);
+  const { records, loading, error, create, update, remove, refetch } = useBusinessRecords(KIND);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<BusinessRecord | null>(null);
@@ -61,13 +62,16 @@ export default function RevenueModelPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">Revenue model</h2>
-        <button
-          onClick={openCreate}
-          className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Add stream</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
+          <button
+            onClick={openCreate}
+            className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add stream</span>
+          </button>
+        </div>
       </div>
 
       {loading && (
