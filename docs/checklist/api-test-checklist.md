@@ -31,11 +31,14 @@ hit during integration). Complements the developer record in
 | 1.4 ✅ | email link | Open a verify-email / reset-password link | Token page resolves against the real API | `/auth/*` never triggers the session-expired redirect |
 | 1.5 ✅ | `/onboarding` | Start the 6-step wizard, refresh mid-way | Resumes on the step you left (server-persisted via `PATCH /onboarding/state`) | ⚠️ Country must be an **ISO code** (a free-text country 422s server-side — FE uses a select) |
 | 1.6 ⚠️ | `/onboarding` logo step | Upload a logo | Uploads via `POST /onboarding/logo` (multipart), preview shows | Now routed through `apiClient` (real API), not a local mock — verify it actually reaches staging |
-| 1.7 ✅ | `/dashboard` | Load the dashboard | Widgets populate from `GET /dashboard/summary` + `/activity`; health pill + notification bell show **real** numbers | No hardcoded `72`/`5` |
-| 1.8 ⚠️ | `/dashboard` | Click "Do it" on an AI briefing card | Fires `POST /dashboard/briefing/{id}/actions/1/accept` | If the endpoint isn't live it fails silently (card stays) — by design, no crash |
+| 1.7 ✅ | `/dashboard` | Load the dashboard | Widgets populate from `GET /dashboard/summary`; greeting, health, mission, KPIs, briefing/risks/opportunities, and the **real** "Next 7 days" (`upcoming`) all show real data | KPIs with no backend series show **"Coming Soon"** (not fake `$0`); a per-card failure shows **"Unavailable" + Retry**; no seeded fake notifications/tasks/schedule |
+| 1.8 ⛔ | `/dashboard` | Click "Do it" on an AI briefing card | Acknowledges locally only | **No backend action endpoint exists** (`POST /dashboard/briefing/{id}/actions/{index}/accept` isn't implemented), so it won't persist — expected, not a bug |
 | 1.9 ✅ | sidebar → **Security (2FA)** / `/setup/mfa` | Set up an authenticator: scan the QR (or copy the key), enter the 6-digit code, save the backup codes | `POST /auth/mfa/totp/setup` → `{secret, otpauth_uri}`; `POST …/totp/verify` → `{enabled, backup_codes}` | ⚠️ **Enabling is one-way — no disable endpoint yet, so use a throwaway account, NOT the shared test one.** **SMS** option is greyed "coming soon" (backend `FeatureNotEnabled`). Needs `MFA_ENCRYPTION_KEY` set (it is on staging) or every call 500s |
 | 1.10 ✅ | `/login` with a 2FA-enabled account | Log in → 6-digit challenge → enter the code (or a backup code) | Login returns `{mfa_required, mfa_ticket}` (no token); `POST /auth/mfa/challenge {mfa_ticket, code}` → tokens | The "Use a backup code" toggle accepts a saved code. Deep-linking `/login/mfa` with no ticket bounces to `/login` |
 | 1.11 ✅ | `/invite/{token}` | Open an invite link — try both logged out **and** logged in | `GET /invitations/{token}` previews inviter/workspace/role; `POST /invitations/accept` joins + lands `/dashboard` | Logged out → login/signup CTAs (login returns you here to accept). ⚠️ Logged in as a **different email** than invited → "log in with {email}" mismatch banner. Expired/used → 404 "no longer valid" |
+| 1.12 ⚠️ | `/dashboard` | Force a load failure (e.g. go offline, then open/refresh) | `GET /dashboard/summary` fails → an **"Unable to load dashboard" card with Retry** | ⚠️ Must show an **honest error**, never a fabricated "new account" (health 0 / "complete your assessment") |
+| 1.13 ✅ | `/dashboard` | Scroll the recent-activity feed; click "load more" if present | `GET /dashboard/activity` — real events with **real actor names** (e.g. "A signer signed a document"); keyset pagination pages older items | Empty → honest empty state |
+| 1.14 ✅ | `/onboarding` | Fill the first steps and watch the side panel | Once key details are in, an **AI co-founder calibration message** appears (`ai_panel` on `GET/PATCH /onboarding/state`) | Prose text; appears when the backend has generated/templated it |
 
 ---
 
@@ -90,6 +93,7 @@ hit during integration). Complements the developer record in
 | 5.6 ✅ | positioning map | Edit axes | `GET/PUT /positioning-map` | Competitors plot against saved axes |
 | 5.7 ⛔ | any canvas | Click **AI-fill / AI draft** | Fires `POST /canvases/{type}/ai-fill` → **202 queued**, shows "AI draft queued — coming soon" | **No worker drains the job** — it never completes. This is the honest stub, **not** a bug (see blocked list) |
 | 5.8 ✅ | `.../business-model-canvas`, `/value-proposition`, `/swot` | **Click an item to edit it in place**; **drag an item by its grip handle to reorder** within a block | Both autosave the full block via `PUT /canvases/{type}` | Edit: Enter/blur commits, Escape cancels, emptying it removes the item. Reorder stays **within one block**. `mission-vision` is text-only; `lean-canvas` doesn't have these yet |
+| 5.9 ✅ | any canvas (AI draft) + AI usage display | Check the AI budget guardrail | `GET /ai/status` → when the workspace is **over its daily AI budget**, AI-draft buttons show "**AI draft paused (until <reset>)**" instead of running; usage display shows tokens used / "**Unlimited**" when no cap | Honest degradation, never a silent/fake AI result |
 
 ---
 
@@ -136,6 +140,8 @@ Don't file these as FE bugs; they're waiting on the API team:
 5. **MFA — SMS + disable** — TOTP works (items 1.9/1.10), but the **SMS** option is a
    `FeatureNotEnabled` stub (greyed) and there is **no disable/reset** endpoint, so
    enabling 2FA is one-way. Also confirm `MFA_ENCRYPTION_KEY` in prod (set on staging).
+6. **Dashboard briefing "Do it"** (item 1.8) — no `POST /dashboard/briefing/{id}/actions/{index}/accept`
+   endpoint exists, so the action can't persist; the button acknowledges locally only.
 
 **Designed screens with no endpoints at all** (FE ready to build once the API ships —
 see [`docs/backend-requests-ui-gaps.md`](../backend-requests-ui-gaps.md)): **Team
@@ -154,10 +160,10 @@ Analytics/Reports, Marketplace, Admin/Super-Admin.
 
 ## Quick sign-off grid
 
-- [ ] 1. Auth / session / refresh / onboarding / dashboard **+ MFA (setup/challenge) + invite-accept**
+- [ ] 1. Auth / session / refresh / onboarding / dashboard **+ MFA (setup/challenge) + invite-accept + dashboard summary/activity + onboarding AI panel**
 - [ ] 2. Health score (+ dimensions/history/benchmarks/recommendations) **+ charts (radar/history/trend)**
 - [ ] 3. Mission (today / actions / settings / history)
 - [ ] 4. Roadmap (tree / CRUD / dependencies / templates / replan) **+ Kanban DnD + re-plan diff**
-- [ ] 5. Business Builder (canvases / records / suggestions / positioning / ai-fill stub) **+ canvas edit-in-place + reorder**
+- [ ] 5. Business Builder (canvases / records / suggestions / positioning / ai-fill stub) **+ canvas edit-in-place + reorder + AI budget guardrail**
 - [ ] 6. Notifications / journal / learning
 - [ ] 7. Documents (files / sharing / e-sign / templates / editor / recipient pages) **+ section editing + adopt-&-sign**

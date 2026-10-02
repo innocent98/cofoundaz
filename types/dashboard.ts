@@ -7,12 +7,20 @@ export interface MissionTask {
   completedAt?: string;
 }
 
+export type AIContentStatus = 'empty' | 'generating' | 'ready';
+
 export interface AIBriefing {
   id: string;
   date: string;
   agentBadge: 'Co-Founder';
   content: string;
   actions: Array<{ index: number; label: string }>;
+  status?: AIContentStatus;
+  error?: boolean;
+  errorMessage?: string;
+  hasEmptyState?: boolean;
+  skipped?: boolean;
+  reason?: string;
 }
 
 export interface KPISnapshot {
@@ -25,36 +33,80 @@ export interface KPISnapshot {
   sparklineData: number[];
   href: string;
   isAlert?: boolean;
+  hasData?: boolean;
+  error?: boolean;
 }
 
 export interface RiskItem {
   id: string;
-  severity: 'high' | 'medium' | 'low';
+  severity: 'high' | 'medium' | 'low' | 'red' | 'amber';
   description: string;
   moduleLink?: string;
 }
 
 export interface OpportunityItem {
   id: string;
-  type: 'grant' | 'validation' | 'pipeline';
+  type?: 'grant' | 'validation' | 'pipeline' | string;
   description: string;
-  ctaText: 'Review' | 'See fit';
+  ctaText?: 'Review' | 'See fit' | string;
   moduleLink?: string;
 }
 
+export interface DashboardHealthState {
+  score: number;
+  deltaWeekly: number;
+  status?: string;
+  band?: string;
+  summary?: string;
+  error?: boolean;
+  errorMessage?: string;
+}
+
+export interface DashboardMissionState {
+  streakDays: number;
+  status?: string;
+  tasks: MissionTask[];
+  error?: boolean;
+  errorMessage?: string;
+}
+
 export interface DashboardSummaryResponse {
-  health: {
-    score: number;
-    deltaWeekly: number;
+  greeting?: {
+    first_name?: string | null;
+    startup_name?: string | null;
+    salutation?: string | null;
   };
-  mission: {
-    streakDays: number;
-    tasks: MissionTask[];
+  user?: {
+    first_name?: string;
+    name?: string;
   };
+  startup?: {
+    name?: string;
+  };
+  health: DashboardHealthState;
+  mission: DashboardMissionState | null;
+  calibration?: {
+    assessment_complete?: boolean;
+    step?: number | string;
+    error?: boolean;
+    errorMessage?: string;
+    [key: string]: unknown;
+  } | null;
   briefing: AIBriefing;
   kpis: KPISnapshot[];
   risks: RiskItem[];
   opportunities: OpportunityItem[];
+  risksStatus?: AIContentStatus;
+  opportunitiesStatus?: AIContentStatus;
+  raw?: unknown;
+}
+
+export interface ActivityActorDetails {
+  id?: string;
+  name: string | null;
+  email?: string | null;
+  avatar_url?: string | null;
+  role?: string | null;
 }
 
 export interface ActivityLogEntry {
@@ -64,6 +116,8 @@ export interface ActivityLogEntry {
   entity: string;
   timestamp: string;
   relativeTime: string;
+  time?: string;
+  actorDetails?: ActivityActorDetails | null;
 }
 
 export interface ActivityFeedResponse {

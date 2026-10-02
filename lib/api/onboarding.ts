@@ -1,4 +1,4 @@
-﻿import { apiClient } from './client'
+import { apiClient } from './client'
 
 export type BusinessModel =
   | 'b2b'
@@ -47,6 +47,7 @@ export interface OnboardingState {
   notes?: string | null
   logo_url?: string | null
   invites?: InviteItem[]
+  ai_panel?: string | null
   [key: string]: unknown
 }
 
@@ -65,6 +66,7 @@ export interface OnboardingStatePatch {
   stage?: StartupStage | null
   goals?: string[] | null
   notes?: string | null
+  ai_panel?: string | null
 }
 
 // The API returns the {data, meta} envelope with founder fields nested under
@@ -74,6 +76,7 @@ interface RawOnboardingState {
   step: number
   completed?: boolean
   assessment_pending?: boolean
+  ai_panel?: string | null
   founder_profile?: {
     full_name?: string | null
     role_title?: string | null
@@ -102,6 +105,7 @@ function flatten(raw: RawOnboardingState): OnboardingState {
   return {
     step: raw.step,
     completed: raw.completed,
+    ai_panel: raw.ai_panel ?? null,
     full_name: fp.full_name ?? null,
     role_title: fp.role_title ?? null,
     country: fp.country ?? null,

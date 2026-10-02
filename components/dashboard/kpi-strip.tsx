@@ -10,14 +10,36 @@ export function KPIStrip({ kpis, onRefetch }: { kpis: KPISnapshot[]; onRefetch: 
     <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full col-span-1 md:col-span-12">
       {kpis.map((kpi) => (
         <DashboardErrorBoundary key={kpi.id} onRetry={onRefetch}>
-          <StatCard kpi={kpi} />
+          <StatCard kpi={kpi} onRetry={onRefetch} />
         </DashboardErrorBoundary>
       ))}
     </section>
   );
 }
 
-function StatCard({ kpi }: { kpi: KPISnapshot }) {
+function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) {
+  if (kpi.error) {
+    return (
+      <div className="bg-white p-5 rounded-card border border-red-200 shadow-card flex flex-col justify-between">
+        <div>
+          <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
+            {kpi.label}
+          </span>
+          <p className="text-sm font-semibold text-[#B0483B] mb-2">Unavailable</p>
+        </div>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="text-[10px] font-bold text-sage-600 hover:text-sage-900 underline text-left mt-2 cursor-pointer"
+          >
+            Retry
+          </button>
+        )}
+      </div>
+    );
+  }
+
   // Runway logic: if label is 'Runway' and value is < 6
   let isAlert = false;
   if (kpi.label.toLowerCase() === 'runway') {
@@ -28,31 +50,43 @@ function StatCard({ kpi }: { kpi: KPISnapshot }) {
   }
 
   if (kpi.isAlert) isAlert = true;
+  const isComingSoon = kpi.value === 'Coming Soon';
 
   return (
-    <Link href={kpi.href || '#'} className={`bg-white p-5 rounded-card border ${isAlert ? 'border-[#B0483B]' : 'border-sage-100'} shadow-card flex flex-col justify-between hover:shadow-raised transition-shadow group`}>
+    <Link
+      href={kpi.href || '#'}
+      className={`bg-white p-5 rounded-card border ${
+        isAlert ? 'border-[#B0483B]' : 'border-sage-100'
+      } shadow-card flex flex-col justify-between hover:shadow-raised transition-shadow group`}
+    >
       <div>
         <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
           {kpi.label}
         </span>
         <div className="flex items-end justify-between mb-2">
-          <span className={`text-2xl font-bold font-display leading-none ${isAlert ? 'text-[#B0483B]' : 'text-[#1C201D]'}`}>
+          <span
+            className={`font-bold font-display leading-tight ${
+              isComingSoon
+                ? 'text-base font-medium text-sage-400'
+                : 'text-2xl'
+            } ${isAlert ? 'text-[#B0483B]' : 'text-[#1C201D]'}`}
+          >
             {kpi.value}
           </span>
         </div>
       </div>
-      <div className="flex items-center justify-between mt-2">
-        <span
-          className={`text-[10px] font-bold px-1.5 py-0.5 rounded-pill ${
-            kpi.trend === 'up'
-              ? 'bg-[#E3EFE9] text-[#12291F]' // green
-              : 'bg-sage-100 text-sage-700' // neutral/negative
-          }`}
-        >
-          {kpi.delta}
-        </span>
-        {/* No sparkline: the API returns point-in-time KPI values, not a series,
-            so a trend line here would be fabricated. */}
+      <div className="flex items-center justify-between mt-2 min-h-[20px]">
+        {kpi.delta ? (
+          <span
+            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-pill ${
+              kpi.trend === 'up'
+                ? 'bg-[#E3EFE9] text-[#12291F]' // green
+                : 'bg-sage-100 text-sage-700' // neutral/negative
+            }`}
+          >
+            {kpi.delta}
+          </span>
+        ) : null}
       </div>
     </Link>
   );

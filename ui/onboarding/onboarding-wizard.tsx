@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { Sparkles } from 'lucide-react'
 import { Button, Field, fieldControlClasses } from '@/ui/primitives'
 
 export interface OnboardingFormValues {
@@ -18,18 +19,52 @@ export interface OnboardingFormValues {
   stage: string
   goals: string[]
   notes: string
+  ai_panel?: string | null
 }
 
 export interface OnboardingWizardProps {
   initialValues?: Partial<OnboardingFormValues>
-  onSaveStep: (stepNumber: number, data: Partial<OnboardingFormValues>) => Promise<void>
+  aiPanel?: string | null
+  onSaveStep: (stepNumber: number, data: Partial<OnboardingFormValues>) => Promise<{ ai_panel?: string | null } | void>
   onUploadLogo?: (file: File) => Promise<void>
   onSendInvites?: (invites: Array<{ email: string; role: string }>) => Promise<void>
   onComplete: () => Promise<void>
+  onFetchAiPanel?: () => Promise<{ ai_panel?: string | null } | string | null | void>
   isSubmitting?: boolean
   error?: string | null
   // ISO country options for the step-1 Country select (passed in to keep ui/ portable).
   countries?: Array<{ code: string; name: string }>
+}
+
+/**
+ * An opaque prose block rendering the AI Co-Founder calibration card / welcome message.
+ * Gracefully renders nothing when aiPanel is null or whitespace.
+ */
+export function OnboardingAiPanel({ aiPanel }: { aiPanel?: string | null }) {
+  if (!aiPanel || !aiPanel.trim()) {
+    return null
+  }
+
+  return (
+    <div
+      data-testid="onboarding-ai-panel"
+      role="region"
+      aria-label="AI Co-Founder Calibration"
+      className="rounded-card border border-[#1E4D3B]/20 bg-[#12291F] text-white p-5 shadow-card space-y-2.5 transition-all"
+    >
+      <div className="flex items-center gap-2">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1E4D3B] text-copper-500">
+          <Sparkles className="h-3.5 w-3.5 fill-current" />
+        </div>
+        <span className="text-xs font-bold uppercase tracking-wider text-sage-200">
+          AI Co-Founder Calibration
+        </span>
+      </div>
+      <div className="text-xs md:text-sm leading-relaxed text-[#B3D0C3] whitespace-pre-wrap font-normal">
+        {aiPanel}
+      </div>
+    </div>
+  )
 }
 
 const TOTAL_STEPS = 6
@@ -73,15 +108,42 @@ const MEMBERSHIP_ROLES = [
 
 export function OnboardingWizard({
   initialValues,
+  aiPanel: propAiPanel,
   onSaveStep,
   onUploadLogo,
   onSendInvites,
   onComplete,
+  onFetchAiPanel,
   isSubmitting = false,
   error,
   countries = [],
 }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState<number>(initialValues?.step || 1)
+  const [localAiPanel, setLocalAiPanel] = useState<string | null>(null)
+  const currentAiPanel = propAiPanel ?? localAiPanel ?? initialValues?.ai_panel ?? null
+  const hasRefetchedAiPanelRef = useRef(false)
+
+  // Single delayed re-fetch when arriving at the review/completion step if ai_panel is not yet loaded.
+  // NO tight-loop polling.
+  useEffect(() => {
+    if (currentStep === TOTAL_STEPS && !currentAiPanel && !hasRefetchedAiPanelRef.current && onFetchAiPanel) {
+      hasRefetchedAiPanelRef.current = true
+      const timer = setTimeout(async () => {
+        try {
+          const fresh = await onFetchAiPanel()
+          if (typeof fresh === 'string' && fresh) {
+            setLocalAiPanel(fresh)
+          } else if (fresh && typeof fresh === 'object' && 'ai_panel' in fresh && fresh.ai_panel) {
+            setLocalAiPanel(fresh.ai_panel)
+          }
+        } catch {
+          // non-blocking
+        }
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [currentStep, currentAiPanel, onFetchAiPanel])
+
   const [values, setValues] = useState<OnboardingFormValues>({
     step: initialValues?.step || 1,
     full_name: initialValues?.full_name || '',
@@ -97,6 +159,7 @@ export function OnboardingWizard({
     stage: initialValues?.stage || '',
     goals: initialValues?.goals || [],
     notes: initialValues?.notes || '',
+    ai_panel: initialValues?.ai_panel ?? null,
   })
 
   const [invites, setInvites] = useState<Array<{ email: string; role: string }>>([
@@ -152,7 +215,10 @@ export function OnboardingWizard({
     }
 
     const nextStep = currentStep + 1
-    await onSaveStep(nextStep, { ...values, step: nextStep })
+    const res = await onSaveStep(nextStep, { ...values, step: nextStep })
+    if (res && typeof res === 'object' && 'ai_panel' in res && res.ai_panel) {
+      setLocalAiPanel(res.ai_panel)
+    }
     setCurrentStep(nextStep)
   }
 
@@ -494,6 +560,9 @@ export function OnboardingWizard({
               <p className="text-sm text-sage-500">
                 Add co-founders, early advisors, or team members (optional).
               </p>
+
+              {/* AI Co-Founder Calibration / Welcome Prose Block */}
+              <OnboardingAiPanel aiPanel={currentAiPanel} />
 
               <div className="space-y-3">
                 {invites.map((inv, idx) => (

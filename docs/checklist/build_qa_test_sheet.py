@@ -101,10 +101,13 @@ sections=[
    ("1.5","Sign-up steps resume","Onboarding","Start the sign-up steps, fill in a couple, then refresh the page.","It picks up where you left off.","Pick your country from the dropdown (you can’t free-type a country).","ok"),
    ("1.6","Upload your company logo","Onboarding → logo step","Choose and upload a logo image.","The logo uploads and a preview appears.","It now saves to the real system — confirm the preview actually shows your image.","warn"),
    ("1.7","Dashboard shows real numbers","Dashboard (home)","Open the dashboard.","The cards, the health-score pill and the notification bell show real numbers for your account.","No fixed placeholder numbers.","ok"),
-   ("1.8","“Do it” on the AI briefing card","Dashboard","Click the “Do it” button on the AI briefing card.","The action is accepted and the page does not crash.","If that action isn’t switched on in the backend yet it may quietly do nothing — expected, not a crash.","warn"),
+   ("1.8","“Do it” on the AI briefing card","Dashboard","Click the “Do it” button on the AI briefing card.","It acknowledges locally; the page doesn’t crash.","There’s no backend action for this yet, so it won’t actually save anything — expected, not a bug.","blocked"),
    ("1.9","Turn on two-step verification","Left sidebar → “Security (2FA)”","On a THROWAWAY account: open an authenticator app on your phone, scan the QR (or type the key), enter the 6-digit code, then save the backup codes shown.","Two-step verification switches on and a set of one-time backup codes appears to copy or download.","⚠️ Once ON it can’t be turned off yet — throwaway account only. “SMS text message” is greyed out on purpose.","ok"),
    ("1.10","Sign in with two-step verification","Sign-in page","On that account: sign out, sign back in, and enter the 6-digit code when asked. Also try “Use a backup code” with a saved code.","After the password you’re asked for a 6-digit code; a correct code (or backup code) signs you in.","Opening the code screen directly without signing in first should send you back to the sign-in page.","ok"),
    ("1.11","Accept a team invitation","The invite link someone sends you","Open the invite link — try it once signed OUT and once signed IN.","You see who invited you, the workspace and your role. Signed in → “Accept” adds you and opens the dashboard. Signed out → log-in / sign-up buttons that bring you back to accept.","Signed in with a DIFFERENT email than invited → a message to log in with the invited email. An old/used link shows “no longer valid”.","ok"),
+   ("1.12","Dashboard shows an honest error if it can’t load","Dashboard","Go offline (or block the network), then open or refresh the dashboard.","You see an “Unable to load dashboard” card with a Retry button.","It must show a clear error — NOT a fake “new account” with zeros. Click Retry when back online.","warn"),
+   ("1.13","Recent activity feed","Dashboard","Scroll the recent-activity list; use “load more” if shown.","Real recent events with real names (e.g. “A signer signed a document”); older items load as you page down.","Nothing yet → an honest empty state.","ok"),
+   ("1.14","Onboarding AI co-founder panel","Onboarding","Fill in the first onboarding steps and watch the side panel.","Once your key details are in, a short AI co-founder calibration message appears.","It shows up once the system has prepared it; brand-new/empty profiles may not show it yet.","ok"),
  ]),
  ("2 · Health score", [
    ("2.1","Overview loads","Health","Open Health.","You see your overall score and the five areas.","A thriving account shows around 90.","ok"),
@@ -139,6 +142,7 @@ sections=[
    ("5.6","Positioning map","Business Builder → Positioning map","Edit the axes.","Competitors plot against your saved axes.","—","ok"),
    ("5.7","AI-fill / AI draft","Any canvas","Click AI-fill / AI draft.","It says “queued — coming soon”.","It never actually finishes yet — expected, not a bug.","blocked"),
    ("5.8","Edit & reorder canvas notes","Business Model / Value Proposition / SWOT","Click a note to edit it in place (Enter saves, Esc cancels). Then hover a note, grab its drag handle, and drag it to reorder within the same box.","The note updates and saves; the reordered notes save in the new order.","Emptying a note and pressing Enter deletes it. Reorder stays within one box. “Mission & Vision” is a text box; “Lean Canvas” doesn’t have these yet.","ok"),
+   ("5.9","AI budget guardrail","Any canvas (AI draft) + the AI usage display","Look at the AI-draft buttons and the AI usage display.","When the workspace is over its daily AI budget, AI-draft buttons show “AI draft paused (until …)” instead of running; the usage display shows tokens used, or “Unlimited” when there’s no cap.","Honest pause — it never pretends to produce an AI result it can’t.","ok"),
  ]),
  ("6 · Notifications, Journal & Learning", [
    ("6.1","Notifications inbox","Bell / Notifications","Open it, mark one read, and “mark all read”.","The unread count updates.","—","ok"),
@@ -229,6 +233,7 @@ known=[
  ("Sign / share links from an email","A link opened straight from an email may show a plain data page. Open the link on the app website instead (tests 7.6, 7.8)."),
  ("Two-step verification by SMS","The “SMS text message” option is greyed out (“coming soon”). Only the authenticator-app option works."),
  ("Turning OFF two-step verification","There’s no “turn off” yet — that’s why tests 1.9 / 1.10 must use a throwaway account."),
+ ("Dashboard briefing “Do it”","The “Do it” button on the AI briefing acknowledges locally but can’t save anything — there’s no backend action for it yet (test 1.8)."),
  ("Demo-only areas (placeholder data)","Not connected to real data yet — don’t test as real: Marketing, Sales, Finance, Validation, Funding, Investor Readiness, Legal & Compliance, Calendar, Analytics & Reports, Marketplace, Admin / Super-Admin, and the Notifications “Digest / quiet hours” & “Announcements” tabs."),
 ]
 kr=3

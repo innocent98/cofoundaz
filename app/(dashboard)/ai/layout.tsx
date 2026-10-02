@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useSidebar } from '@/components/sidebar-context';
 import {  } from 'lucide-react';
 import { HealthPill } from '@/components/health-pill';
+import { AiStatusBanner } from '@/components/ai/ai-status-banner';
 import { NotificationBell } from '@/components/notification-bell';
 
 export default function AICoFounderLayout({
@@ -79,6 +80,9 @@ export default function AICoFounderLayout({
               );
             })}
           </div>
+
+          {/* Subtle over-budget status banner */}
+          <AiStatusBanner className="mb-6" />
 
           {children}
         </main>
