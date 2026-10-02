@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
 
-export const alt = 'Cofoundaz — The co-founder who never sleeps.'
+export const alt = 'Cofoundaz: The co-founder who never sleeps.'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -38,7 +38,7 @@ export default async function Image() {
           The co-founder who never sleeps.
         </div>
         <div style={{ marginTop: 28, fontSize: 30, color: '#B3D0C3', maxWidth: 900 }}>
-          The AI operating system that takes founders from idea to profitability.
+          The operating system that takes founders from idea to profitability.
         </div>
       </div>
     ),

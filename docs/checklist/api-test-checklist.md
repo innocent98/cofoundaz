@@ -39,6 +39,7 @@ hit during integration). Complements the developer record in
 | 1.12 ⚠️ | `/dashboard` | Force a load failure (e.g. go offline, then open/refresh) | `GET /dashboard/summary` fails → an **"Unable to load dashboard" card with Retry** | ⚠️ Must show an **honest error**, never a fabricated "new account" (health 0 / "complete your assessment") |
 | 1.13 ✅ | `/dashboard` | Scroll the recent-activity feed; click "load more" if present | `GET /dashboard/activity` — real events with **real actor names** (e.g. "A signer signed a document"); keyset pagination pages older items | Empty → honest empty state |
 | 1.14 ✅ | `/onboarding` | Fill the first steps and watch the side panel | Once key details are in, an **AI co-founder calibration message** appears (`ai_panel` on `GET/PATCH /onboarding/state`) | Prose text; appears when the backend has generated/templated it |
+| 1.15 ✅ | left sidebar (any dashboard page) | Look at the workspace switcher (top) and your profile (bottom) | Both show **your real data** from `GET /onboarding/state`: your startup **name** + **stage** + uploaded **logo** (top), your **name** + **role** (bottom) | ⚠️ Must **not** show the old placeholders **"Kolo"/"Validation stage"** or **"Amara Okafor"/"Founder"** for every account — a different account must show its own name/logo. No logo → first letter of the name |
 
 ---
 

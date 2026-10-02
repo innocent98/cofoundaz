@@ -3,7 +3,7 @@ import { ProductShot } from '@/ui/mocks/product-shot'
 import { home } from '@/content/home'
 
 export function Hero() {
-  const { badge, title, subtitle, primaryCta, secondaryCta, trustLine } = home.hero
+  const { badge, title, subtitle, tagline, primaryCta, secondaryCta, trustLine } = home.hero
   return (
     <section className="border-b border-green-100 bg-green-50">
       <Container className="grid grid-cols-1 items-center gap-12 py-16 lg:grid-cols-2 lg:gap-14 lg:py-20">
@@ -17,6 +17,9 @@ export function Hero() {
           </h1>
           <p className="mt-5 max-w-[34ch] text-base leading-[1.55] text-sage-700 md:text-[19px]">
             {subtitle}
+          </p>
+          <p className="mt-3 max-w-[40ch] text-sm leading-[1.55] text-sage-600 md:text-[15px]">
+            {tagline}
           </p>
           <div className="mt-8 flex flex-col gap-3.5 md:flex-row md:items-center">
             <Button href={primaryCta.href} variant="accent" size="lg" className="shadow-accent">

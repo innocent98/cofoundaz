@@ -44,6 +44,7 @@ Client points at the real API (`NEXT_PUBLIC_API_BASE_URL`; local dev proxies `/a
 - ✅ **Documents area wired** (files · sharing · list+share · e-signature · templates · public recipient pages · document editor), all verified live. Deeper follow-ups: section CRUD/reorder in the editor; inline file preview
 - [~] **Module 15 — Learning Academy** — `/academy` (+ Courses/Paths/Articles/Certificates) wired to real `/learning` API (no FE guide — built from endpoints + captures): `useAcademyApi` fetches courses/articles/paths/certificates + flattens lessons from course details; **enroll** + **lesson-complete → certificate** writes. **Verified live end-to-end** (6 real courses + player; completed a course's 3 lessons → certificate issued & rendered with joined title). **Follow-up:** recommendations shelf; wire player mark-complete/enroll buttons through the hook
 - [x] **Cross-cutting shell fixes** — shared `<HealthPill>` (real score or hidden) + `<NotificationBell>` (real unread, hidden at 0, links to /notifications) replace the hardcoded `72` pill + `5` badge across 14 shells + the shared Sidebar; **verified live** (shells show "Health 90", badges hidden at 0 unread, no `72`/`5` remain). Follow-up: migrate the 4 early module shells' inline pill logic to `<HealthPill>`
+- [x] **Sidebar workspace identity (Module 35)** — the sidebar workspace switcher (`Kolo`/`Validation stage`/`K`) and founder profile (`Amara Okafor`/`Founder`/`AO`) were fully **hardcoded**; now wired to real `GET /onboarding/state` via new `useStartupProfile` — real `name`, `stageLabel`, logo `<img>` (letter fallback), founder `full_name` + `role_title` + initials, honest null fallbacks. **Verified live** (switcher "Kolo/Validation stage", profile "Ade/Founder & CEO/AD", no "Amara Okafor"). Follow-up: exercise the logo-image path on a logo-bearing account
 - [ ] Backend/ops: confirm `APP_BASE_URL` = FE origin (email links); CORS for app origin (or keep dev proxy)
 
 Legend: `[x]` done+verified · `[ ]` not done · 🟡 partial
@@ -57,6 +58,7 @@ Legend: `[x]` done+verified · `[ ]` not done · 🟡 partial
 - [x] Brass → Copper brand migration (accent `#9C5B34`, WCAG AA)
 - [x] Responsive (base = sm; `md/lg/xl`), a11y (axe e2e, WCAG AA)
 - [x] SEO (metadata, sitemap, robots, OG), 188→ unit + e2e green
+- [x] **Copy refresh (Module 35)** — positioning dropped "AI" ("AI operating system"→"operating system", "AI advisors"→"advisors") site-wide (hero badge+subhead, footer tagline, SEO/OG/nav), added hero tagline "Built for founders at every stage…" (comma, no em dash per house-style guard); verified live on `/`
 
 ## 2. Design system + tooling — ✅ done
 - [x] Token ramps (green/copper/sage/red) + radii/shadows/fonts, defaults cleared

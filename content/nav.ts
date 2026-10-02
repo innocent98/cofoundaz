@@ -17,7 +17,7 @@ export const headerCtas = {
 }
 
 export const footerTagline =
-  'The AI operating system that takes founders from idea to profitability.'
+  'The operating system that takes founders from idea to profitability.'
 
 export const footerColumns: { title: string; links: NavLink[] }[] = [
   {

@@ -2,10 +2,12 @@ import type { FeatureTile, SecurityItem, Step, Testimonial } from './types'
 
 export const home = {
   hero: {
-    badge: 'AI operating system for founders',
+    badge: 'Operating system for founders',
     title: 'The co-founder who never sleeps.',
     subtitle:
-      'Cofoundaz is the AI operating system that takes you from idea to profitability. One connected workspace, a bench of AI advisors, and a clear next step every single day.',
+      'Cofoundaz is the operating system that takes you from idea to profitability. One connected workspace, a bench of advisors, and a clear next step every single day.',
+    tagline:
+      'Built for founders at every stage, from validating an idea to raising capital and scaling.',
     primaryCta: { label: 'Start free', href: '/signup' },
     secondaryCta: { label: 'See how it works', href: '#how' },
     trustLine: 'No credit card required.',
