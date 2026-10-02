@@ -96,7 +96,8 @@ hit during integration). Complements the developer record in
 | 5.4 ⚠️ | `.../personas`, `/competitive-analysis`, `/pricing`, `/revenue-model` | Create / edit / delete a record | `POST/PUT/DELETE /business-builder/{kind}` (plural path); list refreshes | ⚠️ Required-field validation comes from the server (`field_errors`) — submit an incomplete record to see the message. Pricing has nested tiers |
 | 5.5 ⚠️ | `/business-builder` suggestions panel | Approve / reject a suggestion | `POST …/suggestions/{id}/approve\|reject` | `409` if the canvas moved on or suggestion no longer pending |
 | 5.6 ✅ | positioning map | Edit axes | `GET/PUT /positioning-map` | Competitors plot against saved axes |
-| 5.7 ⛔ | any canvas | Click **AI-fill / AI draft** | Fires `POST /canvases/{type}/ai-fill` → **202 queued**, shows "AI draft queued — coming soon" | **No worker drains the job** — it never completes. This is the honest stub, **not** a bug (see blocked list) |
+| 5.7 ⚠️ | any canvas | Click **AI-fill / AI draft** | Fires `POST /canvases/{type}/ai-fill` → **202 queued**; the FE shows "AI draft queued, coming soon" | The **worker now drains** the job on staging (~30-60s) and fills empty blocks with real AI content — reload the canvas to see it. ⚠️ FE **doesn't poll/refresh yet** (known follow-up), so the drafted content only appears after a manual reload |
+| 5.10 ✅ | `/business-builder/plan` (AI business plan) | Click **Generate business plan**; wait | `POST /plan/generate` → **202**; the page polls `GET /plan` and, on complete, shows a **10-section** preview with real content + **Open in Documents** (opens the editable `business_plan` Document) | Takes up to ~2 min. If it runs over, you get an honest "taking longer, try again" (never a fake result). Non-editor roles get a "founder/editor only" message (403). A page refresh mid-run safely resumes |
 | 5.8 ✅ | `.../business-model-canvas`, `/value-proposition`, `/swot` | **Click an item to edit it in place**; **drag an item by its grip handle to reorder** within a block | Both autosave the full block via `PUT /canvases/{type}` | Edit: Enter/blur commits, Escape cancels, emptying it removes the item. Reorder stays **within one block**. `mission-vision` is text-only; `lean-canvas` doesn't have these yet |
 | 5.9 ✅ | any canvas (AI draft) + AI usage display | Check the AI budget guardrail | `GET /ai/status` → when the workspace is **over its daily AI budget**, AI-draft buttons show "**AI draft paused (until <reset>)**" instead of running; usage display shows tokens used / "**Unlimited**" when no cap | Honest degradation, never a silent/fake AI result |
 
@@ -136,8 +137,9 @@ Don't file these as FE bugs; they're waiting on the API team:
 1. **Assessment** (`/assessment*`) — questions arrive with **no prompt text** from the
    backend, so the FE can't render real question copy. Pages are ready; blocked until
    `serialize_question` returns a `prompt`.
-2. **AI-fill** (Business Builder) — enqueues (202) but no worker completes it. Stub says
-   "coming soon" (item 5.7).
+2. **AI-fill** (Business Builder) — the worker **now drains** on staging (canvas/records fill
+   with real AI content in ~30-60s). The FE just doesn't **poll/refresh** yet, so the draft
+   only shows after a manual reload (item 5.7) — a FE follow-up, no longer backend-blocked.
 3. **Journal writes** — `500 JOURNAL_NOT_CONFIGURED` until the encryption key is set
    (item 6.4).
 4. **Emailed sign/share links** — open raw JSON until `SERVER_HOST` points at the FE
