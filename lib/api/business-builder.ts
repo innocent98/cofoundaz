@@ -1,5 +1,30 @@
 type ApiResponse<T = unknown> = { data?: T } & Record<string, unknown>;
-import { apiClient } from './client';
+import { apiClient, ApiError } from './client';
+
+/** A business-plan generation run (`GET /business-builder/plan`). */
+export interface BusinessPlanRun {
+  id: string;
+  status: 'generating' | 'complete' | 'failed';
+  document_id: string | null;
+  created_at?: string;
+}
+
+export interface PlanSection {
+  id: string;
+  heading: string;
+  body: string;
+}
+
+/** The generated plan Document (`GET /documents/{id}`), kind `business_plan`. */
+export interface PlanDocument {
+  id: string;
+  kind: string;
+  title: string;
+  status?: string;
+  ai_generated?: boolean;
+  version?: number;
+  sections: PlanSection[];
+}
 
 export type CanvasType = 'lean' | 'bmc' | 'value_prop' | 'swot';
 
@@ -207,6 +232,38 @@ export const businessBuilderApi = {
       body: JSON.stringify(payload),
     });
     return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
+  },
+
+  // 4. AI business-plan generator (async: POST starts, GET polls, document holds content).
+  // `POST /plan/generate` → 202 { plan_id, status }. Founder/editor only (403 otherwise).
+  async generatePlan(workspaceId?: string): Promise<{ plan_id: string; status: string }> {
+    const res = await apiClient<ApiResponse>('/business-builder/plan/generate', {
+      method: 'POST',
+      headers: getWorkspaceHeaders(workspaceId),
+    });
+    return ((res as ApiResponse)?.data ?? res) as { plan_id: string; status: string };
+  },
+
+  // `GET /plan` → the LATEST run (not a list). 404 when none has ever been generated → null.
+  async getPlan(workspaceId?: string): Promise<BusinessPlanRun | null> {
+    try {
+      const res = await apiClient<ApiResponse>('/business-builder/plan', {
+        headers: getWorkspaceHeaders(workspaceId),
+      });
+      return ((res as ApiResponse)?.data ?? res) as BusinessPlanRun;
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) return null;
+      throw err;
+    }
+  },
+
+  // The plan's content lives in a normal Document (`GET /documents/{id}`); only fetch
+  // once `GET /plan` reports `complete` and `document_id` is set.
+  async getPlanDocument(documentId: string, workspaceId?: string): Promise<PlanDocument> {
+    const res = await apiClient<ApiResponse>(`/documents/${documentId}`, {
+      headers: getWorkspaceHeaders(workspaceId),
+    });
+    return ((res as ApiResponse)?.data ?? res) as PlanDocument;
   },
 };
 

@@ -82,6 +82,21 @@ endpoint, specialist routing, streaming, and action-chip tool results — plus i
 own FE guide. The FE `/ai/suggestions` and `/ai/memory` calls also 404 (no such
 endpoints) and are handled as empty.
 
+## 8. Assessment questions have no prompt text  — *blocks the whole Assessment + its AI narrative*
+**Module 07 Assessment.** The adaptive question API returns the answer **options**
+but **no question text**. Live `POST /assessments` → `next_question`:
+```json
+{"key":"product_stage","dimension":"product","section":"Product","qtype":"single_choice",
+ "options":[{"value":"idea","label":"Just an idea"}, {"value":"mvp","label":"A working MVP"}, …]}
+```
+There is no `prompt`/`text`/`title` for the question itself, so the FE can't render a
+real assessment — and because the **AI assessment narrative** (Co-Founder feature #1)
+only generates once an assessment is **completed**, that narrative can never be
+produced either. The LLM worker itself is fine (it drains plan/canvas/record jobs);
+this block is purely the missing prompt. Needed: `serialize_question` (and the
+`next_question` payload) must include the question's display text. Until then the
+Assessment screens and the assessment narrative stay unbuildable.
+
 ---
 
 ## Already relayed (from the integration pass) — still open

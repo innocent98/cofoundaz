@@ -6,7 +6,7 @@ import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { useCanvasEditor } from '@/hooks/useCanvasEditor';
 
 export default function MissionVisionPage() {
-  const { blockDefs, loading, saveStatus, textOf, setText } = useCanvasEditor('mission_vision');
+  const { blockDefs, loading, saveStatus, textOf, setText, reload } = useCanvasEditor('mission_vision');
 
   // mission_vision has exactly two text blocks: mission, vision (from block_defs).
   const blocks = blockDefs.length ? blockDefs : [
@@ -25,7 +25,7 @@ export default function MissionVisionPage() {
             {saveStatus === 'error' && <span className="text-[#B0483B] font-medium">Sync error, retrying</span>}
           </div>
         </div>
-        <AiDraftButton canvasType="mission_vision" label="Draft with AI" />
+        <AiDraftButton canvasType="mission_vision" label="Draft with AI" onFilled={reload} />
       </div>
 
       {loading ? (

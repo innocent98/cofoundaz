@@ -145,9 +145,10 @@ sections=[
    ("5.4","Records — add / edit / delete","Personas / Competitive / Pricing / Revenue","Create, edit, and delete a record.","The list updates.","Leaving a required field empty shows a validation message. Pricing has tiers inside it.","warn"),
    ("5.5","Suggestions","Business Builder → Suggestions","Approve or reject a suggestion.","It applies or updates.","May say “no longer pending” if the canvas has moved on.","warn"),
    ("5.6","Positioning map","Business Builder → Positioning map","Edit the axes.","Competitors plot against your saved axes.","—","ok"),
-   ("5.7","AI-fill / AI draft","Any canvas","Click AI-fill / AI draft.","It says “queued — coming soon”.","It never actually finishes yet — expected, not a bug.","blocked"),
+   ("5.7","AI-fill / AI draft","Any canvas, or a record page (Personas / Competitive / Pricing / Revenue)","Click “Fill with AI” / “Draft with AI” and wait.","The button shows “Drafting…”, then “AI draft added”, and the boxes/records fill with real AI suggestions on their own (no reload needed).","Takes ~30-60s. If it runs long you get an honest “taking longer, try again”. A record that’s already filled shows “added” with no visible change (it only fills empty fields).","ok"),
    ("5.8","Edit & reorder canvas notes","Business Model / Value Proposition / SWOT","Click a note to edit it in place (Enter saves, Esc cancels). Then hover a note, grab its drag handle, and drag it to reorder within the same box.","The note updates and saves; the reordered notes save in the new order.","Emptying a note and pressing Enter deletes it. Reorder stays within one box. “Mission & Vision” is a text box; “Lean Canvas” doesn’t have these yet.","ok"),
    ("5.9","AI budget guardrail","Any canvas (AI draft) + the AI usage display","Look at the AI-draft buttons and the AI usage display.","When the workspace is over its daily AI budget, AI-draft buttons show “AI draft paused (until …)” instead of running; the usage display shows tokens used, or “Unlimited” when there’s no cap.","Honest pause — it never pretends to produce an AI result it can’t.","ok"),
+   ("5.10","AI business plan","Business Builder → AI business plan","Click “Generate business plan” and wait.","It generates a full 10-section plan (executive summary, market, financials, etc.) with real content, then shows “Open in Documents” to view and edit it.","Can take up to ~2 minutes. If it runs long you get an honest “taking longer, try again” — never a fake plan. Only a founder/editor can generate it.","ok"),
  ]),
  ("6 · Notifications, Journal & Learning", [
    ("6.1","Notifications inbox","Bell / Notifications","Open it, mark one read, and “mark all read”.","The unread count updates.","—","ok"),
@@ -232,8 +233,7 @@ kt.font=Font(name=FONT,size=14,bold=True,color="FFFFFF"); kt.alignment=Alignment
 kt.fill=PatternFill("solid",fgColor=AMBER); kn.row_dimensions[1].height=26
 kn.column_dimensions["A"].width=34; kn.column_dimensions["B"].width=88
 known=[
- ("Assessment questions","The assessment pages are built, but the question wording isn’t coming from the backend yet — so real questions can’t show."),
- ("“AI draft” / “AI-fill” on canvases","Clicking it says “queued — coming soon” and never finishes. There’s no AI worker running yet. It’s an honest placeholder (test 5.7)."),
+ ("Assessment questions","The assessment pages are built, but the question wording still isn’t coming from the backend (only the answer options are), so real questions can’t show yet — which also blocks the AI write-up of your assessment."),
  ("Saving a new Journal entry","Reading the journal works, but SAVING a new entry fails on the test server (an encryption key isn’t set there yet) (test 6.4)."),
  ("Sign / share links from an email","A link opened straight from an email may show a plain data page. Open the link on the app website instead (tests 7.6, 7.8)."),
  ("Two-step verification by SMS","The “SMS text message” option is greyed out (“coming soon”). Only the authenticator-app option works."),
