@@ -68,6 +68,20 @@ Until these ship, the Account page shows the real data with an honest
 only exposes `GET /summary` + `GET /activity`). Needed: an endpoint that performs
 / persists the briefing's suggested action so "Do it" can be restored.
 
+## 7. AI Co-Founder conversational chat  — *no conversation endpoint (confirmed by BE)*
+**PRD Module 03 — the `/app/ai` chat drawer.** The backend's own index
+(`cofoundaz-api/docs/fe-integration-guide-ai-cofounder.md` §3) states the
+interactive chat is **not built**: the `/ai` router exposes only `GET /ai/status`,
+with no `POST` to send a message, no conversation/thread resource, and no
+streaming endpoint. "AI Co-Founder" today is the ~8 background enrichment features
+(dashboard briefing, mission reasons, health recs, roadmap rationale, onboarding
+panel, canvas/records AI-fill, assessment narrative, business plan) — all already
+surfaced. The FE chat is now an honest "coming soon" (no fabricated replies).
+Needed (a module-sized effort per the guide): conversation storage, a send/message
+endpoint, specialist routing, streaming, and action-chip tool results — plus its
+own FE guide. The FE `/ai/suggestions` and `/ai/memory` calls also 404 (no such
+endpoints) and are handled as empty.
+
 ---
 
 ## Already relayed (from the integration pass) — still open

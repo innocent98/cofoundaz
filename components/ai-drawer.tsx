@@ -157,23 +157,17 @@ export function AiDrawer() {
               <div className="p-4 space-y-6">
                 
                 {messages.length === 0 && (
-                  <div className="flex flex-col items-center justify-center h-full text-center py-10 space-y-4">
+                  <div className="flex flex-col items-center justify-center h-full text-center py-10 space-y-3">
                     <Sparkles className="w-8 h-8 text-[#9C5B34]" />
+                    <span className="inline-flex items-center rounded-pill bg-[#FBF3E9] border border-[#E7D3BC] px-3 py-1 text-xs font-semibold text-[#9C5B34]">
+                      Coming soon
+                    </span>
                     <p className="text-sm font-medium text-sage-700">
-                      Press <kbd className="px-1.5 py-0.5 bg-white border border-sage-200 rounded text-xs mx-1">⌘J</kbd> anytime to chat.
+                      Chat with your AI co-founder isn&apos;t available yet.
                     </p>
-                    <div className="grid gap-2 w-full mt-4">
-                      {['What should I focus on this week?', 'How long is my runway?'].map((suggestion, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => handleSendMessage(suggestion)}
-                          className="text-xs font-medium text-[#1C201D] bg-white border border-sage-200 px-3 py-2.5 rounded-card hover:border-[#1F4D3A] transition-colors cursor-pointer shadow-card text-left"
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
+                    <p className="text-xs text-sage-500 max-w-[16rem]">
+                      It already works behind the scenes though, in your dashboard briefing, today&apos;s mission reasons, and health tips.
+                    </p>
                   </div>
                 )}
 

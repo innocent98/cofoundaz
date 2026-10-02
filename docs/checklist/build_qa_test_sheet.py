@@ -112,6 +112,7 @@ sections=[
    ("1.16","Workspace switcher menu","Left sidebar (top box)","Click the workspace box at the top of the sidebar.","A menu opens listing your workspace(s) with a tick on the active one, plus “Account & profile” and “Settings & billing” links.","Clicking away or pressing Esc closes it. The Cofoundaz logo just above it should be clearly visible (it used to be invisible).","ok"),
    ("1.17","Profile menu and Log out","Left sidebar (bottom)","Click your name and photo at the very bottom of the sidebar.","A menu opens with your name and email, “View account”, “Settings & billing” and “Log out”.","“Log out” signs you out and returns you to the sign-in page.","ok"),
    ("1.18","Account page","Open “Account & profile” / “View account” from the sidebar","Open your account page.","You see your real name, email, role and country, plus your workspace name, stage and logo.","Editing and “Change photo” are intentionally disabled / “coming soon” for now — there’s no way to save changes yet. A Log out button is also here.","ok"),
+   ("1.19","AI Co-Founder chat","AI Co-Founder page and the floating chat button","Open it, type a question (e.g. “How long is my runway?”) and press Send.","A “Coming soon” message, and an honest reply that the AI Co-Founder isn’t connected yet.","It must NOT make up an answer (no invented numbers, sources or buttons) — the chat has no backend yet. The real AI shows up in your dashboard briefing, today’s mission reasons and health tips.","blocked"),
  ]),
  ("2 · Health score", [
    ("2.1","Overview loads","Health","Open Health.","You see your overall score and the five areas.","A thriving account shows around 90.","ok"),
@@ -238,6 +239,7 @@ known=[
  ("Two-step verification by SMS","The “SMS text message” option is greyed out (“coming soon”). Only the authenticator-app option works."),
  ("Turning OFF two-step verification","There’s no “turn off” yet — that’s why tests 1.9 / 1.10 must use a throwaway account."),
  ("Editing your profile / changing your photo","The Account page shows your details but you can’t edit them or change your photo yet — the buttons say “coming soon”. There’s no save endpoint for them yet (test 1.18)."),
+ ("AI Co-Founder chat","The chat on the AI Co-Founder page (and the floating button) says “coming soon” and can’t answer yet — the chat has no backend. The real AI still powers your dashboard briefing, mission reasons and health tips (test 1.19)."),
  ("Demo-only areas (placeholder data)","Not connected to real data yet — don’t test as real: Marketing, Sales, Finance, Validation, Funding, Investor Readiness, Legal & Compliance, Calendar, Analytics & Reports, Marketplace, Admin / Super-Admin, and the Notifications “Digest / quiet hours” & “Announcements” tabs."),
 ]
 kr=3
