@@ -471,7 +471,10 @@ export function useActivityFeed(workspaceId?: string) {
 
         const now = Date.now();
         const enriched: ActivityLogEntry[] = newItems.map((e: any) => {
-          const ts = new Date(e.timestamp || Date.now()).getTime();
+          // The API field is `created_at` (not `timestamp`); falling back to the
+          // wrong field made every row read "just now".
+          const iso = e.created_at || e.timestamp || new Date().toISOString();
+          const ts = new Date(iso).getTime();
           const diffSec = Math.floor((now - ts) / 1000);
           let relative = "";
           if (diffSec < 60) relative = "just now";
@@ -488,9 +491,13 @@ export function useActivityFeed(workspaceId?: string) {
           return {
             id: String(e.id),
             actor: actorName,
+            // The API hands us a ready sentence; prefer it over verb/entity
+            // (which the API doesn't emit).
+            summary: e.summary || "",
+            action: e.action || "",
             verb: e.verb || "",
             entity: e.entity || "",
-            timestamp: e.timestamp || new Date().toISOString(),
+            timestamp: iso,
             relativeTime: relative,
             time: relative,
             actorDetails: typeof e.actor === "object" && e.actor !== null ? e.actor : null,
@@ -566,7 +573,8 @@ export function useActivityFeed(workspaceId?: string) {
         if (payload.type === "activity_event" && payload.data) {
           const incoming = payload.data;
           const now = Date.now();
-          const ts = new Date(incoming.timestamp).getTime();
+          const iso = incoming.created_at || incoming.timestamp || new Date().toISOString();
+          const ts = new Date(iso).getTime();
           const diffSec = Math.floor((now - ts) / 1000);
           let relative = "";
           if (diffSec < 60) relative = "just now";
@@ -583,6 +591,8 @@ export function useActivityFeed(workspaceId?: string) {
             ...incoming,
             id: String(incoming.id),
             actor: actorName,
+            summary: incoming.summary || "",
+            timestamp: iso,
             relativeTime: relative,
             time: relative,
           };

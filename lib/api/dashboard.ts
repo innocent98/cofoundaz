@@ -149,9 +149,18 @@ export interface DashboardActor {
 export interface DashboardActivityItem {
   id: string;
   actor: DashboardActor | null;
-  verb: string;
-  entity: string;
-  timestamp: string;
+  /** Ready-to-render sentence, e.g. "Ade rejected 'QA snooze check'". */
+  summary?: string;
+  /** Dotted action key, e.g. "mission.task.completed". */
+  action?: string;
+  entity_type?: string;
+  entity_id?: string;
+  /** ISO timestamp the event occurred — the real API field (not `timestamp`). */
+  created_at?: string;
+  // Legacy/compat fields (not emitted by the current API; kept optional):
+  verb?: string;
+  entity?: string;
+  timestamp?: string;
   metadata?: Record<string, unknown>;
   [key: string]: unknown;
 }
