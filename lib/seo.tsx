@@ -11,7 +11,7 @@ export function organizationJsonLd() {
     name: 'Cofoundaz',
     url: siteUrl,
     description:
-      'The AI operating system that takes founders from idea to profitability.',
+      'The operating system that takes founders from idea to profitability.',
   }
 }
 
@@ -24,7 +24,7 @@ export function softwareApplicationJsonLd() {
     operatingSystem: 'Web',
     url: `${siteUrl}/product`,
     description:
-      'One connected workspace, a bench of AI advisors, and a clear next step every single day.',
+      'One connected workspace, a bench of advisors, and a clear next step every single day.',
   }
 }
 

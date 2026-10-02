@@ -50,7 +50,7 @@ function MarketingHomePage() {
           <div className="lg:col-span-5 space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#D5E0DA] bg-[#E9F0EC] text-xs font-medium text-[#2C4A3E]">
               <span className="w-2 h-2 rounded-full bg-[#9C5B34]" />
-              AI operating system for founders
+              Operating system for founders
             </div>
 
             <h1 className="font-display text-5xl md:text-6xl lg:text-[68px] font-semibold text-[#12291F] tracking-tight leading-[1.08]">
@@ -58,7 +58,11 @@ function MarketingHomePage() {
             </h1>
 
             <p className="text-lg md:text-xl text-[#3A5247] leading-relaxed max-w-xl font-normal">
-              Cofoundaz is the AI operating system that takes you from idea to profitability. One connected workspace, a bench of AI advisors, and a clear next step every single day.
+              Cofoundaz is the operating system that takes you from idea to profitability. One connected workspace, a bench of advisors, and a clear next step every single day.
+            </p>
+
+            <p className="text-base text-[#52685D] leading-relaxed max-w-xl font-normal">
+              Built for founders at every stage, from validating an idea to raising capital and scaling.
             </p>
 
             <div className="pt-2 flex flex-col md:flex-row items-stretch md:items-center gap-4">
@@ -580,7 +584,7 @@ function MarketingHomePage() {
                 </span>
               </div>
               <p className="text-sm text-[#8BA89B] max-w-sm leading-relaxed">
-                The AI operating system that takes founders from idea to profitability.
+                The operating system that takes founders from idea to profitability.
               </p>
             </div>
 
