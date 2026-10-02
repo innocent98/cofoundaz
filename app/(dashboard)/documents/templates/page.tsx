@@ -27,7 +27,7 @@ export default function TemplatesPage() {
     <main className="max-w-7xl mx-auto px-6 py-8 space-y-10">
       <div>
         <h1 className="text-3xl font-display text-[#1C2621] tracking-tight mb-1">Templates</h1>
-        <p className="text-xs text-[#738279]">Start from a structure that works — create a document, then fill it in.</p>
+        <p className="text-xs text-[#738279]">Start from a structure that works, create a document, then fill it in.</p>
       </div>
 
       {loading && (

@@ -244,7 +244,7 @@ function ChatViewContent() {
               <Sparkles className="w-12 h-12 text-copper-600 mb-4" />
               <h3 className="font-bold text-xl text-[#1E2923] mb-2">Meet your AI Co-Founder.</h3>
               <p className="text-sm text-[#617065] mb-8 leading-relaxed">
-                I know your startup — your stage, your numbers, your plan. Ask me anything, and I&apos;ll bring in the right specialist.
+                I know your startup, your stage, your numbers, your plan. Ask me anything, and I&apos;ll bring in the right specialist.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
                 {[

@@ -69,7 +69,7 @@ function mapNotification(n: RawNotification): NotificationItem {
     section: sectionFor(n.created_at),
     category: categoryFor(n.type),
     title: n.title,
-    description: '', // body is always "" in v1 — don't fabricate a subtitle
+    description: '', // body is always "" in v1, don't fabricate a subtitle
     time: relativeTime(n.created_at),
     isUnread: !n.read,
     iconBg,

@@ -27,7 +27,7 @@ export default function BusinessModelCanvasPage() {
           <div className="flex items-center gap-1.5 text-xs text-[#556358] mt-1">
             {saveStatus === 'saving' && <span className="flex items-center gap-1 text-copper-700 font-medium"><Loader2 className="w-3 h-3 animate-spin" /> Saving…</span>}
             {saveStatus === 'saved' && <span className="flex items-center gap-1 text-[#183B28] font-medium"><Check className="w-3 h-3" /> Saved to cloud</span>}
-            {saveStatus === 'error' && <span className="text-[#B0483B] font-medium">Sync error — retrying</span>}
+            {saveStatus === 'error' && <span className="text-[#B0483B] font-medium">Sync error, retrying</span>}
           </div>
         </div>
 

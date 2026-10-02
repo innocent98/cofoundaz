@@ -50,7 +50,7 @@ export function SuggestionsPanel() {
     setBusyId(null);
     if (!res.success) {
       const msg = res.conflict
-        ? 'The canvas changed since this was suggested — reject it and ask for a fresh one.'
+        ? 'The canvas changed since this was suggested, reject it and ask for a fresh one.'
         : res.error || 'Could not complete that.';
       setRowError((prev) => ({ ...prev, [id]: msg }));
     }

@@ -22,7 +22,7 @@ export default function CashFlowPage() {
             </div>
             <div>
               <h4 className="text-sm font-bold text-[#B0483B]">Runway under 6 months.</h4>
-              <p className="text-sm text-[#B0483B] opacity-90 mt-0.5">Let&apos;s look at levers — costs, pricing, or funding.</p>
+              <p className="text-sm text-[#B0483B] opacity-90 mt-0.5">Let&apos;s look at levers, costs, pricing, or funding.</p>
             </div>
           </div>
           <button className="bg-white border border-[#ffcccc] text-[#B0483B] hover:bg-[#fff5f5] px-4 py-2 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">

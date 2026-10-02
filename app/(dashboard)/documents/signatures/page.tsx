@@ -170,7 +170,7 @@ export default function SignaturesPage() {
             {signerLinks ? (
               <div className="p-6 space-y-4">
                 <p className="text-sm text-[#1E2923] font-semibold">Signature request sent</p>
-                <p className="text-xs text-[#738279]">Per-signer links (shown once — signers also receive them by email):</p>
+                <p className="text-xs text-[#738279]">Per-signer links (shown once, signers also receive them by email):</p>
                 <div className="space-y-2">
                   {signerLinks.map((link, i) => (
                     <div key={i} className="flex items-center gap-2">
@@ -190,7 +190,7 @@ export default function SignaturesPage() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider">File</label>
                   {files.length === 0 ? (
-                    <p className="text-xs text-[#B93838]">Upload a file in the Library first — signatures are collected on a file.</p>
+                    <p className="text-xs text-[#B93838]">Upload a file in the Library first, signatures are collected on a file.</p>
                   ) : (
                     <select value={fileId} onChange={(e) => setFileId(e.target.value)} className="w-full border border-[#D5DDD6] rounded-input px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4D6D58]">
                       {files.map((f) => (

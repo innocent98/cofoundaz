@@ -10,7 +10,7 @@ export function SiteFooter() {
         <div>
           <Logo tone="dark" />
           {/* green-400 on this footer's green-950 bg measured 4.499:1 (normal
-              text needs 4.5:1) — a hairline fail. green-300 clears it at 7.02:1. */}
+              text needs 4.5:1), a hairline fail. green-300 clears it at 7.02:1. */}
           <p className="mt-3.5 max-w-[26ch] text-[13px] leading-relaxed text-green-300">
             {footerTagline}
           </p>

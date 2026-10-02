@@ -35,11 +35,11 @@ export default function TemplatesPage() {
     try {
       const res = await applyTemplate(confirmTpl.id);
       if (res.already_applied) {
-        setResult(`"${confirmTpl.title}" is already applied — nothing changed.`);
+        setResult(`"${confirmTpl.title}" is already applied, nothing changed.`);
       } else {
         const { phases, milestones, tasks } = res.added;
         setResult(
-          `Applied "${confirmTpl.title}" — added ${phases} phase${phases === 1 ? '' : 's'}, ${milestones} milestone${milestones === 1 ? '' : 's'}, ${tasks} task${tasks === 1 ? '' : 's'}.`
+          `Applied "${confirmTpl.title}", added ${phases} phase${phases === 1 ? '' : 's'}, ${milestones} milestone${milestones === 1 ? '' : 's'}, ${tasks} task${tasks === 1 ? '' : 's'}.`
         );
       }
       setConfirmTpl(null);

@@ -100,7 +100,7 @@ export default function MissionStreaksPage() {
             <span>More</span>
           </div>
           {!loading && missions.length === 0 && (
-            <p className="text-xs text-[#768478] italic">No mission activity recorded yet — your grid fills in as you complete daily missions.</p>
+            <p className="text-xs text-[#768478] italic">No mission activity recorded yet, your grid fills in as you complete daily missions.</p>
           )}
         </div>
       </div>

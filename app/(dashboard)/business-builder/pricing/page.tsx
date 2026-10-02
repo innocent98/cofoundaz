@@ -77,7 +77,7 @@ export default function PricingPage() {
             <Tag className="w-6 h-6" />
           </div>
           <p className="text-sm font-bold text-[#1E2923]">No pricing model yet</p>
-          <p className="text-xs text-[#768478] max-w-xs">Choose a model and lay out your tiers — what each costs and what&apos;s included.</p>
+          <p className="text-xs text-[#768478] max-w-xs">Choose a model and lay out your tiers, what each costs and what&apos;s included.</p>
           <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
             <Plus className="w-3.5 h-3.5" /><span>Add your pricing model</span>
           </button>
@@ -93,7 +93,7 @@ export default function PricingPage() {
                 <div className="px-6 py-4 border-b border-[#EBEBE6] bg-[#FAFAFA] flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="bg-[#183B28] text-white px-3 py-1 rounded-full text-xs font-semibold capitalize">
-                      {String(rec.data.model_type || '—').replace(/_/g, ' ')}
+                      {String(rec.data.model_type || '-').replace(/_/g, ' ')}
                     </span>
                     <span className="text-xs text-[#768478]">{tiers.length} tier{tiers.length === 1 ? '' : 's'}</span>
                   </div>
@@ -108,7 +108,7 @@ export default function PricingPage() {
                 </div>
 
                 {tiers.length === 0 ? (
-                  <p className="px-6 py-6 text-xs text-[#768478]">No tiers yet — edit to add them.</p>
+                  <p className="px-6 py-6 text-xs text-[#768478]">No tiers yet, edit to add them.</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[500px]">
@@ -122,10 +122,10 @@ export default function PricingPage() {
                       <tbody className="divide-y divide-[#F0F0EC]">
                         {tiers.map((tier, i) => (
                           <tr key={i} className="hover:bg-[#FAF9F5] transition-colors">
-                            <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">{tier.name || '—'}</td>
-                            <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#183B28]">{tier.price || '—'}</td>
+                            <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">{tier.name || '-'}</td>
+                            <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#183B28]">{tier.price || '-'}</td>
                             <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">
-                              {Array.isArray(tier.features) && tier.features.length > 0 ? tier.features.join(', ') : '—'}
+                              {Array.isArray(tier.features) && tier.features.length > 0 ? tier.features.join(', ') : '-'}
                             </td>
                           </tr>
                         ))}

@@ -244,7 +244,7 @@ export function useRoadmapApi() {
       if (wouldCreateCycle(prereqId, dependentId)) {
         return {
           success: false,
-          error: `That would create a loop — ${prereq.title} already depends on ${dependent.title}.`,
+          error: `That would create a loop, ${prereq.title} already depends on ${dependent.title}.`,
         };
       }
       try {

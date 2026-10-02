@@ -129,7 +129,7 @@ export default function CalendarPage() {
         <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
-              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">July 12 – 18, 2026</h1>
+              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">July 12 - 18, 2026</h1>
               <div className="flex items-center space-x-1 border border-[#E8E8E2] rounded-card bg-white p-0.5 shadow-card">
                 <button onClick={() => showToast('Switched to previous week.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronLeft size={16} /></button>
                 <button onClick={() => showToast('Switched to next week.')} className="p-1 hover:bg-[#F5F5F0] rounded text-[#617065] transition-colors"><ChevronRight size={16} /></button>

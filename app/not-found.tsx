@@ -10,7 +10,7 @@ export default function NotFound() {
     <SiteChrome>
       <div className="mx-auto flex max-w-[620px] flex-col items-center px-4 py-28 text-center">
         {/* Decorative background numeral. green-100 measured 1.18:1 on white
-            (large bold text needs 3:1) — axe checks visual contrast regardless
+            (large bold text needs 3:1), axe checks visual contrast regardless
             of aria-hidden, so this needs a real fix, not just the ARIA
             exemption. green-400 is the lightest token on our ramp that clears
             3:1 here (3.82:1). */}

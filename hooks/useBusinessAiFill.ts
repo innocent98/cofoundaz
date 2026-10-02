@@ -21,7 +21,7 @@ function apiErr(err: unknown): string {
   if (err instanceof ApiError) {
     const d = err.data as { error?: { message?: string } } | undefined;
     if (err.status === 403) return 'Only a founder or team member can request an AI draft.';
-    if (err.status === 429) return 'AI personalization is temporarily paused — your daily budget resets soon.';
+    if (err.status === 429) return 'AI personalization is temporarily paused, your daily budget resets soon.';
     return d?.error?.message || 'Could not request an AI draft.';
   }
   return 'Could not request an AI draft.';

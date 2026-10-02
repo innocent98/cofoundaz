@@ -39,7 +39,7 @@ export function NotificationPreferences() {
         <div>
           <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Notification preferences</h1>
           <p className="text-xs text-[#8E9B90] mt-0.5">
-            These control <span className="font-semibold">email</span> only — every notification still shows in your inbox.
+            These control <span className="font-semibold">email</span> only, every notification still shows in your inbox.
           </p>
         </div>
         {saving && <span className="flex items-center gap-1 text-[11px] text-[#8E9B90]"><Loader2 className="w-3 h-3 animate-spin" /> Saving</span>}
