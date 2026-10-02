@@ -8,7 +8,7 @@ import { InlineEditable } from '@/components/business-builder/inline-editable';
 import { useChipReorder } from '@/components/business-builder/use-chip-reorder';
 
 export default function ValuePropositionPage() {
-  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem, moveItem } = useCanvasEditor('value_prop');
+  const { blockDefs, loading, saveStatus, listOf, addItem, removeItem, editItem, moveItem, reload } = useCanvasEditor('value_prop');
   const reorder = useChipReorder(moveItem);
 
   const onAdd = (key: string) => {
@@ -71,7 +71,7 @@ export default function ValuePropositionPage() {
             {saveStatus === 'error' && <span className="text-[#B0483B] font-medium">Sync error, retrying</span>}
           </div>
         </div>
-        <AiDraftButton canvasType="value_prop" label="Fill with AI" />
+        <AiDraftButton canvasType="value_prop" label="Fill with AI" onFilled={reload} />
       </div>
 
       {loading ? (

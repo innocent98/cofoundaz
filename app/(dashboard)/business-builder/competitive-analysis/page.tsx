@@ -7,6 +7,7 @@ import { useBusinessRecords, errMessage } from '@/hooks/useBusinessRecords';
 import { useBusinessPositioningMap, PositioningAxes } from '@/hooks/useBusinessPositioningMap';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
 import { AxesEditModal } from '@/components/business-builder/axes-edit-modal';
+import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { BusinessRecord, RecordField } from '@/lib/api/business-builder';
 
 const KIND = 'competitors';
@@ -51,7 +52,7 @@ const DOT_COLORS = ['#1A422D', '#3B7A57', '#9C5B34', '#75B29B', '#C08457', '#4D6
 
 export default function CompetitiveAnalysisPage() {
   const { triggerToast } = useToast();
-  const { records, fields, loading, error, create, update, remove } = useBusinessRecords(KIND);
+  const { records, fields, loading, error, create, update, remove, refetch } = useBusinessRecords(KIND);
   const { axes, saveAxes } = useBusinessPositioningMap();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -108,12 +109,15 @@ export default function CompetitiveAnalysisPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">Competitive analysis</h2>
-        <button
-          onClick={openCreate}
-          className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
-        >
-          <Plus className="w-3.5 h-3.5" /><span>Add competitor</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
+          <button
+            onClick={openCreate}
+            className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
+          >
+            <Plus className="w-3.5 h-3.5" /><span>Add competitor</span>
+          </button>
+        </div>
       </div>
 
       {loading && <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card h-64 animate-pulse" />}

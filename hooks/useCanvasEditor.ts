@@ -33,12 +33,16 @@ export function useCanvasEditor(type: string) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const reload = useCallback(async () => {
+    const data = (await loadCanvas(type)) as RawCanvas | null;
+    if (data?.blocks) setBlocks(data.blocks);
+    if (Array.isArray(data?.block_defs)) setBlockDefs(data.block_defs);
+  }, [loadCanvas, type]);
+
   useEffect(() => {
     void (async () => {
       setLoading(true);
-      const data = (await loadCanvas(type)) as RawCanvas | null;
-      if (data?.blocks) setBlocks(data.blocks);
-      if (Array.isArray(data?.block_defs)) setBlockDefs(data.block_defs);
+      await reload();
       setLoading(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,5 +120,5 @@ export function useCanvasEditor(type: string) {
     commit({ ...blocks, [key]: next });
   }, [blocks, listOf, commit]);
 
-  return { blocks, blockDefs, loading, saveStatus, listOf, textOf, addItem, removeItem, editItem, moveItem, setText };
+  return { blocks, blockDefs, loading, saveStatus, listOf, textOf, addItem, removeItem, editItem, moveItem, setText, reload };
 }
