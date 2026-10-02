@@ -299,7 +299,7 @@ export default function DashboardPage() {
     // There's no workspace-member invite endpoint from the dashboard yet
     // (see docs/backend-requests-ui-gaps.md — Team members API). Don't fake a
     // successful send; tell the user honestly instead.
-    setInviteNotice('Team invites from here are coming soon — this isn’t wired up yet.');
+    setInviteNotice('Team invites from here are coming soon, this isn’t wired up yet.');
   };
 
   return (
@@ -703,7 +703,7 @@ export default function DashboardPage() {
                   </div>
                 ) : (summaryData?.opportunities?.length ?? 0) === 0 ? (
                   <p className="text-sm text-sage-500 py-6">
-                    Opportunities I spot — grants, quick wins, market signals — will show up here.
+                    Opportunities I spot (grants, quick wins, market signals) will show up here.
                   </p>
                 ) : (
                   <div className="divide-y divide-sage-100">

@@ -266,7 +266,7 @@ export default function MfaSetupPage() {
 
             <div className="p-6 flex flex-col gap-4">
               <p className="text-xs text-[#617065]">
-                Keep these somewhere safe — each one signs you in once if you lose your device. They won&apos;t be
+                Keep these somewhere safe, each one signs you in once if you lose your device. They won&apos;t be
                 shown again.
               </p>
               {backupCodes.length > 0 ? (

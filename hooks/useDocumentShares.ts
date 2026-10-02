@@ -33,7 +33,7 @@ function accessLabel(a: string): 'View' | 'Comment' {
 function relView(iso: string | null): string {
   if (!iso) return 'Never viewed';
   const d = new Date(iso);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 export function useDocumentShares() {
@@ -60,7 +60,7 @@ export function useDocumentShares() {
         .map<SharedRow>((s) => ({
         id: s.id,
         documentId: s.document_id ?? '',
-        document: (s.document_id && titleById.get(s.document_id)) || (s.document_id ? 'Untitled document' : '—'),
+        document: (s.document_id && titleById.get(s.document_id)) || (s.document_id ? 'Untitled document' : '-'),
         sharedWith: s.email,
         access: accessLabel(s.access_level),
         lastViewed: relView(s.last_viewed_at),

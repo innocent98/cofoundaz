@@ -358,7 +358,7 @@ export default function DocumentsLibraryPage() {
                 {shareLink ? (
                   <div className="p-6 space-y-4">
                     <p className="text-sm text-[#1E2923] font-semibold">Share link created</p>
-                    <p className="text-xs text-[#738279]">This link is shown once — copy it now, it can’t be retrieved later.</p>
+                    <p className="text-xs text-[#738279]">This link is shown once, copy it now, it can’t be retrieved later.</p>
                     <div className="flex items-center gap-2">
                       <input
                         readOnly

@@ -67,13 +67,13 @@ export default function AICoachPage() {
 
             <div className="space-y-3 text-sm text-sage-700">
               <p>
-                <strong className="text-sage-900">Our riders will not trust an app with money.</strong> — Lead with your agent network and insured custody.
+                <strong className="text-sage-900">Our riders will not trust an app with money.</strong> Lead with your agent network and insured custody.
               </p>
               <p>
-                <strong className="text-sage-900">We have no budget for another tool.</strong> — Frame it as free for them; you monetize the saver.
+                <strong className="text-sage-900">We have no budget for another tool.</strong> Frame it as free for them; you monetize the saver.
               </p>
               <p>
-                <strong className="text-sage-900">Can we start small?</strong> — Yes, propose a 50-rider, 30-day pilot.
+                <strong className="text-sage-900">Can we start small?</strong> Yes, propose a 50-rider, 30-day pilot.
               </p>
             </div>
           </div>

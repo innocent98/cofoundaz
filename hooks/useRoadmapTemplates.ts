@@ -10,7 +10,7 @@ import { apiClient } from '@/lib/api/client';
 export interface RoadmapTemplateSummary {
   id: string;
   title: string;
-  stage: string | null; // nullable — some packs aren't tied to one stage
+  stage: string | null; // nullable, some packs aren't tied to one stage
   category: string;
   milestone_count: number;
   task_count: number;

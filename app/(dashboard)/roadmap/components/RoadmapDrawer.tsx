@@ -114,7 +114,7 @@ export function RoadmapDrawer({
                 <Calendar className="w-4 h-4" />
                 <span>Due Date</span>
               </div>
-              <span className="font-semibold text-[#1E2923]">{milestone.dueOn || '—'}</span>
+              <span className="font-semibold text-[#1E2923]">{milestone.dueOn || '-'}</span>
             </div>
 
             <div className="flex items-center justify-between text-sm">
@@ -193,7 +193,7 @@ export function RoadmapDrawer({
               })}
 
               {totalTasks === 0 && (
-                <p className="text-xs text-[#8E9B90] px-1">No tasks yet — add the first one below.</p>
+                <p className="text-xs text-[#8E9B90] px-1">No tasks yet, add the first one below.</p>
               )}
 
               <form onSubmit={addTask} className="flex items-center gap-2 pt-1">

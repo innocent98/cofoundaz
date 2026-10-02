@@ -30,7 +30,7 @@ export default function BenchmarksPage() {
           <h3 className="text-base font-bold text-[#1E2923]">Not enough startups like yours yet</h3>
           <p className="text-sm text-[#768478] max-w-md">
             We only show benchmarks once there are at least {benchmarks?.min_cohort_size ?? 5} startups
-            {benchmarks?.cohort ? ` in the ${benchmarks.cohort.industry} · ${benchmarks.cohort.stage} cohort` : ' in your cohort'} —
+            {benchmarks?.cohort ? ` in the ${benchmarks.cohort.industry} · ${benchmarks.cohort.stage} cohort` : ' in your cohort'},
             so no one&apos;s score can be reverse-identified. Check back as your cohort grows.
           </p>
         </div>

@@ -44,7 +44,7 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className 
     return (
       <span
         className="flex items-center gap-1.5 bg-[#F9F7F2] text-[#8A5330] px-3 py-2 rounded-card text-xs font-semibold border border-[#EADBCA]"
-        title={`AI personalization is paused until ${formattedResetsAt} — your data is never affected.`}
+        title={`AI personalization is paused until ${formattedResetsAt}, your data is never affected.`}
       >
         <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />
         AI draft paused (until {formattedResetsAt})
@@ -59,7 +59,7 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className 
         title="AI drafting was skipped for this canvas. You can edit directly."
       >
         <Sparkles className="w-3.5 h-3.5 text-[#8E9B90]" />
-        AI draft skipped — edit directly
+        AI draft skipped, edit directly
       </span>
     );
   }
@@ -68,10 +68,10 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className 
     return (
       <span
         className="flex items-center gap-1.5 bg-[#F5EFE6] text-[#8A5330] px-3 py-2 rounded-card text-xs font-semibold border border-[#EAD5C6]"
-        title="AI drafting is queued. This feature isn't available yet — your request is recorded for when it ships."
+        title="AI drafting is queued. This feature isn't available yet, your request is recorded for when it ships."
       >
         <Check className="w-3.5 h-3.5" />
-        AI draft queued — coming soon
+        AI draft queued, coming soon
       </span>
     );
   }

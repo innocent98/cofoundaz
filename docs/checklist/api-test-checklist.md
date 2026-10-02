@@ -43,6 +43,7 @@ hit during integration). Complements the developer record in
 | 1.16 ✅ | left sidebar → **workspace switcher** (top) | Click the workspace box | A dropdown opens: your workspace(s) with a check on the active one, plus **Account & profile** and **Settings & billing** links | Clicking outside or pressing Esc closes it. The Cofoundaz logo above it must be **visible** (it was dark-on-dark before) |
 | 1.17 ✅ | left sidebar → **profile** (bottom) | Click your name/avatar at the very bottom | A menu opens with your **name + email**, **View account**, **Settings & billing**, and **Log out** | **Log out** signs you out (`POST /auth/logout`), clears the session and returns you to `/login` |
 | 1.18 ✅ | `/account` (via the menus) | Open **Account & profile** / **View account** | A read-only page shows your real **name, email, role, country** and your **workspace name + stage + logo** from `GET /auth/me` | ⚠️ Editing and **Change photo** are intentionally **disabled / "coming soon"** — there's no backend update/avatar endpoint yet (not a bug). A **Log out** action is also here |
+| 1.19 ⛔ | **AI Co-Founder** (`/ai` page + the floating chat drawer) | Open it; type a question (e.g. "How long is my runway?") and send | A **"Coming soon"** state; sending returns an **honest** "the AI Co-Founder isn't connected yet" reply | ⚠️ Must **not** fabricate an answer (no invented runway figures, sources, or action chips) — the chat has **no backend** (BE guide confirms only `GET /ai/status` exists). The real AI shows up as the dashboard briefing, mission reasons, and health tips |
 
 ---
 
@@ -152,6 +153,11 @@ Don't file these as FE bugs; they're waiting on the API team:
    once onboarding is done, and there's **no user-avatar upload** endpoint. So editing
    name/role, startup name/logo, and the photo are all backend-blocked (shown as
    "coming soon").
+8. **AI Co-Founder chat** (item 1.19) — the conversational chat has **no backend**; the
+   `/ai` router only exposes `GET /ai/status` (confirmed by the BE's own
+   `fe-integration-guide-ai-cofounder.md` §3). The chat shows an honest "coming soon" and
+   never fabricates a reply. The real AI Co-Founder is the enrichment features (briefing,
+   mission reasons, health recs, etc.).
 
 **Designed screens with no endpoints at all** (FE ready to build once the API ships —
 see [`docs/backend-requests-ui-gaps.md`](../backend-requests-ui-gaps.md)): **Team

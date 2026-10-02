@@ -27,8 +27,8 @@ function buildFields(fields: RecordField[], axes: PositioningAxes): FormField[] 
     { key: 'price', label: 'Price', type: 'text', half: true, placeholder: 'e.g. Free / ₦1,000/mo' },
     { key: 'strengths', label: 'Strengths', type: 'list' },
     { key: 'weaknesses', label: 'Weaknesses', type: 'list' },
-    { key: 'map_x', label: `Map X · ${axes.x.label} (${axes.x.low}→${axes.x.high}, 0–1)`, type: 'number', half: true, placeholder: '0.0 – 1.0' },
-    { key: 'map_y', label: `Map Y · ${axes.y.label} (${axes.y.low}→${axes.y.high}, 0–1)`, type: 'number', half: true, placeholder: '0.0 – 1.0' },
+    { key: 'map_x', label: `Map X · ${axes.x.label} (${axes.x.low}→${axes.x.high}, 0-1)`, type: 'number', half: true, placeholder: '0.0 - 1.0' },
+    { key: 'map_y', label: `Map Y · ${axes.y.label} (${axes.y.low}→${axes.y.high}, 0-1)`, type: 'number', half: true, placeholder: '0.0 - 1.0' },
   ];
 }
 
@@ -151,11 +151,11 @@ export default function CompetitiveAnalysisPage() {
                 <tbody className="divide-y divide-[#F0F0EC]">
                   {records.map((rec) => (
                     <tr key={rec.id} className="hover:bg-[#FAF9F5] transition-colors group">
-                      <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">{(rec.data.name as string) || '—'}</td>
-                      <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.positioning as string) || '—'}</td>
+                      <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">{(rec.data.name as string) || '-'}</td>
+                      <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.positioning as string) || '-'}</td>
                       <td className="py-4 px-6">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold capitalize ${threatBadge(rec.data.threat_level)}`}>
-                          {String(rec.data.threat_level || '—')}
+                          {String(rec.data.threat_level || '-')}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">

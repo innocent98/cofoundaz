@@ -48,7 +48,7 @@ export default function KanbanPage() {
     try {
       await updateTask(taskId, { status: colId }); // PATCH + refetch = source of truth
     } catch {
-      setDndError('Could not move that task — you may not have edit access.');
+      setDndError('Could not move that task, you may not have edit access.');
     } finally {
       setPending((p) => {
         const next = { ...p };

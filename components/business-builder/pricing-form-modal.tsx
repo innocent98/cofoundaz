@@ -133,7 +133,7 @@ export function PricingFormModal({
                 <textarea
                   value={tier.features}
                   onChange={(e) => setTier(i, { features: e.target.value })}
-                  placeholder="What's included — one per line"
+                  placeholder="What's included, one per line"
                   rows={2}
                   className={`${inputClass} resize-y`}
                 />

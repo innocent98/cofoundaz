@@ -44,7 +44,7 @@ export default function DimensionBreakdownPage() {
                 isSelected ? 'bg-[#183B28] border-[#183B28] text-white font-semibold' : 'bg-white border-[#EBEBE6] text-[#1E2923] hover:border-[#C5CFC7]'
               }`}
             >
-              {dimLabel} · {data.dimensions[k]?.score ?? '—'}
+              {dimLabel} · {data.dimensions[k]?.score ?? '-'}
             </Link>
           );
         })}
