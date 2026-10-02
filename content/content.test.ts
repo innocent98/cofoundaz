@@ -19,7 +19,10 @@ describe('home content', () => {
   it('uses the comp hero copy verbatim', () => {
     expect(home.hero.title).toBe('The co-founder who never sleeps.')
     expect(home.hero.subtitle).toBe(
-      'Cofoundaz is the AI operating system that takes you from idea to profitability. One connected workspace, a bench of AI advisors, and a clear next step every single day.'
+      'Cofoundaz is the operating system that takes you from idea to profitability. One connected workspace, a bench of advisors, and a clear next step every single day.'
+    )
+    expect(home.hero.tagline).toBe(
+      'Built for founders at every stage, from validating an idea to raising capital and scaling.'
     )
     expect(home.hero.trustLine).toBe('No credit card required.')
   })

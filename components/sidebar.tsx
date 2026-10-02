@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import CofaundazLogo from '@/components/CofaundazLogo';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useStartupProfile } from '@/hooks/useStartupProfile';
 import {
   LayoutGrid,
   Sparkles,
@@ -107,6 +108,13 @@ const navSections: NavSection[] = [
   },
 ];
 
+function initialsOf(fullName: string | null): string {
+  const parts = (fullName ?? '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 function EditIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -134,6 +142,14 @@ export default function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { unreadCount } = useNotifications();
+  const { name, stageLabel, logoUrl, founderName, founderRole, loading } = useStartupProfile();
+
+  // Real workspace identity with neutral (non-fabricated) fallbacks.
+  const workspaceName = name?.trim() || (loading ? 'Loading…' : 'Your workspace');
+  const workspaceInitial = (name?.trim()?.charAt(0) || 'W').toUpperCase();
+  const founderDisplay = founderName?.trim() || (loading ? 'Loading…' : 'Your account');
+  const founderInitials = initialsOf(founderName) || 'U';
+  const founderRoleText = founderRole?.trim() || 'Founder';
 
   const handleClose = () => {
     if (onClose) onClose();
@@ -177,17 +193,28 @@ export default function Sidebar({
           {/* Project Selector */}
           <div className="w-full bg-[#0C2419] border border-[#183B2B] rounded-card p-3 mb-6 flex items-center justify-between gap-2 cursor-pointer hover:border-[#26533D] transition-colors">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="bg-[#122E21] text-[#D89A6E] font-bold h-8 w-8 shrink-0 flex items-center justify-center rounded-input text-sm">
-                K
-              </div>
+              {logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logoUrl}
+                  alt={`${workspaceName} logo`}
+                  className="h-8 w-8 shrink-0 rounded-input object-cover"
+                />
+              ) : (
+                <div className="bg-[#122E21] text-[#D89A6E] font-bold h-8 w-8 shrink-0 flex items-center justify-center rounded-input text-sm">
+                  {workspaceInitial}
+                </div>
+              )}
 
               <div className="min-w-0">
                 <p className="truncate font-semibold text-white text-sm">
-                  Kolo
+                  {workspaceName}
                 </p>
-                <p className="truncate text-xs text-[#7B9382]">
-                  Validation stage
-                </p>
+                {stageLabel && (
+                  <p className="truncate text-xs text-[#7B9382]">
+                    {stageLabel}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -293,16 +320,16 @@ export default function Sidebar({
           <div className="pt-4 mt-2 flex w-full items-center justify-between gap-2 px-2 cursor-pointer">
             <div className="flex min-w-0 items-center gap-3">
               <div className="bg-[#122E21] text-white font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-full text-xs">
-                AO
+                {founderInitials}
               </div>
 
               <div className="min-w-0">
                 <p className="truncate font-semibold text-white text-sm">
-                  Amara Okafor
+                  {founderDisplay}
                 </p>
 
                 <p className="truncate text-xs text-[#7B9382]">
-                  Founder
+                  {founderRoleText}
                 </p>
               </div>
             </div>
