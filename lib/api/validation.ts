@@ -53,3 +53,65 @@ export async function updateAssumption(
   );
   return ((res as { data?: RawAssumption })?.data ?? res) as RawAssumption;
 }
+
+// --- Interviews (guide §3) ---------------------------------------------------
+
+export type InterviewVerdict = 'supports' | 'contradicts' | 'neutral';
+
+export interface RawInterview {
+  id: string;
+  interviewee: string;
+  segment: string | null;
+  held_on: string | null;
+  notes: string | null;
+  key_quotes: string[];
+  verdict: InterviewVerdict;
+  assumption_ids: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateInterviewBody {
+  interviewee: string;
+  held_on?: string;
+  verdict: InterviewVerdict;
+  segment?: string;
+  notes?: string;
+  key_quotes: string[]; // must be non-empty strings or the API 422s
+  assumption_ids?: string[];
+}
+
+export async function listInterviews(params?: {
+  segment?: string;
+  verdict?: InterviewVerdict;
+  assumption_id?: string;
+}): Promise<RawInterview[]> {
+  const qs = new URLSearchParams();
+  if (params?.segment) qs.set('segment', params.segment);
+  if (params?.verdict) qs.set('verdict', params.verdict);
+  if (params?.assumption_id) qs.set('assumption_id', params.assumption_id);
+  const q = qs.toString();
+  const res = await apiClient<{ data?: { interviews?: RawInterview[] } }>(
+    `/validation/interviews${q ? `?${q}` : ''}`
+  );
+  return res?.data?.interviews ?? [];
+}
+
+export async function createInterview(body: CreateInterviewBody): Promise<RawInterview> {
+  const res = await apiClient<{ data?: RawInterview } | RawInterview>('/validation/interviews', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  return ((res as { data?: RawInterview })?.data ?? res) as RawInterview;
+}
+
+export async function updateInterview(
+  id: string,
+  body: Partial<CreateInterviewBody>
+): Promise<RawInterview> {
+  const res = await apiClient<{ data?: RawInterview } | RawInterview>(
+    `/validation/interviews/${id}`,
+    { method: 'PATCH', body: JSON.stringify(body) }
+  );
+  return ((res as { data?: RawInterview })?.data ?? res) as RawInterview;
+}

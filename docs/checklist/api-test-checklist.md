@@ -137,7 +137,8 @@ hit during integration). Complements the developer record in
 | # | Where | Do this | Expected | Watch for |
 |---|---|---|---|---|
 | 8.1 ✅ | `/validation/assumptions` | Load the kanban; **quick-add** an assumption in Untested; **drag** a card between columns | `GET /validation/assumptions` fills the 4 columns by status; add fires `POST`; a drag fires `PATCH {status}` (persists on reload) | Real data (empty columns say "Nothing here yet"). The "riskiest untested" banner is **derived from your real assumptions**, not hardcoded. Risk badge shows the real High/Med/Low. No `DELETE` endpoint yet |
-| 8.2 🚧 | `/validation/interviews` · `/validation/surveys` · `/validation/smoke-tests` · `/validation/scripts` | — | **Not wired yet** — still mock | Being wired in the next Validation slices (interviews → surveys → experiments → AI) |
+| 8.2 ✅ | `/validation/interviews` | Fill the New-note form (interviewee, segment, a key quote, stance) → **Save note** | `GET /validation/interviews` lists real notes; Save fires `POST`; the card shows name · segment + the Supports/Contradicts/Neutral badge + the quote; persists on reload | A quote is **required** (the API rejects empty quotes). Empty list shows an honest prompt. The "Synthesize insights" button is still mock (AI, later slice) |
+| 8.3 🚧 | `/validation/surveys` · `/validation/smoke-tests` · `/validation/scripts` | — | **Not wired yet** — still mock | Being wired in the next Validation slices (surveys → experiments → AI) |
 
 ---
 
