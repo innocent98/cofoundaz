@@ -14,7 +14,8 @@ of the mock; the mock hook is deleted once the last slice lands.
 |---|---|---|---|
 | 1. Assumptions | `/validation/assumptions` | `GET/POST/PATCH /validation/assumptions` | ✅ shipped |
 | 2. Interviews | `/validation/interviews` | `GET/POST/PATCH /validation/interviews` | ✅ shipped |
-| 3. Surveys (+ public link) | `/validation/surveys`, public `/surveys/{token}` | `GET/POST/PATCH /validation/surveys` + analytics + public token read/submit | ⏳ |
+| 3a. Surveys (owner) | `/validation/surveys` | `GET/POST/PATCH /validation/surveys` + `/analytics` | ✅ shipped |
+| 3b. Public survey page | `/s/{token}` (new, no-auth) | `GET/POST /validation/surveys/{token}` | ⏳ next |
 | 4. Experiments / Smoke-tests | `/validation/smoke-tests`, `/mvp` | `GET/POST/PATCH /validation/experiments` + `GET /smoke-tests/{id}/stats` | ⏳ |
 | 5. AI scripts + synthesize | `/validation/scripts` | `POST /validation/scripts/generate` + `POST /validation/synthesize` (202 → poll) | ⏳ |
 
@@ -80,3 +81,39 @@ Empty list → added "Ada · fintech / Supports / 'I would pay for this today'" 
   AI synthesize feature wired in **slice 5**.
 - The single textarea maps to **both** `notes` and the first `key_quotes` entry; a
   later polish could split notes vs. multiple quotes and add verdict/segment filters.
+
+---
+
+## Slice 3a — Surveys owner (shipped)
+
+### How
+- **`lib/api/validation.ts`** — added the full survey surface: `listSurveys`,
+  `createSurvey`, `updateSurvey` (returns `{survey, public_token}`),
+  `getSurveyAnalytics`, **plus the public** `getPublicSurvey` / `submitSurveyResponse`
+  (so slice 3b only needs the page) + all types.
+- **`hooks/useSurveys.ts`** (new) — list/create/`setStatus` (open→returns the
+  one-time token)/analytics; surfaces `field_errors`.
+- **`app/(dashboard)/validation/surveys/page.tsx`** — full rewrite from the single
+  hardcoded mock to: a **survey list** (status, question/response counts), a
+  **create builder modal** (title + questions of type choice/scale/nps/open, choice
+  options, required, client-side validation matching the guide's limits), **Open &
+  get link** (PATCH→open captures `public_token` and shows the `/s/{token}` link +
+  Copy **once**), Stop/Resume collecting, and a **real analytics panel** (choice
+  bars, scale/nps average, open "N answered"; honest empty state).
+
+### Key behaviour (guide §4)
+`public_token` is returned **only** on the first open and cannot be re-fetched — the
+UI shows it once with a "shown once" label; re-opening a closed survey reuses the
+token but does not return it (we say so).
+
+### Verification (live)
+Created "Pricing check" (choice Yes/No) → listed as Draft → **Open & get link**
+produced a real `/s/{token}` link (status → Open) → analytics panel showed
+"0 responses · 0% completion". Fixed a nested-`<button>` hydration error (card is now
+a role=button `<div>`). typecheck 0 / lint 0 / unit 229 / build / e2e 153.
+
+### Follow-ups
+- **Slice 3b** builds the public `/s/{token}` page that actually collects responses
+  (the SDK for it is already in `lib/api/validation.ts`).
+- Editing a survey's questions/title and the "Synthesize insights" AI (slice 5) are
+  not wired here.
