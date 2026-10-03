@@ -167,6 +167,10 @@ sections=[
    ("7.7","Edit a document’s sections","Documents → open a document","Add a section, delete one, drag a section to reorder (or use the up/down arrows), and rename a heading. Then Save.","All the section changes save after you click Save.","Documents don’t auto-save — you must click Save. Headings used to be read-only.","ok"),
    ("7.8","Sign a document","The signing link, on the app website","Read the preview, type your full name (shown styled like a signature), tick the “I agree…” box, then Sign.","Your typed name is accepted and you see a “signed — thank you” confirmation.","It’s a typed signature (no drawing pad). The Sign button stays disabled until you tick consent.","ok"),
  ]),
+ ("8 · Validation Hub", [
+   ("8.1","Assumptions board","Validation Hub → Assumptions","Load the board. Type an assumption in the “Quick add” box (Untested) and press Enter. Then drag a card to another column.","The four columns fill from your real data. Your new assumption appears; dragging a card moves it and the change sticks after a reload.","Empty columns say “Nothing here yet”. The banner names YOUR riskiest untested assumption (not a fixed example). There’s no delete yet.","ok"),
+   ("8.2","Rest of Validation Hub","Validation Hub → Interviews / Surveys / Smoke tests / Interview scripts","(Nothing to test yet.)","These are still being connected.","Interviews, Surveys, Smoke tests and Interview scripts are being wired next — treat as not-ready for now.","blocked"),
+ ]),
 ]
 
 # title band
