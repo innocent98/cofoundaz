@@ -1,6 +1,8 @@
 # Cofoundaz — API Integration Test Checklist (manual QA)
 
-Your hands-on test plan for the **25 integrated modules**. Each row says **where**
+Your hands-on test plan for every **integrated** area (auth → documents, plus the
+AI Co-Founder enrichment features — the LLM worker drains on staging now, so
+AI-fill and the business-plan generator produce real content). Each row says **where**
 to go, **what** to do, **what's expected**, and **what to watch for** (the traps we
 hit during integration). Complements the developer record in
 [`docs/api-integration-handoff.md`](../api-integration-handoff.md) and the per-module
@@ -169,19 +171,20 @@ either don't exist yet or are intentionally mock — not test targets.
 
 ## What is intentionally fake (🚫 mock-only — no backend exists)
 
-Not integrated because there's no endpoint yet — **don't test these as real**:
+Not wired in the FE yet — **don't test these as real**:
 Marketing, Sales, Finance, Validation, Funding, Investor-Readiness, Legal &
 Compliance hubs; Notifications "Digest/quiet-hours" & "Announcements"; Calendar,
-Analytics/Reports, Marketplace, Admin/Super-Admin.
+Analytics/Reports, Marketplace, Admin/Super-Admin. (Note: **Finance + Marketing
+now have backend APIs** — those two hubs are wireable; the rest still have no API.)
 
 ---
 
 ## Quick sign-off grid
 
-- [ ] 1. Auth / session / refresh / onboarding / dashboard **+ MFA (setup/challenge) + invite-accept + dashboard summary/activity + onboarding AI panel**
+- [ ] 1. Auth / session / refresh / onboarding / dashboard **+ MFA (setup/challenge) + invite-accept + dashboard summary/real activity feed + onboarding AI panel + workspace switcher/profile menus/log out + Account page + honest AI Co-Founder chat**
 - [ ] 2. Health score (+ dimensions/history/benchmarks/recommendations) **+ charts (radar/history/trend)**
 - [ ] 3. Mission (today / actions / settings / history)
 - [ ] 4. Roadmap (tree / CRUD / dependencies / templates / replan) **+ Kanban DnD + re-plan diff**
-- [ ] 5. Business Builder (canvases / records / suggestions / positioning / ai-fill stub) **+ canvas edit-in-place + reorder + AI budget guardrail**
+- [ ] 5. Business Builder (canvases / records / suggestions / positioning) **+ canvas edit-in-place + reorder + AI budget guardrail + AI-fill (real polling) + AI business-plan generator**
 - [ ] 6. Notifications / journal / learning
 - [ ] 7. Documents (files / sharing / e-sign / templates / editor / recipient pages) **+ section editing + adopt-&-sign**
