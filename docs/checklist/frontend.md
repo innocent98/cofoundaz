@@ -4,9 +4,10 @@ The single, always-current map of the FE build. Complements SOPs (`docs/sop/`)
 and the design spec (`docs/superpowers/specs/`). Keep it honest — an item is
 checked only when done **and** verified (gates green).
 
-## Snapshot
-- ✅ Done: Marketing site · Design-token system · CI + pre-commit hook · Product-app UI scaffolding · Local mock API + typed client · **Real API — Auth/session (Module 0)** · **Onboarding (Module 1)**
-- 🟡 In progress: Real `cofoundaz-api` integration, module by module (✅ auth → ✅ onboarding → ~ dashboard → ~ health score → …)
+## Snapshot  <!-- reconciled 2026-10-03 -->
+- ✅ Done: Marketing site · Design-token system (+ in-app em/en dash sweep) · CI + pre-commit hook · Real `cofoundaz-api` integration across **Auth/session · Onboarding · Dashboard (honest, real activity) · Health (+subroutes+charts) · Mission (+actions/history) · Roadmap (tree+all write slices+Kanban+re-plan) · Business Builder (canvases+records+suggestions+positioning + **AI-fill real polling** + **AI business-plan generator**) · Notifications (+prefs) · Journal (reads) · Learning · Documents (files/sharing/e-sign/templates/editor) · MFA · Invite/Sign · Account page · Sidebar workspace identity + menus/logout** · AI Co-Founder enrichment features (briefing, mission reasons, health recs, roadmap rationale, onboarding panel, AI-fill, business plan) — the **LLM worker now drains on staging**
+- 🟡 Backend-blocked (FE honest "coming soon"): AI Co-Founder **chat** (no endpoint) · Assessment **question prompts** missing · Journal **writes** (encryption key) · MFA disable/SMS · emailed sign/share link host · post-onboarding profile/avatar edit
+- 🚫 Mock-only in FE (no wiring yet; **Finance + Marketing now have backend APIs → wireable**): Finance · Sales · Marketing · Validation · Funding · Investor-Readiness · Legal hubs · Calendar · Analytics/Reports · Marketplace · Admin/Super-Admin
 - ⛔ Not started: Dashboard e2e/a11y coverage
 
 ## Real API integration (replacing the mocks, module by module)
@@ -72,8 +73,8 @@ Legend: `[x]` done+verified · `[ ]` not done · 🟡 partial
 - [x] Pre-commit hook (`scripts/precommit-checks.mjs`) — token scan + ESLint on staged files
 - [x] Hand-off + styling guides (`docs/frontend-handoff.md`, `docs/dashboard-styling.md`)
 
-## 3. Product app (dashboard) — 🟡 UI built, not wired
-UI scaffolding shipped and tokenized (PR #10, #14). **All pages are static mock data.**
+## 3. Product app (dashboard) — ✅ core wired to real API · 🟡 some hubs still mock
+UI scaffolding shipped and tokenized (PR #10, #14), then integrated module-by-module against the real `cofoundaz-api`. The core product (auth → documents, incl. the AI enrichment features) is **live**; the Finance/Sales/Marketing/Validation/Funding/Investor/Legal hubs + Calendar/Analytics/Marketplace/Admin remain **mock** in the FE (Finance + Marketing now have backend APIs and are wireable).
 - [x] App shell: centralized `Sidebar` (context) + `DashboardNavbar` + `(dashboard)/layout.tsx`
 - [x] Core screens: Dashboard, Today's Mission, Health Score, Roadmap (+ sub-routes), AI Co-Founder, Assessment
 - [x] Hubs: Business Builder, Validation, Marketing, Sales, Finance, Funding, Investor Readiness, Legal & Compliance
@@ -82,10 +83,11 @@ UI scaffolding shipped and tokenized (PR #10, #14). **All pages are static mock 
 - [x] **Local mock API layer** (PR #17) — 78 `app/api/v1/*` handlers (canned JSON, OpenAPI-shaped) + typed client SDK (`lib/api/*`) + `useDashboardApi`/`useBusinessBuilderApi` hooks
 - [x] Auth + onboarding pages consume the mock API (`/api/v1/auth/*`, onboarding)
 - [x] Consume the API from the **dashboard pages** — done across the integrated modules
-- [x] **Wire to the real `cofoundaz-api`** — **25 modules integrated & verified live against staging** (auth/refresh, onboarding, dashboard, health +subroutes, mission +actions/history, roadmap +all write slices, business-builder canvases/records/suggestions/positioning/ai-fill, notifications +prefs, journal, learning, documents +sharing/e-sign/templates/editor/recipient pages). See [`docs/api-integration-handoff.md`](../api-integration-handoff.md) + `docs/sop/module-*`.
+- [x] **Wire to the real `cofoundaz-api`** — integrated & verified live against staging: auth/refresh, onboarding, dashboard (honest cleanup + real activity feed + workspace identity/menus/logout + account page), health +subroutes +charts, mission +actions/history, roadmap +all write slices +Kanban +re-plan, business-builder canvases/records/suggestions/positioning + **AI-fill (real polling)** + **AI business-plan generator**, notifications +prefs, journal (reads), learning, documents +sharing/e-sign/templates/editor/recipient pages, MFA, invite/sign. The **AI Co-Founder enrichment features** (briefing/mission/health/roadmap/onboarding panel/AI-fill/plan) are live now that the **LLM worker drains on staging**. See [`docs/api-integration-handoff.md`](../api-integration-handoff.md) + `docs/sop/module-*`.
 - [x] Decide mock-handler fate in production — **removed** all 78 `app/api/v1/*` handlers; every call now goes through `apiClient` → real API base URL. See `docs/sop/mock-api-routes-removal.md`
 - [ ] Add dashboard routes to the e2e + axe sweep (currently marketing-only)
-- ⛔ Backend-blocked (not FE bugs): Assessment question prompts, AI-fill worker, journal encryption key on staging, emailed sign/share link host. See handoff §⛔.
+- [ ] Wire the Finance + Marketing hubs (backend APIs now exist; FE still mock)
+- ⛔ Backend-blocked (not FE bugs): AI Co-Founder **chat** (no conversation endpoint), Assessment **question prompts** missing, journal **writes** (encryption key), emailed sign/share link host, post-onboarding profile/avatar edit. **AI-fill + business-plan generation are no longer blocked** (worker runs). See `docs/backend-requests-ui-gaps.md`.
 
 ## 4. Backlog / upcoming
 - [ ] API integration guide consumption (per `cofoundaz-api` fe-integration guides)
@@ -126,7 +128,7 @@ Frontend features the Technical PRD / UI comp specify that are **not built** (in
 - [x] **Document editor — section editing** — **done**: add / remove / reorder sections (**drag-to-reorder** via grip handle + up/down buttons) + editable headings (was body-only), explicit Save with the 409 conflict model, verified live. SOP `module-31-document-section-editing`. (Optional autosave remains a follow-up.)
 
 ### 6c. Cross-cutting components/interactions unbuilt
-- [~] **Charting library** — **recharts added**; real charts on **Health** (history area chart, 5-dimension radar, dimension-detail trend), verified live. Fabricated dashboard KPI sparkline **removed** (no real series exists). `components/health/health-charts.tsx`, SOP `module-32-real-charts-health`. Other surfaces (finance etc.) stay mock until their APIs ship. PRD §1.2
+- [~] **Charting library** — **recharts added**; real charts on **Health** (history area chart, 5-dimension radar, dimension-detail trend), verified live. Fabricated dashboard KPI sparkline **removed** (no real series exists). `components/health/health-charts.tsx`, SOP `module-32-real-charts-health`. Other surfaces (finance etc.) stay mock until their hubs are wired — Finance + Marketing now have backend APIs, so their charts are wireable next. PRD §1.2
 - [~] **DiffViewer** — **re-plan done** (`components/roadmap/date-diff.tsx`: old→new + day-delta; proposal summary; expandable history diffs). SOP `module-29-roadmap-replan-diffviewer`. Still to do for doc versions / AI-config prompts / assessment. PRD 05.6/07.3/18.4/26.2
 - [x] **Canvas item editing** — **done**: edit-in-place (SOP `module-30`) **+ drag-to-reorder** within a block via a grip handle (`components/business-builder/use-chip-reorder.ts`, `useCanvasEditor.moveItem`), verified live. SOP `module-33-canvas-item-reorder`. (Records `position` reorder + lean-canvas migration remain separate follow-ups.) PRD 08.x
 - [ ] **SignaturePad** — none — PRD 18.5
