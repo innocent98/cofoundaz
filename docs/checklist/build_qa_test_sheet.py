@@ -169,7 +169,8 @@ sections=[
  ]),
  ("8 · Validation Hub", [
    ("8.1","Assumptions board","Validation Hub → Assumptions","Load the board. Type an assumption in the “Quick add” box (Untested) and press Enter. Then drag a card to another column.","The four columns fill from your real data. Your new assumption appears; dragging a card moves it and the change sticks after a reload.","Empty columns say “Nothing here yet”. The banner names YOUR riskiest untested assumption (not a fixed example). There’s no delete yet.","ok"),
-   ("8.2","Rest of Validation Hub","Validation Hub → Interviews / Surveys / Smoke tests / Interview scripts","(Nothing to test yet.)","These are still being connected.","Interviews, Surveys, Smoke tests and Interview scripts are being wired next — treat as not-ready for now.","blocked"),
+   ("8.2","Interview notes","Validation Hub → Interviews","Fill in the New-note form (who you spoke to, a segment tag, a key quote, and pick Supports / Contradicts / Neutral), then Save note.","Your note is saved and appears on the right with the name, segment, a coloured stance badge and the quote. It’s still there after a reload.","A quote is required (an empty one is rejected). The empty list shows a friendly prompt. The “Synthesize insights” button isn’t connected yet.","ok"),
+   ("8.3","Rest of Validation Hub","Validation Hub → Surveys / Smoke tests / Interview scripts","(Nothing to test yet.)","These are still being connected.","Surveys, Smoke tests and Interview scripts are being wired next — treat as not-ready for now.","blocked"),
  ]),
 ]
 

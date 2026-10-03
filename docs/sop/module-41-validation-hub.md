@@ -13,7 +13,7 @@ of the mock; the mock hook is deleted once the last slice lands.
 | Slice | Pages | Endpoints | Status |
 |---|---|---|---|
 | 1. Assumptions | `/validation/assumptions` | `GET/POST/PATCH /validation/assumptions` | ✅ shipped |
-| 2. Interviews | `/validation/interviews` | `GET/POST/PATCH /validation/interviews` | ⏳ next |
+| 2. Interviews | `/validation/interviews` | `GET/POST/PATCH /validation/interviews` | ✅ shipped |
 | 3. Surveys (+ public link) | `/validation/surveys`, public `/surveys/{token}` | `GET/POST/PATCH /validation/surveys` + analytics + public token read/submit | ⏳ |
 | 4. Experiments / Smoke-tests | `/validation/smoke-tests`, `/mvp` | `GET/POST/PATCH /validation/experiments` + `GET /smoke-tests/{id}/stats` | ⏳ |
 | 5. AI scripts + synthesize | `/validation/scripts` | `POST /validation/scripts/generate` + `POST /validation/synthesize` (202 → poll) | ⏳ |
@@ -54,3 +54,29 @@ lint 0 / unit 229 / build clean / e2e 153.
   `updateStatus` path.
 - `evidence_count` is server-derived from linked experiments + interviews — it will
   become non-zero once slices 2/4 link records to assumptions.
+
+---
+
+## Slice 2 — Interviews (shipped)
+
+### How
+- **`lib/api/validation.ts`** — added `listInterviews` / `createInterview` /
+  `updateInterview` + `RawInterview`/`CreateInterviewBody` types
+  (`GET/POST/PATCH /validation/interviews`).
+- **`hooks/useInterviews.ts`** (new) — load on mount, `addInterview` (POST →
+  prepend), maps `key_quotes[0]` → `quote`; honest error state.
+- **`app/(dashboard)/validation/interviews/page.tsx`** — rewired to the real hook:
+  the New-note form POSTs (`held_on` = today, `verdict` = lowercased stance,
+  `key_quotes` = [the quote] — the API 422s on empty quotes), the list reads real
+  data with an honest empty state + loading/error. Verdict maps lowercase ↔ the
+  Supports/Contradicts/Neutral badges.
+
+### Verification (live)
+Empty list → added "Ada · fintech / Supports / 'I would pay for this today'" (POST
+201) → persisted on reload (GET). typecheck 0 / lint 0 / unit 229 / build / e2e 153.
+
+### Notes
+- The "Synthesize insights" button (`InsightSynthesizer`) is still mock — it's the
+  AI synthesize feature wired in **slice 5**.
+- The single textarea maps to **both** `notes` and the first `key_quotes` entry; a
+  later polish could split notes vs. multiple quotes and add verdict/segment filters.
