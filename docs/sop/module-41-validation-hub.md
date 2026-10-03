@@ -15,7 +15,7 @@ of the mock; the mock hook is deleted once the last slice lands.
 | 1. Assumptions | `/validation/assumptions` | `GET/POST/PATCH /validation/assumptions` | ✅ shipped |
 | 2. Interviews | `/validation/interviews` | `GET/POST/PATCH /validation/interviews` | ✅ shipped |
 | 3a. Surveys (owner) | `/validation/surveys` | `GET/POST/PATCH /validation/surveys` + `/analytics` | ✅ shipped |
-| 3b. Public survey page | `/s/{token}` (new, no-auth) | `GET/POST /validation/surveys/{token}` | ⏳ next |
+| 3b. Public survey page | `/s/{token}` (new, no-auth) | `GET/POST /validation/surveys/{token}` | ✅ shipped |
 | 4. Experiments / Smoke-tests | `/validation/smoke-tests`, `/mvp` | `GET/POST/PATCH /validation/experiments` + `GET /smoke-tests/{id}/stats` | ⏳ |
 | 5. AI scripts + synthesize | `/validation/scripts` | `POST /validation/scripts/generate` + `POST /validation/synthesize` (202 → poll) | ⏳ |
 
@@ -113,7 +113,28 @@ produced a real `/s/{token}` link (status → Open) → analytics panel showed
 a role=button `<div>`). typecheck 0 / lint 0 / unit 229 / build / e2e 153.
 
 ### Follow-ups
-- **Slice 3b** builds the public `/s/{token}` page that actually collects responses
-  (the SDK for it is already in `lib/api/validation.ts`).
 - Editing a survey's questions/title and the "Synthesize insights" AI (slice 5) are
   not wired here.
+
+---
+
+## Slice 3b — Public survey page (shipped)
+
+### How
+- **`app/s/[token]/page.tsx`** (new, top-level, **no auth** — like `app/sign/[token]`):
+  `GET /validation/surveys/{token}` renders a branded, chrome-less form — `choice`
+  (radios), `scale` (1–5), `nps` (0–10), `open` (textarea, 4000 cap) — then
+  `POST .../{token}/responses` with `{answers: {questionId: value}}`. States:
+  loading, **uniform 404** ("this survey isn't available" — unknown/draft/closed are
+  indistinguishable by design), **429** ("too many submissions"), **422** (surfaces
+  the first `field_errors` entry), and a "Thank you" success. Client-side
+  required-question check before submit.
+
+### Verification (live, full loop)
+Created + opened a survey via the owner UI → visited `/s/{token}` → answered (choice
+"Yes", NPS 9) → "Thank you". The **owner analytics** then showed `responses: 1,
+completion 100%`, choice `{Yes:1, No:0}`, NPS `average 9.0`. typecheck 0 / lint 0 /
+unit 229 / build / e2e 153. `/s/[token]` builds as a dynamic route.
+
+**Surveys slice (3a owner + 3b public) is complete** — create → open → share →
+respond → analytics is a working end-to-end loop.
