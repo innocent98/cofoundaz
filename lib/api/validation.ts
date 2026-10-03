@@ -116,6 +116,81 @@ export async function updateInterview(
   return ((res as { data?: RawInterview })?.data ?? res) as RawInterview;
 }
 
+// --- Experiments & smoke tests (guide §2) -----------------------------------
+
+export type ExperimentType = 'smoke_test' | 'landing_page' | 'ad_test' | 'other';
+export type ExperimentStatus = 'draft' | 'live' | 'ended';
+
+export interface RawExperiment {
+  id: string;
+  name: string;
+  type: ExperimentType;
+  status: ExperimentStatus;
+  config: Record<string, unknown>;
+  metrics: Record<string, unknown>;
+  assumption_ids: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SmokeTestStats {
+  experiment_id: string;
+  name: string;
+  status: string;
+  visits: number;
+  signups: number;
+  conversion: number;
+}
+
+export interface CreateExperimentBody {
+  name: string;
+  type: ExperimentType;
+  config?: Record<string, unknown>;
+  metrics?: Record<string, unknown>;
+  assumption_ids?: string[];
+}
+
+export async function listExperiments(params?: {
+  type?: ExperimentType;
+  status?: ExperimentStatus;
+}): Promise<RawExperiment[]> {
+  const qs = new URLSearchParams();
+  if (params?.type) qs.set('type', params.type);
+  if (params?.status) qs.set('status', params.status);
+  const q = qs.toString();
+  const res = await apiClient<{ data?: { experiments?: RawExperiment[] } }>(
+    `/validation/experiments${q ? `?${q}` : ''}`
+  );
+  return res?.data?.experiments ?? [];
+}
+
+export async function createExperiment(body: CreateExperimentBody): Promise<RawExperiment> {
+  const res = await apiClient<{ data?: RawExperiment } | RawExperiment>('/validation/experiments', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  return ((res as { data?: RawExperiment })?.data ?? res) as RawExperiment;
+}
+
+// Note: fields REPLACE (metrics are not merged) — send the full metrics object.
+export async function updateExperiment(
+  id: string,
+  body: Partial<CreateExperimentBody> & { status?: ExperimentStatus }
+): Promise<RawExperiment> {
+  const res = await apiClient<{ data?: RawExperiment } | RawExperiment>(
+    `/validation/experiments/${id}`,
+    { method: 'PATCH', body: JSON.stringify(body) }
+  );
+  return ((res as { data?: RawExperiment })?.data ?? res) as RawExperiment;
+}
+
+export async function getSmokeTestStats(id: string): Promise<SmokeTestStats> {
+  const res = await apiClient<{ data?: SmokeTestStats } | SmokeTestStats>(
+    `/validation/smoke-tests/${id}/stats`
+  );
+  return ((res as { data?: SmokeTestStats })?.data ?? res) as SmokeTestStats;
+}
+
 // --- Surveys (guide §4 owner + §5 public) -----------------------------------
 
 export type SurveyStatus = 'draft' | 'open' | 'closed';

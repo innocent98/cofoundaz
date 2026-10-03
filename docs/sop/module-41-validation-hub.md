@@ -16,8 +16,8 @@ of the mock; the mock hook is deleted once the last slice lands.
 | 2. Interviews | `/validation/interviews` | `GET/POST/PATCH /validation/interviews` | ✅ shipped |
 | 3a. Surveys (owner) | `/validation/surveys` | `GET/POST/PATCH /validation/surveys` + `/analytics` | ✅ shipped |
 | 3b. Public survey page | `/s/{token}` (new, no-auth) | `GET/POST /validation/surveys/{token}` | ✅ shipped |
-| 4. Experiments / Smoke-tests | `/validation/smoke-tests`, `/mvp` | `GET/POST/PATCH /validation/experiments` + `GET /smoke-tests/{id}/stats` | ⏳ |
-| 5. AI scripts + synthesize | `/validation/scripts` | `POST /validation/scripts/generate` + `POST /validation/synthesize` (202 → poll) | ⏳ |
+| 4. Experiments / Smoke-tests | `/validation/smoke-tests` | `GET/POST/PATCH /validation/experiments` + `GET /smoke-tests/{id}/stats` | ✅ shipped |
+| 5. AI scripts + synthesize | `/validation/scripts`, `/mvp` | `POST /validation/scripts/generate` + `POST /validation/synthesize` (202 → poll) | ⏳ next |
 
 ---
 
@@ -138,3 +138,41 @@ unit 229 / build / e2e 153. `/s/[token]` builds as a dynamic route.
 
 **Surveys slice (3a owner + 3b public) is complete** — create → open → share →
 respond → analytics is a working end-to-end loop.
+
+---
+
+## Slice 4 — Experiments / Smoke-tests (shipped)
+
+### Scope note
+The `/mvp` page is **not** experiments — it's the feedback **synthesize** feature,
+wired in slice 5. Slice 4 is the `/validation/smoke-tests` page only.
+
+### How
+- **`lib/api/validation.ts`** — `listExperiments` / `createExperiment` /
+  `updateExperiment` / `getSmokeTestStats` + types (`GET/POST/PATCH /validation/experiments`,
+  `GET /smoke-tests/{id}/stats`).
+- **`hooks/useSmokeTests.ts`** (new) — lists `type=smoke_test`, maps `config`/`metrics`
+  into a flat view (slug, target_conversion, metric_type, visits, signups, derived
+  conversion), `create`, `updateMetrics` (metrics **replace**, so sends the full
+  object), `setStatus`, `getStats`.
+- **`app/(dashboard)/validation/smoke-tests/page.tsx`** — rewired list→builder→results:
+  list reads real experiments; the 3-step builder is now a **controlled form** that
+  POSTs a real `smoke_test` (page design → metric+target → slug; FE fields saved in
+  `config`); results shows **real stats** from `GET /smoke-tests/{id}/stats` with a
+  "Record your numbers" input that PATCHes `metrics` (there's no traffic
+  instrumentation, so the founder enters observed visits/signups). Removed the
+  fabricated "clicks = 0.4×visits" funnel level and the fake "published at
+  {slug}.cofoundaz.site" claim.
+
+### Verification (live)
+Created a `smoke_test` (201) → listed → opened results (real stats 0/0/0.0, honest
+"collecting data") → recorded 120 visits / 9 signups → stats refetched to
+**conversion 7.5%**, banner flipped to green "validated" (7.5% ≥ 5% bar, ≥100 visits).
+typecheck 0 / lint 0 / unit 229 / build / e2e 153.
+
+### Notes
+- `conversion` is computed **server-side** (`round(100·signups/visits,1)`, 0.0 with no
+  visits). The stats route 404s for non-`smoke_test` types.
+- Linking a smoke test to assumptions (`assumption_ids`) and experiment types other
+  than `smoke_test` (landing_page/ad_test/other) are available in the API but not
+  surfaced in this page yet.
