@@ -1,212 +1,575 @@
 'use client';
 
-import React, { useState } from "react";
-import { useMarketingApi, Campaign, CampaignObjective } from "@/hooks/useMarketingApi";
-import { useToast } from "../ToastContext";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useCampaigns, useSegments } from '@/hooks/useMarketingApi';
+import { useMarketingGeneration } from '@/hooks/useMarketingGeneration';
+import {
+  CHANNEL_KEYS,
+  CHANNEL_LABELS,
+  formatMoney,
+  getChannelPlan,
+  marketingErrorMessage,
+  fieldErrorsOf,
+  startChannelPlan,
+  type Campaign,
+  type CampaignObjective,
+  type CampaignStatus,
+  type ChannelKey,
+  type ChannelMix,
+  type ChannelPlanInput,
+} from '@/lib/api/marketing';
+import {
+  BTN_ACCENT,
+  BTN_DANGER,
+  BTN_PRIMARY,
+  BTN_SECONDARY,
+  CARD,
+  DataGate,
+  EmptyState,
+  GenerationNote,
+  INPUT,
+  LABEL,
+} from '@/components/marketing-hub/states';
+import { Drawer } from '@/components/marketing-hub/drawer';
+import { useToast } from '../ToastContext';
 
-export default function MarketingCampaignsPage() {
-  const { campaigns, addCampaign } = useMarketingApi();
+const OBJECTIVES: { value: CampaignObjective; label: string }[] = [
+  { value: 'awareness', label: 'Awareness' },
+  { value: 'leads', label: 'Leads' },
+  { value: 'sales', label: 'Sales' },
+  { value: 'launch', label: 'Launch' },
+];
+
+const STATUS_STYLE: Record<CampaignStatus, string> = {
+  draft: 'bg-sage-100 text-sage-600',
+  active: 'bg-green-100 text-green-800',
+  paused: 'bg-copper-100 text-copper-800',
+  completed: 'bg-sage-200 text-sage-700',
+};
+
+interface Form {
+  name: string;
+  objective: CampaignObjective;
+  budgetMajor: string;
+  mix: Record<ChannelKey, number>;
+  segmentIds: string[];
+  start: string;
+  end: string;
+}
+
+const EMPTY_MIX = Object.fromEntries(CHANNEL_KEYS.map((k) => [k, 0])) as Record<ChannelKey, number>;
+
+const blankForm = (): Form => ({
+  name: '',
+  objective: 'awareness',
+  budgetMajor: '',
+  mix: { ...EMPTY_MIX },
+  segmentIds: [],
+  start: '',
+  end: '',
+});
+
+function formFromCampaign(c: Campaign): Form {
+  return {
+    name: c.name,
+    objective: c.objective,
+    budgetMajor: c.budget ? String(c.budget / 100) : '',
+    mix: { ...EMPTY_MIX, ...(c.channel_mix as Record<ChannelKey, number>) },
+    segmentIds: c.segment_ids,
+    start: c.period_start ?? '',
+    end: c.period_end ?? '',
+  };
+}
+
+const toCents = (major: string): number => Math.max(0, Math.round((parseFloat(major) || 0) * 100));
+
+function mixPayload(mix: Record<ChannelKey, number>): ChannelMix {
+  const out: ChannelMix = {};
+  for (const k of CHANNEL_KEYS) if (mix[k] > 0) out[k] = mix[k];
+  return out;
+}
+
+function bodyFromForm(f: Form) {
+  return {
+    name: f.name.trim(),
+    objective: f.objective,
+    budget: toCents(f.budgetMajor),
+    channel_mix: mixPayload(f.mix),
+    segment_ids: f.segmentIds,
+    period_start: f.start || null,
+    period_end: f.end || null,
+  };
+}
+
+function summariseMix(mix: ChannelMix): string {
+  const parts = Object.entries(mix)
+    .filter(([, v]) => (v ?? 0) > 0)
+    .map(([k, v]) => `${CHANNEL_LABELS[k as ChannelKey]} ${Math.round(v ?? 0)}%`);
+  return parts.length ? parts.join(', ') : 'No channel split set';
+}
+
+// ------------------------------------------------------------------ form sections
+
+function ObjectiveSection({ form, setForm, errors }: { form: Form; setForm: (f: Form) => void; errors: Record<string, string> }) {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1.5">
+        <label htmlFor="camp-name" className={LABEL}>Campaign name</label>
+        <input
+          id="camp-name"
+          type="text"
+          value={form.name}
+          maxLength={200}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className={INPUT}
+          placeholder="e.g. Q4 launch push"
+        />
+        {errors.name && <p role="alert" className="text-xs text-red-700">{errors.name}</p>}
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="camp-objective" className={LABEL}>Objective</label>
+        <select
+          id="camp-objective"
+          value={form.objective}
+          onChange={(e) => setForm({ ...form, objective: e.target.value as CampaignObjective })}
+          className={INPUT}
+        >
+          {OBJECTIVES.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label htmlFor="camp-start" className={LABEL}>Starts</label>
+          <input id="camp-start" type="date" value={form.start} onChange={(e) => setForm({ ...form, start: e.target.value })} className={INPUT} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="camp-end" className={LABEL}>Ends</label>
+          <input id="camp-end" type="date" value={form.end} onChange={(e) => setForm({ ...form, end: e.target.value })} className={INPUT} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AudienceSection({
+  form,
+  setForm,
+  segments,
+  loading,
+}: {
+  form: Form;
+  setForm: (f: Form) => void;
+  segments: { id: string; name: string; est_size: number | null }[];
+  loading: boolean;
+}) {
+  if (loading) return <p className="text-sm text-sage-500">Loading your segments...</p>;
+  if (segments.length === 0) {
+    return (
+      <div className="rounded-card border border-sage-200 bg-sage-50/60 p-4 space-y-2">
+        <p className="text-sm text-sage-700">You have no audience segments yet. You can still create the campaign without one.</p>
+        <Link href="/marketing/segments" className="text-sm font-semibold text-[#0e271f] hover:underline">
+          Create a segment
+        </Link>
+      </div>
+    );
+  }
+  return (
+    <fieldset className="space-y-2">
+      <legend className={LABEL}>Target segments</legend>
+      {segments.map((s) => {
+        const checked = form.segmentIds.includes(s.id);
+        return (
+          <label key={s.id} className="flex items-center gap-3 text-sm text-sage-800 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() =>
+                setForm({
+                  ...form,
+                  segmentIds: checked ? form.segmentIds.filter((x) => x !== s.id) : [...form.segmentIds, s.id],
+                })
+              }
+            />
+            <span className="font-medium">{s.name}</span>
+            {s.est_size !== null && <span className="text-xs text-sage-500">~{s.est_size.toLocaleString()}</span>}
+          </label>
+        );
+      })}
+    </fieldset>
+  );
+}
+
+function ChannelsSection({
+  form,
+  setForm,
+  errors,
+}: {
+  form: Form;
+  setForm: (f: Form) => void;
+  errors: Record<string, string>;
+}) {
   const { triggerToast } = useToast();
+  const plan = useMarketingGeneration<ChannelPlanInput, Awaited<ReturnType<typeof getChannelPlan>>>(
+    startChannelPlan,
+    getChannelPlan
+  );
+  const budgetCents = toCents(form.budgetMajor);
+  const total = CHANNEL_KEYS.reduce((n, k) => n + form.mix[k], 0);
+  const proposal = plan.phase === 'ready' ? plan.generation : null;
 
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
-  const [wizardStep, setWizardStep] = useState(1);
-  const [newCampaign, setNewCampaign] = useState<Partial<Campaign>>({
-    name: '',
-    objective: 'awareness',
-    channels: [],
-    budget: 0,
-  });
+  const recommend = () => plan.run({ objective: form.objective, budget: budgetCents > 0 ? budgetCents : null });
 
-  const handleLaunchCampaign = () => {
-    if (!newCampaign.name) return;
-    addCampaign({
-      id: Date.now().toString(),
-      name: newCampaign.name,
-      objective: newCampaign.objective as CampaignObjective,
-      budget: newCampaign.budget || 0,
-      channels: newCampaign.channels || [],
-      status: 'active',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: '2026-12-31',
-      metrics: { spend: 0, impressions: 0, clicks: 0, conversions: 0, ctr: 0 }
-    });
-    
-    triggerToast(`Campaign "${newCampaign.name}" launched successfully!`);
-    setIsWizardOpen(false);
-    setWizardStep(1);
-    setNewCampaign({ name: '', objective: 'awareness', channels: [], budget: 0 });
+  const apply = () => {
+    const proposed = proposal?.output.channel_mix ?? {};
+    setForm({ ...form, mix: { ...EMPTY_MIX, ...(proposed as Record<ChannelKey, number>) } });
+    plan.reset();
+    triggerToast('Applied the AI channel split. You can still adjust it.');
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">
-            Campaigns
-          </h1>
-        </div>
-
-        {!isWizardOpen && (
-          <button
-            onClick={() => setIsWizardOpen(true)}
-            className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-all cursor-pointer shadow-card flex items-center gap-2 self-start md:self-auto"
-          >
-            <span>+ New campaign</span>
-          </button>
-        )}
+    <div className="space-y-5">
+      <div className="space-y-1.5">
+        <label htmlFor="camp-budget" className={LABEL}>Budget (₦)</label>
+        <input
+          id="camp-budget"
+          type="number"
+          min={0}
+          step="any"
+          value={form.budgetMajor}
+          onChange={(e) => setForm({ ...form, budgetMajor: e.target.value })}
+          className={INPUT}
+          placeholder="0"
+        />
+        {errors.budget && <p role="alert" className="text-xs text-red-700">{errors.budget}</p>}
       </div>
 
-      {isWizardOpen ? (
-        <div className="bg-white rounded-modal border border-sage-200/80 shadow-card p-6 md:p-8 space-y-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-display font-semibold text-sage-900">Campaign Wizard</h2>
-            <button onClick={() => setIsWizardOpen(false)} className="text-sage-500 hover:text-sage-900 text-sm font-semibold">Cancel</button>
-          </div>
-          
-          <div className="flex gap-2 mb-6">
-            {[1, 2, 3, 4].map(step => (
-              <div key={step} className={`h-1.5 flex-1 rounded-full ${step <= wizardStep ? 'bg-[#9C5B34]' : 'bg-sage-200'}`} />
-            ))}
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className={LABEL}>Channel split</p>
+        <button type="button" onClick={recommend} disabled={plan.busy} className={BTN_SECONDARY}>
+          {plan.busy ? 'Thinking...' : '✦ Recommend a split'}
+        </button>
+      </div>
 
-          {wizardStep === 1 && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-sage-900">Step 1: Objective</h3>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-sage-700 uppercase tracking-wider">Campaign Name</label>
-                <input 
-                  type="text" 
-                  value={newCampaign.name}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
-                  className="w-full bg-white border border-sage-300 rounded-card px-4 py-3 text-sm focus:border-sage-400 outline-none" 
-                  placeholder="e.g. Q4 Push"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-sage-700 uppercase tracking-wider">Objective</label>
-                <select 
-                  value={newCampaign.objective}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, objective: e.target.value as CampaignObjective })}
-                  className="w-full bg-white border border-sage-300 rounded-card px-4 py-3 text-sm focus:border-sage-400 outline-none"
-                >
-                  <option value="awareness">Awareness</option>
-                  <option value="leads">Leads</option>
-                  <option value="sales">Sales</option>
-                </select>
-              </div>
-              <button 
-                onClick={() => setWizardStep(2)} 
-                disabled={!newCampaign.name}
-                className="bg-[#0e271f] hover:bg-[#1e4836] disabled:opacity-50 text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-all"
-              >
-                Next Step
-              </button>
-            </div>
-          )}
+      <GenerationNote phase={plan.phase} error={plan.error} generatingLabel="The AI is weighing channels for this objective..." />
 
-          {wizardStep === 2 && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-sage-900">Step 2: Audience</h3>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-sage-700 uppercase tracking-wider">Target Segment</label>
-                <select className="w-full bg-white border border-sage-300 rounded-card px-4 py-3 text-sm focus:border-sage-400 outline-none">
-                  <option>Active Power Users</option>
-                  <option>Waitlist Subscribers</option>
-                  <option>Churned Users</option>
-                </select>
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => setWizardStep(1)} className="border border-sage-300 text-sage-700 font-semibold px-5 py-2.5 rounded-card text-sm transition-all">Back</button>
-                <button onClick={() => setWizardStep(3)} className="bg-[#0e271f] hover:bg-[#1e4836] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-all">Next Step</button>
-              </div>
-            </div>
-          )}
-
-          {wizardStep === 3 && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-sage-900">Step 3: Channels & Budget</h3>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-sage-700 uppercase tracking-wider">Budget ($)</label>
-                <input 
-                  type="number" 
-                  value={newCampaign.budget}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, budget: parseInt(e.target.value) || 0 })}
-                  className="w-full bg-white border border-sage-300 rounded-card px-4 py-3 text-sm focus:border-sage-400 outline-none" 
-                />
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => setWizardStep(2)} className="border border-sage-300 text-sage-700 font-semibold px-5 py-2.5 rounded-card text-sm transition-all">Back</button>
-                <button onClick={() => setWizardStep(4)} className="bg-[#0e271f] hover:bg-[#1e4836] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-all">Next Step</button>
-              </div>
-            </div>
-          )}
-
-          {wizardStep === 4 && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-sage-900">Step 4: Content</h3>
-              <p className="text-sm text-sage-600">You can generate variants for this campaign in the AI Copy Generator after launching.</p>
-              <div className="flex gap-3">
-                <button onClick={() => setWizardStep(3)} className="border border-sage-300 text-sage-700 font-semibold px-5 py-2.5 rounded-card text-sm transition-all">Back</button>
-                <button onClick={handleLaunchCampaign} className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-5 py-2.5 rounded-card text-sm transition-all flex items-center gap-2">
-                  <span>✦</span> Launch Campaign
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="bg-white rounded-modal border border-sage-200/80 shadow-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-sage-200 bg-sage-50/50 text-[11px] font-bold text-sage-400 uppercase tracking-wider">
-                  <th className="py-3.5 px-6">Campaign</th>
-                  <th className="py-3.5 px-6">Objective</th>
-                  <th className="py-3.5 px-6">Budget</th>
-                  <th className="py-3.5 px-6">Status</th>
-                  <th className="py-3.5 px-6">Conv.</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-sage-100 text-sm">
-                {campaigns.map((camp, idx) => {
-                  const isLive = camp.status === "active";
-                  return (
-                    <tr key={idx} className="hover:bg-sage-50/50 transition-colors">
-                      <td className="py-4 px-6 font-semibold text-sage-900">{camp.name}</td>
-                      <td className="py-4 px-6 text-sage-600 capitalize">{camp.objective}</td>
-                      <td className="py-4 px-6 text-sage-900 font-medium">${camp.budget}</td>
-                      <td className="py-4 px-6">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                            isLive
-                              ? "bg-green-100 text-green-800"
-                              : "bg-sage-100 text-sage-600"
-                          }`}
-                        >
-                          {isLive ? 'Live' : 'Draft'}
-                        </span>
-                      </td>
-                      <td className={`py-4 px-6 font-semibold ${isLive ? "text-green-700" : "text-sage-400"}`}>
-                        {camp.metrics.conversions} conv
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      {proposal && (
+        <div className="rounded-card border border-[#d2e2d8] bg-[#e2ede6] p-4 space-y-3">
+          {proposal.output.rationale && <p className="text-sm text-[#0e271f]">{proposal.output.rationale}</p>}
+          <p className="text-xs text-[#1e4836] font-medium">{summariseMix(proposal.output.channel_mix ?? {})}</p>
+          <div className="flex gap-2">
+            <button type="button" onClick={apply} className={BTN_PRIMARY}>Apply this split</button>
+            <button type="button" onClick={plan.reset} className={BTN_SECONDARY}>Dismiss</button>
           </div>
         </div>
       )}
 
-      {!isWizardOpen && (
-        <div className="bg-[#0e271f] rounded-modal p-5 md:p-6 flex items-center gap-4 text-white shadow-card">
-          <div className="w-9 h-9 rounded-card bg-[#9C5B34] text-white flex items-center justify-center font-bold flex-shrink-0">
-            ✦
+      <div className="space-y-3">
+        {CHANNEL_KEYS.map((k) => (
+          <div key={k} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1">
+            <label htmlFor={`mix-${k}`} className="text-sm font-medium text-sage-800">{CHANNEL_LABELS[k]}</label>
+            <span className="text-xs text-sage-600 tabular-nums">
+              {form.mix[k]}%{budgetCents > 0 && form.mix[k] > 0 ? ` · ${formatMoney(Math.round((budgetCents * form.mix[k]) / 100))}` : ''}
+            </span>
+            <input
+              id={`mix-${k}`}
+              type="range"
+              min={0}
+              max={100}
+              value={form.mix[k]}
+              onChange={(e) => setForm({ ...form, mix: { ...form.mix, [k]: Number(e.target.value) } })}
+              className="col-span-2 w-full accent-[#9C5B34]"
+            />
           </div>
-          <p className="text-sm text-sage-200 leading-relaxed">
-            Weekly readout: WhatsApp referral is your cheapest conversion at ₦180 CAC. Consider shifting budget there.
-          </p>
+        ))}
+        {errors.channel_mix && <p role="alert" className="text-xs text-red-700">{errors.channel_mix}</p>}
+        <p className="text-xs text-sage-500">
+          Split totals {total}%. It does not have to add up to 100; spend per channel is budget times its percentage.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------ page
+
+export default function MarketingCampaignsPage() {
+  const { campaigns, status, error, reload, create, update, remove } = useCampaigns();
+  const segs = useSegments();
+  const { triggerToast, runAction } = useToast();
+
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState<Form>(blankForm);
+  const [editing, setEditing] = useState<Campaign | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  const segmentName = (id: string) => segs.segments.find((s) => s.id === id)?.name ?? 'Unknown segment';
+
+  const openWizard = () => {
+    setForm(blankForm());
+    setStep(1);
+    setErrors({});
+    setWizardOpen(true);
+  };
+  const closeWizard = () => setWizardOpen(false);
+
+  const submit = async (launch: boolean) => {
+    if (!form.name.trim()) {
+      setErrors({ name: 'Give the campaign a name.' });
+      setStep(1);
+      return;
+    }
+    setBusy(true);
+    setErrors({});
+    try {
+      const created = await create(bodyFromForm(form));
+      if (launch) {
+        await update(created.id, { status: 'active' });
+        triggerToast(`Campaign "${created.name}" launched.`);
+      } else {
+        triggerToast(`Campaign "${created.name}" saved as a draft.`);
+      }
+      closeWizard();
+    } catch (err) {
+      const fe = fieldErrorsOf(err);
+      setErrors(fe);
+      if (fe.name) setStep(1);
+      else if (fe.segment_ids) setStep(2);
+      else if (fe.channel_mix || fe.budget) setStep(3);
+      triggerToast(marketingErrorMessage(err), 'error');
+      reload(); // a created-but-not-launched campaign must still show up
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    if (!form.name.trim()) {
+      setErrors({ name: 'Give the campaign a name.' });
+      return;
+    }
+    setBusy(true);
+    setErrors({});
+    try {
+      await update(editing.id, bodyFromForm(form));
+      triggerToast('Campaign updated.');
+      setEditing(null);
+    } catch (err) {
+      setErrors(fieldErrorsOf(err));
+      triggerToast(marketingErrorMessage(err), 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const transition = async (c: Campaign, next: CampaignStatus, message: string) => {
+    setBusyId(c.id);
+    await runAction(() => update(c.id, { status: next }), message);
+    setBusyId(null);
+  };
+
+  const doDelete = async (c: Campaign) => {
+    setBusyId(c.id);
+    const res = await runAction(() => remove(c.id), `Deleted "${c.name}".`);
+    setBusyId(null);
+    if (res.ok) setConfirmId(null);
+  };
+
+  const stepTitles = ['Objective', 'Audience', 'Channels and budget', 'Review'];
+
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">Campaigns</h1>
+        {!wizardOpen && (
+          <button type="button" onClick={openWizard} className={`${BTN_ACCENT} self-start md:self-auto`}>
+            + New campaign
+          </button>
+        )}
+      </div>
+
+      {wizardOpen ? (
+        <div className={`${CARD} p-6 md:p-8 space-y-6`}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-display font-semibold text-sage-900">Campaign wizard</h2>
+            <button type="button" onClick={closeWizard} className="text-sage-500 hover:text-sage-900 text-sm font-semibold">Cancel</button>
+          </div>
+          <div className="flex gap-2" aria-hidden="true">
+            {stepTitles.map((_, i) => (
+              <div key={i} className={`h-1.5 flex-1 rounded-full ${i + 1 <= step ? 'bg-[#9C5B34]' : 'bg-sage-200'}`} />
+            ))}
+          </div>
+          <h3 className="font-semibold text-sage-900">Step {step} of 4: {stepTitles[step - 1]}</h3>
+
+          {step === 1 && <ObjectiveSection form={form} setForm={setForm} errors={errors} />}
+          {step === 2 && (
+            <AudienceSection form={form} setForm={setForm} segments={segs.segments} loading={segs.status === 'loading'} />
+          )}
+          {step === 3 && <ChannelsSection form={form} setForm={setForm} errors={errors} />}
+          {step === 4 && (
+            <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div><dt className={LABEL}>Name</dt><dd className="text-sage-900 font-medium">{form.name || 'Not set'}</dd></div>
+              <div><dt className={LABEL}>Objective</dt><dd className="text-sage-900 font-medium capitalize">{form.objective}</dd></div>
+              <div><dt className={LABEL}>Budget</dt><dd className="text-sage-900 font-medium">{formatMoney(toCents(form.budgetMajor))}</dd></div>
+              <div><dt className={LABEL}>Period</dt><dd className="text-sage-900 font-medium">{form.start || form.end ? `${form.start || '?'} to ${form.end || '?'}` : 'Not set'}</dd></div>
+              <div className="md:col-span-2"><dt className={LABEL}>Channel split</dt><dd className="text-sage-900 font-medium">{summariseMix(mixPayload(form.mix))}</dd></div>
+              <div className="md:col-span-2">
+                <dt className={LABEL}>Segments</dt>
+                <dd className="text-sage-900 font-medium">{form.segmentIds.length ? form.segmentIds.map(segmentName).join(', ') : 'None'}</dd>
+              </div>
+              <p className="md:col-span-2 text-sm text-sage-600">
+                Write the campaign&apos;s content in <Link href="/marketing/copy" className="font-semibold text-[#0e271f] hover:underline">AI Copy</Link>.
+              </p>
+            </dl>
+          )}
+
+          <div className="flex flex-wrap gap-3">
+            {step > 1 && <button type="button" onClick={() => setStep(step - 1)} className={BTN_SECONDARY}>Back</button>}
+            {step < 4 && (
+              <button
+                type="button"
+                onClick={() => setStep(step + 1)}
+                disabled={step === 1 && !form.name.trim()}
+                className={BTN_PRIMARY}
+              >
+                Next step
+              </button>
+            )}
+            {step === 4 && (
+              <>
+                <button type="button" onClick={() => void submit(false)} disabled={busy} className={BTN_SECONDARY}>
+                  {busy ? 'Saving...' : 'Save as draft'}
+                </button>
+                <button type="button" onClick={() => void submit(true)} disabled={busy} className={BTN_ACCENT}>
+                  {busy ? 'Launching...' : '✦ Create and launch'}
+                </button>
+              </>
+            )}
+          </div>
         </div>
+      ) : (
+        <DataGate status={status} error={error} onRetry={reload} loadingLabel="Loading your campaigns">
+          {campaigns.length === 0 ? (
+            <EmptyState
+              title="No campaigns yet"
+              body="A campaign ties an objective, a budget and a channel split together. Create your first one and launch it when you are ready."
+              cta={<button type="button" onClick={openWizard} className={BTN_ACCENT}>+ Create your first campaign</button>}
+            />
+          ) : (
+            <div className={`${CARD} overflow-hidden`}>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-sage-200 bg-sage-50/50 text-[11px] font-bold text-sage-400 uppercase tracking-wider">
+                      <th className="py-3.5 px-6">Campaign</th>
+                      <th className="py-3.5 px-6">Objective</th>
+                      <th className="py-3.5 px-6">Budget</th>
+                      <th className="py-3.5 px-6">Channels</th>
+                      <th className="py-3.5 px-6">Status</th>
+                      <th className="py-3.5 px-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-sage-100 text-sm">
+                    {campaigns.map((c) => {
+                      const working = busyId === c.id;
+                      return (
+                        <tr key={c.id} className="hover:bg-sage-50/50 transition-colors align-top">
+                          <td className="py-4 px-6">
+                            <p className="font-semibold text-sage-900">{c.name}</p>
+                            {c.segment_ids.length > 0 && (
+                              <p className="text-xs text-sage-500">{c.segment_ids.map(segmentName).join(', ')}</p>
+                            )}
+                          </td>
+                          <td className="py-4 px-6 text-sage-600 capitalize">{c.objective}</td>
+                          <td className="py-4 px-6 text-sage-900 font-medium">{formatMoney(c.budget)}</td>
+                          <td className="py-4 px-6 text-xs text-sage-600 max-w-[16rem]">{summariseMix(c.channel_mix)}</td>
+                          <td className="py-4 px-6">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${STATUS_STYLE[c.status]}`}>
+                              {c.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="flex flex-wrap justify-end gap-2">
+                              {c.status === 'draft' && (
+                                <button type="button" disabled={working} onClick={() => void transition(c, 'active', `Launched "${c.name}".`)} className={BTN_PRIMARY}>
+                                  Launch
+                                </button>
+                              )}
+                              {c.status === 'active' && (
+                                <>
+                                  <button type="button" disabled={working} onClick={() => void transition(c, 'paused', `Paused "${c.name}".`)} className={BTN_SECONDARY}>
+                                    Pause
+                                  </button>
+                                  <button type="button" disabled={working} onClick={() => void transition(c, 'completed', `Completed "${c.name}".`)} className={BTN_SECONDARY}>
+                                    Complete
+                                  </button>
+                                </>
+                              )}
+                              {c.status === 'paused' && (
+                                <button type="button" disabled={working} onClick={() => void transition(c, 'active', `Resumed "${c.name}".`)} className={BTN_PRIMARY}>
+                                  Resume
+                                </button>
+                              )}
+                              {c.status !== 'completed' && (
+                                <button
+                                  type="button"
+                                  disabled={working}
+                                  onClick={() => {
+                                    setForm(formFromCampaign(c));
+                                    setErrors({});
+                                    setEditing(c);
+                                  }}
+                                  className={BTN_SECONDARY}
+                                >
+                                  Edit
+                                </button>
+                              )}
+                              {confirmId === c.id ? (
+                                <>
+                                  <button type="button" disabled={working} onClick={() => void doDelete(c)} className={BTN_DANGER}>
+                                    Confirm delete
+                                  </button>
+                                  <button type="button" onClick={() => setConfirmId(null)} className={BTN_SECONDARY}>Keep</button>
+                                </>
+                              ) : (
+                                <button type="button" disabled={working} onClick={() => setConfirmId(c.id)} className={BTN_DANGER}>
+                                  Delete
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </DataGate>
+      )}
+
+      {editing && (
+        <Drawer
+          title={`Edit ${editing.name}`}
+          onClose={() => setEditing(null)}
+          footer={
+            <button type="button" onClick={saveEdit} disabled={busy} className={`${BTN_PRIMARY} flex-1`}>
+              {busy ? 'Saving...' : 'Save changes'}
+            </button>
+          }
+        >
+          <ObjectiveSection form={form} setForm={setForm} errors={errors} />
+          <AudienceSection form={form} setForm={setForm} segments={segs.segments} loading={segs.status === 'loading'} />
+          <ChannelsSection form={form} setForm={setForm} errors={errors} />
+        </Drawer>
       )}
     </div>
   );
