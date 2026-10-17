@@ -264,7 +264,7 @@ export function OnboardingWizard({
                 Tell us about yourself
               </h1>
               <p className="text-sm text-sage-500">
-                let&apos;s set up your profile credentials and role in the startup.
+                Let&apos;s set up your profile and your role in the startup.
               </p>
 
               <Field label="Full Name" htmlFor="onboard-name" help={null}>

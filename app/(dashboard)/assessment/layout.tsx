@@ -3,8 +3,6 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "./ToastContext";
-import { useAssessmentApi } from "@/hooks/useAssessmentApi";
-import {  } from 'lucide-react';
 import { HealthPill } from '@/components/health-pill';
 import { NotificationBell } from '@/components/notification-bell';
 
@@ -14,8 +12,6 @@ export default function AssessmentLayout({ children }: { children: React.ReactNo
 
   // If in runner mode, hide standard shell tabs
   const isRunner = pathname.includes('/assessment/run');
-
-  useAssessmentApi();
 
   const navItems = [
     { name: "Overview", path: "/assessment" },

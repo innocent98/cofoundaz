@@ -14,6 +14,7 @@ import {
   MembershipRole,
 } from '@/lib/api/onboarding'
 import { ApiError } from '@/lib/api/client'
+import { syncActiveWorkspace } from '@/lib/auth/post-login'
 import { COUNTRIES } from '@/lib/countries'
 
 export default function OnboardingPage() {
@@ -118,6 +119,10 @@ export default function OnboardingPage() {
     setError(null)
     try {
       await completeOnboarding()
+      // Onboarding just created the workspace; the signup/login session predates
+      // it, so sync the active workspace id into the client before the dashboard
+      // loads — otherwise every tenant-scoped call 422s on a missing X-Workspace-Id.
+      await syncActiveWorkspace()
       router.push('/dashboard')
     } catch (err: unknown) {
       // 422 ONBOARDING_INCOMPLETE lists the still-missing fields — surface them.
