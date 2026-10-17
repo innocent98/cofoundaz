@@ -8,6 +8,7 @@ import {
   listAssessments,
   getAssessment,
   compareAssessments,
+  isAssessmentId,
   type AnswerValue,
   type AssessmentDetail,
   type AssessmentListItem,
@@ -210,6 +211,11 @@ export function useAssessmentRunner(assessmentId: string) {
   const load = useCallback(async () => {
     setPhase('loading');
     setLoadError(null);
+    if (!isAssessmentId(assessmentId)) {
+      setLoadError(assessmentErrMsg(new ApiError(404, 'Not Found', null)));
+      setPhase('error');
+      return;
+    }
     try {
       const next = await getNextQuestion(assessmentId);
       setQuestion(next);

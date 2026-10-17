@@ -7,6 +7,7 @@ import {
   listAssessments,
   compareAssessments,
   sectionProgress,
+  isAssessmentId,
 } from './assessment';
 import * as clientModule from './client';
 
@@ -99,5 +100,14 @@ describe('Assessment API client (lib/api/assessment.ts)', () => {
   it('sectionProgress maps a dimension to its position among the 5 sections', () => {
     expect(sectionProgress('product')).toEqual({ sectionNumber: 1, totalSections: 5, pct: 0 });
     expect(sectionProgress('legal')).toEqual({ sectionNumber: 4, totalSections: 5, pct: 60 });
+  });
+
+  it('encodes the assessment id into the path and rejects non-UUID ids', async () => {
+    vi.mocked(clientModule.apiClient).mockResolvedValueOnce({ data: { next_question: null } });
+    await getNextQuestion('../x?y=1');
+    expect(clientModule.apiClient).toHaveBeenCalledWith('/assessments/..%2Fx%3Fy%3D1/next-question');
+
+    expect(isAssessmentId('01d7c783-a488-40b2-8804-f24dff3bafbb')).toBe(true);
+    expect(isAssessmentId('../../auth/logout')).toBe(false);
   });
 });

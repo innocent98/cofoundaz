@@ -111,6 +111,13 @@ export function formatAssessmentDate(iso: string | null): string {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Route params reach API paths, so reject anything that is not a UUID before using it. */
+export function isAssessmentId(value: string): boolean {
+  return UUID_RE.test(value);
+}
+
 interface Envelope<T> {
   data?: T;
 }
@@ -128,7 +135,7 @@ export async function startAssessment(): Promise<StartAssessmentResult> {
 /** GET /assessments/{id}/next-question: where the founder left off (null = ready to complete). */
 export async function getNextQuestion(id: string): Promise<AssessmentQuestion | null> {
   const res = await apiClient<Envelope<{ next_question: AssessmentQuestion | null }>>(
-    `/assessments/${id}/next-question`
+    `/assessments/${encodeURIComponent(id)}/next-question`
   );
   return unwrap(res)?.next_question ?? null;
 }
@@ -140,7 +147,7 @@ export async function submitAnswer(
   value: AnswerValue
 ): Promise<AssessmentQuestion | null> {
   const res = await apiClient<Envelope<{ next_question: AssessmentQuestion | null }>>(
-    `/assessments/${id}/answers`,
+    `/assessments/${encodeURIComponent(id)}/answers`,
     { method: 'POST', body: JSON.stringify({ question_key: questionKey, value }) }
   );
   return unwrap(res)?.next_question ?? null;
@@ -148,7 +155,7 @@ export async function submitAnswer(
 
 /** POST /assessments/{id}/complete: only valid once next_question is null. Idempotent. */
 export async function completeAssessment(id: string): Promise<CompleteAssessmentResult> {
-  const res = await apiClient<Envelope<CompleteAssessmentResult>>(`/assessments/${id}/complete`, {
+  const res = await apiClient<Envelope<CompleteAssessmentResult>>(`/assessments/${encodeURIComponent(id)}/complete`, {
     method: 'POST',
   });
   return unwrap(res);
@@ -163,7 +170,7 @@ export async function listAssessments(): Promise<AssessmentListItem[]> {
 
 /** GET /assessments/{id}: `result` is null until completed. */
 export async function getAssessment(id: string): Promise<AssessmentDetail> {
-  const res = await apiClient<Envelope<AssessmentDetail>>(`/assessments/${id}`);
+  const res = await apiClient<Envelope<AssessmentDetail>>(`/assessments/${encodeURIComponent(id)}`);
   return unwrap(res);
 }
 
