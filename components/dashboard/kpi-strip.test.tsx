@@ -82,10 +82,10 @@ describe('KPIStrip', () => {
     expect(screen.queryByText('Runway')).toBeNull();
     expect(screen.getByText('Pipeline Value')).toBeTruthy();
     expect(screen.getByText('Tasks This Week')).toBeTruthy();
-    expect(container.querySelector('section')?.className).toContain('lg:grid-cols-2');
+    expect(container.querySelector('section')?.className).toContain('xl:grid-cols-2');
   });
 
-  it('a per-tile error shows Unavailable + Retry for that tile only', () => {
+  it('a per-tile error shows the PRD error copy + Retry for that tile only', () => {
     const onRefetch = vi.fn();
     render(
       <KPIStrip
@@ -93,8 +93,40 @@ describe('KPIStrip', () => {
         onRefetch={onRefetch}
       />,
     );
-    expect(screen.getAllByText('Unavailable')).toHaveLength(1);
+    expect(screen.getAllByText('Couldn’t load this.')).toHaveLength(1);
     fireEvent.click(screen.getByText('Retry'));
     expect(onRefetch).toHaveBeenCalled();
+  });
+
+  it('shows the week-over-week chip and a sparkline from trend (runway capture), red when it fell', () => {
+    renderStrip({
+      ...base,
+      tasks_trend: { delta: 1, series: [{ period: '2026-10-16', value: 0 }, { period: '2026-10-17', value: 1 }] },
+      metrics: {
+        ...emptyMetrics,
+        runway: {
+          status: 'ok',
+          months: 1.5,
+          is_low: true,
+          monthly_burn_minor: 2000000,
+          cash_on_hand_minor: 3000000,
+          currency: 'NGN',
+          trend: { delta: -2.5, series: [{ period: '2026-10-16', value: 4.0 }, { period: '2026-10-17', value: 1.5 }] },
+        },
+      },
+    });
+    expect(screen.getByText('-2.5 mo vs last week').className).toContain('text-[#8A2E22]');
+    expect(screen.getByText('+1 vs last week').className).toContain('text-[#12291F]');
+    expect(screen.getAllByRole('img', { name: /Trend over the last 2 days/ })).toHaveLength(2);
+  });
+
+  it('no chip and no sparkline while there is no history (first week)', () => {
+    renderStrip({
+      ...base,
+      tasks_trend: { delta: null, series: [{ period: '2026-10-17', value: 0 }] },
+      metrics: emptyMetrics,
+    });
+    expect(screen.queryByText(/vs last week/)).toBeNull();
+    expect(screen.queryByRole('img')).toBeNull();
   });
 });

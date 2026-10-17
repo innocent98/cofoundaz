@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSidebar } from '@/components/sidebar-context';
 import { useNotifications } from '@/hooks/useNotifications';
 import { HealthPill } from '@/components/health-pill';
@@ -26,6 +26,17 @@ export default function NotificationsPage(): React.JSX.Element {
   const { openSidebar } = useSidebar();
 
   const [activeTab, setActiveTab] = useState<NotificationTab>('Announcements'); // Default to Announcements as requested
+  // Deep links like /notifications?tab=preferences (avatar menu "Preferences").
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get('tab');
+    const byParam: Record<string, NotificationTab> = {
+      inbox: 'Inbox',
+      preferences: 'Preferences',
+      digest: 'Digest & quiet hours',
+      announcements: 'Announcements',
+    };
+    if (tab && byParam[tab]) queueMicrotask(() => setActiveTab(byParam[tab]));
+  }, []);
   const [activeFilter, setActiveFilter] = useState<FilterCategory>('All');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 

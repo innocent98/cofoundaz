@@ -4,14 +4,16 @@ import React from 'react';
 import Link from 'next/link';
 import { DashboardErrorBoundary } from './error-boundary';
 import type { KPISnapshot } from '@/types/dashboard';
+import { CARD_ERROR_COPY } from './card-states';
+import { Sparkline } from './sparkline';
 
 // Full class strings so Tailwind can see them; the grid reflows when restricted tiles are hidden.
 const LG_COLS: Record<number, string> = {
-  1: 'lg:grid-cols-1',
-  2: 'lg:grid-cols-2',
-  3: 'lg:grid-cols-3',
-  4: 'lg:grid-cols-4',
-  5: 'lg:grid-cols-5',
+  1: 'xl:grid-cols-1',
+  2: 'xl:grid-cols-2',
+  3: 'xl:grid-cols-3',
+  4: 'xl:grid-cols-4',
+  5: 'xl:grid-cols-5',
 };
 
 export function KPIStrip({ kpis, onRefetch }: { kpis: KPISnapshot[]; onRefetch: () => void }) {
@@ -37,7 +39,7 @@ function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) 
           <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
             {kpi.label}
           </span>
-          <p className="text-sm font-semibold text-[#B0483B] mb-2">Unavailable</p>
+          <p className="text-sm font-semibold text-[#B0483B] mb-2">{CARD_ERROR_COPY}</p>
         </div>
         {onRetry && (
           <button
@@ -69,19 +71,25 @@ function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) 
         <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
           {kpi.label}
         </span>
-        <div className="flex items-end justify-between mb-2">
+        <div className="mb-2">
           <span
             className={`font-bold font-display leading-tight ${
               isComingSoon || isEmpty
-                ? 'text-base font-medium text-sage-400'
+                ? 'text-base font-medium text-sage-500'
                 : 'text-2xl'
             } ${isAlert ? 'text-[#B0483B]' : 'text-[#1C201D]'}`}
           >
             {kpi.value}
           </span>
         </div>
+        {kpi.series && kpi.series.length >= 2 ? (
+          <Sparkline
+            values={kpi.series}
+            className={`mb-1 ${kpi.deltaDirection === 'down' ? 'text-[#B0483B]' : 'text-[#266B4E]'}`}
+          />
+        ) : null}
       </div>
-      <div className="flex items-center justify-between mt-2 min-h-[20px] gap-2">
+      <div className="flex flex-wrap items-center justify-between mt-2 min-h-[20px] gap-x-2 gap-y-1">
         {isEmpty && kpi.cta ? (
           <span className="text-[10px] font-bold text-sage-600 group-hover:text-sage-900 underline">
             {kpi.cta.label}
@@ -90,15 +98,17 @@ function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) 
         {!isEmpty && kpi.hint ? (
           <span className="text-[10px] text-sage-500">{kpi.hint}</span>
         ) : null}
-        {kpi.delta ? (
+        {kpi.deltaLabel ? (
           <span
             className={`text-[10px] font-bold px-1.5 py-0.5 rounded-pill ${
-              kpi.trend === 'up'
-                ? 'bg-[#E3EFE9] text-[#12291F]' // green
-                : 'bg-sage-100 text-sage-700' // neutral/negative
+              kpi.deltaDirection === 'up'
+                ? 'bg-[#E3EFE9] text-[#12291F]'
+                : kpi.deltaDirection === 'down'
+                  ? 'bg-[#F6E3DF] text-[#8A2E22]'
+                  : 'bg-sage-100 text-sage-700'
             }`}
           >
-            {kpi.delta}
+            {kpi.deltaLabel}
           </span>
         ) : null}
       </div>

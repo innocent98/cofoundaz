@@ -42,22 +42,23 @@ Severity: 🔴 high · 🟠 med · 🟡 low. Status: ⬜ open · 🟣 in progres
 
 ## Module 02 — Founder Dashboard
 
-Dashboard loads and is **largely solid, honest, and wired**: greeting (Victor/NovaPay), Health card (pending-assessment prompt), Today's Mission, AI Briefing, KPI strip, Risks/Opportunities, Team activity, Next-7-days — real data + proper error/empty states.
+Dashboard loads and is **largely solid, honest, and wired** (and, since 2026-10-18, complete against the PRD: see `dashboard-prd-gaps.md`): greeting (Victor/NovaPay), Health card (pending-assessment prompt), Today's Mission, AI Briefing, KPI strip, Risks/Opportunities, Team activity, Next-7-days — real data + proper error/empty states.
 
 | ID | Area | Issue | Bucket | Sev | Status |
 |----|------|-------|--------|-----|--------|
 | D2 | Health card CTA | "See what's driving it →" linked to `/app/health` (stale PRD prefix) → broken route | B2 | 🟠 | ✅ fixed → `/health` |
 | D4 | Today's Mission | blank card when mission exists but 0 tasks (empty-state only covered the `null` case) | B2 | 🟡 | ✅ fixed — added empty-state copy + Go-to-mission |
-| D3 | First-run calibration banner | PRD specifies a top "running on defaults / Complete your assessment" banner; absent (only Health-card copy nudges; no direct CTA to `/assessment`) | B2 | 🟠 | ⬜ proposed — small FE add |
+| D3 | First-run calibration banner | PRD specifies a top "running on defaults / Complete your assessment" banner; absent (only Health-card copy nudges; no direct CTA to `/assessment`) | B2 | 🟠 | ✅ fixed 2026-10-18 — `CalibrationBanner` shows when `calibration.assessment_complete === false` (PRD copy + **Complete assessment**); SOP `2026-10-18-dashboard-prd-complete` |
 | D5 | CofaundazLogo component | `components/CofaundazLogo.tsx` misspelled identifier (renders brand text fine, so not user-visible) | B2 | 🟡 | ⬜ code-quality rename |
 
-**Verified honest / working (not bugs):** AI Co-Founder drawer → honest "Coming soon — chat isn't available yet; already works behind the scenes (briefing, mission reasons, health tips)"; "+ Invite" → honest "coming soon, not wired up"; KPI strip → "Coming Soon" deep-linking to hubs; "Do it" briefing action already removed (was faked). CTAs tested: health link (fixed), mission link, KPI deep-links, Tell-me-more (opens AI drawer).
+**Verified honest / working (not bugs):** AI Co-Founder drawer → honest "Coming soon — chat isn't available yet; already works behind the scenes (briefing, mission reasons, health tips)"; "+ Invite" → was honest "coming soon" (now wired, 2026-10-18); KPI strip → "Coming Soon" deep-linking to hubs; "Do it" briefing action already removed (was faked). CTAs tested: health link (fixed), mission link, KPI deep-links, Tell-me-more (opens AI drawer).
 
 **Real blockers behind the honest "coming soon" (each its own module):**
 - **Assessment** (BE-blocked: missing question prompts) — dashboard/health/mission all nudge here; medium BE fix; next in journey order.
 - **AI Co-Founder chat** (no conversation endpoint) — large BE build (conversations/messages/streaming).
 - [x] **Dashboard KPIs** — FE tiles wired to BE `kpis.metrics` (Revenue / Runway / Campaign CTR live, honest state per status; 2026-10-17, SOP `2026-10-17-dashboard-kpi-tiles-wiring`). Pipeline stays Coming Soon (no Sales backend). Remaining: Finance/Marketing/Sales hubs still mock, so the `no_data` CTA lands on a mock page.
-- **Team invite from dashboard** (no member-invite endpoint) — medium BE.
+- [x] **Team invite from dashboard** — BE `POST /team/invitations` (#131) + FE modal wired 2026-10-18 (founder only; created/skipped/undelivered, per-row 422, 403/429). SOP `2026-10-18-dashboard-prd-complete`.
+- [x] **Dashboard PRD walkthrough (20 gaps)** — all closed 2026-10-18, each verified live (founder + invited mentor, desktop + 375px). Per-row evidence: `docs/checklist/dashboard-prd-gaps.md`.
 
 ## Known BE-blocked (to review/unblock this pass)
 AI Co-Founder chat (no conversation endpoint) · Assessment question prompts missing · Journal writes (key — set locally ✓) · MFA disable + SMS · emailed sign/share link host · post-onboarding profile/avatar edit. (`docs/backend-requests-ui-gaps.md`)

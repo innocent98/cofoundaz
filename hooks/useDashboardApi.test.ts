@@ -1,6 +1,14 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { mapKpis, mapSummary, useActivityFeed, useDashboardSummary } from './useDashboardApi';
+import {
+  mapKpis,
+  mapSummary,
+  prependActivity,
+  toActivityEntry,
+  trendFields,
+  useActivityFeed,
+  useDashboardSummary,
+} from './useDashboardApi';
 import * as dashboardApi from '@/lib/api/dashboard';
 import { ApiError } from '@/lib/api/client';
 
@@ -184,8 +192,8 @@ describe('useDashboardApi & Dashboard Mappers', () => {
           status: 'empty',
           message: '',
         },
-        risks: [],
-        opportunities: [],
+        risks: { status: 'empty', items: [] },
+        opportunities: { status: 'empty', items: [] },
       };
       const emptySummary = mapSummary(emptyPayload);
       expect(emptySummary.briefing.status).toBe('empty');
@@ -198,7 +206,7 @@ describe('useDashboardApi & Dashboard Mappers', () => {
           message: 'Here is your morning overview.',
           actions: [{ index: 0, label: 'Review CAC' }],
         },
-        risks: [{ id: 'r-1', description: 'Runway warning', severity: 'high' }],
+        risks: { status: 'ready', items: [{ index: 0, severity: 'high', text: 'Runway warning', href: '/finance' }] },
       };
       const readySummary = mapSummary(readyPayload);
       expect(readySummary.briefing.status).toBe('ready');
@@ -206,10 +214,198 @@ describe('useDashboardApi & Dashboard Mappers', () => {
       expect(readySummary.risksStatus).toBe('ready');
       expect(readySummary.risks).toHaveLength(1);
     });
+
+    // Shapes below are the live captures in cofoundaz-api/docs/fe-integration-guide-dashboard-briefing-v2.md
+    it('maps risk and opportunity rows (severity + text + href) and keeps a null href', () => {
+      const s = mapSummary({
+        briefing: { status: 'ready', message: 'x', id: 'b1', actions: [] },
+        risks: {
+          status: 'ready',
+          message: 'joined',
+          items: [
+            { index: 0, severity: 'medium', text: 'One deadline is due within seven days.', href: '/roadmap' },
+            { index: 1, severity: 'bogus', text: 'Coerced to medium.', href: null },
+          ],
+        },
+        opportunities: {
+          status: 'ready',
+          message: 'joined',
+          items: [{ index: 0, text: 'Add a first validation task.', href: '/validation' }],
+        },
+      });
+      expect(s.risks).toEqual([
+        { id: '0', severity: 'medium', description: 'One deadline is due within seven days.', moduleLink: '/roadmap' },
+        { id: '1', severity: 'medium', description: 'Coerced to medium.', moduleLink: null },
+      ]);
+      expect(s.opportunities).toEqual([{ id: '0', description: 'Add a first validation task.', moduleLink: '/validation' }]);
+    });
+
+    it('a ready block with no items stays ready (shows the PRD empty copy, not a spinner)', () => {
+      const s = mapSummary({
+        briefing: { status: 'ready', message: 'All good.', id: 'b1', actions: [] },
+        risks: { status: 'ready', message: 'none', items: [] },
+        opportunities: { status: 'ready', message: 'none', items: [] },
+      });
+      expect(s.risksStatus).toBe('ready');
+      expect(s.risks).toEqual([]);
+    });
+
+    it('maps briefing actions for Do it, including accepted tasks', () => {
+      const s = mapSummary({
+        briefing: {
+          status: 'ready',
+          message: 'Hi',
+          id: 'b803f642',
+          actions: [
+            { index: 0, label: 'Interview 3 target customers', kind: 'task', href: '/validation', accepted: true, mission_task_id: 't1' },
+            { index: 1, label: 'Review the deadline', kind: 'navigate', href: '/roadmap', accepted: false, mission_task_id: null },
+          ],
+        },
+      });
+      expect(s.briefing.id).toBe('b803f642');
+      expect(s.briefing.actions).toEqual([
+        { index: 0, label: 'Interview 3 target customers', kind: 'task', href: '/validation', accepted: true, missionTaskId: 't1' },
+        { index: 1, label: 'Review the deadline', kind: 'navigate', href: '/roadmap', accepted: false, missionTaskId: null },
+      ]);
+    });
+
+    it('restricted roles (investor capture): all three blocks restricted, flagged so the cards are hidden', () => {
+      const s = mapSummary({
+        briefing: { status: 'restricted', message: null, id: null, actions: [] },
+        risks: { status: 'restricted', message: null, items: [] },
+        opportunities: { status: 'restricted', message: null, items: [] },
+      });
+      expect(s.briefingRestricted).toBe(true);
+      expect(s.briefing.status).toBe('restricted');
+      expect(s.briefing.id).toBeNull();
+      expect(s.risksStatus).toBe('restricted');
+    });
+
+    it('mission.empty_reason is carried (weekend_off, all_caught_up); unknown reasons become null', () => {
+      const m = (empty_reason: unknown) => mapSummary({ mission: { streak: 0, status: 'pending', tasks: [], empty_reason } }).mission;
+      expect(m('weekend_off')?.emptyReason).toBe('weekend_off');
+      expect(m('all_caught_up')?.emptyReason).toBe('all_caught_up');
+      expect(m('something_new')?.emptyReason).toBeNull();
+      expect(mapSummary({ mission: null }).mission).toBeNull();
+    });
+
+    it('mission drops snoozed and rejected tasks and maps done to completed', () => {
+      const s = mapSummary({
+        mission: {
+          streak: 1,
+          status: 'pending',
+          empty_reason: null,
+          tasks: [
+            { id: 'a', title: 'A', status: 'todo', order: 0 },
+            { id: 'b', title: 'B', status: 'done', order: 1, completed_at: '2026-10-18T08:00:00Z' },
+            { id: 'c', title: 'C', status: 'snoozed', order: 2 },
+            { id: 'd', title: 'D', status: 'rejected', order: 3 },
+          ],
+        },
+      });
+      expect(s.mission?.tasks.map((t) => [t.id, t.completed])).toEqual([['a', false], ['b', true]]);
+    });
+
+    it('upcoming: real shape (due_on), { items } wrapper, and a section error', () => {
+      const live = [{ id: '9797', title: 'Write your problem statement', due_on: '2026-10-24', milestone_id: '9797' }];
+      expect(mapSummary({ upcoming: live }).upcoming).toEqual([
+        { id: '9797', title: 'Write your problem statement', dueOn: '2026-10-24' },
+      ]);
+      expect(mapSummary({ upcoming: { items: live } }).upcoming).toHaveLength(1);
+      const failed = mapSummary({ upcoming: { error: true } });
+      expect(failed.upcoming).toEqual([]);
+      expect(failed.upcomingError).toBe(true);
+      expect(mapSummary({ upcoming: [] }).upcomingError).toBe(false);
+    });
+
+    it('calibration.assessment_complete is passed through for the banner', () => {
+      expect(mapSummary({ calibration: { assessment_complete: false } }).calibration?.assessment_complete).toBe(false);
+    });
+  });
+
+  describe('trendFields (KPI week-over-week chip + sparkline, BE guide 7a)', () => {
+    const series = [
+      { period: '2026-10-16', value: 4.0 },
+      { period: '2026-10-17', value: 1.5 },
+    ];
+
+    it('null delta shows no chip, never "+0", but still gives the sparkline', () => {
+      expect(trendFields('months', { delta: null, series })).toEqual({ deltaLabel: null, deltaDirection: 'flat', series: [4, 1.5] });
+    });
+
+    it('formats each unit and direction', () => {
+      expect(trendFields('money', { delta: 1000000, series: [] })).toMatchObject({ deltaLabel: '+₦10.0K vs last week', deltaDirection: 'up' });
+      expect(trendFields('months', { delta: -1.25, series: [] })).toMatchObject({ deltaLabel: '-1.3 mo vs last week', deltaDirection: 'down' });
+      expect(trendFields('points', { delta: -0.5, series: [] })).toMatchObject({ deltaLabel: '-0.5 pts vs last week', deltaDirection: 'down' });
+      expect(trendFields('count', { delta: 3, series: [] })).toMatchObject({ deltaLabel: '+3 vs last week', deltaDirection: 'up' });
+    });
+
+    it('a zero change says so instead of a signed zero', () => {
+      expect(trendFields('count', { delta: 0, series: [] })).toMatchObject({ deltaLabel: 'No change vs last week', deltaDirection: 'flat' });
+    });
+
+    it('needs two points to draw a sparkline', () => {
+      expect(trendFields('count', { delta: null, series: [{ period: '2026-10-17', value: 0 }] }).series).toEqual([]);
+    });
+
+    it('mapKpis wires trend onto visible tiles (runway capture) and Tasks, and none onto restricted tiles', () => {
+      const kpis = mapKpis({
+        tasks_done_this_week: 1,
+        tasks_trend: { delta: 1, series },
+        metrics: {
+          revenue: { status: 'restricted', value_minor: null, currency: null },
+          runway: { status: 'ok', months: 1.5, is_low: true, monthly_burn_minor: 2000000, cash_on_hand_minor: 3000000, currency: 'NGN', trend: { delta: -2.5, series } },
+          pipeline: { status: 'not_built', value_minor: null, currency: null },
+          campaign_ctr: { status: 'no_data', ctr_percent: null, impressions: null, clicks: null, trend: { delta: null, series: [] } },
+        },
+      });
+      expect(kpis[0].deltaLabel).toBeUndefined();
+      expect(kpis[1]).toMatchObject({ deltaLabel: '-2.5 mo vs last week', deltaDirection: 'down', series: [4, 1.5] });
+      expect(kpis[3].deltaLabel).toBeNull();
+      expect(kpis[4]).toMatchObject({ deltaLabel: '+1 vs last week', deltaDirection: 'up' });
+    });
+  });
+
+  describe('toActivityEntry / prependActivity (realtime activity.created)', () => {
+    const live = {
+      id: '77551c2e',
+      action: 'mission.task.added',
+      entity_type: 'mission_task',
+      entity_id: '33cc724c',
+      summary: "Victor Founder added 'Realtime check task' to today's mission",
+      meta: null,
+      actor: { id: '0a37c892', name: 'Victor Founder' },
+      created_at: '2026-10-17T22:39:04.991361+00:00',
+    };
+
+    it('maps the live frame to a row with the API sentence', () => {
+      const e = toActivityEntry(live, Date.parse('2026-10-17T22:39:10Z'));
+      expect(e).toMatchObject({ id: '77551c2e', actor: 'Victor Founder', summary: live.summary, relativeTime: 'just now' });
+    });
+
+    it('actor null is System; actor without a name is "A teammate"', () => {
+      expect(toActivityEntry({ ...live, actor: null }).actor).toBe('System');
+      expect(toActivityEntry({ ...live, actor: { id: 'x', name: null } }).actor).toBe('A teammate');
+    });
+
+    it('relative times: minutes, hours, days, then a date after a week', () => {
+      const now = Date.parse('2026-10-18T12:00:00Z');
+      expect(toActivityEntry({ ...live, created_at: '2026-10-18T11:55:00Z' }, now).relativeTime).toBe('5m ago');
+      expect(toActivityEntry({ ...live, created_at: '2026-10-18T10:00:00Z' }, now).relativeTime).toBe('2h ago');
+      expect(toActivityEntry({ ...live, created_at: '2026-10-15T12:00:00Z' }, now).relativeTime).toBe('3d ago');
+      expect(toActivityEntry({ ...live, created_at: '2026-09-01T12:00:00Z' }, now).relativeTime).toBe('Sep 1, 2026');
+    });
+
+    it('prepends a new row and dedupes by id (our own action echoes back)', () => {
+      const a = toActivityEntry({ ...live, id: 'a' });
+      const b = toActivityEntry({ ...live, id: 'b' });
+      expect(prependActivity([a], b).map((x) => x.id)).toEqual(['b', 'a']);
+      expect(prependActivity([b, a], b).map((x) => x.id)).toEqual(['b', 'a']);
+    });
   });
 
   describe('useActivityFeed (Keyset Pagination & Null Actor Fallback)', () => {
-    it('safely handles null actors and falls back to "System"', async () => {
+    it('handles a null actor (System) and a nameless actor (A teammate)', async () => {
       const mockResponse = {
         data: {
           items: [
@@ -247,7 +443,7 @@ describe('useDashboardApi & Dashboard Mappers', () => {
 
       expect(result.current.data).toHaveLength(3);
       expect(result.current.data[0].actor).toBe('System');
-      expect(result.current.data[1].actor).toBe('System');
+      expect(result.current.data[1].actor).toBe('A teammate');
       expect(result.current.data[2].actor).toBe('Amara');
       expect(result.current.hasMore).toBe(true);
       expect(result.current.nextCursor).toBe('cursor-page-2');

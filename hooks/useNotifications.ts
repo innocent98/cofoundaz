@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { createContext, createElement, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import { useRealtimeEvent } from '@/components/realtime-context';
 
 export type NotificationCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team';
 
@@ -11,12 +12,14 @@ export interface NotificationItem {
   description: string;
   time: string;
   actionText?: string;
+  /** Where the notification leads, when its type has a destination. */
+  href: string | null;
   isUnread: boolean;
   iconBg: string;
   iconText: string;
 }
 
-interface RawNotification {
+export interface RawNotification {
   id: string;
   type: string;
   title: string;
@@ -29,9 +32,31 @@ interface RawNotification {
 // --- type → presentation --------------------------------------------------
 // `title` is generic per type and `body` is always "" in v1 (guide §1/§5); we
 // derive the icon and a filter category from the dotted `type`.
+/** Deep link for a notification, from its type and `data` (BE guides: KPIs 7b, briefing v2 section 5). */
+export function notificationHref(type: string, data: Record<string, unknown> | null | undefined): string | null {
+  if (type === 'dashboard.briefing.ready') return '/dashboard';
+  if (type === 'workspace.member.joined') return '/team';
+  if (type === 'finance.runway.low') return '/finance/runway';
+  if (type === 'assessment.completed') return '/assessment/results';
+  if (type === 'healthscore.dropped') return '/health';
+  if (type === 'kpi.threshold.crossed') {
+    switch (data?.metric) {
+      case 'runway':
+        return '/finance/runway';
+      case 'revenue':
+        return '/finance';
+      case 'campaign_ctr':
+        return '/marketing/analytics';
+      default:
+        return '/dashboard';
+    }
+  }
+  return null;
+}
+
 function categoryFor(type: string): NotificationCategory {
   if (type.startsWith('mission') || type.startsWith('roadmap') || type.startsWith('business') || type.startsWith('assessment')) return 'Missions';
-  if (type.startsWith('healthscore') || type.startsWith('finance')) return 'Finance';
+  if (type.startsWith('healthscore') || type.startsWith('finance') || type.startsWith('kpi')) return 'Finance';
   if (type.startsWith('workspace') || type.startsWith('document')) return 'Team';
   return 'Missions';
 }
@@ -41,6 +66,8 @@ function iconFor(type: string): { iconText: string; iconBg: string } {
   if (type.startsWith('business')) return { iconText: '🧩', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('assessment') || type.startsWith('healthscore')) return { iconText: '✓', iconBg: 'bg-[#EAF2ED]' };
   if (type.startsWith('mission')) return { iconText: '◎', iconBg: 'bg-[#EAF2ED]' };
+  if (type.startsWith('dashboard')) return { iconText: '✦', iconBg: 'bg-[#EAF2ED]' };
+  if (type.startsWith('kpi')) return { iconText: '↗', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('roadmap')) return { iconText: '🗺', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('workspace')) return { iconText: '👤', iconBg: 'bg-[#EAF2ED]' };
   return { iconText: '•', iconBg: 'bg-[#F5F5F0]' };
@@ -62,7 +89,7 @@ function sectionFor(iso: string): NotificationItem['section'] {
   return sameDay ? 'TODAY' : 'EARLIER THIS WEEK';
 }
 
-function mapNotification(n: RawNotification): NotificationItem {
+export function mapNotification(n: RawNotification): NotificationItem {
   const { iconText, iconBg } = iconFor(n.type);
   return {
     id: n.id,
@@ -71,17 +98,22 @@ function mapNotification(n: RawNotification): NotificationItem {
     title: n.title,
     description: '', // body is always "" in v1, don't fabricate a subtitle
     time: relativeTime(n.created_at),
+    href: notificationHref(n.type, n.data),
     isUnread: !n.read,
     iconBg,
     iconText,
   };
 }
 
-export function useNotifications() {
+function useNotificationsState() {
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const itemsRef = useRef<NotificationItem[]>([]);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   const refetch = useCallback(async () => {
     try {
@@ -135,5 +167,37 @@ export function useNotifications() {
     }
   }, [refetch]);
 
+  // Live stream (same connection as Team activity): `unread` is authoritative,
+  // `notification.created` is a feed row; a reconnect or refocus refetches.
+  useRealtimeEvent('unread', (data) => {
+    const n = (data as { unread?: number } | null)?.unread;
+    if (typeof n === 'number') setUnreadCount(n);
+  });
+  useRealtimeEvent('notification.created', (data) => {
+    const raw = data as RawNotification | null;
+    if (!raw || typeof raw.id !== 'string' || itemsRef.current.some((x) => x.id === raw.id)) return;
+    setItems((prev) => [mapNotification(raw), ...prev]);
+    setUnreadCount((c) => c + 1);
+  });
+  useRealtimeEvent('resync', () => {
+    void refetch();
+  });
+
   return { items, setItems, unreadCount, loading, error, refetch, markRead, markAllRead };
+}
+
+type NotificationsState = ReturnType<typeof useNotificationsState>;
+
+const NotificationsContext = createContext<NotificationsState | null>(null);
+
+/** One feed + unread count for the whole shell (sidebar badge, bell, tab bar, inbox page). */
+export function NotificationsProvider({ children }: { children: React.ReactNode }) {
+  const state = useNotificationsState();
+  return createElement(NotificationsContext.Provider, { value: state }, children);
+}
+
+export function useNotifications(): NotificationsState {
+  const ctx = useContext(NotificationsContext);
+  if (!ctx) throw new Error('useNotifications must be used within a NotificationsProvider');
+  return ctx;
 }

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { X, Sparkles, Loader2, Plus } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useAiDrawer } from './ai-drawer-context';
+import { useWorkspace } from './workspace-context';
+import { canSee } from '@/lib/nav-access';
 import { useAICoFounder } from '../hooks/useAICoFounder';
 import { AiStatusBanner } from './ai/ai-status-banner';
 import { ChatMessageContent } from './ai/chat-message-content';
@@ -18,7 +20,10 @@ export function AiDrawer() {
   const pathname = usePathname();
   const isAiPage = pathname?.startsWith('/ai') ?? false;
   
-  const { isAiDrawerOpen, closeAiDrawer, openAiDrawer } = useAiDrawer();
+  const { isAiDrawerOpen, closeAiDrawer, openAiDrawer, seed, clearSeed } = useAiDrawer();
+  // The AI Co-Founder is for founders and team members; other roles get no dock (hidden, not disabled).
+  const { role } = useWorkspace();
+  const aiAllowed = canSee('/ai', role);
   const [chatInput, setChatInput] = useState('');
   const chatScrollRef = useRef<HTMLDivElement>(null);
   
@@ -46,10 +51,31 @@ export function AiDrawer() {
     if (!accepted) setChatInput(text);
   };
 
+  // A seeded open ("Tell me more" on the briefing) starts a fresh conversation and
+  // sends the seed as its first message. startNewChat resets state on the next
+  // render, so the send waits until the thread is empty.
+  const [pendingSeed, setPendingSeed] = useState<string | null>(null);
+  useEffect(() => {
+    if (!seed) return;
+    queueMicrotask(() => {
+      startNewChat();
+      setPendingSeed(seed.text);
+      clearSeed();
+    });
+  }, [seed, startNewChat, clearSeed]);
+
+  useEffect(() => {
+    if (!pendingSeed || messages.length > 0 || threadLoading || isGenerating) return;
+    queueMicrotask(() => {
+      setPendingSeed(null);
+      void sendMessage(pendingSeed);
+    });
+  }, [pendingSeed, messages.length, threadLoading, isGenerating, sendMessage]);
+
   // Global keyboard shortcut Cmd+J / Ctrl+J
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
+      if (aiAllowed && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'j') {
         e.preventDefault();
         if (isAiDrawerOpen) {
           closeAiDrawer();
@@ -60,18 +86,29 @@ export function AiDrawer() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAiDrawerOpen, closeAiDrawer, openAiDrawer]);
+  }, [aiAllowed, isAiDrawerOpen, closeAiDrawer, openAiDrawer]);
+
+  if (!aiAllowed) return null;
 
   return (
     <>
       {/* Floating Action Button (FAB) */}
       {!isAiPage && (
         <button
-          onClick={isAiDrawerOpen ? closeAiDrawer : openAiDrawer}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#1F4D3A] text-white rounded-full shadow-card flex items-center justify-center hover:bg-[#15382A] transition-colors group cursor-pointer"
-          aria-label="Toggle AI Co-Founder"
+          type="button"
+          onClick={() => (isAiDrawerOpen ? closeAiDrawer() : openAiDrawer())}
+          className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 w-14 h-14 bg-[#1F4D3A] text-white rounded-full shadow-card flex items-center justify-center hover:bg-[#15382A] transition-colors group cursor-pointer"
+          aria-label="Ask your AI Co-Founder"
+          aria-keyshortcuts="Meta+J Control+J"
         >
           <Sparkles className="w-6 h-6 fill-copper-600 text-copper-600 group-hover:scale-110 transition-transform" />
+          <span
+            role="tooltip"
+            className="pointer-events-none absolute right-full mr-3 hidden whitespace-nowrap rounded-input bg-[#12291F] px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-raised transition-opacity md:flex md:items-center md:gap-2 group-hover:opacity-100 group-focus-visible:opacity-100"
+          >
+            Ask your AI Co-Founder
+            <kbd className="rounded-input border border-[#2E5A45] px-1.5 py-0.5 text-[10px] text-sage-200">⌘J</kbd>
+          </span>
         </button>
       )}
 
