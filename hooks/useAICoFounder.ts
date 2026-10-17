@@ -1,120 +1,243 @@
-﻿import { useState, useCallback, useRef, useEffect } from 'react';
-import { apiClient } from '@/lib/api/client';
-import type {
-  AIConversation, 
-  AIMessage, 
-  AISuggestion, 
-  AIMemoryFact,
-  AgentKey 
-} from '@/types/ai';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { apiClient, ApiError } from '@/lib/api/client';
+import {
+  createConversation,
+  getConversation,
+  listConversations,
+  postMessage,
+  type ChatConversationSummary,
+  type ChatMessage,
+} from '@/lib/api/aiChat';
+import type { AISuggestion, AIMemoryFact } from '@/types/ai';
 
-// The AI Co-Founder chat has no backend yet — `ai.py` exposes only `GET /ai/status`
-// (token budget), with no chat/conversation endpoint. We therefore start with no
-// fabricated conversation history and never invent an answer (see `sendMessage`).
-const DEFAULT_CONVERSATIONS: AIConversation[] = [];
+// AI Co-Founder chat (BE module 03, Pattern B). Sending a message returns a
+// `generating` assistant turn; we then bound-poll GET /ai/conversations/{id}
+// (~1.5s) until that turn is `ready` or `failed`. We never fabricate a reply: a
+// failed or timed-out turn resolves to an honest "try again".
+//
+// Cap: the guide suggests ~30s, but live the worker's LLM call can retry (an
+// empty completion is retried) and a real reply took 60s+, so a 30s cap showed
+// "couldn't reach" for a reply that then landed. 90s keeps the poll bounded
+// without crying wolf.
 
-const UNAVAILABLE_REPLY =
-  "The AI Co-Founder isn't connected yet, so I can't actually answer this. " +
-  "Chat and the specialist advisors are coming once the AI backend is wired up. " +
-  "Nothing you type here is sent anywhere yet.";
+export const POLL_MS = 1500;
+export const TIMEOUT_MS = 90000;
 
-export function useAICoFounder() {
-  const [conversations, setConversations] = useState<AIConversation[]>(DEFAULT_CONVERSATIONS);
+export const REPLY_FAILED_COPY = "Couldn't reach your co-founder. Try again.";
+
+function chatErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 403) return 'AI chat is available to founders and team members only.';
+    if (err.status === 404) return 'That conversation is no longer available.';
+    if (err.status === 409) return 'Your co-founder is still replying. Try again in a moment.';
+    if (err.status === 422) return "That message can't be sent. Keep it under 8000 characters.";
+  }
+  return "Couldn't send your message. Try again.";
+}
+
+const isGeneratingTurn = (m: ChatMessage | undefined) =>
+  !!m && m.role === 'assistant' && m.status === 'generating';
+
+export interface UseAICoFounderOptions {
+  /** Load the caller's conversation list on mount (the /ai page and history). */
+  withList?: boolean;
+}
+
+export function useAICoFounder({ withList = false }: UseAICoFounderOptions = {}) {
+  const [conversations, setConversations] = useState<ChatConversationSummary[]>([]);
+  const [conversationsLoading, setConversationsLoading] = useState(withList);
+  const [conversationsError, setConversationsError] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<AIMessage[]>([]);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [threadLoading, setThreadLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const selectConversation = useCallback((id: string) => {
-    setActiveConversationId(id);
-    const found = conversations.find((c) => c.id === id);
-    setMessages(found?.messages || []);
-  }, [conversations]);
+  // Bumped whenever the thread changes under a running send/poll (new chat,
+  // another conversation, unmount) so stale async work stops touching state.
+  const runRef = useRef(0);
+  const sendingRef = useRef(false);
+  const localIdRef = useRef(0);
 
-  const startNewChat = useCallback(() => {
-    setActiveConversationId(null);
-    setMessages([]);
-  }, []);
+  // A reply is pending while the last turn is an assistant turn still `generating`
+  // (the optimistic placeholder counts). The BE 409s a second send in that window.
+  const isGenerating = isGeneratingTurn(messages[messages.length - 1]);
 
-  const stopGenerating = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
+  const refreshConversations = useCallback(async () => {
+    setConversationsLoading(true);
+    try {
+      setConversations(await listConversations());
+      setConversationsError(false);
+    } catch {
+      setConversationsError(true);
+    } finally {
+      setConversationsLoading(false);
     }
-    setIsStreaming(false);
   }, []);
 
-  const sendMessage = useCallback(
-    async (content: string, preselectedAgent?: AgentKey) => {
-      if (!content.trim() || isStreaming) return;
+  useEffect(() => {
+    if (withList) queueMicrotask(() => { void refreshConversations(); });
+  }, [withList, refreshConversations]);
 
-      const userMsgId = `usr-${Date.now()}`;
-      const assistantMsgId = `ast-${Date.now()}`;
-      const currentConvId = activeConversationId || `conv-${Date.now()}`;
+  useEffect(() => {
+    return () => {
+      runRef.current += 1;
+    };
+  }, []);
 
-      const userMessage: AIMessage = {
-        id: userMsgId,
-        conversationId: currentConvId,
-        role: 'user',
-        content,
-        createdAt: new Date().toISOString(),
-      };
+  const touchConversation = useCallback((conv: ChatConversationSummary) => {
+    setConversations((prev) => [
+      { id: conv.id, title: conv.title, created_at: conv.created_at, updated_at: conv.updated_at },
+      ...prev.filter((c) => c.id !== conv.id),
+    ]);
+  }, []);
 
-      // Honest reply: the backend AI isn't wired, so we never fabricate an
-      // answer, reasoning, sources, or action chips.
-      const assistantMessage: AIMessage = {
-        id: assistantMsgId,
-        conversationId: currentConvId,
-        role: 'assistant',
-        agentKey: preselectedAgent || 'cofounder',
-        agentBadge: 'AI Co-Founder',
-        content: UNAVAILABLE_REPLY,
-        createdAt: new Date().toISOString(),
-      };
+  // Bounded poll of the thread until the last assistant turn leaves `generating`.
+  const pollReply = useCallback(
+    async (id: string, run: number) => {
+      const deadline = Date.now() + TIMEOUT_MS;
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, POLL_MS));
+        if (run !== runRef.current) return;
+        try {
+          const conv = await getConversation(id);
+          if (run !== runRef.current) return;
+          if (!isGeneratingTurn(conv.messages[conv.messages.length - 1])) {
+            setMessages(conv.messages);
+            setError(null);
+            touchConversation(conv);
+            return;
+          }
+        } catch (err) {
+          if (err instanceof ApiError && err.status === 404) break;
+          // transient error: keep polling until the deadline
+        }
+      }
+      if (run !== runRef.current) return;
+      // Honest timeout: mark the pending turn failed rather than spin forever.
+      setMessages((prev) =>
+        prev.map((m, i) =>
+          i === prev.length - 1 && isGeneratingTurn(m) ? { ...m, status: 'failed' as const } : m
+        )
+      );
+    },
+    [touchConversation]
+  );
 
-      setMessages((prev) => [...prev, userMessage, assistantMessage]);
-
-      if (!activeConversationId) {
-        setActiveConversationId(currentConvId);
-        const newConv: AIConversation = {
-          id: currentConvId,
-          title: content.slice(0, 32) + (content.length > 32 ? '...' : ''),
-          topic: 'General',
-          lastMessageAt: new Date().toISOString(),
-          agentsInvolved: [preselectedAgent || 'cofounder'],
-          messages: [userMessage, assistantMessage],
-        };
-        setConversations((prev) => [newConv, ...prev]);
+  const selectConversation = useCallback(
+    async (id: string) => {
+      const run = ++runRef.current;
+      setActiveConversationId(id);
+      setMessages([]);
+      setError(null);
+      setThreadLoading(true);
+      try {
+        const conv = await getConversation(id);
+        if (run !== runRef.current) return;
+        setMessages(conv.messages);
+        if (isGeneratingTurn(conv.messages[conv.messages.length - 1])) {
+          void pollReply(id, run);
+        }
+      } catch (err) {
+        if (run !== runRef.current) return;
+        setActiveConversationId(null);
+        setError(chatErrorMessage(err));
+      } finally {
+        if (run === runRef.current) setThreadLoading(false);
       }
     },
-    [activeConversationId, isStreaming]
+    [pollReply]
   );
-  
-  const executeAction = useCallback(async (messageId: string, actionKey: string) => {
-    setMessages((prev) => prev.map((msg) => {
-      if (msg.id === messageId && msg.actionChips) {
-        return {
-          ...msg,
-          actionChips: msg.actionChips.map(chip => 
-            chip.action === actionKey ? { ...chip, executed: true, artifactTitle: chip.artifactTitle || 'Action Item' } : chip
-          )
-        };
-      }
-      return msg;
-    }));
-    return { success: true };
+
+  const startNewChat = useCallback(() => {
+    runRef.current += 1;
+    sendingRef.current = false;
+    setActiveConversationId(null);
+    setMessages([]);
+    setThreadLoading(false);
+    setError(null);
   }, []);
+
+  /**
+   * Sends a message. Resolves `true` once the BE accepted it (the reply is then
+   * polled in the background) or `false` if it was rejected, so the caller can
+   * restore the draft. `error` carries the reason.
+   */
+  const sendMessage = useCallback(
+    async (content: string): Promise<boolean> => {
+      const text = content.trim();
+      if (!text || isGenerating || threadLoading || sendingRef.current) return false;
+      sendingRef.current = true;
+      setError(null);
+
+      const run = ++runRef.current;
+      const n = ++localIdRef.current;
+      const now = new Date().toISOString();
+      const userTurn: ChatMessage = {
+        id: `local-user-${n}`, role: 'user', status: 'ready', content: text, created_at: now,
+      };
+      const pending: ChatMessage = {
+        id: `local-assistant-${n}`, role: 'assistant', status: 'generating', content: '', created_at: now,
+      };
+      const before = messages;
+      setMessages([...before, userTurn, pending]);
+
+      try {
+        let convId = activeConversationId;
+        if (!convId) {
+          const conv = await createConversation(text);
+          if (run !== runRef.current) return true;
+          convId = conv.id;
+          setActiveConversationId(conv.id);
+          setMessages(conv.messages);
+          touchConversation(conv);
+        } else {
+          const assistantTurn = await postMessage(convId, text);
+          if (run !== runRef.current) return true;
+          setMessages((prev) => prev.map((m) => (m.id === pending.id ? assistantTurn : m)));
+        }
+        void pollReply(convId, run);
+        return true;
+      } catch (err) {
+        if (run !== runRef.current) return false;
+        // Not accepted: drop the optimistic turns so nothing unsent looks sent.
+        setMessages(before);
+        setError(chatErrorMessage(err));
+        if (err instanceof ApiError && err.status === 409 && activeConversationId) {
+          // The previous reply is still generating server-side (e.g. our own poll
+          // gave up first): re-sync from the server and resume waiting on it.
+          try {
+            const conv = await getConversation(activeConversationId);
+            if (run === runRef.current) {
+              setMessages(conv.messages);
+              if (isGeneratingTurn(conv.messages[conv.messages.length - 1])) {
+                void pollReply(activeConversationId, run);
+              }
+            }
+          } catch {
+            // keep the message list as it was; the error above already explains
+          }
+        }
+        return false;
+      } finally {
+        sendingRef.current = false;
+      }
+    },
+    [activeConversationId, isGenerating, threadLoading, messages, pollReply, touchConversation]
+  );
 
   return {
     conversations,
+    conversationsLoading,
+    conversationsError,
+    refreshConversations,
     activeConversationId,
     messages,
-    isStreaming,
+    threadLoading,
+    isGenerating,
+    error,
     selectConversation,
     startNewChat,
     sendMessage,
-    stopGenerating,
-    executeAction
   };
 }
 
@@ -189,4 +312,3 @@ export function useAIMemory() {
   return { memory, loading, forgetMemoryFact, clearAllMemory };
 }
 
-export type { AIMessage, AIConversation } from '../types/ai';
