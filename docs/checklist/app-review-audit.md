@@ -56,7 +56,7 @@ Dashboard loads and is **largely solid, honest, and wired**: greeting (Victor/No
 **Real blockers behind the honest "coming soon" (each its own module):**
 - **Assessment** (BE-blocked: missing question prompts) — dashboard/health/mission all nudge here; medium BE fix; next in journey order.
 - **AI Co-Founder chat** (no conversation endpoint) — large BE build (conversations/messages/streaming).
-- **Dashboard KPIs** — need Finance/Sales/Marketing hubs wired (BE routes exist, FE mock) — large.
+- [x] **Dashboard KPIs** — FE tiles wired to BE `kpis.metrics` (Revenue / Runway / Campaign CTR live, honest state per status; 2026-10-17, SOP `2026-10-17-dashboard-kpi-tiles-wiring`). Pipeline stays Coming Soon (no Sales backend). Remaining: Finance/Marketing/Sales hubs still mock, so the `no_data` CTA lands on a mock page.
 - **Team invite from dashboard** (no member-invite endpoint) — medium BE.
 
 ## Known BE-blocked (to review/unblock this pass)

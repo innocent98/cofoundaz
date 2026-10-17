@@ -42,63 +42,8 @@ export const DEFAULT_SUMMARY: DashboardSummaryResponse = {
     content: "I’ll have your first briefing ready tomorrow morning once I’ve seen a full day of your workspace.",
     actions: [],
   },
-  kpis: [
-    {
-      id: "revenue",
-      metric: "revenue",
-      label: "Monthly Revenue",
-      value: "Coming Soon",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/finance",
-      hasData: false,
-    },
-    {
-      id: "runway",
-      metric: "runway",
-      label: "Cash Runway",
-      value: "Coming Soon",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/finance",
-      hasData: false,
-    },
-    {
-      id: "pipeline",
-      metric: "pipeline",
-      label: "Pipeline Value",
-      value: "Coming Soon",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/sales",
-      hasData: false,
-    },
-    {
-      id: "ctr",
-      metric: "ctr",
-      label: "Campaign CTR",
-      value: "Coming Soon",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/marketing",
-      hasData: false,
-    },
-    {
-      id: "tasks",
-      metric: "tasks_completed",
-      label: "Tasks Done",
-      value: "0",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/dashboard",
-      hasData: true,
-    },
-  ],
+  // No fabricated tiles: real tiles come from mapKpis(kpis.metrics).
+  kpis: [],
   risks: [],
   opportunities: [],
   risksStatus: "empty",
@@ -106,16 +51,94 @@ export const DEFAULT_SUMMARY: DashboardSummaryResponse = {
 };
 
 export function formatCurrency(v: number): string {
+  if (v < 0) return `-${formatCurrency(-v)}`;
   if (v >= 1_000_000) return `₦${(v / 1_000_000).toFixed(1)}M`;
   if (v >= 1_000) return `₦${(v / 1_000).toFixed(1)}K`;
   return `₦${v}`;
 }
 
+/** Backend money is minor units (kobo); convert to naira before formatting. */
+export function formatMinor(minor: number): string {
+  return formatCurrency(minor / 100);
+}
+
+const COMING_SOON = "Coming Soon";
+
+type MetricTile = Pick<KPISnapshot, "value" | "hasData" | "status" | "hidden" | "cta" | "hint" | "isAlert" | "error">;
+
+function comingSoon(): MetricTile {
+  return { value: COMING_SOON, hasData: false };
+}
+
 /**
- * Maps the raw KPIs payload into the 5 cards rendered on the dashboard.
- * Null-Safety & Honesty:
- * Financial KPIs (revenue, runway, pipeline_value, campaign_performance)
- * are rendered as "Coming Soon" when null/undefined, NEVER as "$0" or fabricated numbers.
+ * Shared handling for every non-"ok" status. Returns null when the status is
+ * "ok" (or a status the caller formats itself), so the caller renders the value.
+ */
+function baseState(m: any, cta: KPISnapshot["cta"]): MetricTile | null {
+  if (m === null || typeof m !== "object") return comingSoon();
+  if (isSectionError(m)) return { value: "Unavailable", hasData: false, error: true };
+  switch (m.status) {
+    case "restricted":
+      return { value: "", hasData: false, status: "restricted", hidden: true };
+    case "no_data":
+      return { value: "No data yet", hasData: false, status: "no_data", cta };
+    case "not_built":
+      return { ...comingSoon(), status: "not_built" };
+    case "ok":
+    case "not_burning":
+    case "out_of_cash":
+      return null;
+    default:
+      return comingSoon();
+  }
+}
+
+function revenueTile(m: any): MetricTile {
+  const base = baseState(m, { label: "Open Finance", href: "/finance" });
+  if (base) return base;
+  if (m.status !== "ok" || typeof m.value_minor !== "number") return comingSoon();
+  return {
+    value: formatMinor(m.value_minor),
+    hasData: true,
+    status: "ok",
+    hint: "Avg. monthly money in, last 3 months",
+  };
+}
+
+function runwayTile(m: any): MetricTile {
+  const base = baseState(m, { label: "Open Finance", href: "/finance" });
+  if (base) return base;
+  if (m.status === "out_of_cash") {
+    return { value: "Out of cash", hasData: true, status: "out_of_cash", isAlert: true };
+  }
+  if (m.status === "not_burning") {
+    return { value: "Not burning", hasData: true, status: "not_burning", hint: "Break-even or profitable" };
+  }
+  if (typeof m.months !== "number") return comingSoon();
+  return { value: `${m.months} mo`, hasData: true, status: "ok", isAlert: m.is_low === true };
+}
+
+function pipelineTile(m: any): MetricTile {
+  const base = baseState(m, { label: "Open Sales", href: "/sales" });
+  if (base) return base;
+  if (typeof m.value_minor !== "number") return comingSoon();
+  return { value: formatMinor(m.value_minor), hasData: true, status: "ok" };
+}
+
+function ctrTile(m: any): MetricTile {
+  const base = baseState(m, { label: "Open Marketing", href: "/marketing" });
+  if (base) return base;
+  if (typeof m.ctr_percent !== "number") return comingSoon();
+  return { value: `${m.ctr_percent}%`, hasData: true, status: "ok", hint: "Last 30 days" };
+}
+
+/**
+ * Maps the raw KPIs payload into the cards rendered on the dashboard.
+ * Reads `kpis.metrics.*` (the legacy scalar keys are always null) and renders
+ * an honest state for every backend status:
+ * ok -> value, no_data -> empty state + CTA, restricted -> tile hidden,
+ * not_built -> "Coming Soon", per-tile { error: true } -> Unavailable + Retry.
+ * Never renders "₦0" for missing data.
  */
 export function mapKpis(k: any): KPISnapshot[] {
   if (isSectionError(k)) {
@@ -128,78 +151,33 @@ export function mapKpis(k: any): KPISnapshot[] {
     ];
   }
 
-  const formatMoney = (v: any) => (v === null || v === undefined ? "Coming Soon" : formatCurrency(Number(v)));
-  const formatRunway = (v: any) => (v === null || v === undefined ? "Coming Soon" : `${v} mo`);
-  const formatPlain = (v: any) => (v === null || v === undefined ? "Coming Soon" : String(v));
+  const metrics = k?.metrics ?? {};
+  const tile = (
+    id: string,
+    metric: KPISnapshot["metric"],
+    label: string,
+    href: string,
+    t: MetricTile,
+  ): KPISnapshot => ({ id, metric, label, delta: "", trend: "flat", sparklineData: [], href, ...t });
 
-  const hasRevenue = k?.revenue !== null && k?.revenue !== undefined;
-  const hasRunway = k?.runway !== null && k?.runway !== undefined;
-  const hasPipeline = k?.pipeline_value !== null && k?.pipeline_value !== undefined;
-  const hasCtr = k?.campaign_performance !== null && k?.campaign_performance !== undefined;
-
-  let runwayAlert = false;
-  if (hasRunway && typeof k?.runway === "number" && k.runway < 6) {
-    runwayAlert = true;
-  }
-
-  return [
-    {
-      id: "revenue",
-      metric: "revenue",
-      label: "Monthly Revenue",
-      value: formatMoney(k?.revenue),
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/finance",
-      hasData: hasRevenue,
-    },
-    {
-      id: "runway",
-      metric: "runway",
-      label: "Runway",
-      value: formatRunway(k?.runway),
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/finance",
-      hasData: hasRunway,
-      isAlert: runwayAlert,
-    },
-    {
-      id: "pipeline",
-      metric: "pipeline",
-      label: "Pipeline Value",
-      value: formatMoney(k?.pipeline_value),
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/sales",
-      hasData: hasPipeline,
-    },
-    {
-      id: "ctr",
-      metric: "ctr",
-      label: "Campaign CTR",
-      value: formatPlain(k?.campaign_performance),
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/marketing",
-      hasData: hasCtr,
-    },
+  const tiles = [
+    tile("revenue", "revenue", "Monthly Revenue", "/finance", revenueTile(metrics.revenue)),
+    tile("runway", "runway", "Runway", "/finance", runwayTile(metrics.runway)),
+    tile("pipeline", "pipeline", "Pipeline Value", "/sales", pipelineTile(metrics.pipeline)),
+    tile("ctr", "ctr", "Campaign CTR", "/marketing", ctrTile(metrics.campaign_ctr)),
     {
       id: "tasks",
-      metric: "tasks_completed",
+      metric: "tasks_completed" as const,
       label: "Tasks This Week",
       value: String(k?.tasks_done_this_week ?? 0),
       delta: "",
-      trend: "flat",
+      trend: "flat" as const,
       sparklineData: [],
       href: "/mission",
       hasData: true,
     },
   ];
+  return tiles;
 }
 
 /**
