@@ -440,7 +440,7 @@ export default function DashboardPage() {
                 </div>
 
                 <Link
-                  href="/app/health"
+                  href="/health"
                   className="text-sm font-bold text-[#266B4E] flex items-center justify-center gap-1 hover:underline pt-2 cursor-pointer"
                 >
                   See what&apos;s driving it &rarr;
@@ -489,6 +489,21 @@ export default function DashboardPage() {
                 <h3 className="font-bold text-lg text-sage-900">
                   Mission complete. {(summaryData?.mission?.streakDays ?? 0) > 0 ? `${summaryData?.mission?.streakDays}-day streak.` : ''}
                 </h3>
+              </div>
+            ) : tasks.length === 0 ? (
+              <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between min-h-[300px]">
+                <div>
+                  <h3 className="font-bold text-base text-sage-900 mb-4">Today&apos;s Mission</h3>
+                  <p className="text-sm text-sage-500 py-6">
+                    No mission tasks for today yet. Complete your kickoff assessment to get your daily plan, or add tasks from your roadmap.
+                  </p>
+                </div>
+                <Link
+                  href="/mission"
+                  className="text-sm font-bold text-[#266B4E] flex items-center justify-start gap-1 hover:underline pt-6 cursor-pointer"
+                >
+                  Go to mission &rarr;
+                </Link>
               </div>
             ) : (
               <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between min-h-[300px]">

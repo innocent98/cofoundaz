@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { CheckCircle2, Mail } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api/client';
 
 function VerifyEmailContent() {
@@ -94,14 +95,14 @@ function VerifyEmailContent() {
         <div className="space-y-4">
           <div className="w-10 h-10 border-4 border-green-800 border-t-transparent rounded-full animate-spin mx-auto" />
           <h1 className="text-xl font-bold font-display text-sage-900">Verifying your email</h1>
-          <p className="text-sm text-sage-500">Confirming your account with Cofaundaz...</p>
+          <p className="text-sm text-sage-500">Confirming your account with Cofoundaz…</p>
         </div>
       )}
 
       {status === 'success' && (
         <div className="space-y-4">
-          <div className="w-12 h-12 bg-green-100 text-green-700 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
-            ?
+          <div className="w-12 h-12 bg-green-100 text-green-700 rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle2 className="h-7 w-7" />
           </div>
           <h1 className="text-xl font-bold font-display text-sage-900">Email verified!</h1>
           <p className="text-sm text-sage-500">Your account is active. Redirecting to your dashboard...</p>
@@ -111,8 +112,8 @@ function VerifyEmailContent() {
       {(status === 'idle' || status === 'error') && (
         <div className="space-y-5 text-left">
           <div className="text-center">
-            <div className="w-12 h-12 bg-sage-100 text-sage-700 rounded-full flex items-center justify-center mx-auto text-xl font-bold mb-3">
-              ?
+            <div className="w-12 h-12 bg-sage-100 text-sage-700 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Mail className="h-6 w-6" />
             </div>
             <h1 className="text-xl font-bold font-display text-sage-900">Verify your email</h1>
             <p className="text-sm text-sage-600 mt-1">
