@@ -17,80 +17,97 @@ describe('useDashboardApi & Dashboard Mappers', () => {
     vi.useRealTimers();
   });
 
-  describe('mapKpis (Null-Safety & Honesty Rules)', () => {
-    it('renders financial KPIs as "Coming Soon" when null, never as $0', () => {
-      const rawKpis = {
-        revenue: null,
-        runway: null,
-        pipeline_value: null,
-        campaign_performance: null,
-        tasks_done_this_week: 0,
-      };
-
-      const kpis = mapKpis(rawKpis);
-
-      expect(kpis[0]).toMatchObject({
-        id: 'revenue',
-        label: 'Monthly Revenue',
-        value: 'Coming Soon',
-        hasData: false,
-      });
-
-      expect(kpis[1]).toMatchObject({
-        id: 'runway',
-        label: 'Runway',
-        value: 'Coming Soon',
-        hasData: false,
-      });
-
-      expect(kpis[2]).toMatchObject({
-        id: 'pipeline',
-        label: 'Pipeline Value',
-        value: 'Coming Soon',
-        hasData: false,
-      });
-
-      expect(kpis[3]).toMatchObject({
-        id: 'ctr',
-        label: 'Campaign CTR',
-        value: 'Coming Soon',
-        hasData: false,
-      });
-
-      expect(kpis[4]).toMatchObject({
-        id: 'tasks',
-        label: 'Tasks This Week',
-        value: '0',
-        hasData: true,
-      });
+  describe('mapKpis (kpis.metrics, honest state per status)', () => {
+    const noData = {
+      revenue: { status: 'no_data', value_minor: null, currency: null, basis: 'trailing_3mo_avg' },
+      runway: { status: 'no_data', months: null, is_low: false, monthly_burn_minor: null, cash_on_hand_minor: null, currency: null },
+      pipeline: { status: 'not_built', value_minor: null, currency: null },
+      campaign_ctr: { status: 'no_data', ctr_percent: null, impressions: null, clicks: null, range: '30d' },
+    };
+    const raw = (metrics: unknown) => ({
+      tasks_done_this_week: 3,
+      metrics,
+      revenue: null,
+      runway: null,
+      pipeline_value: null,
+      campaign_performance: null,
     });
 
-    it('formats real financial values when present and flags low runway alert', () => {
-      const rawKpis = {
-        revenue: 2500000,
-        runway: 4,
-        pipeline_value: 120000,
-        campaign_performance: '4.5%',
-        tasks_done_this_week: 7,
-      };
+    it('no_data: empty state with module CTA, never "Coming Soon" or ₦0; pipeline stays Coming Soon', () => {
+      const kpis = mapKpis(raw(noData));
+      expect(kpis[0]).toMatchObject({ id: 'revenue', status: 'no_data', value: 'No data yet', hasData: false, cta: { href: '/finance' } });
+      expect(kpis[1]).toMatchObject({ id: 'runway', status: 'no_data', value: 'No data yet', cta: { href: '/finance' } });
+      expect(kpis[2]).toMatchObject({ id: 'pipeline', status: 'not_built', value: 'Coming Soon' });
+      expect(kpis[3]).toMatchObject({ id: 'ctr', status: 'no_data', value: 'No data yet', cta: { href: '/marketing' } });
+      expect(kpis.filter((t) => t.value === 'Coming Soon')).toHaveLength(1);
+      expect(kpis.some((t) => t.value.includes('₦0'))).toBe(false);
+      expect(kpis[4]).toMatchObject({ id: 'tasks', value: '3', hasData: true });
+    });
 
-      const kpis = mapKpis(rawKpis);
+    it('ok: converts kobo to naira, runway months, CTR already a percent (live burning capture)', () => {
+      const kpis = mapKpis(raw({
+        revenue: { status: 'ok', value_minor: 1000000, currency: 'NGN', basis: 'trailing_3mo_avg' },
+        runway: { status: 'ok', months: 27.0, is_low: false, monthly_burn_minor: 2000000, cash_on_hand_minor: 54000000, currency: 'NGN' },
+        pipeline: noData.pipeline,
+        campaign_ctr: { status: 'ok', ctr_percent: 2.5, impressions: 2000, clicks: 50, range: '30d' },
+      }));
+      expect(kpis[0]).toMatchObject({ value: '₦10.0K', hasData: true, status: 'ok', hint: 'Avg. monthly money in, last 3 months' });
+      expect(kpis[1]).toMatchObject({ value: '27 mo', isAlert: false });
+      expect(kpis[3]).toMatchObject({ value: '2.5%', hasData: true });
+    });
 
-      expect(kpis[0].value).toBe('₦2.5M');
-      expect(kpis[0].hasData).toBe(true);
+    it('ok with 0 is real data: ₦0, not the empty state', () => {
+      const kpis = mapKpis(raw({ ...noData, revenue: { status: 'ok', value_minor: 0, currency: 'NGN' } }));
+      expect(kpis[0]).toMatchObject({ value: '₦0', hasData: true, status: 'ok' });
+      expect(kpis[0].cta).toBeUndefined();
+    });
 
-      expect(kpis[1].value).toBe('4 mo');
-      expect(kpis[1].isAlert).toBe(true);
+    it('runway alert comes from is_low, not a client-side < 6 check', () => {
+      const low = mapKpis(raw({ ...noData, runway: { status: 'ok', months: 4.2, is_low: true, currency: 'NGN' } }));
+      expect(low[1]).toMatchObject({ value: '4.2 mo', isAlert: true });
+      // is_low false must win even for a small number
+      const notLow = mapKpis(raw({ ...noData, runway: { status: 'ok', months: 4.2, is_low: false, currency: 'NGN' } }));
+      expect(notLow[1].isAlert).toBe(false);
+    });
 
-      expect(kpis[2].value).toBe('₦120.0K');
-      expect(kpis[3].value).toBe('4.5%');
-      expect(kpis[4].value).toBe('7');
+    it('runway out_of_cash: alert styling and "Out of cash"', () => {
+      const kpis = mapKpis(raw({ ...noData, runway: { status: 'out_of_cash', months: 0, is_low: true, monthly_burn_minor: 35333333, cash_on_hand_minor: -46000000, currency: 'NGN' } }));
+      expect(kpis[1]).toMatchObject({ value: 'Out of cash', isAlert: true, status: 'out_of_cash', hasData: true });
+    });
+
+    it('runway not_burning: "Not burning", no months, no alert', () => {
+      const kpis = mapKpis(raw({ ...noData, runway: { status: 'not_burning', months: null, is_low: false, monthly_burn_minor: 0, cash_on_hand_minor: 154000000, currency: 'NGN' } }));
+      expect(kpis[1]).toMatchObject({ value: 'Not burning', status: 'not_burning', hasData: true });
+      expect(kpis[1].isAlert).toBeFalsy();
+      expect(kpis[1].value).not.toMatch(/mo/);
+    });
+
+    it('restricted: tiles are hidden and carry no value (investor capture)', () => {
+      const kpis = mapKpis(raw({
+        revenue: { status: 'restricted', value_minor: null, currency: null },
+        runway: { status: 'restricted', months: null, is_low: false, currency: null },
+        pipeline: noData.pipeline,
+        campaign_ctr: { status: 'restricted', ctr_percent: null, impressions: null, clicks: null },
+      }));
+      expect(kpis.filter((t) => t.hidden).map((t) => t.id)).toEqual(['revenue', 'runway', 'ctr']);
+      expect(kpis[0].value).toBe('');
+      expect(kpis[2].hidden).toBeFalsy();
+    });
+
+    it('per-tile { error: true } marks only that tile Unavailable', () => {
+      const kpis = mapKpis(raw({ ...noData, revenue: { error: true } }));
+      expect(kpis[0]).toMatchObject({ error: true, value: 'Unavailable' });
+      expect(kpis[1].error).toBeFalsy();
+      expect(kpis[3].error).toBeFalsy();
+    });
+
+    it('ignores the legacy scalar keys', () => {
+      const kpis = mapKpis({ revenue: 999, runway: 2, pipeline_value: 5, campaign_performance: 9, tasks_done_this_week: 0 });
+      expect(kpis.slice(0, 4).every((t) => t.value === 'Coming Soon')).toBe(true);
     });
 
     it('handles { error: true } section error gracefully', () => {
-      const errorKpis = { error: true, message: 'Database connection failed' };
-      const kpis = mapKpis(errorKpis);
-
+      const kpis = mapKpis({ error: true, message: 'Database connection failed' });
       expect(kpis[0].error).toBe(true);
       expect(kpis[0].value).toBe('Unavailable');
     });

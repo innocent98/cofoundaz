@@ -23,6 +23,8 @@ export interface AIBriefing {
   reason?: string;
 }
 
+export type KPIStatus = 'ok' | 'no_data' | 'restricted' | 'not_built' | 'not_burning' | 'out_of_cash';
+
 export interface KPISnapshot {
   id: string;
   metric: 'revenue' | 'runway' | 'pipeline' | 'ctr' | 'tasks_completed';
@@ -35,6 +37,14 @@ export interface KPISnapshot {
   isAlert?: boolean;
   hasData?: boolean;
   error?: boolean;
+  /** Backend status for this tile; drives the empty/restricted/coming-soon states. */
+  status?: KPIStatus;
+  /** Restricted tiles are dropped from the strip entirely. */
+  hidden?: boolean;
+  /** Empty-state call to action (no_data). */
+  cta?: { label: string; href: string };
+  /** Short honest caption under the value, e.g. what the figure averages. */
+  hint?: string;
 }
 
 export interface RiskItem {
