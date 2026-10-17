@@ -1,19 +1,24 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { useAICoFounder } from '../../../../hooks/useAICoFounder';
 
 export default function HistoryPage() {
   const [historySearchQuery, setHistorySearchQuery] = useState('');
-  const { conversations } = useAICoFounder();
-  const loading = false; // mock local state hook doesn't have loading indicator
+  const router = useRouter();
+  const { conversations, conversationsLoading: loading, conversationsError, refreshConversations } =
+    useAICoFounder({ withList: true });
 
-  const filteredHistory = conversations.filter(
-    (item) =>
-      item.title.toLowerCase().includes(historySearchQuery.toLowerCase()) ||
-      (item.topic && item.topic.toLowerCase().includes(historySearchQuery.toLowerCase())) ||
-      item.agentsInvolved.some(a => a.toLowerCase().includes(historySearchQuery.toLowerCase()))
+  const titleOf = (title: string | null) => title ?? 'New conversation';
+  const dateOf = (iso: string) => {
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? '' : d.toLocaleDateString();
+  };
+
+  const filteredHistory = conversations.filter((item) =>
+    titleOf(item.title).toLowerCase().includes(historySearchQuery.toLowerCase())
   );
 
   return (
@@ -25,7 +30,7 @@ export default function HistoryPage() {
             Conversation history
           </h2>
           <p className="text-xs text-[#617065]">
-            Everything you&apos;ve worked through, grouped by topic.
+            Every chat you&apos;ve had with your co-founder. Only you can see these.
           </p>
         </div>
 
@@ -48,40 +53,46 @@ export default function HistoryPage() {
             <thead>
               <tr className="bg-[#F8F8F4] border-b border-[#EBEBE6] text-[11px] font-bold uppercase tracking-wider text-[#768478]">
                 <th className="py-3.5 px-6">CONVERSATION</th>
-                <th className="py-3.5 px-6">TOPIC</th>
-                <th className="py-3.5 px-6">AGENTS</th>
+                <th className="py-3.5 px-6">STARTED</th>
                 <th className="py-3.5 px-6">LAST ACTIVE</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EBEBE6]">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="py-6 text-center text-sm text-sage-500">Loading...</td>
+                  <td colSpan={3} className="py-6 text-center text-sm text-sage-500">Loading...</td>
+                </tr>
+              ) : conversationsError ? (
+                <tr>
+                  <td colSpan={3} className="py-6 text-center text-sm text-sage-500">
+                    Couldn&apos;t load your conversations.{' '}
+                    <button
+                      type="button"
+                      onClick={() => { void refreshConversations(); }}
+                      className="font-semibold text-[#1E4D3B] hover:underline cursor-pointer"
+                    >
+                      Try again
+                    </button>
+                  </td>
                 </tr>
               ) : filteredHistory.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-6 text-center text-sm text-sage-500">No conversations found.</td>
+                  <td colSpan={3} className="py-6 text-center text-sm text-sage-500">
+                    {conversations.length === 0 ? 'No conversations yet.' : 'No conversations found.'}
+                  </td>
                 </tr>
               ) : (
                 filteredHistory.map((item) => (
                   <tr
                     key={item.id}
+                    onClick={() => router.push(`/ai?c=${item.id}`)}
                     className="group hover:bg-[#FBFBFA] transition-colors cursor-pointer"
                   >
                     <td className="py-4 px-6 text-sm font-semibold text-[#1E2923] group-hover:text-[#9C5B34] transition-colors">
-                      {item.title}
+                      {titleOf(item.title)}
                     </td>
-                    <td className="py-4 px-6">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#EBEBE6] text-[#617065]">
-                        {item.topic || 'General'}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-xs text-[#617065]">
-                      {item.agentsInvolved.join(', ')}
-                    </td>
-                    <td className="py-4 px-6 text-xs text-[#8E9B90]">
-                      {new Date(item.lastMessageAt).toLocaleDateString()}
-                    </td>
+                    <td className="py-4 px-6 text-xs text-[#8E9B90]">{dateOf(item.created_at)}</td>
+                    <td className="py-4 px-6 text-xs text-[#8E9B90]">{dateOf(item.updated_at)}</td>
                   </tr>
                 ))
               )}
