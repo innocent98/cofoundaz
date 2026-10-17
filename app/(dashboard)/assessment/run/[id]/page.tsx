@@ -1,103 +1,215 @@
 ﻿"use client";
 
-import React, { useState, useEffect } from "react";
+import React, { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAssessmentApi } from "@/hooks/useAssessmentApi";
+import { useAssessmentRunner } from "@/hooks/useAssessmentApi";
+import {
+  DIMENSION_LABEL,
+  DIMENSION_ORDER,
+  sectionProgress,
+  type AssessmentQuestion,
+  type AnswerValue,
+} from "@/lib/api/assessment";
 import { useToast } from "../../ToastContext";
 
-export default function AssessmentRunnerPage() {
-  const router = useRouter();
-  const { triggerToast } = useToast();
-  const { activeSession, questions, saveAnswer, completeAssessment } = useAssessmentApi();
+const OPTION_BASE =
+  "bg-white rounded-modal p-5 border transition-all cursor-pointer shadow-card font-medium text-sm md:text-base";
+const OPTION_ON = "border-[#1e4836] bg-[#f0f5f2] text-[#0e271f]";
+const OPTION_OFF = "border-sage-200 hover:border-sage-300 text-sage-800";
+const PRIMARY_BTN =
+  "bg-[#1e4836] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#153427] text-white font-bold text-sm px-6 py-3 rounded-[8px] transition-colors";
 
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [completedScore, setCompletedScore] = useState<number | null>(null);
+/** One input per qtype. Keyed by question.key by the parent so its local state resets per question. */
+function QuestionInput({
+  question,
+  disabled,
+  onSubmit,
+}: {
+  question: AssessmentQuestion;
+  disabled: boolean;
+  onSubmit: (value: AnswerValue) => void;
+}) {
+  const [picked, setPicked] = useState<string | number | null>(null);
+  const [multi, setMulti] = useState<string[]>([]);
+  const [text, setText] = useState("");
 
-  // Fallback if no session
-  useEffect(() => {
-    if (!activeSession && !isProcessing && completedScore === null) {
-      router.replace('/assessment');
-    }
-  }, [activeSession, isProcessing, completedScore, router]);
+  const pick = (value: string | number) => {
+    if (disabled) return;
+    setPicked(value);
+    onSubmit(value);
+  };
 
-  if (!activeSession && !isProcessing && completedScore === null) {
-    return null; // or a loading spinner
+  if (question.qtype === "single_choice") {
+    return (
+      <div className="space-y-3">
+        {(question.options ?? []).map((opt) => (
+          <button
+            type="button"
+            key={opt.value}
+            disabled={disabled}
+            onClick={() => pick(opt.value)}
+            className={`w-full text-left ${OPTION_BASE} ${picked === opt.value ? OPTION_ON : OPTION_OFF}`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    );
   }
 
-  const handleSaveAndExit = () => {
-    triggerToast("Assessment progress saved. You can resume anytime.");
-    router.push('/assessment/in-progress');
-  };
-
-  const currentQ = questions[activeSession?.currentQuestionIndex || 0];
-  const isLastQuestion = activeSession && activeSession.currentQuestionIndex === questions.length - 1;
-
-  const handleAdvance = async () => {
-    if (isLastQuestion) {
-      setIsProcessing(true);
-      const score = await completeAssessment();
-      setIsProcessing(false);
-      setCompletedScore(score || 0);
-    }
-  };
-
-  const handleOptionSelect = (val: string | number) => {
-    if (!currentQ) return;
-    saveAnswer(currentQ.id, val);
-    setTimeout(handleAdvance, 300); // Auto-advance for single click
-  };
-
-  const handleMultiSelect = (val: string) => {
-    if (!currentQ || !activeSession) return;
-    const currentList: string[] = activeSession.answers[currentQ.id] || [];
-    const isSelected = currentList.includes(val);
-    const newList = isSelected ? currentList.filter(item => item !== val) : [...currentList, val];
-    saveAnswer(currentQ.id, newList);
-  };
-
-  const handleTextInput = (val: string) => {
-    if (!currentQ) return;
-    saveAnswer(currentQ.id, val);
-  };
-
-  if (completedScore !== null) {
+  if (question.qtype === "scale_1_5") {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 animate-fadeIn max-w-lg mx-auto">
-        <div className="w-16 h-16 rounded-full bg-[#1e4836] text-white flex items-center justify-center font-bold text-2xl mb-2">
-          {completedScore}
+      <div className="grid grid-cols-5 gap-3">
+        {[1, 2, 3, 4, 5].map((num) => (
+          <button
+            type="button"
+            key={num}
+            disabled={disabled}
+            onClick={() => pick(num)}
+            aria-label={`${num} out of 5`}
+            className={`bg-white rounded-modal p-6 text-center border transition-all cursor-pointer shadow-card font-display font-bold text-xl md:text-2xl ${
+              picked === num ? OPTION_ON : OPTION_OFF
+            }`}
+          >
+            {num}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  if (question.qtype === "multi_choice") {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-3">
+          {(question.options ?? []).map((opt) => {
+            const isSelected = multi.includes(opt.value);
+            return (
+              <button
+                type="button"
+                key={opt.value}
+                disabled={disabled}
+                onClick={() =>
+                  setMulti((prev) =>
+                    prev.includes(opt.value) ? prev.filter((v) => v !== opt.value) : [...prev, opt.value]
+                  )
+                }
+                className={`w-full text-left flex items-center gap-3 ${OPTION_BASE} ${isSelected ? OPTION_ON : OPTION_OFF}`}
+              >
+                <span
+                  className={`w-5 h-5 rounded border flex items-center justify-center ${
+                    isSelected ? "bg-[#1e4836] border-[#1e4836]" : "border-sage-300 bg-white"
+                  }`}
+                >
+                  {isSelected && <span className="text-white text-xs">✓</span>}
+                </span>
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-display font-semibold text-sage-900">
-            Your Health Score is now {completedScore}.
-          </h1>
-          <p className="text-sage-500">Here&apos;s what changed.</p>
-        </div>
-        <div className="w-full space-y-3 pt-2">
-          <div className="bg-white rounded-modal p-4 border border-sage-200/80 shadow-card flex items-center justify-between font-medium">
-            <span className="text-sage-800">Product</span>
-            <span className="text-[#1e4836] font-semibold">↑ 85</span>
-          </div>
-          <div className="bg-white rounded-modal p-4 border border-sage-200/80 shadow-card flex items-center justify-between font-medium">
-            <span className="text-sage-800">Market</span>
-            <span className="text-[#1e4836] font-semibold">↑ 80</span>
-          </div>
-        </div>
-        <button 
-          onClick={() => router.push('/dashboard')}
-          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-8 py-3 rounded-card transition-colors w-full shadow-card mt-4"
-        >
-          See my dashboard
+        <button type="button" onClick={() => onSubmit(multi)} disabled={disabled || multi.length === 0} className={PRIMARY_BTN}>
+          Next question →
         </button>
       </div>
     );
   }
 
-  if (isProcessing) {
+  if (question.qtype === "numeric_currency") {
+    const parsed = text.trim() === "" ? NaN : Number(text);
+    const valid = Number.isFinite(parsed) && parsed >= 0;
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 animate-fadeIn">
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (valid && !disabled) onSubmit(parsed);
+        }}
+      >
+        <div className="relative">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sage-500 font-semibold text-lg">₦</span>
+          <input
+            type="number"
+            inputMode="decimal"
+            min={0}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            aria-label={question.prompt}
+            className="w-full bg-white border border-sage-300 rounded-modal p-4 pl-10 shadow-card text-lg outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400"
+            placeholder="0"
+          />
+        </div>
+        <button type="submit" disabled={disabled || !valid} className={PRIMARY_BTN}>
+          Next question →
+        </button>
+      </form>
+    );
+  }
+
+  // short_text
+  return (
+    <div className="space-y-4">
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        aria-label={question.prompt}
+        className="w-full h-32 bg-white border border-sage-300 rounded-modal p-4 shadow-card text-base outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400 resize-none"
+        placeholder="Type your answer here..."
+      />
+      <button type="button" onClick={() => onSubmit(text.trim())} disabled={disabled || text.trim() === ""} className={PRIMARY_BTN}>
+        Next question →
+      </button>
+    </div>
+  );
+}
+
+export default function AssessmentRunnerPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const router = useRouter();
+  const { triggerToast } = useToast();
+  const { phase, question, result, submitting, answerError, loadError, answer, retry } = useAssessmentRunner(id);
+
+  const handleSaveAndExit = () => {
+    // Every answer is saved server-side as it is submitted, so there is nothing to flush.
+    triggerToast("Assessment progress saved. You can resume anytime.");
+    router.push("/assessment/in-progress");
+  };
+
+  if (phase === "loading") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4" role="status">
+        <div className="w-10 h-10 rounded-full border-4 border-sage-200 border-t-[#9C5B34] animate-spin" />
+        <p className="text-sage-500 text-sm">Loading your assessment...</p>
+      </div>
+    );
+  }
+
+  if (phase === "error") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4 max-w-md mx-auto" role="alert">
+        <h2 className="text-xl font-display font-semibold text-sage-900">We couldn&apos;t load this assessment</h2>
+        <p className="text-sage-500 text-sm">{loadError}</p>
+        <div className="flex gap-3">
+          <button type="button" onClick={() => void retry()} className={PRIMARY_BTN}>
+            Try again
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/assessment")}
+            className="bg-white border border-sage-200 text-sage-800 font-bold text-sm px-6 py-3 rounded-[8px] hover:border-sage-300 transition-colors"
+          >
+            Back to overview
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "completing") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 animate-fadeIn" role="status">
         <div className="relative flex items-center justify-center">
           <div className="w-16 h-16 rounded-full border-4 border-sage-200 border-t-[#9C5B34] animate-spin"></div>
-          <span className="absolute text-xl">✨</span>
         </div>
         <h2 className="text-2xl font-display font-semibold text-sage-900 tracking-tight animate-pulse">
           Done. Recalibrating your workspace...
@@ -106,15 +218,66 @@ export default function AssessmentRunnerPage() {
     );
   }
 
-  if (!currentQ || !activeSession) return null;
+  if (phase === "done" && result) {
+    return (
+      <div className="flex flex-col items-center min-h-[60vh] text-center space-y-6 animate-fadeIn max-w-lg mx-auto">
+        <div
+          className="w-16 h-16 rounded-full bg-[#1e4836] text-white flex items-center justify-center font-bold text-2xl mb-2"
+          aria-label={`Overall score ${result.overall_provisional}`}
+        >
+          {result.overall_provisional}
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-display font-semibold text-sage-900">
+            Your assessment score is {result.overall_provisional}.
+          </h1>
+          {result.narrative && <p className="text-sage-500">{result.narrative}</p>}
+        </div>
+        <div className="w-full space-y-3 pt-2">
+          {DIMENSION_ORDER.map((dim) => (
+            <div
+              key={dim}
+              className="bg-white rounded-modal p-4 border border-sage-200/80 shadow-card flex items-center justify-between font-medium"
+            >
+              <span className="text-sage-800">{DIMENSION_LABEL[dim]}</span>
+              <span className="text-[#1e4836] font-semibold">{result.dimension_scores[dim]}/100</span>
+            </div>
+          ))}
+        </div>
+        <div className="w-full space-y-3 mt-4">
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-8 py-3 rounded-card transition-colors w-full shadow-card"
+          >
+            See my dashboard
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/assessment/results")}
+            className="bg-white border border-sage-200 text-sage-800 font-semibold px-8 py-3 rounded-card hover:border-sage-300 transition-colors w-full"
+          >
+            View past results
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!question) return null;
+
+  const progress = sectionProgress(question.dimension);
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-fadeIn pt-4">
       {/* SECTION HEADER & PROGRESS BAR */}
       <div className="space-y-3">
         <div className="flex items-center justify-between text-xs font-semibold text-sage-500">
-          <span className="uppercase tracking-wider">Section {currentQ.sectionNumber}: {currentQ.sectionName}</span>
+          <span className="uppercase tracking-wider">
+            Section {progress.sectionNumber} of {progress.totalSections}: {question.section}
+          </span>
           <button
+            type="button"
             onClick={handleSaveAndExit}
             className="text-sage-700 hover:text-sage-900 cursor-pointer border border-sage-200 px-3 py-1.5 rounded bg-white shadow-card"
           >
@@ -125,150 +288,29 @@ export default function AssessmentRunnerPage() {
         <div className="w-full bg-[#d2e2d8]/60 rounded-full h-2 overflow-hidden">
           <div
             className="bg-[#1e4836] h-full rounded-full transition-all duration-300"
-            style={{ width: `${activeSession.progressPct}%` }}
+            style={{ width: `${progress.pct}%` }}
           ></div>
         </div>
 
-        <p className="text-xs text-sage-400 italic">
-          Adaptive: I skip anything that doesn&apos;t apply to you.
-        </p>
+        <p className="text-xs text-sage-400 italic">Adaptive: I skip anything that doesn&apos;t apply to you.</p>
       </div>
 
       {/* QUESTION CARD */}
       <div className="space-y-6 pt-4">
-        <h2 className="text-2xl md:text-3xl font-display font-semibold text-sage-900 tracking-tight">
-          {currentQ.title}
-        </h2>
+        <div className="space-y-2">
+          <h2 className="text-2xl md:text-3xl font-display font-semibold text-sage-900 tracking-tight">
+            {question.prompt}
+          </h2>
+          {question.helper && <p className="text-sm text-sage-500">{question.helper}</p>}
+        </div>
 
-        {/* SINGLE CHOICE */}
-        {currentQ.type === "single_choice" && currentQ.options && (
-          <div className="space-y-3">
-            {currentQ.options.map((opt) => {
-              const isSelected = activeSession.answers[currentQ.id] === opt.value;
-              return (
-                <div
-                  key={opt.value}
-                  onClick={() => handleOptionSelect(opt.value)}
-                  className={`bg-white rounded-modal p-5 border transition-all cursor-pointer shadow-card font-medium text-sm md:text-base ${
-                    isSelected
-                      ? "border-[#1e4836] bg-[#f0f5f2] text-[#0e271f]"
-                      : "border-sage-200 hover:border-sage-300 text-sage-800"
-                  }`}
-                >
-                  {opt.label}
-                </div>
-              );
-            })}
-          </div>
+        <QuestionInput key={question.key} question={question} disabled={submitting} onSubmit={(v) => void answer(v)} />
+
+        {answerError && (
+          <p role="alert" className="text-sm text-[#B0483B]">
+            {answerError}
+          </p>
         )}
-
-        {/* SCALE */}
-        {currentQ.type === "scale" && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-5 gap-3">
-              {[1, 2, 3, 4, 5].map((num) => {
-                const isSelected = activeSession.answers[currentQ.id] === num;
-                return (
-                  <div
-                    key={num}
-                    onClick={() => handleOptionSelect(num)}
-                    className={`bg-white rounded-modal p-6 text-center border transition-all cursor-pointer shadow-card font-display font-bold text-xl md:text-2xl ${
-                      isSelected
-                        ? "border-[#1e4836] bg-[#f0f5f2] text-[#0e271f]"
-                        : "border-sage-200 hover:border-sage-300 text-sage-800"
-                    }`}
-                  >
-                    {num}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="flex justify-between text-xs text-sage-400 px-1">
-              <span>Not at all</span>
-              <span>Completely</span>
-            </div>
-          </div>
-        )}
-
-        {/* MULTI CHOICE */}
-        {currentQ.type === "multi_choice" && currentQ.options && (
-          <div className="space-y-4">
-            <div className="space-y-3">
-              {currentQ.options.map((opt) => {
-                const currentSelected: string[] = activeSession.answers[currentQ.id] || [];
-                const isSelected = currentSelected.includes(opt.value);
-                return (
-                  <div
-                    key={opt.value}
-                    onClick={() => handleMultiSelect(opt.value)}
-                    className={`bg-white rounded-modal p-5 border transition-all cursor-pointer shadow-card font-medium text-sm md:text-base flex items-center gap-3 ${
-                      isSelected
-                        ? "border-[#1e4836] bg-[#f0f5f2] text-[#0e271f]"
-                        : "border-sage-200 hover:border-sage-300 text-sage-800"
-                    }`}
-                  >
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center ${isSelected ? 'bg-[#1e4836] border-[#1e4836]' : 'border-sage-300 bg-white'}`}>
-                      {isSelected && <span className="text-white text-xs">✓</span>}
-                    </div>
-                    {opt.label}
-                  </div>
-                );
-              })}
-            </div>
-            <button 
-              onClick={handleAdvance}
-              className="bg-[#1e4836] hover:bg-[#153427] text-white font-bold text-sm px-6 py-3 rounded-[8px] transition-colors"
-            >
-              Next question →
-            </button>
-          </div>
-        )}
-
-        {/* NUMERIC */}
-        {currentQ.type === "numeric" && (
-          <div className="space-y-4">
-            <div className="relative">
-              {currentQ.currencyPrefix && (
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sage-500 font-semibold text-lg">
-                  {currentQ.currencyPrefix}
-                </span>
-              )}
-              <input 
-                type="number" 
-                value={activeSession.answers[currentQ.id] || ''}
-                onChange={(e) => handleTextInput(e.target.value)}
-                className={`w-full bg-white border border-sage-300 rounded-modal p-4 shadow-card text-lg outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400 ${currentQ.currencyPrefix ? 'pl-10' : ''}`}
-                placeholder="0"
-              />
-            </div>
-            <button 
-              onClick={handleAdvance}
-              disabled={!activeSession.answers[currentQ.id]}
-              className="bg-[#1e4836] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#153427] text-white font-bold text-sm px-6 py-3 rounded-[8px] transition-colors"
-            >
-              Next question →
-            </button>
-          </div>
-        )}
-
-        {/* SHORT TEXT */}
-        {currentQ.type === "short_text" && (
-          <div className="space-y-4">
-            <textarea 
-              value={activeSession.answers[currentQ.id] || ''}
-              onChange={(e) => handleTextInput(e.target.value)}
-              className="w-full h-32 bg-white border border-sage-300 rounded-modal p-4 shadow-card text-base outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400 resize-none"
-              placeholder="Type your answer here..."
-            />
-            <button 
-              onClick={handleAdvance}
-              className="bg-[#1e4836] hover:bg-[#153427] text-white font-bold text-sm px-6 py-3 rounded-[8px] transition-colors"
-            >
-              {isLastQuestion ? "Complete assessment" : "Next question →"}
-            </button>
-          </div>
-        )}
-
       </div>
     </div>
   );

@@ -1,22 +1,23 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useAssessmentApi } from "@/hooks/useAssessmentApi";
+import { useAssessmentHistory, useStartAssessment } from "@/hooks/useAssessmentApi";
 
 export default function AssessmentStartPage() {
   const router = useRouter();
-  const { startAssessment, activeSession } = useAssessmentApi();
+  const { inProgress, completed, error: historyError } = useAssessmentHistory();
+  const { start, starting, error: startError } = useStartAssessment();
 
-  const handleBegin = () => {
-    const id = startAssessment();
-    router.push(`/assessment/run/${id}`);
+  const handleBegin = async () => {
+    const id = await start();
+    if (id) router.push(`/assessment/run/${id}`);
   };
 
   return (
     <div className="space-y-6 animate-fadeIn max-w-2xl mx-auto pt-8">
       
-      {activeSession && activeSession.status === 'in_progress' && (
+      {inProgress && (
         <div className="bg-[#EAD5C6] rounded-card p-4 border border-[#D89A6E]/30 shadow-card flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="text-[#1E2923] font-semibold text-sm">You have an assessment in progress</h3>
@@ -46,11 +47,20 @@ export default function AssessmentStartPage() {
         
         <div className="pt-6 w-full max-w-xs">
           <button 
-            onClick={handleBegin}
-            className="w-full bg-[#1e4836] hover:bg-[#153427] text-white font-bold text-base px-6 py-3.5 rounded-[8px] transition-colors shadow-card flex items-center justify-center gap-2"
+            onClick={() => void handleBegin()}
+            disabled={starting}
+            className="w-full bg-[#1e4836] disabled:opacity-60 disabled:cursor-not-allowed hover:bg-[#153427] text-white font-bold text-base px-6 py-3.5 rounded-[8px] transition-colors shadow-card flex items-center justify-center gap-2"
           >
-            Begin
+            {starting ? "Starting..." : inProgress ? "Continue" : completed.length > 0 ? "Start a check-in" : "Begin"}
           </button>
+          {startError && (
+            <p role="alert" className="text-sm text-[#B0483B] mt-3">
+              {startError}
+            </p>
+          )}
+          {historyError && !startError && (
+            <p className="text-xs text-sage-500 mt-3">We couldn&apos;t check for an assessment in progress. {historyError}</p>
+          )}
         </div>
       </div>
     </div>

@@ -1,270 +1,256 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
+import { ApiError } from '@/lib/api/client';
+import {
+  startAssessment,
+  getNextQuestion,
+  submitAnswer,
+  completeAssessment,
+  listAssessments,
+  getAssessment,
+  compareAssessments,
+  isAssessmentId,
+  type AnswerValue,
+  type AssessmentDetail,
+  type AssessmentListItem,
+  type AssessmentQuestion,
+  type CompleteAssessmentResult,
+  type DimensionScores,
+} from '@/lib/api/assessment';
 
-export type DimensionCategory = 'Product' | 'Market' | 'Money' | 'Legal' | 'Team';
-export type QuestionType = 'single_choice' | 'multi_choice' | 'scale' | 'numeric' | 'short_text';
+export type {
+  AssessmentQuestion,
+  AssessmentListItem,
+  AssessmentDetail,
+  CompleteAssessmentResult,
+} from '@/lib/api/assessment';
 
-export interface AssessmentQuestion {
-  id: string;
-  sectionNumber: number;
-  sectionName: DimensionCategory;
-  title: string;
-  type: QuestionType;
-  options?: Array<{ label: string; value: string }>;
-  currencyPrefix?: string;
-  helperText?: string;
-}
+type FieldError = { field?: string; message?: string };
 
-export interface AssessmentSession {
-  id: string;
-  startupId: string;
-  type: 'initial' | 'quarterly';
-  status: 'in_progress' | 'completed';
-  progressPct: number;
-  currentQuestionIndex: number;
-  answers: Record<string, any>;
-  newScore?: number;
-}
-
-export interface AssessmentHistoryItem {
-  id: string;
-  completedAt: string;
-  resultingScore: number;
-  stage: string;
-  dimensionScores: Record<DimensionCategory, number>;
-}
-
-// MOCK QUESTIONS
-export const MOCK_QUESTIONS: AssessmentQuestion[] = [
-  {
-    id: "q_prod_1",
-    sectionNumber: 1,
-    sectionName: "Product",
-    title: "How far along is your product?",
-    type: "single_choice",
-    options: [
-      { label: "Just an idea", value: "idea" },
-      { label: "A prototype", value: "prototype" },
-      { label: "An MVP that is live", value: "mvp" },
-      { label: "In market with users", value: "market" }
-    ]
-  },
-  {
-    id: "q_prod_2",
-    sectionNumber: 1,
-    sectionName: "Product",
-    title: "How confident are you in your core feature set?",
-    type: "scale"
-  },
-  {
-    id: "q_mkt_1",
-    sectionNumber: 2,
-    sectionName: "Market",
-    title: "Which of these have you validated with real people?",
-    type: "multi_choice",
-    options: [
-      { label: "The problem", value: "problem" },
-      { label: "Willingness to pay", value: "wtp" },
-      { label: "A channel that works", value: "channel" },
-      { label: "Your pricing", value: "pricing" }
-    ]
-  },
-  {
-    id: "q_mkt_2",
-    sectionNumber: 2,
-    sectionName: "Market",
-    title: "How well do you know your target customer?",
-    type: "single_choice",
-    options: [
-      { label: "Still guessing", value: "guessing" },
-      { label: "A rough idea", value: "rough" },
-      { label: "A clear persona", value: "persona" },
-      { label: "Deeply, from interviews", value: "deeply" }
-    ]
-  },
-  {
-    id: "q_money_1",
-    sectionNumber: 3,
-    sectionName: "Money",
-    title: "Roughly how much cash do you have on hand?",
-    type: "numeric",
-    currencyPrefix: "₦"
-  },
-  {
-    id: "q_money_2",
-    sectionNumber: 3,
-    sectionName: "Money",
-    title: "What is your monthly net burn?",
-    type: "numeric",
-    currencyPrefix: "₦"
-  },
-  {
-    id: "q_legal_1",
-    sectionNumber: 4,
-    sectionName: "Legal",
-    title: "Is your company incorporated?",
-    type: "single_choice",
-    options: [
-      { label: "Not yet", value: "no" },
-      { label: "In progress", value: "progress" },
-      { label: "Yes, fully formed", value: "yes" }
-    ]
-  },
-  {
-    id: "q_team_1",
-    sectionNumber: 5,
-    sectionName: "Team",
-    title: "How well are your key skill areas covered?",
-    type: "scale"
-  },
-  {
-    id: "q_team_2",
-    sectionNumber: 5,
-    sectionName: "Team",
-    title: "Anything else about your team I should factor in?",
-    type: "short_text"
+/** Founder-facing message for an assessment API failure (guide §4). */
+export function assessmentErrMsg(err: unknown): string {
+  if (err instanceof ApiError) {
+    const d = err.data as
+      | { error?: { code?: string; message?: string; field_errors?: FieldError[] | Record<string, string> } }
+      | undefined;
+    if (err.status === 403) return 'Only founders can take the assessment in this workspace.';
+    if (err.status === 404) return 'We could not find that assessment.';
+    return d?.error?.message || 'Something went wrong with the assessment.';
   }
-];
+  return 'Something went wrong with the assessment.';
+}
 
-// MOCK HISTORY
-export const MOCK_HISTORY: AssessmentHistoryItem[] = [
-  {
-    id: "hist_1",
-    completedAt: "Jul 20, 2026",
-    resultingScore: 74,
-    stage: "Validation stage",
-    dimensionScores: {
-      Product: 80,
-      Market: 75,
-      Money: 60,
-      Legal: 90,
-      Team: 65
-    }
-  },
-  {
-    id: "hist_2",
-    completedAt: "Apr 18, 2026",
-    resultingScore: 72,
-    stage: "Validation stage",
-    dimensionScores: {
-      Product: 70,
-      Market: 65,
-      Money: 60,
-      Legal: 90,
-      Team: 75
-    }
-  },
-  {
-    id: "hist_3",
-    completedAt: "Jan 10, 2026",
-    resultingScore: 63,
-    stage: "Idea stage",
-    dimensionScores: {
-      Product: 50,
-      Market: 45,
-      Money: 80,
-      Legal: 10,
-      Team: 130 // using scale appropriately maybe later
-    }
-  }
-];
+/** Past + in-progress assessments, newest first (GET /assessments). */
+export function useAssessmentHistory() {
+  const [items, setItems] = useState<AssessmentListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export function useAssessmentApi() {
-  const [history, setHistory] = useState<AssessmentHistoryItem[]>(MOCK_HISTORY);
-  const [activeSession, setActiveSession] = useState<AssessmentSession | null>(() => {
-    // Look for an unfinished session in localStorage
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem('assessment_active_session');
-      if (stored) return JSON.parse(stored);
+  const load = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setItems(await listAssessments());
+    } catch (err) {
+      setError(assessmentErrMsg(err));
+    } finally {
+      setLoading(false);
     }
-    return null;
-  });
-
-  const getAssessmentHistory = useCallback(() => {
-    return history;
-  }, [history]);
-
-  const startAssessment = useCallback(() => {
-    const newSession: AssessmentSession = {
-      id: `session_${Date.now()}`,
-      startupId: "startup_1",
-      type: "quarterly",
-      status: "in_progress",
-      progressPct: 10,
-      currentQuestionIndex: 0,
-      answers: {}
-    };
-    setActiveSession(newSession);
-    if (typeof window !== "undefined") {
-      localStorage.setItem('assessment_active_session', JSON.stringify(newSession));
-    }
-    return newSession.id;
   }, []);
 
-  const resumeAssessment = useCallback(() => {
-    return activeSession;
-  }, [activeSession]);
-
-  const saveAnswer = useCallback((id: string, answer: unknown) => {
-    setActiveSession(prev => {
-      if (!prev) return null;
-      
-      const newAnswers = { ...prev.answers, [id]: answer };
-      const currentQuestionIndex = MOCK_QUESTIONS.findIndex(q => q.id === id);
-      const nextIndex = currentQuestionIndex + 1;
-      const progressPct = Math.min(100, Math.floor((nextIndex / MOCK_QUESTIONS.length) * 100));
-
-      const updated = {
-        ...prev,
-        answers: newAnswers,
-        currentQuestionIndex: nextIndex,
-        progressPct
-      };
-
-      if (typeof window !== "undefined") {
-        localStorage.setItem('assessment_active_session', JSON.stringify(updated));
-      }
-      return updated;
+  useEffect(() => {
+    queueMicrotask(() => {
+      void load();
     });
+  }, [load]);
+
+  const completed = items.filter((i) => i.status === 'completed');
+  const inProgress = items.find((i) => i.status === 'in_progress') ?? null;
+
+  return { items, completed, inProgress, loading, error, refetch: load };
+}
+
+/** Lazy per-assessment detail cache (scores + narrative) for the results accordion. */
+export function useAssessmentDetails() {
+  const [details, setDetails] = useState<Record<string, AssessmentDetail>>({});
+  const [failed, setFailed] = useState<Record<string, string>>({});
+
+  const ensure = useCallback(
+    async (id: string) => {
+      if (details[id]) return;
+      try {
+        const detail = await getAssessment(id);
+        setDetails((prev) => ({ ...prev, [id]: detail }));
+        setFailed((prev) => {
+          if (!(id in prev)) return prev;
+          const { [id]: _drop, ...rest } = prev;
+          void _drop;
+          return rest;
+        });
+      } catch (err) {
+        setFailed((prev) => ({ ...prev, [id]: assessmentErrMsg(err) }));
+      }
+    },
+    [details]
+  );
+
+  return { details, failed, ensure };
+}
+
+/** Dimension scores for up to 3 selected completed assessments (GET /assessments/compare). */
+export function useAssessmentComparison(ids: string[]) {
+  const [scores, setScores] = useState<Record<string, DimensionScores>>({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const key = ids.join(',');
+
+  useEffect(() => {
+    if (!key) return;
+    let cancelled = false;
+    queueMicrotask(async () => {
+      if (cancelled) return;
+      try {
+        setLoading(true);
+        setError(null);
+        const rows = await compareAssessments(key.split(','));
+        if (cancelled) return;
+        setScores((prev) => ({ ...prev, ...Object.fromEntries(rows.map((r) => [r.id, r.dimension_scores])) }));
+      } catch (err) {
+        if (!cancelled) setError(assessmentErrMsg(err));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [key]);
+
+  return { scores, loading, error };
+}
+
+/** POST /assessments from the start page: idempotent start-or-resume. */
+export function useStartAssessment() {
+  const [starting, setStarting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const start = useCallback(async (): Promise<string | null> => {
+    try {
+      setStarting(true);
+      setError(null);
+      const res = await startAssessment();
+      return res.assessment_id;
+    } catch (err) {
+      setError(assessmentErrMsg(err));
+      return null;
+    } finally {
+      setStarting(false);
+    }
   }, []);
 
-  const completeAssessment = useCallback(async () => {
-    if (!activeSession) return;
+  return { start, starting, error };
+}
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+/** The in-progress assessment, if any, and the question the founder is on. */
+export function useInProgressAssessment() {
+  const [assessment, setAssessment] = useState<AssessmentListItem | null>(null);
+  const [question, setQuestion] = useState<AssessmentQuestion | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    const newScore = 78; // Mock recalibrated score
-
-    const newItem: AssessmentHistoryItem = {
-      id: `hist_${Date.now()}`,
-      completedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      resultingScore: newScore,
-      stage: "Validation stage",
-      dimensionScores: {
-        Product: 85,
-        Market: 80,
-        Money: 65,
-        Legal: 90,
-        Team: 70
-      }
-    };
-
-    setHistory(prev => [newItem, ...prev]);
-    setActiveSession(null);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem('assessment_active_session');
+  const load = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const open = (await listAssessments()).find((a) => a.status === 'in_progress') ?? null;
+      setAssessment(open);
+      setQuestion(open ? await getNextQuestion(open.id) : null);
+    } catch (err) {
+      setError(assessmentErrMsg(err));
+    } finally {
+      setLoading(false);
     }
-    return newScore;
-  }, [activeSession]);
+  }, []);
 
-  return {
-    questions: MOCK_QUESTIONS,
-    activeSession,
-    getAssessmentHistory,
-    startAssessment,
-    resumeAssessment,
-    saveAnswer,
-    completeAssessment
-  };
+  useEffect(() => {
+    queueMicrotask(() => {
+      void load();
+    });
+  }, [load]);
+
+  return { assessment, question, loading, error, refetch: load };
+}
+
+export type RunnerPhase = 'loading' | 'question' | 'completing' | 'done' | 'error';
+
+/**
+ * Server-driven adaptive runner. The server owns which question is next: the hook
+ * holds the current question, `answer` advances to whatever the server returns, and
+ * once there is no next question it completes and exposes the real result.
+ * Loading an already-finished assessment lands on its result too (complete is idempotent).
+ */
+export function useAssessmentRunner(assessmentId: string) {
+  const [phase, setPhase] = useState<RunnerPhase>('loading');
+  const [question, setQuestion] = useState<AssessmentQuestion | null>(null);
+  const [result, setResult] = useState<CompleteAssessmentResult | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [answerError, setAnswerError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [answeredCount, setAnsweredCount] = useState(0);
+
+  const finish = useCallback(async () => {
+    setPhase('completing');
+    try {
+      setResult(await completeAssessment(assessmentId));
+      setPhase('done');
+    } catch (err) {
+      setLoadError(assessmentErrMsg(err));
+      setPhase('error');
+    }
+  }, [assessmentId]);
+
+  const load = useCallback(async () => {
+    setPhase('loading');
+    setLoadError(null);
+    if (!isAssessmentId(assessmentId)) {
+      setLoadError(assessmentErrMsg(new ApiError(404, 'Not Found', null)));
+      setPhase('error');
+      return;
+    }
+    try {
+      const next = await getNextQuestion(assessmentId);
+      setQuestion(next);
+      if (next) setPhase('question');
+      else await finish();
+    } catch (err) {
+      setLoadError(assessmentErrMsg(err));
+      setPhase('error');
+    }
+  }, [assessmentId, finish]);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void load();
+    });
+  }, [load]);
+
+  const answer = useCallback(
+    async (value: AnswerValue) => {
+      if (!question || submitting) return;
+      try {
+        setSubmitting(true);
+        setAnswerError(null);
+        const next = await submitAnswer(assessmentId, question.key, value);
+        setAnsweredCount((n) => n + 1);
+        setQuestion(next);
+        if (!next) await finish();
+      } catch (err) {
+        setAnswerError(assessmentErrMsg(err));
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [assessmentId, question, submitting, finish]
+  );
+
+  return { phase, question, result, submitting, answerError, loadError, answeredCount, answer, retry: load };
 }
