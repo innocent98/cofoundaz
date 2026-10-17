@@ -7,6 +7,7 @@ import type { AIBriefing, BriefingAction } from '@/types/dashboard';
 import type { BriefingAcceptResult } from '@/lib/api/dashboard';
 import { briefingActionErrorMessage } from '@/hooks/useDashboardApi';
 import { ApiError } from '@/lib/api/client';
+import { safeInternalHref } from '@/lib/safe-href';
 import { CardError, CardSkeleton } from './card-states';
 
 export const BRIEFING_EMPTY_COPY =
@@ -50,7 +51,8 @@ export function BriefingCard({
     try {
       const result = await accept(briefing.id, action.index);
       onChanged();
-      if (result.kind === 'navigate' && result.href) navigate(result.href);
+      const target = safeInternalHref(result.href);
+      if (result.kind === 'navigate' && target) navigate(target);
     } catch (err) {
       setError(briefingActionErrorMessage(err));
       // A stale briefing (tab left open overnight) is replaced by today's; do not retry.

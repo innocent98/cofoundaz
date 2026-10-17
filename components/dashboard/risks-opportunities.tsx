@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import type { AIContentStatus, OpportunityItem, RiskItem } from '@/types/dashboard';
+import { safeInternalHref } from '@/lib/safe-href';
 import { CardError, CardSkeleton } from './card-states';
 
 export const RISKS_EMPTY_COPY = 'No open risks. I’m watching runway, deadlines, and pipeline for you.';
@@ -50,8 +51,8 @@ function Row({ dot, text, href, cta }: { dot: string; text: string; href: string
         <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${dot}`} aria-hidden="true" />
         <p className="text-sm text-sage-700 leading-snug">{text}</p>
       </div>
-      {href ? (
-        <Link href={href} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
+      {safeInternalHref(href) ? (
+        <Link href={safeInternalHref(href) as string} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
           {cta}
         </Link>
       ) : null}

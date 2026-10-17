@@ -2,6 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { safeInternalHref } from '@/lib/safe-href';
 import { SearchOverlay } from './search-overlay';
 
 interface SearchContextValue {
@@ -32,7 +33,10 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   return (
     <SearchContext.Provider value={value}>
       {children}
-      <SearchOverlay open={open} onClose={() => setOpen(false)} onSelect={(r) => router.push(r.href)} />
+      <SearchOverlay open={open} onClose={() => setOpen(false)} onSelect={(r) => {
+          const href = safeInternalHref(r.href);
+          if (href) router.push(href);
+        }} />
     </SearchContext.Provider>
   );
 }

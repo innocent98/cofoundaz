@@ -119,3 +119,12 @@ describe('BriefingCard', () => {
     expect(briefingSeed(ready)).toContain('NovaPay is at the idea stage.');
   });
 });
+
+describe('BriefingCard navigation safety', () => {
+  it('never navigates to an external href returned for a navigate action', async () => {
+    const p = setup({ accept: vi.fn().mockResolvedValue({ action_index: 1, kind: 'navigate', href: 'https://evil.example', mission_task: null }) });
+    fireEvent.click(screen.getByRole('button', { name: 'Do it: Review the deadline' }));
+    await waitFor(() => expect(p.onChanged).toHaveBeenCalled());
+    expect(p.navigate).not.toHaveBeenCalled();
+  });
+});
