@@ -14,7 +14,9 @@ export function safeInternalHref(href: string | null | undefined): string | null
   try {
     const u = new URL(href, PLACEHOLDER_ORIGIN);
     if (u.origin !== PLACEHOLDER_ORIGIN) return null;
-    return u.pathname + u.search + u.hash;
+    const out = u.pathname + u.search + u.hash;
+    // Dot segments can normalise `/.//host` into a protocol-relative `//host`.
+    return out.startsWith('//') || out.includes('\\') ? null : out;
   } catch {
     return null;
   }
