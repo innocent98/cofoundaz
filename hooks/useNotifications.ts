@@ -39,6 +39,16 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
   if (type === 'finance.runway.low') return '/finance/runway';
   if (type === 'assessment.completed') return '/assessment/results';
   if (type === 'healthscore.dropped') return '/health';
+  if (type === 'roadmap.milestone.overdue') return '/roadmap/replan';
+  if (type === 'roadmap.milestone.due_soon') {
+    return typeof data?.milestone_id === 'string' ? `/roadmap?milestone=${encodeURIComponent(data.milestone_id)}` : '/roadmap';
+  }
+  if (type === 'team.comment.mentioned') {
+    const id = typeof data?.entity_id === 'string' ? encodeURIComponent(data.entity_id) : null;
+    if (id && data?.entity_type === 'roadmap_milestone') return `/roadmap?milestone=${id}`;
+    if (id && data?.entity_type === 'roadmap_task') return `/roadmap?task=${id}`;
+    return '/roadmap';
+  }
   if (type === 'kpi.threshold.crossed') {
     switch (data?.metric) {
       case 'runway':
@@ -57,7 +67,7 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
 function categoryFor(type: string): NotificationCategory {
   if (type.startsWith('mission') || type.startsWith('roadmap') || type.startsWith('business') || type.startsWith('assessment')) return 'Missions';
   if (type.startsWith('healthscore') || type.startsWith('finance') || type.startsWith('kpi')) return 'Finance';
-  if (type.startsWith('workspace') || type.startsWith('document')) return 'Team';
+  if (type.startsWith('workspace') || type.startsWith('document') || type.startsWith('team')) return 'Team';
   return 'Missions';
 }
 
@@ -69,7 +79,7 @@ function iconFor(type: string): { iconText: string; iconBg: string } {
   if (type.startsWith('dashboard')) return { iconText: '✦', iconBg: 'bg-[#EAF2ED]' };
   if (type.startsWith('kpi')) return { iconText: '↗', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('roadmap')) return { iconText: '🗺', iconBg: 'bg-[#F7EEDC]' };
-  if (type.startsWith('workspace')) return { iconText: '👤', iconBg: 'bg-[#EAF2ED]' };
+  if (type.startsWith('workspace') || type.startsWith('team')) return { iconText: '👤', iconBg: 'bg-[#EAF2ED]' };
   return { iconText: '•', iconBg: 'bg-[#F5F5F0]' };
 }
 

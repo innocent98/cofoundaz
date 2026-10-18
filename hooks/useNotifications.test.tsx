@@ -34,6 +34,15 @@ describe('notification deep links', () => {
     expect(notificationHref(briefingReady.type, briefingReady.data)).toBe('/dashboard');
   });
 
+  it('Roadmap notifications land on the milestone, the task, or the re-plan', () => {
+    expect(notificationHref('roadmap.milestone.due_soon', { milestone_id: 'm1', title: 'Launch', relative: 'tomorrow' })).toBe('/roadmap?milestone=m1');
+    expect(notificationHref('roadmap.milestone.due_soon', {})).toBe('/roadmap');
+    expect(notificationHref('roadmap.milestone.overdue', { milestone_id: 'm1' })).toBe('/roadmap/replan');
+    expect(notificationHref('team.comment.mentioned', { entity_type: 'roadmap_milestone', entity_id: 'm1' })).toBe('/roadmap?milestone=m1');
+    expect(notificationHref('team.comment.mentioned', { entity_type: 'roadmap_task', entity_id: 't1' })).toBe('/roadmap?task=t1');
+    expect(notificationHref('team.comment.mentioned', {})).toBe('/roadmap');
+  });
+
   it('KPI thresholds deep-link by metric', () => {
     expect(notificationHref('kpi.threshold.crossed', { metric: 'runway' })).toBe('/finance/runway');
     expect(notificationHref('kpi.threshold.crossed', { metric: 'revenue' })).toBe('/finance');
