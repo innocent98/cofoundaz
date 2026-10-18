@@ -52,7 +52,8 @@ Decisions and rejected alternatives:
 
 See the checklist for the per-row live evidence. Summary:
 
-- CI gates run locally (the exact set in `.github/workflows/ci.yml`): `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e`. Results are in the PR body.
+- CI gates run locally (the exact set in `.github/workflows/ci.yml`): `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e`: all green (typecheck, lint, 444 unit tests, production build, 153 e2e).
+- Accessibility: not part of CI for the dashboard (the axe sweep is marketing-only), so a throwaway axe run (WCAG A/AA) against the live dashboard at 1440px and 375px, also with the search and invite dialogs open, found only colour-contrast failures, all fixed (sage-400 text and the white-on-copper Tell me more button). Zero violations after.
 - Live on the local full stack (BE integration branch in docker, FE `:3004`, throwaway founder + a mentor invited from the UI and accepted via the emailed link) at desktop and 375px: every row of the gap list, every CTA clicked.
 - Founder walk: skeleton then real data, ⌘K search to navigation by keyboard, invite (422 per row, created + skipped), mission tick (real PATCH, Tasks KPI 0 to 1, sidebar badge followed), Tell me more (seeded conversation), ⌘J, hover label, avatar menu Preferences, live activity (rows arrived without reload for adds and completes).
 - Mentor walk: no "+ Invite", nav cut to Dashboard / Health / Roadmap / Business Builder / Documents / Analytics / bottom links, no AI dock, briefing/risks/opportunities cards hidden, restricted KPI tiles hidden, read-only mission, greeting "Good morning." (empty `first_name`), workspace name from memberships.
