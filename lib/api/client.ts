@@ -8,7 +8,7 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
 
 // Guard so parallel 401s (the dashboard fires many calls at once) trigger a
 // single redirect, not a storm of them.

@@ -7,7 +7,9 @@ import { usePathname } from 'next/navigation';
 import CofaundazLogo from '@/components/CofaundazLogo';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useStartupProfile } from '@/hooks/useStartupProfile';
-import { useMe } from '@/hooks/useMe';
+import { useWorkspace } from '@/components/workspace-context';
+import { useMissionOpenCount } from '@/hooks/useMissionOpenCount';
+import { canSee } from '@/lib/nav-access';
 import { logout } from '@/lib/api/profile';
 import {
   LayoutGrid,
@@ -38,6 +40,7 @@ import {
   LogOut,
   Check,
   UserCircle,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 interface NavItem {
@@ -148,18 +151,24 @@ export default function Sidebar({
   const pathname = usePathname();
   const { unreadCount } = useNotifications();
   const { name, stageLabel, logoUrl, founderName, founderRole, loading } = useStartupProfile();
-  const { me } = useMe();
+  const { me, role, workspaceId, workspaceName: membershipName, loading: roleLoading } = useWorkspace();
+  const missionOpen = useMissionOpenCount(canSee('/mission', role), pathname ?? '');
 
   // Real workspace identity with neutral (non-fabricated) fallbacks.
-  const workspaceName = name?.trim() || (loading ? 'Loading…' : 'Your workspace');
-  const workspaceInitial = (name?.trim()?.charAt(0) || 'W').toUpperCase();
+  const workspaceName = membershipName || name?.trim() || (loading ? 'Loading…' : 'Your workspace');
+  const workspaceInitial = (workspaceName.charAt(0) || 'W').toUpperCase();
   const founderDisplay = founderName?.trim() || (loading ? 'Loading…' : 'Your account');
   const founderInitials = initialsOf(founderName) || 'U';
   const founderRoleText = founderRole?.trim() || 'Founder';
   const founderAvatar = me?.profile.avatar_url ?? null;
   const founderEmail = me?.user.email ?? null;
   const memberships = me?.memberships ?? [];
-  const activeWorkspaceId = me?.active_workspace_id ?? null;
+  const activeWorkspaceId = workspaceId ?? me?.active_workspace_id ?? null;
+
+  // Role-based rendering (PRD 2.1): what the role cannot open is hidden, not disabled.
+  const visibleSections = navSections
+    .map((section) => ({ ...section, items: section.items.filter((item) => canSee(item.href, role)) }))
+    .filter((section) => section.items.length > 0);
 
   // Dropdown menus for the workspace switcher (top) and profile (bottom).
   const [switcherOpen, setSwitcherOpen] = useState(false);
@@ -328,10 +337,17 @@ export default function Sidebar({
           </div>
 
           {/* Navigation Groups */}
+          {roleLoading ? (
+            <div role="status" aria-label="Loading navigation" className="flex w-full flex-col space-y-3 px-2">
+              {Array.from({ length: 8 }, (_, i) => (
+                <div key={i} className="h-8 rounded-modal bg-[#0C2419] animate-pulse" />
+              ))}
+            </div>
+          ) : (
           <div className="flex w-full flex-col space-y-6">
-            {navSections.map((section) => (
+            {visibleSections.map((section) => (
               <div key={section.title} className="w-full">
-                <p className="block w-full text-[11px] font-bold uppercase tracking-wider text-[#4D6D58] mb-2 px-2">
+                <p className="block w-full text-[11px] font-bold uppercase tracking-wider text-[#7B9382] mb-2 px-2">
                   {section.title}
                 </p>
 
@@ -366,6 +382,14 @@ export default function Sidebar({
                           {item.locked && (
                             <Lock className="w-3.5 h-3.5 shrink-0 text-[#D89A6E]" />
                           )}
+                          {item.href === '/mission' && missionOpen > 0 && (
+                            <span
+                              aria-label={`${missionOpen} open ${missionOpen === 1 ? 'task' : 'tasks'}`}
+                              className="shrink-0 bg-[#D89A6E] text-[#061A12] text-xs font-bold px-1.5 py-0.5 rounded-full"
+                            >
+                              {missionOpen > 9 ? '9+' : missionOpen}
+                            </span>
+                          )}
                         </Link>
                       </li>
                     );
@@ -374,6 +398,7 @@ export default function Sidebar({
               </div>
             ))}
           </div>
+          )}
         </div>
 
         {/* Footer Navigation & Profile */}
@@ -468,7 +493,15 @@ export default function Sidebar({
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
                 >
                   <UserCircle className="w-4 h-4 shrink-0 text-[#7B9382]" />
-                  View account
+                  Profile
+                </Link>
+                <Link
+                  href="/notifications?tab=preferences"
+                  onClick={() => { setProfileOpen(false); handleClose(); }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                >
+                  <SlidersHorizontal className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  Preferences
                 </Link>
                 <Link
                   href="/settings"
@@ -487,7 +520,7 @@ export default function Sidebar({
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#E88B7D] hover:text-white hover:bg-[#3A1A16] disabled:opacity-60 transition-colors"
                 >
                   <LogOut className="w-4 h-4 shrink-0" />
-                  {loggingOut ? 'Logging out…' : 'Log out'}
+                  {loggingOut ? 'Signing out…' : 'Sign out'}
                 </button>
               </div>
             )}

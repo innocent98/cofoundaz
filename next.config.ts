@@ -9,9 +9,12 @@ import type { NextConfig } from "next";
 const API_PROXY_TARGET =
   process.env.API_PROXY_TARGET || "https://staging-api.cofoundaz.com";
 
-const devApiProxy: Pick<NextConfig, "rewrites"> =
+// `compress: false` in dev: gzip in the rewrite proxy buffers the SSE notifications
+// stream (the browser sends Accept-Encoding), so live activity/notifications never arrive.
+const devApiProxy: Pick<NextConfig, "rewrites" | "compress"> =
   process.env.NODE_ENV === "development"
     ? {
+        compress: false,
         async rewrites() {
           return {
             beforeFiles: [
