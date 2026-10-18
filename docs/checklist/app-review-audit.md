@@ -56,11 +56,28 @@ Dashboard loads and is **largely solid, honest, and wired**: greeting (Victor/No
 **Real blockers behind the honest "coming soon" (each its own module):**
 - **Assessment** (BE-blocked: missing question prompts) — dashboard/health/mission all nudge here; medium BE fix; next in journey order.
 - **AI Co-Founder chat** (no conversation endpoint) — large BE build (conversations/messages/streaming).
-- [x] **Dashboard KPIs** — FE tiles wired to BE `kpis.metrics` (Revenue / Runway / Campaign CTR live, honest state per status; 2026-10-17, SOP `2026-10-17-dashboard-kpi-tiles-wiring`). Pipeline stays Coming Soon (no Sales backend). Remaining: Finance/Marketing/Sales hubs still mock, so the `no_data` CTA lands on a mock page. Marketing hub wired to the real backend (PR #102).
+- [x] **Dashboard KPIs** — FE tiles wired to BE `kpis.metrics` (Revenue / Runway / Campaign CTR live, honest state per status; 2026-10-17, SOP `2026-10-17-dashboard-kpi-tiles-wiring`). Pipeline stays Coming Soon (no Sales backend). Remaining: Finance/Marketing/Sales hubs still mock, so the `no_data` CTA lands on a mock page. Marketing hub wired to the real backend (PR #102). Finance hub wired to the real API (PR #103).
 - **Team invite from dashboard** (no member-invite endpoint) — medium BE.
 
 ## Known BE-blocked (to review/unblock this pass)
 AI Co-Founder chat (no conversation endpoint) · Assessment question prompts missing · Journal writes (key — set locally ✓) · MFA disable + SMS · emailed sign/share link host · post-onboarding profile/avatar edit. (`docs/backend-requests-ui-gaps.md`)
+
+
+## Module 12 — Finance Hub
+
+All seven pages wired to the real `/api/v1/finance/*` API and verified live on 2026-10-17 (SOP `docs/sop/2026-10-17-finance-hub-wiring.md`). No mock data remains.
+
+| ID | Area | Status |
+|----|------|--------|
+| F1 | Cash flow and transactions (add, edit, categorize, delete, runway banner) | ✅ wired, verified live |
+| F2 | Runway (scenarios, save assumptions) | ✅ wired, verified live |
+| F3 | Invoices (create, edit, send, mark paid/unpaid, delete, auto-remind, print) | ✅ wired, verified live |
+| F4 | Expenses (CRUD, receipts, recurring, breakdown) | ✅ wired, verified live |
+| F5 | Budgets (CRUD, draft from actuals, copy last month) | ✅ wired, verified live |
+| F6 | Financial model (async generate, statements, sensitivity, CSV) | ✅ wired, verified live |
+| F7 | Integrations (bank, QuickBooks, Xero, Stripe) | B3 not built: honest "Not connected" and disabled "Coming soon" (needs OAuth and real third-party accounts) |
+| F8 | Fabricated "Connected as GTBank / Stripe" state | ✅ removed |
+| F9 | Finance header "+ Invite" (dead button, no invite endpoint) | ✅ removed from Finance layout |
 
 ---
 

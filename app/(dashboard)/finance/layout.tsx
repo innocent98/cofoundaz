@@ -1,15 +1,16 @@
 "use client";
 
 import React from "react";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ToastProvider } from "./ToastContext";
-import { UserPlus } from 'lucide-react';
+import { useSidebar } from '@/components/sidebar-context';
 import { HealthPill } from '@/components/health-pill';
 import { NotificationBell } from '@/components/notification-bell';
 
 export default function FinanceLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
+  const { openSidebar } = useSidebar();
 
   const navItems = [
     { name: "Cash flow", path: "/finance" },
@@ -31,14 +32,15 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
             <div className="flex min-w-0 flex-1 items-center gap-2">
               <button
                 type="button"
-                aria-label="Sidebar Menu"
+                aria-label="Open menu"
+                onClick={openSidebar}
                 className="lg:hidden h-8 w-8 rounded-full bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-[11px] shadow-card hover:opacity-90 transition-opacity shrink-0"
               >
                 C
               </button>
 
               <div className="flex min-w-0 items-center gap-1 text-sm text-sage-500">
-                <span className="truncate hover:text-sage-700 cursor-pointer font-medium text-sm">Workspace</span>
+                <Link href="/dashboard" className="truncate hover:text-sage-700 font-medium text-sm">Workspace</Link>
                 <span className="text-sage-400">/</span>
                 <span className="truncate font-bold text-[#1E2923] text-base">Finance Hub</span>
               </div>
@@ -48,11 +50,6 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
               <HealthPill className="bg-green-100 text-green-900 px-2 py-1 rounded-full text-[10px] md:text-xs font-medium flex items-center gap-1 border border-green-200" />
 
               <NotificationBell />
-
-              <button className="bg-copper-600 hover:bg-copper-700 text-white font-semibold px-2.5 py-1.5 h-7 rounded-full text-xs transition-colors flex items-center gap-1 cursor-pointer leading-none">
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>+ Invite</span>
-              </button>
             </div>
           </header>
 
@@ -60,9 +57,10 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
             {navItems.map((tab) => {
               const isActive = pathname === tab.path || (tab.path !== "/finance" && pathname?.startsWith(tab.path));
               return (
-                <button
+                <Link
                   key={tab.name}
-                  onClick={() => router.push(tab.path)}
+                  href={tab.path}
+                  aria-current={isActive ? "page" : undefined}
                   className={`px-3.5 py-1.5 md:px-4 md:py-2 rounded-full text-[11px] md:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                     isActive
                       ? "bg-copper-200 text-copper-700 shadow-card font-semibold"
@@ -70,7 +68,7 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
                   }`}
                 >
                   {tab.name}
-                </button>
+                </Link>
               );
             })}
           </nav>
