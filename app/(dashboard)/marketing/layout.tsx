@@ -58,16 +58,22 @@ function MarketingLayoutContent({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* TOAST NOTIFICATION */}
-        {toast.show && (
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-            <div className="bg-[#0e271f] text-white px-5 py-3 rounded-modal shadow-raised flex items-center gap-3 border border-[#1f4236]">
-              <span className="text-green-400 font-bold text-sm">✓</span>
-              <span className="font-medium text-sm tracking-wide text-sage-100">
-                {toast.message}
+        <div aria-live="polite" role="status" className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+          {toast.show && (
+            <div
+              className={`px-5 py-3 rounded-modal shadow-raised flex items-center gap-3 border ${
+                toast.kind === 'error'
+                  ? 'bg-red-50 border-red-200 text-red-800'
+                  : 'bg-[#0e271f] border-[#1f4236] text-sage-100'
+              }`}
+            >
+              <span className={`font-bold text-sm ${toast.kind === 'error' ? 'text-red-600' : 'text-green-400'}`}>
+                {toast.kind === 'error' ? '!' : '✓'}
               </span>
+              <span className="font-medium text-sm tracking-wide">{toast.message}</span>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="sticky top-0 z-40 bg-[#F7F7F5] border-b border-[#EBEBE6]">
           <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4">
@@ -92,9 +98,6 @@ function MarketingLayoutContent({ children }: { children: React.ReactNode }) {
 
               <NotificationBell className="relative p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923] flex items-center justify-center" />
 
-              <button className="flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs md:text-sm transition-colors shadow-card">
-                <span>+ Invite</span>
-              </button>
             </div>
           </header>
 

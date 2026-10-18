@@ -7,8 +7,8 @@ checked only when done **and** verified (gates green).
 ## Snapshot  <!-- reconciled 2026-10-03 -->
 - ✅ Done: Marketing site · Design-token system (+ in-app em/en dash sweep) · CI + pre-commit hook · Real `cofoundaz-api` integration across **Auth/session · Onboarding · Dashboard (honest, real activity) · Health (+subroutes+charts) · Mission (+actions/history) · Roadmap (tree+all write slices+Kanban+re-plan) · Business Builder (canvases+records+suggestions+positioning + **AI-fill real polling** + **AI business-plan generator**) · Notifications (+prefs) · Journal (reads) · Learning · Documents (files/sharing/e-sign/templates/editor) · MFA · Invite/Sign · Account page · Sidebar workspace identity + menus/logout** · AI Co-Founder enrichment features (briefing, mission reasons, health recs, roadmap rationale, onboarding panel, AI-fill, business plan) — the **LLM worker now drains on staging**
 - 🟡 Backend-blocked (FE honest "coming soon"): Journal **writes** (encryption key) · MFA disable/SMS · emailed sign/share link host · post-onboarding profile/avatar edit
-- 🟡 In progress (wiring mock → real, backend ready): **Validation Hub** (slice 1 Assumptions ✅; interviews/surveys/experiments/AI next) · next up: **Marketing** then **Finance**
-- 🚫 Mock-only in FE (no wiring yet; **Finance + Marketing have backend APIs → wireable**): Finance · Sales · Marketing · Funding · Investor-Readiness · Legal hubs · Calendar · Analytics/Reports · Marketplace · Admin/Super-Admin
+- 🟡 In progress (wiring mock → real, backend ready): **Validation Hub** (slice 1 Assumptions ✅; interviews/surveys/experiments/AI next) · next up: **Finance** (Marketing ✅ wired)
+- 🚫 Mock-only in FE (no wiring yet; **Finance has a backend API → wireable**): Finance · Sales · Funding · Investor-Readiness · Legal hubs · Calendar · Analytics/Reports · Marketplace · Admin/Super-Admin
 - ⛔ Not started: Dashboard e2e/a11y coverage (the dashboard now has 150+ unit/component tests; Playwright sweep still marketing-only)
 
 ## Real API integration (replacing the mocks, module by module)
@@ -91,7 +91,10 @@ UI scaffolding shipped and tokenized (PR #10, #14), then integrated module-by-mo
 - [x] **Wire to the real `cofoundaz-api`** — integrated & verified live against staging: auth/refresh, onboarding, dashboard (honest cleanup + real activity feed + workspace identity/menus/logout + account page), health +subroutes +charts, mission +actions/history, roadmap +all write slices +Kanban +re-plan, business-builder canvases/records/suggestions/positioning + **AI-fill (real polling)** + **AI business-plan generator**, notifications +prefs, journal (reads), learning, documents +sharing/e-sign/templates/editor/recipient pages, MFA, invite/sign. The **AI Co-Founder enrichment features** (briefing/mission/health/roadmap/onboarding panel/AI-fill/plan) are live now that the **LLM worker drains on staging**. See [`docs/api-integration-handoff.md`](../api-integration-handoff.md) + `docs/sop/module-*`.
 - [x] Decide mock-handler fate in production — **removed** all 78 `app/api/v1/*` handlers; every call now goes through `apiClient` → real API base URL. See `docs/sop/mock-api-routes-removal.md`
 - [ ] Add dashboard routes to the e2e + axe sweep (currently marketing-only)
-- [ ] Wire the Finance + Marketing hubs (backend APIs now exist; FE still mock)
+- [~] Wire the Finance + Marketing hubs (backend APIs now exist). **Finance ✅ wired 2026-10-17** (cash flow, runway, invoices, expenses, budgets, model; SOP `2026-10-17-finance-hub-wiring`; connectors stay "Coming soon", BE needs OAuth). Marketing still pending
+
+- [x] Wire the Marketing hub (all 8 pages live against `/api/v1/marketing/*`, 2026-10-17, SOP `2026-10-17-marketing-hub-wiring`)
+- [ ] Wire the Finance hub (backend API exists; FE still mock)
 - ⛔ Backend-blocked (not FE bugs): journal **writes** (encryption key), emailed sign/share link host, post-onboarding profile/avatar edit. **AI-fill + business-plan generation are no longer blocked** (worker runs). See `docs/backend-requests-ui-gaps.md`.
 
 ## 4. Backlog / upcoming

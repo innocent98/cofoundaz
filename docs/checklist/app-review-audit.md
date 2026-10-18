@@ -56,9 +56,43 @@ Dashboard loads and is **largely solid, honest, and wired** (and, since 2026-10-
 **Real blockers behind the honest "coming soon" (each its own module):**
 - **Assessment** (BE-blocked: missing question prompts) — dashboard/health/mission all nudge here; medium BE fix; next in journey order.
 - **AI Co-Founder chat** (no conversation endpoint) — large BE build (conversations/messages/streaming).
-- [x] **Dashboard KPIs** — FE tiles wired to BE `kpis.metrics` (Revenue / Runway / Campaign CTR live, honest state per status; 2026-10-17, SOP `2026-10-17-dashboard-kpi-tiles-wiring`). Pipeline stays Coming Soon (no Sales backend). Remaining: Finance/Marketing/Sales hubs still mock, so the `no_data` CTA lands on a mock page.
+- [x] **Dashboard KPIs** — FE tiles wired to BE `kpis.metrics` (Revenue / Runway / Campaign CTR live, honest state per status; 2026-10-17, SOP `2026-10-17-dashboard-kpi-tiles-wiring`). Pipeline stays Coming Soon (no Sales backend). Remaining: Finance/Marketing/Sales hubs still mock, so the `no_data` CTA lands on a mock page. Marketing hub wired to the real backend (PR #102). Finance hub wired to the real API (PR #103).
 - [x] **Team invite from dashboard** — BE `POST /team/invitations` (#131) + FE modal wired 2026-10-18 (founder only; created/skipped/undelivered, per-row 422, 403/429). SOP `2026-10-18-dashboard-prd-complete`.
 - [x] **Dashboard PRD walkthrough (20 gaps)** — all closed 2026-10-18, each verified live (founder + invited mentor, desktop + 375px). Per-row evidence: `docs/checklist/dashboard-prd-gaps.md`.
 
 ## Known BE-blocked (to review/unblock this pass)
 AI Co-Founder chat (no conversation endpoint) · Assessment question prompts missing · Journal writes (key — set locally ✓) · MFA disable + SMS · emailed sign/share link host · post-onboarding profile/avatar edit. (`docs/backend-requests-ui-gaps.md`)
+
+
+## Module 12 — Finance Hub
+
+All seven pages wired to the real `/api/v1/finance/*` API and verified live on 2026-10-17 (SOP `docs/sop/2026-10-17-finance-hub-wiring.md`). No mock data remains.
+
+| ID | Area | Status |
+|----|------|--------|
+| F1 | Cash flow and transactions (add, edit, categorize, delete, runway banner) | ✅ wired, verified live |
+| F2 | Runway (scenarios, save assumptions) | ✅ wired, verified live |
+| F3 | Invoices (create, edit, send, mark paid/unpaid, delete, auto-remind, print) | ✅ wired, verified live |
+| F4 | Expenses (CRUD, receipts, recurring, breakdown) | ✅ wired, verified live |
+| F5 | Budgets (CRUD, draft from actuals, copy last month) | ✅ wired, verified live |
+| F6 | Financial model (async generate, statements, sensitivity, CSV) | ✅ wired, verified live |
+| F7 | Integrations (bank, QuickBooks, Xero, Stripe) | B3 not built: honest "Not connected" and disabled "Coming soon" (needs OAuth and real third-party accounts) |
+| F8 | Fabricated "Connected as GTBank / Stripe" state | ✅ removed |
+| F9 | Finance header "+ Invite" (dead button, no invite endpoint) | ✅ removed from Finance layout |
+
+---
+
+## Module 10 — Marketing Hub (wired 2026-10-17)
+
+All eight pages now run on the real `/api/v1/marketing/*` backend; every number comes from the API and every CTA performs a real action. SOP: `docs/sop/2026-10-17-marketing-hub-wiring.md`.
+
+- [x] Overview: real tiles (scheduled, active campaigns, top channel, AI ideas) + "this week's idea" from content gaps
+- [x] Calendar: month grid from API, create / edit / publish / delete, unscheduled backlog, AI "Plan my first week" with per-post and Add all accept
+- [x] Campaigns: 4-step wizard, AI channel split (Apply), launch / pause / resume / complete / edit / delete, segment targeting
+- [x] AI copy: real generation (poll to ready), More like this, Save to calendar, history, content-gap handoff
+- [x] Channels: 8 real cards, status + own notes, AI fit notes generation
+- [x] SEO: keywords CRUD, AI content gaps + Write it, on-page checklist, positioning statement
+- [x] Segments: CRUD, persona link, used-in + delete warning
+- [x] Analytics: funnel, gap-filled traffic, CAC by channel, leaderboard, range switch, Record metric (ingestion form)
+- [x] Loading / empty / error / "not available for your role" states on every page
+- [ ] Honest "coming soon": rule-based segment counting, campaign duplicate, calendar drag-to-reschedule, Marketing-hub "+ Invite" (removed; no hub-level invite flow)
