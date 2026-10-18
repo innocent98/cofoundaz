@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { useMissionApi } from '@/hooks/useMissionApi';
 import { useMissionHistory, MissionHistoryEntry } from '@/hooks/useMissionHistory';
 
 // Completion level (0–3) for the activity grid, from a day's mission (if any).
@@ -16,8 +15,7 @@ const LEVEL_COLORS = ['bg-[#EBF2EE]', 'bg-[#B5D4C0]', 'bg-[#4C8260]', 'bg-[#193C
 const WEEKS = 13;
 
 export default function MissionStreaksPage() {
-  const { streak } = useMissionApi();
-  const { missions, weeklyCompletionPct, loading } = useMissionHistory();
+  const { missions, weeklyCompletionPct, currentStreak: streak, bestStreak, loading } = useMissionHistory();
 
   const missionsByDate = useMemo(() => {
     const map = new Map<string, MissionHistoryEntry>();
@@ -25,6 +23,7 @@ export default function MissionStreaksPage() {
     return map;
   }, [missions]);
 
+  const days = (n: number) => (loading ? '\u2026' : `${n} ${n === 1 ? 'day' : 'days'}`);
   const completedCount = missions.filter((m) => m.status === 'complete').length;
 
   // Build a calendar-aligned grid: WEEKS columns × 7 rows (Sun→Sat), ending this
@@ -40,7 +39,7 @@ export default function MissionStreaksPage() {
       for (let row = 0; row < 7; row++) {
         const d = new Date(start);
         d.setDate(start.getDate() + col * 7 + row);
-        const iso = d.toISOString().slice(0, 10);
+        const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; // local date: toISOString shifts it in non-UTC zones
         out.push({ key: iso, level: levelFor(missionsByDate.get(iso)), future: d.getTime() > today.getTime() });
       }
     }
@@ -55,13 +54,18 @@ export default function MissionStreaksPage() {
           <p className="text-xs md:text-sm text-[#768478] mt-1.5 font-normal">Consistency beats intensity.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between h-36">
             <span className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">Current streak</span>
             <div className="flex items-center gap-2">
-              <span className="text-3xl font-display font-semibold text-[#1E2923]">{streak} {streak === 1 ? 'day' : 'days'}</span>
-              {streak > 0 && <span className="text-2xl">🔥</span>}
+              <span className="text-3xl font-display font-semibold text-[#1E2923]">{days(streak)}</span>
+              {streak > 0 && <span className="text-2xl" aria-hidden="true">🔥</span>}
             </div>
+          </div>
+
+          <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between h-36">
+            <span className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">Best streak</span>
+            <span className="text-3xl font-display font-semibold text-[#1E2923]">{days(bestStreak)}</span>
           </div>
 
           <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between h-36">

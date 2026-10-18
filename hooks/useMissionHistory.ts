@@ -19,6 +19,8 @@ export interface MissionHistoryEntry {
 export function useMissionHistory() {
   const [missions, setMissions] = useState<MissionHistoryEntry[]>([]);
   const [weeklyCompletionPct, setWeeklyCompletionPct] = useState<number>(0);
+  const [currentStreak, setCurrentStreak] = useState<number>(0);
+  const [bestStreak, setBestStreak] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,16 +28,20 @@ export function useMissionHistory() {
     try {
       setLoading(true);
       setError(null);
-      const res = await apiClient<{ data?: { missions?: MissionHistoryEntry[]; weekly_completion_pct?: number } }>(
+      const res = await apiClient<{ data?: { missions?: MissionHistoryEntry[]; weekly_completion_pct?: number; current_streak?: number; best_streak?: number } }>(
         '/missions/history'
       );
       const d = res?.data;
       setMissions(Array.isArray(d?.missions) ? d.missions : []);
       setWeeklyCompletionPct(typeof d?.weekly_completion_pct === 'number' ? d.weekly_completion_pct : 0);
+      setCurrentStreak(typeof d?.current_streak === 'number' ? d.current_streak : 0);
+      setBestStreak(typeof d?.best_streak === 'number' ? d.best_streak : 0);
     } catch (err) {
       setError((err as { message?: string })?.message || 'Failed to load mission history');
       setMissions([]);
       setWeeklyCompletionPct(0);
+      setCurrentStreak(0);
+      setBestStreak(0);
     } finally {
       setLoading(false);
     }
@@ -47,5 +53,5 @@ export function useMissionHistory() {
     })();
   }, [load]);
 
-  return { missions, weeklyCompletionPct, loading, error, refetch: load };
+  return { missions, weeklyCompletionPct, currentStreak, bestStreak, loading, error, refetch: load };
 }

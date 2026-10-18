@@ -96,3 +96,7 @@ All eight pages now run on the real `/api/v1/marketing/*` backend; every number 
 - [x] Analytics: funnel, gap-filled traffic, CAC by channel, leaderboard, range switch, Record metric (ingestion form)
 - [x] Loading / empty / error / "not available for your role" states on every page
 - [ ] Honest "coming soon": rule-based segment counting, campaign duplicate, calendar drag-to-reschedule, Marketing-hub "+ Invite" (removed; no hub-level invite flow)
+
+## Module 04 — Today's Mission (2026-10-18)
+
+Complete against the PRD: all 15 gap rows closed (`mission-prd-gaps.md`), verified live as founder and team member at 1440px and 375px. SOP `2026-10-18-mission-prd-complete`. Open: BE snoozed tasks keep the day pending (no completion or streak); the no-roadmap empty state could not be reached live (unit-tested); other section layouts still use their own headers instead of `ShellTopBar`.
