@@ -46,7 +46,16 @@ the emailed link. Every row walked at desktop width and at 375px; every CTA clic
 | 20 | Role widget filtering | ✅ | Briefing, Risks, Opportunities hidden for `restricted`; restricted KPI tiles hidden; mission read-only without mission access; nav, tab bar, dock and "+ Invite" role-aware. Live as the mentor: all of the above. Investor / accountant roles can't be created from the UI: unit only |
 
 ### Briefing v2 live
-BRIEFING_LIVE_PLACEHOLDER
+Captured on 2026-10-18 00:00 UTC, when the BE rolled to a new day and the worker (real LLM) wrote a v2 briefing; the page polled while `generating` and filled in without a reload:
+- Briefing card: text + three actions with **Do it**; Risks: 1 row with **Review** → `/finance`; Opportunities: 3 rows with **See fit** → `/roadmap`, `/finance`, `/validation`.
+- **Do it** on a `task` action ("Define today's first customer-validation task"): button became "Added to today's mission" (link `/mission`), Today's Mission card showed the new task, sidebar badge "1 open task".
+- **Do it** on a `navigate` action ("Review the upcoming deadline"): landed on `/roadmap`.
+- Real weekend (Sunday UTC, `weekend_missions` off): Today's Mission said "Weekends off. Rest is a strategy too." with the Mission settings link, straight from the BE `empty_reason` (row 9, no override needed).
+- 375px: no horizontal overflow; same cards stack.
+- Not exercised live: `BRIEFING_STALE` / `BRIEFING_NOT_READY` (409), 403 for a non-core role: unit tests only.
+
+## Cleanup (what the walkthrough left on the local stack)
+No delete API exists for these, so they remain: mentor user `throwaway-mentor+dashfe1@…` (own draft workspace + membership in NovaPay + accepted invitation); mission tasks "Dash-live realtime probe", "Dash-live probe 2", "Dash-live probe 3" (done) and the Do it task on the founder's missions; one AI conversation ("Tell me more about today's briefing…"); the notifications those actions produced. Nothing was committed to the BE checkout.
 
 ## Decisions (user, 2026-10-17)
 - **D-DASH-1 Do it:** the AI proposes 1 to 3 actions. **Do it** adds the action as a task to today's mission (or deep-links when the action is a navigation). Nothing happens without a click.
