@@ -58,12 +58,62 @@ export interface DashboardUpcomingItem {
 }
 export type DashboardUpcomingSection = DashboardUpcomingItem[] | { items: DashboardUpcomingItem[] } | DashboardSectionError;
 
+export type KpiMetricStatus = 'ok' | 'no_data' | 'restricted' | 'not_built' | 'not_burning' | 'out_of_cash';
+
+export interface DashboardRevenueMetric {
+  status: KpiMetricStatus;
+  /** Minor units (kobo). Average monthly inflow over the trailing 3 months. */
+  value_minor: number | null;
+  currency: string | null;
+  basis?: string;
+}
+
+export interface DashboardRunwayMetric {
+  status: KpiMetricStatus;
+  months: number | null;
+  /** Always a boolean; drives the alert styling. */
+  is_low: boolean;
+  monthly_burn_minor: number | null;
+  /** Minor units; can be negative when out of cash. */
+  cash_on_hand_minor: number | null;
+  currency: string | null;
+}
+
+export interface DashboardPipelineMetric {
+  status: KpiMetricStatus;
+  value_minor: number | null;
+  currency: string | null;
+}
+
+export interface DashboardCtrMetric {
+  status: KpiMetricStatus;
+  /** Already a percentage: 2.5 means 2.5%. */
+  ctr_percent: number | null;
+  impressions: number | null;
+  clicks: number | null;
+  range?: string;
+}
+
+/** A single tile whose source query failed; the other tiles are unaffected. */
+export interface DashboardMetricError {
+  error: true;
+}
+
+export interface DashboardKpiMetrics {
+  revenue?: DashboardRevenueMetric | DashboardMetricError;
+  runway?: DashboardRunwayMetric | DashboardMetricError;
+  pipeline?: DashboardPipelineMetric | DashboardMetricError;
+  campaign_ctr?: DashboardCtrMetric | DashboardMetricError;
+}
+
 export interface DashboardKpisData {
+  metrics?: DashboardKpiMetrics;
+  tasks_done_this_week?: number | null;
+  /** Legacy scalar keys: still sent, always null. Read `metrics` instead. */
   revenue?: number | null;
   runway?: number | null;
   pipeline_value?: number | null;
   campaign_performance?: number | string | null;
-  tasks_done_this_week?: number | null;
   [key: string]: unknown;
 }
 export type DashboardKpisSection = DashboardKpisData | DashboardSectionError;

@@ -1,0 +1,100 @@
+import { describe, expect, it, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+import { KPIStrip } from './kpi-strip';
+import { mapKpis } from '@/hooks/useDashboardApi';
+
+const base = { tasks_done_this_week: 2 };
+const pipeline = { status: 'not_built', value_minor: null, currency: null };
+const emptyMetrics = {
+  revenue: { status: 'no_data', value_minor: null, currency: null },
+  runway: { status: 'no_data', months: null, is_low: false, currency: null },
+  pipeline,
+  campaign_ctr: { status: 'no_data', ctr_percent: null, impressions: null, clicks: null },
+};
+
+function renderStrip(kpis: unknown) {
+  return render(<KPIStrip kpis={mapKpis(kpis)} onRefetch={vi.fn()} />);
+}
+
+describe('KPIStrip', () => {
+  it('no_data tiles show an empty state and a CTA link into the module; only pipeline says Coming Soon', () => {
+    renderStrip({ ...base, metrics: emptyMetrics });
+    expect(screen.getAllByText('No data yet')).toHaveLength(3);
+    expect(screen.getAllByText('Coming Soon')).toHaveLength(1);
+    expect(screen.queryByText(/₦0/)).toBeNull();
+    const links = screen.getAllByRole('link').map((a) => a.getAttribute('href'));
+    expect(links).toEqual(['/finance', '/finance', '/sales', '/marketing', '/mission']);
+    expect(screen.getByText('Open Marketing')).toBeTruthy();
+  });
+
+  it('ok values render in naira with the honest revenue hint', () => {
+    renderStrip({
+      ...base,
+      metrics: {
+        revenue: { status: 'ok', value_minor: 1000000, currency: 'NGN' },
+        runway: { status: 'ok', months: 27.0, is_low: false, currency: 'NGN' },
+        pipeline,
+        campaign_ctr: { status: 'ok', ctr_percent: 2.5, impressions: 2000, clicks: 50 },
+      },
+    });
+    expect(screen.getByText('₦10.0K')).toBeTruthy();
+    expect(screen.getByText('Avg. monthly money in, last 3 months')).toBeTruthy();
+    expect(screen.getByText('27 mo')).toBeTruthy();
+    expect(screen.getByText('2.5%')).toBeTruthy();
+  });
+
+  it('out_of_cash and is_low render the alert border; healthy runway does not', () => {
+    const { container, unmount } = renderStrip({
+      ...base,
+      metrics: { ...emptyMetrics, runway: { status: 'out_of_cash', months: 0, is_low: true } },
+    });
+    expect(screen.getByText('Out of cash')).toBeTruthy();
+    expect(container.querySelectorAll('a.border-\\[\\#B0483B\\]')).toHaveLength(1);
+    unmount();
+
+    const low = renderStrip({
+      ...base,
+      metrics: { ...emptyMetrics, runway: { status: 'ok', months: 4.2, is_low: true } },
+    });
+    expect(low.container.querySelectorAll('a.border-\\[\\#B0483B\\]')).toHaveLength(1);
+    low.unmount();
+
+    const fine = renderStrip({
+      ...base,
+      metrics: { ...emptyMetrics, runway: { status: 'not_burning', months: null, is_low: false } },
+    });
+    expect(screen.getByText('Not burning')).toBeTruthy();
+    expect(fine.container.querySelectorAll('a.border-\\[\\#B0483B\\]')).toHaveLength(0);
+  });
+
+  it('restricted tiles are hidden and the grid reflows', () => {
+    const { container } = renderStrip({
+      ...base,
+      metrics: {
+        revenue: { status: 'restricted' },
+        runway: { status: 'restricted', is_low: false },
+        pipeline,
+        campaign_ctr: { status: 'restricted' },
+      },
+    });
+    expect(screen.queryByText('Monthly Revenue')).toBeNull();
+    expect(screen.queryByText('Runway')).toBeNull();
+    expect(screen.getByText('Pipeline Value')).toBeTruthy();
+    expect(screen.getByText('Tasks This Week')).toBeTruthy();
+    expect(container.querySelector('section')?.className).toContain('lg:grid-cols-2');
+  });
+
+  it('a per-tile error shows Unavailable + Retry for that tile only', () => {
+    const onRefetch = vi.fn();
+    render(
+      <KPIStrip
+        kpis={mapKpis({ ...base, metrics: { ...emptyMetrics, campaign_ctr: { error: true } } })}
+        onRefetch={onRefetch}
+      />,
+    );
+    expect(screen.getAllByText('Unavailable')).toHaveLength(1);
+    fireEvent.click(screen.getByText('Retry'));
+    expect(onRefetch).toHaveBeenCalled();
+  });
+});

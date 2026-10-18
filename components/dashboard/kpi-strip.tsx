@@ -5,10 +5,22 @@ import Link from 'next/link';
 import { DashboardErrorBoundary } from './error-boundary';
 import type { KPISnapshot } from '@/types/dashboard';
 
+// Full class strings so Tailwind can see them; the grid reflows when restricted tiles are hidden.
+const LG_COLS: Record<number, string> = {
+  1: 'lg:grid-cols-1',
+  2: 'lg:grid-cols-2',
+  3: 'lg:grid-cols-3',
+  4: 'lg:grid-cols-4',
+  5: 'lg:grid-cols-5',
+};
+
 export function KPIStrip({ kpis, onRefetch }: { kpis: KPISnapshot[]; onRefetch: () => void }) {
+  const visible = kpis.filter((k) => !k.hidden);
+  if (visible.length === 0) return null;
+  const lgCols = LG_COLS[Math.min(visible.length, 5)];
   return (
-    <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full col-span-1 md:col-span-12">
-      {kpis.map((kpi) => (
+    <section className={`grid grid-cols-2 md:grid-cols-3 ${lgCols} gap-4 w-full col-span-1 md:col-span-12`}>
+      {visible.map((kpi) => (
         <DashboardErrorBoundary key={kpi.id} onRetry={onRefetch}>
           <StatCard kpi={kpi} onRetry={onRefetch} />
         </DashboardErrorBoundary>
@@ -40,21 +52,15 @@ function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) 
     );
   }
 
-  // Runway logic: if label is 'Runway' and value is < 6
-  let isAlert = false;
-  if (kpi.label.toLowerCase() === 'runway') {
-    const val = parseFloat(kpi.value);
-    if (!isNaN(val) && val < 6) {
-      isAlert = true;
-    }
-  }
-
-  if (kpi.isAlert) isAlert = true;
-  const isComingSoon = kpi.value === 'Coming Soon';
+  // The backend owns the alert (runway is_low / out_of_cash); no client-side heuristics.
+  const isAlert = kpi.isAlert === true;
+  const isComingSoon = kpi.status === 'not_built' || kpi.value === 'Coming Soon';
+  const isEmpty = kpi.status === 'no_data';
 
   return (
     <Link
-      href={kpi.href || '#'}
+      href={kpi.cta?.href ?? kpi.href ?? '#'}
+      title={kpi.hint}
       className={`bg-white p-5 rounded-card border ${
         isAlert ? 'border-[#B0483B]' : 'border-sage-100'
       } shadow-card flex flex-col justify-between hover:shadow-raised transition-shadow group`}
@@ -66,7 +72,7 @@ function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) 
         <div className="flex items-end justify-between mb-2">
           <span
             className={`font-bold font-display leading-tight ${
-              isComingSoon
+              isComingSoon || isEmpty
                 ? 'text-base font-medium text-sage-400'
                 : 'text-2xl'
             } ${isAlert ? 'text-[#B0483B]' : 'text-[#1C201D]'}`}
@@ -75,7 +81,15 @@ function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) 
           </span>
         </div>
       </div>
-      <div className="flex items-center justify-between mt-2 min-h-[20px]">
+      <div className="flex items-center justify-between mt-2 min-h-[20px] gap-2">
+        {isEmpty && kpi.cta ? (
+          <span className="text-[10px] font-bold text-sage-600 group-hover:text-sage-900 underline">
+            {kpi.cta.label}
+          </span>
+        ) : null}
+        {!isEmpty && kpi.hint ? (
+          <span className="text-[10px] text-sage-500">{kpi.hint}</span>
+        ) : null}
         {kpi.delta ? (
           <span
             className={`text-[10px] font-bold px-1.5 py-0.5 rounded-pill ${
