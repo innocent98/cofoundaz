@@ -392,3 +392,141 @@ export async function submitSurveyResponse(
   );
   return { received: Boolean(res?.data?.received) };
 }
+
+// --- Interview scripts (slice b, guide §1) -----------------------------------
+
+export interface ScriptQuestion {
+  /** 12-char hex, server-assigned. Absent on a question that was just added. */
+  id?: string;
+  question: string;
+  tip: string;
+}
+
+export interface RawScript {
+  id: string;
+  title: string;
+  assumption_ids: string[];
+  questions: Array<ScriptQuestion & { id: string }>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ScriptJobResult {
+  status?: 'ready' | 'over_budget' | 'gone' | 'empty' | string;
+  script_id?: string;
+}
+
+export async function listScripts(): Promise<RawScript[]> {
+  const res = await apiClient<{ data?: { scripts?: RawScript[] } }>('/validation/scripts');
+  return res?.data?.scripts ?? [];
+}
+
+export async function getScript(id: string): Promise<RawScript> {
+  const res = await apiClient<{ data?: RawScript }>(`/validation/scripts/${id}`);
+  return res?.data as RawScript;
+}
+
+export async function requestScriptGeneration(assumptionIds: string[]): Promise<string> {
+  const res = await apiClient<{ data?: { job_id?: string } }>('/validation/scripts/generate', {
+    method: 'POST',
+    body: JSON.stringify({ assumption_ids: assumptionIds }),
+  });
+  const id = res?.data?.job_id;
+  if (!id) throw new Error('No job id returned.');
+  return id;
+}
+
+/** PATCH sends the whole question list in order; existing ids are kept so the server can match them. */
+export async function updateScript(
+  id: string,
+  body: { title?: string; questions?: ScriptQuestion[]; assumption_ids?: string[] }
+): Promise<RawScript> {
+  const res = await apiClient<{ data?: RawScript }>(`/validation/scripts/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+  return res?.data as RawScript;
+}
+
+export async function deleteScript(id: string): Promise<void> {
+  await apiClient(`/validation/scripts/${id}`, { method: 'DELETE' });
+}
+
+// --- Insight Synthesizer (slice b, guide §2) ---------------------------------
+
+export type InsightSource = 'interviews' | 'surveys' | 'all';
+
+export interface InsightPattern {
+  id: string;
+  theme: string;
+  summary: string;
+  /** Can be `[]`: quotes the model paraphrased are dropped server-side. */
+  quotes: string[];
+}
+
+export interface InsightContradiction {
+  id: string;
+  summary: string;
+}
+
+export interface InsightSuggestion {
+  id: string;
+  assumption_id: string;
+  /** Snapshot from report time, not a lookup. */
+  assumption_statement: string;
+  from_status: AssumptionStatus;
+  to_status: AssumptionStatus;
+  reason: string;
+  applied_at: string | null;
+}
+
+export interface RawInsight {
+  id: string;
+  source: InsightSource;
+  inputs: { interviews?: number; open_answers?: number };
+  patterns: InsightPattern[];
+  contradictions: InsightContradiction[];
+  suggestions: InsightSuggestion[];
+  created_at: string;
+}
+
+export interface InsightJobResult {
+  status?: 'ready' | 'over_budget' | 'empty' | string;
+  insight_id?: string;
+}
+
+export async function requestSynthesis(source: InsightSource): Promise<string> {
+  const res = await apiClient<{ data?: { job_id?: string } }>('/validation/synthesize', {
+    method: 'POST',
+    body: JSON.stringify({ source }),
+  });
+  const id = res?.data?.job_id;
+  if (!id) throw new Error('No job id returned.');
+  return id;
+}
+
+export async function listInsights(): Promise<RawInsight[]> {
+  const res = await apiClient<{ data?: { insights?: RawInsight[] } }>('/validation/insights');
+  return res?.data?.insights ?? [];
+}
+
+export async function getInsight(id: string): Promise<RawInsight> {
+  const res = await apiClient<{ data?: RawInsight }>(`/validation/insights/${id}`);
+  return res?.data as RawInsight;
+}
+
+/** Apply returns two objects: the refreshed report and the moved assumption. */
+export async function applySuggestion(
+  insightId: string,
+  suggestionId: string
+): Promise<{ insight: RawInsight; assumption: RawAssumption }> {
+  const res = await apiClient<{ data?: { insight: RawInsight; assumption: RawAssumption } }>(
+    `/validation/insights/${insightId}/suggestions/${suggestionId}/apply`,
+    { method: 'POST' }
+  );
+  return res?.data as { insight: RawInsight; assumption: RawAssumption };
+}
+
+export async function deleteInsight(id: string): Promise<void> {
+  await apiClient(`/validation/insights/${id}`, { method: 'DELETE' });
+}
