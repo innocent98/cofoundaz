@@ -32,8 +32,6 @@ function fmtDate(iso: string): string {
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-const DAY_MS = 86_400_000;
-
 /**
  * X-axis ticks for a time axis. Several recomputes can land on one day, so a
  * plain date formatter would repeat the same label. Readings from a single day
