@@ -61,7 +61,7 @@ Dashboard loads and is **largely solid, honest, and wired** (and, since 2026-10-
 - [x] **Dashboard PRD walkthrough (20 gaps)** — all closed 2026-10-18, each verified live (founder + invited mentor, desktop + 375px). Per-row evidence: `docs/checklist/dashboard-prd-gaps.md`.
 
 ## Known BE-blocked (to review/unblock this pass)
-AI Co-Founder chat (no conversation endpoint) · Assessment question prompts missing · Journal writes (key — set locally ✓) · MFA disable + SMS · emailed sign/share link host · post-onboarding profile/avatar edit. (`docs/backend-requests-ui-gaps.md`)
+AI Co-Founder chat ✅ BUILT (PR #128) · Assessment question prompts ✅ BUILT (PR #127) · Journal writes (key — set locally ✓; staging needs the key) · MFA disable + SMS · emailed sign/share link host · post-onboarding profile/avatar edit. (`docs/backend-requests-ui-gaps.md`)
 
 
 ## Module 12 — Finance Hub
@@ -104,3 +104,23 @@ Complete against the PRD: all 15 gap rows closed (`mission-prd-gaps.md`), verifi
 ## Module 08: Business Builder (2026-10-19)
 
 Rows 1 to 12, 13 (AI part), 14 (advisor part), 15, 16, 17, 18 and 21 of `business-builder-prd-gaps.md` are closed in the FE (needs API #139, #140 and #141), verified live as founder, consultant and mentor at 1440px and 375px. SOP `2026-10-19-business-builder-prd`. Open: the remainder of 13 and 14; touch devices have no native drag between blocks, so notes use the "Move to" select there.
+
+---
+
+## Shipped this spree (2026-10-17) — all merged to develop
+- **First-run fixes** — PR #98 (A1 title, A2 verify flow/typo/icons, D1 workspace-id 422, D2 /app/health, D4 mission empty state).
+- **Assessment** — BE prompts PR #127 + FE wiring PR #99. (A3 "missing AI panel" was a false positive; the real gap was BE question prompts.) Fully working end to end.
+- **AI Co-Founder chat** — BE PR #128 (+ security hardening) + FE PR #100. Fully working (Pattern-B poll, workspace context; streaming/specialist-routing/action-chips deferred).
+
+## Backlog + queue (approved order, with additions)
+1. ✅ **Dashboard KPIs** — BE #129 + FE #101 merged; Finance (#103) and Marketing (#102) hubs wired so the tiles can have data.
+2. 🟡 **Team invite** — BE `POST /team/invitations` merged (#131); dashboard "+ Invite" FE wiring in progress (session `fe-dashboard-prd`).
+3. **No-backend modules** (full BE builds): Sales, Funding, Legal, Marketplace, Investor-Readiness, Analytics/Reports.
+
+Interleave quick wins:
+- **D3** — first-run calibration banner (small FE).
+- **D5** — rename misspelled `components/CofaundazLogo.tsx`.
+- **S1** — the global "Search anything" (⌘K) top-bar box does nothing today; wire it or hide it until built.
+- **S2** — name the AI co-founder **"Sarah"**: on opening a new/empty chat she greets relationally with a time-of-day hello (e.g. "Hi, good evening — how can I help with what you're building today?"); use the name in the drawer/UI and the system prompt.
+
+Deferred (parked per the user): prod promotion `develop → main`.
