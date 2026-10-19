@@ -20,7 +20,7 @@ in the gap lists (`docs/checklist/*-prd-gaps.md`), SOPs (`docs/sop/` in both rep
 |---|---|---|---|
 | FE | this docs PR (`docs/validation-rewalk-a`) | Validation slice (a) re-walk evidence + this handoff | merge any time |
 | FE | from session `fe-validation-slice-b-sc` | Validation slice (b) FE: scripts + Insight Synthesizer | in progress |
-| API | slice (c) (lead) | MVP feedback + rows 9/10 BE bits | in progress |
+| API | [#151](https://github.com/innocent98/Cofoundaz-api/pull/151) | Validation slice (c): MVP feedback inbox, theme clustering, Send to roadmap, open survey answers, share-link rotation, linked experiments; migration 0058 | green locally (CI parity); merge any time |
 
 Merged 2026-10-19 (Validation): API #149 (slice a) and #150 (slice b), FE #114 (slice a), docs #109, #113.
 Note: the remote branch `feat/validation-prd-b` was re-created by mistake after #150 merged (same commit as develop); delete it.
@@ -113,7 +113,7 @@ All are reversible and none blocks merging.
 | Health Score | ✅ `health-prd-gaps.md` (10) | ✅ merged #136 | ✅ merged #106 | ✅ full click-through + close-out on merged develop 2026-10-19 (`health-rewalk.md`) |
 | Roadmap | ✅ `roadmap-prd-gaps.md` | ✅ merged #137 | ✅ merged #107 | ✅ full click-through + close-out on merged develop 2026-10-19 (`roadmap-rewalk.md`) |
 | Business Builder | ✅ `business-builder-prd-gaps.md` (21) | ✅ merged #139-#141 | ✅ merged #108 | ✅ full click-through + close-out on merged develop 2026-10-19 (`business-builder-rewalk.md`) |
-| Validation | ✅ `validation-prd-gaps.md` (14), D-VAL-1..6 | (a) #149, (b) #150 merged; (c) building | (a) #114 merged; (b) session `fe-validation-slice-b-sc` | (a) ✅ `validation-rewalk.md`; (b), (c) after their FE |
+| Validation | ✅ `validation-prd-gaps.md` (14), D-VAL-1..11 | (a) #149, (b) #150 merged; (c) #151 open | (a) #114 merged; (b) session `fe-validation-slice-b-sc` | (a) ✅ `validation-rewalk.md`; (b), (c) after their FE |
 
 Page order (PRD sidebar): Dashboard → Today's Mission → Health Score → Roadmap → Business Builder → Validation → Assessment →
 Marketing → Sales → Finance → Funding → Investor Readiness → Legal → Marketplace → Academy → Documents → Calendar → Team →
@@ -136,8 +136,10 @@ merge #149 then the FE PR, then re-walk Validation's slice-(a) controls on devel
 SOP `docs/sop/2026-10-19-validation-prd-b.md`). Built as designed below, plus: evidence fenced as escaped JSON (security review:
 anonymous survey answers reach the model), prompt refs rewritten out of prose, own token caps (scripts 2,500, synthesis 4,000;
 the 800 default made the reasoning model return empty completions). Next: FE session for (b) once #150 is retargeted.
-**Slice (c) next (lead, BE):** MVP feedback + the BE bits of gap rows 9 (open survey answers endpoint, re-show/rotate share
-link) and 10 (linked experiment names on assumption cards), which no slice had claimed.
+**Slice (c) BE DONE: API [#151](https://github.com/innocent98/Cofoundaz-api/pull/151)** (guide `cofoundaz-api/docs/fe-integration-guide-validation-prd-c.md`,
+SOP `docs/sop/2026-10-19-validation-prd-c.md`, decisions D-VAL-7..11). **Next:** the FE session for (c), started only once
+the (b) FE PR is open and stacked on its branch (both touch the Surveys page and `lib/api/validation.ts`). Then re-walk
+(b) and (c) on develop, and Validation is done. The API main checkout is on `feat/validation-prd-c` (dev DB at 0058).
 
 _Original slice (b) design:_ gap rows 7, 12, 13. Branch from `feat/validation-prd-a` (stacked) or from develop once #149
 merges. Design worked out so far:
