@@ -6,7 +6,7 @@
 > then (c) (MVP feedback), each with an FE session and a click-every-control re-walk. No half-built pages; ask me only
 > for genuine product calls."*
 
-Last updated: **2026-10-19 21:20 WAT** (handover from the Step 1 re-walk + Validation slice (a) session). This file is a map; the detail lives
+Last updated: **2026-10-19 22:10 WAT** (lead session 2: FE #114 verified, slice (b) BE built as API #150). This file is a map; the detail lives
 in the gap lists (`docs/checklist/*-prd-gaps.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/app-review-audit.md`), and memory.
@@ -20,8 +20,9 @@ in the gap lists (`docs/checklist/*-prd-gaps.md`), SOPs (`docs/sop/` in both rep
 |---|---|---|---|
 | FE | [#109](https://github.com/innocent98/Cofoundaz/pull/109) | Docs only: Validation gap list, Business Builder close-out, audit notes | merge any time |
 | FE | [#113](https://github.com/innocent98/Cofoundaz/pull/113) | Docs only: Step 1 closed + this handoff | merge any time |
-| API | [#149](https://github.com/innocent98/Cofoundaz-api/pull/149) | Validation slice (a): overview, Design experiment, `/p/{slug}` pages, waitlist, server verdict, milestone notif, deletes; migration 0056 | green locally; **Adebayo merges it together with the FE PR from `fe-validation-a`** |
-| FE | from session `fe-validation-a` | Validation slice (a) FE incl. public `/p/[slug]` | in progress |
+| API | [#149](https://github.com/innocent98/Cofoundaz-api/pull/149) | Validation slice (a): overview, Design experiment, `/p/{slug}` pages, waitlist, server verdict, milestone notif, deletes; migration 0056. +fix: a preorder-metric page always shows pricing (found in the live check) | CI green except the pre-existing "Dependency review" job (fails on every PR, #148 too). **Merge first** |
+| FE | [#114](https://github.com/innocent98/Cofoundaz/pull/114) | Validation slice (a) FE incl. public `/p/[slug]` | CI green, no attribution, scope clean; verified live by the lead against #149. **Merge after #149** |
+| API | [#150](https://github.com/innocent98/Cofoundaz-api/pull/150) | Validation slice (b): interview scripts + Insight Synthesizer; migration 0057 | stacked on #149: after #149 merges, `gh pr edit 150 --base develop` and push a commit to start CI. Then an FE session for (b) |
 
 Merged 2026-10-19 (Step 1): API #142-#148, FE #110-#112 (re-walk fixes, AI budget 100k, honest AI fill messages).
 Everything else from 2026-10-18/19 is merged: API #135-#137, #139-#141 (staging CD green, migrations auto-run);
@@ -84,10 +85,13 @@ All are reversible and none blocks merging.
 - FE `cofoundaz` (Next 16 App Router, React 19, Tailwind v4, TS strict) and API `cofoundaz-api` (FastAPI): sibling dirs under
   `/Users/adebayovictor/Documents/dev/cofoundaz`. The lead session works from the parent dir.
 - **develop heads (2026-10-19 21:20):** API `33132f9` (#148), FE `e07bad3` (#112).
+- **Slice (b) worktree:** `/private/tmp/claude-501/-Users-adebayovictor-Documents-dev-cofoundaz/55f98077-834b-48c4-aff2-eb55bd95867e/scratchpad/api-b`
+  (branch `feat/validation-prd-b`, own venv). Next free migration number: **0058**. Real-model capture recipe: copy
+  `scripts/e2e_run.sh` without the `LLM_PROVIDER=stub` line and point it at one e2e file (see the slice (b) SOP).
 - **Local checkouts right now:** the API main checkout is on **`feat/validation-prd-a`** (keep it there until #149 merges:
   the FE session tests against it). The dev DB is at **`0056_smoke_test_pages`** (from #149; the `smoke_test_slugs` table
   was added by hand after a branch-internal migration change, so it matches the PR). Worker restarted on that branch.
-  The FE main checkout is on `docs/step1-closed` (PR #113, docs only). Next free migration number: **0057**.
+  The FE main checkout is on `docs/step1-closed` (PR #113, docs only). 
 - **CI-parity worktree:** `/private/tmp/claude-501/-Users-adebayovictor-Documents-dev-cofoundaz/8dbb9ba0-e578-4ec4-b809-d663b109a1ed/scratchpad/api-ci`
   (detached, own poetry venv, `.env` copied). If it's gone, recreate it: `git worktree add --detach <dir> <branch>`,
   `cp .env`, `poetry install --no-root --with dev`; run e2e with `PYTHONPATH=$PWD COMPOSE_PROJECT_NAME=cofoundaz-api`.
@@ -128,7 +132,14 @@ will open an FE PR. **When it reports:** check the PR (CI, no attribution, scope
 merge #149 then the FE PR, then re-walk Validation's slice-(a) controls on develop and record them in
 `docs/checklist/validation-rewalk.md`. Its notes arrive in the old lead session, which relays them.
 
-**Slice (b) next (lead, BE):** gap rows 7, 12, 13. Branch from `feat/validation-prd-a` (stacked) or from develop once #149
+**Slice (b) BE DONE: API [#150](https://github.com/innocent98/Cofoundaz-api/pull/150)** (guide `cofoundaz-api/docs/fe-integration-guide-validation-prd-b.md`,
+SOP `docs/sop/2026-10-19-validation-prd-b.md`). Built as designed below, plus: evidence fenced as escaped JSON (security review:
+anonymous survey answers reach the model), prompt refs rewritten out of prose, own token caps (scripts 2,500, synthesis 4,000;
+the 800 default made the reasoning model return empty completions). Next: FE session for (b) once #150 is retargeted.
+**Slice (c) next (lead, BE):** MVP feedback + the BE bits of gap rows 9 (open survey answers endpoint, re-show/rotate share
+link) and 10 (linked experiment names on assumption cards), which no slice had claimed.
+
+_Original slice (b) design:_ gap rows 7, 12, 13. Branch from `feat/validation-prd-a` (stacked) or from develop once #149
 merges. Design worked out so far:
 - **Interview scripts:** new table `interview_scripts` (startup_id, title, assumption_ids jsonb, questions jsonb
   `[{id, question, tip}]`, timestamps), migration 0057. `POST /validation/scripts/generate {assumption_ids}` already exists
