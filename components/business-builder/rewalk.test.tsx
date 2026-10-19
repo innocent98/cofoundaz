@@ -36,7 +36,7 @@ beforeEach(() => {
 
 describe('Comment drawer mentions (row 14)', () => {
   it('Enter picks the highlighted person instead of adding a newline, and the mention is sent', async () => {
-    render(<CommentDrawer open title="Key Partners" entityType="canvas" entityId="e1" anchor="partners" onClose={vi.fn()} onChanged={vi.fn()} />);
+    render(<CommentDrawer open title="Key Partners" entityType="business_canvas" entityId="e1" anchor="partners" onClose={vi.fn()} onChanged={vi.fn()} />);
     const box = await screen.findByRole('combobox', { name: 'Add a comment' });
     await waitFor(() => expect(api.listMembers).toHaveBeenCalled());
     await userEvent.type(box, 'hi @ad');
@@ -51,7 +51,7 @@ describe('Comment drawer mentions (row 14)', () => {
   });
 
   it('arrow keys move the highlight and Tab picks it', async () => {
-    render(<CommentDrawer open title="Key Partners" entityType="canvas" entityId="e1" onClose={vi.fn()} onChanged={vi.fn()} />);
+    render(<CommentDrawer open title="Key Partners" entityType="business_canvas" entityId="e1" onClose={vi.fn()} onChanged={vi.fn()} />);
     const box = await screen.findByRole('combobox', { name: 'Add a comment' });
     await waitFor(() => expect(api.listMembers).toHaveBeenCalled());
     await userEvent.type(box, '@');
