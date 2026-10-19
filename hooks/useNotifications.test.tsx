@@ -30,6 +30,11 @@ const threshold: RawNotification = {
 };
 
 describe('notification deep links', () => {
+  it('a smoke-test milestone opens that test', () => {
+    expect(notificationHref('validation.smoke_test.milestone', { experiment_id: 'e1' })).toBe('/validation/smoke-tests?test=e1');
+    expect(notificationHref('validation.smoke_test.milestone', {})).toBe('/validation/smoke-tests');
+  });
+
   it('briefing ready goes to the dashboard', () => {
     expect(notificationHref(briefingReady.type, briefingReady.data)).toBe('/dashboard');
   });

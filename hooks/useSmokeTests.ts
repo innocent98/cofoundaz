@@ -4,25 +4,29 @@ import {
   listExperiments,
   createExperiment,
   updateExperiment,
+  deleteValidationItem,
   getSmokeTestStats,
+  listSmokeSignups,
   type RawExperiment,
   type ExperimentStatus,
   type CreateExperimentBody,
+  type SmokeTestStats,
 } from '@/lib/api/validation';
 
-export type { SmokeTestStats, ExperimentStatus } from '@/lib/api/validation';
+export type { SmokeTestStats, ExperimentStatus, WaitlistSignup } from '@/lib/api/validation';
 
-/** FE view of a smoke-test experiment (config/metrics unpacked). */
+/** FE view of a smoke-test experiment (config unpacked). */
 export interface SmokeTest {
   id: string;
   name: string;
   status: ExperimentStatus;
+  /** Top-level `slug`: the one that is live. Empty when the test has no hosted page. */
   slug: string;
   targetConversion: number;
   metricType: string;
-  visits: number;
-  signups: number;
-  conversionRate: number;
+  /** Hand-entered numbers (tests hosted elsewhere). Live traffic is in `stats`. */
+  manualVisits: number;
+  manualSignups: number;
   config: Record<string, unknown>;
 }
 
@@ -31,20 +35,18 @@ function num(v: unknown, d = 0): number {
   return Number.isFinite(n) ? n : d;
 }
 
-function toSmokeTest(e: RawExperiment): SmokeTest {
-  const visits = num((e.metrics as { visits?: unknown })?.visits);
-  const signups = num((e.metrics as { signups?: unknown })?.signups);
+export function toSmokeTest(e: RawExperiment): SmokeTest {
   const cfg = e.config ?? {};
+  const metrics = (e.metrics ?? {}) as { visits?: unknown; signups?: unknown };
   return {
     id: e.id,
     name: e.name,
     status: e.status,
-    slug: String((cfg as { slug?: unknown }).slug ?? ''),
+    slug: e.slug ?? '',
     targetConversion: num((cfg as { target_conversion?: unknown }).target_conversion, 5),
     metricType: String((cfg as { metric_type?: unknown }).metric_type ?? 'email_signup'),
-    visits,
-    signups,
-    conversionRate: visits > 0 ? Math.round((signups / visits) * 1000) / 10 : 0,
+    manualVisits: num(metrics.visits),
+    manualSignups: num(metrics.signups),
     config: cfg,
   };
 }
@@ -58,9 +60,10 @@ function errMsg(err: unknown): string {
   return 'Something went wrong with smoke tests.';
 }
 
-/** Real Validation Hub smoke tests (guide §2): list / create / metrics / status / stats. */
+/** Real Validation Hub smoke tests: list, create, publish, stats, waitlist, delete. */
 export function useSmokeTests() {
   const [tests, setTests] = useState<SmokeTest[]>([]);
+  const [statsById, setStatsById] = useState<Record<string, SmokeTestStats>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,8 +71,19 @@ export function useSmokeTests() {
     try {
       setLoading(true);
       setError(null);
-      const rows = await listExperiments({ type: 'smoke_test' });
-      setTests(rows.map(toSmokeTest));
+      const rows = (await listExperiments({ type: 'smoke_test' })).map(toSmokeTest);
+      setTests(rows);
+      // Live numbers per test; a failed stats call just leaves that row blank.
+      const entries = await Promise.all(
+        rows.map(async (t) => {
+          try {
+            return [t.id, await getSmokeTestStats(t.id)] as const;
+          } catch {
+            return null;
+          }
+        })
+      );
+      setStatsById(Object.fromEntries(entries.filter((x): x is readonly [string, SmokeTestStats] => x !== null)));
     } catch (err) {
       setError(errMsg(err));
     } finally {
@@ -84,22 +98,55 @@ export function useSmokeTests() {
   }, [load]);
 
   const create = useCallback(async (body: Omit<CreateExperimentBody, 'type'>): Promise<SmokeTest> => {
-    const e = await createExperiment({ ...body, type: 'smoke_test' });
-    const mapped = toSmokeTest(e);
+    const mapped = toSmokeTest(await createExperiment({ ...body, type: 'smoke_test' }));
     setTests((prev) => [mapped, ...prev]);
     return mapped;
   }, []);
 
-  // metrics REPLACE server-side, so send the full object.
+  const replace = (t: SmokeTest) => setTests((prev) => prev.map((x) => (x.id === t.id ? t : x)));
+
+  // Metrics REPLACE server-side, so send the full object.
   const updateMetrics = useCallback(async (id: string, visits: number, signups: number) => {
-    const e = await updateExperiment(id, { metrics: { visits, signups } });
-    setTests((prev) => prev.map((t) => (t.id === id ? toSmokeTest(e) : t)));
+    const t = toSmokeTest(await updateExperiment(id, { metrics: { visits, signups } }));
+    replace(t);
+    return t;
   }, []);
 
+  /** Publish = `status: live`. */
   const setStatus = useCallback(async (id: string, status: ExperimentStatus) => {
-    const e = await updateExperiment(id, { status });
-    setTests((prev) => prev.map((t) => (t.id === id ? toSmokeTest(e) : t)));
+    const t = toSmokeTest(await updateExperiment(id, { status }));
+    replace(t);
+    return t;
   }, []);
 
-  return { tests, loading, error, refetch: load, create, updateMetrics, setStatus, getStats: getSmokeTestStats, errMsg };
+  const remove = useCallback(async (id: string) => {
+    await deleteValidationItem('experiments', id);
+    setTests((prev) => prev.filter((t) => t.id !== id));
+    setStatsById((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }, []);
+
+  const getStats = useCallback(async (id: string) => {
+    const s = await getSmokeTestStats(id);
+    setStatsById((prev) => ({ ...prev, [id]: s }));
+    return s;
+  }, []);
+
+  return {
+    tests,
+    statsById,
+    loading,
+    error,
+    refetch: load,
+    create,
+    updateMetrics,
+    setStatus,
+    remove,
+    getStats,
+    getSignups: listSmokeSignups,
+    errMsg,
+  };
 }

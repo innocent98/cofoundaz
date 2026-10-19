@@ -3,6 +3,7 @@ import { ApiError } from '@/lib/api/client';
 import {
   listInterviews,
   createInterview,
+  deleteValidationItem,
   type InterviewVerdict,
   type RawInterview,
   type CreateInterviewBody,
@@ -70,5 +71,10 @@ export function useInterviews() {
     setInterviews((prev) => [toInterview(created), ...prev]);
   }, []);
 
-  return { interviews, loading, error, addInterview, refetch: load };
+  const remove = useCallback(async (id: string) => {
+    await deleteValidationItem('interviews', id);
+    setInterviews((prev) => prev.filter((i) => i.id !== id));
+  }, []);
+
+  return { interviews, loading, error, addInterview, remove, refetch: load };
 }

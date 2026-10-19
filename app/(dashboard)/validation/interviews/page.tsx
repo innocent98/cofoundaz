@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { useInterviews, InterviewVerdict } from '@/hooks/useInterviews';
 import { useToast } from '../layout';
 import { InsightSynthesizer } from '../components/InsightSynthesizer';
+import { ConfirmDelete } from '@/components/validation/ConfirmDelete';
+import { deleteWarning } from '@/lib/validation-format';
 
 type Stance = 'Supports' | 'Contradicts' | 'Neutral';
 
@@ -12,7 +14,8 @@ const verdictLabel = (v: InterviewVerdict): Stance =>
   v === 'supports' ? 'Supports' : v === 'contradicts' ? 'Contradicts' : 'Neutral';
 
 export default function InterviewsPage() {
-  const { interviews, loading, error, addInterview, refetch } = useInterviews();
+  const { interviews, loading, error, addInterview, remove, refetch } = useInterviews();
+  const [toDelete, setToDelete] = useState<{ id: string; interviewee: string } | null>(null);
   const { triggerToast } = useToast();
 
   const [intervieweeInput, setIntervieweeInput] = useState('');
@@ -143,8 +146,9 @@ export default function InterviewsPage() {
                       {item.interviewee}
                       {item.segment ? ` · ${item.segment}` : ''}
                     </h4>
+                    <span className="shrink-0 flex items-center gap-2">
                     <span
-                      className={`shrink-0 px-3 py-0.5 rounded-full text-xs font-medium ${
+                      className={`px-3 py-0.5 rounded-full text-xs font-medium ${
                         stance === 'Supports'
                           ? 'bg-green-100 text-green-800'
                           : stance === 'Contradicts'
@@ -153,6 +157,15 @@ export default function InterviewsPage() {
                       }`}
                     >
                       {stance}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setToDelete({ id: item.id, interviewee: item.interviewee })}
+                      aria-label={`Delete interview with ${item.interviewee}`}
+                      className="p-1 rounded-input text-sage-400 hover:text-[#B0483B] hover:bg-sage-100 cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                     </span>
                   </div>
                   {item.quote && (
@@ -164,6 +177,18 @@ export default function InterviewsPage() {
           )}
         </div>
       </div>
+
+      {toDelete && (
+        <ConfirmDelete
+          title={`Delete the interview with ${toDelete.interviewee}?`}
+          warning={deleteWarning('interview')}
+          onConfirm={async () => {
+            await remove(toDelete.id);
+            triggerToast('Interview deleted');
+          }}
+          onClose={() => setToDelete(null)}
+        />
+      )}
     </div>
   );
 }
