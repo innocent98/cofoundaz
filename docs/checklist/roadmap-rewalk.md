@@ -98,3 +98,5 @@ Every ❌ row above was re-checked live after API #142-#147 and FE #110 merged.
 | Template preview keyboard | Enter on Preview → focus inside (Close), Escape closes, focus back on Preview | ✅ |
 | Re-plan history a11y | `aria-expanded` + `aria-controls` on entries | ✅ |
 | BE rows (#145) | merged code is what was verified live on the branch (202 + 409, milestone complete → tasks done) | ✅ |
+
+**Roadmap: every row ✅ on merged develop (2026-10-19). Page done.**

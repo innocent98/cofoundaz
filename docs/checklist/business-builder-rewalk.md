@@ -87,4 +87,6 @@ Every ❌ row above was re-checked live after API #142-#147 and FE #110 merged.
 | Labels | "Edit competitor: Moniepoint", "Remove note: Focused fintech positioning", form labels associated | ✅ |
 | Over-budget hint on Regenerate | in code (`plan-regenerate.tsx` shows OVER_BUDGET_MESSAGE + title); not reproducible live now the cap is 100k | ✅ (code + unit) |
 | Suggestion title | "Update the SWOT" | ✅ |
-| Whole-canvas "Fill with AI" / records "Draft with AI" (were ⚠) | ran live with budget: on filled canvases/lists they draft nothing (by design) but still said "AI draft added" | ❌ → API [#148](https://github.com/innocent98/Cofoundaz-api/pull/148) (job reports ready / nothing_new / over_budget, live-captured) + FE follow-up PR (in progress) |
+| Whole-canvas "Fill with AI" / records "Draft with AI" (were ⚠) | ran live with budget: on filled canvases/lists they draft nothing (by design) but still said "AI draft added" | ❌ → ✅ API [#148](https://github.com/innocent98/Cofoundaz-api/pull/148) + FE [#112](https://github.com/innocent98/cofoundaz/pull/112), merged; re-checked on develop (API 33132f9, FE e07bad3): canvas → "Every section already has content. Use the AI button on a section to add ideas.", records → "Your list already has entries. Add more by hand, or use the AI buttons on a record." |
+
+**Business Builder: every row ✅ on merged develop (2026-10-19 20:35 WAT). Page done.**
