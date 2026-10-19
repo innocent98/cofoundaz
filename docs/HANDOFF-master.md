@@ -18,12 +18,12 @@ in the gap lists (`docs/checklist/*-prd-gaps.md`), SOPs (`docs/sop/` in both rep
 ### 0a. Open PRs
 | Repo | PR | What | Notes |
 |---|---|---|---|
-| FE | [#109](https://github.com/innocent98/Cofoundaz/pull/109) | Docs only: Validation gap list, Business Builder close-out, audit notes | merge any time |
-| FE | [#113](https://github.com/innocent98/Cofoundaz/pull/113) | Docs only: Step 1 closed + this handoff | merge any time |
-| API | [#149](https://github.com/innocent98/Cofoundaz-api/pull/149) | Validation slice (a): overview, Design experiment, `/p/{slug}` pages, waitlist, server verdict, milestone notif, deletes; migration 0056. +fix: a preorder-metric page always shows pricing (found in the live check) | CI green except the pre-existing "Dependency review" job (fails on every PR, #148 too). **Merge first** |
-| FE | [#114](https://github.com/innocent98/Cofoundaz/pull/114) | Validation slice (a) FE incl. public `/p/[slug]` | CI green, no attribution, scope clean; verified live by the lead against #149. **Merge after #149** |
-| API | [#150](https://github.com/innocent98/Cofoundaz-api/pull/150) | Validation slice (b): interview scripts + Insight Synthesizer; migration 0057 | stacked on #149: after #149 merges, `gh pr edit 150 --base develop` and push a commit to start CI. Then an FE session for (b) |
+| FE | this docs PR (`docs/validation-rewalk-a`) | Validation slice (a) re-walk evidence + this handoff | merge any time |
+| FE | from session `fe-validation-slice-b-sc` | Validation slice (b) FE: scripts + Insight Synthesizer | in progress |
+| API | slice (c) (lead) | MVP feedback + rows 9/10 BE bits | in progress |
 
+Merged 2026-10-19 (Validation): API #149 (slice a) and #150 (slice b), FE #114 (slice a), docs #109, #113.
+Note: the remote branch `feat/validation-prd-b` was re-created by mistake after #150 merged (same commit as develop); delete it.
 Merged 2026-10-19 (Step 1): API #142-#148, FE #110-#112 (re-walk fixes, AI budget 100k, honest AI fill messages).
 Everything else from 2026-10-18/19 is merged: API #135-#137, #139-#141 (staging CD green, migrations auto-run);
 FE #105-#108. Stacked PRs: GitHub retargets them to `develop` itself when the base merges with branch deletion.
@@ -86,8 +86,7 @@ All are reversible and none blocks merging.
   `/Users/adebayovictor/Documents/dev/cofoundaz`. The lead session works from the parent dir.
 - **develop heads (2026-10-19 21:20):** API `33132f9` (#148), FE `e07bad3` (#112).
 - **Slice (b) worktree:** `/private/tmp/claude-501/-Users-adebayovictor-Documents-dev-cofoundaz/55f98077-834b-48c4-aff2-eb55bd95867e/scratchpad/api-b`
-  (now detached; own venv, use it for CI parity). The **API main checkout is on `feat/validation-prd-b`** (superset of (a);
-  dev DB at 0057, worker restarted) so FE sessions for (a) and (b) both work against it. Next free migration number: **0058**. Real-model capture recipe: copy
+  (own venv, use it for CI parity). The **API and FE main checkouts are on `develop`** (dev DB at 0057). Next free migration number: **0058**. Real-model capture recipe: copy
   `scripts/e2e_run.sh` without the `LLM_PROVIDER=stub` line and point it at one e2e file (see the slice (b) SOP).
 - **Local checkouts right now:** the API main checkout is on **`feat/validation-prd-a`** (keep it there until #149 merges:
   the FE session tests against it). The dev DB is at **`0056_smoke_test_pages`** (from #149; the `smoke_test_slugs` table
@@ -114,7 +113,7 @@ All are reversible and none blocks merging.
 | Health Score | ✅ `health-prd-gaps.md` (10) | ✅ merged #136 | ✅ merged #106 | ✅ full click-through + close-out on merged develop 2026-10-19 (`health-rewalk.md`) |
 | Roadmap | ✅ `roadmap-prd-gaps.md` | ✅ merged #137 | ✅ merged #107 | ✅ full click-through + close-out on merged develop 2026-10-19 (`roadmap-rewalk.md`) |
 | Business Builder | ✅ `business-builder-prd-gaps.md` (21) | ✅ merged #139-#141 | ✅ merged #108 | ✅ full click-through + close-out on merged develop 2026-10-19 (`business-builder-rewalk.md`) |
-| Validation | ✅ `validation-prd-gaps.md` (14), D-VAL-1..6 | (a) API #149 open; (b), (c) next | (a) session `fe-validation-a` | after each slice |
+| Validation | ✅ `validation-prd-gaps.md` (14), D-VAL-1..6 | (a) #149, (b) #150 merged; (c) building | (a) #114 merged; (b) session `fe-validation-slice-b-sc` | (a) ✅ `validation-rewalk.md`; (b), (c) after their FE |
 
 Page order (PRD sidebar): Dashboard → Today's Mission → Health Score → Roadmap → Business Builder → Validation → Assessment →
 Marketing → Sales → Finance → Funding → Investor Readiness → Legal → Marketplace → Academy → Documents → Calendar → Team →
@@ -125,7 +124,7 @@ Mission, Health, Roadmap and Business Builder pass every control on merged devel
 member, consultant and mentor. Evidence: `docs/checklist/{mission,health,roadmap,business-builder}-rewalk.md`.
 
 ### Step 2: Validation (in progress)
-**Slice (a): BE done, API [#149](https://github.com/innocent98/Cofoundaz-api/pull/149) open** (gap rows 2-6, 14). Guide
+**Slice (a): DONE (BE #149, FE #114 merged; re-walked on develop 2026-10-19, `docs/checklist/validation-rewalk.md`)** (gap rows 2-6, 14). Guide
 `cofoundaz-api/docs/fe-integration-guide-validation-prd-a.md`, SOP `docs/sop/2026-10-19-validation-prd-a.md`. Lead decisions
 D-VAL-4 (server verdict after 100 visits), D-VAL-5 (signup milestones 10/25/50/100/250/500/1000), D-VAL-6 (a claimed
 slug stays with its workspace: security review). FE: session **`fe-validation-a`** (worktree, Sonnet) is building it and
@@ -133,7 +132,7 @@ will open an FE PR. **When it reports:** check the PR (CI, no attribution, scope
 merge #149 then the FE PR, then re-walk Validation's slice-(a) controls on develop and record them in
 `docs/checklist/validation-rewalk.md`. Its notes arrive in the old lead session, which relays them.
 
-**Slice (b) BE DONE: API [#150](https://github.com/innocent98/Cofoundaz-api/pull/150)** (guide `cofoundaz-api/docs/fe-integration-guide-validation-prd-b.md`,
+**Slice (b) BE MERGED: API [#150](https://github.com/innocent98/Cofoundaz-api/pull/150)** (guide `cofoundaz-api/docs/fe-integration-guide-validation-prd-b.md`,
 SOP `docs/sop/2026-10-19-validation-prd-b.md`). Built as designed below, plus: evidence fenced as escaped JSON (security review:
 anonymous survey answers reach the model), prompt refs rewritten out of prose, own token caps (scripts 2,500, synthesis 4,000;
 the 800 default made the reasoning model return empty completions). Next: FE session for (b) once #150 is retargeted.
