@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Sparkles, X, ClipboardCheck } from 'lucide-react';
-import { useHealthScore } from '@/hooks/useHealthScore';
 import type { HealthBand } from '@/hooks/useHealthScore';
-import { DimensionsRadar } from '@/components/health/health-charts';
+import { useHealthOverview } from '@/components/health/health-score-provider';
+import { DimensionsRadar, Sparkline } from '@/components/health/health-charts';
+import { HealthError } from '@/components/health/health-states';
 
 function RadialGauge({ targetScore }: { targetScore: number }) {
   const [displayScore, setDisplayScore] = useState(0);
@@ -68,13 +69,13 @@ function RadialGauge({ targetScore }: { targetScore: number }) {
 }
 
 // Band → tile presentation. The API returns a per-dimension `band`
-// (at_risk / needs_work / healthy / thriving); we drive colour and the caption
-// off it instead of hardcoded weekly-change strings.
-const BAND_UI: Record<HealthBand, { label: string; tone: 'good' | 'warn' | 'bad'; path: string }> = {
-  thriving: { label: 'Thriving', tone: 'good', path: 'M 0 20 Q 75 18 150 10' },
-  healthy: { label: 'Healthy', tone: 'good', path: 'M 0 20 Q 75 18 150 10' },
-  needs_work: { label: 'Needs work', tone: 'warn', path: 'M 0 15 L 150 15' },
-  at_risk: { label: 'At risk', tone: 'bad', path: 'M 0 10 Q 75 12 150 20' },
+// (at_risk / needs_work / healthy / thriving); colour and caption follow it, and
+// the sparkline is the dimension's real `trend` (last recomputes, oldest first).
+const BAND_UI: Record<HealthBand, { label: string; tone: 'good' | 'warn' | 'bad' }> = {
+  thriving: { label: 'Thriving', tone: 'good' },
+  healthy: { label: 'Healthy', tone: 'good' },
+  needs_work: { label: 'Needs work', tone: 'warn' },
+  at_risk: { label: 'At risk', tone: 'bad' },
 };
 
 function MetricCard({
@@ -82,13 +83,15 @@ function MetricCard({
   score,
   band,
   dimKey,
+  trend,
 }: {
   title: string;
   score: number;
   band: HealthBand | null;
   dimKey: string;
+  trend: number[];
 }) {
-  const ui = band ? BAND_UI[band] : { label: '-', tone: 'warn' as const, path: 'M 0 15 L 150 15' };
+  const ui = band ? BAND_UI[band] : { label: 'Not scored', tone: 'warn' as const };
   const strokeColor = ui.tone === 'good' ? '#2D5A3F' : '#9C5B34';
   const captionColor =
     ui.tone === 'good' ? 'text-[#2D5A3F]' : ui.tone === 'bad' ? 'text-[#B04C4C]' : 'text-[#768478]';
@@ -107,9 +110,7 @@ function MetricCard({
         </div>
 
         <div className="w-full h-6 flex items-center overflow-hidden">
-          <svg className="w-full h-5" viewBox="0 0 150 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d={ui.path} stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
-          </svg>
+          <Sparkline values={trend} color={strokeColor} />
         </div>
 
         <span className={`text-xs font-semibold ${captionColor}`}>{ui.label}</span>
@@ -160,7 +161,7 @@ function LoadingState() {
 }
 
 export default function HealthOverviewPage() {
-  const { data, loading } = useHealthScore();
+  const { data, loading, error, refetch } = useHealthOverview();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Esc key listener for modal
@@ -174,6 +175,16 @@ export default function HealthOverviewPage() {
 
   if (loading) {
     return <LoadingState />;
+  }
+
+  if (error) {
+    return (
+      <HealthError
+        title="Couldn't load your Health Score"
+        message="Something went wrong on our side. Your score is safe; try again in a moment."
+        onRetry={refetch}
+      />
+    );
   }
 
   if (data.status === 'pending_assessment') {
@@ -218,11 +229,11 @@ export default function HealthOverviewPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <MetricCard title="Product" score={dims.product.score} band={dims.product.band} dimKey="product" />
-          <MetricCard title="Market" score={dims.market.score} band={dims.market.band} dimKey="market" />
-          <MetricCard title="Financial" score={dims.financial.score} band={dims.financial.band} dimKey="financial" />
-          <MetricCard title="Legal" score={dims.legal.score} band={dims.legal.band} dimKey="legal" />
-          <MetricCard title="Team" score={dims.team.score} band={dims.team.band} dimKey="team" />
+          <MetricCard title="Product" score={dims.product.score} band={dims.product.band} dimKey="product" trend={dims.product.trend} />
+          <MetricCard title="Market" score={dims.market.score} band={dims.market.band} dimKey="market" trend={dims.market.trend} />
+          <MetricCard title="Financial" score={dims.financial.score} band={dims.financial.band} dimKey="financial" trend={dims.financial.trend} />
+          <MetricCard title="Legal" score={dims.legal.score} band={dims.legal.band} dimKey="legal" trend={dims.legal.trend} />
+          <MetricCard title="Team" score={dims.team.score} band={dims.team.band} dimKey="team" trend={dims.team.trend} />
         </div>
 
         <div className="bg-white rounded-[24px] p-6 md:p-8 border border-[#EBEBE6] shadow-card">
@@ -238,6 +249,15 @@ export default function HealthOverviewPage() {
             ]}
           />
         </div>
+
+        {data.topRecommendations.length === 0 && (
+          <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card pb-6">
+            <h2 className="text-base font-bold text-[#1E2923]">Nothing to fix right now</h2>
+            <p className="text-xs text-[#617065] mt-1.5">
+              Every signal is on target for your stage. New ways to raise your score show up here as soon as one slips.
+            </p>
+          </div>
+        )}
 
         {data.topRecommendations.length > 0 && (
           <div className="flex flex-col gap-5 pt-2 pb-12">
@@ -283,20 +303,27 @@ export default function HealthOverviewPage() {
           onClick={() => setIsModalOpen(false)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="health-calc-title"
             className="bg-white rounded-[24px] max-w-md w-full p-8 shadow-card relative"
             onClick={(e) => e.stopPropagation()} // prevent backdrop dismiss
           >
             <button
+              autoFocus
               className="absolute top-4 right-4 p-2 text-[#768478] hover:bg-[#F5F5F0] rounded-full transition-colors cursor-pointer"
               onClick={() => setIsModalOpen(false)}
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
             </button>
-            <h3 className="text-xl font-display font-bold text-[#1E2923] mb-4">How is this calculated?</h3>
+            <h3 id="health-calc-title" className="text-xl font-display font-bold text-[#1E2923] mb-4">How is this calculated?</h3>
             <p className="text-sm text-[#617065] leading-relaxed">
-              Your Health Score weighs live signals from every hub (roadmap progress, runway, validation evidence, legal hygiene, and team activity) against benchmarks for your stage and industry. It&apos;s explainable: every point traces to something real, and every recommendation tells you the estimated lift.
+              Each of the five dimensions blends your kickoff assessment with live signals from the app: roadmap progress, missions, validation, finance, e-signatures and team activity, measured against targets for your stage. It&apos;s explainable: open any dimension to see every signal and the points it adds, and every recommendation tells you the estimated lift.
             </p>
+            <Link href="/health/dimensions/product" className="inline-block mt-4 text-xs font-semibold text-[#183B28] hover:text-[#11291C]">
+              See the signals →
+            </Link>
           </div>
         </div>
       )}

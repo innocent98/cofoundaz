@@ -1,7 +1,29 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiClient, ApiError } from '@/lib/api/client';
 
-export type Stage = 'Idea' | 'Validation' | 'Launch' | 'Traction' | 'Scale';
+/** The six real startup stages (PRD 05.1 stage rail), in order. */
+export const ROADMAP_STAGES = [
+  { key: 'idea', label: 'Idea' },
+  { key: 'validation', label: 'Validation' },
+  { key: 'build', label: 'Build' },
+  { key: 'launch', label: 'Launch' },
+  { key: 'growth', label: 'Growth' },
+  { key: 'scale', label: 'Scale' },
+] as const;
+export type StageKey = (typeof ROADMAP_STAGES)[number]['key'];
+export type Stage = (typeof ROADMAP_STAGES)[number]['label'];
+
+/** A person reference as the roadmap tree sends it: `name` can be null. */
+export interface PersonRef {
+  id: string;
+  name: string | null;
+}
+
+/** What to print for a person: their name, else the email from the members list, else a neutral label. */
+export function personLabel(p: PersonRef | null | undefined, emailById?: Map<string, string>): string {
+  if (!p) return 'Unassigned';
+  return p.name?.trim() || emailById?.get(p.id) || 'Member';
+}
 export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'overdue';
 
 export interface RoadmapTask {
@@ -11,7 +33,7 @@ export interface RoadmapTask {
   description?: string;
   effort: string;
   status: TaskStatus;
-  assigneeId?: string;
+  assignee: PersonRef | null;
   dueOn: string;
   dependsOn?: string[]; // task IDs
 }
@@ -21,11 +43,12 @@ export interface RoadmapMilestone {
   phaseId: string;
   title: string;
   dueOn: string;
-  ownerId: string;
+  description?: string;
+  owner: PersonRef | null;
   status: 'pending' | 'completed' | 'overdue';
   progress: number;
-  isReplanned?: boolean;
-  replannedReason?: string;
+  dependencyCount: number;
+  replanned: { at: string; reason: string } | null;
   tasks: RoadmapTask[];
 }
 
@@ -41,14 +64,6 @@ export interface RoadmapPhase {
 // --- API → FE mapping -------------------------------------------------------
 // GET /roadmap returns a phase → milestone → task tree (lazy-generated if none
 // exists). See cofoundaz-api/docs/fe-integration-guide-roadmap.md §1.
-
-const STAGE_LABEL: Record<string, Stage> = {
-  idea: 'Idea',
-  validation: 'Validation',
-  launch: 'Launch',
-  traction: 'Traction',
-  scale: 'Scale',
-};
 
 interface OwnerRef {
   id: string;
@@ -120,7 +135,7 @@ function mapTask(t: RawTask, milestoneId: string): RoadmapTask {
     description: t.description ?? undefined,
     effort: effortLabel(t.effort),
     status: mapTaskStatus(t),
-    assigneeId: t.assignee?.name ?? (t.assignee ? 'Member' : undefined),
+    assignee: t.assignee,
     dueOn: t.due_on ?? '',
     dependsOn: t.depends_on ?? [],
   };
@@ -132,13 +147,13 @@ function mapMilestone(m: RawMilestone, phaseId: string): RoadmapMilestone {
     phaseId,
     title: m.title,
     dueOn: m.due_on ?? '',
-    // The FE displays this as the "Owner" label — show the name, not a raw UUID.
-    ownerId: m.owner?.name ?? (m.owner ? 'Member' : 'Unassigned'),
+    description: m.description ?? undefined,
+    owner: m.owner,
     status: mapMilestoneStatus(m),
     progress: m.progress ?? 0,
-    isReplanned: !!m.replanned,
-    replannedReason: m.replanned?.reason,
-    tasks: (m.tasks ?? []).map((t) => mapTask(t, m.id)).sort((a, b) => (a.dueOn > b.dueOn ? 1 : -1)),
+    dependencyCount: m.dependency_count ?? 0,
+    replanned: m.replanned ?? null,
+    tasks: [...(m.tasks ?? [])].sort((a, b) => a.order - b.order).map((t) => mapTask(t, m.id)),
   };
 }
 
@@ -149,12 +164,12 @@ function mapPhase(p: RawPhase): RoadmapPhase {
     order: p.order,
     startsOn: p.starts_on ?? '',
     endsOn: p.ends_on ?? '',
-    milestones: (p.milestones ?? []).map((m) => mapMilestone(m, p.id)).sort((a, b) => a.progress - b.progress),
+    milestones: [...(p.milestones ?? [])].sort((a, b) => a.order - b.order).map((m) => mapMilestone(m, p.id)),
   };
 }
 
 export function useRoadmapApi() {
-  const [currentStage, setCurrentStage] = useState<Stage>('Idea');
+  const [currentStage, setCurrentStage] = useState<StageKey>('idea');
   const [phases, setPhases] = useState<RoadmapPhase[]>([]);
   // Count of slipped milestones (due_on < today, not done). Lives at
   // roadmap.drift.slipped_count in the tree — NOT data.drift (guide §9 trap).
@@ -164,13 +179,12 @@ export function useRoadmapApi() {
 
   const refetch = useCallback(async () => {
     try {
-      setLoading(true);
       setError(null);
       const res = await apiClient<{ data?: RawTree }>('/roadmap');
       const d = res?.data;
       if (d) {
         const stageKey = (d.current_stage || d.roadmap?.stage || 'idea').toLowerCase();
-        setCurrentStage(STAGE_LABEL[stageKey] ?? 'Idea');
+        setCurrentStage(ROADMAP_STAGES.find((st) => st.key === stageKey)?.key ?? 'idea');
         setPhases((d.phases ?? []).map(mapPhase).sort((a, b) => a.order - b.order));
         setSlippedCount(d.roadmap?.drift?.slipped_count ?? 0);
       } else {

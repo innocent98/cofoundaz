@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import { safeInternalHref } from '@/lib/safe-href';
 
 export type DimensionKey = 'product' | 'market' | 'financial' | 'legal' | 'team';
 export type HealthStatus = 'pending_assessment' | 'ok';
@@ -10,17 +11,8 @@ export interface HealthDimension {
   label: string;
   score: number;
   band: HealthBand | null;
-  trend: number[]; // sparkline data (populated by the dimension drill-down endpoint)
+  trend: number[]; // the dimension's last up-to-8 scores, oldest first (sparkline)
   status: 'strong' | 'neutral' | 'lagging';
-}
-
-export interface HealthSignal {
-  id: string;
-  name: string;
-  currentValue: string;
-  targetValue: string;
-  contribution: number;
-  sourceUrl: string;
 }
 
 export interface HealthRecommendation {
@@ -29,7 +21,7 @@ export interface HealthRecommendation {
   rationale: string;
   estimatedLift: number;
   effort: string; // 'low' | 'medium' | 'high' (verbatim from the API)
-  actionUrl: string;
+  actionUrl: string; // the API's `href`: the page where the founder does the work
   dimension: string; // display label, e.g. "Legal"
 }
 
@@ -77,6 +69,7 @@ interface RawDimension {
   label: string;
   score: number;
   band: HealthBand | null;
+  trend?: number[];
 }
 interface RawRecommendation {
   id: string;
@@ -88,6 +81,7 @@ interface RawRecommendation {
   effort: string;
   status: string;
   priority: number;
+  href?: string;
 }
 interface RawOverview {
   status: HealthStatus;
@@ -141,7 +135,7 @@ function mapOverview(raw: RawOverview): HealthScoreData {
       label: d.label || meta.label,
       score: d.score,
       band: d.band,
-      trend: [],
+      trend: Array.isArray(d.trend) ? d.trend : [],
       status: bandToStatus(d.band),
     };
   }
@@ -154,7 +148,8 @@ function mapOverview(raw: RawOverview): HealthScoreData {
       rationale: r.body,
       estimatedLift: r.estimated_lift,
       effort: r.effort,
-      actionUrl: meta?.hub ?? '/health',
+      // Off-site or malformed hrefs fall back to the dimension's hub (never followed).
+      actionUrl: safeInternalHref(r.href) ?? meta?.hub ?? '/health',
       dimension: meta?.label ?? r.dimension,
     };
   });
@@ -172,6 +167,24 @@ function mapOverview(raw: RawOverview): HealthScoreData {
   };
 }
 
+// One request serves every caller that asks while it is in flight (the shell's
+// Health chip, the Health layout and the page all mount together).
+let inflight: Promise<RawOverview | null> | null = null;
+
+function fetchOverview(): Promise<RawOverview | null> {
+  if (!inflight) {
+    inflight = apiClient<{ data?: RawOverview } | RawOverview>('/health-score')
+      .then((res) => {
+        const raw = (res as { data?: RawOverview })?.data ?? (res as RawOverview);
+        return raw && (raw.status === 'ok' || raw.status === 'pending_assessment') ? raw : null;
+      })
+      .finally(() => {
+        inflight = null;
+      });
+  }
+  return inflight;
+}
+
 export function useHealthScore() {
   const [data, setData] = useState<HealthScoreData>(EMPTY_STATE);
   const [loading, setLoading] = useState(true);
@@ -181,17 +194,18 @@ export function useHealthScore() {
     try {
       setLoading(true);
       setError(null);
-      const res = await apiClient<{ data?: RawOverview } | RawOverview>('/health-score');
-      const raw = (res as { data?: RawOverview })?.data ?? (res as RawOverview);
-      if (raw && (raw.status === 'ok' || raw.status === 'pending_assessment')) {
+      const raw = await fetchOverview();
+      if (raw) {
         setData(mapOverview(raw));
       } else {
+        // A 2xx with a body we cannot read is a failure, not "pending".
+        setError(new Error('Unexpected Health Score response'));
         setData(EMPTY_STATE);
       }
     } catch (err) {
-      // Keep the page functional: a fresh workspace with no assessment still
-      // shows the empty-state CTA rather than a crash. Auth issues surface via
-      // `error` for callers that want to react.
+      // `pending_assessment` is only ever the API's own status. A failed load
+      // surfaces through `error` so pages can offer a retry instead of telling
+      // an assessed founder to take the assessment.
       if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
         console.warn('Health score unauthorized or forbidden:', err.message);
       }
@@ -208,47 +222,5 @@ export function useHealthScore() {
     });
   }, [refetch]);
 
-  const dismissRecommendation = useCallback((id: string) => {
-    // Optimistic local removal. The real founder-only endpoint
-    // (POST /health-score/recommendations/{id}/dismiss) is wired with the
-    // recommendations sub-route in a follow-up; the overview has no dismiss control.
-    setData((prev) => ({
-      ...prev,
-      topRecommendations: prev.topRecommendations.filter((r) => r.id !== id),
-    }));
-  }, []);
-
-  return { data, loading, error, refetch, dismissRecommendation };
+  return { data, loading, error, refetch };
 }
-
-// Mock per-dimension signal detail — still used by the dimension drill-down
-// sub-route, which is wired to its own `/health-score/dimensions/{key}` endpoint
-// in a follow-up. The overview (this module) does not use these.
-export const mockDimensionSignals: Record<DimensionKey, HealthSignal[]> = {
-  product: [
-    { id: 's1', name: 'MVP progress', currentValue: '40% built', targetValue: 'Working prototype', contribution: 6, sourceUrl: '/roadmap' },
-    { id: 's2', name: 'User feedback logged', currentValue: '18 notes', targetValue: '≥ 10', contribution: 4, sourceUrl: '/validation' },
-    { id: 's3', name: 'Feature focus', currentValue: 'Narrow', targetValue: 'Narrow', contribution: 3, sourceUrl: '/business-builder' },
-  ],
-  market: [
-    { id: 's4', name: 'Assumptions validated', currentValue: '3 of 7', targetValue: '≥ 3', contribution: 5, sourceUrl: '/validation' },
-    { id: 's5', name: 'Segment clarity', currentValue: 'Defined', targetValue: 'Defined', contribution: 4, sourceUrl: '/business-builder' },
-    { id: 's6', name: 'Competitive map', currentValue: 'Complete', targetValue: 'Complete', contribution: 2, sourceUrl: '/business-builder' },
-  ],
-  financial: [
-    { id: 's7', name: 'Runway', currentValue: '8.4 months', targetValue: '≥ 9 months', contribution: -3, sourceUrl: '/finance-hub' },
-    { id: 's8', name: 'Revenue growth', currentValue: 'Flat', targetValue: '+10% / mo', contribution: -4, sourceUrl: '/finance-hub' },
-    { id: 's9', name: 'Budget set', currentValue: 'Yes', targetValue: 'Yes', contribution: 2, sourceUrl: '/finance-hub' },
-    { id: 's10', name: 'Burn discipline', currentValue: 'On plan', targetValue: 'On plan', contribution: 2, sourceUrl: '/finance-hub' },
-  ],
-  legal: [
-    { id: 's11', name: 'Entity formed', currentValue: 'In progress', targetValue: 'Formed', contribution: -2, sourceUrl: '/legal' },
-    { id: 's12', name: 'Founder agreements', currentValue: 'Signed', targetValue: 'Signed', contribution: 4, sourceUrl: '/legal' },
-    { id: 's13', name: 'IP assignment', currentValue: 'Pending', targetValue: 'Complete', contribution: -1, sourceUrl: '/legal' },
-  ],
-  team: [
-    { id: 's14', name: 'Active members', currentValue: '4', targetValue: '≥ 2', contribution: 5, sourceUrl: '/team' },
-    { id: 's15', name: 'Advisors engaged', currentValue: '2', targetValue: '≥ 1', contribution: 3, sourceUrl: '/team' },
-    { id: 's16', name: 'Weekly activity', currentValue: 'High', targetValue: 'Steady', contribution: 2, sourceUrl: '/team' },
-  ],
-};

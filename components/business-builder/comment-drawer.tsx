@@ -9,8 +9,8 @@ import {
   listComments,
   listMembers,
   resolveComment,
-  type BuilderComment,
-  type CommentEntity,
+  type Comment,
+  type CommentEntityType,
   type TeamMember,
 } from '@/lib/api/comments';
 import { apiErrorInfo } from '@/lib/api/api-error';
@@ -21,7 +21,7 @@ import { useBuilderAccess } from '@/hooks/useBuilderAccess';
 interface Props {
   open: boolean;
   title: string;
-  entityType: CommentEntity;
+  entityType: CommentEntityType;
   entityId: string | null;
   /** A canvas block key for a section thread; omit for a record. */
   anchor?: string;
@@ -36,16 +36,16 @@ function CommentRow({
   onChanged,
   onError,
 }: {
-  c: BuilderComment;
+  c: Comment;
   canResolve: boolean;
-  onChanged: (next: BuilderComment | null) => void;
+  onChanged: (next: Comment | null) => void;
   onError: (msg: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(c.body);
   const [busy, setBusy] = useState(false);
 
-  const run = async (fn: () => Promise<BuilderComment | null>) => {
+  const run = async (fn: () => Promise<Comment | null>) => {
     setBusy(true);
     try {
       onChanged(await fn());
@@ -107,7 +107,7 @@ function CommentRow({
 /** A comment thread for one canvas block or one record (`/team/comments`). */
 export function CommentDrawer({ open, title, entityType, entityId, anchor, onClose, onChanged }: Props) {
   const { canComment, canEdit } = useBuilderAccess();
-  const [comments, setComments] = useState<BuilderComment[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [text, setText] = useState('');
@@ -175,11 +175,11 @@ export function CommentDrawer({ open, title, entityType, entityId, anchor, onClo
     setError(null);
     try {
       const created = await createComment({
-        entity_type: entityType,
-        entity_id: entityId,
+        entityType,
+        entityId,
         ...(anchor ? { anchor } : {}),
         body,
-        mention_user_ids: mentionIdsIn(body, picked),
+        mentionUserIds: mentionIdsIn(body, picked),
       });
       setComments((prev) => [...prev, created]);
       setText('');

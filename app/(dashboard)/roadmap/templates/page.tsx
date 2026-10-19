@@ -141,7 +141,7 @@ export default function TemplatesPage() {
       {/* Preview modal */}
       {preview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setPreview(null)}>
-          <div className="bg-white rounded-modal max-w-lg w-full shadow-accent relative flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-label="Template preview" className="bg-white rounded-modal max-w-lg w-full shadow-accent relative flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-[#EBEBE6] flex items-center justify-between bg-[#FBFBFA]">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-[#183B28]" />
@@ -190,7 +190,7 @@ export default function TemplatesPage() {
       {/* Apply confirmation modal */}
       {confirmTpl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => !applying && setConfirmTpl(null)}>
-          <div className="bg-white rounded-modal max-w-sm w-full p-6 shadow-accent relative flex flex-col gap-6" onClick={(e) => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-label="Apply template" className="bg-white rounded-modal max-w-sm w-full p-6 shadow-accent relative flex flex-col gap-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col items-center text-center gap-3">
               <div className="w-12 h-12 bg-[#EAF2ED] rounded-full flex items-center justify-center border-4 border-[#CDE1D3]">
                 <Copy className="w-6 h-6 text-[#2D5A3F]" />
