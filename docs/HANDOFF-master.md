@@ -19,10 +19,13 @@ in the gap lists (`docs/checklist/*-prd-gaps.md`), SOPs (`docs/sop/` in both rep
 | Repo | PR | What | Notes |
 |---|---|---|---|
 | FE | this docs PR (`docs/validation-rewalk-a`) | Validation slice (a) re-walk evidence + this handoff | merge any time |
-| FE | from session `fe-validation-slice-b-sc` | Validation slice (b) FE: scripts + Insight Synthesizer | in progress |
+| FE | [#115](https://github.com/innocent98/Cofoundaz/pull/115) | Validation slice (b) FE: scripts + Insight Synthesizer (+ builder target fix) | CI green, no attribution, verified live by the lead (real model); merge any time |
 | API | [#151](https://github.com/innocent98/Cofoundaz-api/pull/151) | Validation slice (c): MVP feedback inbox, theme clustering, Send to roadmap, open survey answers, share-link rotation, linked experiments; migration 0058 | green locally (CI parity); merge any time |
 
 Merged 2026-10-19 (Validation): API #149 (slice a) and #150 (slice b), FE #114 (slice a), docs #109, #113.
+**Paused 2026-10-19 23:30 WAT** (Adebayo: "lets pause, we'll continue tomorrow"). Nothing running. Resume with: merge #115, #151, #116;
+start the FE (c) session (proposal card `fe-validation-c`, task_02f33cc5, stacks on #115's branch if #115 is unmerged);
+then re-walk (b) incl. Apply on a suggestion (needs fresh evidence that yields one) and (c) on develop.
 Note: the remote branch `feat/validation-prd-b` was re-created by mistake after #150 merged (same commit as develop); delete it.
 Merged 2026-10-19 (Step 1): API #142-#148, FE #110-#112 (re-walk fixes, AI budget 100k, honest AI fill messages).
 Everything else from 2026-10-18/19 is merged: API #135-#137, #139-#141 (staging CD green, migrations auto-run);
