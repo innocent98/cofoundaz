@@ -55,6 +55,7 @@ describe('notification deep links', () => {
     expect(notificationHref('finance.runway.low', {})).toBe('/finance/runway');
     expect(notificationHref('assessment.completed', {})).toBe('/assessment/results');
     expect(notificationHref('healthscore.dropped', {})).toBe('/health');
+    expect(notificationHref('healthscore.record', {})).toBe('/health');
   });
 
   it('types without a destination have none', () => {

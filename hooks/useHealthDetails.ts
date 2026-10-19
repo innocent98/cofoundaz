@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import { safeInternalHref } from '@/lib/safe-href';
 
 // Health-score sub-routes (guide §2–§5). API dimension keys are product/market/
 // money/legal/team; the FE speaks `financial` for `money`, so we translate on the
@@ -17,12 +18,22 @@ export interface HealthRec {
   effort: string; // low | medium | high
   status: string; // pending | accepted | dismissed
   priority: number;
+  href: string; // where the founder does the work (internal route)
 }
 
+// `unit` tells the FE how to format `value`/`target`. A live runway row for a
+// profitable startup has status "not_burning" and value 999: never show "999".
+export type SignalUnit = 'score' | '%' | 'count' | 'months' | 'days' | 'events';
 export interface DimensionSignal {
   key: string;
+  label: string;
   value: number;
+  unit: SignalUnit;
+  target: number;
   contribution: number;
+  source: 'assessment' | 'live';
+  status?: string;
+  href: string;
   source_ref: string;
 }
 export interface DimensionDetail {
@@ -40,13 +51,29 @@ export interface HistoryPoint {
   dimension_scores: Record<string, number>;
   delta: number;
   computed_at: string;
+  trigger?: string;
 }
 
+export interface HistoryMarker {
+  at: string;
+  label: string;
+  action: string;
+}
+
+// Shown only when the API has at least min_cohort_size other startups in the
+// cohort. p25/p50/p75 are bucketed to 5 points server-side for privacy.
+export interface BenchmarkRow {
+  p25: number;
+  p50: number;
+  p75: number;
+  you: number;
+  your_percentile: number;
+}
 export interface Benchmarks {
-  status: string; // "insufficient_data" today
-  cohort: { stage: string; industry: string };
+  status: string; // "insufficient_data" | "ok"
+  cohort: { stage: string; industry: string; size_at_least?: number };
   min_cohort_size: number;
-  percentiles: Record<string, number> | null;
+  percentiles: Record<string, BenchmarkRow> | null;
 }
 
 function apiMsg(err: unknown): { message: string; code?: string; status?: number } {
@@ -56,6 +83,12 @@ function apiMsg(err: unknown): { message: string; code?: string; status?: number
   }
   return { message: (err as { message?: string })?.message || 'Something went wrong.' };
 }
+
+// Every href below comes from the API and lands in a <Link> or router.push. They
+// are meant to be in-app routes; anything else falls back to /health so a bad
+// value can never send the founder off-site.
+const internalHref = (href: string | null | undefined) => safeInternalHref(href) ?? '/health';
+const withSafeHref = <T extends { href: string }>(row: T): T => ({ ...row, href: internalHref(row.href) });
 
 // --- Recommendations (list + accept/dismiss) --------------------------------
 export function useHealthRecommendations(status: 'pending' | 'accepted' | 'dismissed' = 'pending') {
@@ -68,7 +101,7 @@ export function useHealthRecommendations(status: 'pending' | 'accepted' | 'dismi
       setLoading(true);
       setError(null);
       const res = await apiClient<{ data?: HealthRec[] }>(`/health-score/recommendations?status=${status}`);
-      setRecs(Array.isArray(res?.data) ? res.data : []);
+      setRecs(Array.isArray(res?.data) ? res.data.map(withSafeHref) : []);
     } catch (err) {
       setError(apiMsg(err).message);
       setRecs([]);
@@ -116,15 +149,27 @@ export function useHealthDimension(feDim: string) {
   const [detail, setDetail] = useState<DimensionDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setNotFound(false);
+      setError(null);
       const res = await apiClient<{ data?: DimensionDetail }>(`/health-score/dimensions/${apiDim}`);
-      setDetail(res?.data ?? null);
+      const d = res?.data;
+      setDetail(
+        d
+          ? {
+              ...d,
+              signals: (d.signals ?? []).map(withSafeHref),
+              recommendations: (d.recommendations ?? []).map(withSafeHref),
+            }
+          : null
+      );
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) setNotFound(true);
+      else setError(apiMsg(err).message);
       setDetail(null);
     } finally {
       setLoading(false);
@@ -138,21 +183,35 @@ export function useHealthDimension(feDim: string) {
     })();
   }, [apiDim, load]);
 
-  return { detail, loading, notFound, refetch: load };
+  return { detail, loading, notFound, error, refetch: load };
 }
 
 // --- History ----------------------------------------------------------------
-export function useHealthHistory(range: '7d' | '30d' | '90d' | 'all') {
+export const HISTORY_RANGES = ['30d', '90d', '365d'] as const;
+export type HistoryRange = (typeof HISTORY_RANGES)[number];
+
+export function useHealthHistory(range: HistoryRange) {
   const [points, setPoints] = useState<HistoryPoint[]>([]);
+  const [markers, setMarkers] = useState<HistoryMarker[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await apiClient<{ data?: HistoryPoint[] }>(`/health-score/history?range=${range}`);
-      setPoints(Array.isArray(res?.data) ? res.data : []);
-    } catch {
+      setError(null);
+      // Markers annotate the chart; the chart is still useful without them, so a
+      // markers failure never blocks the history itself.
+      const [hist, marks] = await Promise.all([
+        apiClient<{ data?: HistoryPoint[] }>(`/health-score/history?range=${range}`),
+        apiClient<{ data?: HistoryMarker[] }>(`/health-score/history/markers?range=${range}`).catch(() => null),
+      ]);
+      setPoints(Array.isArray(hist?.data) ? hist.data : []);
+      setMarkers(Array.isArray(marks?.data) ? marks.data : []);
+    } catch (err) {
+      setError(apiMsg(err).message);
       setPoints([]);
+      setMarkers([]);
     } finally {
       setLoading(false);
     }
@@ -164,20 +223,23 @@ export function useHealthHistory(range: '7d' | '30d' | '90d' | 'all') {
     })();
   }, [load]);
 
-  return { points, loading, refetch: load };
+  return { points, markers, loading, error, refetch: load };
 }
 
 // --- Benchmarks -------------------------------------------------------------
 export function useHealthBenchmarks() {
   const [benchmarks, setBenchmarks] = useState<Benchmarks | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const res = await apiClient<{ data?: Benchmarks }>('/health-score/benchmarks');
       setBenchmarks(res?.data ?? null);
-    } catch {
+    } catch (err) {
+      setError(apiMsg(err).message);
       setBenchmarks(null);
     } finally {
       setLoading(false);
@@ -190,5 +252,5 @@ export function useHealthBenchmarks() {
     })();
   }, [load]);
 
-  return { benchmarks, loading, refetch: load };
+  return { benchmarks, loading, error, refetch: load };
 }

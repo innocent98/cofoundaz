@@ -1,8 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Check, X, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ArrowRight, X, AlertTriangle } from 'lucide-react';
+import { HealthError } from '@/components/health/health-states';
 import { useHealthRecommendations } from '@/hooks/useHealthDetails';
+import { safeInternalHref } from '@/lib/safe-href';
 
 const FILTERS = [
   { key: 'pending', label: 'Pending' },
@@ -12,16 +16,23 @@ const FILTERS = [
 
 export default function RecommendationsPage() {
   const [filter, setFilter] = useState<'pending' | 'accepted' | 'dismissed'>('pending');
-  const { recs, loading, error, accept, dismiss } = useHealthRecommendations(filter);
+  const router = useRouter();
+  const { recs, loading, error, refetch, accept, dismiss } = useHealthRecommendations(filter);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [rowError, setRowError] = useState<Record<string, string>>({});
 
-  const run = async (id: string, fn: () => Promise<{ ok: boolean; error?: string }>) => {
+  const run = async (id: string, fn: () => Promise<{ ok: boolean; error?: string }>, href?: string) => {
     setBusyId(id);
     setRowError((p) => ({ ...p, [id]: '' }));
     const res = await fn();
     setBusyId(null);
-    if (!res.ok) setRowError((p) => ({ ...p, [id]: res.error || 'Could not action this.' }));
+    if (!res.ok) {
+      setRowError((p) => ({ ...p, [id]: res.error || 'Could not action this.' }));
+      return;
+    }
+    // Start = accept, then take the founder to where the work happens.
+    const target = safeInternalHref(href);
+    if (target) router.push(target);
   };
 
   return (
@@ -31,10 +42,12 @@ export default function RecommendationsPage() {
         <p className="text-xs text-[#617065] mt-1.5">Ranked by priority. Each lift is an estimate, not a guarantee.</p>
       </div>
 
-      <div className="flex items-center gap-1 bg-[#F5F5F0] p-1 rounded-card border border-[#EBEBE6] w-fit">
+      <div role="group" aria-label="Recommendation status" className="flex items-center gap-1 bg-[#F5F5F0] p-1 rounded-card border border-[#EBEBE6] w-fit">
         {FILTERS.map((f) => (
           <button
             key={f.key}
+            type="button"
+            aria-pressed={filter === f.key}
             onClick={() => setFilter(f.key)}
             className={`px-4 py-1.5 rounded-[6px] text-xs font-medium transition-all ${
               filter === f.key ? 'bg-white text-[#1E2923] font-bold shadow-card' : 'bg-transparent text-[#768478] hover:text-[#1E2923]'
@@ -54,12 +67,12 @@ export default function RecommendationsPage() {
       )}
 
       {!loading && error && (
-        <div className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-modal p-4 text-sm text-[#B0483B]">{error}</div>
+        <HealthError title="Couldn't load recommendations" message={error} onRetry={refetch} />
       )}
 
       {!loading && !error && recs.length === 0 && (
         <div className="text-center py-12 text-[#617065] text-sm">
-          {filter === 'pending' ? 'All caught up, no pending recommendations right now.' : `No ${filter} recommendations.`}
+          {filter === 'pending' ? 'All caught up. No pending recommendations right now.' : `No ${filter} recommendations.`}
         </div>
       )}
 
@@ -72,7 +85,7 @@ export default function RecommendationsPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
                   <div className="flex items-start gap-4 flex-1">
                     <span className="bg-[#EAF2ED] text-[#2D5A3F] text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
-                      est. +{item.estimated_lift}
+                      est. +{item.estimated_lift} pts
                     </span>
                     <div className="flex flex-col gap-1.5">
                       <h3 className="text-base font-bold text-[#1E2923] leading-snug">{item.title}</h3>
@@ -86,20 +99,30 @@ export default function RecommendationsPage() {
                   {filter === 'pending' && (
                     <div className="flex items-center gap-2 shrink-0 justify-end">
                       <button
-                        onClick={() => run(item.id, () => accept(item.id))}
+                        type="button"
+                        onClick={() => run(item.id, () => accept(item.id), item.href)}
                         disabled={busy}
-                        className="flex items-center gap-1 bg-[#183B28] hover:bg-[#11291C] disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-card transition-colors"
+                        className="flex items-center gap-1 bg-[#183B28] hover:bg-[#11291C] disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-card transition-colors cursor-pointer"
                       >
-                        <Check className="w-3.5 h-3.5" /> Accept
+                        Start <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                       </button>
                       <button
+                        type="button"
                         onClick={() => run(item.id, () => dismiss(item.id))}
                         disabled={busy}
-                        className="flex items-center gap-1 bg-white hover:bg-[#F5F5F0] text-[#617065] border border-[#EBEBE6] text-xs font-bold px-4 py-2 rounded-card transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1 bg-white hover:bg-[#F5F5F0] text-[#617065] border border-[#EBEBE6] text-xs font-bold px-4 py-2 rounded-card transition-colors disabled:opacity-50 cursor-pointer"
                       >
-                        <X className="w-3.5 h-3.5" /> Dismiss
+                        <X className="w-3.5 h-3.5" aria-hidden="true" /> Dismiss
                       </button>
                     </div>
+                  )}
+                  {filter === 'accepted' && (
+                    <Link
+                      href={item.href}
+                      className="flex items-center gap-1 shrink-0 self-start md:self-center bg-white hover:bg-[#F5F5F0] text-[#183B28] border border-[#EBEBE6] text-xs font-bold px-4 py-2 rounded-card transition-colors"
+                    >
+                      Open <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                    </Link>
                   )}
                 </div>
                 {rowError[item.id] && (

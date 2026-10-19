@@ -38,7 +38,7 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
   if (type === 'workspace.member.joined') return '/team';
   if (type === 'finance.runway.low') return '/finance/runway';
   if (type === 'assessment.completed') return '/assessment/results';
-  if (type === 'healthscore.dropped') return '/health';
+  if (type === 'healthscore.dropped' || type === 'healthscore.record') return '/health';
   if (type === 'roadmap.milestone.overdue') return '/roadmap/replan';
   if (type === 'roadmap.milestone.due_soon') {
     return typeof data?.milestone_id === 'string' ? `/roadmap?milestone=${encodeURIComponent(data.milestone_id)}` : '/roadmap';
