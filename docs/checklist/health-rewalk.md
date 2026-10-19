@@ -70,3 +70,5 @@ Every ❌ row above was re-checked live after API #142-#147 and FE #110 merged.
 | "Money" / "+1 pts" | Accepted tab: "Effort: Low · Financial", "est. +1 pt" | ✅ |
 | Non-founder Start/Dismiss | mentor recommendations: only "Open", no Start/Dismiss | ✅ |
 | Links a role can't open | mentor overview: only "Do it → /documents/signatures" | ✅ |
+
+**Health: every row ✅ on merged develop (2026-10-19). Page done.**

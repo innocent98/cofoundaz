@@ -19,13 +19,12 @@ in the gap lists (`docs/checklist/*-prd-gaps.md`), SOPs (`docs/sop/` in both rep
 | Repo | PR | What | Notes |
 |---|---|---|---|
 | FE | [#109](https://github.com/innocent98/Cofoundaz/pull/109) | Docs only: Validation gap list, Business Builder close-out, audit notes | merge any time |
-| ~~API #142-#147, FE #110~~ | merged 2026-10-19 | re-walk fixes + AI budget 100k | done |
+| ~~API #142-#148, FE #110 #111 #112~~ | merged 2026-10-19 | re-walk fixes, evidence, AI budget 100k | done |
 | API | [#142](https://github.com/innocent98/Cofoundaz-api/pull/142) | No em/en dashes: LLM output stripped at the seam + 8 API copy strings + guard test | re-walk |
 | API | [#143](https://github.com/innocent98/Cofoundaz-api/pull/143) | Mission: roadmap sync, D-MIS-7 reject calibration, snooze completes the day, D-MIS-8 F+TM reads, migration 0055 backfill | re-walk; needs `alembic upgrade head` (CD does it) |
 | API | [#144](https://github.com/innocent98/Cofoundaz-api/pull/144) | Invited members no longer routed to founder onboarding (`GET /onboarding/state` member view) | re-walk; blocks every non-founder login |
 | API | [#145](https://github.com/innocent98/Cofoundaz-api/pull/145) | Roadmap: breakdown row lock (202+409), D-RM-5 milestone complete completes tasks | re-walk |
 | API | [#146](https://github.com/innocent98/Cofoundaz-api/pull/146) | Business Builder: blank competitor threat level no longer 422s | re-walk |
-| API | [#148](https://github.com/innocent98/Cofoundaz-api/pull/148) | AI fill jobs report ready / nothing_new / over_budget | last BB re-walk row |
 | FE | from session `fe-rewalk-fixes` | 19 FE rows across the four pages + an app-wide route guard | in progress |
 
 #143 and #145 both touch `app/services/mission/service.py`/`roadmap.py` in different places; merge in order #142 → #143 → #144 → #145 → #146 (each is branched from develop; later ones may need `develop` merged in, which re-runs CI).
@@ -108,7 +107,7 @@ All are reversible and none blocks merging.
 | Today's Mission | ✅ `mission-prd-gaps.md` (15) | ✅ merged #135 | ✅ merged #105 | ✅ full click-through + close-out on merged develop 2026-10-19 (`mission-rewalk.md`) |
 | Health Score | ✅ `health-prd-gaps.md` (10) | ✅ merged #136 | ✅ merged #106 | ✅ full click-through + close-out on merged develop 2026-10-19 (`health-rewalk.md`) |
 | Roadmap | ✅ `roadmap-prd-gaps.md` | ✅ merged #137 | ✅ merged #107 | ✅ full click-through + close-out on merged develop 2026-10-19 (`roadmap-rewalk.md`) |
-| Business Builder | ✅ `business-builder-prd-gaps.md` (21) | ✅ merged #139-#141 | ✅ merged #108 | 🔁 walked + closed out 2026-10-19 except AI fill outcome messages: API #148 + FE follow-up PR (`business-builder-rewalk.md`) |
+| Business Builder | ✅ `business-builder-prd-gaps.md` (21) | ✅ merged #139-#141 | ✅ merged #108 | ✅ full click-through + close-out on merged develop 2026-10-19 (`business-builder-rewalk.md`) |
 | Validation | ✅ `validation-prd-gaps.md` (14), D-VAL-1..3 confirmed | next (lead): slices a, b, c | | |
 
 Page order (PRD sidebar): Dashboard → Today's Mission → Health Score → Roadmap → Business Builder → Validation → Assessment →
@@ -116,7 +115,7 @@ Marketing → Sales → Finance → Funding → Investor Readiness → Legal →
 Analytics → Journal → Notifications → Settings. (Finance and Marketing hubs were wired early, #102/#103; they still get a PRD walk.)
 
 ### Step 1: full click-through re-walk of the four finished pages (WALKED 2026-10-19; closing out)
-**Close-out (evening):** API #142-#147 and FE #110 merged; every ❌ row re-checked live on develop and passing. Mission, Health, Roadmap are DONE. Business Builder has one open row: AI fill jobs said "AI draft added" when nothing was drafted (API #148 open, FE follow-up PR from session `fe-rewalk-fixes`). Start Validation (Step 2) once those merge and the row re-checks green.
+**Close-out (evening):** API #142-#147 and FE #110 merged; every ❌ row re-checked live on develop and passing. **STEP 1 COMPLETE (20:35 WAT):** Mission, Health, Roadmap and Business Builder all pass every control on merged develop (last fixes API #148 + FE #112). Next: Validation (Step 2).
 **State:** every control walked at 1440 and 375 as founder, team member, consultant and mentor; evidence per control in
 `docs/checklist/{mission,health,roadmap,business-builder}-rewalk.md`. BE fixes are API #142-#146; FE fixes (19 rows + an
 app-wide route guard) are in sub-session `fe-rewalk-fixes`. To close Step 1: merge those, then re-check every ❌ row live on

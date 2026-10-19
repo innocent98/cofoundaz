@@ -87,3 +87,5 @@ Every ❌ row above was re-checked live after API #142-#147 and FE #110 merged.
 | Mentor direct URL | `/mission`: "You don't have access to this page." + Back to dashboard; API 403 (the page still fires one `/missions/today` request before the guard decides: harmless) | ✅ |
 | Mentor login (#144) | `GET /onboarding/state` as mentor → `completed: true`, NovaPay | ✅ |
 | BE rows (#143) | merged code is what was verified live on the branch | ✅ |
+
+**Mission: every row ✅ on merged develop (2026-10-19). Page done.**
