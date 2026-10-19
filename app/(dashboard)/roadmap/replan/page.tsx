@@ -234,6 +234,8 @@ export default function ReplanPage() {
                 <button
                   type="button"
                   onClick={() => toggleHistory(h.id)}
+                  aria-expanded={open}
+                  aria-controls={`replan-history-${h.id}`}
                   className="w-full p-5 flex items-center justify-between gap-4 text-left hover:bg-[#FBFBFA] transition-colors"
                 >
                   <div className="flex flex-col gap-1 min-w-0">
@@ -254,7 +256,7 @@ export default function ReplanPage() {
                 </button>
 
                 {open && (
-                  <div className="border-t border-[#EBEBE6] divide-y divide-[#F2F2EE]">
+                  <div id={`replan-history-${h.id}`} className="border-t border-[#EBEBE6] divide-y divide-[#F2F2EE]">
                     {h.changes.map((c, i) => (
                       <div key={`${h.id}-${c.milestone_id}-${i}`} className="px-5 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
                         <div className="flex flex-col gap-1 min-w-0 flex-1">

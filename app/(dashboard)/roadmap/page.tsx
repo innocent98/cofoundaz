@@ -257,7 +257,7 @@ function TimelineView() {
                     <div key={phase.id} className="flex flex-col gap-4">
                       <div className="sticky left-6 z-20 flex flex-wrap items-center gap-3 w-fit max-w-[calc(100vw-96px)]">
                         <h4 className="text-xs font-bold text-[#617065] uppercase tracking-wider">
-                          Phase {phase.order}: {phase.name}
+                          Phase {phase.order + 1}: {phase.name}
                         </h4>
                         {canEdit && (
                           <div className="flex items-center gap-1">

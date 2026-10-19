@@ -1,6 +1,6 @@
 # Re-walk fixes: Mission + shell
 
-**What shipped:** six FE fixes found by the click-through re-walk of Today's Mission on `develop` (PR `fix/rewalk-mission-shell`). Health rows 7-10 are below; Roadmap and Business Builder rows are added to the same PR.
+**What shipped:** six FE fixes found by the click-through re-walk of Today's Mission on `develop` (PR `fix/rewalk-mission-shell`). Health rows 7-10 are below; Roadmap rows 11-13 follow; Business Builder rows are added to the same PR.
 
 | # | Fix | Where |
 |---|---|---|
@@ -19,6 +19,14 @@
 | 8 | Recommendation cards say "Financial" not the API key `money`; "est. +1 pt" singular everywhere (overview, drill-down, recommendations, contribution column). | `lib/health-format.ts` (`formatLift`, `dimensionLabel`) |
 | 9 | Accept/dismiss are founder-only (API 403 otherwise): other roles see no Start/Dismiss, only an "Open" link. | `app/(dashboard)/health/recommendations/page.tsx` |
 | 10 | "Do it" / "Open" links render only when `canOpenPath(href, role)` allows the route. | health overview, drill-down, recommendations |
+
+## Roadmap (rows 11-13)
+
+| # | Fix | Where |
+|---|---|---|
+| 11 | Timeline phase labels are 1-based (`order + 1`); the API order starts at 0. | `app/(dashboard)/roadmap/page.tsx` |
+| 12 | Template preview and apply-confirm are real dialogs: focus moves in, Escape closes, Tab is trapped, focus returns to the card button (also when the confirm was opened from the preview). New reusable `ModalDialog`. | `components/modal-dialog.tsx`, `app/(dashboard)/roadmap/templates/page.tsx` |
+| 13 | Re-plan history entries carry `aria-expanded` and `aria-controls`. | `app/(dashboard)/roadmap/replan/page.tsx` |
 
 **Why not touch `handleSessionExpired`:** its redirect-to-login still skips every `/auth/` path, so public pages calling `/auth/*` without a token are unaffected.
 
