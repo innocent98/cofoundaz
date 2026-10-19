@@ -279,30 +279,32 @@ export function useMissionApi() {
   // correct. Optimistic where it reads cleanly; refetch is the source of truth.
 
   const patchTask = useCallback(
-    async (id: string, body: Record<string, unknown>) => {
+    async (id: string, body: Record<string, unknown>): Promise<boolean> => {
       try {
         await apiClient(`/missions/tasks/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
         await fetchToday();
         announceMissionChanged();
+        return true;
       } catch (err) {
         // 404 → the task is gone/cross-workspace: drop it locally (guide §7).
         if (err instanceof ApiError && err.status === 404) {
           setTasks((prev) => prev.filter((t) => t.id !== id));
-          return;
+          return false;
         }
         setError(errorOf(err));
         await fetchToday(); // reconcile optimistic state with the server
+        return false;
       }
     },
     [fetchToday]
   );
 
   const toggleTask = useCallback(
-    (id: string) => {
+    async (id: string): Promise<boolean> => {
       const task = tasks.find((t) => t.id === id);
-      if (!task || task.status === 'completed') return; // completion is one-way
+      if (!task || task.status === 'completed') return false; // completion is one-way
       setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'completed', completedAt: new Date().toISOString() } : t)));
-      void patchTask(id, { action: 'complete' });
+      return patchTask(id, { action: 'complete' });
     },
     [tasks, patchTask]
   );
@@ -323,19 +325,19 @@ export function useMissionApi() {
   );
 
   const snoozeTask = useCallback(
-    (id: string) => {
+    (id: string): Promise<boolean> => {
       setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'snoozed' } : t)));
-      void patchTask(id, { action: 'snooze' });
+      return patchTask(id, { action: 'snooze' });
     },
     [patchTask]
   );
 
   const rejectTask = useCallback(
-    (id: string, reason?: string) => {
+    (id: string, reason?: string): Promise<boolean> => {
       setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'rejected' } : t)));
       // reject_reason must EXACTLY match a server VALID_REJECT_REASONS string —
       // note the straight apostrophe in "Doesn't apply" (a curly one 422s).
-      void patchTask(id, { action: 'reject', reject_reason: reason ?? "Doesn't apply" });
+      return patchTask(id, { action: 'reject', reject_reason: reason ?? "Doesn't apply" });
     },
     [patchTask]
   );
@@ -344,11 +346,11 @@ export function useMissionApi() {
   // on today's list. The API sets one task's order per call, so we PATCH both
   // sides then refetch.
   const swapOrder = useCallback(
-    async (id: string, dir: -1 | 1) => {
+    async (id: string, dir: -1 | 1): Promise<boolean> => {
       const sorted = tasks.filter((t) => t.status === 'pending' || t.status === 'completed').sort((a, b) => a.order - b.order);
       const idx = sorted.findIndex((t) => t.id === id);
       const neighbourIdx = idx + dir;
-      if (idx < 0 || neighbourIdx < 0 || neighbourIdx >= sorted.length) return;
+      if (idx < 0 || neighbourIdx < 0 || neighbourIdx >= sorted.length) return false;
       const a = sorted[idx];
       const b = sorted[neighbourIdx];
       // optimistic swap
@@ -357,12 +359,33 @@ export function useMissionApi() {
         await apiClient(`/missions/tasks/${a.id}`, { method: 'PATCH', body: JSON.stringify({ action: 'reorder', order: b.order }) });
         await apiClient(`/missions/tasks/${b.id}`, { method: 'PATCH', body: JSON.stringify({ action: 'reorder', order: a.order }) });
         await fetchToday();
+        return true;
       } catch (err) {
         setError(errorOf(err));
         await fetchToday();
+        return false;
       }
     },
     [tasks, fetchToday]
+  );
+
+  // "Assigned to you" rows are roadmap tasks, not mission tasks: mark the roadmap
+  // task done, then refetch /missions/today (assigned_to_me lists open tasks only,
+  // so the row drops out).
+  const completeAssigned = useCallback(
+    async (roadmapTaskId: string): Promise<boolean> => {
+      try {
+        await apiClient(`/roadmap/tasks/${roadmapTaskId}`, { method: 'PATCH', body: JSON.stringify({ status: 'done' }) });
+        await fetchToday();
+        announceMissionChanged();
+        return true;
+      } catch (err) {
+        setError(errorOf(err));
+        await fetchToday();
+        return false;
+      }
+    },
+    [fetchToday]
   );
 
   const reprioritizeUp = useCallback((id: string) => swapOrder(id, -1), [swapOrder]);
@@ -415,6 +438,7 @@ export function useMissionApi() {
     snoozeTask,
     rejectTask,
     reprioritizeUp,
+    completeAssigned,
     reprioritizeDown,
     updateSettings,
   };

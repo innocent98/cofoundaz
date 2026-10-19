@@ -6,7 +6,8 @@ import { Flame, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import { useMissionApi } from '@/hooks/useMissionApi';
-import { MISSION_COPY } from '@/components/mission/mission-copy';
+import { useWorkspace } from '@/components/workspace-context';
+import { MISSION_COPY, SAVE_FAILED_COPY } from '@/components/mission/mission-copy';
 import { MissionLoading } from '@/components/mission/mission-loading';
 import { RoadmapEmptyState } from '@/components/mission/roadmap-empty-state';
 import { MissionTaskCard } from '@/components/mission/mission-task-card';
@@ -34,10 +35,13 @@ export default function MissionTodayPage() {
     rejectTask,
     reprioritizeUp,
     reprioritizeDown,
+    completeAssigned,
     generateRoadmap,
     refetch,
   } = useMissionApi();
 
+  const { role } = useWorkspace();
+  const canCompleteAssigned = role === 'founder' || role === 'team_member';
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [generateFailed, setGenerateFailed] = useState(false);
@@ -58,10 +62,17 @@ export default function MissionTodayPage() {
     }
   }, [hasOpen, allCompleted]);
 
-  const handleToggle = (id: string) => {
-    toggleTask(id);
-    toast.success('Nice. Mission progress saved.');
+  // Toast success only once the server confirmed the change; the hook has already
+  // reverted the optimistic update when it did not.
+  const confirmSaved = async (action: Promise<boolean>, successMessage?: string) => {
+    if (await action) {
+      if (successMessage) toast.success(successMessage);
+    } else {
+      toast.error(SAVE_FAILED_COPY);
+    }
   };
+
+  const handleToggle = (id: string) => confirmSaved(toggleTask(id), 'Nice. Mission progress saved.');
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,7 +141,19 @@ export default function MissionTodayPage() {
       <ul className="flex flex-col gap-2.5">
         {assigned.map((a) => (
           <li key={a.roadmapTaskId} className="bg-white rounded-modal px-5 py-4 border border-[#EBEBE6] shadow-card flex items-center justify-between gap-3 flex-wrap">
-            <span className="text-sm font-semibold text-[#1E2923]">{a.title}</span>
+            <span className="flex items-center gap-3 min-w-0">
+              {canCompleteAssigned && (
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={false}
+                  aria-label={`Complete task: ${a.title}`}
+                  onClick={() => void confirmSaved(completeAssigned(a.roadmapTaskId), 'Nice. Mission progress saved.')}
+                  className="w-6 h-6 rounded-input border-2 border-[#C5CFC7] hover:border-[#183B28] bg-white cursor-pointer shrink-0"
+                />
+              )}
+              <span className="text-sm font-semibold text-[#1E2923]">{a.title}</span>
+            </span>
             <span className="flex items-center gap-2 flex-wrap">
               {a.milestone && <MilestoneChip milestone={a.milestone} />}
               <span className="text-xs font-medium text-[#617065] bg-[#F5F5F0] px-3 py-1 rounded-full">{a.effort}</span>
@@ -197,16 +220,10 @@ export default function MissionTodayPage() {
               first={index === 0}
               last={index === todayTasks.length - 1}
               onToggle={() => handleToggle(task.id)}
-              onUp={() => void reprioritizeUp(task.id)}
-              onDown={() => void reprioritizeDown(task.id)}
-              onSnooze={() => {
-                snoozeTask(task.id);
-                toast.success(MISSION_COPY.snoozeToast);
-              }}
-              onReject={(reason) => {
-                rejectTask(task.id, reason);
-                toast.success(MISSION_COPY.rejectToast);
-              }}
+              onUp={() => void confirmSaved(reprioritizeUp(task.id))}
+              onDown={() => void confirmSaved(reprioritizeDown(task.id))}
+              onSnooze={() => void confirmSaved(snoozeTask(task.id), MISSION_COPY.snoozeToast)}
+              onReject={(reason) => void confirmSaved(rejectTask(task.id, reason), MISSION_COPY.rejectToast)}
             />
           ))}
         </ul>

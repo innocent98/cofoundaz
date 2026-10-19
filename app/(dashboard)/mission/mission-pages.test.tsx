@@ -22,6 +22,7 @@ const todayFns = {
   rejectTask: vi.fn(),
   reprioritizeUp: vi.fn(),
   reprioritizeDown: vi.fn(),
+  completeAssigned: vi.fn(),
   generateRoadmap: vi.fn(),
   refetch: vi.fn(),
   updateSettings: vi.fn(),
@@ -129,18 +130,60 @@ describe('Today', () => {
     expect(screen.getByText('Ship the pitch')).toBeTruthy();
   });
 
-  it('reject and snooze show the PRD toasts', () => {
+  it('reject and snooze show the PRD toasts once saved', async () => {
     today = baseToday({ todayTasks: [task('a')] });
+    todayFns.snoozeTask.mockResolvedValue(true);
+    todayFns.rejectTask.mockResolvedValue(true);
     render(<MissionTodayPage />);
     fireEvent.click(screen.getByRole('button', { name: /More actions/ }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Snooze to tomorrow' }));
     expect(todayFns.snoozeTask).toHaveBeenCalledWith('a');
-    expect(toast.success).toHaveBeenCalledWith('Moved to tomorrow’s mission.');
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Moved to tomorrow’s mission.'));
     fireEvent.click(screen.getByRole('button', { name: /More actions/ }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Not relevant' }));
     fireEvent.click(screen.getByRole('button', { name: 'Already done' }));
     expect(todayFns.rejectTask).toHaveBeenCalledWith('a', 'Already done');
-    expect(toast.success).toHaveBeenCalledWith('Thanks, I’ll calibrate.');
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Thanks, I’ll calibrate.'));
+  });
+
+  it('toasts success only when the save worked, an error when it failed', async () => {
+    today = baseToday({ todayTasks: [task('a')] });
+    todayFns.toggleTask.mockResolvedValueOnce(false);
+    render(<MissionTodayPage />);
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Complete task: Task a' }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Couldn’t save that. Try again.'));
+    expect(toast.success).not.toHaveBeenCalled();
+
+    todayFns.toggleTask.mockResolvedValueOnce(true);
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Complete task: Task a' }));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Nice. Mission progress saved.'));
+  });
+
+  it('a failed snooze or reject shows the error, not the success toast', async () => {
+    today = baseToday({ todayTasks: [task('a')] });
+    todayFns.snoozeTask.mockResolvedValue(false);
+    render(<MissionTodayPage />);
+    fireEvent.click(screen.getByRole('button', { name: /More actions/ }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Snooze to tomorrow' }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Couldn’t save that. Try again.'));
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it.each(['founder', 'team_member'])('%s can tick an assigned roadmap task', async (who) => {
+    role = who;
+    today = baseToday({ assigned: [{ roadmapTaskId: 'r9', title: 'Ship the pitch', effort: 'Small', milestone: ms }] });
+    todayFns.completeAssigned.mockResolvedValue(true);
+    render(<MissionTodayPage />);
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Complete task: Ship the pitch' }));
+    expect(todayFns.completeAssigned).toHaveBeenCalledWith('r9');
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Nice. Mission progress saved.'));
+  });
+
+  it('other roles get no checkbox on assigned rows', () => {
+    role = 'mentor';
+    today = baseToday({ assigned: [{ roadmapTaskId: 'r9', title: 'Ship the pitch', effort: 'Small', milestone: ms }] });
+    render(<MissionTodayPage />);
+    expect(screen.queryByRole('checkbox', { name: /Ship the pitch/ })).toBeNull();
   });
 
   it('adds a custom task and reports a failure instead of closing the form', async () => {

@@ -19,6 +19,10 @@ interface Row {
 }
 
 const MAX_ROWS = 20;
+const INVALID_EMAIL_COPY = 'Enter a valid email address.';
+const INVALID_ROLE_COPY = 'Choose a role.';
+// Deliberately loose: the server is the authority, this only catches typos.
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const inputClass =
   'w-full px-4 py-3 text-sm rounded-card border border-sage-200 focus:outline-hidden focus:ring-2 focus:ring-[#9C5B34] focus:border-transparent placeholder-sage-500 text-sage-800 bg-white';
 
@@ -75,16 +79,41 @@ export function InviteModal({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (sending) return;
-    setSending(true);
     setFormError(null);
     setFieldErrors([]);
+
+    // Fully empty rows are ignored, except that at least one email is required.
+    const filled = rows
+      .map((r, index) => ({ index, email: r.email.trim(), role: r.role }))
+      .filter((r) => r.email !== '');
+    const invalid: InviteFieldError[] = (filled.length === 0 ? [{ index: 0, email: '' }] : filled)
+      .filter((r) => !EMAIL_SHAPE.test(r.email))
+      .map((r) => ({ row: r.index, field: 'email', message: INVALID_EMAIL_COPY }));
+    if (invalid.length > 0) {
+      setFieldErrors(invalid);
+      return;
+    }
+
+    setSending(true);
     try {
-      const res = await send(rows.map((r) => ({ email: r.email.trim(), role: r.role })));
+      const res = await send(filled.map((r) => ({ email: r.email, role: r.role })));
       setResult(res);
     } catch (err) {
       if (err instanceof InviteError) {
-        setFormError(err.message);
-        setFieldErrors(err.fieldErrors);
+        if (err.kind === 'validation') {
+          // Never render the validator's raw text: map the row back to the form
+          // and use our own copy.
+          setFormError('Check the highlighted fields.');
+          setFieldErrors(
+            err.fieldErrors.flatMap((f) =>
+              filled[f.row]
+                ? [{ row: filled[f.row].index, field: f.field, message: f.field === 'email' ? INVALID_EMAIL_COPY : INVALID_ROLE_COPY }]
+                : [],
+            ),
+          );
+        } else {
+          setFormError(err.message);
+        }
       } else {
         setFormError('Couldn’t send your invitations. Try again.');
       }

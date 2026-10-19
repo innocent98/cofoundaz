@@ -86,6 +86,7 @@ export default function MissionSettingsPage() {
 
                 <select
                   id="delivery-time"
+                  aria-label="Delivery time"
                   value={settings.deliveryTime}
                   onChange={(e) => void save({ deliveryTime: e.target.value })}
                   className="bg-white border border-[#EBEBE6] rounded-card px-4 py-2 text-xs font-medium text-[#1E2923] focus:outline-none focus:border-[#183B28] cursor-pointer shadow-card"
@@ -112,7 +113,7 @@ export default function MissionSettingsPage() {
                   type="button"
                   role="switch"
                   aria-checked={settings.weekendsOff}
-                  aria-labelledby="weekends-off-label"
+                  aria-label="Weekends off"
                   aria-describedby="weekends-off-desc"
                   onClick={() => void save({ weekendsOff: !settings.weekendsOff })}
                   className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#183B28] ${

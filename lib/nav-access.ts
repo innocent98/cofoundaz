@@ -70,3 +70,18 @@ export function canSee(href: string, role: MemberRole | null): boolean {
 export function canInvite(role: MemberRole | null): boolean {
   return role === 'founder';
 }
+
+/**
+ * The NAV_ROLES key a URL belongs to ('/mission/settings' -> '/mission'), or
+ * null when the path is not a gated section.
+ */
+export function routeKeyFor(pathname: string): string | null {
+  const first = '/' + (pathname.split('?')[0].split('/')[1] ?? '');
+  return first in NAV_ROLES ? first : null;
+}
+
+/** Whether `role` may open `pathname` by URL. Same rules as `canSee`, applied to the section the path is in. */
+export function canOpenPath(pathname: string, role: MemberRole | null): boolean {
+  const key = routeKeyFor(pathname);
+  return key === null ? true : canSee(key, role);
+}
