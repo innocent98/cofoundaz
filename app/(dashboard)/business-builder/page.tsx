@@ -10,9 +10,13 @@ import {
   TrendingUp,
   Target,
   ShieldAlert,
-  ArrowRight
+  ArrowRight,
+  FileText,
 } from 'lucide-react';
-import { apiClient } from '@/lib/api/client';
+import { businessBuilderApi, type OverviewRow } from '@/lib/api/business-builder';
+import { useBuilderAccess } from '@/hooks/useBuilderAccess';
+import { ctaFor, indexByType, planCta, planProgress } from '@/lib/bb-overview';
+import { relativeTime } from '@/lib/relative-time';
 import { SuggestionsPanel } from '@/components/business-builder/suggestions-panel';
 
 // The 9 Business Builder modules, keyed to the API's `type` on
@@ -38,33 +42,20 @@ const MODULES: ModuleDef[] = [
   { id: 'revenue', type: 'revenue_stream', title: 'Revenue Model', description: 'Where the money comes from and how much.', path: '/business-builder/revenue-model', icon: <TrendingUp className="w-4 h-4 text-[#183B28]" />, isRecord: true },
   { id: 'competitive', type: 'competitor', title: 'Competitive Analysis', description: 'Who else is out there and where you win.', path: '/business-builder/competitive-analysis', icon: <Target className="w-4 h-4 text-[#183B28]" />, isRecord: true },
   { id: 'swot', type: 'swot', title: 'SWOT', description: 'Strengths, weaknesses, opportunities, threats.', path: '/business-builder/swot', icon: <ShieldAlert className="w-4 h-4 text-[#183B28]" />, isRecord: false },
+  { id: 'plan', type: 'plan', title: 'Business Plan', description: 'A full narrative plan drafted from everything above.', path: '/business-builder/plan', icon: <FileText className="w-4 h-4 text-[#183B28]" />, isRecord: false },
 ];
-
-interface OverviewRow {
-  type: string;
-  label: string;
-  status: string;
-  completion_pct?: number;
-  filled_blocks?: number;
-  total_blocks?: number;
-  count?: number;
-}
 
 export default function BusinessBuilderOverviewPage() {
   const [rows, setRows] = useState<Record<string, OverviewRow>>({});
   const [loading, setLoading] = useState(true);
+  const { canWrite } = useBuilderAccess();
 
   useEffect(() => {
     let active = true;
     (async () => {
       try {
-        const res = await apiClient<{ data?: OverviewRow[] }>('/business-builder/overview');
-        const list = res?.data ?? [];
-        if (active) {
-          const byType: Record<string, OverviewRow> = {};
-          for (const r of list) byType[r.type] = r;
-          setRows(byType);
-        }
+        const list = await businessBuilderApi.getOverview();
+        if (active) setRows(indexByType(list));
       } catch {
         // fresh workspace / auth issue → cards render at 0
       } finally {
@@ -100,16 +91,20 @@ export default function BusinessBuilderOverviewPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {MODULES.map((card) => {
           const row = rows[card.type];
+          const isPlan = card.type === 'plan';
           const count = row?.count ?? 0;
-          // Canvases show real completion %; record kinds show item count and a
-          // binary "started" ring (no server completion % exists for them).
-          const progress = card.isRecord ? (count > 0 ? 100 : 0) : (row?.completion_pct ?? 0);
-          const centerLabel = card.isRecord ? `${count}` : `${progress}%`;
+          // Rings follow the API: canvases and records report `completion_pct`; the plan is
+          // complete or not. Record tiles show the item count in the ring, canvases the percent.
+          const progress = isPlan ? planProgress(row) : (row?.completion_pct ?? 0);
+          const centerLabel = isPlan ? (progress === 100 ? '100%' : '0%') : card.isRecord ? `${count}` : `${progress}%`;
           const strokeColor = getProgressColor(progress);
+          const cta = isPlan ? planCta(row, canWrite) : ctaFor(row, canWrite);
+          const edited = relativeTime(row?.updated_at);
+          const detail = card.isRecord && count > 0 ? `${count} item${count === 1 ? '' : 's'}` : null;
           return (
             <Link
               key={card.id}
-              href={card.path}
+              href={cta.href ?? card.path}
               className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between gap-6 hover:shadow-card transition-shadow group cursor-pointer block"
             >
               <div className="flex flex-col gap-4">
@@ -157,9 +152,16 @@ export default function BusinessBuilderOverviewPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 text-xs font-bold text-[#183B28] pt-2">
-                <span>{card.isRecord ? (count > 0 ? `${count} item${count === 1 ? '' : 's'}` : 'Start') : row?.status === 'done' ? 'Review' : 'Continue'}</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              <div className="flex items-end justify-between gap-2 pt-2">
+                <div className="flex items-center gap-1 text-xs font-bold text-[#183B28]">
+                  <span>{loading ? '' : cta.label}</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+                {!loading && (
+                  <span className="text-[11px] text-[#8E9B90] text-right">
+                    {[detail, edited ? `Edited ${edited}` : row?.status === 'generating' ? 'In progress' : 'Not started'].filter(Boolean).join(' · ')}
+                  </span>
+                )}
               </div>
             </Link>
           );

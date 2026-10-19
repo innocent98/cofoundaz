@@ -15,6 +15,8 @@ export interface Suggestion {
   target: { canvas_type?: string; kind?: string; record_id?: string };
   payload: { blocks?: Record<string, unknown>; data?: Record<string, unknown> } | null;
   base_version: number | null;
+  /** LIVE state of the target, not a snapshot: a canvas gives `{blocks, version}`, a record its `data`, a create `null`. */
+  current?: { blocks?: Record<string, unknown>; version?: number } | Record<string, unknown> | null;
   note: string | null;
   status: 'pending' | 'approved' | 'rejected';
   author: { id: string; name: string | null; email: string } | null;

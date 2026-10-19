@@ -1,10 +1,11 @@
 import { ApiError, apiClient } from './client';
 
-// Generic comments thread (BE guide: fe-integration-guide-roadmap-prd.md §3).
-// v1 entities: roadmap milestones and tasks. Oldest first; any member reads,
-// everyone except investors posts, authors edit/delete their own.
+// Generic comments thread (BE guides: fe-integration-guide-roadmap-prd.md §3 and
+// fe-integration-guide-business-builder-prd.md §10). Entities: roadmap milestones/tasks and
+// Business Builder canvases (per block via `anchor`) and records. Oldest first; any member
+// reads, everyone except investors posts, authors edit/delete their own.
 
-export type CommentEntityType = 'roadmap_milestone' | 'roadmap_task';
+export type CommentEntityType = 'roadmap_milestone' | 'roadmap_task' | 'business_canvas' | 'business_record';
 
 export interface CommentAuthor {
   id: string;
@@ -15,6 +16,8 @@ export interface Comment {
   id: string;
   entity_type: CommentEntityType;
   entity_id: string;
+  /** Canvas block key for a section thread; null for whole-entity comments. */
+  anchor: string | null;
   author: CommentAuthor;
   body: string;
   mention_user_ids: string[];
@@ -38,10 +41,11 @@ export function commentErrorMessage(err: unknown, fallback: string): string {
   return fallback;
 }
 
-export async function listComments(entityType: CommentEntityType, entityId: string): Promise<Comment[]> {
+export async function listComments(entityType: CommentEntityType, entityId: string, anchor?: string): Promise<Comment[]> {
   const q = new URLSearchParams({ entity_type: entityType, entity_id: entityId });
+  if (anchor) q.set('anchor', anchor);
   const res = await apiClient<{ data?: Comment[] }>(`/team/comments?${q.toString()}`);
-  return res?.data ?? [];
+  return Array.isArray(res?.data) ? res.data : [];
 }
 
 export async function createComment(input: {
@@ -49,12 +53,15 @@ export async function createComment(input: {
   entityId: string;
   body: string;
   mentionUserIds: string[];
+  /** Business Builder canvas block key (section thread). */
+  anchor?: string;
 }): Promise<Comment> {
   const res = await apiClient<{ data: Comment }>('/team/comments', {
     method: 'POST',
     body: JSON.stringify({
       entity_type: input.entityType,
       entity_id: input.entityId,
+      ...(input.anchor ? { anchor: input.anchor } : {}),
       body: input.body,
       ...(input.mentionUserIds.length > 0 ? { mention_user_ids: input.mentionUserIds } : {}),
     }),
@@ -80,4 +87,28 @@ export async function resolveComment(id: string, resolved: boolean): Promise<Com
     body: JSON.stringify({ resolved }),
   });
   return res.data;
+}
+
+export interface TeamMember {
+  user_id: string;
+  name: string | null;
+  email: string;
+  role: string;
+}
+
+/** Active workspace members (mention pickers). */
+export async function listMembers(): Promise<TeamMember[]> {
+  const res = await apiClient<{ data?: TeamMember[] }>('/team/members');
+  return Array.isArray(res?.data) ? res.data : [];
+}
+
+/** Comments grouped by `anchor` ('' = whole item), with the open (unresolved) count per group. */
+export function groupByAnchor(comments: Comment[]): Record<string, { all: Comment[]; open: number }> {
+  const out: Record<string, { all: Comment[]; open: number }> = {};
+  for (const c of comments) {
+    const key = c.anchor ?? '';
+    (out[key] ??= { all: [], open: 0 }).all.push(c);
+    if (!c.resolved_at) out[key].open += 1;
+  }
+  return out;
 }

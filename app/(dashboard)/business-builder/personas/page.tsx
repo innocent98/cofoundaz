@@ -3,10 +3,16 @@
 import React, { useState } from 'react';
 import { Plus, Pencil, Trash2, Users } from 'lucide-react';
 import { useToast } from '../layout';
-import { useBusinessRecords, errMessage } from '@/hooks/useBusinessRecords';
+import { useBusinessRecords, errMessage, writeMessage } from '@/hooks/useBusinessRecords';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { BusinessRecord } from '@/lib/api/business-builder';
+import { ArtifactHeader } from '@/components/business-builder/artifact-header';
+import { ExportButton } from '@/components/business-builder/export-button';
+import { PersonasFromValidation } from '@/components/business-builder/personas-from-validation';
+import { RecordEdited } from '@/components/business-builder/record-edited';
+import { useRecordThreads } from '@/hooks/useRecordThreads';
+import { latestEdit } from '@/lib/bb-records';
 
 const KIND = 'personas';
 
@@ -32,7 +38,10 @@ function asList(v: unknown): string[] {
 
 export default function PersonasPage() {
   const { triggerToast } = useToast();
-  const { records, loading, error, create, update, remove, refetch } = useBusinessRecords(KIND);
+  const { records, loading, error, access, create, update, remove, refetch } = useBusinessRecords(KIND);
+  const { canWrite, suggestMode } = access;
+  const threads = useRecordThreads(records.map((r) => r.id));
+  const edit = latestEdit(records);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<BusinessRecord | null>(null);
@@ -55,11 +64,9 @@ export default function PersonasPage() {
     setFormError(null);
     try {
       if (editing) {
-        await update(editing.id, data);
-        triggerToast('Persona updated');
+        triggerToast(writeMessage(await update(editing.id, data), 'Persona updated'));
       } else {
-        await create(data);
-        triggerToast('Persona added');
+        triggerToast(writeMessage(await create(data), 'Persona added'));
       }
       setModalOpen(false);
     } catch (err) {
@@ -71,10 +78,9 @@ export default function PersonasPage() {
 
   const handleDelete = async (rec: BusinessRecord) => {
     const name = (rec.data.name as string) || 'this persona';
-    if (!window.confirm(`Delete ${name}? This cannot be undone.`)) return;
+    if (!window.confirm(suggestMode ? `Suggest deleting ${name}?` : `Delete ${name}? This cannot be undone.`)) return;
     try {
-      await remove(rec.id);
-      triggerToast('Persona deleted');
+      triggerToast(writeMessage(await remove(rec.id), 'Persona deleted'));
     } catch (err) {
       triggerToast(errMessage(err) || 'Could not delete persona');
     }
@@ -82,22 +88,27 @@ export default function PersonasPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
-          Customer personas
-        </h2>
-
-        <div className="flex items-center gap-2 self-start md:self-auto">
-          <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
-          <button
-            onClick={openCreate}
-            className="flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors shadow-card"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add persona</span>
-          </button>
-        </div>
-      </div>
+      <ArtifactHeader
+        title="Customer personas"
+        updatedAt={edit.updatedAt}
+        updatedBy={edit.updatedBy}
+        actions={
+          <>
+            <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
+            <PersonasFromValidation onDone={refetch} />
+            <ExportButton target={{ kind: KIND }} />
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors shadow-card"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{suggestMode ? 'Suggest a persona' : 'Add persona'}</span>
+              </button>
+            )}
+          </>
+        }
+      />
 
       {loading && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
@@ -122,13 +133,15 @@ export default function PersonasPage() {
           <p className="text-xs text-[#768478] max-w-xs">
             Capture who you&apos;re building for, their goals, frustrations, and where to reach them.
           </p>
-          <button
-            onClick={openCreate}
-            className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add your first persona</span>
-          </button>
+          {canWrite && (
+            <button
+              onClick={openCreate}
+              className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>{suggestMode ? 'Suggest the first persona' : 'Add your first persona'}</span>
+            </button>
+          )}
         </div>
       )}
 
@@ -156,7 +169,9 @@ export default function PersonasPage() {
                         <p className="text-[11px] text-[#768478]">{d.demographics}</p>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1">
+                      {threads.button(rec.id, name)}
+                      {canWrite && (<>
                       <button
                         onClick={() => openEdit(rec)}
                         className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors"
@@ -171,6 +186,7 @@ export default function PersonasPage() {
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
+                      </>)}
                     </div>
                   </div>
 
@@ -203,15 +219,19 @@ export default function PersonasPage() {
                     </div>
                   )}
                 </div>
+                <RecordEdited record={rec} />
               </div>
             );
           })}
         </div>
       )}
 
+      {threads.drawer}
+
       {modalOpen && (
         <RecordFormModal
-          title={editing ? 'Edit persona' : 'Add persona'}
+          title={editing ? 'Edit persona' : suggestMode ? 'Suggest a persona' : 'Add persona'}
+          suggestMode={suggestMode}
           fields={FIELDS}
           initial={editing?.data}
           submitting={submitting}

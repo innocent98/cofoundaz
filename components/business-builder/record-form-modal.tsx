@@ -20,6 +20,8 @@ interface RecordFormModalProps {
   initial?: Record<string, unknown>;
   submitting?: boolean;
   error?: string | null;
+  /** Consultant suggest mode: the primary button reads "Suggest this". */
+  suggestMode?: boolean;
   onSubmit: (data: Record<string, unknown>) => void;
   onClose: () => void;
 }
@@ -57,6 +59,7 @@ export function RecordFormModal({
   initial,
   submitting,
   error,
+  suggestMode,
   onSubmit,
   onClose,
 }: RecordFormModalProps) {
@@ -180,7 +183,7 @@ export function RecordFormModal({
               disabled={submitting}
               className="flex-1 px-4 py-2 bg-[#183B28] hover:bg-[#12261C] disabled:opacity-60 text-white rounded-card text-sm font-bold transition-colors"
             >
-              {submitting ? 'Saving…' : 'Save'}
+              {submitting ? 'Saving…' : suggestMode ? 'Suggest this' : 'Save'}
             </button>
           </div>
         </form>

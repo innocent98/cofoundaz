@@ -23,6 +23,7 @@ const members = [
 const comment = (over: Partial<api.Comment> = {}): api.Comment => ({
   id: 'c1',
   entity_type: 'roadmap_milestone',
+  anchor: null,
   entity_id: 'm1',
   author: { id: 'u-ada', name: 'Ada F' },
   body: 'Can you own the interviews?',

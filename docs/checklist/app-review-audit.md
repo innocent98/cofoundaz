@@ -100,3 +100,7 @@ All eight pages now run on the real `/api/v1/marketing/*` backend; every number 
 ## Module 04 — Today's Mission (2026-10-18)
 
 Complete against the PRD: all 15 gap rows closed (`mission-prd-gaps.md`), verified live as founder and team member at 1440px and 375px. SOP `2026-10-18-mission-prd-complete`. Open: BE snoozed tasks keep the day pending (no completion or streak); the no-roadmap empty state could not be reached live (unit-tested); other section layouts still use their own headers instead of `ShellTopBar`.
+
+## Module 08: Business Builder (2026-10-19)
+
+Rows 1 to 12, 13 (AI part), 14 (advisor part), 15, 16, 17, 18 and 21 of `business-builder-prd-gaps.md` are closed in the FE (needs API #139, #140 and #141), verified live as founder, consultant and mentor at 1440px and 375px. SOP `2026-10-19-business-builder-prd`. Open: the remainder of 13 and 14; touch devices have no native drag between blocks, so notes use the "Move to" select there.

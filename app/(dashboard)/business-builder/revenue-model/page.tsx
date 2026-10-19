@@ -3,10 +3,16 @@
 import React, { useState } from 'react';
 import { Plus, Pencil, Trash2, TrendingUp } from 'lucide-react';
 import { useToast } from '../layout';
-import { useBusinessRecords, errMessage } from '@/hooks/useBusinessRecords';
+import { useBusinessRecords, errMessage, writeMessage } from '@/hooks/useBusinessRecords';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { BusinessRecord } from '@/lib/api/business-builder';
+import { ArtifactHeader } from '@/components/business-builder/artifact-header';
+import { ExportButton } from '@/components/business-builder/export-button';
+import { RevenueProjectionCard } from '@/components/business-builder/revenue-projection';
+import { RecordEdited } from '@/components/business-builder/record-edited';
+import { useRecordThreads } from '@/hooks/useRecordThreads';
+import { latestEdit } from '@/lib/bb-records';
 
 const KIND = 'revenue-streams';
 
@@ -25,12 +31,16 @@ function fmtMoney(n: unknown): string {
 
 export default function RevenueModelPage() {
   const { triggerToast } = useToast();
-  const { records, loading, error, create, update, remove, refetch } = useBusinessRecords(KIND);
+  const { records, loading, error, access, create, update, remove, refetch } = useBusinessRecords(KIND);
+  const { canWrite, suggestMode } = access;
+  const threads = useRecordThreads(records.map((r) => r.id));
+  const edit = latestEdit(records);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<BusinessRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [openAssumptions, setOpenAssumptions] = useState<string | null>(null);
 
   const openCreate = () => { setEditing(null); setFormError(null); setModalOpen(true); };
   const openEdit = (rec: BusinessRecord) => { setEditing(rec); setFormError(null); setModalOpen(true); };
@@ -38,8 +48,8 @@ export default function RevenueModelPage() {
   const handleSubmit = async (data: Record<string, unknown>) => {
     setSubmitting(true); setFormError(null);
     try {
-      if (editing) { await update(editing.id, data); triggerToast('Revenue stream updated'); }
-      else { await create(data); triggerToast('Revenue stream added'); }
+      if (editing) triggerToast(writeMessage(await update(editing.id, data), 'Revenue stream updated'));
+      else triggerToast(writeMessage(await create(data), 'Revenue stream added'));
       setModalOpen(false);
     } catch (err) {
       setFormError(errMessage(err) || 'Could not save revenue stream');
@@ -48,8 +58,8 @@ export default function RevenueModelPage() {
 
   const handleDelete = async (rec: BusinessRecord) => {
     const name = (rec.data.name as string) || 'this stream';
-    if (!window.confirm(`Delete ${name}? This cannot be undone.`)) return;
-    try { await remove(rec.id); triggerToast('Revenue stream deleted'); }
+    if (!window.confirm(suggestMode ? `Suggest deleting ${name}?` : `Delete ${name}? This cannot be undone.`)) return;
+    try { triggerToast(writeMessage(await remove(rec.id), 'Revenue stream deleted')); }
     catch (err) { triggerToast(errMessage(err) || 'Could not delete revenue stream'); }
   };
 
@@ -60,19 +70,26 @@ export default function RevenueModelPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">Revenue model</h2>
-        <div className="flex items-center gap-2">
-          <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
-          <button
-            onClick={openCreate}
-            className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add stream</span>
-          </button>
-        </div>
-      </div>
+      <ArtifactHeader
+        title="Revenue model"
+        updatedAt={edit.updatedAt}
+        updatedBy={edit.updatedBy}
+        actions={
+          <>
+            <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
+            <ExportButton target={{ kind: KIND }} />
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{suggestMode ? 'Suggest a stream' : 'Add stream'}</span>
+              </button>
+            )}
+          </>
+        }
+      />
 
       {loading && (
         <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card h-56 animate-pulse" />
@@ -89,9 +106,11 @@ export default function RevenueModelPage() {
           </div>
           <p className="text-sm font-bold text-[#1E2923]">No revenue streams yet</p>
           <p className="text-xs text-[#768478] max-w-xs">Map out how the business makes money, each stream, its basis, and an estimate.</p>
-          <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
-            <Plus className="w-3.5 h-3.5" /><span>Add your first stream</span>
-          </button>
+          {canWrite && (
+            <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
+              <Plus className="w-3.5 h-3.5" /><span>{suggestMode ? 'Suggest the first stream' : 'Add your first stream'}</span>
+            </button>
+          )}
         </div>
       )}
 
@@ -109,21 +128,51 @@ export default function RevenueModelPage() {
               </thead>
               <tbody className="divide-y divide-[#F0F0EC]">
                 {records.map((rec) => (
-                  <tr key={rec.id} className="hover:bg-[#FAF9F5] transition-colors group">
-                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">{(rec.data.name as string) || '-'}</td>
+                  <React.Fragment key={rec.id}>
+                  <tr className="hover:bg-[#FAF9F5] transition-colors group">
+                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">
+                      {(rec.data.name as string) || '-'}
+                      <RecordEdited record={rec} className="font-normal" />
+                      <button
+                        type="button"
+                        onClick={() => setOpenAssumptions((o) => (o === rec.id ? null : rec.id))}
+                        aria-expanded={openAssumptions === rec.id}
+                        className="mt-1 text-[11px] font-semibold text-[#183B28] hover:underline"
+                      >
+                        Assumptions
+                      </button>
+                    </td>
                     <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.pricing_basis as string) || '-'}</td>
                     <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#183B28]">{fmtMoney(rec.data.est_monthly)}</td>
                     <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-1">
+                        {threads.button(rec.id, (rec.data.name as string) || 'this stream')}
+                        {canWrite && (<>
                         <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors" aria-label="Edit stream">
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label="Delete stream">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
+                        </>)}
                       </div>
                     </td>
                   </tr>
+                  {openAssumptions === rec.id && (
+                    <tr className="bg-[#FAFAFA]">
+                      <td colSpan={4} className="px-6 py-3 text-xs text-[#556358] whitespace-pre-wrap">
+                        {typeof rec.data.assumptions === 'string' && rec.data.assumptions.trim()
+                          ? rec.data.assumptions
+                          : 'No assumptions written for this stream yet.'}
+                        {canWrite && (
+                          <button type="button" onClick={() => openEdit(rec)} className="ml-3 font-semibold text-[#183B28] hover:underline">
+                            {suggestMode ? 'Suggest an edit' : 'Edit'}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  </React.Fragment>
                 ))}
               </tbody>
               <tfoot>
@@ -138,9 +187,14 @@ export default function RevenueModelPage() {
         </div>
       )}
 
+      <RevenueProjectionCard refreshKey={records.map((r) => `${r.id}:${r.updated_at ?? ''}`).join(',')} hasStreams={records.length > 0} />
+
+      {threads.drawer}
+
       {modalOpen && (
         <RecordFormModal
-          title={editing ? 'Edit revenue stream' : 'Add revenue stream'}
+          title={editing ? 'Edit revenue stream' : suggestMode ? 'Suggest a revenue stream' : 'Add revenue stream'}
+          suggestMode={suggestMode}
           fields={FIELDS}
           initial={editing?.data}
           submitting={submitting}

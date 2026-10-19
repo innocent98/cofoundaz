@@ -1,14 +1,15 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { apiClient, ApiError } from '@/lib/api/client';
+import { apiClient } from '@/lib/api/client';
+import { apiErrorInfo } from '@/lib/api/api-error';
+import { waitForJob } from '@/lib/api/bb-jobs';
 import { businessBuilderApi } from '@/lib/api/business-builder';
 
-// AI-fill is a real async job now: POST .../ai-fill enqueues (202 {job_id, status})
-// and the worker fills the empty blocks/fields within seconds. We poll
-// `GET /jobs/{job_id}` (queued → running → succeeded) and then let the caller
-// re-fetch the canvas/records to show the drafted content. We never fabricate a
-// result; a stuck/slow job resolves to an honest "timeout".
+// AI-fill is a real async job: POST .../ai-fill enqueues (202 {job_id, status})
+// and the worker fills the empty blocks/fields. We poll `GET /jobs/{job_id}`
+// and then let the caller re-fetch to show the drafted content. We never
+// fabricate a result; a stuck job resolves to an honest "timeout".
 
 export type AiFillStatus = 'succeeded' | 'failed' | 'skipped' | 'timeout';
 
@@ -18,48 +19,38 @@ export interface AiFillResult {
   error?: string;
 }
 
-const POLL_MS = 2500;
-const TIMEOUT_MS = 45000;
-
 interface RawEnqueue {
   job_id?: string;
   status?: string;
   skipped?: boolean;
 }
 
-function apiErr(err: unknown): string {
-  if (err instanceof ApiError) {
-    const d = err.data as { error?: { message?: string } } | undefined;
-    if (err.status === 403) return 'Only a founder or team member can request an AI draft.';
-    if (err.status === 429) return 'AI personalization is temporarily paused, your daily budget resets soon.';
-    return d?.error?.message || 'Could not request an AI draft.';
-  }
-  return 'Could not request an AI draft.';
+interface JobResult {
+  status?: string;
 }
 
-async function getJobStatus(jobId: string): Promise<string> {
-  const res = await apiClient<{ data?: { status?: string } }>(`/jobs/${jobId}`);
-  const d = res?.data ?? (res as { status?: string });
-  return (d?.status || '').toLowerCase();
+export const OVER_BUDGET_MESSAGE = 'AI is at its daily limit, try again tomorrow.';
+
+function enqueueError(err: unknown): string {
+  const info = apiErrorInfo(err, 'Could not request an AI draft.');
+  if (info.status === 403) return 'Only a founder or team member can request an AI draft.';
+  if (info.status === 429) return OVER_BUDGET_MESSAGE;
+  return info.message;
 }
 
-async function pollJob(jobId: string): Promise<AiFillStatus> {
-  const deadline = Date.now() + TIMEOUT_MS;
-  while (Date.now() < deadline) {
-    await new Promise((r) => setTimeout(r, POLL_MS));
-    try {
-      const s = await getJobStatus(jobId);
-      if (s === 'succeeded' || s === 'success' || s === 'complete' || s === 'completed' || s === 'done') {
-        return 'succeeded';
-      }
-      if (s === 'failed' || s === 'error') return 'failed';
-      if (s === 'skipped') return 'skipped';
-      // queued / running / unknown → keep polling
-    } catch {
-      // transient error — keep polling until the deadline
-    }
+/** Maps a finished job's own `result.status` to the shared fill outcome. */
+export function outcomeFromResult(status: string | undefined): AiFillResult {
+  switch (status) {
+    case 'over_budget':
+      return { ok: false, error: OVER_BUDGET_MESSAGE };
+    case 'gone':
+      return { ok: false, error: 'This item is no longer available.' };
+    case 'nothing_new':
+    case 'skipped':
+      return { ok: true, status: 'skipped' };
+    default:
+      return { ok: true, status: 'succeeded' };
   }
-  return 'timeout';
 }
 
 export function useBusinessAiFill() {
@@ -70,17 +61,15 @@ export function useBusinessAiFill() {
       setRequesting(target);
       try {
         const res = await enqueue();
-        if (res?.status === 'skipped' || res?.skipped) {
-          return { ok: true, status: 'skipped' };
-        }
-        if (!res?.job_id) {
-          // No job to poll (and not skipped) — refetch optimistically.
-          return { ok: true, status: 'succeeded' };
-        }
-        const status = await pollJob(res.job_id);
-        return { ok: status !== 'failed', status };
+        if (res?.status === 'skipped' || res?.skipped) return { ok: true, status: 'skipped' };
+        // No job to poll (and not skipped): refetch optimistically.
+        if (!res?.job_id) return { ok: true, status: 'succeeded' };
+        const out = await waitForJob<JobResult>(res.job_id, { timeoutMs: 60000 });
+        if (out.state === 'timeout') return { ok: true, status: 'timeout' };
+        if (out.state === 'failed') return { ok: false, status: 'failed' };
+        return outcomeFromResult(out.result?.status);
       } catch (err) {
-        return { ok: false, error: apiErr(err) };
+        return { ok: false, error: enqueueError(err) };
       } finally {
         setRequesting(null);
       }
@@ -89,8 +78,7 @@ export function useBusinessAiFill() {
   );
 
   const requestCanvasFill = useCallback(
-    (type: string): Promise<AiFillResult> =>
-      run(type, async () => (await businessBuilderApi.aiFillCanvas(type)) as RawEnqueue),
+    (type: string): Promise<AiFillResult> => run(type, () => businessBuilderApi.aiFillCanvas(type)),
     [run]
   );
 
