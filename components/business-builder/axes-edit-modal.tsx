@@ -35,14 +35,15 @@ export function AxesEditModal({ axes, saving, onSave, onClose }: AxesEditModalPr
       <input
         type="text"
         required
+        aria-label={`${title} label`}
         value={draft[axis].label}
         onChange={(e) => setField(axis, 'label', e.target.value)}
         placeholder="Axis label (e.g. Price)"
         className={inputClass}
       />
       <div className="grid grid-cols-2 gap-2">
-        <input type="text" required value={draft[axis].low} onChange={(e) => setField(axis, 'low', e.target.value)} placeholder="Low end" className={inputClass} />
-        <input type="text" required value={draft[axis].high} onChange={(e) => setField(axis, 'high', e.target.value)} placeholder="High end" className={inputClass} />
+        <input type="text" required aria-label={`${title} low end`} value={draft[axis].low} onChange={(e) => setField(axis, 'low', e.target.value)} placeholder="Low end" className={inputClass} />
+        <input type="text" required aria-label={`${title} high end`} value={draft[axis].high} onChange={(e) => setField(axis, 'high', e.target.value)} placeholder="High end" className={inputClass} />
       </div>
     </div>
   );

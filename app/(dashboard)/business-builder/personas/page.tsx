@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Plus, Pencil, Trash2, Users } from 'lucide-react';
 import { useToast } from '../layout';
-import { useBusinessRecords, errMessage, writeMessage } from '@/hooks/useBusinessRecords';
+import { useBusinessRecords, errMessage, writeMessage, recordFormFailure } from '@/hooks/useBusinessRecords';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { BusinessRecord } from '@/lib/api/business-builder';
@@ -47,21 +47,22 @@ export default function PersonasPage() {
   const [editing, setEditing] = useState<BusinessRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const openCreate = () => {
     setEditing(null);
-    setFormError(null);
+    setFormError(null); setFieldErrors({});
     setModalOpen(true);
   };
   const openEdit = (rec: BusinessRecord) => {
     setEditing(rec);
-    setFormError(null);
+    setFormError(null); setFieldErrors({});
     setModalOpen(true);
   };
 
   const handleSubmit = async (data: Record<string, unknown>) => {
     setSubmitting(true);
-    setFormError(null);
+    setFormError(null); setFieldErrors({});
     try {
       if (editing) {
         triggerToast(writeMessage(await update(editing.id, data), 'Persona updated'));
@@ -70,7 +71,7 @@ export default function PersonasPage() {
       }
       setModalOpen(false);
     } catch (err) {
-      setFormError(errMessage(err) || 'Could not save persona');
+      { const f = recordFormFailure(err, 'Could not save persona'); setFormError(f.message); setFieldErrors(f.fields); }
     } finally {
       setSubmitting(false);
     }
@@ -175,14 +176,14 @@ export default function PersonasPage() {
                       <button
                         onClick={() => openEdit(rec)}
                         className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors"
-                        aria-label="Edit persona"
+                        aria-label={`Edit persona: ${name}`}
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDelete(rec)}
                         className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors"
-                        aria-label="Delete persona"
+                        aria-label={`Delete persona: ${name}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -236,6 +237,7 @@ export default function PersonasPage() {
           initial={editing?.data}
           submitting={submitting}
           error={formError}
+          fieldErrors={fieldErrors}
           onSubmit={handleSubmit}
           onClose={() => setModalOpen(false)}
         />

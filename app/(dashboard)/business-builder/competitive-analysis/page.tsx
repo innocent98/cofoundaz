@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { Plus, Pencil, Trash2, Swords, SlidersHorizontal } from 'lucide-react';
 import { useToast } from '../layout';
-import { useBusinessRecords, errMessage, writeMessage } from '@/hooks/useBusinessRecords';
+import { useBusinessRecords, errMessage, writeMessage, recordFormFailure } from '@/hooks/useBusinessRecords';
 import { useBusinessPositioningMap, PositioningAxes } from '@/hooks/useBusinessPositioningMap';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
 import { AxesEditModal } from '@/components/business-builder/axes-edit-modal';
@@ -61,6 +61,7 @@ export default function CompetitiveAnalysisPage() {
   const [editing, setEditing] = useState<BusinessRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [axesOpen, setAxesOpen] = useState(false);
   const [axesSaving, setAxesSaving] = useState(false);
 
@@ -79,11 +80,11 @@ export default function CompetitiveAnalysisPage() {
     }
   };
 
-  const openCreate = () => { setEditing(null); setFormError(null); setModalOpen(true); };
-  const openEdit = (rec: BusinessRecord) => { setEditing(rec); setFormError(null); setModalOpen(true); };
+  const openCreate = () => { setEditing(null); setFormError(null); setFieldErrors({}); setModalOpen(true); };
+  const openEdit = (rec: BusinessRecord) => { setEditing(rec); setFormError(null); setFieldErrors({}); setModalOpen(true); };
 
   const handleSubmit = async (data: Record<string, unknown>) => {
-    setSubmitting(true); setFormError(null);
+    setSubmitting(true); setFormError(null); setFieldErrors({});
     // Empty map fields → omit so the API keeps them null rather than 0.
     if (data.map_x === 0 || data.map_x === '') delete data.map_x;
     if (data.map_y === 0 || data.map_y === '') delete data.map_y;
@@ -92,7 +93,7 @@ export default function CompetitiveAnalysisPage() {
       else triggerToast(writeMessage(await create(data), 'Competitor added'));
       setModalOpen(false);
     } catch (err) {
-      setFormError(errMessage(err) || 'Could not save competitor');
+      { const f = recordFormFailure(err, 'Could not save competitor'); setFormError(f.message); setFieldErrors(f.fields); }
     } finally { setSubmitting(false); }
   };
 
@@ -182,10 +183,10 @@ export default function CompetitiveAnalysisPage() {
                         <div className="flex items-center justify-end gap-1">
                           {threads.button(rec.id, (rec.data.name as string) || 'this competitor')}
                           {canWrite && (<>
-                          <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors" aria-label="Edit competitor">
+                          <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors" aria-label={`Edit competitor: ${(rec.data.name as string) || 'untitled'}`}>
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
-                          <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label="Delete competitor">
+                          <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label={`Delete competitor: ${(rec.data.name as string) || 'untitled'}`}>
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                           </>)}
@@ -225,6 +226,7 @@ export default function CompetitiveAnalysisPage() {
           initial={editing?.data}
           submitting={submitting}
           error={formError}
+          fieldErrors={fieldErrors}
           onSubmit={handleSubmit}
           onClose={() => setModalOpen(false)}
         />

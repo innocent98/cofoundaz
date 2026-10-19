@@ -114,3 +114,21 @@ export function errMessage(err: unknown): string | null {
 export function writeMessage(outcome: WriteOutcome, saved: string): string {
   return outcome === 'suggested' ? 'Suggestion sent. The founder will review it.' : saved;
 }
+
+export interface RecordFormFailure {
+  message: string;
+  /** API field_errors keyed by the record field (`threat_level`), for per-field display. */
+  fields: Record<string, string>;
+}
+
+/** Splits a failed record save into a form-level message and one message per field. */
+export function recordFormFailure(err: unknown, fallback: string): RecordFormFailure {
+  const info = apiErrorInfo(err, '');
+  const fields: Record<string, string> = {};
+  for (const f of info.fieldErrors) {
+    const key = f.field.split('.').pop() ?? '';
+    if (key && !fields[key]) fields[key] = f.message;
+  }
+  if (Object.keys(fields).length > 0) return { message: 'Check the highlighted fields.', fields };
+  return { message: info.message || fallback, fields };
+}

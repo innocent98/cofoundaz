@@ -1,6 +1,6 @@
 # Re-walk fixes: Mission + shell
 
-**What shipped:** six FE fixes found by the click-through re-walk of Today's Mission on `develop` (PR `fix/rewalk-mission-shell`). Health rows 7-10 are below; Roadmap rows 11-13 follow; Business Builder rows are added to the same PR.
+**What shipped:** six FE fixes found by the click-through re-walk of Today's Mission on `develop` (PR `fix/rewalk-mission-shell`). Health rows 7-10 are below; Roadmap rows 11-13 follow; Business Builder rows 14-19 follow.
 
 | # | Fix | Where |
 |---|---|---|
@@ -27,6 +27,17 @@
 | 11 | Timeline phase labels are 1-based (`order + 1`); the API order starts at 0. | `app/(dashboard)/roadmap/page.tsx` |
 | 12 | Template preview and apply-confirm are real dialogs: focus moves in, Escape closes, Tab is trapped, focus returns to the card button (also when the confirm was opened from the preview). New reusable `ModalDialog`. | `components/modal-dialog.tsx`, `app/(dashboard)/roadmap/templates/page.tsx` |
 | 13 | Re-plan history entries carry `aria-expanded` and `aria-controls`. | `app/(dashboard)/roadmap/replan/page.tsx` |
+
+## Business Builder (rows 14-19)
+
+| # | Fix | Where |
+|---|---|---|
+| 14 | Comment drawer mention list: Enter/Tab pick the highlighted person (arrows move, Escape dismisses the list only); options and the textarea are a named combobox/listbox. Posts now carry the mention ids. | `components/business-builder/comment-drawer.tsx` |
+| 15 | A save already in flight can no longer write an older editor into the header after a reload (the reload after an AI job stays authoritative: "Last edited by AI"). Could not reproduce live (local AI budget used up); covered by hook tests. | `hooks/useCanvasEditor.ts` |
+| 16 | Record forms show API `field_errors` under each field (`recordFormFailure`), omit a select left on "Select…", and tie labels to inputs (`htmlFor`/`aria-describedby`). | `components/business-builder/record-form-modal.tsx`, `hooks/useBusinessRecords.ts`, personas / competitive-analysis / revenue-model pages |
+| 17 | Item-specific labels: `Remove note: {text}`, `Move note to another block: {text}`, `Edit/Delete persona|stream|competitor: {name}`, `X axis ... label`, `Y axis ... label`. | `lib/note-label.ts`, canvas pages, `move-note.tsx`, `axes-edit-modal.tsx` |
+| 18 | Plan "Regenerate a section" shows "AI is at its daily limit, try again tomorrow." when disabled by the budget. | `components/business-builder/plan-regenerate.tsx` |
+| 19 | Suggestion card says "Update the SWOT" / "Business Model Canvas" (artifact label), not the raw type. | `components/business-builder/suggestions-panel.tsx` |
 
 **Why not touch `handleSessionExpired`:** its redirect-to-login still skips every `/auth/` path, so public pages calling `/auth/*` without a token are unaffected.
 

@@ -46,8 +46,12 @@ export function useCanvasEditor(type: string) {
   const pending = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chain = useRef<Promise<void>>(Promise.resolve());
+  // Bumped whenever the canvas is re-read from the server (reload, AI job), so a
+  // save that was already in flight cannot put its older editor back in the header.
+  const applied = useRef(0);
 
   const applyCanvas = useCallback((c: Canvas) => {
+    applied.current += 1;
     version.current = c.version;
     latest.current = c.blocks ?? {};
     setBlocks(c.blocks ?? {});
@@ -81,6 +85,7 @@ export function useCanvasEditor(type: string) {
     (next: CanvasBlocks) => {
       const run = async () => {
         setSaveStatus('saving');
+        const startedAt = applied.current;
         const put = (v: number) => businessBuilderApi.saveCanvas(type, { version: v, blocks: next });
         try {
           let res: Canvas;
@@ -97,8 +102,10 @@ export function useCanvasEditor(type: string) {
           }
           version.current = res.version;
           setServerBlocks(next);
-          setUpdatedAt(res.updated_at ?? null);
-          setUpdatedBy(res.updated_by ?? null);
+          if (applied.current === startedAt) {
+            setUpdatedAt(res.updated_at ?? null);
+            setUpdatedBy(res.updated_by ?? null);
+          }
           setSaveStatus('saved');
           // The API prunes fit-lines whose items were renamed or deleted: redraw from the server's list.
           if (type === 'value_prop') {

@@ -1,5 +1,6 @@
 'use client';
 
+import { noteLabel } from '@/lib/note-label';
 import React, { useRef, useState } from 'react';
 import { X, GripVertical, Link2 } from 'lucide-react';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
@@ -105,7 +106,7 @@ export default function ValuePropositionPage() {
                     </button>
                   )}
                   {canWrite && (
-                    <button onClick={() => removeItem(b.key, idx)} className="opacity-60 md:opacity-0 group-hover/item:opacity-100 transition-opacity hover:text-[#A34B4B]" aria-label="Remove">
+                    <button onClick={() => removeItem(b.key, idx)} className="opacity-60 md:opacity-0 group-hover/item:opacity-100 transition-opacity hover:text-[#A34B4B]" aria-label={`Remove note: ${noteLabel(item)}`}>
                       <X className="w-3 h-3" />
                     </button>
                   )}
