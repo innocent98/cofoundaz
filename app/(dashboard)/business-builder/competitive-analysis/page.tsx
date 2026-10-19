@@ -3,12 +3,19 @@
 import React, { useMemo, useState } from 'react';
 import { Plus, Pencil, Trash2, Swords, SlidersHorizontal } from 'lucide-react';
 import { useToast } from '../layout';
-import { useBusinessRecords, errMessage } from '@/hooks/useBusinessRecords';
+import { useBusinessRecords, errMessage, writeMessage } from '@/hooks/useBusinessRecords';
 import { useBusinessPositioningMap, PositioningAxes } from '@/hooks/useBusinessPositioningMap';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
 import { AxesEditModal } from '@/components/business-builder/axes-edit-modal';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { BusinessRecord, RecordField } from '@/lib/api/business-builder';
+import { ArtifactHeader } from '@/components/business-builder/artifact-header';
+import { ExportButton } from '@/components/business-builder/export-button';
+import { PositioningMap } from '@/components/business-builder/positioning-map';
+import { RecordEdited } from '@/components/business-builder/record-edited';
+import { useRecordThreads } from '@/hooks/useRecordThreads';
+import { latestEdit } from '@/lib/bb-records';
+import type { Point } from '@/lib/map-geometry';
 
 const KIND = 'competitors';
 
@@ -42,17 +49,12 @@ function threatBadge(threat: unknown): string {
   }
 }
 
-function clamp01(v: unknown): number | null {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return null;
-  return Math.min(1, Math.max(0, n));
-}
-
-const DOT_COLORS = ['#1A422D', '#3B7A57', '#9C5B34', '#75B29B', '#C08457', '#4D6D58'];
-
 export default function CompetitiveAnalysisPage() {
   const { triggerToast } = useToast();
-  const { records, fields, loading, error, create, update, remove, refetch } = useBusinessRecords(KIND);
+  const { records, fields, loading, error, access, create, update, remove, refetch } = useBusinessRecords(KIND);
+  const { canWrite, suggestMode } = access;
+  const threads = useRecordThreads(records.map((r) => r.id));
+  const edit = latestEdit(records);
   const { axes, saveAxes } = useBusinessPositioningMap();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -86,8 +88,8 @@ export default function CompetitiveAnalysisPage() {
     if (data.map_x === 0 || data.map_x === '') delete data.map_x;
     if (data.map_y === 0 || data.map_y === '') delete data.map_y;
     try {
-      if (editing) { await update(editing.id, data); triggerToast('Competitor updated'); }
-      else { await create(data); triggerToast('Competitor added'); }
+      if (editing) triggerToast(writeMessage(await update(editing.id, data), 'Competitor updated'));
+      else triggerToast(writeMessage(await create(data), 'Competitor added'));
       setModalOpen(false);
     } catch (err) {
       setFormError(errMessage(err) || 'Could not save competitor');
@@ -96,29 +98,38 @@ export default function CompetitiveAnalysisPage() {
 
   const handleDelete = async (rec: BusinessRecord) => {
     const name = (rec.data.name as string) || 'this competitor';
-    if (!window.confirm(`Delete ${name}? This cannot be undone.`)) return;
-    try { await remove(rec.id); triggerToast('Competitor deleted'); }
+    if (!window.confirm(suggestMode ? `Suggest deleting ${name}?` : `Delete ${name}? This cannot be undone.`)) return;
+    try { triggerToast(writeMessage(await remove(rec.id), 'Competitor deleted')); }
     catch (err) { triggerToast(errMessage(err) || 'Could not delete competitor'); }
   };
 
-  const mapped = records
-    .map((r, i) => ({ rec: r, x: clamp01(r.data.map_x), y: clamp01(r.data.map_y), color: DOT_COLORS[i % DOT_COLORS.length] }))
-    .filter((m) => m.x !== null && m.y !== null);
+  // PUT is a full replace, so a move sends the whole record with the new coordinates.
+  const moveDot = async (rec: BusinessRecord, point: Point) => {
+    const outcome = await update(rec.id, { ...rec.data, map_x: point.x, map_y: point.y });
+    if (outcome === 'suggested') triggerToast(writeMessage(outcome, ''));
+  };
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">Competitive analysis</h2>
-        <div className="flex items-center gap-2">
-          <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
-          <button
-            onClick={openCreate}
-            className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
-          >
-            <Plus className="w-3.5 h-3.5" /><span>Add competitor</span>
-          </button>
-        </div>
-      </div>
+      <ArtifactHeader
+        title="Competitive analysis"
+        updatedAt={edit.updatedAt}
+        updatedBy={edit.updatedBy}
+        actions={
+          <>
+            <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
+            <ExportButton target={{ kind: KIND }} />
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
+              >
+                <Plus className="w-3.5 h-3.5" /><span>{suggestMode ? 'Suggest a competitor' : 'Add competitor'}</span>
+              </button>
+            )}
+          </>
+        }
+      />
 
       {loading && <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card h-64 animate-pulse" />}
 
@@ -133,9 +144,11 @@ export default function CompetitiveAnalysisPage() {
           </div>
           <p className="text-sm font-bold text-[#1E2923]">No competitors yet</p>
           <p className="text-xs text-[#768478] max-w-xs">Track who else solves this problem, how they position, and where they sit on cost vs trust.</p>
-          <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
-            <Plus className="w-3.5 h-3.5" /><span>Add your first competitor</span>
-          </button>
+          {canWrite && (
+            <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
+              <Plus className="w-3.5 h-3.5" /><span>{suggestMode ? 'Suggest the first competitor' : 'Add your first competitor'}</span>
+            </button>
+          )}
         </div>
       )}
 
@@ -155,7 +168,10 @@ export default function CompetitiveAnalysisPage() {
                 <tbody className="divide-y divide-[#F0F0EC]">
                   {records.map((rec) => (
                     <tr key={rec.id} className="hover:bg-[#FAF9F5] transition-colors group">
-                      <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">{(rec.data.name as string) || '-'}</td>
+                      <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">
+                        {(rec.data.name as string) || '-'}
+                        <RecordEdited record={rec} className="font-normal" />
+                      </td>
                       <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.positioning as string) || '-'}</td>
                       <td className="py-4 px-6">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold capitalize ${threatBadge(rec.data.threat_level)}`}>
@@ -163,13 +179,16 @@ export default function CompetitiveAnalysisPage() {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center justify-end gap-1">
+                          {threads.button(rec.id, (rec.data.name as string) || 'this competitor')}
+                          {canWrite && (<>
                           <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors" aria-label="Edit competitor">
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label="Delete competitor">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
+                          </>)}
                         </div>
                       </td>
                     </tr>
@@ -182,43 +201,26 @@ export default function CompetitiveAnalysisPage() {
           <div className="lg:col-span-5 bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-4">
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-xs font-bold text-[#1E2923]">Positioning map</h3>
-              <button
-                onClick={() => setAxesOpen(true)}
-                className="flex items-center gap-1 text-[11px] font-semibold text-[#183B28] hover:text-[#11291C]"
-              >
-                <SlidersHorizontal className="w-3 h-3" /> Edit axes
-              </button>
-            </div>
-            <div className="relative w-full h-64 border-l border-b border-[#A0AABA] mt-2 mb-6">
-              {/* Y axis: high at top */}
-              <span className="absolute top-0 left-2 text-[10px] font-medium text-[#556358]">{axes.y.high} {axes.y.label}</span>
-              <span className="absolute bottom-1 left-2 text-[10px] font-medium text-[#A3B899]">{axes.y.low}</span>
-              {/* X axis: high at right */}
-              <span className="absolute -bottom-5 right-0 text-[10px] font-medium text-[#556358]">{axes.x.high} {axes.x.label} →</span>
-              <span className="absolute -bottom-5 left-0 text-[10px] font-medium text-[#A3B899]">{axes.x.low}</span>
-              {mapped.length === 0 && (
-                <span className="absolute inset-0 flex items-center justify-center text-[11px] text-[#A3B899] px-4 text-center">
-                  Set a competitor&apos;s map X/Y to plot it here.
-                </span>
-              )}
-              {mapped.map(({ rec, x, y, color }) => (
-                <div
-                  key={rec.id}
-                  className="absolute flex flex-col items-center -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: `${(x as number) * 100}%`, top: `${(1 - (y as number)) * 100}%` }}
+              {access.canEdit && (
+                <button
+                  onClick={() => setAxesOpen(true)}
+                  className="flex items-center gap-1 text-[11px] font-semibold text-[#183B28] hover:text-[#11291C]"
                 >
-                  <div className="w-3.5 h-3.5 rounded-full border-2 border-white shadow-card" style={{ backgroundColor: color }} />
-                  <span className="text-[10px] font-bold text-[#1E2923] mt-1 whitespace-nowrap">{(rec.data.name as string) || ''}</span>
-                </div>
-              ))}
+                  <SlidersHorizontal className="w-3 h-3" /> Edit axes
+                </button>
+              )}
             </div>
+            <PositioningMap records={records} axes={axes} canMove={canWrite} onMove={moveDot} />
           </div>
         </div>
       )}
 
+      {threads.drawer}
+
       {modalOpen && (
         <RecordFormModal
-          title={editing ? 'Edit competitor' : 'Add competitor'}
+          title={editing ? 'Edit competitor' : suggestMode ? 'Suggest a competitor' : 'Add competitor'}
+          suggestMode={suggestMode}
           fields={formFields}
           initial={editing?.data}
           submitting={submitting}

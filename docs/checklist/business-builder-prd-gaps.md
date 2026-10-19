@@ -1,0 +1,61 @@
+# Business Builder: PRD + UI-handoff gap list (live walkthrough, 2026-10-19)
+
+Source of truth: `Cofoundaz_Technical_PRD.md` Module 08 (shared editor pattern, §08.1 to §08.11, API/entities/events/
+notifications) + §2.1 (global top bar), plus the existing designed pages in this repo (the UI handoff):
+`/business-builder` and its ten sub-routes. Walked live on `develop` (FE after #105, API `23d3257`) as the local test
+founder at 1440px, every control listed and compared with the raw API. A read-only code inventory backs each row
+(file:line pointers below).
+
+Legend: ✅ meets PRD · ❌ gap · ⏳ fixed in an open PR
+
+## Works (verified live)
+- ✅ All eleven tabs exist and load real data (no mock artifacts): canvases via `GET/PUT /business-builder/canvases/{type}`
+  with optimistic `version` (409 on conflict), four record kinds via `/business-builder/{kind}` CRUD, positioning-map axes.
+- ✅ Overview H1 "Business Builder" + the PRD sub-copy verbatim.
+- ✅ "Fill with AI" / "Draft with AI" / "Seed with AI" enqueue real `ai-fill` jobs (worker `business.canvas.ai_fill`,
+  `business.{kind}.ai_fill`); the plan generator enqueues `business.plan.generate` and opens the generated Document.
+- ✅ Mission & Vision guidance copy matches the PRD ("Why you exist, one sentence, no jargon." / "The world if you win.").
+- ✅ Suggestions panel on the Overview approves/rejects real suggestions (founder).
+
+## Gaps
+| # | Area | Gap (observed) | PRD / handoff | Fix |
+|---|---|---|---|---|
+| 1 | Overview | Every canvas at 0% shows **"Continue"**; the API sends `status:"start"` but the FE ignores it | Untouched → **"Start"**, incomplete → **"Continue"** | FE: drive the CTA from the API `status` | **Done:** ✅ tile CTA from API `status` (Start / Continue / Review; View for read-only); verified live, unit `lib/bb-overview.test.ts` |
+| 2 | Overview | Record cards show only a count ("0") and "Start"; no completion ring semantics; **no Plan card**; no "last edited" | Artifact grid with completion rings per artifact | BE: `updated_at` + plan row on `/overview`; FE: rings, last edited, Plan tile | **Done:** ✅ rings from `completion_pct`, "Edited {relative}" line, Business Plan tile from the `plan` row (Open document to `/documents/{id}`); live as founder |
+| 3 | Shell | Section layout has its own header: **fake bell badge "5"**, dead **"Invite"** button, no ⌘K search | §2.1 shared top bar | FE: mount `ShellTopBar` (as Mission/Health/Roadmap) | **Done:** ✅ section layout mounts `ShellTopBar` (real bell count, working Invite, ⌘K); old fake "5" bell and dead Invite removed; live at 1440 and 375 |
+| 4 | Editor header | No **"last edited"** (who/when) and no **version link** on any editor; Lean shows "last synced" from the local clock | Header: name, last edited, version link | BE: `updated_at`/`updated_by` on canvases + version history (`GET /canvases/{type}/versions`, restore); FE header | **Done:** ✅ "Last edited by {name}, {relative}" + Version history panel (list, preview, Restore with the 409 "Reload the latest version" path); records show per-record and header edit info; restore verified live, 409/403 handling from the guide's captures |
+| 5 | Editor header | **Export** on BMC is a fake toast ("Exported to Documents.") with no call; Lean exports local JSON; other editors have no Export | **"Export"** on every artifact editor | BE: `POST /business-builder/{artifact}/export` → Module 18 Document; FE: Export on every editor → "Open document" | **Done:** ✅ Export on all 5 canvases and 4 record pages, toast with Open document; fake BMC toast and Lean JSON download removed; 422 message inline verified live; Document created live |
+| 6 | Autosave | "Saved to cloud" status text | **"Saved"** micro-toast | FE copy | **Done:** ✅ "Saved" status copy; unit `artifact-header.test.tsx` |
+| 7 | AI fill | Buttons enqueue immediately; no confirmation modal | Modal: "I'll draft this from your profile, assessment, and market data. You edit — nothing is final until you say so." CTA **"Draft it"** (no dashes in rendered copy) | FE modal on every AI-fill entry point | **Done:** ✅ `AiConfirmModal` (PRD copy, "Draft it", no dashes) on whole-artifact fill, per-section AI, M&V options, personas-from-validation, pricing advisor and plan generate; verified live; unit-tested |
+| 8 | AI assist | AI fill is whole-artifact only; SWOT "AI seed" is whole-canvas | **Per-section AI assist**; SWOT **AI seed per quadrant** | BE: optional `block` scope on canvas `ai-fill` (append-only into that block); FE button per block/quadrant | **Done:** ✅ AI button on every canvas block and SWOT quadrant (append-only, refetch after job, highlight added); real model added 3 weaknesses live |
+| 9 | Comments | No comment threads anywhere in Business Builder; `/team/comments` accepts only roadmap entity types (`app/schemas/team.py:32`) | Comment threads on sections | BE: add `business_canvas` (anchor = block key) and `business_record` entity types; FE thread per section/record | **Done:** ✅ comment drawer per canvas block (counts per block) and per record, @ mention picker, edit/delete/resolve; posted live on a SWOT block and a persona. No Roadmap thread component existed in the FE, so it is new and reusable |
+| 10 | BMC | Sticky notes reorder within a block only | Drag **between** blocks | FE (PUT already accepts any blocks) | **Done:** ✅ sticky notes move between blocks (BMC, Lean, SWOT) by drag and by a "Move to" select (touch and keyboard); autosave persisted live. Real pointer drag cannot be driven in the test pane (native HTML5 DnD), so the drop was exercised with dispatched drag events and the select |
+| 11 | Mission & Vision | No variant generator | **"Give me 3 options"** → variant cards **"Use this"** | BE: AI job returning 3 variants per field; FE cards | **Done:** ✅ "Give me 3 options" per field, variant cards, "Use this" saves via the normal PUT; real model returned 3 mission options live |
+| 12 | Value Prop | Two panels render; no fit-lines | Fit-lines between Value Map and Customer Profile | FE: visual fit links (pain relievers ↔ pains, gain creators ↔ gains); BE: store links in `blocks_json` |
+| 13 | Personas | Generic form; no "from validation" AI; API `fields[].type` leaks Python reprs (`"<class 'str'>"`) | Editor (name, photo placeholder, demographics, goals, frustrations, watering holes, quote); AI **"Generate personas from my validation notes"** | BE: fix `type` serialisation; validation-sourced persona job (Module 09 interviews/notes); FE persona card layout | **Done:** AI part ✅ persona card layout (avatar placeholder, demographics, quote, goals, frustrations, where to reach) and "Generate personas from my validation notes" with the 422 linking to /validation; both verified live with the real model. Rest of row 13 stays for slice (c) |
+| 14 | Pricing | Model is a form field; no AI advisor | Model selector (subscription/one-time/usage/freemium/tiered), tier builder table, **AI advisor panel** (willingness-to-pay prompts, competitor price inputs) | FE selector + tier table; BE advisor job using competitor prices | **Done:** advisor part ✅ model selector, tier builder table, advisor prefilled from competitor prices + WTP notes, Apply writes through pricing CRUD; real model advice applied live. Rest of row 14 stays for slice (c) |
+| 15 | Revenue | Total of est. monthly only | Projected chart, assumptions link, **"Send to financial model"** (Module 12) | BE: push streams into Finance runway assumptions; FE chart + button |
+| 16 | Competitive | Positioning-map dots are read-only | **Draggable dots**, editable axes | FE drag → PUT competitor `x/y` (axes already editable) | **Done:** ✅ draggable dots (pointer events, touch capable) PUT `map_x`/`map_y`; arrow-key alternative; Place button for unplaced competitors; both verified live and persisted |
+| 17 | Plan | Single "Generate business plan" button | Readiness checklist (✅/⚠ → **"Draft missing sections with AI"**), options audience **Bank / Investors / Internal** + length **Concise (10–15 pp) / Full (25–40 pp)**, stage captions, done **"Your business plan is ready."** + **"Open document"** · **"Regenerate a section"** | BE: `options` on generate, readiness endpoint, stage progress on the job, section regenerate, failed state (plan can stick in `generating`); FE flow |
+| 18 | Suggest mode | Role is hard-coded `'F'` (`hooks/useBusinessBuilderApi.ts:36`), so the BC banner never shows and BC edits 403; `createSuggestion` has no FE caller | BC: edits create pending suggestions + banner **"You're in suggest mode. The founder approves your edits."** | FE: real role from workspace; BC edits → `POST /suggestions`; diff view in the panel | **Done:** ✅ real workspace role (`useBuilderAccess`); consultant sees the banner, canvas edits are sent as one suggestion, record writes become suggestions (diff view in the panel); other roles read-only. Verified live as founder, consultant and mentor |
+| 19 | Suggest RBAC | `POST /suggestions` open to any role; suggestion notification goes to all members with a generic title | BC suggests; F notified **"{Consultant} suggested changes to {artifact}"** CTA **"Review suggestions"** | BE: restrict to BC (D-BB-3), founder-only targeting, PRD copy |
+| 20 | Plan notification | "Your AI business plan is ready" | **"Your AI-generated business plan is ready"** CTA **"Open it"** | BE copy |
+| 21 | Dead data | `getOverview` reads `data.artifacts` but the API returns a bare array; `CanvasType` union is stale | n/a | FE cleanup | **Done:** ✅ `getOverview` reads the bare array, `CanvasType` union fixed, dead `useBusinessBuilderApi` removed |
+
+## Decisions (D-BB-1 to D-BB-3 confirmed by Adebayo 2026-10-19; D-BB-4/5 lead's call, reversible)
+- **D-BB-1 Versions:** snapshot a canvas version on each save (cap 50 per canvas), list + restore; records get `updated_at/by` only.
+- **D-BB-2 Export:** Export creates a Module 18 Document from the artifact (then downloadable there), never a client-side file.
+- **D-BB-3 Suggest mode:** only `business_consultant` can create suggestions; other read-only roles stay read-only.
+- **D-BB-4 Section AI:** per-section AI only appends to that block, never rewrites (same rule as Roadmap D-RM-1).
+- **D-BB-5 Send to financial model:** writes the revenue streams' monthly total into Finance runway assumptions (overwrite with confirm), not a separate forecast model.
+
+## BE status (2026-10-19)
+- Slice (a) API #139: rows 2, 4, 5, 13 (type fix), 18 (BE), 19, 20, 21 (BE part). FE done in the PR "Business Builder: complete the editors against the PRD (slices a and b)".
+- Slice (b) API #140 (stacked on #139): rows 8, 9, 11, 13 (AI from validation), 14 (advisor). Canvas bodies now carry `id` for comment threads. FE done in the same PR. Rows 12, 15, 17 and the rest of 13 and 14 are left for slice (c).
+- Slice (c): rows 15, 17 (lead, next).
+
+## Build order
+BE (lead), split into stacked PRs: (a) overview/updated-by/versions/export/notification copy/RBAC/personas type fix;
+(b) comments entity types + section-scoped AI + M&V variants + persona-from-validation + pricing advisor;
+(c) plan options/readiness/progress/section regenerate/failed state + revenue → Finance. Each with tests, a live-captured
+FE guide and an SOP. Then FE sub-sessions (shell + overview + editors; records pages; plan), then a live re-walk.

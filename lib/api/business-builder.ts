@@ -26,38 +26,65 @@ export interface PlanDocument {
   sections: PlanSection[];
 }
 
-export type CanvasType = 'lean' | 'bmc' | 'value_prop' | 'swot';
+export type CanvasType = 'business_model' | 'lean' | 'value_prop' | 'mission_vision' | 'swot';
 
-export interface CanvasBlockItem {
+/** `{id, name}` for who last edited something. `name` already falls back to the email server-side. */
+export interface EditorRef {
   id: string;
-  text: string;
-  created_at?: string;
-  is_ai_generated?: boolean;
+  name: string | null;
 }
 
-export interface CanvasSavePayload {
+export interface BlockDef {
+  key: string;
+  label: string;
+  kind: 'list' | 'text';
+}
+
+export type CanvasBlocks = Record<string, string[] | string>;
+
+export interface CanvasCompletion {
+  filled_blocks: number;
+  total_blocks: number;
+  completion_pct: number;
+  status: 'start' | 'continue' | 'complete';
+}
+
+/** `GET/PUT /canvases/{type}`. `updated_by` is null for a fresh canvas and after an AI fill. */
+export interface Canvas {
+  id?: string;
+  type: string;
   version: number;
-  blocks: Record<string, CanvasBlockItem[] | unknown>;
+  blocks: CanvasBlocks;
+  block_defs: BlockDef[];
+  completion?: CanvasCompletion;
+  updated_at: string | null;
+  updated_by: EditorRef | null;
 }
 
-export interface BusinessBuilderOverview {
-  artifacts: Array<{
-    id: string;
-    slug: string;
-    title: string;
-    completion_percentage: number;
-    last_edited?: string;
-    description?: string;
-  }>;
+export type VersionSource = 'manual' | 'ai' | 'suggestion' | 'restore';
+
+export interface CanvasVersionRow {
+  version: number;
+  source: VersionSource;
+  edited_by: EditorRef | null;
+  created_at: string;
 }
 
-export interface Suggestion {
-  id: string;
-  target_artifact: string;
-  target_block?: string;
-  suggested_text: string;
-  reason?: string;
-  status: 'pending' | 'approved' | 'rejected';
+export interface CanvasVersionDetail extends CanvasVersionRow {
+  blocks: CanvasBlocks;
+}
+
+/** One row of `GET /overview` (a BARE array in `data`). Join by `type`, never by index. */
+export interface OverviewRow {
+  type: string;
+  label: string;
+  status: 'start' | 'continue' | 'complete' | 'none' | 'generating' | 'failed';
+  completion_pct?: number;
+  filled_blocks?: number;
+  total_blocks?: number;
+  count?: number;
+  document_id?: string | null;
+  updated_at: string | null;
 }
 
 // A stored Business Builder record (persona / competitor / pricing / revenue
@@ -68,10 +95,12 @@ export interface BusinessRecord {
   kind: string;
   data: Record<string, unknown>;
   position: number;
+  updated_at?: string | null;
+  updated_by?: EditorRef | null;
 }
 
 // FE field descriptor served alongside the list. `choices` is non-null only for
-// enum fields (its members' values); `type` is the raw Python annotation string.
+// enum fields (its members' values).
 export interface RecordField {
   key: string;
   required: boolean;
@@ -84,6 +113,43 @@ export interface RecordListResponse {
   fields: RecordField[];
 }
 
+export interface ExportedDocument {
+  document_id: string;
+  title: string;
+}
+
+export type SuggestOp = 'canvas_update' | 'record_create' | 'record_update' | 'record_delete';
+
+export interface SuggestionInput {
+  op: SuggestOp;
+  target: { canvas_type?: string; kind?: string; record_id?: string };
+  payload?: { blocks?: CanvasBlocks; data?: Record<string, unknown> } | null;
+  note?: string;
+}
+
+export interface AdvisorInput {
+  competitor_prices: Array<{ name: string; price: string }>;
+  willingness_to_pay: string;
+}
+
+export interface PricingTier {
+  name: string;
+  price: string;
+  features: string[];
+}
+
+export interface PricingAdvice {
+  tiers: PricingTier[];
+  rationale: string;
+  wtp_questions: string[];
+  recommended_model: string;
+}
+
+export interface EnqueuedJob {
+  job_id: string;
+  status: string;
+}
+
 function getWorkspaceHeaders(workspaceId?: string): HeadersInit {
   const wsId =
     workspaceId ||
@@ -94,46 +160,108 @@ function getWorkspaceHeaders(workspaceId?: string): HeadersInit {
 }
 
 export const businessBuilderApi = {
-  // 1. Overview
-  async getOverview(workspaceId?: string): Promise<BusinessBuilderOverview> {
-    const res = await apiClient<ApiResponse>('/business-builder/overview', {
+  // 1. Overview: a bare array in `data` (one row per canvas, record kind, then the plan).
+  async getOverview(workspaceId?: string): Promise<OverviewRow[]> {
+    const res = await apiClient<ApiResponse<OverviewRow[]>>('/business-builder/overview', {
       headers: getWorkspaceHeaders(workspaceId),
     });
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
+    const data = (res as ApiResponse)?.data ?? res;
+    return Array.isArray(data) ? (data as OverviewRow[]) : [];
   },
 
   // 2. Canvases
-  async getCanvas(type: CanvasType | string, workspaceId?: string): Promise<unknown> {
+  async getCanvas(type: CanvasType | string, workspaceId?: string): Promise<Canvas> {
     const res = await apiClient<ApiResponse>(`/business-builder/canvases/${type}`, {
       headers: getWorkspaceHeaders(workspaceId),
     });
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
+    return ((res as ApiResponse)?.data ?? res) as Canvas;
   },
 
   async saveCanvas(
     type: CanvasType | string,
-    payload: CanvasSavePayload,
+    payload: { version: number; blocks: CanvasBlocks },
     workspaceId?: string
-  ): Promise<unknown> {
+  ): Promise<Canvas> {
     const res = await apiClient<ApiResponse>(`/business-builder/canvases/${type}`, {
       method: 'PUT',
       headers: getWorkspaceHeaders(workspaceId),
       body: JSON.stringify(payload),
     });
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
+    return ((res as ApiResponse)?.data ?? res) as Canvas;
   },
 
+  /** Whole-canvas AI fill (empty blocks only), or a single `block` (append-only). */
   async aiFillCanvas(
     type: CanvasType | string,
-    promptParams?: Record<string, unknown>,
+    body?: { block?: string },
     workspaceId?: string
-  ): Promise<unknown> {
+  ): Promise<EnqueuedJob> {
     const res = await apiClient<ApiResponse>(`/business-builder/canvases/${type}/ai-fill`, {
       method: 'POST',
       headers: getWorkspaceHeaders(workspaceId),
-      body: JSON.stringify(promptParams || {}),
+      body: JSON.stringify(body ?? {}),
     });
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
+    return ((res as ApiResponse)?.data ?? res) as EnqueuedJob;
+  },
+
+  /** Mission & Vision "Give me 3 options". Nothing is written; the job result carries the options. */
+  async missionVisionOptions(field: 'mission' | 'vision'): Promise<EnqueuedJob> {
+    const res = await apiClient<ApiResponse>('/business-builder/canvases/mission_vision/options', {
+      method: 'POST',
+      body: JSON.stringify({ field }),
+    });
+    return ((res as ApiResponse)?.data ?? res) as EnqueuedJob;
+  },
+
+  async listVersions(type: string): Promise<CanvasVersionRow[]> {
+    const res = await apiClient<ApiResponse<{ versions?: CanvasVersionRow[] }>>(
+      `/business-builder/canvases/${type}/versions`
+    );
+    const data = ((res as ApiResponse)?.data ?? res) as { versions?: CanvasVersionRow[] };
+    return Array.isArray(data?.versions) ? data.versions : [];
+  },
+
+  async getVersion(type: string, version: number): Promise<CanvasVersionDetail> {
+    const res = await apiClient<ApiResponse>(`/business-builder/canvases/${type}/versions/${version}`);
+    return ((res as ApiResponse)?.data ?? res) as CanvasVersionDetail;
+  },
+
+  /** `currentVersion` is the canvas's CURRENT version (not the one being restored). */
+  async restoreVersion(type: string, version: number, currentVersion: number): Promise<Canvas> {
+    const res = await apiClient<ApiResponse>(
+      `/business-builder/canvases/${type}/versions/${version}/restore`,
+      { method: 'POST', body: JSON.stringify({ version: currentVersion }) }
+    );
+    return ((res as ApiResponse)?.data ?? res) as Canvas;
+  },
+
+  /** Export a canvas (`business_model | lean | ...`) or a record list (`personas | pricing | ...`) to a new Document. */
+  async exportToDocument(target: { canvas: string } | { kind: string }): Promise<ExportedDocument> {
+    const path = 'canvas' in target ? `canvases/${target.canvas}` : target.kind;
+    const res = await apiClient<ApiResponse>(`/business-builder/${path}/export`, { method: 'POST' });
+    return ((res as ApiResponse)?.data ?? res) as ExportedDocument;
+  },
+
+  // Consultant suggest mode: every edit becomes a pending suggestion for the founder.
+  async createSuggestion(input: SuggestionInput): Promise<unknown> {
+    const res = await apiClient<ApiResponse>('/business-builder/suggestions', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+    return (res as ApiResponse)?.data ?? res;
+  },
+
+  async personasFromValidation(): Promise<EnqueuedJob> {
+    const res = await apiClient<ApiResponse>('/business-builder/personas/from-validation', { method: 'POST' });
+    return ((res as ApiResponse)?.data ?? res) as EnqueuedJob;
+  },
+
+  async pricingAdvisor(input: AdvisorInput): Promise<EnqueuedJob> {
+    const res = await apiClient<ApiResponse>('/business-builder/pricing/advisor', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+    return ((res as ApiResponse)?.data ?? res) as EnqueuedJob;
   },
 
   // 3. Records (personas / competitors / pricing / revenue-streams).
@@ -186,43 +314,12 @@ export const businessBuilderApi = {
     });
   },
 
-  // 4. Suggestions
-  async getSuggestions(workspaceId?: string): Promise<Suggestion[]> {
-    const res = await apiClient<ApiResponse>('/business-builder/suggestions', {
-      headers: getWorkspaceHeaders(workspaceId),
-    });
-    const data = (res as ApiResponse)?.data ?? res;
-    const parsed = data as { items?: unknown[] } | undefined; return Array.isArray(data) ? data : ((parsed?.items || []) as Suggestion[]);
-  },
-
-  async approveSuggestion(suggestionId: string, workspaceId?: string): Promise<unknown> {
-    const res = await apiClient<ApiResponse>(
-      `/business-builder/suggestions/${suggestionId}/approve`,
-      {
-        method: 'POST',
-        headers: getWorkspaceHeaders(workspaceId),
-      }
-    );
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
-  },
-
-  async rejectSuggestion(suggestionId: string, workspaceId?: string): Promise<unknown> {
-    const res = await apiClient<ApiResponse>(
-      `/business-builder/suggestions/${suggestionId}/reject`,
-      {
-        method: 'POST',
-        headers: getWorkspaceHeaders(workspaceId),
-      }
-    );
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
-  },
-
   // 5. Positioning Map
   async getPositioningMap(workspaceId?: string): Promise<unknown> {
     const res = await apiClient<ApiResponse>('/business-builder/positioning-map', {
       headers: getWorkspaceHeaders(workspaceId),
     });
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
+    return (res as ApiResponse)?.data ?? res;
   },
 
   async savePositioningMap(payload: unknown, workspaceId?: string): Promise<unknown> {
@@ -231,7 +328,7 @@ export const businessBuilderApi = {
       headers: getWorkspaceHeaders(workspaceId),
       body: JSON.stringify(payload),
     });
-    return ((res as ApiResponse)?.data ?? res) as BusinessBuilderOverview;
+    return (res as ApiResponse)?.data ?? res;
   },
 
   // 4. AI business-plan generator (async: POST starts, GET polls, document holds content).
@@ -266,9 +363,3 @@ export const businessBuilderApi = {
     return ((res as ApiResponse)?.data ?? res) as PlanDocument;
   },
 };
-
-
-
-
-
-

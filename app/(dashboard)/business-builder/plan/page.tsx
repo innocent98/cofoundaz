@@ -1,12 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Sparkles, Check, BookOpen, Clock, AlertTriangle, Loader2, ArrowRight } from 'lucide-react';
 import { useBusinessPlan } from '@/hooks/useBusinessPlan';
+import { AiConfirmModal } from '@/components/business-builder/ai-confirm-modal';
 
 export default function BusinessPlanPage() {
   const { status, doc, error, generate, reset } = useBusinessPlan();
+  const [confirming, setConfirming] = useState(false);
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl">
@@ -36,7 +38,7 @@ export default function BusinessPlanPage() {
           </div>
 
           <button
-            onClick={generate}
+            onClick={() => setConfirming(true)}
             className="w-full bg-[#183B28] hover:bg-[#11291C] text-white font-bold py-3.5 rounded-card flex items-center justify-center gap-2 transition-all shadow-card cursor-pointer"
           >
             <Sparkles className="w-4 h-4 fill-white" />
@@ -73,7 +75,7 @@ export default function BusinessPlanPage() {
             </div>
             <h3 className="text-2xl font-display font-bold text-[#1E2923]">Your draft is ready</h3>
             <p className="text-sm text-[#617065] max-w-md leading-relaxed">
-              {doc.title} — {doc.sections.length} section{doc.sections.length === 1 ? '' : 's'}, saved to Documents as an editable draft.
+              {doc.title}: {doc.sections.length} section{doc.sections.length === 1 ? '' : 's'}, saved to Documents as an editable draft.
             </p>
           </div>
 
@@ -95,7 +97,7 @@ export default function BusinessPlanPage() {
               Open in Documents <ArrowRight className="w-4 h-4" />
             </Link>
             <button
-              onClick={generate}
+              onClick={() => setConfirming(true)}
               className="w-full flex-1 bg-white hover:bg-[#F5F5F0] text-[#1E2923] border border-[#EBEBE6] font-bold py-3 rounded-card transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Clock className="w-4 h-4 text-[#768478]" />
@@ -117,7 +119,7 @@ export default function BusinessPlanPage() {
             </p>
           </div>
           <button
-            onClick={generate}
+            onClick={() => setConfirming(true)}
             className="bg-[#183B28] hover:bg-[#11291C] text-white font-bold px-6 py-3 rounded-card transition-all shadow-card flex items-center justify-center gap-2 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 fill-white" /> Try again
@@ -148,6 +150,14 @@ export default function BusinessPlanPage() {
           </button>
         </div>
       )}
+      <AiConfirmModal
+        open={confirming}
+        onConfirm={() => {
+          setConfirming(false);
+          void generate();
+        }}
+        onCancel={() => setConfirming(false)}
+      />
     </div>
   );
 }

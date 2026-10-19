@@ -3,6 +3,9 @@
 import React, { useState } from 'react';
 import { Check, X, Lightbulb, AlertTriangle } from 'lucide-react';
 import { useBusinessSuggestions, Suggestion } from '@/hooks/useBusinessSuggestions';
+import { useBuilderAccess } from '@/hooks/useBuilderAccess';
+import { diffBlocks, diffRecord } from '@/lib/canvas-ops';
+import type { CanvasBlocks } from '@/lib/api/business-builder';
 
 function opLabel(s: Suggestion): string {
   const kind = (s.target.kind || '').replace(/_/g, ' ');
@@ -32,12 +35,59 @@ function proposalSummary(s: Suggestion): string | null {
   return null;
 }
 
+// What would change, so the founder reviews a diff and not just a block name.
+function SuggestionDiff({ s }: { s: Suggestion }) {
+  if (s.op === 'canvas_update') {
+    const cur = (s.current as { blocks?: CanvasBlocks } | null | undefined)?.blocks;
+    const diffs = diffBlocks(cur, s.payload?.blocks as CanvasBlocks | undefined);
+    if (diffs.length === 0) return <p className="text-xs text-[#768478]">No change from the current canvas.</p>;
+    return (
+      <div className="flex flex-col gap-2">
+        {diffs.map((d) => (
+          <div key={d.key} className="text-xs">
+            <p className="font-bold text-[#1E2923] capitalize">{d.key.replace(/_/g, ' ')}</p>
+            {d.text ? (
+              <>
+                <p className="text-[#A34B4B] line-through">{d.text.before || 'empty'}</p>
+                <p className="text-[#183B28]">{d.text.after || 'empty'}</p>
+              </>
+            ) : (
+              <ul className="space-y-0.5">
+                {d.removed.map((r) => <li key={`r:${r}`} className="text-[#A34B4B] line-through">Removed: {r}</li>)}
+                {d.added.map((a) => <li key={`a:${a}`} className="text-[#183B28]">Added: {a}</li>)}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  if (s.op === 'record_update' || s.op === 'record_create') {
+    const diffs = diffRecord(s.op === 'record_update' ? (s.current as Record<string, unknown> | null) : null, s.payload?.data);
+    if (diffs.length === 0) return null;
+    return (
+      <ul className="flex flex-col gap-1 text-xs">
+        {diffs.map((d) => (
+          <li key={d.field}>
+            <span className="font-bold text-[#1E2923]">{d.field.replace(/_/g, ' ')}: </span>
+            {s.op === 'record_update' && <span className="text-[#A34B4B] line-through">{d.before}</span>}
+            {s.op === 'record_update' && <span className="text-[#8E9B90]"> to </span>}
+            <span className="text-[#183B28]">{d.after}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  return null;
+}
+
 function authorName(s: Suggestion): string {
   return s.author?.name || s.author?.email || 'A teammate';
 }
 
 export function SuggestionsPanel() {
   const { suggestions, loading, approve, reject } = useBusinessSuggestions('pending');
+  const { canEdit } = useBuilderAccess();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [rowError, setRowError] = useState<Record<string, string>>({});
 
@@ -62,7 +112,7 @@ export function SuggestionsPanel() {
         <div className="p-1.5 bg-[#F7EEDC] rounded-[6px]">
           <Lightbulb className="w-4 h-4 fill-[#8A5330] text-[#8A5330]" />
         </div>
-        <h3 className="font-bold text-[#1E2923] text-sm">Suggestions to review</h3>
+        <h3 className="font-bold text-[#1E2923] text-sm">{canEdit ? 'Suggestions to review' : 'Suggestions waiting for the founder'}</h3>
         <span className="ml-auto text-xs font-bold text-[#8E9B90] bg-[#F0F0EC] px-2 py-0.5 rounded-full">
           {suggestions.length}
         </span>
@@ -81,7 +131,7 @@ export function SuggestionsPanel() {
                   {s.note && <span className="text-xs text-[#768478] italic">&ldquo;{s.note}&rdquo;</span>}
                   <span className="text-[11px] text-[#8E9B90]">Suggested by {authorName(s)}</span>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                {canEdit && <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => run(s.id, () => approve(s.id))}
                     disabled={busy}
@@ -96,8 +146,9 @@ export function SuggestionsPanel() {
                   >
                     <X className="w-3.5 h-3.5" /> Reject
                   </button>
-                </div>
+                </div>}
               </div>
+              <SuggestionDiff s={s} />
               {rowError[s.id] && (
                 <div className="flex items-start gap-1.5 text-[11px] font-semibold text-[#B0483B] bg-[#FBEBEB] border border-[#F0D5D5] rounded-input px-2.5 py-1.5">
                   <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />

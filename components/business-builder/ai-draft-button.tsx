@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Sparkles, Check, AlertTriangle, Loader2 } from 'lucide-react';
 import { useBusinessAiFill } from '@/hooks/useBusinessAiFill';
 import { useAiStatus } from '@/hooks/useAiStatus';
+import { useBuilderAccess } from '@/hooks/useBuilderAccess';
+import { AiConfirmModal } from '@/components/business-builder/ai-confirm-modal';
 
 interface AiDraftButtonProps {
   /** Canvas type (business_model/lean/mission_vision/value_prop/swot) … */
@@ -26,11 +28,14 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className,
   const [skipped, setSkipped] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const { canEdit } = useBuilderAccess();
 
   const target = canvasType ?? kind ?? '';
   const busy = requesting === target;
 
-  const onClick = async () => {
+  const onConfirm = async () => {
+    setConfirming(false);
     setError(null);
     setSkipped(false);
     setTimedOut(false);
@@ -56,6 +61,9 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className,
     setFilled(true);
     await onFilled?.();
   };
+
+  // Founders and team members only: a consultant suggests instead, everyone else reads.
+  if (!canEdit) return null;
 
   if (isOverBudget) {
     return (
@@ -93,7 +101,7 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className,
   return (
     <div className="flex flex-col items-end gap-1">
       <button
-        onClick={onClick}
+        onClick={() => setConfirming(true)}
         disabled={busy}
         title="Ask the AI to draft this for you"
         className={
@@ -118,6 +126,7 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className,
           <AlertTriangle className="w-3 h-3" /> {error}
         </span>
       )}
+      <AiConfirmModal open={confirming} onConfirm={onConfirm} onCancel={() => setConfirming(false)} />
     </div>
   );
 }
