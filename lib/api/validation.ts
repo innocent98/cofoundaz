@@ -129,17 +129,112 @@ export interface RawExperiment {
   config: Record<string, unknown>;
   metrics: Record<string, unknown>;
   assumption_ids: string[];
+  /** Top-level: the live address. `config.slug` is only what we send. */
+  slug?: string | null;
+  published_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }
 
+export type SmokeVerdict = 'validated' | 'weak';
+
+/** `GET /validation/smoke-tests/{id}/stats`. The verdict is the server's. */
 export interface SmokeTestStats {
   experiment_id: string;
   name: string;
   status: string;
+  slug: string | null;
   visits: number;
   signups: number;
+  cta_clicks: number;
+  preorder_clicks: number;
+  metric_type: string;
   conversion: number;
+  target_conversion: number;
+  sample_needed: number;
+  /** null until `visits >= sample_needed`. */
+  verdict: SmokeVerdict | null;
+}
+
+export interface WaitlistSignup {
+  email: string;
+  signed_up_at: string;
+}
+
+export async function listSmokeSignups(id: string): Promise<WaitlistSignup[]> {
+  const res = await apiClient<{ data?: { signups?: WaitlistSignup[] } }>(
+    `/validation/smoke-tests/${id}/signups`
+  );
+  return res?.data?.signups ?? [];
+}
+
+// --- Overview + "Design experiment" (PRD 09.1 / 09.6) -------------------------
+
+export interface RiskiestAssumption {
+  id: string;
+  statement: string;
+  risk: AssumptionRisk;
+}
+
+export interface ValidationOverview {
+  assumptions: Record<AssumptionStatus, number>;
+  live_experiments: number;
+  responses_collected: number;
+  /** null when nothing is untested: hide the nudge. */
+  riskiest_untested: RiskiestAssumption | null;
+}
+
+export async function getValidationOverview(): Promise<ValidationOverview> {
+  const res = await apiClient<{ data?: ValidationOverview }>('/validation/overview');
+  const d = res?.data;
+  return {
+    assumptions: {
+      untested: d?.assumptions?.untested ?? 0,
+      testing: d?.assumptions?.testing ?? 0,
+      validated: d?.assumptions?.validated ?? 0,
+      invalidated: d?.assumptions?.invalidated ?? 0,
+    },
+    live_experiments: d?.live_experiments ?? 0,
+    responses_collected: d?.responses_collected ?? 0,
+    riskiest_untested: d?.riskiest_untested ?? null,
+  };
+}
+
+/** What the experiment-draft job returns in `result.draft`. */
+export interface ExperimentDraft {
+  name: string;
+  headline: string;
+  subheadline: string;
+  cta_text: string;
+  metric_type: string;
+  target_conversion: number;
+  slug_suggestion: string;
+  rationale: string;
+  assumption_ids: string[];
+}
+
+export interface ExperimentDraftResult {
+  status?: 'ready' | 'gone' | 'over_budget' | string;
+  draft?: ExperimentDraft;
+  assumption_id?: string;
+}
+
+export async function requestExperimentDraft(assumptionId: string): Promise<string> {
+  const res = await apiClient<{ data?: { job_id?: string } }>(
+    `/validation/assumptions/${assumptionId}/experiment-draft`,
+    { method: 'POST' }
+  );
+  const id = res?.data?.job_id;
+  if (!id) throw new Error('No job id returned.');
+  return id;
+}
+
+// --- Deletes (200 {deleted: true}; 404 for unknown / other workspace) --------
+
+export type DeletableKind = 'assumptions' | 'experiments' | 'interviews' | 'surveys';
+
+export async function deleteValidationItem(kind: DeletableKind, id: string): Promise<void> {
+  await apiClient(`/validation/${kind}/${id}`, { method: 'DELETE' });
 }
 
 export interface CreateExperimentBody {

@@ -4,6 +4,7 @@ import {
   listAssumptions,
   createAssumption,
   updateAssumption,
+  deleteValidationItem,
   type AssumptionStatus,
   type AssumptionRisk,
   type RawAssumption,
@@ -88,5 +89,10 @@ export function useAssumptions() {
     [load]
   );
 
-  return { assumptions, loading, error, addAssumption, updateStatus, refetch: load };
+  const remove = useCallback(async (id: string) => {
+    await deleteValidationItem('assumptions', id);
+    setAssumptions((prev) => prev.filter((a) => a.id !== id));
+  }, []);
+
+  return { assumptions, loading, error, addAssumption, updateStatus, remove, refetch: load };
 }

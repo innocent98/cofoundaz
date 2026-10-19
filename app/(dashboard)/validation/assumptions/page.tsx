@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { useAssumptions, Assumption, AssumptionStatus } from '@/hooks/useAssumptions';
 import { useToast } from '../layout';
+import { useValidationOverview } from '@/hooks/useValidationOverview';
+import { RiskiestNudge } from '@/components/validation/RiskiestNudge';
+import { ConfirmDelete } from '@/components/validation/ConfirmDelete';
+import { deleteWarning } from '@/lib/validation-format';
 
 const STATUS_LABEL: Record<AssumptionStatus, string> = {
   untested: 'Untested',
@@ -13,10 +16,10 @@ const STATUS_LABEL: Record<AssumptionStatus, string> = {
   invalidated: 'Invalidated',
 };
 
-const RISK_RANK: Record<string, number> = { high: 3, medium: 2, low: 1 };
-
 export default function AssumptionsPage() {
-  const { assumptions, loading, error, addAssumption, updateStatus, refetch } = useAssumptions();
+  const { assumptions, loading, error, addAssumption, updateStatus, remove, refetch } = useAssumptions();
+  const { overview, refetch: refetchOverview } = useValidationOverview();
+  const [toDelete, setToDelete] = useState<Assumption | null>(null);
   const { triggerToast } = useToast();
   const [newAssumptionTitle, setNewAssumptionTitle] = useState('');
   const [adding, setAdding] = useState(false);
@@ -33,7 +36,10 @@ export default function AssumptionsPage() {
     const card = assumptions.find((a) => a.id === id);
     if (!card || card.status === newStatus) return;
     updateStatus(id, newStatus)
-      .then(() => triggerToast(`Moved to ${STATUS_LABEL[newStatus]}`))
+      .then(() => {
+        triggerToast(`Moved to ${STATUS_LABEL[newStatus]}`);
+        void refetchOverview();
+      })
       .catch(() => triggerToast('Could not move that card. Try again.'));
   };
 
@@ -43,7 +49,10 @@ export default function AssumptionsPage() {
     setAdding(true);
     setNewAssumptionTitle('');
     addAssumption(s)
-      .then(() => triggerToast('Assumption added'))
+      .then(() => {
+        triggerToast('Assumption added');
+        void refetchOverview();
+      })
       .catch(() => {
         triggerToast('Could not add that assumption. Try again.');
         setNewAssumptionTitle(s);
@@ -55,9 +64,6 @@ export default function AssumptionsPage() {
   const testing = assumptions.filter((a) => a.status === 'testing');
   const validated = assumptions.filter((a) => a.status === 'validated');
   const invalidated = assumptions.filter((a) => a.status === 'invalidated');
-
-  // Honest "riskiest untested" banner, derived from real data (not hardcoded).
-  const riskiest = [...untested].sort((a, b) => RISK_RANK[b.risk] - RISK_RANK[a.risk])[0];
 
   const getRiskBadge = (risk: string) => {
     if (risk === 'high')
@@ -77,8 +83,16 @@ export default function AssumptionsPage() {
       <p className="text-xs md:text-sm font-medium text-sage-800">{a.statement}</p>
       <div className="flex items-center justify-between pt-1">
         {getRiskBadge(a.risk)}
-        <span className="text-[11px] text-sage-400">
-          {a.evidenceCount} evidence
+        <span className="flex items-center gap-2">
+          <span className="text-[11px] text-sage-400">{a.evidenceCount} evidence</span>
+          <button
+            type="button"
+            onClick={() => setToDelete(a)}
+            aria-label={`Delete assumption: ${a.statement}`}
+            className="p-1 rounded-input text-sage-400 hover:text-[#B0483B] hover:bg-sage-100 cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </span>
       </div>
     </div>
@@ -93,33 +107,7 @@ export default function AssumptionsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Riskiest untested — real, or a neutral prompt */}
-      <div className="bg-[#0e271f] text-white rounded-modal p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
-        <div className="flex items-start md:items-center gap-3 md:gap-4">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-card bg-[#9C5B34] text-white flex items-center justify-center shrink-0">
-            <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
-            </svg>
-          </div>
-          <p className="text-white text-xs md:text-sm font-medium">
-            {riskiest ? (
-              <>
-                Your riskiest untested assumption:{' '}
-                <span className="italic font-normal">“{riskiest.statement}”</span> Want an experiment for it?
-              </>
-            ) : (
-              <>Capture the assumptions your business depends on, then test the riskiest ones first.</>
-            )}
-          </p>
-        </div>
-
-        <Link
-          href="/validation/smoke-tests"
-          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-4 py-2 md:px-5 md:py-2.5 rounded-card text-xs md:text-sm transition-all shrink-0 self-start md:self-auto cursor-pointer text-center"
-        >
-          Design experiment
-        </Link>
-      </div>
+      <RiskiestNudge riskiest={overview?.riskiest_untested ?? null} />
 
       {error && (
         <div className="flex items-center justify-between gap-3 bg-[#FBEAE7] border border-[#F0C9C2] rounded-card px-4 py-3">
@@ -185,6 +173,19 @@ export default function AssumptionsPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {toDelete && (
+        <ConfirmDelete
+          title={`Delete this assumption?`}
+          warning={`"${toDelete.statement}". ${deleteWarning('assumption')}`}
+          onConfirm={async () => {
+            await remove(toDelete.id);
+            triggerToast('Assumption deleted');
+            void refetchOverview();
+          }}
+          onClose={() => setToDelete(null)}
+        />
       )}
     </div>
   );

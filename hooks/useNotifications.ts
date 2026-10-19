@@ -39,6 +39,11 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
   if (type === 'finance.runway.low') return '/finance/runway';
   if (type === 'assessment.completed') return '/assessment/results';
   if (type === 'healthscore.dropped' || type === 'healthscore.record') return '/health';
+  if (type === 'validation.smoke_test.milestone') {
+    return typeof data?.experiment_id === 'string'
+      ? `/validation/smoke-tests?test=${encodeURIComponent(data.experiment_id)}`
+      : '/validation/smoke-tests';
+  }
   if (type === 'roadmap.milestone.overdue') return '/roadmap/replan';
   if (type === 'roadmap.milestone.due_soon') {
     return typeof data?.milestone_id === 'string' ? `/roadmap?milestone=${encodeURIComponent(data.milestone_id)}` : '/roadmap';

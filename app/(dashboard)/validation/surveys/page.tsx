@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, AlertTriangle, Plus, X, Copy, Check, Link2 } from 'lucide-react';
+import { Loader2, AlertTriangle, Plus, X, Copy, Check, Link2, Trash2 } from 'lucide-react';
 import { useSurveys, Survey, SurveyQuestion, SurveyAnalytics } from '@/hooks/useSurveys';
 import type { QuestionType } from '@/lib/api/validation';
 import { useToast } from '../layout';
 import { InsightSynthesizer } from '../components/InsightSynthesizer';
+import { ConfirmDelete } from '@/components/validation/ConfirmDelete';
+import { deleteWarning } from '@/lib/validation-format';
 
 const STATUS_BADGE: Record<string, string> = {
   open: 'bg-green-100 text-green-800',
@@ -23,7 +25,8 @@ interface DraftQuestion {
 const blankQuestion = (): DraftQuestion => ({ type: 'choice', prompt: '', required: true, options: ['', ''] });
 
 export default function SurveysPage() {
-  const { surveys, loading, error, refetch, create, setStatus, getAnalytics, errMsg } = useSurveys();
+  const { surveys, loading, error, refetch, create, setStatus, remove, getAnalytics, errMsg } = useSurveys();
+  const [toDelete, setToDelete] = useState<Survey | null>(null);
   const { triggerToast } = useToast();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -110,7 +113,7 @@ export default function SurveysPage() {
         if (token) {
           const url = `${window.location.origin}/s/${token}`;
           setLinkFor({ id: s.id, url });
-          triggerToast('Survey opened — share link is ready.');
+          triggerToast('Survey opened. Share link is ready.');
         } else {
           triggerToast('Survey re-opened. (The share link is only shown once, at first open.)');
         }
@@ -234,6 +237,14 @@ export default function SurveysPage() {
                       Resume collecting
                     </span>
                   )}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setToDelete(s); }}
+                    aria-label={`Delete survey ${s.title}`}
+                    className="ml-auto p-1.5 rounded-input text-sage-400 hover:text-[#B0483B] hover:bg-sage-100 cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
 
                 {linkFor?.id === s.id && (
@@ -320,8 +331,8 @@ export default function SurveysPage() {
                       className="bg-white border border-sage-200 rounded-input px-3 py-1.5 text-xs cursor-pointer"
                     >
                       <option value="choice">Multiple choice</option>
-                      <option value="scale">Scale (1–5)</option>
-                      <option value="nps">NPS (0–10)</option>
+                      <option value="scale">Scale (1 to 5)</option>
+                      <option value="nps">NPS (0 to 10)</option>
                       <option value="open">Open text</option>
                     </select>
                     <label className="flex items-center gap-1.5 text-xs text-sage-700 cursor-pointer">
@@ -376,6 +387,18 @@ export default function SurveysPage() {
           </div>
         </div>
       )}
+      {toDelete && (
+        <ConfirmDelete
+          title={`Delete "${toDelete.title}"?`}
+          warning={deleteWarning('survey')}
+          onConfirm={async () => {
+            await remove(toDelete.id);
+            if (selectedId === toDelete.id) setSelectedId(null);
+            triggerToast('Survey deleted');
+          }}
+          onClose={() => setToDelete(null)}
+        />
+      )}
     </div>
   );
 }
@@ -406,8 +429,8 @@ function AnalyticsQuestion({ q, total }: { q: SurveyAnalytics['questions'][numbe
         <p className="text-xs text-sage-500 italic">Open-text answers aren’t shown here (not returned by the API in v1).</p>
       ) : (
         <div className="flex items-center gap-4">
-          <div className="text-2xl font-bold text-[#1e4836]">{q.average?.toFixed(1) ?? '—'}</div>
-          <span className="text-xs text-sage-500">average ({q.type === 'nps' ? '0–10' : '1–5'})</span>
+          <div className="text-2xl font-bold text-[#1e4836]">{q.average?.toFixed(1) ?? '-'}</div>
+          <span className="text-xs text-sage-500">average ({q.type === 'nps' ? '0 to 10' : '1 to 5'})</span>
         </div>
       )}
     </div>
