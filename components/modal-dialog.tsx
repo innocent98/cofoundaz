@@ -67,6 +67,8 @@ export function ModalDialog({
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('keydown', onKey);
+      // The ref points at the opener's button, read at close time on purpose.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       const target = opener instanceof HTMLElement && document.contains(opener) ? opener : returnFocusRef?.current;
       if (target && document.contains(target)) target.focus();
     };
