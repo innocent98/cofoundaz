@@ -103,4 +103,4 @@ Complete against the PRD: all 15 gap rows closed (`mission-prd-gaps.md`), verifi
 
 ## Module 08: Business Builder (2026-10-19)
 
-Rows 1 to 11, 13 (AI part), 14 (advisor part), 16, 18 and 21 of `business-builder-prd-gaps.md` are closed in the FE (needs API #139 and #140), verified live as founder, consultant and mentor at 1440px and 375px. SOP `2026-10-19-business-builder-prd`. Open: rows 12, 15, 17 and the remainder of 13 and 14 (slice c); touch devices have no native drag between blocks, so notes use the "Move to" select there.
+Rows 1 to 12, 13 (AI part), 14 (advisor part), 15, 16, 17, 18 and 21 of `business-builder-prd-gaps.md` are closed in the FE (needs API #139, #140 and #141), verified live as founder, consultant and mentor at 1440px and 375px. SOP `2026-10-19-business-builder-prd`. Open: the remainder of 13 and 14; touch devices have no native drag between blocks, so notes use the "Move to" select there.

@@ -462,6 +462,8 @@ export interface ModelAssumptions {
   ar_days: number;
   ap_days: number;
   narrative: string;
+  /** `business_builder` when revenue starts from the plan sent from Business Builder, `actuals` when real transactions exist. */
+  revenue_source?: 'business_builder' | 'actuals';
 }
 
 export interface FinancialModel {

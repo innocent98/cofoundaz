@@ -2,11 +2,62 @@ type ApiResponse<T = unknown> = { data?: T } & Record<string, unknown>;
 import { apiClient, ApiError } from './client';
 
 /** A business-plan generation run (`GET /business-builder/plan`). */
+export interface PlanOptions {
+  audience: 'bank' | 'investors' | 'internal';
+  length: 'concise' | 'full';
+}
+
+export interface PlanProgress {
+  done: number;
+  total: number;
+  stage: string;
+}
+
 export interface BusinessPlanRun {
   id: string;
   status: 'generating' | 'complete' | 'failed';
   document_id: string | null;
   created_at?: string;
+  /** Rows created before the options release may omit these. */
+  options?: PlanOptions;
+  progress?: PlanProgress | null;
+  /** On `failed`: `over_budget` or `generation_failed`. */
+  error?: string | null;
+}
+
+export interface ReadinessItem {
+  type: string;
+  label: string;
+  status: 'ready' | 'partial' | 'missing';
+  completion_pct: number;
+}
+
+export interface PlanReadiness {
+  items: ReadinessItem[];
+  ready_count: number;
+  total: number;
+  missing: string[];
+}
+
+export interface FitLink {
+  from_block: string;
+  from_item: string;
+  to_block: string;
+  to_item: string;
+}
+
+export interface RevenueProjection {
+  growth_pct: number;
+  months: string[];
+  streams: Array<{ id: string; name: string; values: number[] }>;
+  total: number[];
+}
+
+export interface SentToFinance {
+  streams: Array<{ name: string; pricing_basis: string; est_monthly: number; est_monthly_minor: number }>;
+  total_monthly_minor: number;
+  sent_at: string;
+  sent_by: string;
 }
 
 export interface PlanSection {
@@ -59,6 +110,8 @@ export interface Canvas {
   completion?: CanvasCompletion;
   updated_at: string | null;
   updated_by: EditorRef | null;
+  /** Only on `value_prop`: lines joining a pain reliever to a pain or a gain creator to a gain. */
+  fit_links?: FitLink[];
 }
 
 export type VersionSource = 'manual' | 'ai' | 'suggestion' | 'restore';
@@ -333,10 +386,11 @@ export const businessBuilderApi = {
 
   // 4. AI business-plan generator (async: POST starts, GET polls, document holds content).
   // `POST /plan/generate` → 202 { plan_id, status }. Founder/editor only (403 otherwise).
-  async generatePlan(workspaceId?: string): Promise<{ plan_id: string; status: string }> {
+  async generatePlan(options?: PlanOptions, workspaceId?: string): Promise<{ plan_id: string; status: string }> {
     const res = await apiClient<ApiResponse>('/business-builder/plan/generate', {
       method: 'POST',
       headers: getWorkspaceHeaders(workspaceId),
+      ...(options ? { body: JSON.stringify(options) } : {}),
     });
     return ((res as ApiResponse)?.data ?? res) as { plan_id: string; status: string };
   },
@@ -361,5 +415,46 @@ export const businessBuilderApi = {
       headers: getWorkspaceHeaders(workspaceId),
     });
     return ((res as ApiResponse)?.data ?? res) as PlanDocument;
+  },
+
+  async getPlanReadiness(): Promise<PlanReadiness> {
+    const res = await apiClient<ApiResponse>('/business-builder/plan/readiness');
+    return ((res as ApiResponse)?.data ?? res) as PlanReadiness;
+  },
+
+  /** One AI fill per non-ready artifact; resolves to the queued jobs. */
+  async draftMissing(): Promise<Array<{ type: string; job_id: string }>> {
+    const res = await apiClient<ApiResponse<{ jobs?: Array<{ type: string; job_id: string }> }>>(
+      '/business-builder/plan/draft-missing',
+      { method: 'POST' }
+    );
+    const data = ((res as ApiResponse)?.data ?? res) as { jobs?: Array<{ type: string; job_id: string }> };
+    return Array.isArray(data?.jobs) ? data.jobs : [];
+  },
+
+  async regeneratePlanSection(key: string): Promise<EnqueuedJob> {
+    const res = await apiClient<ApiResponse>(`/business-builder/plan/sections/${key}/regenerate`, { method: 'POST' });
+    return ((res as ApiResponse)?.data ?? res) as EnqueuedJob;
+  },
+
+  async getRevenueProjection(months: number, growthPct?: number): Promise<RevenueProjection> {
+    const q = new URLSearchParams({ months: String(months) });
+    if (growthPct !== undefined) q.set('growth_pct', String(growthPct));
+    const res = await apiClient<ApiResponse>(`/business-builder/revenue-streams/projection?${q.toString()}`);
+    return ((res as ApiResponse)?.data ?? res) as RevenueProjection;
+  },
+
+  async sendRevenueToFinance(): Promise<SentToFinance> {
+    const res = await apiClient<ApiResponse>('/business-builder/revenue-streams/send-to-finance', { method: 'POST' });
+    return ((res as ApiResponse)?.data ?? res) as SentToFinance;
+  },
+
+  /** Replaces the whole fit-line list; returns the full value_prop canvas. */
+  async saveFitLinks(links: FitLink[]): Promise<Canvas> {
+    const res = await apiClient<ApiResponse>('/business-builder/canvases/value_prop/fit', {
+      method: 'PUT',
+      body: JSON.stringify({ links }),
+    });
+    return ((res as ApiResponse)?.data ?? res) as Canvas;
   },
 };

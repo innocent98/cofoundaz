@@ -9,6 +9,7 @@ import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { BusinessRecord } from '@/lib/api/business-builder';
 import { ArtifactHeader } from '@/components/business-builder/artifact-header';
 import { ExportButton } from '@/components/business-builder/export-button';
+import { RevenueProjectionCard } from '@/components/business-builder/revenue-projection';
 import { RecordEdited } from '@/components/business-builder/record-edited';
 import { useRecordThreads } from '@/hooks/useRecordThreads';
 import { latestEdit } from '@/lib/bb-records';
@@ -39,6 +40,7 @@ export default function RevenueModelPage() {
   const [editing, setEditing] = useState<BusinessRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [openAssumptions, setOpenAssumptions] = useState<string | null>(null);
 
   const openCreate = () => { setEditing(null); setFormError(null); setModalOpen(true); };
   const openEdit = (rec: BusinessRecord) => { setEditing(rec); setFormError(null); setModalOpen(true); };
@@ -126,10 +128,19 @@ export default function RevenueModelPage() {
               </thead>
               <tbody className="divide-y divide-[#F0F0EC]">
                 {records.map((rec) => (
-                  <tr key={rec.id} className="hover:bg-[#FAF9F5] transition-colors group">
+                  <React.Fragment key={rec.id}>
+                  <tr className="hover:bg-[#FAF9F5] transition-colors group">
                     <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">
                       {(rec.data.name as string) || '-'}
                       <RecordEdited record={rec} className="font-normal" />
+                      <button
+                        type="button"
+                        onClick={() => setOpenAssumptions((o) => (o === rec.id ? null : rec.id))}
+                        aria-expanded={openAssumptions === rec.id}
+                        className="mt-1 text-[11px] font-semibold text-[#183B28] hover:underline"
+                      >
+                        Assumptions
+                      </button>
                     </td>
                     <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.pricing_basis as string) || '-'}</td>
                     <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#183B28]">{fmtMoney(rec.data.est_monthly)}</td>
@@ -147,6 +158,21 @@ export default function RevenueModelPage() {
                       </div>
                     </td>
                   </tr>
+                  {openAssumptions === rec.id && (
+                    <tr className="bg-[#FAFAFA]">
+                      <td colSpan={4} className="px-6 py-3 text-xs text-[#556358] whitespace-pre-wrap">
+                        {typeof rec.data.assumptions === 'string' && rec.data.assumptions.trim()
+                          ? rec.data.assumptions
+                          : 'No assumptions written for this stream yet.'}
+                        {canWrite && (
+                          <button type="button" onClick={() => openEdit(rec)} className="ml-3 font-semibold text-[#183B28] hover:underline">
+                            {suggestMode ? 'Suggest an edit' : 'Edit'}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  </React.Fragment>
                 ))}
               </tbody>
               <tfoot>
@@ -160,6 +186,8 @@ export default function RevenueModelPage() {
           </div>
         </div>
       )}
+
+      <RevenueProjectionCard refreshKey={records.map((r) => `${r.id}:${r.updated_at ?? ''}`).join(',')} hasStreams={records.length > 0} />
 
       {threads.drawer}
 

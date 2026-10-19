@@ -186,6 +186,11 @@ export default function FinancialModelPage() {
             <div className="lg:col-span-3 space-y-6">
               <div className="bg-white rounded-modal border border-sage-200 p-6 shadow-card space-y-3">
                 <h2 className="font-bold text-sage-900 border-b border-sage-100 pb-3">AI assumptions</h2>
+                {model.assumptions?.revenue_source === 'business_builder' && (
+                  <p role="note" className="text-xs font-semibold text-[#8A5330] bg-[#FDF4E3] border border-[#EAD5C6] rounded-input px-3 py-2">
+                    Revenue is from your Business Builder plan, not actuals.
+                  </p>
+                )}
                 {model.assumptions && (
                   <>
                     <dl className="text-sm space-y-2">

@@ -7,6 +7,7 @@ import {
   type Canvas,
   type CanvasBlocks,
   type EditorRef,
+  type FitLink,
 } from '@/lib/api/business-builder';
 import { ApiError } from '@/lib/api/client';
 import { apiErrorInfo } from '@/lib/api/api-error';
@@ -35,6 +36,7 @@ export function useCanvasEditor(type: string) {
   const [canvasId, setCanvasId] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [updatedBy, setUpdatedBy] = useState<EditorRef | null>(null);
+  const [fitLinks, setFitLinks] = useState<FitLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
@@ -54,6 +56,7 @@ export function useCanvasEditor(type: string) {
     if (c.id) setCanvasId(c.id);
     setUpdatedAt(c.updated_at ?? null);
     setUpdatedBy(c.updated_by ?? null);
+    setFitLinks(c.fit_links ?? []);
   }, []);
 
   const reload = useCallback(async () => {
@@ -97,6 +100,14 @@ export function useCanvasEditor(type: string) {
           setUpdatedAt(res.updated_at ?? null);
           setUpdatedBy(res.updated_by ?? null);
           setSaveStatus('saved');
+          // The API prunes fit-lines whose items were renamed or deleted: redraw from the server's list.
+          if (type === 'value_prop') {
+            try {
+              setFitLinks((await businessBuilderApi.getCanvas(type)).fit_links ?? []);
+            } catch {
+              /* keep the lines we have */
+            }
+          }
         } catch {
           setSaveStatus('error');
         }
@@ -195,6 +206,23 @@ export function useCanvasEditor(type: string) {
     setTimeout(() => setHighlighted([]), 4000);
   }, []);
 
+  /** Replaces the whole fit-line list (value_prop only). Optimistic, reverts if the server refuses. */
+  const saveFit = useCallback(
+    async (links: FitLink[]): Promise<SendResult> => {
+      const before = fitLinks;
+      setFitLinks(links);
+      try {
+        const res = await businessBuilderApi.saveFitLinks(links);
+        setFitLinks(res.fit_links ?? links);
+        return { ok: true };
+      } catch (err) {
+        setFitLinks(before);
+        return { ok: false, error: apiErrorInfo(err, 'Could not save that fit-line.').message };
+      }
+    },
+    [fitLinks]
+  );
+
   const getVersion = useCallback(() => version.current, []);
 
   return {
@@ -208,6 +236,8 @@ export function useCanvasEditor(type: string) {
     loadError,
     saveStatus,
     highlighted,
+    fitLinks,
+    saveFit,
     dirty,
     listOf,
     textOf,
