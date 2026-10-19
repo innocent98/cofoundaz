@@ -32,6 +32,43 @@ function fmtDate(iso: string): string {
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+const DAY_MS = 86_400_000;
+
+/**
+ * X-axis ticks for a time axis. Several recomputes can land on one day, so a
+ * plain date formatter would repeat the same label. Readings from a single day
+ * are labelled by time of day; otherwise ticks are one per calendar day (the
+ * first reading's day plus each midnight), de-duplicated by label and thinned
+ * to at most 6.
+ */
+export function timeAxisProps(times: number[]): { ticks?: number[]; tickFormatter: (v: number) => string } {
+  const date = (v: number) => fmtDate(new Date(v).toISOString());
+  if (times.length <= 1) return { ticks: times.length ? [times[0]] : undefined, tickFormatter: date };
+  const min = Math.min(...times);
+  const max = Math.max(...times);
+  if (new Date(min).toDateString() === new Date(max).toDateString()) {
+    return {
+      tickFormatter: (v) => new Date(v).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+    };
+  }
+  const candidates = [min];
+  const d = new Date(min);
+  d.setHours(24, 0, 0, 0);
+  while (d.getTime() <= max) {
+    candidates.push(d.getTime());
+    d.setDate(d.getDate() + 1);
+  }
+  const seen = new Set<string>();
+  const days = candidates.filter((t) => {
+    const label = date(t);
+    if (seen.has(label)) return false;
+    seen.add(label);
+    return true;
+  });
+  const stride = Math.max(1, Math.ceil(days.length / 6));
+  return { ticks: days.filter((_, i) => i % stride === 0), tickFormatter: date };
+}
+
 const tooltipStyle = {
   background: '#FFFFFF',
   border: `1px solid ${GRID}`,
@@ -93,7 +130,7 @@ export function ScoreHistoryChart({
           type="number"
           scale="time"
           domain={domain}
-          tickFormatter={(v) => fmtDate(new Date(v as number).toISOString())}
+          {...timeAxisProps(data.map((d) => d.t))}
           tick={{ fontSize: 11, fill: AXIS }}
           tickLine={false}
           axisLine={{ stroke: GRID }}
@@ -159,7 +196,7 @@ export function DimensionTrendChart({ points, height = 180 }: { points: ScorePoi
           type="number"
           scale="time"
           domain={domain}
-          tickFormatter={(v) => fmtDate(new Date(v as number).toISOString())}
+          {...timeAxisProps(data.map((d) => d.t))}
           tick={{ fontSize: 11, fill: AXIS }}
           tickLine={false}
           axisLine={{ stroke: GRID }}

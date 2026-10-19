@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatContribution, formatSignalTarget, formatSignalValue, sourceLabel } from './health-format';
+import { dimensionLabel, formatLift, formatContribution, formatSignalTarget, formatSignalValue, sourceLabel } from './health-format';
 
 describe('health signal formatting', () => {
   it('formats each unit', () => {
@@ -26,5 +26,19 @@ describe('health signal formatting', () => {
   it('labels the source link', () => {
     expect(sourceLabel('/documents/signatures')).toBe('E-signatures');
     expect(sourceLabel('/something/new-hub')).toBe('New hub');
+  });
+});
+
+describe('recommendation copy', () => {
+  it('pluralises the lift estimate', () => {
+    expect(formatLift(1)).toBe('est. +1 pt');
+    expect(formatLift(10)).toBe('est. +10 pts');
+    expect(formatLift(0.5)).toBe('est. +0.5 pts');
+    expect(formatContribution(1)).toBe('+1 pt');
+  });
+
+  it('maps the money key to Financial', () => {
+    expect(dimensionLabel('money')).toBe('Financial');
+    expect(dimensionLabel('Legal')).toBe('Legal');
   });
 });

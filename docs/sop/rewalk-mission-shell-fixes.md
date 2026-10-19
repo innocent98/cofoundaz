@@ -1,6 +1,6 @@
 # Re-walk fixes: Mission + shell
 
-**What shipped:** six FE fixes found by the click-through re-walk of Today's Mission on `develop` (PR `fix/rewalk-mission-shell`). More Health, Roadmap and Business Builder rows are added to the same PR.
+**What shipped:** six FE fixes found by the click-through re-walk of Today's Mission on `develop` (PR `fix/rewalk-mission-shell`). Health rows 7-10 are below; Roadmap and Business Builder rows are added to the same PR.
 
 | # | Fix | Where |
 |---|---|---|
@@ -10,6 +10,15 @@
 | 4 | Weekends switch and Delivery time select carry explicit `aria-label`s. | `app/(dashboard)/mission/settings/page.tsx` |
 | 5 | "Assigned to you" rows have a `Complete task: {title}` checkbox for founder and team member: `PATCH /roadmap/tasks/{id}` `{"status":"done"}` (live response: `data.status = "done"`), then refetch `/missions/today`. | `hooks/useMissionApi.ts` (`completeAssigned`), mission page |
 | 6 | One guard at the dashboard shell: a role the sidebar hides a section from sees "You don't have access to this page." with a Back to dashboard link. Gated sections render nothing while the profile loads; an unknown role after load shows everything (as `canSee`). | `components/route-guard.tsx`, `lib/nav-access.ts` (`canOpenPath`), `app/(dashboard)/layout.tsx` |
+
+## Health (rows 7-10)
+
+| # | Fix | Where |
+|---|---|---|
+| 7 | Over-time charts no longer repeat "Oct 19": one tick per calendar day (de-duplicated, max 6); readings from a single day are labelled by time. | `components/health/health-charts.tsx` (`timeAxisProps`) |
+| 8 | Recommendation cards say "Financial" not the API key `money`; "est. +1 pt" singular everywhere (overview, drill-down, recommendations, contribution column). | `lib/health-format.ts` (`formatLift`, `dimensionLabel`) |
+| 9 | Accept/dismiss are founder-only (API 403 otherwise): other roles see no Start/Dismiss, only an "Open" link. | `app/(dashboard)/health/recommendations/page.tsx` |
+| 10 | "Do it" / "Open" links render only when `canOpenPath(href, role)` allows the route. | health overview, drill-down, recommendations |
 
 **Why not touch `handleSessionExpired`:** its redirect-to-login still skips every `/auth/` path, so public pages calling `/auth/*` without a token are unaffected.
 

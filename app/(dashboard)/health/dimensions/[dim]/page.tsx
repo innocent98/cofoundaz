@@ -6,7 +6,9 @@ import { useParams, redirect } from 'next/navigation';
 import type { DimensionKey } from '@/hooks/useHealthScore';
 import { useHealthOverview } from '@/components/health/health-score-provider';
 import { HealthError } from '@/components/health/health-states';
-import { formatContribution, formatSignalTarget, formatSignalValue, sourceLabel } from '@/lib/health-format';
+import { formatLift, formatContribution, formatSignalTarget, formatSignalValue, sourceLabel } from '@/lib/health-format';
+import { useWorkspace } from '@/components/workspace-context';
+import { canOpenPath } from '@/lib/nav-access';
 import { useHealthDimension } from '@/hooks/useHealthDetails';
 import { DimensionTrendChart } from '@/components/health/health-charts';
 
@@ -16,6 +18,7 @@ export default function DimensionBreakdownPage() {
   const params = useParams();
   const dim = params.dim as string;
   const { data } = useHealthOverview();
+  const { role } = useWorkspace();
 
   const valid = DIM_KEYS.includes(dim as DimensionKey);
   const dimensionKey = (valid ? dim : 'product') as DimensionKey;
@@ -114,19 +117,21 @@ export default function DimensionBreakdownPage() {
               {detail.recommendations.map((rec) => (
                 <div key={rec.id} className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-5 flex items-start gap-4">
                   <span className="bg-[#EAF2ED] text-[#2D5A3F] text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
-                    est. +{rec.estimated_lift} pts
+                    {formatLift(rec.estimated_lift)}
                   </span>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm font-bold text-[#1E2923]">{rec.title}</span>
                     <span className="text-xs text-[#617065] leading-relaxed">{rec.body}</span>
                     <span className="text-[11px] text-[#768478] mt-0.5 capitalize">Effort: {rec.effort}</span>
                   </div>
-                  <Link
-                    href={rec.href}
-                    className="ml-auto shrink-0 bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-bold px-4 py-2 rounded-card transition-colors"
-                  >
-                    Do it
-                  </Link>
+                  {canOpenPath(rec.href, role) && (
+                    <Link
+                      href={rec.href}
+                      className="ml-auto shrink-0 bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-bold px-4 py-2 rounded-card transition-colors"
+                    >
+                      Do it
+                    </Link>
+                  )}
                 </div>
               ))}
               <Link href="/health/recommendations" className="text-xs font-semibold text-[#183B28] hover:text-[#11291C]">

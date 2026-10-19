@@ -7,6 +7,9 @@ import { ArrowRight, X, AlertTriangle } from 'lucide-react';
 import { HealthError } from '@/components/health/health-states';
 import { useHealthRecommendations } from '@/hooks/useHealthDetails';
 import { safeInternalHref } from '@/lib/safe-href';
+import { dimensionLabel, formatLift } from '@/lib/health-format';
+import { useWorkspace } from '@/components/workspace-context';
+import { canOpenPath } from '@/lib/nav-access';
 
 const FILTERS = [
   { key: 'pending', label: 'Pending' },
@@ -17,6 +20,9 @@ const FILTERS = [
 export default function RecommendationsPage() {
   const [filter, setFilter] = useState<'pending' | 'accepted' | 'dismissed'>('pending');
   const router = useRouter();
+  const { role } = useWorkspace();
+  // Accepting and dismissing are founder-only in the API (403 for everyone else).
+  const canAction = role === 'founder';
   const { recs, loading, error, refetch, accept, dismiss } = useHealthRecommendations(filter);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [rowError, setRowError] = useState<Record<string, string>>({});
@@ -85,18 +91,18 @@ export default function RecommendationsPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
                   <div className="flex items-start gap-4 flex-1">
                     <span className="bg-[#EAF2ED] text-[#2D5A3F] text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
-                      est. +{item.estimated_lift} pts
+                      {formatLift(item.estimated_lift)}
                     </span>
                     <div className="flex flex-col gap-1.5">
                       <h3 className="text-base font-bold text-[#1E2923] leading-snug">{item.title}</h3>
                       <p className="text-xs text-[#617065] leading-relaxed">{item.body}</p>
                       <div className="text-[11px] text-[#768478] mt-1 font-medium capitalize">
-                        Effort: {item.effort} · {item.dimension}
+                        Effort: {item.effort} · {dimensionLabel(item.dimension)}
                       </div>
                     </div>
                   </div>
 
-                  {filter === 'pending' && (
+                  {filter === 'pending' && canAction && (
                     <div className="flex items-center gap-2 shrink-0 justify-end">
                       <button
                         type="button"
@@ -116,7 +122,7 @@ export default function RecommendationsPage() {
                       </button>
                     </div>
                   )}
-                  {filter === 'accepted' && (
+                  {(filter === 'accepted' || (filter === 'pending' && !canAction)) && canOpenPath(item.href, role) && (
                     <Link
                       href={item.href}
                       className="flex items-center gap-1 shrink-0 self-start md:self-center bg-white hover:bg-[#F5F5F0] text-[#183B28] border border-[#EBEBE6] text-xs font-bold px-4 py-2 rounded-card transition-colors"
