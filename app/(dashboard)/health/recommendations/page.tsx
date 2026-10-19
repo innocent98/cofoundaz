@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowRight, X, AlertTriangle } from 'lucide-react';
 import { HealthError } from '@/components/health/health-states';
 import { useHealthRecommendations } from '@/hooks/useHealthDetails';
+import { safeInternalHref } from '@/lib/safe-href';
 
 const FILTERS = [
   { key: 'pending', label: 'Pending' },
@@ -30,7 +31,8 @@ export default function RecommendationsPage() {
       return;
     }
     // Start = accept, then take the founder to where the work happens.
-    if (href && href.startsWith('/')) router.push(href);
+    const target = safeInternalHref(href);
+    if (target) router.push(target);
   };
 
   return (

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import { safeInternalHref } from '@/lib/safe-href';
 
 export type DimensionKey = 'product' | 'market' | 'financial' | 'legal' | 'team';
 export type HealthStatus = 'pending_assessment' | 'ok';
@@ -147,7 +148,8 @@ function mapOverview(raw: RawOverview): HealthScoreData {
       rationale: r.body,
       estimatedLift: r.estimated_lift,
       effort: r.effort,
-      actionUrl: r.href || meta?.hub || '/health',
+      // Off-site or malformed hrefs fall back to the dimension's hub (never followed).
+      actionUrl: safeInternalHref(r.href) ?? meta?.hub ?? '/health',
       dimension: meta?.label ?? r.dimension,
     };
   });

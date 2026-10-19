@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import { safeInternalHref } from '@/lib/safe-href';
 
 // Health-score sub-routes (guide §2–§5). API dimension keys are product/market/
 // money/legal/team; the FE speaks `financial` for `money`, so we translate on the
@@ -83,6 +84,12 @@ function apiMsg(err: unknown): { message: string; code?: string; status?: number
   return { message: (err as { message?: string })?.message || 'Something went wrong.' };
 }
 
+// Every href below comes from the API and lands in a <Link> or router.push. They
+// are meant to be in-app routes; anything else falls back to /health so a bad
+// value can never send the founder off-site.
+const internalHref = (href: string | null | undefined) => safeInternalHref(href) ?? '/health';
+const withSafeHref = <T extends { href: string }>(row: T): T => ({ ...row, href: internalHref(row.href) });
+
 // --- Recommendations (list + accept/dismiss) --------------------------------
 export function useHealthRecommendations(status: 'pending' | 'accepted' | 'dismissed' = 'pending') {
   const [recs, setRecs] = useState<HealthRec[]>([]);
@@ -94,7 +101,7 @@ export function useHealthRecommendations(status: 'pending' | 'accepted' | 'dismi
       setLoading(true);
       setError(null);
       const res = await apiClient<{ data?: HealthRec[] }>(`/health-score/recommendations?status=${status}`);
-      setRecs(Array.isArray(res?.data) ? res.data : []);
+      setRecs(Array.isArray(res?.data) ? res.data.map(withSafeHref) : []);
     } catch (err) {
       setError(apiMsg(err).message);
       setRecs([]);
@@ -150,7 +157,16 @@ export function useHealthDimension(feDim: string) {
       setNotFound(false);
       setError(null);
       const res = await apiClient<{ data?: DimensionDetail }>(`/health-score/dimensions/${apiDim}`);
-      setDetail(res?.data ?? null);
+      const d = res?.data;
+      setDetail(
+        d
+          ? {
+              ...d,
+              signals: (d.signals ?? []).map(withSafeHref),
+              recommendations: (d.recommendations ?? []).map(withSafeHref),
+            }
+          : null
+      );
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) setNotFound(true);
       else setError(apiMsg(err).message);

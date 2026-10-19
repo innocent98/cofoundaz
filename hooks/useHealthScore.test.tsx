@@ -38,6 +38,19 @@ describe('useHealthScore', () => {
     expect(result.current.error).toBeNull();
   });
 
+  it.each(['//evil.example', 'https://evil.example', 'javascript:alert(1)', '/\\evil.example'])(
+    'never passes an off-site href (%s) through to the UI',
+    async (href) => {
+      const bad = { data: { ...ok.data, top_recommendations: [{ ...ok.data.top_recommendations[0], href }] } };
+      vi.mocked(apiClient).mockResolvedValue(bad);
+      const { result } = renderHook(() => useHealthScore());
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      const url = result.current.data.topRecommendations[0].actionUrl;
+      expect(url).not.toBe(href);
+      expect(url.startsWith('/') && !url.startsWith('//')).toBe(true);
+    }
+  );
+
   it('shares one request between callers that mount together', async () => {
     vi.mocked(apiClient).mockResolvedValue(ok);
     const a = renderHook(() => useHealthScore());
