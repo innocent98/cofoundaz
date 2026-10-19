@@ -33,9 +33,22 @@ export function formatSignalTarget(s: Pick<DimensionSignal, 'target' | 'unit'>):
   return withUnit(s.target, s.unit);
 }
 
+function pts(n: number): string {
+  return `${num(n)} ${Math.abs(n) === 1 ? 'pt' : 'pts'}`;
+}
+
 export function formatContribution(points: number): string {
-  const v = num(points);
-  return points > 0 ? `+${v} pts` : `${v} pts`;
+  return points > 0 ? `+${pts(points)}` : pts(points);
+}
+
+/** "est. +1 pt" / "est. +3 pts": the recommendation lift estimate, singular at 1. */
+export function formatLift(lift: number): string {
+  return `est. +${pts(lift)}`;
+}
+
+/** The API calls the Financial dimension `money`; every screen says Financial. */
+export function dimensionLabel(key: string): string {
+  return key === 'money' ? 'Financial' : key;
 }
 
 const SOURCE_LABELS: Record<string, string> = {

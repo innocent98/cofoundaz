@@ -14,3 +14,5 @@ export const MISSION_COPY = {
   restDay: 'Rest day',
   restBody: 'Rest is a strategy too.',
 } as const;
+
+export const SAVE_FAILED_COPY = 'Couldn’t save that. Try again.';

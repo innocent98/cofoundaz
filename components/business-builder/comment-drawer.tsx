@@ -115,6 +115,8 @@ export function CommentDrawer({ open, title, entityType, entityId, anchor, onClo
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [picked, setPicked] = useState<TeamMember[]>([]);
   const [caret, setCaret] = useState(0);
+  const [activeIndex, setActive] = useState(0);
+  const [dismissed, setDismissed] = useState(false);
   const areaRef = useRef<HTMLTextAreaElement>(null);
 
   const load = useCallback(async () => {
@@ -153,14 +155,17 @@ export function CommentDrawer({ open, title, entityType, entityId, anchor, onClo
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  const mention = activeMentionQuery(text, caret);
+  const mention = dismissed ? null : activeMentionQuery(text, caret);
   const suggestions = mention ? filterMembers(members, mention.query) : [];
+  const listOpen = suggestions.length > 0;
+  const activeOption = listOpen ? Math.min(activeIndex, suggestions.length - 1) : 0;
 
   const pick = (m: TeamMember) => {
     if (!mention) return;
     const r = applyMention(text, caret, mention.start, m);
     setText(r.text);
     setCaret(r.caret);
+    setActive(0);
     setPicked((p) => (p.some((x) => x.user_id === m.user_id) ? p : [...p, m]));
     requestAnimationFrame(() => {
       areaRef.current?.focus();
@@ -235,11 +240,20 @@ export function CommentDrawer({ open, title, entityType, entityId, anchor, onClo
 
         {canComment ? (
           <div className="px-6 py-4 border-t border-[#E8E8E2] shrink-0 relative">
-            {suggestions.length > 0 && (
-              <ul role="listbox" aria-label="Mention a teammate" className="absolute bottom-full left-6 right-6 mb-1 bg-white border border-[#EBEBE6] rounded-card shadow-raised overflow-hidden">
-                {suggestions.map((m) => (
+            {listOpen && (
+              <ul id="bb-mention-options" role="listbox" aria-label="Mention a teammate" className="absolute bottom-full left-6 right-6 mb-1 bg-white border border-[#EBEBE6] rounded-card shadow-raised overflow-hidden">
+                {suggestions.map((m, i) => (
                   <li key={m.user_id}>
-                    <button type="button" role="option" aria-selected="false" onMouseDown={(e) => { e.preventDefault(); pick(m); }} className="w-full text-left px-3 py-2 text-xs hover:bg-[#F2F7F4]">
+                    <button
+                      type="button"
+                      id={`bb-mention-opt-${i}`}
+                      role="option"
+                      tabIndex={-1}
+                      aria-label={`Mention ${memberLabel(m)}, ${m.role.replace(/_/g, ' ')}`}
+                      aria-selected={i === activeOption}
+                      onMouseDown={(e) => { e.preventDefault(); pick(m); }}
+                      className={`w-full text-left px-3 py-2 text-xs hover:bg-[#F2F7F4] ${i === activeOption ? 'bg-[#F2F7F4]' : ''}`}
+                    >
                       <span className="font-bold text-[#1E2923]">{memberLabel(m)}</span>
                       <span className="ml-2 text-[#8E9B90]">{m.role.replace(/_/g, ' ')}</span>
                     </button>
@@ -250,7 +264,29 @@ export function CommentDrawer({ open, title, entityType, entityId, anchor, onClo
             <textarea
               ref={areaRef}
               value={text}
-              onChange={(e) => { setText(e.target.value); setCaret(e.target.selectionStart); }}
+              role="combobox"
+              aria-expanded={listOpen}
+              aria-controls="bb-mention-options"
+              aria-autocomplete="list"
+              aria-activedescendant={listOpen ? `bb-mention-opt-${activeOption}` : undefined}
+              onChange={(e) => { setText(e.target.value); setCaret(e.target.selectionStart); setDismissed(false); setActive(0); }}
+              onKeyDown={(e) => {
+                if (!listOpen) return;
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  setActive((activeOption + 1) % suggestions.length);
+                } else if (e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  setActive((activeOption - 1 + suggestions.length) % suggestions.length);
+                } else if (e.key === 'Enter' || e.key === 'Tab') {
+                  e.preventDefault();
+                  pick(suggestions[activeOption]);
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setDismissed(true);
+                }
+              }}
               onKeyUp={(e) => setCaret(e.currentTarget.selectionStart)}
               onClick={(e) => setCaret(e.currentTarget.selectionStart)}
               rows={3}

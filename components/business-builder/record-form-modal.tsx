@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { X } from 'lucide-react';
 
 export interface FormField {
@@ -20,6 +20,8 @@ interface RecordFormModalProps {
   initial?: Record<string, unknown>;
   submitting?: boolean;
   error?: string | null;
+  /** API field_errors keyed by field key, shown under each input. */
+  fieldErrors?: Record<string, string>;
   /** Consultant suggest mode: the primary button reads "Suggest this". */
   suggestMode?: boolean;
   onSubmit: (data: Record<string, unknown>) => void;
@@ -59,6 +61,7 @@ export function RecordFormModal({
   initial,
   submitting,
   error,
+  fieldErrors,
   suggestMode,
   onSubmit,
   onClose,
@@ -69,13 +72,18 @@ export function RecordFormModal({
     return seed;
   });
 
+  const uid = useId();
   const setValue = (key: string, v: string) =>
     setValues((prev) => ({ ...prev, [key]: v }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const data: Record<string, unknown> = {};
-    for (const f of fields) data[f.key] = fromFormValue(f, values[f.key] ?? '');
+    for (const f of fields) {
+      // A select left on "Select…" is unset, not an empty string the API would reject.
+      if (f.type === 'select' && !(values[f.key] ?? '')) continue;
+      data[f.key] = fromFormValue(f, values[f.key] ?? '');
+    }
     onSubmit(data);
   };
 
@@ -96,18 +104,27 @@ export function RecordFormModal({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {fields.map((field) => (
+            {fields.map((field) => {
+              const id = `${uid}-${field.key}`;
+              const fieldError = fieldErrors?.[field.key];
+              const a11y = {
+                id,
+                'aria-invalid': fieldError ? (true as const) : undefined,
+                'aria-describedby': fieldError ? `${id}-error` : undefined,
+              };
+              return (
               <div
                 key={field.key}
                 className={`space-y-1.5 ${field.half ? 'md:col-span-1' : 'md:col-span-2'}`}
               >
-                <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider">
+                <label htmlFor={id} className="text-xs font-bold text-[#55625A] uppercase tracking-wider">
                   {field.label}
                   {field.required && <span className="text-[#A34B4B]"> *</span>}
                 </label>
 
                 {field.type === 'textarea' && (
                   <textarea
+                    {...a11y}
                     required={field.required}
                     value={values[field.key] ?? ''}
                     onChange={(e) => setValue(field.key, e.target.value)}
@@ -119,6 +136,7 @@ export function RecordFormModal({
 
                 {field.type === 'list' && (
                   <textarea
+                    {...a11y}
                     value={values[field.key] ?? ''}
                     onChange={(e) => setValue(field.key, e.target.value)}
                     placeholder={field.placeholder || 'One per line'}
@@ -129,6 +147,7 @@ export function RecordFormModal({
 
                 {field.type === 'select' && (
                   <select
+                    {...a11y}
                     required={field.required}
                     value={values[field.key] ?? ''}
                     onChange={(e) => setValue(field.key, e.target.value)}
@@ -147,6 +166,7 @@ export function RecordFormModal({
 
                 {(field.type === 'text' || field.type === 'number') && (
                   <input
+                    {...a11y}
                     type={field.type === 'number' ? 'number' : 'text'}
                     step={field.type === 'number' ? 'any' : undefined}
                     required={field.required}
@@ -160,8 +180,14 @@ export function RecordFormModal({
                 {field.type === 'list' && (
                   <p className="text-[10px] text-[#8E9B90]">One per line.</p>
                 )}
+                {fieldError && (
+                  <p id={`${id}-error`} className="text-xs font-medium text-[#A34B4B]">
+                    {fieldError}
+                  </p>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {error && (

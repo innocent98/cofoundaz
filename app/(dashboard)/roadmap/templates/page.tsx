@@ -1,16 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Copy, Eye, CheckCircle2, X, Layers } from 'lucide-react';
 import {
   useRoadmapTemplates,
   RoadmapTemplateSummary,
   RoadmapTemplateDetail,
 } from '@/hooks/useRoadmapTemplates';
+import { ModalDialog } from '@/components/modal-dialog';
 
 export default function TemplatesPage() {
   const { templates, loading, error, getTemplate, applyTemplate } = useRoadmapTemplates();
 
+  // The card button that started the flow, so focus can return there when a dialog closes.
+  const triggerRef = useRef<HTMLElement | null>(null);
   const [preview, setPreview] = useState<RoadmapTemplateDetail | null>(null);
   const [previewLoadingId, setPreviewLoadingId] = useState<string | null>(null);
   const [confirmTpl, setConfirmTpl] = useState<RoadmapTemplateSummary | null>(null);
@@ -117,7 +120,7 @@ export default function TemplatesPage() {
 
                 <div className="flex items-center gap-2 mt-2">
                   <button
-                    onClick={() => openPreview(t.id)}
+                    onClick={(e) => { triggerRef.current = e.currentTarget; void openPreview(t.id); }}
                     disabled={previewLoadingId === t.id}
                     className="flex-1 bg-white hover:bg-[#F5F5F0] text-[#1E2923] border border-[#EBEBE6] text-xs font-bold py-2.5 rounded-card transition-colors flex justify-center items-center gap-1.5 disabled:opacity-60"
                   >
@@ -125,7 +128,7 @@ export default function TemplatesPage() {
                     {previewLoadingId === t.id ? 'Loading…' : 'Preview'}
                   </button>
                   <button
-                    onClick={() => { setConfirmTpl(t); setActionError(null); }}
+                    onClick={(e) => { triggerRef.current = e.currentTarget; setConfirmTpl(t); setActionError(null); }}
                     className="flex-1 bg-[#183B28] hover:bg-[#11291C] text-white text-xs font-bold py-2.5 rounded-card transition-colors shadow-card flex justify-center items-center gap-1.5"
                   >
                     <Copy className="w-3.5 h-3.5" />
@@ -140,8 +143,14 @@ export default function TemplatesPage() {
 
       {/* Preview modal */}
       {preview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setPreview(null)}>
-          <div role="dialog" aria-modal="true" aria-label="Template preview" className="bg-white rounded-modal max-w-lg w-full shadow-accent relative flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+        <ModalDialog
+          label="Template preview"
+          onClose={() => setPreview(null)}
+          returnFocusRef={triggerRef}
+          overlayClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          className="bg-white rounded-modal max-w-lg w-full shadow-accent relative flex flex-col max-h-[85vh]"
+        >
+          <>
             <div className="px-6 py-4 border-b border-[#EBEBE6] flex items-center justify-between bg-[#FBFBFA]">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-[#183B28]" />
@@ -183,14 +192,20 @@ export default function TemplatesPage() {
                 Apply this pack
               </button>
             </div>
-          </div>
-        </div>
+          </>
+        </ModalDialog>
       )}
 
       {/* Apply confirmation modal */}
       {confirmTpl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => !applying && setConfirmTpl(null)}>
-          <div role="dialog" aria-modal="true" aria-label="Apply template" className="bg-white rounded-modal max-w-sm w-full p-6 shadow-accent relative flex flex-col gap-6" onClick={(e) => e.stopPropagation()}>
+        <ModalDialog
+          label="Apply template"
+          onClose={() => !applying && setConfirmTpl(null)}
+          returnFocusRef={triggerRef}
+          overlayClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          className="bg-white rounded-modal max-w-sm w-full p-6 shadow-accent relative flex flex-col gap-6"
+        >
+          <>
             <div className="flex flex-col items-center text-center gap-3">
               <div className="w-12 h-12 bg-[#EAF2ED] rounded-full flex items-center justify-center border-4 border-[#CDE1D3]">
                 <Copy className="w-6 h-6 text-[#2D5A3F]" />
@@ -222,8 +237,8 @@ export default function TemplatesPage() {
                 Cancel
               </button>
             </div>
-          </div>
-        </div>
+          </>
+        </ModalDialog>
       )}
     </>
   );

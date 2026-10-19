@@ -7,11 +7,20 @@ import { useBuilderAccess } from '@/hooks/useBuilderAccess';
 import { diffBlocks, diffRecord } from '@/lib/canvas-ops';
 import type { CanvasBlocks } from '@/lib/api/business-builder';
 
-function opLabel(s: Suggestion): string {
+const CANVAS_LABELS: Record<string, string> = {
+  business_model: 'Business Model Canvas',
+  lean: 'Lean Canvas',
+  mission_vision: 'Mission & Vision',
+  value_prop: 'Value Proposition',
+  swot: 'SWOT',
+};
+
+export function opLabel(s: Suggestion): string {
   const kind = (s.target.kind || '').replace(/_/g, ' ');
-  const canvas = (s.target.canvas_type || '').replace(/_/g, ' ');
+  const canvasType = s.target.canvas_type || '';
+  const canvas = CANVAS_LABELS[canvasType] ?? canvasType.replace(/_/g, ' ');
   switch (s.op) {
-    case 'canvas_update': return `Update the ${canvas} canvas`;
+    case 'canvas_update': return `Update the ${canvas}`;
     case 'record_create': return `Add a ${kind}`;
     case 'record_update': return `Edit a ${kind}`;
     case 'record_delete': return `Delete a ${kind}`;

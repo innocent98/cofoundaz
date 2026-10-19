@@ -3,6 +3,7 @@
 import React from 'react';
 import { ArrowRightLeft } from 'lucide-react';
 import type { BlockDef } from '@/lib/api/business-builder';
+import { noteLabel } from '@/lib/note-label';
 
 /**
  * A touch and keyboard alternative to dragging a note into another block: a
@@ -12,11 +13,14 @@ import type { BlockDef } from '@/lib/api/business-builder';
 export function MoveNote({
   blocks,
   fromKey,
+  note,
   onMove,
   className = '',
 }: {
   blocks: BlockDef[];
   fromKey: string;
+  /** The note's text, so each picker is named for its note. */
+  note: string;
   onMove: (toKey: string) => void;
   className?: string;
 }) {
@@ -26,7 +30,7 @@ export function MoveNote({
     <span className={`relative inline-flex items-center shrink-0 ${className}`}>
       <ArrowRightLeft className="w-3 h-3" aria-hidden="true" />
       <select
-        aria-label="Move note to another block"
+        aria-label={`Move note to another block: ${noteLabel(note)}`}
         value=""
         onChange={(e) => {
           if (e.target.value) onMove(e.target.value);

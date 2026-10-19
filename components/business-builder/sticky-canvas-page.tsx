@@ -1,5 +1,6 @@
 'use client';
 
+import { noteLabel } from '@/lib/note-label';
 import React from 'react';
 import { X, GripVertical } from 'lucide-react';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
@@ -71,10 +72,10 @@ export function StickyCanvasPage({ type, title }: { type: 'business_model' | 'le
                         )}
                         <InlineEditable value={item} readOnly={!canWrite} onSave={(t) => editItem(b.key, idx, t)} />
                         {canWrite && (
-                          <MoveNote blocks={blockDefs} fromKey={b.key} onMove={(to) => moveAcross(b.key, idx, to, listOf(to).length)} className="text-[#7DA890] hover:text-[#183B28] opacity-60 md:opacity-0 group-hover/item:opacity-100 focus-within:opacity-100 transition-opacity" />
+                          <MoveNote note={item} blocks={blockDefs} fromKey={b.key} onMove={(to) => moveAcross(b.key, idx, to, listOf(to).length)} className="text-[#7DA890] hover:text-[#183B28] opacity-60 md:opacity-0 group-hover/item:opacity-100 focus-within:opacity-100 transition-opacity" />
                         )}
                         {canWrite && (
-                          <button onClick={() => removeItem(b.key, idx)} className="text-[#7DA890] hover:text-[#A34B4B] opacity-60 md:opacity-0 group-hover/item:opacity-100 transition-opacity" aria-label="Remove">
+                          <button onClick={() => removeItem(b.key, idx)} className="text-[#7DA890] hover:text-[#A34B4B] opacity-60 md:opacity-0 group-hover/item:opacity-100 transition-opacity" aria-label={`Remove note: ${noteLabel(item)}`}>
                             <X className="w-3 h-3" />
                           </button>
                         )}

@@ -7,6 +7,7 @@ import { businessBuilderApi } from '@/lib/api/business-builder';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import { waitForJob } from '@/lib/api/bb-jobs';
 import { PLAN_SECTIONS, regenerateMessage } from '@/lib/bb-plan';
+import { OVER_BUDGET_MESSAGE } from '@/hooks/useBusinessAiFill';
 import { useBuilderAccess } from '@/hooks/useBuilderAccess';
 import { useAiStatus } from '@/hooks/useAiStatus';
 import { AiConfirmModal } from '@/components/business-builder/ai-confirm-modal';
@@ -73,6 +74,11 @@ export function RegenerateSection({ onDone }: { onDone: () => Promise<void> }) {
           {busy ? 'Rewriting' : 'Regenerate'}
         </button>
       </div>
+      {isOverBudget && (
+        <p className="text-[11px] font-semibold text-[#8A5330] max-w-md">
+          {OVER_BUDGET_MESSAGE}
+        </p>
+      )}
       {note && <p role="status" className="text-[11px] font-semibold text-[#B0483B] max-w-md">{note}</p>}
       <AiConfirmModal
         open={confirming}

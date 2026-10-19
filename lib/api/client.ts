@@ -20,6 +20,19 @@ function isAuthEndpoint(endpoint: string): boolean {
   return /\/auth\//.test(endpoint) || endpoint.includes('/shared/') || endpoint.includes('/sign/');
 }
 
+// Credential endpoints take no bearer token: a 401 there means bad credentials
+// or a dead one-time token, never an expired session, so they must not trigger
+// a refresh. Authenticated /auth/* calls (/auth/me, /auth/sessions, MFA setup)
+// are NOT in this list; they refresh and retry like any other call.
+const CREDENTIAL_AUTH_PATH =
+  /\/auth\/(login|signup|register|refresh|verify|verify-email|resend-verification|password\/(forgot|reset)|forgot-password|reset-password|mfa\/(challenge|verify-login))(\/|\?|$)/;
+
+export function isCredentialEndpoint(endpoint: string): boolean {
+  return (
+    CREDENTIAL_AUTH_PATH.test(endpoint) || endpoint.includes('/shared/') || endpoint.includes('/sign/')
+  );
+}
+
 // A short-lived access token that has expired can be silently renewed with the
 // stored refresh token via POST /auth/refresh. The refresh token is single-use
 // and ROTATES (the server returns a new one and invalidates the old), so a burst
@@ -123,9 +136,9 @@ export async function apiClient<T>(
   });
 
   // Access token expired mid-session → try a silent refresh + one retry before
-  // giving up. Auth endpoints are exempt (a 401 there is bad credentials, not an
-  // expired session), and we only attempt this when a token was actually sent.
-  if (res.status === 401 && token && !isAuthEndpoint(endpoint) && typeof window !== 'undefined') {
+  // giving up. Credential endpoints are exempt (a 401 there is bad credentials,
+  // not an expired session), and we only attempt this when a token was sent.
+  if (res.status === 401 && token && !isCredentialEndpoint(endpoint) && typeof window !== 'undefined') {
     const newToken = await tryRefreshToken();
     if (newToken) {
       headers.set('Authorization', `Bearer ${newToken}`);

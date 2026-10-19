@@ -1,5 +1,6 @@
 'use client';
 
+import { noteLabel } from '@/lib/note-label';
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, Target, AlertTriangle, X, GripVertical } from 'lucide-react';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
@@ -77,10 +78,10 @@ export default function SwotPage() {
                         <span className={`w-1.5 h-1.5 rounded-full ${s.dot} shrink-0`} />
                         <InlineEditable value={item} readOnly={!canWrite} onSave={(t) => editItem(b.key, idx, t)} className="flex-1" />
                         {canWrite && (
-                          <MoveNote blocks={blockDefs} fromKey={b.key} onMove={(to) => moveAcross(b.key, idx, to, listOf(to).length)} className="text-[#8E9B90] hover:text-[#183B28] opacity-60 md:opacity-0 group-hover/item:opacity-100 focus-within:opacity-100 transition-opacity" />
+                          <MoveNote note={item} blocks={blockDefs} fromKey={b.key} onMove={(to) => moveAcross(b.key, idx, to, listOf(to).length)} className="text-[#8E9B90] hover:text-[#183B28] opacity-60 md:opacity-0 group-hover/item:opacity-100 focus-within:opacity-100 transition-opacity" />
                         )}
                         {canWrite && (
-                          <button onClick={() => removeItem(b.key, idx)} className="text-[#8E9B90] hover:text-[#A34B4B] opacity-60 md:opacity-0 group-hover/item:opacity-100 transition-opacity" aria-label="Remove">
+                          <button onClick={() => removeItem(b.key, idx)} className="text-[#8E9B90] hover:text-[#A34B4B] opacity-60 md:opacity-0 group-hover/item:opacity-100 transition-opacity" aria-label={`Remove note: ${noteLabel(item)}`}>
                             <X className="w-3.5 h-3.5" />
                           </button>
                         )}

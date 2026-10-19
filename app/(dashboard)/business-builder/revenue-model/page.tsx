@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Plus, Pencil, Trash2, TrendingUp } from 'lucide-react';
 import { useToast } from '../layout';
-import { useBusinessRecords, errMessage, writeMessage } from '@/hooks/useBusinessRecords';
+import { useBusinessRecords, errMessage, writeMessage, recordFormFailure } from '@/hooks/useBusinessRecords';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { BusinessRecord } from '@/lib/api/business-builder';
@@ -40,19 +40,20 @@ export default function RevenueModelPage() {
   const [editing, setEditing] = useState<BusinessRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [openAssumptions, setOpenAssumptions] = useState<string | null>(null);
 
-  const openCreate = () => { setEditing(null); setFormError(null); setModalOpen(true); };
-  const openEdit = (rec: BusinessRecord) => { setEditing(rec); setFormError(null); setModalOpen(true); };
+  const openCreate = () => { setEditing(null); setFormError(null); setFieldErrors({}); setModalOpen(true); };
+  const openEdit = (rec: BusinessRecord) => { setEditing(rec); setFormError(null); setFieldErrors({}); setModalOpen(true); };
 
   const handleSubmit = async (data: Record<string, unknown>) => {
-    setSubmitting(true); setFormError(null);
+    setSubmitting(true); setFormError(null); setFieldErrors({});
     try {
       if (editing) triggerToast(writeMessage(await update(editing.id, data), 'Revenue stream updated'));
       else triggerToast(writeMessage(await create(data), 'Revenue stream added'));
       setModalOpen(false);
     } catch (err) {
-      setFormError(errMessage(err) || 'Could not save revenue stream');
+      { const f = recordFormFailure(err, 'Could not save revenue stream'); setFormError(f.message); setFieldErrors(f.fields); }
     } finally { setSubmitting(false); }
   };
 
@@ -148,10 +149,10 @@ export default function RevenueModelPage() {
                       <div className="flex items-center justify-end gap-1">
                         {threads.button(rec.id, (rec.data.name as string) || 'this stream')}
                         {canWrite && (<>
-                        <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors" aria-label="Edit stream">
+                        <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors" aria-label={`Edit stream: ${(rec.data.name as string) || 'untitled'}`}>
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
-                        <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label="Delete stream">
+                        <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label={`Delete stream: ${(rec.data.name as string) || 'untitled'}`}>
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                         </>)}
@@ -199,6 +200,7 @@ export default function RevenueModelPage() {
           initial={editing?.data}
           submitting={submitting}
           error={formError}
+          fieldErrors={fieldErrors}
           onSubmit={handleSubmit}
           onClose={() => setModalOpen(false)}
         />

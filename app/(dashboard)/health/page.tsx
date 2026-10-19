@@ -7,6 +7,9 @@ import type { HealthBand } from '@/hooks/useHealthScore';
 import { useHealthOverview } from '@/components/health/health-score-provider';
 import { DimensionsRadar, Sparkline } from '@/components/health/health-charts';
 import { HealthError } from '@/components/health/health-states';
+import { formatLift } from '@/lib/health-format';
+import { useWorkspace } from '@/components/workspace-context';
+import { canOpenPath } from '@/lib/nav-access';
 
 function RadialGauge({ targetScore }: { targetScore: number }) {
   const [displayScore, setDisplayScore] = useState(0);
@@ -162,6 +165,7 @@ function LoadingState() {
 
 export default function HealthOverviewPage() {
   const { data, loading, error, refetch } = useHealthOverview();
+  const { role } = useWorkspace();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Esc key listener for modal
@@ -273,7 +277,7 @@ export default function HealthOverviewPage() {
                 >
                   <div className="flex flex-col items-start gap-3">
                     <span className="bg-[#EAF2ED] text-[#2D5A3F] text-xs font-semibold px-3 py-1 rounded-full">
-                      est. +{item.estimatedLift} pts
+                      {formatLift(item.estimatedLift)}
                     </span>
                     <h3 className="text-base font-bold text-[#1E2923] leading-snug">
                       {item.title}
@@ -283,12 +287,14 @@ export default function HealthOverviewPage() {
                     </p>
                   </div>
 
-                  <Link
-                    href={item.actionUrl}
-                    className="w-full text-center bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-bold py-3 rounded-card transition-colors shadow-card inline-block"
-                  >
-                    Do it
-                  </Link>
+                  {canOpenPath(item.actionUrl, role) && (
+                    <Link
+                      href={item.actionUrl}
+                      className="w-full text-center bg-[#9C5B34] hover:bg-[#8A5330] text-white text-xs font-bold py-3 rounded-card transition-colors shadow-card inline-block"
+                    >
+                      Do it
+                    </Link>
+                  )}
                 </div>
               ))}
             </div>

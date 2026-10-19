@@ -23,6 +23,9 @@ vi.mock('@/components/health/health-charts', () => ({
   ScoreHistoryChart: ({ markers }: { markers?: unknown[] }) => <div data-testid="history-chart">{markers?.length ?? 0} markers</div>,
 }));
 
+let role: string | null = 'founder';
+vi.mock('@/components/workspace-context', () => ({ useWorkspace: () => ({ role }) }));
+
 let overview: Record<string, unknown>;
 const refetchOverview = vi.fn();
 vi.mock('@/components/health/health-score-provider', () => ({
@@ -85,6 +88,7 @@ const okOverview = (over: Record<string, unknown> = {}) => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  role = 'founder';
   historyRanges.length = 0;
   recFilters.length = 0;
   overview = okOverview();
@@ -102,6 +106,18 @@ describe('Overview', () => {
     expect(screen.getByText(/You're thriving for idea stage/)).toBeTruthy();
     expect(screen.getByText('est. +10 pts')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Do it' }).getAttribute('href')).toBe('/finance');
+  });
+
+  it('hides Do it for a role that cannot open the route', () => {
+    role = 'mentor';
+    render(<HealthOverviewPage />);
+    expect(screen.queryByRole('link', { name: 'Do it' })).toBeNull();
+  });
+
+  it('says "+1 pt" for a one point estimate', () => {
+    overview = okOverview({ data: { topRecommendations: [{ id: 'r1', title: 'T', rationale: 'R', estimatedLift: 1, effort: 'low', actionUrl: '/finance', dimension: 'Financial' }] } });
+    render(<HealthOverviewPage />);
+    expect(screen.getByText('est. +1 pt')).toBeTruthy();
   });
 
   it('a failed load is an error with Retry, never the assessment CTA', () => {
@@ -180,6 +196,12 @@ describe('Dimension drill-down', () => {
   it('a recommendation has a Do it link to its href', () => {
     render(<DimensionPage />);
     expect(screen.getByRole('link', { name: 'Do it' }).getAttribute('href')).toBe('/finance');
+  });
+
+  it('hides Do it for a role that cannot open the route', () => {
+    role = 'mentor';
+    render(<DimensionPage />);
+    expect(screen.queryByRole('link', { name: 'Do it' })).toBeNull();
   });
 
   it('a load error offers Retry', () => {
@@ -290,6 +312,22 @@ describe('Recommendations', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
     await waitFor(() => expect(recFns.dismiss).toHaveBeenCalledWith('r1'));
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it('shows the Financial label, not the API key "money"', () => {
+    render(<RecommendationsPage />);
+    expect(screen.getByText(/Effort: low · Financial/)).toBeTruthy();
+    expect(screen.getByText('est. +10 pts')).toBeTruthy();
+  });
+
+  it.each(['mentor', 'business_consultant', 'team_member'])('%s cannot Start or Dismiss, only Open where the role can see the route', (who) => {
+    role = who;
+    recsState = { loading: false, error: null, recs: [{ ...rec, href: who === 'team_member' ? '/finance' : '/validation/interviews' }] };
+    render(<RecommendationsPage />);
+    expect(screen.queryByRole('button', { name: /Start/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Dismiss' })).toBeNull();
+    if (who === 'team_member') expect(screen.getByRole('link', { name: /Open/ }).getAttribute('href')).toBe('/finance');
+    else expect(screen.queryByRole('link', { name: /Open/ })).toBeNull();
   });
 
   it('accepted items link back to the work', () => {

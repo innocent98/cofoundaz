@@ -35,6 +35,35 @@ describe('useCanvasEditor', () => {
     expect(result.current.getVersion()).toBe(3);
   });
 
+  it('after an AI write the header meta follows the server: reload shows no human editor', async () => {
+    const { result } = renderHook(() => useCanvasEditor('swot'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.updatedBy).toEqual({ id: 'u1', name: 'Ada' });
+    api.getCanvas.mockResolvedValue({ ...canvas(4, { strengths: ['a', 'ai'] }), updated_by: null, updated_at: '2026-10-19T12:00:00Z' });
+    await act(async () => {
+      await result.current.reload();
+    });
+    expect(result.current.updatedBy).toBeNull();
+    expect(result.current.updatedAt).toBe('2026-10-19T12:00:00Z');
+  });
+
+  it('a save already in flight cannot put an older editor back after a reload', async () => {
+    let finish: (v: unknown) => void = () => {};
+    api.saveCanvas.mockReturnValue(new Promise((res) => { finish = res; }));
+    const { result } = renderHook(() => useCanvasEditor('swot'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    act(() => result.current.addItem('strengths', 'b'));
+    let flushed: Promise<void> = Promise.resolve();
+    act(() => { flushed = result.current.flush(); });
+    api.getCanvas.mockResolvedValue({ ...canvas(5, { strengths: ['a', 'ai'] }), updated_by: null });
+    await act(async () => { await result.current.reload(); });
+    await act(async () => {
+      finish({ ...canvas(4, { strengths: ['a', 'b'] }) });
+      await flushed;
+    });
+    expect(result.current.updatedBy).toBeNull();
+  });
+
   it('autosaves the FULL blocks with the last read version, then flush saves immediately', async () => {
     api.saveCanvas.mockResolvedValue({ ...canvas(4, { strengths: ['a', 'b'] }) });
     const { result } = renderHook(() => useCanvasEditor('swot'));
