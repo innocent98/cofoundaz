@@ -13,9 +13,11 @@ import { canInvite } from '@/lib/nav-access';
 
 interface DashboardNavbarProps {
   onInvite: () => void;
+  /** Current section, shown after "Workspace /" in the breadcrumb. */
+  title?: string;
 }
 
-export function DashboardNavbar({ onInvite }: DashboardNavbarProps) {
+export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavbarProps) {
   const sidebar = useSidebar();
   const { openSearch } = useSearch();
   const { role } = useWorkspace();
@@ -60,7 +62,7 @@ export function DashboardNavbar({ onInvite }: DashboardNavbarProps) {
 
       {/* Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="hidden md:block text-sm text-sage-500 font-normal shrink-0">
-        Workspace <span className="text-sage-300 mx-0.5">/</span> <span className="text-sage-900 font-semibold">Dashboard</span>
+        Workspace <span className="text-sage-300 mx-0.5">/</span> <span className="text-sage-900 font-semibold">{title}</span>
       </nav>
 
       {/* Global search (⌘K) */}

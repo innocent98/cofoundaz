@@ -1,28 +1,58 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { ListChecks, ArrowRight } from 'lucide-react';
-import { useRoadmapApi } from '@/hooks/useRoadmapApi';
+import { ArrowDown, ArrowUp, Clock, GripVertical } from 'lucide-react';
+import { toast } from 'sonner';
+import { useMissionUpcoming, moveId, visibleOrder, type UpcomingDay } from '@/hooks/useMissionUpcoming';
+import { useWorkspace } from '@/components/workspace-context';
+import { MISSION_COPY } from '@/components/mission/mission-copy';
+import { MilestoneChip } from '@/components/mission/milestone-chip';
+import { RoadmapEmptyState } from '@/components/mission/roadmap-empty-state';
+
+function dayHeading(iso: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  const label = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  const tomorrow = new Date();
+  tomorrow.setHours(0, 0, 0, 0);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return d.getTime() === tomorrow.getTime() ? `Tomorrow · ${label}` : label;
+}
+
+// Only these roles may save an order (PUT /missions/upcoming/order is 403 for everyone else).
+const CAN_REORDER = new Set(['founder', 'team_member']);
 
 export default function MissionUpcomingPage() {
-  const { phases, loading } = useRoadmapApi();
+  const { data, loading, error, saving, reorder, generateRoadmap, refetch } = useMissionUpcoming();
+  const { role } = useWorkspace();
+  const canReorder = role !== null && CAN_REORDER.has(role);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [generateFailed, setGenerateFailed] = useState(false);
 
-  // "Drawn from your roadmap": every not-yet-done task, grouped by its milestone.
-  // The roadmap has no per-day schedule, so we group by milestone (real) rather
-  // than inventing Tomorrow/Wed/Thu buckets.
-  const groups = useMemo(() => {
-    const out: { milestone: string; tasks: { id: string; title: string }[] }[] = [];
-    for (const phase of phases) {
-      for (const ms of phase.milestones) {
-        const pending = ms.tasks.filter((t) => t.status !== 'done');
-        if (pending.length > 0) {
-          out.push({ milestone: ms.title, tasks: pending.map((t) => ({ id: t.id, title: t.title })) });
-        }
-      }
-    }
-    return out;
-  }, [phases]);
+  const days: UpcomingDay[] = data?.days ?? [];
+  const order = visibleOrder(days);
+
+  const save = async (next: string[]) => {
+    const ok = await reorder(next);
+    if (ok) toast.success('Order saved.');
+    else toast.error("Couldn't save the new order. Your list was refreshed.");
+  };
+
+  const move = (id: string, delta: -1 | 1) => {
+    const from = order.indexOf(id);
+    void save(moveId(order, from, from + delta));
+  };
+
+  const drop = (targetId: string) => {
+    if (!dragId || dragId === targetId) return;
+    void save(moveId(order, order.indexOf(dragId), order.indexOf(targetId)));
+    setDragId(null);
+  };
+
+  const handleGenerate = async () => {
+    setGenerateFailed(false);
+    if (!(await generateRoadmap())) setGenerateFailed(true);
+  };
 
   return (
     <main className="p-4 md:p-8 max-w-4xl w-full mx-auto flex flex-col gap-6">
@@ -30,56 +60,110 @@ export default function MissionUpcomingPage() {
         <div>
           <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">Upcoming</h2>
           <p className="text-xs md:text-sm text-[#768478] mt-1.5 font-normal">
-            What&apos;s next, drawn from your roadmap, grouped by milestone.
+            The next 7 days, drawn from your roadmap.
+            {canReorder && ' Drag tasks or use the arrows to change their order.'}
           </p>
         </div>
 
         {loading && (
-          <div className="flex flex-col gap-2.5">
+          <div role="status" aria-label="Loading upcoming missions" className="flex flex-col gap-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="bg-white rounded-modal h-16 border border-[#EBEBE6] shadow-card animate-pulse" />
+              <div key={i} className="bg-white rounded-modal h-24 border border-[#EBEBE6] shadow-card animate-pulse" />
             ))}
           </div>
         )}
 
-        {!loading && groups.length === 0 && (
-          <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-12 text-center flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#EAF2ED] text-[#2D5A3F] flex items-center justify-center">
-              <ListChecks className="w-6 h-6" />
-            </div>
-            <p className="text-sm font-bold text-[#1E2923]">Nothing upcoming</p>
-            <p className="text-xs text-[#768478] max-w-xs">Every roadmap task is done, or your roadmap hasn&apos;t been generated yet.</p>
-            <Link
-              href="/roadmap"
-              className="mt-1 inline-flex items-center gap-1.5 bg-[#183B28] hover:bg-[#11291C] text-white text-xs font-bold px-4 py-2 rounded-card transition-colors"
-            >
-              <span>Go to your roadmap</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+        {!loading && error && (
+          <div role="alert" className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-modal p-4 text-sm text-[#B0483B] flex items-center justify-between gap-3">
+            <span>{error}</span>
+            <button type="button" onClick={() => void refetch()} className="text-xs font-semibold underline cursor-pointer">
+              Try again
+            </button>
           </div>
         )}
 
-        {!loading && groups.length > 0 && (
-          <div className="flex flex-col gap-6">
-            {groups.map((group) => (
-              <div key={group.milestone} className="flex flex-col gap-2.5">
-                <h3 className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">{group.milestone}</h3>
-                <div className="flex flex-col gap-2.5">
-                  {group.tasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="bg-white rounded-modal px-5 py-4 border border-[#EBEBE6] shadow-card flex items-center justify-between gap-4"
-                    >
-                      <span className="text-sm font-semibold text-[#1E2923] truncate">{task.title}</span>
-                      <span className="bg-[#EAF2ED] text-[#2D5A3F] text-xs font-medium px-3.5 py-1.5 rounded-full shrink-0">
-                        {group.milestone}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        {!loading && !error && data && !data.hasRoadmap && (
+          <RoadmapEmptyState onGenerate={() => void handleGenerate()} generating={saving} failed={generateFailed} />
+        )}
+
+        {!loading && !error && data?.hasRoadmap && (
+          <ol aria-busy={saving} className={`flex flex-col gap-6 ${saving ? 'opacity-70' : ''}`}>
+            {days.map((day) => (
+              <li key={day.date} className="flex flex-col gap-2.5">
+                <h3 className="text-sm font-semibold text-[#1E2923]">{dayHeading(day.date)}</h3>
+
+                {day.restDay ? (
+                  <div className="bg-[#F5F5F0] rounded-modal px-5 py-4 border border-[#EBEBE6] text-sm text-[#617065]">
+                    {MISSION_COPY.restDay}. {MISSION_COPY.restBody}
+                  </div>
+                ) : day.tasks.length === 0 ? (
+                  <div className="bg-white rounded-modal px-5 py-4 border border-dashed border-[#D5DDD6] text-sm text-[#617065]">
+                    {MISSION_COPY.nothingQueued} Add tasks to your{' '}
+                    <Link href="/roadmap" className="font-semibold text-[#183B28] underline">
+                      roadmap
+                    </Link>
+                    .
+                  </div>
+                ) : (
+                  <ul className="flex flex-col gap-2.5">
+                    {day.tasks.map((task) => {
+                      const idx = order.indexOf(task.roadmapTaskId);
+                      return (
+                        <li
+                          key={task.roadmapTaskId}
+                          draggable={canReorder && !saving}
+                          onDragStart={() => setDragId(task.roadmapTaskId)}
+                          onDragOver={(e) => canReorder && e.preventDefault()}
+                          onDrop={() => drop(task.roadmapTaskId)}
+                          onDragEnd={() => setDragId(null)}
+                          className={`bg-white rounded-modal px-5 py-4 border shadow-card flex items-center gap-3 ${
+                            dragId === task.roadmapTaskId ? 'border-[#183B28] opacity-60' : 'border-[#EBEBE6]'
+                          }`}
+                        >
+                          {canReorder && <GripVertical className="w-4 h-4 text-[#8E9B90] shrink-0 cursor-grab" aria-hidden="true" />}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-[#1E2923]">{task.title}</p>
+                            <div className="flex items-center gap-2 flex-wrap mt-2">
+                              {task.milestone && <MilestoneChip milestone={task.milestone} />}
+                              <span className="inline-flex items-center gap-1.5 bg-[#F5F5F0] text-[#617065] text-xs font-medium px-3 py-1 rounded-full">
+                                <Clock className="w-3 h-3" aria-hidden="true" />
+                                {task.effort}
+                              </span>
+                              {task.carriedOver && (
+                                <span className="bg-[#F7EEDC] text-[#8A5330] text-xs font-medium px-3 py-1 rounded-full">Carried over</span>
+                              )}
+                            </div>
+                          </div>
+                          {canReorder && (
+                            <div className="flex flex-col shrink-0">
+                              <button
+                                type="button"
+                                aria-label={`Move up: ${task.title}`}
+                                disabled={idx === 0 || saving}
+                                onClick={() => move(task.roadmapTaskId, -1)}
+                                className="p-1 rounded-input text-[#617065] hover:text-[#1E2923] hover:bg-[#F5F5F0] disabled:opacity-30 cursor-pointer disabled:cursor-default"
+                              >
+                                <ArrowUp className="w-4 h-4" aria-hidden="true" />
+                              </button>
+                              <button
+                                type="button"
+                                aria-label={`Move down: ${task.title}`}
+                                disabled={idx === order.length - 1 || saving}
+                                onClick={() => move(task.roadmapTaskId, 1)}
+                                className="p-1 rounded-input text-[#617065] hover:text-[#1E2923] hover:bg-[#F5F5F0] disabled:opacity-30 cursor-pointer disabled:cursor-default"
+                              >
+                                <ArrowDown className="w-4 h-4" aria-hidden="true" />
+                              </button>
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </li>
             ))}
-          </div>
+          </ol>
         )}
       </div>
     </main>
