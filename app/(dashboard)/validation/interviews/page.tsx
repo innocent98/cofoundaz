@@ -66,7 +66,7 @@ export default function InterviewsPage() {
         <h1 className="text-2xl md:text-3xl font-display font-semibold text-sage-900 tracking-tight">
           Interview notes
         </h1>
-        <InsightSynthesizer />
+        <InsightSynthesizer source="interviews" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

@@ -103,6 +103,21 @@ describe('SmokeBuilder', () => {
     fireEvent.click(screen.getByRole('button', { name: /Next/ }));
   };
 
+  it('blocks Next with an inline error when the target is outside 1 to 50 (no silent clamp)', () => {
+    const api = { create: vi.fn(), publish: vi.fn() };
+    render(<SmokeBuilder draft={draft} origin="http://localhost:3000" api={api} onCancel={vi.fn()} onDone={vi.fn()} notify={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /Next/ }));
+    const target = screen.getByLabelText('Target conversion rate (%)');
+    fireEvent.change(target, { target: { value: '60' } });
+    expect(screen.getByRole('alert').textContent).toBe('Between 1 and 50.');
+    expect((screen.getByRole('button', { name: /Next/ }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(target, { target: { value: '0' } });
+    expect((screen.getByRole('button', { name: /Next/ }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(target, { target: { value: '50' } });
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect((screen.getByRole('button', { name: /Next/ }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
   it('pre-fills from the AI draft, shows the rationale, and saves nothing until Publish', () => {
     const api = { create: vi.fn(), publish: vi.fn() };
     render(<SmokeBuilder draft={draft} origin="http://localhost:3000" api={api} onCancel={vi.fn()} onDone={vi.fn()} notify={vi.fn()} />);

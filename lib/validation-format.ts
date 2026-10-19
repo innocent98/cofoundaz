@@ -86,3 +86,48 @@ export function deleteWarning(kind: 'assumption' | 'experiment' | 'interview' | 
       return 'Its share link stops working and all of its responses are deleted.';
   }
 }
+
+// --- Slice (b): scripts + Insight Synthesizer ---------------------------------
+
+export const SCRIPT_HINT = 'Ask about the last time it happened, not hypotheticals.';
+export const MAX_SCRIPT_ASSUMPTIONS = 5;
+export const MAX_SCRIPT_QUESTIONS = 30;
+export const MAX_SCRIPT_TEXT = 500;
+export const STILL_WORKING_COPY = 'Still working, check back in a minute.';
+export const AI_LABEL = 'AI-generated from your customer evidence. Check it before you act on it.';
+
+/** Model prose is rendered as plain text; this only swaps em/en dashes for commas (never used on quotes). */
+export function plainProse(text: string): string {
+  return text.replace(/\s*[—–]\s*/g, ', ');
+}
+
+/** "Based on 3 interviews and 3 survey answers" from the report's `inputs`. */
+export function insightInputsLine(inputs: { interviews?: number; open_answers?: number } | null | undefined): string {
+  const parts: string[] = [];
+  const i = inputs?.interviews ?? 0;
+  const a = inputs?.open_answers ?? 0;
+  if (i > 0) parts.push(`${i} ${i === 1 ? 'interview' : 'interviews'}`);
+  if (a > 0) parts.push(`${a} survey ${a === 1 ? 'answer' : 'answers'}`);
+  return parts.length ? `Based on ${parts.join(' and ')}` : 'Based on your customer evidence';
+}
+
+/** First-line client check mirroring the API's 422 copy, so the user sees it before a round trip. */
+export function validateScriptDraft(title: string, questions: Array<{ question: string; tip: string }>): string | null {
+  if (!title.trim()) return 'Give the script a title.';
+  if (questions.length === 0) return 'A script needs at least one question.';
+  if (questions.length > MAX_SCRIPT_QUESTIONS) return `A script may have at most ${MAX_SCRIPT_QUESTIONS} questions.`;
+  if (questions.some((q) => !q.question.trim())) return 'Each question needs text.';
+  if (questions.some((q) => q.question.length > MAX_SCRIPT_TEXT || q.tip.length > MAX_SCRIPT_TEXT)) {
+    return 'Questions and tips are limited to 500 characters.';
+  }
+  return null;
+}
+
+/** Move item `from` to index `to`; returns a new array (no-op when out of range). */
+export function moveItem<T>(list: T[], from: number, to: number): T[] {
+  if (from === to || from < 0 || to < 0 || from >= list.length || to >= list.length) return list;
+  const next = list.slice();
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}

@@ -52,6 +52,8 @@ export function SmokeBuilder({
   const [postSignupMsg, setPostSignupMsg] = useState(DEFAULT_POST_SIGNUP);
   const [metricType, setMetricType] = useState(draft?.metric_type ?? 'email_signup');
   const [targetConversion, setTargetConversion] = useState(String(draft?.target_conversion ?? 5));
+  const targetNum = Number(targetConversion);
+  const targetInvalid = targetConversion.trim() === '' || !Number.isFinite(targetNum) || targetNum < 1 || targetNum > 50;
   const [slug, setSlug] = useState(draft?.slug_suggestion ?? '');
   const [slugError, setSlugError] = useState<string | null>(null);
   const [busy, setBusy] = useState<'draft' | 'publish' | null>(null);
@@ -202,13 +204,17 @@ export function SmokeBuilder({
               </div>
               <div className="flex flex-col gap-1.5 pt-4">
                 <label htmlFor="sb-target" className={LABEL}>Target conversion rate (%)</label>
-                <input id="sb-target" value={targetConversion} onChange={(e) => setTargetConversion(e.target.value)} type="number" min={1} max={50} className={FIELD} />
-                <span className="text-xs text-[#617065]">Between 1 and 50. Typical validation bar: 5 to 10% on cold traffic.</span>
+                <input id="sb-target" value={targetConversion} onChange={(e) => setTargetConversion(e.target.value)} type="number" min={1} max={50} aria-invalid={targetInvalid} aria-describedby="sb-target-msg" className={FIELD} />
+                {targetInvalid ? (
+                  <span id="sb-target-msg" role="alert" className="text-xs font-semibold text-[#B0483B]">Between 1 and 50.</span>
+                ) : (
+                  <span id="sb-target-msg" className="text-xs text-[#617065]">Between 1 and 50. Typical validation bar: 5 to 10% on cold traffic.</span>
+                )}
               </div>
             </div>
             <div className="flex justify-between pt-4 border-t border-[#EBEBE6]">
               <button onClick={() => setStep(1)} className="text-sm font-bold text-[#617065] hover:text-[#1E2923] cursor-pointer">Back</button>
-              <button onClick={() => setStep(3)} className="bg-[#183B28] hover:bg-[#11291C] text-white px-6 py-2.5 rounded-card font-bold text-sm flex items-center gap-2 cursor-pointer">
+              <button onClick={() => setStep(3)} disabled={targetInvalid} className="bg-[#183B28] hover:bg-[#11291C] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-card font-bold text-sm flex items-center gap-2 cursor-pointer">
                 Next <ArrowRight className="w-4 h-4" />
               </button>
             </div>

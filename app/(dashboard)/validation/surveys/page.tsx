@@ -150,14 +150,14 @@ export default function SurveysPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-2xl md:text-3xl font-display font-semibold text-sage-900 tracking-tight">Surveys</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setShowCreate(true)}
             className="flex items-center gap-1.5 bg-[#183B28] hover:bg-[#11291C] text-white font-semibold px-4 py-2.5 rounded-card text-xs md:text-sm transition-all shadow-card cursor-pointer"
           >
             <Plus className="w-4 h-4" /> New survey
           </button>
-          <InsightSynthesizer />
+          <InsightSynthesizer source="surveys" />
         </div>
       </div>
 

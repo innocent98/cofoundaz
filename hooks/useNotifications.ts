@@ -44,6 +44,11 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
       ? `/validation/smoke-tests?test=${encodeURIComponent(data.experiment_id)}`
       : '/validation/smoke-tests';
   }
+  if (type === 'validation.insight.detected') {
+    return typeof data?.insight_id === 'string'
+      ? `/validation/interviews?insight=${encodeURIComponent(data.insight_id)}`
+      : '/validation/interviews';
+  }
   if (type === 'roadmap.milestone.overdue') return '/roadmap/replan';
   if (type === 'roadmap.milestone.due_soon') {
     return typeof data?.milestone_id === 'string' ? `/roadmap?milestone=${encodeURIComponent(data.milestone_id)}` : '/roadmap';
@@ -113,6 +118,8 @@ export function mapNotification(n: RawNotification): NotificationItem {
     title: n.title,
     description: '', // body is always "" in v1, don't fabricate a subtitle
     time: relativeTime(n.created_at),
+    // `body` is "" in v1 except where a type sends a CTA label (the insight notification: "See insight").
+    actionText: n.type === 'validation.insight.detected' && n.body ? n.body : undefined,
     href: notificationHref(n.type, n.data),
     isUnread: !n.read,
     iconBg,

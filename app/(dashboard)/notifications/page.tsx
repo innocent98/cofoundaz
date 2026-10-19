@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSidebar } from '@/components/sidebar-context';
 import { useNotifications } from '@/hooks/useNotifications';
 import { HealthPill } from '@/components/health-pill';
@@ -93,6 +94,18 @@ export default function NotificationsPage(): React.JSX.Element {
     markRead: apiMarkRead,
     markAllRead: apiMarkAllRead,
   } = useNotifications();
+
+  const router = useRouter();
+
+  /** A feed row with a destination (its type's deep link) opens it and is marked read. */
+  const openNotification = (item: { id: string; title: string; href: string | null; isUnread: boolean }): void => {
+    if (!item.href) {
+      showToast(`Opened notification: ${item.title}`);
+      return;
+    }
+    if (item.isUnread) void apiMarkRead(item.id);
+    router.push(item.href);
+  };
 
   const showToast = (msg: string): void => {
     setToastMessage(msg);
@@ -286,7 +299,7 @@ export default function NotificationsPage(): React.JSX.Element {
                     {sectionItems.map((item) => (
                       <div
                         key={item.id}
-                        onClick={() => showToast(`Opened notification: ${item.title}`)}
+                        onClick={() => openNotification(item)}
                         className={`bg-white border rounded-[24px] p-4 md:p-5 shadow-card transition-all cursor-pointer relative group flex items-start justify-between gap-4 ${
                           item.category === 'Urgent' || item.category === 'Finance'
                             ? 'border-[#F2D6D0] hover:border-[#E8B5AC]'
