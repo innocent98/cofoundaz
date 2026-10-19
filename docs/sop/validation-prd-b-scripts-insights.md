@@ -23,6 +23,8 @@ no deep link for the new "New pattern detected" notification.
 | History | "Past reports" lists all reports newest first (source, date, inputs, pattern count) with confirm delete. |
 | Notification | `validation.insight.detected` -> `/validation/interviews?insight={insight_id}`; the drawer opens that report (404 shows "That report no longer exists."). The CTA label comes from `body` ("See insight"). The inbox row used to only toast on click, so it now marks the row read and navigates when its type has a destination (this also fixes the existing smoke-test and roadmap links in the inbox). |
 
+Slice (a) re-walk fix folded in: the smoke-test builder (`SmokeBuilder.tsx`, step 2) no longer clamps a target conversion above 50 silently. An out-of-range or empty value shows "Between 1 and 50." inline and disables Next.
+
 Decisions and rejected alternatives:
 - Drawer (as designed) instead of a new route; deep link via a query param so one component serves both tabs.
 - Up/down buttons instead of drag and drop: accessible by default and testable.
