@@ -17,7 +17,17 @@ export interface AiFillResult {
   ok: boolean;
   status?: AiFillStatus;
   error?: string;
+  /** Plain-language outcome for a fill that changed nothing. */
+  message?: string;
 }
+
+/** Which kind of fill ran: it decides the wording when nothing was drafted. */
+export type FillKind = 'canvas' | 'records';
+
+export const NOTHING_NEW_MESSAGE: Record<FillKind, string> = {
+  canvas: 'Every section already has content. Use the AI button on a section to add ideas.',
+  records: 'Your list already has entries. Add more by hand, or use the AI buttons on a record.',
+};
 
 interface RawEnqueue {
   job_id?: string;
@@ -27,6 +37,8 @@ interface RawEnqueue {
 
 interface JobResult {
   status?: string;
+  filled?: string[];
+  added?: number;
 }
 
 export const OVER_BUDGET_MESSAGE = 'AI is at its daily limit, try again tomorrow.';
@@ -38,16 +50,19 @@ function enqueueError(err: unknown): string {
   return info.message;
 }
 
-/** Maps a finished job's own `result.status` to the shared fill outcome. */
-export function outcomeFromResult(status: string | undefined): AiFillResult {
-  switch (status) {
+/**
+ * Maps a finished job's own `result` to the shared fill outcome. A job with no
+ * result (an older API) is treated as a normal fill.
+ */
+export function outcomeFromResult(result: JobResult | null | undefined, kind: FillKind = 'canvas'): AiFillResult {
+  switch (result?.status) {
     case 'over_budget':
       return { ok: false, error: OVER_BUDGET_MESSAGE };
     case 'gone':
       return { ok: false, error: 'This item is no longer available.' };
     case 'nothing_new':
     case 'skipped':
-      return { ok: true, status: 'skipped' };
+      return { ok: true, status: 'skipped', message: NOTHING_NEW_MESSAGE[kind] };
     default:
       return { ok: true, status: 'succeeded' };
   }
@@ -57,17 +72,17 @@ export function useBusinessAiFill() {
   const [requesting, setRequesting] = useState<string | null>(null);
 
   const run = useCallback(
-    async (target: string, enqueue: () => Promise<RawEnqueue>): Promise<AiFillResult> => {
+    async (target: string, kind: FillKind, enqueue: () => Promise<RawEnqueue>): Promise<AiFillResult> => {
       setRequesting(target);
       try {
         const res = await enqueue();
-        if (res?.status === 'skipped' || res?.skipped) return { ok: true, status: 'skipped' };
+        if (res?.status === 'skipped' || res?.skipped) return { ok: true, status: 'skipped', message: NOTHING_NEW_MESSAGE[kind] };
         // No job to poll (and not skipped): refetch optimistically.
         if (!res?.job_id) return { ok: true, status: 'succeeded' };
         const out = await waitForJob<JobResult>(res.job_id, { timeoutMs: 60000 });
         if (out.state === 'timeout') return { ok: true, status: 'timeout' };
         if (out.state === 'failed') return { ok: false, status: 'failed' };
-        return outcomeFromResult(out.result?.status);
+        return outcomeFromResult(out.result, kind);
       } catch (err) {
         return { ok: false, error: enqueueError(err) };
       } finally {
@@ -78,13 +93,13 @@ export function useBusinessAiFill() {
   );
 
   const requestCanvasFill = useCallback(
-    (type: string): Promise<AiFillResult> => run(type, () => businessBuilderApi.aiFillCanvas(type)),
+    (type: string): Promise<AiFillResult> => run(type, 'canvas', () => businessBuilderApi.aiFillCanvas(type)),
     [run]
   );
 
   const requestRecordFill = useCallback(
     (kind: string): Promise<AiFillResult> =>
-      run(kind, async () => {
+      run(kind, 'records', async () => {
         const res = await apiClient<{ data?: RawEnqueue }>(`/business-builder/${kind}/ai-fill`, {
           method: 'POST',
         });
