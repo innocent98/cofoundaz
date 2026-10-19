@@ -86,7 +86,8 @@ All are reversible and none blocks merging.
   `/Users/adebayovictor/Documents/dev/cofoundaz`. The lead session works from the parent dir.
 - **develop heads (2026-10-19 21:20):** API `33132f9` (#148), FE `e07bad3` (#112).
 - **Slice (b) worktree:** `/private/tmp/claude-501/-Users-adebayovictor-Documents-dev-cofoundaz/55f98077-834b-48c4-aff2-eb55bd95867e/scratchpad/api-b`
-  (branch `feat/validation-prd-b`, own venv). Next free migration number: **0058**. Real-model capture recipe: copy
+  (now detached; own venv, use it for CI parity). The **API main checkout is on `feat/validation-prd-b`** (superset of (a);
+  dev DB at 0057, worker restarted) so FE sessions for (a) and (b) both work against it. Next free migration number: **0058**. Real-model capture recipe: copy
   `scripts/e2e_run.sh` without the `LLM_PROVIDER=stub` line and point it at one e2e file (see the slice (b) SOP).
 - **Local checkouts right now:** the API main checkout is on **`feat/validation-prd-a`** (keep it there until #149 merges:
   the FE session tests against it). The dev DB is at **`0056_smoke_test_pages`** (from #149; the `smoke_test_slugs` table
