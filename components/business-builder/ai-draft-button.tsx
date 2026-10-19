@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Sparkles, Check, AlertTriangle, Loader2 } from 'lucide-react';
-import { useBusinessAiFill } from '@/hooks/useBusinessAiFill';
+import { NOTHING_NEW_MESSAGE, useBusinessAiFill } from '@/hooks/useBusinessAiFill';
 import { useAiStatus } from '@/hooks/useAiStatus';
 import { useBuilderAccess } from '@/hooks/useBuilderAccess';
 import { AiConfirmModal } from '@/components/business-builder/ai-confirm-modal';
@@ -25,7 +25,7 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className,
   const { requesting, requestCanvasFill, requestRecordFill } = useBusinessAiFill();
   const { isOverBudget, formattedResetsAt } = useAiStatus();
   const [filled, setFilled] = useState(false);
-  const [skipped, setSkipped] = useState(false);
+  const [skipped, setSkipped] = useState<string | null>(null);
   const [timedOut, setTimedOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
@@ -37,7 +37,7 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className,
   const onConfirm = async () => {
     setConfirming(false);
     setError(null);
-    setSkipped(false);
+    setSkipped(null);
     setTimedOut(false);
     setFilled(false);
     const res = canvasType ? await requestCanvasFill(canvasType) : await requestRecordFill(kind || '');
@@ -46,7 +46,7 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className,
       return;
     }
     if (res.status === 'skipped') {
-      setSkipped(true);
+      setSkipped(res.message ?? NOTHING_NEW_MESSAGE[canvasType ? 'canvas' : 'records']);
       return;
     }
     if (res.status === 'failed') {
@@ -86,14 +86,14 @@ export function AiDraftButton({ canvasType, kind, label = 'AI draft', className,
     );
   }
 
-  if (skipped) {
+  if (skipped !== null) {
     return (
       <span
         className="flex items-center gap-1.5 bg-[#F4F6F5] text-[#617065] px-3 py-2 rounded-card text-xs font-medium border border-[#EBEBE6]"
-        title="Nothing was empty to draft. You can edit directly."
+        role="status"
       >
-        <Sparkles className="w-3.5 h-3.5 text-[#8E9B90]" />
-        Nothing to draft, edit directly
+        <Sparkles className="w-3.5 h-3.5 shrink-0 text-[#8E9B90]" />
+        {skipped}
       </span>
     );
   }
