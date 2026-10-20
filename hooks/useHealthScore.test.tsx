@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { useHealthScore } from './useHealthScore';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { useHealthScore, refreshHealthScore } from './useHealthScore';
 import { apiClient, ApiError } from '@/lib/api/client';
 
 vi.mock('@/lib/api/client', async () => {
@@ -73,5 +73,17 @@ describe('useHealthScore', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.data.status).toBe('pending_assessment');
     expect(result.current.error).toBeNull();
+  });
+
+  it('refreshHealthScore re-fetches every mounted hook (the shell chip after an assessment)', async () => {
+    vi.mocked(apiClient).mockResolvedValue(ok);
+    const { result } = renderHook(() => useHealthScore());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data.score).toBe(31);
+
+    vi.mocked(apiClient).mockResolvedValue({ data: { ...ok.data, score: 95 } });
+    act(() => refreshHealthScore());
+    await waitFor(() => expect(result.current.data.score).toBe(95));
+    expect(result.current.loading).toBe(false);
   });
 });

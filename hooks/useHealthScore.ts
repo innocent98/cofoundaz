@@ -185,6 +185,16 @@ function fetchOverview(): Promise<RawOverview | null> {
   return inflight;
 }
 
+// Every mounted useHealthScore (the shell's Health chip included) re-fetches when
+// something that changes the score completes elsewhere on the page, e.g. an assessment.
+const refreshListeners = new Set<() => void>();
+
+/** Ask every mounted useHealthScore to re-fetch (drops any request already in flight). */
+export function refreshHealthScore(): void {
+  inflight = null;
+  refreshListeners.forEach((fn) => fn());
+}
+
 export function useHealthScore() {
   const [data, setData] = useState<HealthScoreData>(EMPTY_STATE);
   const [loading, setLoading] = useState(true);
@@ -221,6 +231,23 @@ export function useHealthScore() {
       refetch();
     });
   }, [refetch]);
+
+  useEffect(() => {
+    // Quiet re-fetch: keep the current score on screen instead of flashing the loading state.
+    const onRefresh = () => {
+      fetchOverview()
+        .then((raw) => {
+          if (raw) setData(mapOverview(raw));
+        })
+        .catch(() => {
+          /* keep the last known score; the next full load surfaces errors */
+        });
+    };
+    refreshListeners.add(onRefresh);
+    return () => {
+      refreshListeners.delete(onRefresh);
+    };
+  }, []);
 
   return { data, loading, error, refetch };
 }

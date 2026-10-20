@@ -1,8 +1,9 @@
 import { apiClient } from './client';
 
 // Startup Assessment (Module 07). apiClient auto-injects Bearer + X-Workspace-Id.
-// Contract: cofoundaz-api/docs/fe-integration-guide-assessment.md. Writes
-// (start / answer / complete) are founder-only; reads are open to any member.
+// Contract: cofoundaz-api/docs/fe-integration-guide-assessment.md and
+// fe-integration-guide-assessment-prd.md. Writes (start / answer / complete) are
+// founder-only; reads are founder + team member (everyone else gets 403).
 
 export type AssessmentDimension = 'product' | 'market' | 'money' | 'legal' | 'team';
 export type AssessmentType = 'initial' | 'quarterly';
@@ -63,11 +64,38 @@ export function sectionProgress(dimension: AssessmentDimension): {
   };
 }
 
+/**
+ * answered / (answered + remaining applicable). The path is adaptive, so `pct` can
+ * move sideways or drop when an answer opens a follow-up: never animate it as monotonic.
+ */
+export interface AssessmentProgress {
+  answered: number;
+  remaining: number;
+  pct: number;
+}
+
 export interface StartAssessmentResult {
   assessment_id: string;
   type: AssessmentType;
   status: AssessmentStatus;
   next_question: AssessmentQuestion | null;
+  progress?: AssessmentProgress;
+}
+
+/** One dimension's Health Score movement across a completion. `previous`/`delta` are null the first time. */
+export interface HealthDimensionChange {
+  key: AssessmentDimension;
+  score: number;
+  previous: number | null;
+  delta: number | null;
+}
+
+/** Health Score before/after a completion. `null` on a replayed /complete: keep the first response. */
+export interface CompletionHealth {
+  score: number;
+  previous_score: number | null;
+  delta: number | null;
+  dimensions: HealthDimensionChange[];
 }
 
 export interface CompleteAssessmentResult {
@@ -76,7 +104,10 @@ export interface CompleteAssessmentResult {
   dimension_scores: DimensionScores;
   overall_provisional: number;
   narrative: string;
+  health?: CompletionHealth | null;
 }
+
+export type StartupStageKey = 'idea' | 'validation' | 'build' | 'launch' | 'growth' | 'scale';
 
 export interface AssessmentListItem {
   id: string;
@@ -85,6 +116,48 @@ export interface AssessmentListItem {
   started_at: string;
   completed_at: string | null;
   overall_provisional: number | null;
+  /** Startup stage snapshotted at completion; null for in-progress and older rows (never back-filled). */
+  stage_at_time?: string | null;
+  /** Object on in-progress rows, null on completed ones. */
+  progress?: AssessmentProgress | null;
+}
+
+export interface AssessmentList {
+  items: AssessmentListItem[];
+  /** meta.quarterly_due: latest completed check-in is 90+ days old and none is in progress. */
+  quarterlyDue: boolean;
+}
+
+const STAGE_LABEL: Record<string, string> = {
+  idea: 'Idea',
+  validation: 'Validation',
+  build: 'Build',
+  launch: 'Launch',
+  growth: 'Growth',
+  scale: 'Scale',
+};
+
+/** "Build" for a stage key; "not recorded" when the row predates the snapshot (D-ASM-3). */
+export function stageAtTimeLabel(stage: string | null | undefined): string {
+  if (!stage) return 'not recorded';
+  return STAGE_LABEL[stage] ?? stage.charAt(0).toUpperCase() + stage.slice(1);
+}
+
+/** One answered question in the structured detail (guide §5). `changed` is true exactly when `changed_from` is set. */
+export interface AssessmentAnswer {
+  question_key: string;
+  prompt: string | null;
+  qtype: QuestionKind | null;
+  value: unknown;
+  answer_label: string;
+  changed: boolean;
+  changed_from: string | null;
+}
+
+export interface AssessmentAnswerGroup {
+  /** A dimension, or 'unknown' for a retired question key. */
+  dimension: string;
+  questions: AssessmentAnswer[];
 }
 
 export interface AssessmentResult {
@@ -97,7 +170,9 @@ export interface AssessmentDetail {
   id: string;
   type: AssessmentType;
   status: AssessmentStatus;
+  stage_at_time?: string | null;
   answers_by_dimension: Record<string, unknown>;
+  answers?: AssessmentAnswerGroup[];
   result: AssessmentResult | null;
 }
 
@@ -132,25 +207,48 @@ export async function startAssessment(): Promise<StartAssessmentResult> {
   return unwrap(res);
 }
 
-/** GET /assessments/{id}/next-question: where the founder left off (null = ready to complete). */
-export async function getNextQuestion(id: string): Promise<AssessmentQuestion | null> {
-  const res = await apiClient<Envelope<{ next_question: AssessmentQuestion | null }>>(
-    `/assessments/${encodeURIComponent(id)}/next-question`
-  );
-  return unwrap(res)?.next_question ?? null;
+/** The question the founder is on plus how far through they are. */
+export interface QuestionStep {
+  question: AssessmentQuestion | null;
+  progress: AssessmentProgress | null;
 }
 
-/** POST /assessments/{id}/answers: answer the current question, returns the next (or null). */
+interface StepBody {
+  next_question: AssessmentQuestion | null;
+  progress?: AssessmentProgress | null;
+}
+
+function toStep(body: StepBody | undefined): QuestionStep {
+  return { question: body?.next_question ?? null, progress: body?.progress ?? null };
+}
+
+/** GET /assessments/{id}/next-question: where the founder left off (question null = ready to complete). */
+export async function getNextStep(id: string): Promise<QuestionStep> {
+  const res = await apiClient<Envelope<StepBody>>(`/assessments/${encodeURIComponent(id)}/next-question`);
+  return toStep(unwrap(res));
+}
+
+/** POST /assessments/{id}/answers: answer the current question, returns the next step. */
+export async function submitAnswerStep(id: string, questionKey: string, value: AnswerValue): Promise<QuestionStep> {
+  const res = await apiClient<Envelope<StepBody>>(`/assessments/${encodeURIComponent(id)}/answers`, {
+    method: 'POST',
+    body: JSON.stringify({ question_key: questionKey, value }),
+  });
+  return toStep(unwrap(res));
+}
+
+/** GET /assessments/{id}/next-question, question only (null = ready to complete). */
+export async function getNextQuestion(id: string): Promise<AssessmentQuestion | null> {
+  return (await getNextStep(id)).question;
+}
+
+/** POST /assessments/{id}/answers, returning only the next question (or null). */
 export async function submitAnswer(
   id: string,
   questionKey: string,
   value: AnswerValue
 ): Promise<AssessmentQuestion | null> {
-  const res = await apiClient<Envelope<{ next_question: AssessmentQuestion | null }>>(
-    `/assessments/${encodeURIComponent(id)}/answers`,
-    { method: 'POST', body: JSON.stringify({ question_key: questionKey, value }) }
-  );
-  return unwrap(res)?.next_question ?? null;
+  return (await submitAnswerStep(id, questionKey, value)).question;
 }
 
 /** POST /assessments/{id}/complete: only valid once next_question is null. Idempotent. */
@@ -161,11 +259,19 @@ export async function completeAssessment(id: string): Promise<CompleteAssessment
   return unwrap(res);
 }
 
+/** GET /assessments?status: newest first, plus the `meta.quarterly_due` flag. */
+export async function fetchAssessmentList(status?: AssessmentStatus): Promise<AssessmentList> {
+  const res = await apiClient<
+    { data?: AssessmentListItem[]; meta?: { quarterly_due?: boolean } | null } | AssessmentListItem[]
+  >(status ? `/assessments?status=${status}` : '/assessments');
+  const data = unwrap(res as Envelope<AssessmentListItem[]> | AssessmentListItem[]);
+  const meta = Array.isArray(res) ? null : (res as { meta?: { quarterly_due?: boolean } | null })?.meta;
+  return { items: Array.isArray(data) ? data : [], quarterlyDue: meta?.quarterly_due === true };
+}
+
 /** GET /assessments: newest first. */
 export async function listAssessments(): Promise<AssessmentListItem[]> {
-  const res = await apiClient<Envelope<AssessmentListItem[]> | AssessmentListItem[]>('/assessments');
-  const data = unwrap(res);
-  return Array.isArray(data) ? data : [];
+  return (await fetchAssessmentList()).items;
 }
 
 /** GET /assessments/{id}: `result` is null until completed. */

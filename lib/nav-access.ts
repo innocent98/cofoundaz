@@ -71,6 +71,11 @@ export function canInvite(role: MemberRole | null): boolean {
   return role === 'founder';
 }
 
+/** Only founders take or resume the assessment; team members read its results (PRD Module 07 access). */
+export function canTakeAssessment(role: MemberRole | null): boolean {
+  return role === 'founder';
+}
+
 /**
  * The NAV_ROLES key a URL belongs to ('/mission/settings' -> '/mission'), or
  * null when the path is not a gated section.
