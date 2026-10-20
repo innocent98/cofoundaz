@@ -85,6 +85,20 @@ describe('KPIStrip', () => {
     expect(container.querySelector('section')?.className).toContain('xl:grid-cols-2');
   });
 
+  it('a role that cannot open /sales gets the Pipeline tile without a link; others keep it', () => {
+    const { unmount } = render(<KPIStrip kpis={mapKpis({ ...base, metrics: emptyMetrics })} onRefetch={vi.fn()} role="mentor" />);
+    expect(screen.getByText('Pipeline Value')).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /Pipeline Value/ })).toBeNull();
+    unmount();
+    render(<KPIStrip kpis={mapKpis({ ...base, metrics: emptyMetrics })} onRefetch={vi.fn()} role="founder" />);
+    expect(screen.getByRole('link', { name: /Pipeline Value/ }).getAttribute('href')).toBe('/sales');
+  });
+
+  it('missionRestricted drops the Tasks tile (it counts mission tasks)', () => {
+    render(<KPIStrip kpis={mapKpis({ ...base, metrics: emptyMetrics })} onRefetch={vi.fn()} role="mentor" missionRestricted />);
+    expect(screen.queryByText('Tasks This Week')).toBeNull();
+  });
+
   it('a per-tile error shows the PRD error copy + Retry for that tile only', () => {
     const onRefetch = vi.fn();
     render(

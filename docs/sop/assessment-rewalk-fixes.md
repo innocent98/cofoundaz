@@ -33,3 +33,6 @@ FE only; revert the PR. No migrations.
 
 ## Follow-ups
 A5 (stale pre-#152 `assessment.completed` rows in mentor feeds). Quarterly banner and `assessment.quarterly.due` deep link still need a live check.
+
+## A6 (added): quarterly banner day count
+The banner said "90 days" even when the gap was longer. It now shows the real whole-day gap from the newest completed assessment (`daysSinceCompletion` in `lib/assessment-insights.ts`), falling back to "over 90 days" when the date is missing or under 90. Unit tests in `lib/assessment-insights.test.ts` and `assessment-pages.test.tsx`.

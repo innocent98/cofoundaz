@@ -381,6 +381,7 @@ export function mapSummary(payload: any): DashboardSummaryResponse {
     startup: { name: g.startup_name },
     health: healthState,
     mission: missionState,
+    missionStatus: payload.mission_status === "restricted" ? "restricted" : "ok",
     briefing: briefingState,
     kpis: mapKpis(payload.kpis),
     calibration: calibrationState,

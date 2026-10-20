@@ -137,6 +137,13 @@ describe('useDashboardApi & Dashboard Mappers', () => {
       expect(summary.health.score).toBe(0);
     });
 
+    it('maps mission_status: restricted stays restricted, ok / absent / unknown are ok', () => {
+      expect(mapSummary({ mission: null, mission_status: 'restricted' } as never).missionStatus).toBe('restricted');
+      expect(mapSummary({ mission: null, mission_status: 'ok' } as never).missionStatus).toBe('ok');
+      expect(mapSummary({ mission: null } as never).missionStatus).toBe('ok');
+      expect(mapSummary({ mission: null, mission_status: 'whatever' } as never).missionStatus).toBe('ok');
+    });
+
     it('guards against mission section returning { error: true } or null', () => {
       const errorPayload = {
         health: { score: 80 },

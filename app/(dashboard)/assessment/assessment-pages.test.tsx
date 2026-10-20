@@ -118,6 +118,14 @@ describe('Start page (rows 2, 3, 4, 7, 13)', () => {
     expect(push).toHaveBeenCalledWith('/assessment/in-progress');
   });
 
+  it('A6: the banner states the real day count', async () => {
+    const old = new Date(Date.now() - 100 * 86_400_000).toISOString();
+    api.fetchAssessmentList.mockResolvedValue({ items: [completedRow({ completed_at: old })], quarterlyDue: true });
+    render(<AssessmentStartPage />);
+    const banner = await screen.findByRole('region', { name: 'Quarterly re-assessment due' });
+    expect(banner.textContent).toContain('It has been 100 days since your last assessment.');
+  });
+
   it('shows the quarterly banner with "Start re-assessment" when meta.quarterly_due', async () => {
     api.fetchAssessmentList.mockResolvedValue({ items: [completedRow()], quarterlyDue: true });
     api.startAssessment.mockResolvedValue({ assessment_id: ID });

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAssessmentHistory, useStartAssessment } from "@/hooks/useAssessmentApi";
 import { useWorkspace } from "@/components/workspace-context";
 import { canTakeAssessment } from "@/lib/nav-access";
+import { daysSinceCompletion } from "@/lib/assessment-insights";
 
 const PRIMARY_LINK =
   "bg-[#1e4836] hover:bg-[#153427] text-white font-bold text-sm px-5 py-2.5 rounded-[8px] transition-colors text-center";
@@ -26,6 +27,7 @@ export default function AssessmentStartPage() {
   };
 
   const pct = inProgress?.progress?.pct;
+  const daysSince = daysSinceCompletion(completed[0]?.completed_at ?? null);
 
   return (
     <div className="space-y-6 animate-fadeIn max-w-2xl mx-auto pt-8">
@@ -37,7 +39,7 @@ export default function AssessmentStartPage() {
         >
           <div className="space-y-1">
             <h3 className="text-[#1E2923] font-semibold text-sm">Time for your quarterly check-in</h3>
-            <p className="text-[#617065] text-xs">It has been 90 days since your last assessment. Keep your Health Score honest.</p>
+            <p className="text-[#617065] text-xs">{daysSince === null ? "It has been over 90 days" : `It has been ${daysSince} days`} since your last assessment. Keep your Health Score honest.</p>
           </div>
           <button
             type="button"

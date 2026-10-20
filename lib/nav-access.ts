@@ -50,6 +50,21 @@ export const NAV_ROLES: Record<string, MemberRole[]> = {
   '/settings': EVERYONE,
 };
 
+const ROLE_LABELS: Record<MemberRole, string> = {
+  founder: 'Founder',
+  team_member: 'Team Member',
+  mentor: 'Mentor',
+  investor: 'Investor',
+  legal_advisor: 'Legal Advisor',
+  accountant: 'Accountant',
+  business_consultant: 'Business Consultant',
+};
+
+/** Display name of a workspace role ('team_member' -> 'Team Member'). */
+export function roleLabel(role: MemberRole): string {
+  return ROLE_LABELS[role];
+}
+
 export function asMemberRole(role: string | null | undefined): MemberRole | null {
   return EVERYONE.includes(role as MemberRole) ? (role as MemberRole) : null;
 }

@@ -72,9 +72,13 @@ export function AiDrawer() {
     });
   }, [pendingSeed, messages.length, threadLoading, isGenerating, sendMessage]);
 
-  // Global keyboard shortcut Cmd+J / Ctrl+J
+  // Global keyboard shortcuts: Cmd+J / Ctrl+J toggles the drawer, Escape closes it.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (aiAllowed && isAiDrawerOpen && e.key === 'Escape' && !e.defaultPrevented) {
+        closeAiDrawer();
+        return;
+      }
       if (aiAllowed && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'j') {
         e.preventDefault();
         if (isAiDrawerOpen) {
@@ -97,7 +101,7 @@ export function AiDrawer() {
         <button
           type="button"
           onClick={() => (isAiDrawerOpen ? closeAiDrawer() : openAiDrawer())}
-          className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 w-14 h-14 bg-[#1F4D3A] text-white rounded-full shadow-card flex items-center justify-center hover:bg-[#15382A] transition-colors group cursor-pointer"
+          className="fixed hidden md:flex md:bottom-6 md:right-6 z-50 w-14 h-14 bg-[#1F4D3A] text-white rounded-full shadow-card items-center justify-center hover:bg-[#15382A] transition-colors group cursor-pointer"
           aria-label="Ask your AI Co-Founder"
           aria-keyshortcuts="Meta+J Control+J"
         >

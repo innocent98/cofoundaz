@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { changeInsight, joinLabels, scoreInsight } from './assessment-insights';
+import { changeInsight, daysSinceCompletion, joinLabels, scoreInsight } from './assessment-insights';
 
 const sc = (product: number, market: number, money: number, legal: number, team: number) => ({ product, market, money, legal, team });
 
@@ -18,5 +18,17 @@ describe('assessment insights', () => {
     expect(changeInsight(sc(25, 50, 50, 50, 50), sc(100, 50, 50, 50, 50))).toEqual({ kind: 'drop', label: 'Product', tied: false, delta: -75 });
     expect(changeInsight(sc(50, 40, 50, 50, 50), sc(50, 50, 50, 50, 50)).kind).toBe('drop');
     expect(changeInsight(sc(50, 50, 50, 50, 50), sc(50, 50, 50, 50, 50)).kind).toBe('none');
+  });
+});
+
+describe('daysSinceCompletion', () => {
+  const now = Date.parse('2026-10-20T00:00:00Z');
+  it('returns the real whole-day gap from 90 days', () => {
+    expect(daysSinceCompletion('2026-07-12T00:00:00Z', now)).toBe(100);
+    expect(daysSinceCompletion('2026-07-22T00:00:00Z', now)).toBe(90);
+  });
+  it('is null when unknown or under 90', () => {
+    expect(daysSinceCompletion(null, now)).toBeNull();
+    expect(daysSinceCompletion('2026-10-01T00:00:00Z', now)).toBeNull();
   });
 });

@@ -69,6 +69,9 @@ export default function DashboardPage() {
   const showSkeleton = loading && !data;
   const startupName = data?.startup?.name ?? workspaceName;
   const restricted = data?.briefingRestricted === true;
+  // D-MIS-8: the API says `restricted`; fall back to the role when an older API omits the key.
+  const missionRestricted = data ? data.missionStatus === 'restricted' || !canSee('/mission', role) : false;
+  const topCards = 1 + (missionRestricted ? 0 : 1) + (restricted ? 0 : 1);
 
   return (
     <div className="relative flex min-h-screen w-full min-w-0 flex-col bg-[#F7F8F6] text-[#1C201D] font-body">
@@ -94,19 +97,20 @@ export default function DashboardPage() {
         {!showSkeleton && <CalibrationBanner assessmentComplete={data?.calibration?.assessment_complete} />}
 
         {/* TOP CARDS ROW */}
-        <section className={`grid grid-cols-1 gap-6 ${restricted ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
+        <section className={`grid grid-cols-1 gap-6 ${topCards === 1 ? '' : topCards === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
           <ErrorBoundary onRetry={refetch}>
             <HealthCard health={data?.health} loading={showSkeleton} onRetry={refetch} />
           </ErrorBoundary>
-          <ErrorBoundary onRetry={refetch}>
-            <MissionCard
-              mission={data?.mission}
-              loading={showSkeleton}
-              onRetry={refetch}
-              onComplete={completeTask}
-              readOnly={!canSee('/mission', role)}
-            />
-          </ErrorBoundary>
+          {!missionRestricted && (
+            <ErrorBoundary onRetry={refetch}>
+              <MissionCard
+                mission={data?.mission}
+                loading={showSkeleton}
+                onRetry={refetch}
+                onComplete={completeTask}
+                />
+            </ErrorBoundary>
+          )}
           {!restricted && (
             <ErrorBoundary onRetry={refetch}>
               <BriefingCard
@@ -130,7 +134,7 @@ export default function DashboardPage() {
             ))}
           </section>
         ) : data ? (
-          <KPIStrip kpis={data.kpis} onRefetch={refetch} />
+          <KPIStrip kpis={data.kpis} onRefetch={refetch} role={role} missionRestricted={missionRestricted} />
         ) : (
           <CardError title="your metrics" onRetry={refetch} />
         )}

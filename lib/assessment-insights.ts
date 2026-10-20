@@ -44,3 +44,10 @@ export function changeInsight(newest: DimensionScores, oldest: DimensionScores):
   if (worst.target < 0) return { kind: 'drop', label: joinLabels(worst.dims), tied: worst.dims.length > 1, delta: worst.target };
   return { kind: 'none', label: '', tied: false, delta: 0 };
 }
+
+/** Whole days since the latest completion; null when unknown or under the 90-day threshold (then say "over 90"). */
+export function daysSinceCompletion(iso: string | null, now: number = Date.now()): number | null {
+  if (!iso) return null;
+  const days = Math.floor((now - new Date(iso).getTime()) / 86_400_000);
+  return Number.isFinite(days) && days >= 90 ? days : null;
+}
