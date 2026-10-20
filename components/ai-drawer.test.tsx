@@ -60,6 +60,23 @@ describe('AiDrawer', () => {
     expect(screen.queryByText('Open full view →')).toBeNull();
   });
 
+  it('Escape closes the open drawer and does nothing when it is closed', () => {
+    setup();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByText('Open full view →')).toBeNull();
+    fireEvent.keyDown(window, { key: 'j', metaKey: true });
+    expect(screen.getByText('Open full view →')).toBeTruthy();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByText('Open full view →')).toBeNull();
+  });
+
+  it('the floating dock is hidden below md (the tab bar has an AI tab) and shown from md up', () => {
+    setup();
+    const cls = screen.getByRole('button', { name: 'Ask your AI Co-Founder' }).className;
+    expect(cls).toContain('hidden');
+    expect(cls).toContain('md:flex');
+  });
+
   it('the dock button opens the drawer without sending anything', () => {
     setup();
     fireEvent.click(screen.getByRole('button', { name: 'Ask your AI Co-Founder' }));

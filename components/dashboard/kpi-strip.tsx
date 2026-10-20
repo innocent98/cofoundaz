@@ -6,6 +6,7 @@ import { DashboardErrorBoundary } from './error-boundary';
 import type { KPISnapshot } from '@/types/dashboard';
 import { CARD_ERROR_COPY } from './card-states';
 import { Sparkline } from './sparkline';
+import { canSee, type MemberRole } from '@/lib/nav-access';
 
 // Full class strings so Tailwind can see them; the grid reflows when restricted tiles are hidden.
 const LG_COLS: Record<number, string> = {
@@ -16,22 +17,34 @@ const LG_COLS: Record<number, string> = {
   5: 'xl:grid-cols-5',
 };
 
-export function KPIStrip({ kpis, onRefetch }: { kpis: KPISnapshot[]; onRefetch: () => void }) {
-  const visible = kpis.filter((k) => !k.hidden);
+export function KPIStrip({
+  kpis,
+  onRefetch,
+  role = null,
+  missionRestricted = false,
+}: {
+  kpis: KPISnapshot[];
+  onRefetch: () => void;
+  /** Tiles whose page the role cannot open render without a link. */
+  role?: MemberRole | null;
+  /** The Tasks tile is a count of mission tasks, so it goes with the mission card. */
+  missionRestricted?: boolean;
+}) {
+  const visible = kpis.filter((k) => !k.hidden && !(missionRestricted && k.metric === 'tasks_completed'));
   if (visible.length === 0) return null;
   const lgCols = LG_COLS[Math.min(visible.length, 5)];
   return (
     <section className={`grid grid-cols-2 md:grid-cols-3 ${lgCols} gap-4 w-full col-span-1 md:col-span-12`}>
       {visible.map((kpi) => (
         <DashboardErrorBoundary key={kpi.id} onRetry={onRefetch}>
-          <StatCard kpi={kpi} onRetry={onRefetch} />
+          <StatCard kpi={kpi} onRetry={onRefetch} role={role} />
         </DashboardErrorBoundary>
       ))}
     </section>
   );
 }
 
-function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) {
+function StatCard({ kpi, onRetry, role }: { kpi: KPISnapshot; onRetry?: () => void; role: MemberRole | null }) {
   if (kpi.error) {
     return (
       <div className="bg-white p-5 rounded-card border border-red-200 shadow-card flex flex-col justify-between">
@@ -59,14 +72,14 @@ function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) 
   const isComingSoon = kpi.status === 'not_built' || kpi.value === 'Coming Soon';
   const isEmpty = kpi.status === 'no_data';
 
-  return (
-    <Link
-      href={kpi.cta?.href ?? kpi.href ?? '#'}
-      title={kpi.hint}
-      className={`bg-white p-5 rounded-card border ${
+  const href = kpi.cta?.href ?? kpi.href ?? null;
+  // A role that cannot open the target page gets the tile without a link (it would only bounce to access-denied).
+  const linked = href !== null && canSee('/' + (href.split('/')[1] ?? ''), role);
+  const className = `bg-white p-5 rounded-card border ${
         isAlert ? 'border-[#B0483B]' : 'border-sage-100'
-      } shadow-card flex flex-col justify-between hover:shadow-raised transition-shadow group`}
-    >
+      } shadow-card flex flex-col justify-between ${linked ? 'hover:shadow-raised transition-shadow' : ''} group`;
+  const inner = (
+    <>
       <div>
         <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
           {kpi.label}
@@ -112,6 +125,15 @@ function StatCard({ kpi, onRetry }: { kpi: KPISnapshot; onRetry?: () => void }) 
           </span>
         ) : null}
       </div>
+    </>
+  );
+  return linked ? (
+    <Link href={href as string} title={kpi.hint} className={className}>
+      {inner}
     </Link>
+  ) : (
+    <div title={kpi.hint} className={className}>
+      {inner}
+    </div>
   );
 }

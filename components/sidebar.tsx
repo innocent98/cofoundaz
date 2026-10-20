@@ -9,7 +9,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useStartupProfile } from '@/hooks/useStartupProfile';
 import { useWorkspace } from '@/components/workspace-context';
 import { useMissionOpenCount } from '@/hooks/useMissionOpenCount';
-import { canSee } from '@/lib/nav-access';
+import { canSee, roleLabel } from '@/lib/nav-access';
 import { logout } from '@/lib/api/profile';
 import {
   LayoutGrid,
@@ -150,7 +150,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { unreadCount } = useNotifications();
-  const { name, stageLabel, logoUrl, founderName, founderRole, loading } = useStartupProfile();
+  const { name, stageLabel, logoUrl, founderName, loading } = useStartupProfile();
   const { me, role, workspaceId, workspaceName: membershipName, loading: roleLoading } = useWorkspace();
   const missionOpen = useMissionOpenCount(canSee('/mission', role), pathname ?? '');
 
@@ -159,7 +159,8 @@ export default function Sidebar({
   const workspaceInitial = (workspaceName.charAt(0) || 'W').toUpperCase();
   const founderDisplay = founderName?.trim() || (loading ? 'Loading…' : 'Your account');
   const founderInitials = initialsOf(founderName) || 'U';
-  const founderRoleText = founderRole?.trim() || 'Founder';
+  // The role in the workspace being viewed, not the profile's free-text title (that said "Founder" for a mentor).
+  const founderRoleText = role ? roleLabel(role) : '';
   const founderAvatar = me?.profile.avatar_url ?? null;
   const founderEmail = me?.user.email ?? null;
   const memberships = me?.memberships ?? [];

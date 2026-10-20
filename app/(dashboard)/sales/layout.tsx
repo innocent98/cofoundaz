@@ -3,9 +3,7 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "./ToastContext";
-import {  } from 'lucide-react';
-import { HealthPill } from '@/components/health-pill';
-import { NotificationBell } from '@/components/notification-bell';
+import { ShellTopBar } from '@/components/shell-top-bar';
 
 export default function SalesLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -26,25 +24,7 @@ export default function SalesLayout({ children }: { children: React.ReactNode })
         
         {/* Outer Single Top Header */}
         <div className="sticky top-0 z-40 bg-[#F7F7F5] border-b border-[#EBEBE6] w-full">
-          <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4 w-full">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-sm md:text-base font-semibold">
-                <span className="text-[#8E9B90]">Workspace</span>
-                <span className="text-[#8E9B90]">/</span>
-                <h1 className="text-[#1E2923] font-bold">Sales Hub</h1>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 md:gap-3">
-              <HealthPill className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium" />
-
-              <NotificationBell />
-
-              <button className="shrink-0 flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs md:text-sm transition-colors shadow-card">
-                <span>+ Invite</span>
-              </button>
-            </div>
-          </header>
+          <ShellTopBar title="Sales Hub" />
 
           <div className="px-4 md:px-8 py-3 bg-[#F7F7F5] w-full">
             <nav className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
