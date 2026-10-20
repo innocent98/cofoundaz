@@ -11,6 +11,7 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 | Roadmap | 11/11 | #137, #145 | #107, #110 | ✅ 2026-10-19, founder 1440 + 375, consultant, TM; real-model breakdown | Mentor not separately recorded |
 | Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19, founder 1440 + 375 (all routes), consultant / mentor / TM on SWOT; real-model AI incl. full plan | Other roles walked on one artifact only |
 | Validation | 14/14 | #149, #150, #151 | #114, #115, #117 | ✅ (a) 2026-10-19, (b)+(c) 2026-10-20: founder 1440 + 375, TM, mentor, public page, real model incl. Apply | 3 minor FE items (notification tab context, 2 accessible names) |
+| Assessment | 13/13 | #152 | #121 | 🟡 re-walked 2026-10-20, founder + TM + mentor (1440 + 375, every control vs the API, see `assessment-rewalk.md`); **not done**: 1 medium FE bug (completion screen mixes assessment score with Health delta), quarterly banner + quarterly bell deep link not reproduced (need a 90-day backdate in the local DB) | 2 low + 2 info FE items |
 
 ## Cross-cutting fixes found along the way (all merged)
 Worker never registered notification subscribers (#130) · invite emails had no link (#131) · weekends-off reset streaks /
@@ -25,8 +26,8 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 | Dashboard re-walk: BE gaps 1-3, 8, 9 merged (API #153); FE gaps 1, 4-7, 10 fixed in the `feat-dashboard-fe-rows` PR (`docs/sop/dashboard-rewalk-fe-rows.md`); mentor/consultant to be re-walked once it merges | follow-up |
 | Validation: 3 minor FE items (see `validation-rewalk.md`) | follow-up |
 | Consolidate the two comment-thread UIs + mention helpers | refactor follow-up |
-| `ShellTopBar` on the remaining section layouts: sales, investor-readiness, marketplace, academy, legal, funding, documents, ai, notifications, analytics-reports done in the dashboard FE-rows PR; Marketing / Finance / Journal / Settings etc. not checked | per-page, as each page is walked |
-| Assessment click-every-control re-walk on develop (after the Assessment FE PR merges) | next |
+| `ShellTopBar` on the remaining section layouts: Assessment done in the Assessment FE PR; sales, investor-readiness, marketplace, academy, legal, funding, documents, ai, notifications, analytics-reports done in the dashboard FE-rows PR (#123); Marketing / Finance / Journal / Settings etc. not checked | per-page, as each page is walked |
+| Assessment re-walk gaps A1-A5 + reproduce the quarterly banner / bell deep link (backdate `completed_at` of all completed rows >90 days, restore), see `assessment-rewalk.md` | follow-up |
 | Invited team member loses the invite link after email verification | Team page walk |
 | Per-workspace timezones for the mission scheduler | follow-up |
 | Health benchmarks with real cohorts | needs usage data |
