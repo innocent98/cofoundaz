@@ -134,11 +134,21 @@ test.describe('Assessment: founder', () => {
       },
     })
     await page.goto(`/assessment/run/${A2}`)
+    // A1: Health score and its own previous/delta, not the assessment score (78 for product).
+    await expect(page.getByTestId('score-product')).toHaveText('70/100')
+    await expect(page.getByTestId('prev-product')).toHaveText('was 60')
+    await expect(page.getByText('78/100')).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Your Health Score is now 95.' })).toBeVisible()
     await expect(page.getByText("Here's what changed.")).toBeVisible()
     await expect(page.getByLabel('Market change -3')).toBeVisible()
     await expect(page.getByRole('button', { name: 'See my dashboard' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Health score 95' })).toBeVisible()
+  })
+
+  test('A3: revisiting a finished run (replay, health null) lands on past results', async ({ page }) => {
+    await setup(page, { list: [row({ id: A2 })] })
+    await page.goto(`/assessment/run/${A2}`)
+    await expect(page).toHaveURL(/\/assessment\/results/)
   })
 
   test('results: stage at time, "not recorded", answers with changed_from', async ({ page }) => {

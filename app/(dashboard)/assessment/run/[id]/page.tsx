@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAssessmentRunner } from "@/hooks/useAssessmentApi";
 import {
@@ -8,6 +8,7 @@ import {
   DIMENSION_ORDER,
   sectionProgress,
   type CompleteAssessmentResult,
+  type CompletionHealth,
   type AssessmentQuestion,
   type AnswerValue,
 } from "@/lib/api/assessment";
@@ -176,33 +177,32 @@ function narrativeIsUseful(result: CompleteAssessmentResult): boolean {
   return Math.max(...scores) !== Math.min(...scores);
 }
 
+/** Rows show Health Score numbers only (score, previous, delta all from `health.dimensions`); the assessment's own scores live on Past results. */
 function CompletionScreen({
   result,
+  health,
   onDashboard,
   onResults,
 }: {
   result: CompleteAssessmentResult;
+  health: CompletionHealth;
   onDashboard: () => void;
   onResults: () => void;
 }) {
-  const health = result.health ?? null;
-  const shownScore = health ? health.score : result.overall_provisional;
-  const changeByKey = new Map(health?.dimensions.map((d) => [d.key, d]) ?? []);
+  const changeByKey = new Map(health.dimensions.map((d) => [d.key, d]));
 
   return (
     <div className="flex flex-col items-center min-h-[60vh] text-center space-y-6 animate-fadeIn max-w-lg mx-auto">
       <div
         className="w-16 h-16 rounded-full bg-[#1e4836] text-white flex items-center justify-center font-bold text-2xl mb-2"
-        aria-label={`${health ? "Health Score" : "Overall score"} ${shownScore}`}
+        aria-label={`Health Score ${health.score}`}
       >
-        {shownScore}
+        {health.score}
       </div>
       <div className="space-y-2">
-        <h1 className="text-3xl font-display font-semibold text-sage-900">
-          {health ? `Your Health Score is now ${health.score}.` : `Your assessment is complete.`}
-        </h1>
-        {health && <p className="text-sage-600 font-medium">Here&apos;s what changed.</p>}
-        {health && health.delta !== null && health.previous_score !== null && (
+        <h1 className="text-3xl font-display font-semibold text-sage-900">Your Health Score is now {health.score}.</h1>
+        <p className="text-sage-600 font-medium">Here&apos;s what changed.</p>
+        {health.delta !== null && health.previous_score !== null && (
           <p
             className={`text-sm font-semibold ${health.delta < 0 ? "text-[#B0483B]" : "text-[#1e4836]"}`}
             data-testid="health-delta"
@@ -217,7 +217,8 @@ function CompletionScreen({
       <div className="w-full space-y-3 pt-2">
         {DIMENSION_ORDER.map((dim) => {
           const change = changeByKey.get(dim);
-          const delta = change?.delta ?? null;
+          if (!change) return null;
+          const delta = change.delta;
           return (
             <div
               key={dim}
@@ -225,6 +226,11 @@ function CompletionScreen({
             >
               <span className="text-sage-800">{DIMENSION_LABEL[dim]}</span>
               <span className="flex items-center gap-2">
+                {change.previous !== null && (
+                  <span className="text-xs text-sage-500" data-testid={`prev-${dim}`}>
+                    was {change.previous}
+                  </span>
+                )}
                 {delta !== null && (
                   <span
                     className={`text-xs font-semibold ${delta < 0 ? "text-[#B0483B]" : delta > 0 ? "text-[#1e4836]" : "text-sage-500"}`}
@@ -233,7 +239,9 @@ function CompletionScreen({
                     {formatDelta(delta)}
                   </span>
                 )}
-                <span className="text-[#1e4836] font-semibold">{result.dimension_scores[dim]}/100</span>
+                <span className="text-[#1e4836] font-semibold" data-testid={`score-${dim}`}>
+                  {change.score}/100
+                </span>
               </span>
             </div>
           );
@@ -263,7 +271,13 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
   const { id } = use(params);
   const router = useRouter();
   const { triggerToast } = useToast();
-  const { phase, question, progress: serverProgress, result, submitting, answerError, loadError, answer, retry } = useAssessmentRunner(id);
+  const { phase, question, progress: serverProgress, result, submitting, answerError, loadError, loadStatus, answer, retry } = useAssessmentRunner(id);
+
+  // A finished run revisited replays /complete with health: null. There is no Health Score to celebrate, so go to the results.
+  const replayed = phase === "done" && !!result && !result.health;
+  useEffect(() => {
+    if (replayed) router.replace("/assessment/results");
+  }, [replayed, router]);
 
   const handleSaveAndExit = () => {
     // Every answer is saved server-side as it is submitted, so there is nothing to flush.
@@ -281,21 +295,35 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
   }
 
   if (phase === "error") {
+    // 403 is permanent (team members and mentors cannot take it), so retrying is pointless.
+    const readOnly = loadStatus === 403;
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4 max-w-md mx-auto" role="alert">
-        <h2 className="text-xl font-display font-semibold text-sage-900">We couldn&apos;t load this assessment</h2>
-        <p className="text-sage-500 text-sm">{loadError}</p>
+        <h2 className="text-xl font-display font-semibold text-sage-900">
+          {readOnly ? "This check-in is read-only for you" : "We couldn't load this assessment"}
+        </h2>
+        <p className="text-sage-500 text-sm">
+          {readOnly ? "Only founders can take the assessment. You can still read every past result." : loadError}
+        </p>
         <div className="flex gap-3">
-          <button type="button" onClick={() => void retry()} className={PRIMARY_BTN}>
-            Try again
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push("/assessment")}
-            className="bg-white border border-sage-200 text-sage-800 font-bold text-sm px-6 py-3 rounded-[8px] hover:border-sage-300 transition-colors"
-          >
-            Back to overview
-          </button>
+          {readOnly ? (
+            <button type="button" onClick={() => router.push("/assessment/results")} className={PRIMARY_BTN}>
+              Past results
+            </button>
+          ) : (
+            <>
+              <button type="button" onClick={() => void retry()} className={PRIMARY_BTN}>
+                Try again
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/assessment")}
+                className="bg-white border border-sage-200 text-sage-800 font-bold text-sm px-6 py-3 rounded-[8px] hover:border-sage-300 transition-colors"
+              >
+                Back to overview
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -315,9 +343,18 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
   }
 
   if (phase === "done" && result) {
+    if (!result.health) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4" role="status">
+          <div className="w-10 h-10 rounded-full border-4 border-sage-200 border-t-[#9C5B34] animate-spin" />
+          <p className="text-sage-500 text-sm">Opening your results...</p>
+        </div>
+      );
+    }
     return (
       <CompletionScreen
         result={result}
+        health={result.health}
         onDashboard={() => router.push("/dashboard")}
         onResults={() => router.push("/assessment/results")}
       />

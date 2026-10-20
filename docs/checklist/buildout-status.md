@@ -27,8 +27,8 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 | Dashboard re-walk: BE gaps 1-3, 8, 9 merged (API #153); FE gaps 1, 4-7, 10 fixed in the `feat-dashboard-fe-rows` PR (`docs/sop/dashboard-rewalk-fe-rows.md`); mentor/consultant to be re-walked once it merges | follow-up |
 | Validation: 3 minor FE items (see `validation-rewalk.md`) | follow-up |
 | Consolidate the two comment-thread UIs + mention helpers | refactor follow-up |
-| `ShellTopBar` on the remaining section layouts: Assessment done in the Assessment FE PR; sales, investor-readiness, marketplace, academy, legal, funding, documents, ai, notifications, analytics-reports done in the dashboard FE-rows PR (#123); Marketing / Finance / Journal / Settings etc. not checked | per-page, as each page is walked |
-| Assessment re-walk gaps A1-A5 + reproduce the quarterly banner / bell deep link (backdate `completed_at` of all completed rows >90 days, restore), see `assessment-rewalk.md` | follow-up |
+| `ShellTopBar` on the remaining section layouts: Assessment, sales, investor-readiness, marketplace, academy, legal, funding, documents, ai, notifications, analytics-reports done; Marketing / Finance / Journal / Settings etc. not checked | per-page, as each page is walked |
+| Assessment re-walk: gaps A1-A4 + A6 (banner day count) fixed in FE PR #126 (`docs/sop/assessment-rewalk-fixes.md`); quarterly banner and bell deep link verified live by the lead (`assessment-rewalk.md`, "Quarterly items, verified live"); A5 (old mentor bell rows) left | done pending PR merge |
 | Invited team member loses the invite link after email verification | Team page walk |
 | Per-workspace timezones for the mission scheduler | follow-up |
 | Health benchmarks with real cohorts | needs usage data |

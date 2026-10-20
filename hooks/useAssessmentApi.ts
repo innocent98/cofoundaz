@@ -208,6 +208,7 @@ export function useAssessmentRunner(assessmentId: string) {
   const [submitting, setSubmitting] = useState(false);
   const [answerError, setAnswerError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadStatus, setLoadStatus] = useState<number | null>(null);
   const [answeredCount, setAnsweredCount] = useState(0);
   const [progress, setProgress] = useState<AssessmentProgress | null>(null);
 
@@ -221,6 +222,7 @@ export function useAssessmentRunner(assessmentId: string) {
       if (res.health) refreshHealthScore();
     } catch (err) {
       setLoadError(assessmentErrMsg(err));
+      setLoadStatus(err instanceof ApiError ? err.status : null);
       setPhase('error');
     }
   }, [assessmentId]);
@@ -228,6 +230,7 @@ export function useAssessmentRunner(assessmentId: string) {
   const load = useCallback(async () => {
     setPhase('loading');
     setLoadError(null);
+    setLoadStatus(null);
     if (!isAssessmentId(assessmentId)) {
       setLoadError(assessmentErrMsg(new ApiError(404, 'Not Found', null)));
       setPhase('error');
@@ -242,6 +245,7 @@ export function useAssessmentRunner(assessmentId: string) {
       else await finish();
     } catch (err) {
       setLoadError(assessmentErrMsg(err));
+      setLoadStatus(err instanceof ApiError ? err.status : null);
       setPhase('error');
     }
   }, [assessmentId, finish]);
@@ -273,5 +277,5 @@ export function useAssessmentRunner(assessmentId: string) {
     [assessmentId, question, submitting, finish]
   );
 
-  return { phase, question, progress, result, submitting, answerError, loadError, answeredCount, answer, retry: load };
+  return { phase, question, progress, result, submitting, answerError, loadError, loadStatus, answeredCount, answer, retry: load };
 }
