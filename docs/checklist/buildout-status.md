@@ -11,6 +11,7 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 | Roadmap | 11/11 | #137, #145 | #107, #110 | ✅ 2026-10-19, founder 1440 + 375, consultant, TM; real-model breakdown | Mentor not separately recorded |
 | Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19, founder 1440 + 375 (all routes), consultant / mentor / TM on SWOT; real-model AI incl. full plan | Other roles walked on one artifact only |
 | Validation | 14/14 | #149, #150, #151 | #114, #115, #117 | ✅ (a) 2026-10-19, (b)+(c) 2026-10-20: founder 1440 + 375, TM, mentor, public page, real model incl. Apply | 3 minor FE items (notification tab context, 2 accessible names) |
+| Assessment | 13/13 | #152 | #121 | 🟡 re-walked 2026-10-20, founder + TM + mentor (1440 + 375, every control vs the API, see `assessment-rewalk.md`); **not done**: 1 medium FE bug (completion screen mixes assessment score with Health delta), quarterly banner + quarterly bell deep link not reproduced (need a 90-day backdate in the local DB) | 2 low + 2 info FE items |
 
 ## Cross-cutting fixes found along the way (all merged)
 Worker never registered notification subscribers (#130) · invite emails had no link (#131) · weekends-off reset streaks /
