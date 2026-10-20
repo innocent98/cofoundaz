@@ -38,6 +38,7 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
   if (type === 'workspace.member.joined') return '/team';
   if (type === 'finance.runway.low') return '/finance/runway';
   if (type === 'assessment.completed') return '/assessment/results';
+  if (type === 'assessment.quarterly.due') return '/assessment';
   if (type === 'healthscore.dropped' || type === 'healthscore.record') return '/health';
   if (type === 'validation.smoke_test.milestone') {
     return typeof data?.experiment_id === 'string'

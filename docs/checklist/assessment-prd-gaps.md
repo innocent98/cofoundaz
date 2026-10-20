@@ -42,6 +42,11 @@ Legend: ✅ meets PRD · ❌ gap
 - **D-ASM-3:** "stage at time" is snapshotted from the startup at completion; past assessments show "not recorded" rather than a guess.
 - **D-ASM-4:** the completion screen shows the new Health Score and per-dimension change (the PRD's "Here's what changed"); the assessment's own score stays in Results.
 
+## Status (2026-10-20)
+BE rows 5, 6, 7, 8, 9, 11, 12, 13: shipped in API #152. FE rows 1-4, 7, 9-13: built on `feat/assessment-prd-fe`,
+verified live at 1440 and 375 as founder, team member and mentor (SOP `docs/sop/assessment-prd-fe.md`). Open: the quarterly
+banner and bell deep link were only tested against mocks; re-walk on develop after the FE merge.
+
 ## Build order
 BE (lead), one PR: rows 5, 6, 7, 8, 9, 11, 12, 13 (BE parts), with tests, e2e journey, live-captured FE guide, SOP.
 FE (one sub-session): rows 1-4, 7, 9-13 (FE parts). Then a click-every-control re-walk on develop.

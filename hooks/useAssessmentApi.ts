@@ -1,17 +1,19 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ApiError } from '@/lib/api/client';
+import { refreshHealthScore } from '@/hooks/useHealthScore';
 import {
   startAssessment,
-  getNextQuestion,
-  submitAnswer,
+  getNextStep,
+  submitAnswerStep,
   completeAssessment,
-  listAssessments,
+  fetchAssessmentList,
   getAssessment,
   compareAssessments,
   isAssessmentId,
   type AnswerValue,
   type AssessmentDetail,
   type AssessmentListItem,
+  type AssessmentProgress,
   type AssessmentQuestion,
   type CompleteAssessmentResult,
   type DimensionScores,
@@ -42,6 +44,7 @@ export function assessmentErrMsg(err: unknown): string {
 /** Past + in-progress assessments, newest first (GET /assessments). */
 export function useAssessmentHistory() {
   const [items, setItems] = useState<AssessmentListItem[]>([]);
+  const [quarterlyDue, setQuarterlyDue] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +52,9 @@ export function useAssessmentHistory() {
     try {
       setLoading(true);
       setError(null);
-      setItems(await listAssessments());
+      const list = await fetchAssessmentList();
+      setItems(list.items);
+      setQuarterlyDue(list.quarterlyDue);
     } catch (err) {
       setError(assessmentErrMsg(err));
     } finally {
@@ -66,7 +71,7 @@ export function useAssessmentHistory() {
   const completed = items.filter((i) => i.status === 'completed');
   const inProgress = items.find((i) => i.status === 'in_progress') ?? null;
 
-  return { items, completed, inProgress, loading, error, refetch: load };
+  return { items, completed, inProgress, quarterlyDue, loading, error, refetch: load };
 }
 
 /** Lazy per-assessment detail cache (scores + narrative) for the results accordion. */
@@ -154,6 +159,7 @@ export function useStartAssessment() {
 export function useInProgressAssessment() {
   const [assessment, setAssessment] = useState<AssessmentListItem | null>(null);
   const [question, setQuestion] = useState<AssessmentQuestion | null>(null);
+  const [progress, setProgress] = useState<AssessmentProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -161,9 +167,16 @@ export function useInProgressAssessment() {
     try {
       setLoading(true);
       setError(null);
-      const open = (await listAssessments()).find((a) => a.status === 'in_progress') ?? null;
+      const open = (await fetchAssessmentList('in_progress')).items.find((a) => a.status === 'in_progress') ?? null;
       setAssessment(open);
-      setQuestion(open ? await getNextQuestion(open.id) : null);
+      if (open) {
+        const step = await getNextStep(open.id);
+        setQuestion(step.question);
+        setProgress(step.progress ?? open.progress ?? null);
+      } else {
+        setQuestion(null);
+        setProgress(null);
+      }
     } catch (err) {
       setError(assessmentErrMsg(err));
     } finally {
@@ -177,7 +190,7 @@ export function useInProgressAssessment() {
     });
   }, [load]);
 
-  return { assessment, question, loading, error, refetch: load };
+  return { assessment, question, progress, loading, error, refetch: load };
 }
 
 export type RunnerPhase = 'loading' | 'question' | 'completing' | 'done' | 'error';
@@ -196,12 +209,16 @@ export function useAssessmentRunner(assessmentId: string) {
   const [answerError, setAnswerError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [answeredCount, setAnsweredCount] = useState(0);
+  const [progress, setProgress] = useState<AssessmentProgress | null>(null);
 
   const finish = useCallback(async () => {
     setPhase('completing');
     try {
-      setResult(await completeAssessment(assessmentId));
+      const res = await completeAssessment(assessmentId);
+      // A replayed /complete has health: null; never let it overwrite the first response's before/after.
+      setResult((prev) => (res.health == null && prev?.health ? { ...res, health: prev.health } : res));
       setPhase('done');
+      if (res.health) refreshHealthScore();
     } catch (err) {
       setLoadError(assessmentErrMsg(err));
       setPhase('error');
@@ -217,8 +234,10 @@ export function useAssessmentRunner(assessmentId: string) {
       return;
     }
     try {
-      const next = await getNextQuestion(assessmentId);
+      const step = await getNextStep(assessmentId);
+      const next = step.question;
       setQuestion(next);
+      setProgress(step.progress);
       if (next) setPhase('question');
       else await finish();
     } catch (err) {
@@ -239,9 +258,11 @@ export function useAssessmentRunner(assessmentId: string) {
       try {
         setSubmitting(true);
         setAnswerError(null);
-        const next = await submitAnswer(assessmentId, question.key, value);
+        const step = await submitAnswerStep(assessmentId, question.key, value);
+        const next = step.question;
         setAnsweredCount((n) => n + 1);
         setQuestion(next);
+        setProgress(step.progress);
         if (!next) await finish();
       } catch (err) {
         setAnswerError(assessmentErrMsg(err));
@@ -252,5 +273,5 @@ export function useAssessmentRunner(assessmentId: string) {
     [assessmentId, question, submitting, finish]
   );
 
-  return { phase, question, result, submitting, answerError, loadError, answeredCount, answer, retry: load };
+  return { phase, question, progress, result, submitting, answerError, loadError, answeredCount, answer, retry: load };
 }

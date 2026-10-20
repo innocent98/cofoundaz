@@ -8,6 +8,10 @@ import {
   compareAssessments,
   sectionProgress,
   isAssessmentId,
+  fetchAssessmentList,
+  getNextStep,
+  submitAnswerStep,
+  stageAtTimeLabel,
 } from './assessment';
 import * as clientModule from './client';
 
@@ -109,5 +113,40 @@ describe('Assessment API client (lib/api/assessment.ts)', () => {
 
     expect(isAssessmentId('01d7c783-a488-40b2-8804-f24dff3bafbb')).toBe(true);
     expect(isAssessmentId('../../auth/logout')).toBe(false);
+  });
+
+  it('fetchAssessmentList sends the status filter and reads meta.quarterly_due', async () => {
+    const rows = [{ id: 'a1', type: 'initial', status: 'in_progress', progress: { answered: 1, remaining: 8, pct: 11 } }];
+    vi.mocked(clientModule.apiClient).mockResolvedValueOnce({ data: rows, meta: { quarterly_due: true } });
+    const list = await fetchAssessmentList('in_progress');
+    expect(clientModule.apiClient).toHaveBeenCalledWith('/assessments?status=in_progress');
+    expect(list).toEqual({ items: rows, quarterlyDue: true });
+
+    vi.mocked(clientModule.apiClient).mockResolvedValueOnce({ data: [], meta: { next_cursor: null } });
+    expect(await fetchAssessmentList()).toEqual({ items: [], quarterlyDue: false });
+    expect(clientModule.apiClient).toHaveBeenLastCalledWith('/assessments');
+  });
+
+  it('getNextStep and submitAnswerStep return the question with its progress', async () => {
+    const progress = { answered: 1, remaining: 8, pct: 11 };
+    vi.mocked(clientModule.apiClient).mockResolvedValueOnce({ data: { next_question: question, progress } });
+    expect(await getNextStep('a1')).toEqual({ question, progress });
+
+    vi.mocked(clientModule.apiClient).mockResolvedValueOnce({
+      data: { next_question: null, progress: { answered: 9, remaining: 0, pct: 100 } },
+    });
+    const step = await submitAnswerStep('a1', 'k', 'v');
+    expect(step.question).toBeNull();
+    expect(step.progress?.pct).toBe(100);
+
+    vi.mocked(clientModule.apiClient).mockResolvedValueOnce({ data: { next_question: question } });
+    expect((await getNextStep('a1')).progress).toBeNull();
+  });
+
+  it('stageAtTimeLabel names a stage and says "not recorded" for null (D-ASM-3)', () => {
+    expect(stageAtTimeLabel('build')).toBe('Build');
+    expect(stageAtTimeLabel(null)).toBe('not recorded');
+    expect(stageAtTimeLabel(undefined)).toBe('not recorded');
+    expect(stageAtTimeLabel('')).toBe('not recorded');
   });
 });

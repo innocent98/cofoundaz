@@ -3,7 +3,59 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAssessmentHistory, useAssessmentDetails } from "@/hooks/useAssessmentApi";
-import { DIMENSION_LABEL, DIMENSION_ORDER, formatAssessmentDate } from "@/lib/api/assessment";
+import {
+  DIMENSION_LABEL,
+  DIMENSION_ORDER,
+  formatAssessmentDate,
+  stageAtTimeLabel,
+  type AssessmentAnswerGroup,
+  type AssessmentDimension,
+} from "@/lib/api/assessment";
+
+function groupLabel(dimension: string): string {
+  return DIMENSION_LABEL[dimension as AssessmentDimension] ?? "Other";
+}
+
+/** Answers grouped by dimension; an answer that differs from the previous check-in is highlighted with its old value. */
+function AnswersByDimension({ groups, hasPrevious }: { groups: AssessmentAnswerGroup[]; hasPrevious: boolean }) {
+  const changedCount = groups.reduce((n, g) => n + g.questions.filter((q) => q.changed).length, 0);
+  return (
+    <div>
+      <h4 className="text-xs font-semibold text-sage-500 uppercase tracking-wider mb-1">Your answers</h4>
+      {hasPrevious && (
+        <p className="text-xs text-sage-500 mb-3">
+          {changedCount > 0
+            ? `${changedCount} ${changedCount === 1 ? "answer" : "answers"} changed since your previous check-in.`
+            : "Nothing changed since your previous check-in."}
+        </p>
+      )}
+      <div className="space-y-4">
+        {groups.map((group) => (
+          <section key={group.dimension} aria-label={`${groupLabel(group.dimension)} answers`}>
+            <h5 className="text-sm font-semibold text-sage-800 mb-2">{groupLabel(group.dimension)}</h5>
+            <ul className="space-y-2">
+              {group.questions.map((q) => (
+                <li
+                  key={q.question_key}
+                  data-changed={q.changed ? "true" : "false"}
+                  className={`rounded-card border p-3 text-sm ${
+                    q.changed ? "bg-[#F7EEDC] border-[#D89A6E]/50" : "bg-white border-sage-200/60"
+                  }`}
+                >
+                  <p className="text-sage-600">{q.prompt ?? "A question that is no longer asked"}</p>
+                  <p className="font-semibold text-sage-900 mt-0.5">{q.answer_label}</p>
+                  {q.changed && q.changed_from && (
+                    <p className="text-xs font-semibold text-[#9C5B34] mt-1">Changed from: {q.changed_from}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function AssessmentResultsPage() {
   const router = useRouter();
@@ -85,6 +137,9 @@ export default function AssessmentResultsPage() {
                         {item.type === "initial" ? "Kickoff assessment" : "Quarterly check-in"}
                       </h3>
                       <p className="text-xs md:text-sm text-sage-500">{formatAssessmentDate(item.completed_at)}</p>
+                      <p className="text-xs text-sage-500">
+                        Stage at time: <span className="font-medium text-sage-700">{stageAtTimeLabel(item.stage_at_time)}</span>
+                      </p>
                     </div>
                   </div>
 
@@ -141,6 +196,7 @@ export default function AssessmentResultsPage() {
                             })}
                           </div>
                         </div>
+                        {detail.answers && detail.answers.length > 0 && <AnswersByDimension groups={detail.answers} hasPrevious={Boolean(previousItem)} />}
                       </>
                     )}
                   </div>

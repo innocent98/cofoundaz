@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { use, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -7,6 +7,7 @@ import {
   DIMENSION_LABEL,
   DIMENSION_ORDER,
   sectionProgress,
+  type CompleteAssessmentResult,
   type AssessmentQuestion,
   type AnswerValue,
 } from "@/lib/api/assessment";
@@ -163,11 +164,106 @@ function QuestionInput({
   );
 }
 
+/** "+4", "-3", "0": the change itself, never colour alone. */
+function formatDelta(delta: number): string {
+  return delta > 0 ? `+${delta}` : `${delta}`;
+}
+
+/** Strongest and focus lines name one dimension twice when every score ties, so drop the narrative then. */
+function narrativeIsUseful(result: CompleteAssessmentResult): boolean {
+  if (!result.narrative) return false;
+  const scores = DIMENSION_ORDER.map((d) => result.dimension_scores[d]);
+  return Math.max(...scores) !== Math.min(...scores);
+}
+
+function CompletionScreen({
+  result,
+  onDashboard,
+  onResults,
+}: {
+  result: CompleteAssessmentResult;
+  onDashboard: () => void;
+  onResults: () => void;
+}) {
+  const health = result.health ?? null;
+  const shownScore = health ? health.score : result.overall_provisional;
+  const changeByKey = new Map(health?.dimensions.map((d) => [d.key, d]) ?? []);
+
+  return (
+    <div className="flex flex-col items-center min-h-[60vh] text-center space-y-6 animate-fadeIn max-w-lg mx-auto">
+      <div
+        className="w-16 h-16 rounded-full bg-[#1e4836] text-white flex items-center justify-center font-bold text-2xl mb-2"
+        aria-label={`${health ? "Health Score" : "Overall score"} ${shownScore}`}
+      >
+        {shownScore}
+      </div>
+      <div className="space-y-2">
+        <h1 className="text-3xl font-display font-semibold text-sage-900">
+          {health ? `Your Health Score is now ${health.score}.` : `Your assessment is complete.`}
+        </h1>
+        {health && <p className="text-sage-600 font-medium">Here&apos;s what changed.</p>}
+        {health && health.delta !== null && health.previous_score !== null && (
+          <p
+            className={`text-sm font-semibold ${health.delta < 0 ? "text-[#B0483B]" : "text-[#1e4836]"}`}
+            data-testid="health-delta"
+          >
+            {health.delta === 0
+              ? `No change from ${health.previous_score}`
+              : `${formatDelta(health.delta)} from ${health.previous_score}`}
+          </p>
+        )}
+        {narrativeIsUseful(result) && <p className="text-sage-500">{result.narrative}</p>}
+      </div>
+      <div className="w-full space-y-3 pt-2">
+        {DIMENSION_ORDER.map((dim) => {
+          const change = changeByKey.get(dim);
+          const delta = change?.delta ?? null;
+          return (
+            <div
+              key={dim}
+              className="bg-white rounded-modal p-4 border border-sage-200/80 shadow-card flex items-center justify-between font-medium"
+            >
+              <span className="text-sage-800">{DIMENSION_LABEL[dim]}</span>
+              <span className="flex items-center gap-2">
+                {delta !== null && (
+                  <span
+                    className={`text-xs font-semibold ${delta < 0 ? "text-[#B0483B]" : delta > 0 ? "text-[#1e4836]" : "text-sage-500"}`}
+                    aria-label={`${DIMENSION_LABEL[dim]} change ${formatDelta(delta)}`}
+                  >
+                    {formatDelta(delta)}
+                  </span>
+                )}
+                <span className="text-[#1e4836] font-semibold">{result.dimension_scores[dim]}/100</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="w-full space-y-3 mt-4">
+        <button
+          type="button"
+          onClick={onDashboard}
+          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-8 py-3 rounded-card transition-colors w-full shadow-card"
+        >
+          See my dashboard
+        </button>
+        <button
+          type="button"
+          onClick={onResults}
+          className="bg-white border border-sage-200 text-sage-800 font-semibold px-8 py-3 rounded-card hover:border-sage-300 transition-colors w-full"
+        >
+          View past results
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AssessmentRunnerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const { triggerToast } = useToast();
-  const { phase, question, result, submitting, answerError, loadError, answer, retry } = useAssessmentRunner(id);
+  const { phase, question, progress: serverProgress, result, submitting, answerError, loadError, answer, retry } = useAssessmentRunner(id);
 
   const handleSaveAndExit = () => {
     // Every answer is saved server-side as it is submitted, so there is nothing to flush.
@@ -212,7 +308,7 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
           <div className="w-16 h-16 rounded-full border-4 border-sage-200 border-t-[#9C5B34] animate-spin"></div>
         </div>
         <h2 className="text-2xl font-display font-semibold text-sage-900 tracking-tight animate-pulse">
-          Done. Recalibrating your workspace...
+          Done. Recalibrating your workspace…
         </h2>
       </div>
     );
@@ -220,53 +316,19 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
 
   if (phase === "done" && result) {
     return (
-      <div className="flex flex-col items-center min-h-[60vh] text-center space-y-6 animate-fadeIn max-w-lg mx-auto">
-        <div
-          className="w-16 h-16 rounded-full bg-[#1e4836] text-white flex items-center justify-center font-bold text-2xl mb-2"
-          aria-label={`Overall score ${result.overall_provisional}`}
-        >
-          {result.overall_provisional}
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-display font-semibold text-sage-900">
-            Your assessment score is {result.overall_provisional}.
-          </h1>
-          {result.narrative && <p className="text-sage-500">{result.narrative}</p>}
-        </div>
-        <div className="w-full space-y-3 pt-2">
-          {DIMENSION_ORDER.map((dim) => (
-            <div
-              key={dim}
-              className="bg-white rounded-modal p-4 border border-sage-200/80 shadow-card flex items-center justify-between font-medium"
-            >
-              <span className="text-sage-800">{DIMENSION_LABEL[dim]}</span>
-              <span className="text-[#1e4836] font-semibold">{result.dimension_scores[dim]}/100</span>
-            </div>
-          ))}
-        </div>
-        <div className="w-full space-y-3 mt-4">
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard")}
-            className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-8 py-3 rounded-card transition-colors w-full shadow-card"
-          >
-            See my dashboard
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push("/assessment/results")}
-            className="bg-white border border-sage-200 text-sage-800 font-semibold px-8 py-3 rounded-card hover:border-sage-300 transition-colors w-full"
-          >
-            View past results
-          </button>
-        </div>
-      </div>
+      <CompletionScreen
+        result={result}
+        onDashboard={() => router.push("/dashboard")}
+        onResults={() => router.push("/assessment/results")}
+      />
     );
   }
 
   if (!question) return null;
 
   const progress = sectionProgress(question.dimension);
+  // The bar follows the server's answered / (answered + remaining); section numbering stays dimension-based.
+  const pct = serverProgress?.pct ?? progress.pct;
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-fadeIn pt-4">
@@ -288,7 +350,12 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
         <div className="w-full bg-[#d2e2d8]/60 rounded-full h-2 overflow-hidden">
           <div
             className="bg-[#1e4836] h-full rounded-full transition-all duration-300"
-            style={{ width: `${progress.pct}%` }}
+            role="progressbar"
+            aria-label="Assessment progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={pct}
+            style={{ width: `${pct}%` }}
           ></div>
         </div>
 

@@ -3,11 +3,30 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useInProgressAssessment } from "@/hooks/useAssessmentApi";
-import { sectionProgress } from "@/lib/api/assessment";
+import { useWorkspace } from "@/components/workspace-context";
+import { canTakeAssessment } from "@/lib/nav-access";
 
 export default function AssessmentInProgressPage() {
   const router = useRouter();
-  const { assessment, question, loading, error, refetch } = useInProgressAssessment();
+  const { role, loading: workspaceLoading } = useWorkspace();
+  const { assessment, question, progress, loading, error, refetch } = useInProgressAssessment();
+
+  // Team members read results only: no resume, no in-progress card (PRD Module 07 access).
+  if (!workspaceLoading && !canTakeAssessment(role)) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 text-center">
+        <h2 className="text-xl font-display font-semibold text-sage-900 mb-2">Only founders can take the assessment</h2>
+        <p className="text-sage-500 mb-6">You can read every result and compare check-ins.</p>
+        <button
+          type="button"
+          onClick={() => router.push("/assessment/results")}
+          className="bg-[#1e4836] hover:bg-[#153427] text-white font-bold text-sm px-5 py-2.5 rounded-[8px] transition-colors"
+        >
+          View past results
+        </button>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -51,27 +70,34 @@ export default function AssessmentInProgressPage() {
   }
 
   // question === null means every applicable question is answered; the runner completes it.
-  const progress = question ? sectionProgress(question.dimension) : null;
+  const pct = question ? (progress?.pct ?? 0) : 100;
 
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="space-y-1">
         <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">
-          Pick up where you left off
+          {question ? `You're ${pct}% through.` : "You're almost done."}
         </h1>
         <p className="text-sage-500 text-sm md:text-base">
-          {progress
-            ? `You're in section ${progress.sectionNumber} of ${progress.totalSections} of your calibration.`
+          {question
+            ? "Pick up where you left off."
             : "You've answered everything. One step left to see your results."}
         </p>
       </div>
 
       <div className="bg-white rounded-modal p-6 md:p-8 border border-sage-200/80 shadow-card flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-4 flex-1 w-full">
-          <div className="w-full bg-sage-100 h-2.5 rounded-full overflow-hidden">
+          <div
+            role="progressbar"
+            aria-label="Assessment progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={pct}
+            className="w-full bg-sage-100 h-2.5 rounded-full overflow-hidden"
+          >
             <div
               className="bg-[#9C5B34] h-full rounded-full transition-all duration-500"
-              style={{ width: `${progress ? progress.pct : 100}%` }}
+              style={{ width: `${pct}%` }}
             />
           </div>
           <div className="flex items-center gap-2">

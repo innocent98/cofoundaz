@@ -25,7 +25,8 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 | Dashboard post-merge re-walk (incl. team member / consultant) | **recommended next to close the bar fully** |
 | Validation: 3 minor FE items (see `validation-rewalk.md`) | follow-up |
 | Consolidate the two comment-thread UIs + mention helpers | refactor follow-up |
-| `ShellTopBar` on the remaining section layouts (Assessment onward) | per-page, as each page is walked |
+| `ShellTopBar` on the remaining section layouts (Assessment done in the Assessment FE PR; Marketing onward) | per-page, as each page is walked |
+| Assessment click-every-control re-walk on develop (after the Assessment FE PR merges) | next |
 | Invited team member loses the invite link after email verification | Team page walk |
 | Per-workspace timezones for the mission scheduler | follow-up |
 | Health benchmarks with real cohorts | needs usage data |
