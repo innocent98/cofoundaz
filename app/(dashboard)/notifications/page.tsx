@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSidebar } from '@/components/sidebar-context';
 import { useNotifications } from '@/hooks/useNotifications';
-import { HealthPill } from '@/components/health-pill';
+import { ShellTopBar } from '@/components/shell-top-bar';
 import { NotificationPreferences } from '@/components/notifications/notification-preferences';
-import { Menu, History, Check, X, ChevronDown } from 'lucide-react';
+import { Check, X, ChevronDown } from 'lucide-react';
 
 type NotificationTab = 'Inbox' | 'Preferences' | 'Digest & quiet hours' | 'Announcements';
 type FilterCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team';
@@ -24,8 +23,6 @@ interface AnnouncementItem {
 }
 
 export default function NotificationsPage(): React.JSX.Element {
-  const { openSidebar } = useSidebar();
-
   const [activeTab, setActiveTab] = useState<NotificationTab>('Announcements'); // Default to Announcements as requested
   // Deep links like /notifications?tab=preferences (avatar menu "Preferences").
   useEffect(() => {
@@ -154,43 +151,7 @@ export default function NotificationsPage(): React.JSX.Element {
       )}
 
       {/* Main Navbar */}
-      <header className="sticky top-0 z-40 border-b border-[#E8E8E2] px-6 py-3.5 flex items-center justify-between bg-white w-full">
-        <div className="flex items-center space-x-3">
-          <button 
-            onClick={openSidebar}
-            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-card"
-            aria-label="Toggle Sidebar"
-          >
-            <Menu size={18} />
-          </button>
-
-          <div className="flex items-center space-x-2 text-sm md:text-base font-semibold tracking-tight">
-            <span className="text-[#1E2923]">Workspace</span>
-            <span className="text-[#8E9B90] font-normal">/</span>
-            <span className="text-[#1E2923]">Notifications</span>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-3">
-          <HealthPill className="bg-[#EAF2ED] text-[#183B28] border border-[#D5E6DC] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1 shadow-card" />
-
-          <div className="relative w-9 h-9 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center text-[#55635C] shadow-card">
-            <History className="w-4 h-4" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#B39353] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                {unreadCount}
-              </span>
-            )}
-          </div>
-
-          <button 
-            onClick={() => showToast('Invite modal opened.')}
-            className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-1.5 rounded-full text-xs font-semibold transition-colors shadow-card cursor-pointer flex items-center space-x-1"
-          >
-            <span>+ Invite</span>
-          </button>
-        </div>
-      </header>
+      <ShellTopBar title="Notifications" />
 
       {/* Sub-Navbar */}
       <nav className="w-full bg-[#F7F7F5] border-b border-[#E8E8E2] px-6 py-3 flex items-center justify-between">

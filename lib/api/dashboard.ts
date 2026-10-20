@@ -198,6 +198,8 @@ export interface DashboardSummaryData {
   greeting?: DashboardGreeting | null;
   health?: DashboardHealthSection | null;
   mission?: DashboardMissionSection;
+  /** `restricted` for roles that cannot open Today's Mission (`mission` is then null). Absent on older APIs. */
+  mission_status?: 'ok' | 'restricted' | string;
   upcoming?: DashboardUpcomingSection | null;
   kpis?: DashboardKpisSection | null;
   calibration?: DashboardCalibrationSection | null;

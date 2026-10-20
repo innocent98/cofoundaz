@@ -7,12 +7,13 @@ import { mapSummary } from '@/hooks/useDashboardApi';
 const push = vi.fn();
 const openAiDrawer = vi.fn();
 const refetch = vi.fn();
+let role = 'founder';
 let summary: { data: ReturnType<typeof mapSummary> | null; loading: boolean; error: Error | null } = { data: null, loading: true, error: null };
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }), usePathname: () => '/dashboard' }));
 vi.mock('@/components/ai-drawer-context', () => ({ useAiDrawer: () => ({ openAiDrawer }) }));
 vi.mock('@/components/workspace-context', () => ({
-  useWorkspace: () => ({ me: null, workspaceId: 's', workspaceName: 'NovaPay', role: 'founder', loading: false }),
+  useWorkspace: () => ({ me: null, workspaceId: 's', workspaceName: 'NovaPay', role, loading: false }),
 }));
 vi.mock('@/components/dashboardnavbar', () => ({
   DashboardNavbar: ({ onInvite }: { onInvite: () => void }) => <button onClick={onInvite}>+ Invite</button>,
@@ -50,6 +51,7 @@ const payload = (over: Record<string, unknown> = {}) => ({
 describe('DashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    role = 'founder';
     summary = { data: mapSummary(payload()), loading: false, error: null };
   });
 
@@ -116,6 +118,45 @@ describe('DashboardPage', () => {
     expect(screen.queryByText('Risks')).toBeNull();
     expect(screen.queryByText('Opportunities')).toBeNull();
     expect(screen.getByText('Startup Health')).toBeTruthy();
+  });
+
+  it('mission_status restricted: no Mission card, no "no roadmap" empty state, no Tasks tile, no "Go to mission" link', () => {
+    role = 'mentor';
+    summary = {
+      data: mapSummary(
+        payload({
+          mission: null,
+          mission_status: 'restricted',
+          kpis: { tasks_done_this_week: 3, metrics: {} },
+          briefing: { status: 'restricted', message: null, id: null, actions: [] },
+          risks: { status: 'restricted', message: null, items: [] },
+          opportunities: { status: 'restricted', message: null, items: [] },
+        }),
+      ),
+      loading: false,
+      error: null,
+    };
+    render(<DashboardPage />);
+    expect(screen.queryByText("Today's Mission")).toBeNull();
+    expect(screen.queryByText(/kickoff assessment/)).toBeNull();
+    expect(screen.queryByText('Tasks This Week')).toBeNull();
+    expect(screen.queryByRole('link', { name: /Go to mission/ })).toBeNull();
+    expect(screen.getByText('Startup Health')).toBeTruthy();
+  });
+
+  it('mission_status ok with mission null is still the no-roadmap empty state', () => {
+    summary = { data: mapSummary(payload({ mission: null, mission_status: 'ok' })), loading: false, error: null };
+    render(<DashboardPage />);
+    expect(screen.getByText(/kickoff assessment/)).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Go to mission/ })).toBeTruthy();
+  });
+
+  it('an older API without mission_status still hides the card for a role that cannot open the mission', () => {
+    role = 'business_consultant';
+    summary = { data: mapSummary(payload({ mission: null })), loading: false, error: null };
+    render(<DashboardPage />);
+    expect(screen.queryByText("Today's Mission")).toBeNull();
+    expect(screen.queryByText(/kickoff assessment/)).toBeNull();
   });
 
   it('a failed summary errors every summary card on its own with the PRD copy and a working Retry', () => {

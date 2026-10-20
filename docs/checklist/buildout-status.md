@@ -22,10 +22,10 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 ## Still open (none blocks a finished page)
 | Item | Type |
 |---|---|
-| Dashboard re-walk gaps 1-3 (BE role filtering for mentor/consultant) and 4-10 (minor FE), see `dashboard-rewalk.md` | follow-up |
+| Dashboard re-walk: BE gaps 1-3, 8, 9 merged (API #153); FE gaps 1, 4-7, 10 fixed in the `feat-dashboard-fe-rows` PR (`docs/sop/dashboard-rewalk-fe-rows.md`); mentor/consultant to be re-walked once it merges | follow-up |
 | Validation: 3 minor FE items (see `validation-rewalk.md`) | follow-up |
 | Consolidate the two comment-thread UIs + mention helpers | refactor follow-up |
-| `ShellTopBar` on the remaining section layouts (Assessment done in the Assessment FE PR; Marketing onward) | per-page, as each page is walked |
+| `ShellTopBar` on the remaining section layouts: sales, investor-readiness, marketplace, academy, legal, funding, documents, ai, notifications, analytics-reports done in the dashboard FE-rows PR; Marketing / Finance / Journal / Settings etc. not checked | per-page, as each page is walked |
 | Assessment click-every-control re-walk on develop (after the Assessment FE PR merges) | next |
 | Invited team member loses the invite link after email verification | Team page walk |
 | Per-workspace timezones for the mission scheduler | follow-up |

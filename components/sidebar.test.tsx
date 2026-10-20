@@ -86,6 +86,14 @@ describe('Sidebar (PRD 2.1)', () => {
     expect(hasLink('Finance Hub')).toBe(false);
   });
 
+  it('the avatar footer shows the workspace role, not the profile title', () => {
+    role = 'mentor';
+    render(<Sidebar />);
+    const footer = screen.getByRole('button', { name: /Victor Founder/ });
+    expect(within(footer).getByText('Mentor')).toBeTruthy();
+    expect(within(footer).queryByText(/Founder & CEO/)).toBeNull();
+  });
+
   it('avatar menu: Profile, Preferences, Sign out (PRD 2.1)', () => {
     render(<Sidebar />);
     fireEvent.click(screen.getByRole('button', { name: /Victor Founder/ }));

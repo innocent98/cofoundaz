@@ -121,6 +121,11 @@ export interface DashboardSummaryResponse {
   };
   health: DashboardHealthState;
   mission: DashboardMissionState | null;
+  /**
+   * `restricted` = the viewer's role cannot open Today's Mission (D-MIS-8): hide the card and anything derived
+   * from it. `ok` with `mission: null` means the workspace has no roadmap yet.
+   */
+  missionStatus: 'ok' | 'restricted';
   calibration?: {
     assessment_complete?: boolean;
     step?: number | string;
