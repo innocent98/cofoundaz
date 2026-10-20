@@ -1,12 +1,13 @@
 # HANDOFF — Cofoundaz app-wide build-out (master)
 
 > **First message for a new (lead) session:**
-> *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Step 1 is done. Continue Validation (§2 Step 2):
-> follow the FE session `fe-validation-a` for slice (a), then build BE slice (b) (interview scripts + Insight Synthesizer),
-> then (c) (MVP feedback), each with an FE session and a click-every-control re-walk. No half-built pages; ask me only
-> for genuine product calls."*
+> *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Validation is done. Assessment is walked
+> (`docs/checklist/assessment-prd-gaps.md`, 13 rows, D-ASM-1..4): build its BE (one PR, tests first, e2e + captures,
+> FE guide, SOP, CI parity), then an FE session, then a re-walk. Recommended alongside: a post-merge Dashboard re-walk
+> (see `docs/checklist/buildout-status.md`). Follow Victoria's Legal work (API issue #138). No half-built pages; ask me
+> only for genuine product calls."*
 
-Last updated: **2026-10-19 22:10 WAT** (lead session 2: FE #114 verified, slice (b) BE built as API #150). This file is a map; the detail lives
+Last updated: **2026-10-20 14:40 WAT** (lead session 2 → 3 handover: Validation done; Assessment walked, gap list in FE #119). This file is a map; the detail lives
 in the gap lists (`docs/checklist/*-prd-gaps.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/app-review-audit.md`), and memory.
@@ -18,15 +19,16 @@ in the gap lists (`docs/checklist/*-prd-gaps.md`), SOPs (`docs/sop/` in both rep
 ### 0a. Open PRs
 | Repo | PR | What | Notes |
 |---|---|---|---|
-| FE | this docs PR (`docs/validation-rewalk-a`) | Validation slice (a) re-walk evidence + this handoff | merge any time |
-| FE | [#115](https://github.com/innocent98/Cofoundaz/pull/115) | Validation slice (b) FE: scripts + Insight Synthesizer (+ builder target fix) | CI green, no attribution, verified live by the lead (real model); merge any time |
-| API | [#151](https://github.com/innocent98/Cofoundaz-api/pull/151) | Validation slice (c): MVP feedback inbox, theme clustering, Send to roadmap, open survey answers, share-link rotation, linked experiments; migration 0058 | green locally (CI parity); merge any time |
+| FE | [#118](https://github.com/innocent98/cofoundaz/pull/118) (`docs/validation-rewalk-bc`) | Validation slices (b) + (c) re-walk evidence + this handoff | merge any time |
+| FE | [#119](https://github.com/innocent98/cofoundaz/pull/119) | Assessment gap list (13 rows, D-ASM-1..4) + `buildout-status.md` (Dashboard → Validation, honest caveats) | merge any time |
 
-Merged 2026-10-19 (Validation): API #149 (slice a) and #150 (slice b), FE #114 (slice a), docs #109, #113.
-**Paused 2026-10-19 23:30 WAT** (Adebayo: "lets pause, we'll continue tomorrow"). Nothing running. Resume with: merge #115, #151, #116;
-start the FE (c) session (proposal card `fe-validation-c`, task_02f33cc5, stacks on #115's branch if #115 is unmerged);
-then re-walk (b) incl. Apply on a suggestion (needs fresh evidence that yields one) and (c) on develop.
-Note: the remote branch `feat/validation-prd-b` was re-created by mistake after #150 merged (same commit as develop); delete it.
+Merged 2026-10-19/20 (Validation, DONE): API #149, #150, #151; FE #114, #115, #117; docs #109, #113, #116.
+
+**Victoria (junior BE, `@vikky-data`):** Module 13 Legal & Compliance Slice 1. Spec reviewed and approved with changes on
+2026-10-20 ([issue #138 comment](https://github.com/innocent98/Cofoundaz-api/issues/138#issuecomment-6291235169)): rebase
+(her migration is now **0059**), reminders to `LEGAL_ROLES` only (reverses the earlier all-members ruling), computed
+`days_out`, one notification per tick, `anchor_day` resets on a `due_on` edit, FE toggle for the new `legal` category.
+She goes straight to plan + build; review her PR when it comes (Opus-level review for the scheduler / row-lock paths).
 Merged 2026-10-19 (Step 1): API #142-#148, FE #110-#112 (re-walk fixes, AI budget 100k, honest AI fill messages).
 Everything else from 2026-10-18/19 is merged: API #135-#137, #139-#141 (staging CD green, migrations auto-run);
 FE #105-#108. Stacked PRs: GitHub retargets them to `develop` itself when the base merges with branch deletion.
@@ -88,6 +90,13 @@ All are reversible and none blocks merging.
 - FE `cofoundaz` (Next 16 App Router, React 19, Tailwind v4, TS strict) and API `cofoundaz-api` (FastAPI): sibling dirs under
   `/Users/adebayovictor/Documents/dev/cofoundaz`. The lead session works from the parent dir.
 - **develop heads (2026-10-19 21:20):** API `33132f9` (#148), FE `e07bad3` (#112).
+- **Local stack now (2026-10-20):** API + FE main checkouts on `develop` (API `ed282f4`, dev DB 0058); FE dev server on :3000.
+  The test account took a 4th assessment today (quarterly, score 100; Health 88 → 95). A spare API worktree with its own venv for
+  CI parity: `/private/tmp/claude-501/-Users-adebayovictor-Documents-dev-cofoundaz/55f98077-834b-48c4-aff2-eb55bd95867e/scratchpad/api-b`
+  (detached; `git checkout -b <branch> origin/develop` there). Next free migration: **0059** is Victoria's (Legal); take **0060**
+  and re-check against develop before pushing.
+- **Real-model capture recipe:** copy `scripts/e2e_run.sh` without the `LLM_PROVIDER=stub` line, point pytest at one scratch e2e file
+  (see `docs/sop/2026-10-19-validation-prd-b.md`). Raise per-job `max_tokens` for big JSON outputs (reasoning model, 800 default is too small).
 - **Slice (b) worktree:** `/private/tmp/claude-501/-Users-adebayovictor-Documents-dev-cofoundaz/55f98077-834b-48c4-aff2-eb55bd95867e/scratchpad/api-b`
   (own venv, use it for CI parity). The **API and FE main checkouts are on `develop`** (dev DB at 0057). Next free migration number: **0058**. Real-model capture recipe: copy
   `scripts/e2e_run.sh` without the `LLM_PROVIDER=stub` line and point it at one e2e file (see the slice (b) SOP).
@@ -116,7 +125,8 @@ All are reversible and none blocks merging.
 | Health Score | ✅ `health-prd-gaps.md` (10) | ✅ merged #136 | ✅ merged #106 | ✅ full click-through + close-out on merged develop 2026-10-19 (`health-rewalk.md`) |
 | Roadmap | ✅ `roadmap-prd-gaps.md` | ✅ merged #137 | ✅ merged #107 | ✅ full click-through + close-out on merged develop 2026-10-19 (`roadmap-rewalk.md`) |
 | Business Builder | ✅ `business-builder-prd-gaps.md` (21) | ✅ merged #139-#141 | ✅ merged #108 | ✅ full click-through + close-out on merged develop 2026-10-19 (`business-builder-rewalk.md`) |
-| Validation | ✅ `validation-prd-gaps.md` (14), D-VAL-1..11 | (a) #149, (b) #150 merged; (c) #151 open | (a) #114 merged; (b) session `fe-validation-slice-b-sc` | (a) ✅ `validation-rewalk.md`; (b), (c) after their FE |
+| Validation | ✅ `validation-prd-gaps.md` (14), D-VAL-1..11 | ✅ merged #149-#151 | ✅ merged #114, #115, #117 | ✅ all three slices re-walked on develop 2026-10-20 (`validation-rewalk.md`) |
+| Assessment | ✅ `assessment-prd-gaps.md` (13), D-ASM-1..4 (in FE #119) | next: one BE PR (rows 5-9, 11-13; two are security: reads + notifications open to every member) | then one FE session (rows 1-4, 7, 9-13) | after FE |
 
 Page order (PRD sidebar): Dashboard → Today's Mission → Health Score → Roadmap → Business Builder → Validation → Assessment →
 Marketing → Sales → Finance → Funding → Investor Readiness → Legal → Marketplace → Academy → Documents → Calendar → Team →

@@ -5,7 +5,7 @@ Slice (a) (gap rows 1-6, 14) walked on merged `develop` (FE `221ce21` = #114; AP
 The FE session for slice (b) was working in the same workspace at the same time (it moved one assumption to
 "testing" mid-walk); every row below was re-checked against the API at the moment it was clicked.
 
-Slices (b) (scripts, Insight Synthesizer) and (c) (MVP feedback) get their own sections when their FE lands.
+Slices (b) and (c) were walked on 2026-10-20 (FE `5025154` = #115 + #117; API `ed282f4` = #149-#151), sections below.
 
 ## Slice (a): founder, 1440
 | Control | Action | Result (API) | | Notes |
@@ -57,6 +57,62 @@ Slices (b) (scripts, Insight Synthesizer) and (c) (MVP feedback) get their own s
 | Mentor (`bb-mentor-1`) | no Validation in the sidebar; `/validation` shows "You don't have access to this page."; API 403; **no** Validation notifications (audience fix in #150) | ✅ |
 
 ## Open items from this walk
-- ❌ minor (FE): the builder clamps a target above 50 silently. Fold into the slice (b) FE session or a small fix.
+- ✅ fixed in #115: the builder blocked an out-of-range target ("Between 1 and 50.") instead of clamping it.
 
 **Slice (a) verdict: DONE on merged develop** (one minor FE copy/validation item above, non-blocking).
+
+
+## Slice (b): interview scripts + Insight Synthesizer, founder, 1440 (develop, 2026-10-20, real model)
+| Control | Action | Result (API) | | Notes |
+|---|---|---|---|---|
+| Generate script, nothing ticked | load | button disabled | ✅ | |
+| Assumption checkboxes + Generate (real model) | tick "Traders prefer weekly payouts…", Generate | job → saved script "How Traders Manage Payouts", 8 questions with tips, linked to that assumption; editor opens | ✅ | |
+| Move question up/down | move Q1 down | order swapped; after Save the moved question keeps its id | ✅ | |
+| Remove question | remove Q8 | 7 left | ✅ | |
+| Add question | add, type text | new row; after Save it gets its own id | ✅ | |
+| Save with a blank question | Save | "Each question needs text." from the API; nothing saved | ✅ | |
+| Save script | Save | `PATCH` persisted order, text and count (8) | ✅ | title edit verified on #115's build (same code) |
+| Close editor / open a script from the list | click | editor closes; list item opens its script | ✅ | |
+| Delete script | Delete → Cancel, Delete → Delete | dialog "This removes the script and its questions. It cannot be undone."; cancel keeps it, confirm removes it | ✅ | |
+| Synthesize insights (Interviews, real model) | click | report `source=interviews`, inputs 4 interviews, AI-labelled, verbatim quotes | ✅ | |
+| **Apply** suggestion | "Traders prefer weekly payouts" untested → invalidated → Apply | assumption `invalidated`, `applied_at` set, button → "Applied"; a repeat call → 409 `ALREADY_APPLIED` | ✅ | evidence prepared for this walk (2 contradicting interviews) |
+| Past reports | open | 4 reports listed = `GET /insights`; opening one shows it | ✅ | |
+| Delete this report | Delete → confirm | "Assumptions you already changed stay as they are."; 4 → 3 | ✅ | |
+| Synthesize insights (Surveys) | click | `source=surveys`, "Based on 2 survey answers" | ✅ | |
+| Notification "New pattern detected…" | click in Notifications inbox | opens `/validation/interviews?insight={id}` with that report | ✅ / ❌ minor | a Surveys report opens on the Interviews tab (works, wrong tab context) |
+
+## Slice (c): MVP feedback, surveys, linked experiments, founder, 1440
+| Control | Action | Result (API) | | Notes |
+|---|---|---|---|---|
+| Inbox load | load | items = `GET /feedback`; imported rows show source + origin label, no interviewee names | ✅ | |
+| Filter tabs All / Interview / Survey / In-app / Email | click each | 13 / 5 / 2 / 3 / 3 rows = `counts` | ✅ | |
+| Add feedback, empty | submit | "Write what the customer said."; nothing created | ✅ | |
+| Add feedback | text, Email, 18 Oct | created `email`, `received_on` 2026-10-18, not imported | ✅ | textarea has no accessible name ❌ minor |
+| Edit | change text + source to In-app, Save changes | persisted | ✅ | |
+| Dismiss (imported) | Dismiss | `dismissed: true`, hidden | ✅ | |
+| Show dismissed / Hide dismissed | toggle | dismissed row shown / hidden | ✅ | |
+| Restore | click | `dismissed: false`, back in the inbox | ✅ | Restore button lacks the item in its accessible name ❌ minor |
+| Delete (manual) | Delete → Cancel, Delete → Delete | "It is deleted for good and removed from any theme it is in."; cancel keeps, confirm deletes; theme count drops live (Withdrawal Failures 3× → 2×) | ✅ | |
+| Find themes (real model) | click | new run over 13 items replaces the shown themes; labels "{theme} mentioned {n}× across {m} sources" = API | ✅ | |
+| Show / Hide quotes | toggle | quotes shown, label flips | ✅ | |
+| Send to roadmap → Cancel | open picker, Cancel | picker closes, nothing sent | ✅ | |
+| Send to roadmap (default milestone) | "Unexpected Fees" → Add to roadmap | todo task in "Write your problem statement" (first open milestone), description from the theme; card shows "On your roadmap: …" | ✅ | |
+| Send to roadmap (chosen milestone) | picker → "Talk to 5 potential users" | task in that milestone | ✅ | verified on #117's build (same code) |
+| View link | | `/roadmap` | ✅ | |
+| Synthesize insights (MVP) | click | `source=all`: "Based on 4 interviews, 2 survey answers and 6 feedback items" | ✅ | |
+| Surveys: Answers tab / Results tab | click | "2 answers" = `GET /surveys/{id}/answers`; Results back | ✅ | |
+| Surveys: New share link | → Cancel; (→ Get new link on #117's build) | confirm "Anyone with the old link won't be able to answer."; new link shown with QR, works publicly (200) | ✅ | |
+| Assumption card: linked experiment | click "Same-Day Settlement Fee Test" | opens `/validation/smoke-tests?test={id}` | ✅ | |
+
+## Slices (b) + (c): other roles and widths
+| Check | Result | |
+|---|---|---|
+| Founder at 375: Scripts, MVP, Surveys, Interviews + report drawer | no horizontal scroll (375), drawer full width, controls reachable | ✅ |
+| Team member (`rewalk-tm`), 1440 | every (b)/(c) control present, no "+ Invite"; added and deleted a feedback entry through the UI; scripts / insights / themes 200 | ✅ |
+| Mentor (`bb-mentor-1`) | `/validation/mvp` "You don't have access to this page."; feedback / scripts / insights API 403; no Validation notifications | ✅ |
+
+## Open items (all minor, FE, non-blocking)
+- A Surveys-sourced insight notification opens the report on the Interviews tab.
+- Feedback form textarea has no accessible name; the Restore button's name omits the item.
+
+**Slices (b) and (c) verdict: DONE on merged develop.** With slice (a), the **Validation Hub is done** (three minor FE items above).
