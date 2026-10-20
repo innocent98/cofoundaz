@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { asMemberRole, canInvite, canSee } from './nav-access';
+import { asMemberRole, canInvite, canSee, roleLabel } from './nav-access';
 
 describe('nav access (PRD §2.1)', () => {
   it('founder sees everything, including the founder-only Journal', () => {
@@ -41,6 +41,14 @@ describe('nav access (PRD §2.1)', () => {
     expect(canInvite('founder')).toBe(true);
     expect(canInvite('team_member')).toBe(false);
     expect(canInvite(null)).toBe(false);
+  });
+
+  it('roleLabel names every workspace role', () => {
+    expect(roleLabel('founder')).toBe('Founder');
+    expect(roleLabel('team_member')).toBe('Team Member');
+    expect(roleLabel('mentor')).toBe('Mentor');
+    expect(roleLabel('business_consultant')).toBe('Business Consultant');
+    expect(roleLabel('legal_advisor')).toBe('Legal Advisor');
   });
 
   it('asMemberRole narrows only known roles', () => {

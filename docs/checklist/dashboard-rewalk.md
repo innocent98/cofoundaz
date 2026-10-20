@@ -68,19 +68,19 @@ Builder, Documents, Analytics. Mission checkboxes are not rendered as controls (
 | Mentor, consultant | tabs Home / Notifications / More only; 4 cards (Health, Mission, Activity, Next 7 days); More opens the sidebar (6 nav items); bell panel opens; no overflow | ✅ |
 | AI floating button | overlaps the Today's Mission text at the bottom right; the tab bar already has an AI tab | ❌ minor (gap 10) |
 
-## Gap rows (nothing fixed in this pass)
-| # | Sev | Role | Gap | Where |
-|---|---|---|---|---|
-| 1 | medium | mentor, consultant | `GET /dashboard/summary` returns `mission` (tasks, titles, reasons) to roles whose `GET /missions/today` is 403, so the card and "Go to mission →" lead to a no-access page. Either hide the card and `mission` for these roles or give them read access | BE `dashboard` summary; FE `mission-card.tsx` |
+## Gap rows (FE rows 1 (FE half), 4, 5, 6, 7, 10 fixed in the `feat-dashboard-fe-rows` PR; BE rows 1-3, 8, 9 fixed by cofoundaz-api #153)
+| # | Sev | Role | Gap | Where | Status |
+|---|---|---|---|---|---|
+| 1 | medium | mentor, consultant | `GET /dashboard/summary` returns `mission` (tasks, titles, reasons) to roles whose `GET /missions/today` is 403, so the card and "Go to mission →" lead to a no-access page. Either hide the card and `mission` for these roles or give them read access | BE `dashboard` summary; FE `mission-card.tsx` | **Fixed in PR** (`docs/sop/dashboard-rewalk-fe-rows.md`) |
 | 2 | medium | mentor, consultant | `GET /search` returns `mission_task` rows to roles with no mission access; selecting one hits the no-access page. Pages are already role-filtered (mentor gets no Finance), mission tasks are not | BE search |
 | 3 | medium | mentor, consultant | Notification audience: `dashboard.briefing.ready` (briefing is `restricted`), `mission.ready`, `mission.completed` reach roles that cannot open those features. Same class as #150 (Validation) and Assessment gap 6; clicking `mission.ready` as mentor silently stays on `/dashboard` | BE notification subscribers |
-| 4 | minor | mentor, consultant | Pipeline value tile links to `/sales`, a no-access page for them; render the tile without a link | FE `kpi-strip.tsx` |
-| 5 | minor | all | Escape does not close the AI drawer (X and ⌘J do) | FE AI drawer |
-| 6 | minor | mentor, consultant, TM | Avatar footer shows `profile.role_title` ("Founder") instead of the workspace role | FE sidebar footer |
-| 7 | minor | non-founders | A second `+ Invite` in the older top bar (seen on `/notifications` as mentor, `/sales` as team member) shows to everyone and only toasts "Invite modal opened." Known item "ShellTopBar on the remaining section layouts"; here it is a visible fake control | FE section layouts |
+| 4 | minor | mentor, consultant | Pipeline value tile links to `/sales`, a no-access page for them; render the tile without a link | FE `kpi-strip.tsx` | **Fixed in PR** (`docs/sop/dashboard-rewalk-fe-rows.md`) |
+| 5 | minor | all | Escape does not close the AI drawer (X and ⌘J do) | FE AI drawer | **Fixed in PR** (`docs/sop/dashboard-rewalk-fe-rows.md`) |
+| 6 | minor | mentor, consultant, TM | Avatar footer shows `profile.role_title` ("Founder") instead of the workspace role | FE sidebar footer | **Fixed in PR** (`docs/sop/dashboard-rewalk-fe-rows.md`) |
+| 7 | minor | non-founders | A second `+ Invite` in the older top bar (seen on `/notifications` as mentor, `/sales` as team member) shows to everyone and only toasts "Invite modal opened." Known item "ShellTopBar on the remaining section layouts"; here it is a visible fake control | FE section layouts | **Fixed in PR** (`docs/sop/dashboard-rewalk-fe-rows.md`) |
 | 8 | minor | founder, TM | The day's briefing text quotes the health score at generation time ("88") while the card shows the live score (95); "Tell me more" repeats the 88 | BE briefing prompt |
 | 9 | minor | team member | Search omits the Assessment page although it is in this role's sidebar (founder gets it) | BE search page list |
-| 10 | minor | all, 375 | AI floating button overlaps card text and duplicates the AI tab | FE `MobileTabBar` / dock |
+| 10 | minor | all, 375 | AI floating button overlaps card text and duplicates the AI tab | FE `MobileTabBar` / dock | **Fixed in PR** (`docs/sop/dashboard-rewalk-fe-rows.md`) |
 
 ## Not exercised live (honest list)
 - Created-invite path (`POST /team/invitations` success + emailed link): sends a real email; walked 2026-10-18, not repeated.

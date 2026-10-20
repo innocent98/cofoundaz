@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSidebar } from '@/components/sidebar-context';
-import { Plus, Menu, History, ArrowUpRight, CheckCircle2, Clock, Loader2, Download, ArrowDownUp, Sparkles } from 'lucide-react';
-import { HealthPill } from '@/components/health-pill';
+import { ArrowUpRight, CheckCircle2, Clock, Loader2, Download, ArrowDownUp, Sparkles } from 'lucide-react';
+import { ShellTopBar } from '@/components/shell-top-bar';
 
 type AnalyticsSubTab = 'Overview' | 'By hub' | 'Benchmarks' | 'Reports' | 'Export';
 type TimeRange = '30 days' | '90 days' | '12 months';
 
 export default function OverviewAnalyticsPage(): React.JSX.Element {
-  const { openSidebar } = useSidebar();
-  
   const [subTab, setSubTab] = useState<AnalyticsSubTab>('Reports');
   const [timeRange, setTimeRange] = useState<TimeRange>('90 days');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -68,49 +65,7 @@ export default function OverviewAnalyticsPage(): React.JSX.Element {
       )}
 
       {/* Main Header */}
-      <header className="sticky top-0 z-40 border-b border-[#E8E8E2] px-6 py-3.5 flex items-center justify-between bg-white w-full">
-        {/* Left Breadcrumb */}
-        <div className="flex items-center space-x-3">
-          <button 
-            onClick={openSidebar}
-            className="md:hidden w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-card"
-            aria-label="Toggle Sidebar"
-          >
-            <Menu size={18} />
-          </button>
-
-          <div className="flex items-center space-x-2 text-sm md:text-base font-semibold tracking-tight">
-            <span className="text-[#1E2923]">Workspace</span>
-            <span className="text-[#8E9B90] font-normal">/</span>
-            <span className="text-[#1E2923]">Analytics & Reports</span>
-          </div>
-        </div>
-
-        {/* Right Controls */}
-        <div className="flex items-center space-x-3">
-          {/* Health Status Pill */}
-          <HealthPill className="flex items-center space-x-2 bg-[#EAF2ED] hover:bg-[#E2ECE5] border border-[#DCE8DF] px-3.5 py-1.5 rounded-full text-xs transition-colors cursor-pointer shadow-card" />
-
-          <button 
-            onClick={() => showToast('Activity history drawer opened.')}
-            className="relative w-9 h-9 rounded-modal border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-card shrink-0"
-            aria-label="Notifications"
-          >
-            <History className="w-4 h-4 text-[#55635C]" />
-            <span className="absolute -top-1 -right-1 bg-[#B39353] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-              5
-            </span>
-          </button>
-
-          <button 
-            onClick={() => showToast('Workspace invite modal opened.')}
-            className="bg-[#B39353] hover:bg-[#A38346] text-white px-4 py-2 rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[36px] shrink-0"
-          >
-            <Plus size={15} />
-            <span className="font-semibold">+ Invite</span>
-          </button>
-        </div>
-      </header>
+      <ShellTopBar title="Analytics &amp; Reports" />
 
       {/* Sub-Nav and Time Filters Bar */}
       <nav className="w-full bg-[#F7F7F5] border-b border-[#E8E8E2] px-6 py-3 flex items-center justify-between">
