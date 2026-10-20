@@ -5,7 +5,7 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 
 | Page | Gaps closed | BE PRs | FE PRs | Re-walk on merged develop | Honest caveats |
 |---|---|---|---|---|---|
-| Dashboard | 20/20 | #129-#134 | #101, #104 | **Walked 2026-10-18 on the pre-merge branch stack**, founder + mentor, 1440 + 375; real-model briefing | Not re-walked after merge; team member / consultant not walked; some states injected (7-day KPI trend, calibration banner, mission empty reasons) |
+| Dashboard | 20/20 | #129-#134 | #101, #104 | ✅ founder + team member on merged develop 2026-10-20 (1440 + 375, every control vs the API, see `dashboard-rewalk.md`); mentor + consultant walked, **not clean** | 3 permission leaks for mentor/consultant (mission in summary, mission search results, briefing/mission notifications) + 7 minor FE rows; some states not producible locally (KPI trends, calibration banner, mission empty reasons, card Retry) |
 | Today's Mission | 15/15 | #135, #143, #144 | #105, #110 | ✅ 2026-10-19, founder + TM (1440 + 375), mentor | No real-model mission output recorded (budget was paused that walk) |
 | Health Score | 10/10 | #136 | #106, #110 | ✅ 2026-10-19, founder 1440 (+375 width checks), mentor, consultant, TM (Recommendations) | Benchmarks with a real cohort can't be produced locally (unit-tested) |
 | Roadmap | 11/11 | #137, #145 | #107, #110 | ✅ 2026-10-19, founder 1440 + 375, consultant, TM; real-model breakdown | Mentor not separately recorded |
@@ -22,7 +22,7 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 ## Still open (none blocks a finished page)
 | Item | Type |
 |---|---|
-| Dashboard post-merge re-walk (incl. team member / consultant) | **recommended next to close the bar fully** |
+| Dashboard re-walk gaps 1-3 (BE role filtering for mentor/consultant) and 4-10 (minor FE), see `dashboard-rewalk.md` | follow-up |
 | Validation: 3 minor FE items (see `validation-rewalk.md`) | follow-up |
 | Consolidate the two comment-thread UIs + mention helpers | refactor follow-up |
 | `ShellTopBar` on the remaining section layouts (Assessment done in the Assessment FE PR; Marketing onward) | per-page, as each page is walked |
