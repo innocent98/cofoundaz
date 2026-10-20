@@ -13,7 +13,7 @@ const PRIMARY_LINK =
 export default function AssessmentStartPage() {
   const router = useRouter();
   const { role, workspaceName, loading: workspaceLoading } = useWorkspace();
-  const { inProgress, completed, quarterlyDue, error: historyError } = useAssessmentHistory();
+  const { inProgress, completed, quarterlyDue, loading: historyLoading, error: historyError } = useAssessmentHistory();
   const { start, starting, error: startError } = useStartAssessment();
 
   // Founders take the check-in; team members only read what it produced (PRD Module 07 access).
@@ -103,10 +103,10 @@ export default function AssessmentStartPage() {
           <div className="pt-6 w-full max-w-xs">
             <button
               onClick={() => void handleBegin()}
-              disabled={starting || !founder}
+              disabled={starting || historyLoading || !founder}
               className="w-full bg-[#1e4836] disabled:opacity-60 disabled:cursor-not-allowed hover:bg-[#153427] text-white font-bold text-base px-6 py-3.5 rounded-[8px] transition-colors shadow-card flex items-center justify-center gap-2"
             >
-              {starting ? "Starting..." : inProgress ? "Continue" : completed.length > 0 ? "Start a check-in" : "Begin"}
+              {starting ? "Starting..." : historyLoading ? "Loading..." : inProgress ? "Continue" : completed.length > 0 ? "Start a check-in" : "Begin"}
             </button>
             {startError && (
               <p role="alert" className="text-sm text-[#B0483B] mt-3">
