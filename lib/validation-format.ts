@@ -101,14 +101,18 @@ export function plainProse(text: string): string {
   return text.replace(/\s*[—–]\s*/g, ', ');
 }
 
-/** "Based on 3 interviews and 3 survey answers" from the report's `inputs`. */
-export function insightInputsLine(inputs: { interviews?: number; open_answers?: number } | null | undefined): string {
+/** "Based on 3 interviews, 3 survey answers and 2 feedback items" from the report's `inputs`. */
+export function insightInputsLine(inputs: { interviews?: number; open_answers?: number; feedback?: number } | null | undefined): string {
   const parts: string[] = [];
   const i = inputs?.interviews ?? 0;
   const a = inputs?.open_answers ?? 0;
+  const f = inputs?.feedback ?? 0;
   if (i > 0) parts.push(`${i} ${i === 1 ? 'interview' : 'interviews'}`);
   if (a > 0) parts.push(`${a} survey ${a === 1 ? 'answer' : 'answers'}`);
-  return parts.length ? `Based on ${parts.join(' and ')}` : 'Based on your customer evidence';
+  if (f > 0) parts.push(`${f} feedback ${f === 1 ? 'item' : 'items'}`);
+  if (parts.length === 0) return 'Based on your customer evidence';
+  const last = parts.pop() as string;
+  return `Based on ${parts.length ? `${parts.join(', ')} and ${last}` : last}`;
 }
 
 /** First-line client check mirroring the API's 422 copy, so the user sees it before a round trip. */
@@ -130,4 +134,39 @@ export function moveItem<T>(list: T[], from: number, to: number): T[] {
   const [item] = next.splice(from, 1);
   next.splice(to, 0, item);
   return next;
+}
+
+// --- Slice (c): MVP feedback + survey answers ---------------------------------
+
+export const SOURCE_LABEL: Record<'interview' | 'survey' | 'in_app' | 'email', string> = {
+  interview: 'Interview',
+  survey: 'Survey',
+  in_app: 'In-app',
+  email: 'Email',
+};
+
+/** Local calendar date as YYYY-MM-DD (what `<input type="date">` and the API use). */
+export function todayIso(now: Date = new Date()): string {
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${m}-${d}`;
+}
+
+/** "19 Oct 2026" from an ISO date, without a timezone shift. */
+export function formatReceivedOn(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+export function validateFeedbackDraft(text: string, receivedOn: string): string | null {
+  if (!text.trim()) return 'Write what the customer said.';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(receivedOn)) return 'Pick the date you heard it.';
+  return null;
+}
+
+export const SHARE_LINK_ROTATE_WARNING = "Anyone with the old link won't be able to answer.";
+
+export function surveyShareUrl(origin: string, token: string): string {
+  return `${origin.replace(/\/$/, '')}/s/${token}`;
 }

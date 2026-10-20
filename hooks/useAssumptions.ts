@@ -7,6 +7,7 @@ import {
   deleteValidationItem,
   type AssumptionStatus,
   type AssumptionRisk,
+  type LinkedExperiment,
   type RawAssumption,
 } from '@/lib/api/validation';
 
@@ -19,6 +20,7 @@ export interface Assumption {
   risk: AssumptionRisk;
   status: AssumptionStatus;
   evidenceCount: number;
+  linkedExperiments: LinkedExperiment[];
 }
 
 function toAssumption(r: RawAssumption): Assumption {
@@ -28,6 +30,7 @@ function toAssumption(r: RawAssumption): Assumption {
     risk: r.risk,
     status: r.status,
     evidenceCount: r.evidence_count ?? 0,
+    linkedExperiments: r.linked_experiments ?? [],
   };
 }
 

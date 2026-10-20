@@ -19,7 +19,7 @@ type Panel =
   | { view: 'report'; insight: RawInsight }
   | { view: 'history'; items: RawInsight[] };
 
-const SOURCE_LABEL: Record<InsightSource, string> = { interviews: 'Interviews', surveys: 'Surveys', all: 'All sources' };
+const SOURCE_LABEL: Record<InsightSource, string> = { interviews: 'Interviews', surveys: 'Surveys', feedback: 'Feedback', all: 'All sources' };
 
 /**
  * "Synthesize insights" on Interviews (source=interviews) and Surveys (source=surveys).
