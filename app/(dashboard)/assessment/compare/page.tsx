@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAssessmentHistory, useAssessmentComparison } from "@/hooks/useAssessmentApi";
+import { changeInsight, scoreInsight, type ChangeInsight, type ScoreInsight } from "@/lib/assessment-insights";
 import {
-  DIMENSION_LABEL,
   DIMENSION_ORDER,
   formatAssessmentDate,
   type DimensionScores,
@@ -58,20 +58,14 @@ export default function AssessmentComparePage() {
   const withScores = selected.filter((s) => scores[s.id]);
   const newest = withScores[withScores.length - 1];
   const oldest = withScores[0];
-  let strength: { dim: string; score: number } | null = null;
-  let focus: { dim: string; score: number } | null = null;
-  let improvement: { dim: string; delta: number } | null = null;
+  let strength: ScoreInsight | null = null;
+  let focus: ScoreInsight | null = null;
+  let change: ChangeInsight | null = null;
   if (newest) {
     const ns = scores[newest.id];
-    const ranked = [...DIMENSION_ORDER].sort((a, b) => ns[b] - ns[a]);
-    strength = { dim: DIMENSION_LABEL[ranked[0]], score: ns[ranked[0]] };
-    const low = ranked[ranked.length - 1];
-    focus = { dim: DIMENSION_LABEL[low], score: ns[low] };
-    if (oldest && oldest.id !== newest.id) {
-      const os = scores[oldest.id];
-      const best = [...DIMENSION_ORDER].sort((a, b) => ns[b] - os[b] - (ns[a] - os[a]))[0];
-      improvement = { dim: DIMENSION_LABEL[best], delta: ns[best] - os[best] };
-    }
+    strength = scoreInsight(ns, "max");
+    focus = scoreInsight(ns, "min");
+    if (oldest && oldest.id !== newest.id) change = changeInsight(ns, scores[oldest.id]);
   }
 
   return (
@@ -210,26 +204,29 @@ export default function AssessmentComparePage() {
           {/* METRIC CARDS (derived from the selected assessments' real scores) */}
           {strength && focus && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {improvement && (
-                <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card space-y-2">
-                  <h4 className="text-sm font-semibold text-sage-600">Biggest improvement</h4>
-                  <p className="text-2xl font-bold text-[#1e4836]">
-                    {improvement.delta > 0 ? "+" : ""}
-                    {improvement.delta} {improvement.dim}
+              {change && (
+                <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card space-y-2" data-testid="change-card">
+                  <h4 className="text-sm font-semibold text-sage-600">
+                    {change.kind === "improvement" ? "Biggest improvement" : change.kind === "drop" ? "Biggest drop" : "No dimension improved"}
+                  </h4>
+                  <p className={`text-2xl font-bold ${change.kind === "drop" ? "text-[#B0483B]" : "text-[#1e4836]"}`}>
+                    {change.kind === "none"
+                      ? "No change"
+                      : `${change.delta > 0 ? "+" : ""}${change.delta} ${change.label}${change.tied ? " (tied)" : ""}`}
                   </p>
                   <p className="text-xs text-sage-500">
-                    Since {formatAssessmentDate(oldest.completed_at)}.
+                    {change.kind === "drop" ? "Nothing improved. " : ""}Since {formatAssessmentDate(oldest.completed_at)}.
                   </p>
                 </div>
               )}
               <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card space-y-2">
                 <h4 className="text-sm font-semibold text-sage-600">Core strength</h4>
-                <p className="text-2xl font-bold text-sage-900">{strength.dim}</p>
+                <p className="text-2xl font-bold text-sage-900">{strength.label}{strength.tied ? " (tied)" : ""}</p>
                 <p className="text-xs text-sage-500">Highest in your latest result at {strength.score}/100.</p>
               </div>
               <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card space-y-2">
                 <h4 className="text-sm font-semibold text-[#9C5B34]">Focus area</h4>
-                <p className="text-2xl font-bold text-sage-900">{focus.dim}</p>
+                <p className="text-2xl font-bold text-sage-900">{focus.label}{focus.tied ? " (tied)" : ""}</p>
                 <p className="text-xs text-sage-500">Lowest in your latest result at {focus.score}/100.</p>
               </div>
             </div>

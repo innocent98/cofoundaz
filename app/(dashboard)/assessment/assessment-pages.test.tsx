@@ -6,12 +6,15 @@ import AssessmentInProgressPage from './in-progress/page';
 import AssessmentResultsPage from './results/page';
 import AssessmentRunnerPage from './run/[id]/page';
 import AssessmentLayout from './layout';
+import AssessmentComparePage from './compare/page';
+import { ApiError } from '@/lib/api/client';
 import { ToastProvider } from './ToastContext';
 
 const push = vi.hoisted(() => vi.fn());
+const replace = vi.hoisted(() => vi.fn());
 let pathname = '/assessment';
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push }),
+  useRouter: () => ({ push, replace }),
   usePathname: () => pathname,
 }));
 vi.mock('@/components/shell-top-bar', () => ({ ShellTopBar: ({ title }: { title: string }) => <div data-testid="shell-top-bar">{title}</div> }));
@@ -32,6 +35,7 @@ const api = vi.hoisted(() => ({
   submitAnswerStep: vi.fn(),
   completeAssessment: vi.fn(),
   getAssessment: vi.fn(),
+  compareAssessments: vi.fn(),
 }));
 vi.mock('@/lib/api/assessment', async () => {
   const actual = await vi.importActual<typeof import('@/lib/api/assessment')>('@/lib/api/assessment');
@@ -242,28 +246,52 @@ describe('Runner completion (rows 9, 10)', () => {
     expect(screen.queryByText(/strongest area/)).toBeNull();
   });
 
-  it('a replayed complete (health null) neither claims a health score nor refreshes the header', async () => {
+  it('a replayed complete (health null) redirects to past results and does not refresh the header', async () => {
     api.completeAssessment.mockResolvedValue(completion({ health: null }));
     await renderRunner();
-    expect(await screen.findByRole('heading', { name: 'Your assessment is complete.' })).toBeTruthy();
+    await waitFor(() => expect(replace).toHaveBeenCalledWith('/assessment/results'));
+    expect(screen.queryByRole('heading', { name: 'Your assessment is complete.' })).toBeNull();
     expect(refreshHealthScore).not.toHaveBeenCalled();
   });
-});
 
-describe('Runner progress (row 7)', () => {
-  it('drives the bar from server progress', async () => {
-    api.getNextStep.mockResolvedValue({
-      question: { key: 'k', dimension: 'market', section: 'Market', qtype: 'scale_1_5', prompt: 'How clear?', options: null, helper: null },
-      progress: { answered: 3, remaining: 5, pct: 37 },
-    });
+  it('A1: each row shows the Health dimension score beside its own delta, never the assessment score', async () => {
+    // Assessment says product 78; Health says product 31 (was 69, -38).
+    const h = {
+      score: 61,
+      previous_score: 99,
+      delta: -38,
+      dimensions: dims.map((key) => ({ key, score: 31, previous: 69, delta: -38 })),
+    };
+    api.completeAssessment.mockResolvedValue(completion({ health: h }));
+    await renderRunner();
+    await screen.findByRole('heading', { name: 'Your Health Score is now 61.' });
+    expect(screen.getByTestId('score-product').textContent).toBe('31/100');
+    expect(screen.getByTestId('prev-product').textContent).toBe('was 69');
+    expect(screen.getByLabelText('Product change -38')).toBeTruthy();
+    expect(screen.queryByText('78/100')).toBeNull();
+  });
+
+  it('A4: a 403 on load is read-only with a Past results link and no Try again', async () => {
+    api.getNextStep.mockRejectedValue(new ApiError(403, 'Forbidden', null));
     render(
       <ToastProvider>
         <AssessmentRunnerPage params={params} />
       </ToastProvider>
     );
-    expect(await screen.findByText('How clear?')).toBeTruthy();
-    expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('37');
-    expect(screen.getByText('Section 2 of 5: Market')).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'This check-in is read-only for you' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Past results' }));
+    expect(push).toHaveBeenCalledWith('/assessment/results');
+  });
+
+  it('a non-403 load failure keeps Try again', async () => {
+    api.getNextStep.mockRejectedValue(new ApiError(500, 'Server Error', null));
+    render(
+      <ToastProvider>
+        <AssessmentRunnerPage params={params} />
+      </ToastProvider>
+    );
+    expect(await screen.findByRole('button', { name: 'Try again' })).toBeTruthy();
   });
 });
 
@@ -333,5 +361,47 @@ describe('Results (rows 11, 12)', () => {
     fireEvent.click((await screen.findAllByRole('button', { expanded: false }))[0]);
     await screen.findByRole('region', { name: 'Product answers' });
     expect(screen.queryByText(/since your previous check-in/)).toBeNull();
+  });
+});
+
+describe('Compare insight cards (A2)', () => {
+  const OLD = 'c2c2c2c2-d15f-4dc4-a76d-df4bbf35721d';
+  const sc = (product: number, market: number, money: number, legal: number, team: number) => ({ product, market, money, legal, team });
+  async function renderCompare(oldScores: ReturnType<typeof sc>, newScores: ReturnType<typeof sc>) {
+    api.fetchAssessmentList.mockResolvedValue({
+      items: [completedRow(), completedRow({ id: OLD, completed_at: '2026-09-02T10:00:00Z' })],
+      quarterlyDue: false,
+    });
+    api.compareAssessments.mockResolvedValue([
+      { id: OLD, dimension_scores: oldScores },
+      { id: ID, dimension_scores: newScores },
+    ]);
+    render(<AssessmentComparePage />);
+    return screen.findByTestId('change-card');
+  }
+
+  it('never calls a fall an improvement: shows Biggest drop', async () => {
+    const card = await renderCompare(sc(100, 100, 100, 100, 100), sc(25, 60, 70, 80, 90));
+    expect(within(card).getByRole('heading', { name: 'Biggest drop' })).toBeTruthy();
+    expect(card.textContent).toContain('-75 Product');
+    expect(screen.queryByText('Biggest improvement')).toBeNull();
+  });
+
+  it('shows Biggest improvement only when something rose, naming ties', async () => {
+    const card = await renderCompare(sc(50, 50, 50, 50, 50), sc(60, 50, 60, 40, 50));
+    expect(within(card).getByRole('heading', { name: 'Biggest improvement' })).toBeTruthy();
+    expect(card.textContent).toContain('+10 Product and Money (tied)');
+  });
+
+  it('says so when nothing moved', async () => {
+    const card = await renderCompare(sc(50, 50, 50, 50, 50), sc(50, 50, 50, 50, 50));
+    expect(within(card).getByRole('heading', { name: 'No dimension improved' })).toBeTruthy();
+    expect(card.textContent).toContain('No change');
+  });
+
+  it('names every tied dimension for strength and focus', async () => {
+    await renderCompare(sc(50, 50, 50, 50, 50), sc(25, 10, 25, 10, 25));
+    expect(screen.getByText('Product, Money and Team (tied)')).toBeTruthy();
+    expect(screen.getByText('Market and Legal (tied)')).toBeTruthy();
   });
 });

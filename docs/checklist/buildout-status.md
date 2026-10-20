@@ -26,7 +26,7 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 | Validation: 3 minor FE items (see `validation-rewalk.md`) | follow-up |
 | Consolidate the two comment-thread UIs + mention helpers | refactor follow-up |
 | `ShellTopBar` on the remaining section layouts (Assessment done in the Assessment FE PR; Marketing onward) | per-page, as each page is walked |
-| Assessment click-every-control re-walk on develop (after the Assessment FE PR merges) | next |
+| Assessment re-walk gaps A1-A4 fixed in FE (A5 info, old mentor bell rows, left; quarterly banner + bell deep link still to be verified live by the lead), see `docs/sop/assessment-rewalk-fixes.md` | done pending PR merge |
 | Invited team member loses the invite link after email verification | Team page walk |
 | Per-workspace timezones for the mission scheduler | follow-up |
 | Health benchmarks with real cohorts | needs usage data |
