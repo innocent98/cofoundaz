@@ -77,7 +77,19 @@ gap A1 is a real FE bug on the completion screen.
 | Notifications | no new `assessment.*` from today's four completions; one old `assessment.completed` from 13:29 (before #152) is still in the feed; clicking it lands on the clean no-access page | ✅ / ⚠️ gap A5 (info) |
 | 375 | no-access page fits | ✅ |
 
-## Not reproduced
+## Quarterly items, verified live afterwards (lead, 2026-10-20 18:55 WAT)
+Adebayo backdated all 9 completed NovaPay assessments by 100 days in the local dev DB (latest `completed_at` 2026-07-12).
+| Item | Evidence | Result |
+|---|---|---|
+| Scheduler | `scheduled_runs` row `assessment.quarterly` / `2026-Q4` at 17:45:48 UTC; notification `assessment.quarterly.due` at 17:45:50 UTC | ✅ |
+| Quarterly banner, founder 1440 | `/assessment` Overview shows "Time for your quarterly check-in" + "Start re-assessment" above the check-in card | ✅ |
+| Quarterly banner, founder 375 | same banner, full width, no overlap | ✅ |
+| Bell deep link | bell panel item "Time for your quarterly startup assessment" → `/assessment` | ✅ |
+| Copy | banner says "It has been 90 days" while it was 100; should read "over 90 days" or the real count | ⚠️ gap A6 (low) |
+
+Restore after testing: shift the same rows forward by 100 days.
+
+## Not reproduced (at the time of the walk)
 | Item | Why |
 |---|---|
 | **Quarterly 90-day banner (`meta.quarterly_due`)** | Needs the latest completed `completed_at` more than 90 days old. All 8 completed assessments are within 90 days, and the "latest" one is only the newest of them, so backdating the one latest row leaves the next one (also today) as the latest and `quarterly_due` stays false. The whole set has to move. The local-DB `UPDATE` I issued for that was refused by the permission classifier and I did not work around it. Original values are saved (below). API side is already live-verified in the FE guide (`list_quarterly_due`, false again while a check-in is in progress); here I confirmed `quarterly_due: false` with a recent completion and false while one is in progress. The banner render (`founder && quarterlyDue && !inProgress`, "Time for your quarterly check-in", "Start re-assessment") is code-read and mock-tested only. |
