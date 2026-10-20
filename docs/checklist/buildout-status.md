@@ -1,4 +1,4 @@
-# Build-out status: Dashboard → Validation (as of 2026-10-20)
+# Build-out status: Dashboard → Marketing (as of 2026-10-20)
 
 Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofoundaz-api. Evidence: `*-prd-gaps.md` and
 `*-rewalk.md` in this folder. "Re-walk" = every control clicked and checked against the raw API.
@@ -11,6 +11,7 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 | Roadmap | 11/11 | #137, #145 | #107, #110 | ✅ 2026-10-19, founder 1440 + 375, consultant, TM; real-model breakdown | Mentor not separately recorded |
 | Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19, founder 1440 + 375 (all routes), consultant / mentor / TM on SWOT; real-model AI incl. full plan | Other roles walked on one artifact only |
 | Validation | 14/14 | #149, #150, #151 | #114, #115, #117 | ✅ (a) 2026-10-19, (b)+(c) 2026-10-20: founder 1440 + 375, TM, mentor, public page, real model incl. Apply | 3 minor FE items (notification tab context, 2 accessible names) |
+| Marketing | gap list ✅ 0/35 | — | — | Walked live 2026-10-20 (founder 1440 + 375, TM, mentor, consultant; real model ×3), see `marketing-prd-gaps.md` | No permission leaks found; 2 Sec rows are a permission-model decision (D-MKT-1) and a preventive media-storage rule. Real publishing, ad/SEO data and segment sizes are blocked on external accounts |
 
 ## Cross-cutting fixes found along the way (all merged)
 Worker never registered notification subscribers (#130) · invite emails had no link (#131) · weekends-off reset streaks /
