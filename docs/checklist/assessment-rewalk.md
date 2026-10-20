@@ -114,3 +114,14 @@ Outside Assessment, seen in passing: right after the +42 completion the Health m
 
 No Back button exists in the runner (one answer per screen, autosave, Save & exit). PRD 07.1 does not ask for one, so it is not
 counted as a failure.
+
+## Fixes re-checked on merged develop (lead, 2026-10-20 19:15 WAT, develop `97a65f3`, FE :3500 on API :8000)
+| Gap | Check | Result |
+|---|---|---|
+| A2 | Compare, default 3 latest: card "Biggest drop -17 Product · Nothing improved"; `/assessments/compare` oldest→latest product 67→50, other dims unchanged; strength Legal 75, focus "Product and Market (tied)" at 50 | ✅ matches API |
+| A3 | founder opens `/assessment/run/fb3c41ca…` (completed) | ✅ redirects to `/assessment/results` |
+| A4 | TM opens the same run URL | ✅ "This check-in is read-only for you" + Past results link, no Try again |
+| A1 | completion rows show Health score / was / delta | ✅ live on PR head `7b7e213` (session); app code identical on develop (`git diff 7b7e213 develop -- app components lib hooks` empty) |
+| A6 | banner shows the real day count | unit-tested (`assessment-pages.test.tsx`: "100 days"); app code identical on develop; not re-run live (needs another backdate) |
+
+Assessment: **done**.
