@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, AlertTriangle, Plus, X, Copy, Check, Link2, Trash2 } from 'lucide-react';
+import { Loader2, AlertTriangle, Plus, X, Link2, RefreshCw, Trash2 } from 'lucide-react';
 import { useSurveys, Survey, SurveyQuestion, SurveyAnalytics } from '@/hooks/useSurveys';
-import type { QuestionType } from '@/lib/api/validation';
+import { getSurveyAnswers, rotateSurveyShareLink, type QuestionType, type SurveyAnswers } from '@/lib/api/validation';
+import { apiErrorInfo } from '@/lib/api/api-error';
+import { ShareLinkCard } from '@/components/validation/ShareLinkCard';
+import { SurveyAnswersPanel } from '@/components/validation/SurveyAnswersPanel';
 import { useToast } from '../layout';
 import { InsightSynthesizer } from '../components/InsightSynthesizer';
 import { ConfirmDelete } from '@/components/validation/ConfirmDelete';
-import { deleteWarning } from '@/lib/validation-format';
+import { SHARE_LINK_ROTATE_WARNING, deleteWarning, surveyShareUrl } from '@/lib/validation-format';
 
 const STATUS_BADGE: Record<string, string> = {
   open: 'bg-green-100 text-green-800',
@@ -37,7 +40,13 @@ export default function SurveysPage() {
 
   // One-time share link captured when a survey is first opened.
   const [linkFor, setLinkFor] = useState<{ id: string; url: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [toRotate, setToRotate] = useState<Survey | null>(null);
+
+  // Results vs open-text answers for the selected survey.
+  const [tab, setTab] = useState<'results' | 'answers'>('results');
+  const [answers, setAnswers] = useState<SurveyAnswers | null>(null);
+  const [answersLoading, setAnswersLoading] = useState(false);
+  const [answersError, setAnswersError] = useState<string | null>(null);
 
   // Builder state
   const [title, setTitle] = useState('');
@@ -75,6 +84,25 @@ export default function SurveysPage() {
       else setAnalytics(null);
     });
   }, [selectedId, loadAnalytics]);
+
+  const loadAnswers = useCallback(async (id: string) => {
+    setAnswersLoading(true);
+    setAnswersError(null);
+    try {
+      setAnswers(await getSurveyAnswers(id));
+    } catch (e) {
+      setAnswers(null);
+      setAnswersError(apiErrorInfo(e, 'Could not load the answers. Try again.').message);
+    } finally {
+      setAnswersLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      if (selectedId && tab === 'answers') void loadAnswers(selectedId);
+    });
+  }, [selectedId, tab, loadAnswers]);
 
   const handleCreate = () => {
     setBuilderError(null);
@@ -128,17 +156,6 @@ export default function SurveysPage() {
       .then(() => triggerToast('Collection stopped.'))
       .catch((e) => triggerToast(errMsg(e)))
       .finally(() => setBusyId(null));
-  };
-
-  const copyLink = (url: string) => {
-    navigator.clipboard?.writeText(url).then(
-      () => {
-        setCopied(true);
-        triggerToast('Share link copied.');
-        setTimeout(() => setCopied(false), 2500);
-      },
-      () => triggerToast('Could not copy. Select and copy it manually.')
-    );
   };
 
   const addQuestion = () => setQuestions((q) => [...q, blankQuestion()]);
@@ -237,6 +254,15 @@ export default function SurveysPage() {
                       Resume collecting
                     </span>
                   )}
+                  {s.status === 'open' && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setToRotate(s); }}
+                      className="inline-flex items-center gap-1.5 bg-white border border-sage-300 text-sage-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-sage-50 cursor-pointer"
+                    >
+                      <RefreshCw className="w-3 h-3" aria-hidden="true" /> New share link
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setToDelete(s); }}
@@ -247,17 +273,7 @@ export default function SurveysPage() {
                   </button>
                 </div>
 
-                {linkFor?.id === s.id && (
-                  <div className="mt-3 bg-[#f5f7f5] rounded-card p-3 border border-sage-200/60" onClick={(e) => e.stopPropagation()}>
-                    <span className="block text-[11px] font-semibold text-sage-400 uppercase tracking-wider mb-1">Share link (shown once)</span>
-                    <div className="flex items-center gap-2">
-                      <span className="block text-xs font-semibold text-[#1e4836] truncate flex-1">{linkFor.url}</span>
-                      <button onClick={() => copyLink(linkFor.url)} className="flex items-center gap-1 bg-white border border-sage-200 text-sage-700 px-2.5 py-1.5 rounded-input text-xs shrink-0 cursor-pointer">
-                        {copied ? <Check className="w-3 h-3 text-green-700" /> : <Copy className="w-3 h-3" />} {copied ? 'Copied' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {linkFor?.id === s.id && <ShareLinkCard url={linkFor.url} onCopied={() => triggerToast('Share link copied.')} />}
               </div>
             ))}
           </div>
@@ -272,6 +288,26 @@ export default function SurveysPage() {
               </div>
             ) : analytics ? (
               <div className="space-y-6">
+                <div role="tablist" aria-label="Survey view" className="flex gap-2">
+                  {(['results', 'answers'] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      role="tab"
+                      aria-selected={tab === t}
+                      onClick={() => setTab(t)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold cursor-pointer border ${
+                        tab === t ? 'bg-[#183B28] border-[#183B28] text-white' : 'bg-white border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]'
+                      }`}
+                    >
+                      {t === 'results' ? 'Results' : 'Answers'}
+                    </button>
+                  ))}
+                </div>
+                {tab === 'answers' ? (
+                  <SurveyAnswersPanel answers={answers?.survey_id === selectedId ? answers : null} loading={answersLoading} error={answersError} />
+                ) : (
+                <>
                 <div>
                   <h3 className="font-bold text-sage-900 text-base">{analytics.title}</h3>
                   <p className="text-xs text-sage-500 mt-0.5">
@@ -282,6 +318,8 @@ export default function SurveysPage() {
                   <p className="text-sm text-sage-500">No responses yet. Share the link to start collecting.</p>
                 ) : (
                   analytics.questions.map((q) => <AnalyticsQuestion key={q.id} q={q} total={analytics.responses} />)
+                )}
+                </>
                 )}
               </div>
             ) : (
@@ -387,6 +425,20 @@ export default function SurveysPage() {
           </div>
         </div>
       )}
+      {toRotate && (
+        <ConfirmDelete
+          title="Get a new share link?"
+          warning={SHARE_LINK_ROTATE_WARNING}
+          confirmLabel="Get new link"
+          failureMessage={(e) => apiErrorInfo(e, 'Could not make a new link. Try again.').message}
+          onConfirm={async () => {
+            const token = await rotateSurveyShareLink(toRotate.id);
+            setLinkFor({ id: toRotate.id, url: surveyShareUrl(window.location.origin, token) });
+            triggerToast('New share link ready. The old one no longer works.');
+          }}
+          onClose={() => setToRotate(null)}
+        />
+      )}
       {toDelete && (
         <ConfirmDelete
           title={`Delete "${toDelete.title}"?`}
@@ -426,7 +478,7 @@ function AnalyticsQuestion({ q, total }: { q: SurveyAnalytics['questions'][numbe
           ))}
         </div>
       ) : q.type === 'open' ? (
-        <p className="text-xs text-sage-500 italic">Open-text answers aren’t shown here (not returned by the API in v1).</p>
+        <p className="text-xs text-sage-500 italic">Open-text answers are on the Answers tab.</p>
       ) : (
         <div className="flex items-center gap-4">
           <div className="text-2xl font-bold text-[#1e4836]">{q.average?.toFixed(1) ?? '-'}</div>

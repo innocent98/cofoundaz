@@ -13,8 +13,17 @@ export interface RawAssumption {
   risk: AssumptionRisk;
   status: AssumptionStatus;
   evidence_count: number;
+  /** Experiments linked to this assumption; `[]` when none (slice c, guide §6). */
+  linked_experiments?: LinkedExperiment[];
   created_at?: string;
   updated_at?: string;
+}
+
+export interface LinkedExperiment {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
 }
 
 export async function listAssumptions(params?: {
@@ -454,7 +463,7 @@ export async function deleteScript(id: string): Promise<void> {
 
 // --- Insight Synthesizer (slice b, guide §2) ---------------------------------
 
-export type InsightSource = 'interviews' | 'surveys' | 'all';
+export type InsightSource = 'interviews' | 'surveys' | 'feedback' | 'all';
 
 export interface InsightPattern {
   id: string;
@@ -483,7 +492,7 @@ export interface InsightSuggestion {
 export interface RawInsight {
   id: string;
   source: InsightSource;
-  inputs: { interviews?: number; open_answers?: number };
+  inputs: { interviews?: number; open_answers?: number; feedback?: number };
   patterns: InsightPattern[];
   contradictions: InsightContradiction[];
   suggestions: InsightSuggestion[];
@@ -529,4 +538,188 @@ export async function applySuggestion(
 
 export async function deleteInsight(id: string): Promise<void> {
   await apiClient(`/validation/insights/${id}`, { method: 'DELETE' });
+}
+
+// --- MVP feedback inbox (slice c, guide §1 to §3) -----------------------------
+
+export type FeedbackSource = 'interview' | 'survey' | 'in_app' | 'email';
+/** Sources a founder may type in by hand; `survey` is import-only. */
+export type ManualFeedbackSource = Exclude<FeedbackSource, 'survey'>;
+
+export interface FeedbackItem {
+  id: string;
+  source: FeedbackSource;
+  text: string;
+  origin: { type: 'interview' | 'survey' | 'manual'; id: string | null; label: string };
+  imported: boolean;
+  dismissed: boolean;
+  received_on: string;
+  created_at: string;
+}
+
+export type FeedbackCounts = Record<FeedbackSource, number>;
+
+export async function listFeedback(params?: {
+  source?: FeedbackSource;
+  includeDismissed?: boolean;
+}): Promise<{ items: FeedbackItem[]; counts: FeedbackCounts }> {
+  const qs = new URLSearchParams();
+  if (params?.source) qs.set('source', params.source);
+  if (params?.includeDismissed) qs.set('include_dismissed', 'true');
+  const q = qs.toString();
+  const res = await apiClient<{ data?: { items?: FeedbackItem[]; counts?: Partial<FeedbackCounts> } }>(
+    `/validation/feedback${q ? `?${q}` : ''}`
+  );
+  const c = res?.data?.counts ?? {};
+  return {
+    items: res?.data?.items ?? [],
+    counts: { interview: c.interview ?? 0, survey: c.survey ?? 0, in_app: c.in_app ?? 0, email: c.email ?? 0 },
+  };
+}
+
+export async function createFeedback(body: {
+  text: string;
+  source: ManualFeedbackSource;
+  received_on?: string;
+}): Promise<FeedbackItem> {
+  const res = await apiClient<{ data?: FeedbackItem }>('/validation/feedback', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  return res?.data as FeedbackItem;
+}
+
+export async function updateFeedback(
+  id: string,
+  body: { text?: string; source?: ManualFeedbackSource; received_on?: string }
+): Promise<FeedbackItem> {
+  const res = await apiClient<{ data?: FeedbackItem }>(`/validation/feedback/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+  return res?.data as FeedbackItem;
+}
+
+/** Manual items are deleted for good; imported ones are only dismissed. Branch on the key (guide §7). */
+export async function deleteFeedback(id: string): Promise<'deleted' | 'dismissed'> {
+  const res = await apiClient<{ data?: { deleted?: boolean; dismissed?: boolean } }>(`/validation/feedback/${id}`, {
+    method: 'DELETE',
+  });
+  return res?.data?.dismissed ? 'dismissed' : 'deleted';
+}
+
+export async function restoreFeedback(id: string): Promise<FeedbackItem> {
+  const res = await apiClient<{ data?: FeedbackItem }>(`/validation/feedback/${id}/restore`, { method: 'POST' });
+  return res?.data as FeedbackItem;
+}
+
+export interface FeedbackTheme {
+  id: string;
+  theme: string;
+  /** PRD copy, counts included: "{theme} mentioned {n}× across {m} sources". */
+  label: string;
+  summary: string;
+  mention_count: number;
+  source_count: number;
+  sources: FeedbackSource[];
+  items: FeedbackItem[];
+  roadmap_task_id: string | null;
+  sent_at: string | null;
+}
+
+export interface FeedbackThemes {
+  run: { id: string; item_count: number; created_at: string } | null;
+  themes: FeedbackTheme[];
+}
+
+export interface ClusterJobResult {
+  status?: 'ready' | 'over_budget' | 'empty' | string;
+  run_id?: string;
+}
+
+export async function requestFeedbackClustering(): Promise<string> {
+  const res = await apiClient<{ data?: { job_id?: string } }>('/validation/feedback/cluster', { method: 'POST' });
+  const id = res?.data?.job_id;
+  if (!id) throw new Error('No job id returned.');
+  return id;
+}
+
+export async function getFeedbackThemes(): Promise<FeedbackThemes> {
+  const res = await apiClient<{ data?: Partial<FeedbackThemes> }>('/validation/feedback/themes');
+  return { run: res?.data?.run ?? null, themes: res?.data?.themes ?? [] };
+}
+
+export interface SentTask {
+  id: string;
+  milestone_id: string;
+  milestone_title: string;
+  title: string;
+  description: string;
+  status: string;
+}
+
+export async function sendThemeToRoadmap(
+  themeId: string,
+  milestoneId?: string
+): Promise<{ theme: FeedbackTheme; task: SentTask }> {
+  const res = await apiClient<{ data?: { theme: FeedbackTheme; task: SentTask } }>(
+    `/validation/feedback/themes/${themeId}/send-to-roadmap`,
+    { method: 'POST', body: JSON.stringify(milestoneId ? { milestone_id: milestoneId } : {}) }
+  );
+  return res?.data as { theme: FeedbackTheme; task: SentTask };
+}
+
+export interface RoadmapMilestoneOption {
+  id: string;
+  title: string;
+  done: boolean;
+  /** Ids of the tasks already inside it, to name the milestone a sent theme landed in. */
+  taskIds: string[];
+}
+
+/** Milestones in roadmap order (phase order, then milestone order), for the Send-to-roadmap picker. */
+export async function listRoadmapMilestones(): Promise<RoadmapMilestoneOption[]> {
+  type Tree = {
+    phases?: Array<{
+      order?: number;
+      milestones?: Array<{ id: string; title: string; status: string; order?: number; tasks?: Array<{ id: string }> }>;
+    }>;
+  };
+  const res = await apiClient<{ data?: Tree }>('/roadmap');
+  const phases = [...(res?.data?.phases ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  return phases.flatMap((p) =>
+    [...(p.milestones ?? [])]
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((m) => ({ id: m.id, title: m.title, done: m.status === 'done', taskIds: (m.tasks ?? []).map((t) => t.id) }))
+  );
+}
+
+// --- Survey open answers + share-link rotation (slice c, guide §5) --------------
+
+export interface SurveyAnswersQuestion {
+  id: string;
+  prompt: string;
+  answer_count: number;
+  answers: Array<{ text: string; submitted_at: string }>;
+}
+
+export interface SurveyAnswers {
+  survey_id: string;
+  title: string;
+  questions: SurveyAnswersQuestion[];
+}
+
+export async function getSurveyAnswers(id: string): Promise<SurveyAnswers> {
+  const res = await apiClient<{ data?: SurveyAnswers }>(`/validation/surveys/${id}/answers`);
+  return res?.data as SurveyAnswers;
+}
+
+/** Issues a new token and kills the old link. The token is shown once. */
+export async function rotateSurveyShareLink(id: string): Promise<string> {
+  const res = await apiClient<{ data?: { public_token?: string } }>(`/validation/surveys/${id}/share-link`, {
+    method: 'POST',
+  });
+  const t = res?.data?.public_token;
+  if (!t) throw new Error('No share link returned.');
+  return t;
 }

@@ -12,12 +12,15 @@ export function ConfirmDelete({
   title,
   warning,
   confirmLabel = 'Delete',
+  failureMessage,
   onConfirm,
   onClose,
 }: {
   title: string;
   warning: string;
   confirmLabel?: string;
+  /** Error copy when `onConfirm` rejects; defaults to the delete wording. */
+  failureMessage?: (err: unknown) => string;
   onConfirm: () => Promise<void>;
   onClose: () => void;
 }) {
@@ -30,8 +33,8 @@ export function ConfirmDelete({
     try {
       await onConfirm();
       onClose();
-    } catch {
-      setError('Could not delete that. Try again.');
+    } catch (err) {
+      setError(failureMessage ? failureMessage(err) : 'Could not delete that. Try again.');
       setBusy(false);
     }
   };

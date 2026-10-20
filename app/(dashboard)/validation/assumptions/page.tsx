@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { useAssumptions, Assumption, AssumptionStatus } from '@/hooks/useAssumptions';
 import { useToast } from '../layout';
@@ -81,6 +82,21 @@ export default function AssumptionsPage() {
       className="bg-[#f9faf8] rounded-card p-3.5 border border-sage-100 space-y-3 shadow-card cursor-grab active:cursor-grabbing"
     >
       <p className="text-xs md:text-sm font-medium text-sage-800">{a.statement}</p>
+      {a.linkedExperiments.length > 0 && (
+        <ul aria-label="Linked experiments" className="flex flex-wrap gap-1.5">
+          {a.linkedExperiments.map((x) => (
+            <li key={x.id}>
+              <Link
+                href={`/validation/smoke-tests?test=${x.id}`}
+                draggable={false}
+                className="inline-block max-w-full truncate bg-[#E6EFEA] hover:bg-[#D5E3DB] text-[#183B28] text-[11px] font-semibold px-2 py-0.5 rounded-full"
+              >
+                {x.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
       <div className="flex items-center justify-between pt-1">
         {getRiskBadge(a.risk)}
         <span className="flex items-center gap-2">

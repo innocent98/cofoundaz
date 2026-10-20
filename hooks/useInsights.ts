@@ -15,7 +15,7 @@ import {
 import { STILL_WORKING_COPY } from '@/lib/validation-format';
 import { OVER_BUDGET_COPY } from '@/hooks/useExperimentDraft';
 
-export const NOTHING_TO_SYNTHESIZE_FALLBACK = 'Add an interview or collect an open survey answer first.';
+export const NOTHING_TO_SYNTHESIZE_FALLBACK = 'Add an interview, collect an open survey answer or log some feedback first.';
 
 export type SynthOutcome =
   | { ok: true; insightId: string }
