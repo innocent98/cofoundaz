@@ -38,6 +38,8 @@ be safer. Not exercised again: AI Recommend a split, Generate fit notes, positio
 
 ---
 
+## First walk (2026-10-21, before #133, #135, #161, #162)
+
 All eight `/marketing` pages walked on merged `develop`, local stack, 2026-10-21, workspace NovaPay. FE = `origin/develop`
 `cbebd4a` (includes #129, `feature/marketing-prd-fe`) served on :3217. API = `18949a6` (#156 + #157), alembic
 `0062_marketing_prd_b`, shared :8000 (checked read-only; `GET /marketing/media` without a token is 401, not 404). Real model
