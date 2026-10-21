@@ -1,123 +1,185 @@
 "use client";
 
-import React, { useState } from "react";
-import { useSalesApi } from "@/hooks/useSalesApi";
+import React, { useId, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { PAGE_SIZE, useAccountList, useMembers } from "@/hooks/useSalesCrm";
+import { createAccount, salesErrorMessage, salesFieldErrors } from "@/lib/api/sales";
 import { useToast } from "../ToastContext";
+import { AccountFields, type AccountFormState } from "@/components/sales/account-fields";
+import {
+  BTN_ACCENT,
+  BTN_SECONDARY,
+  CARD,
+  Drawer,
+  EmptyState,
+  INPUT,
+  SalesGate,
+} from "@/components/sales/shared";
 
 export default function AccountsPage() {
-  const { accounts } = useSalesApi();
+  const router = useRouter();
   const { triggerToast } = useToast();
+  const [qInput, setQInput] = useState("");
+  const [q, setQ] = useState("");
+  const [offset, setOffset] = useState(0);
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const accounts = useAccountList({ q, offset });
+  const { owners, nameOf } = useMembers();
+  const [creating, setCreating] = useState(false);
+  const searchId = useId();
 
-  const [selectedAccountId, setSelectedAccountId] = useState<string>(accounts[0]?.id || "");
-  const [activityNote, setActivityNote] = useState("");
+  const items = accounts.data?.items ?? [];
+  const total = accounts.data?.total ?? 0;
 
-  const selectedAccount = accounts.find((acc) => acc.id === selectedAccountId) || accounts[0];
-
-  const handleLogActivity = () => {
-    if (!activityNote.trim()) return;
-    triggerToast(`Activity logged for ${selectedAccount.name}`);
-    setActivityNote("");
+  const onSearch = (value: string) => {
+    setQInput(value);
+    if (debounce.current) clearTimeout(debounce.current);
+    debounce.current = setTimeout(() => {
+      setQ(value.trim());
+      setOffset(0);
+    }, 300);
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fadeIn items-start">
-      {/* ACCOUNTS LIST (MASTER) */}
-      <div className="lg:col-span-4 bg-white rounded-modal border border-sage-200/90 p-3 space-y-2 shadow-card h-full max-h-[800px] overflow-y-auto">
-        {accounts.map((acc) => {
-          const isSelected = acc.id === selectedAccountId;
-          return (
-            <div
-              key={acc.id}
-              onClick={() => setSelectedAccountId(acc.id)}
-              className={`p-4 rounded-card cursor-pointer transition-all ${
-                isSelected 
-                  ? "bg-[#f0f4f1] border border-green-900/10 shadow-card" 
-                  : "hover:bg-sage-50/80 border border-transparent"
-              }`}
-            >
-              <h4 className="font-display font-bold text-sage-900 text-base">{acc.name}</h4>
-              <div className="text-xs text-sage-500 mt-1 font-medium">{acc.openDealsText}</div>
-            </div>
-          );
-        })}
+    <div className="space-y-6 animate-fadeIn">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-3xl font-display font-semibold text-sage-900">Accounts</h1>
+        <button type="button" onClick={() => setCreating(true)} className={BTN_ACCENT}>
+          + New account
+        </button>
       </div>
 
-      {/* ACCOUNT DETAIL (DETAIL) */}
-      {selectedAccount && (
-        <div className="lg:col-span-8 bg-white rounded-modal border border-sage-200/95 p-6 md:p-8 shadow-card space-y-8">
-          
-          <div className="space-y-1">
-            <h2 className="text-2xl md:text-3xl font-display font-bold text-sage-900">
-              {selectedAccount.name}
-            </h2>
-            <p className="text-sm text-sage-500 font-medium">
-              {selectedAccount.description}
-            </p>
-          </div>
+      <div>
+        <label htmlFor={searchId} className="sr-only">
+          Search accounts
+        </label>
+        <input id={searchId} type="search" className={INPUT} placeholder="Search accounts by name" value={qInput} onChange={(e) => onSearch(e.target.value)} />
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-[#f7f9f8] rounded-card p-4 border border-sage-200/60 space-y-1">
-              <span className="text-[11px] font-bold text-sage-400 uppercase tracking-wider block">
-                OPEN DEALS
-              </span>
-              <span className="text-2xl font-display font-bold text-sage-900">
-                {selectedAccount.openDealsCount}
-              </span>
-            </div>
-
-            <div className="bg-[#f7f9f8] rounded-card p-4 border border-sage-200/60 space-y-1">
-              <span className="text-[11px] font-bold text-sage-400 uppercase tracking-wider block">
-                LIFETIME VALUE
-              </span>
-              <span className="text-2xl font-display font-bold text-sage-900">
-                {selectedAccount.lifetimeValue}
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-4 pt-2">
-            <h3 className="text-xs font-bold text-sage-400 uppercase tracking-wider">
-              ACTIVITY TIMELINE
-            </h3>
-
-            <div className="space-y-3">
-              {selectedAccount.activities.map((act, idx) => (
-                <div key={idx} className="flex items-center justify-between text-sm py-2 border-b border-sage-100 last:border-0">
-                  <div className="flex items-center gap-2.5 text-sage-700 font-medium">
-                    <span className="w-2 h-2 rounded-full bg-[#9C5B34]"></span>
-                    <span>{act.text}</span>
-                  </div>
-                  <span className="text-xs text-sage-400 font-medium whitespace-nowrap">
-                    {act.time}
-                  </span>
-                </div>
+      <SalesGate status={accounts.status} error={accounts.error} onRetry={() => void accounts.reload()} loadingLabel="Loading accounts">
+        {items.length === 0 ? (
+          <EmptyState
+            title={q ? "No accounts match" : "No accounts yet"}
+            body={q ? "Try a different search." : "Accounts are the companies you sell to. Add one here, or make a lead a deal and its account is created for you."}
+            cta={
+              !q && (
+                <button type="button" onClick={() => setCreating(true)} className={BTN_ACCENT}>
+                  + New account
+                </button>
+              )
+            }
+          />
+        ) : (
+          <div className={`${CARD} overflow-hidden`}>
+            <ul className="divide-y divide-sage-100">
+              {items.map((acc) => (
+                <li key={acc.id}>
+                  <Link
+                    href={`/sales/accounts/${acc.id}`}
+                    className="flex flex-col md:flex-row md:items-center justify-between gap-1 md:gap-4 px-5 py-4 hover:bg-sage-50/70 transition-colors"
+                  >
+                    <div className="min-w-0">
+                      <h2 className="font-display font-bold text-sage-900 text-base truncate">{acc.name}</h2>
+                      <p className="text-xs text-sage-500 truncate">
+                        {[acc.industry, acc.website?.replace(/^https?:\/\//, "")].filter(Boolean).join(" · ") || "No details yet"}
+                      </p>
+                    </div>
+                    <span className="text-xs text-sage-500 shrink-0">Owner: {nameOf(acc.owner_id)}</span>
+                  </Link>
+                </li>
               ))}
+            </ul>
+            <div className="flex items-center justify-between gap-3 px-5 py-3 border-t border-sage-100 text-xs text-sage-500">
+              <span>
+                {offset + 1} to {offset + items.length} of {total}
+              </span>
+              <div className="flex gap-2">
+                <button type="button" className={BTN_SECONDARY} disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>
+                  Previous
+                </button>
+                <button type="button" className={BTN_SECONDARY} disabled={offset + items.length >= total} onClick={() => setOffset(offset + PAGE_SIZE)}>
+                  Next
+                </button>
+              </div>
             </div>
           </div>
+        )}
+      </SalesGate>
 
-          <div className="pt-6 border-t border-sage-100 space-y-3">
-            <h3 className="text-xs font-bold text-sage-400 uppercase tracking-wider">
-              LOG ACTIVITY
-            </h3>
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                placeholder="Met for coffee, sent deck..." 
-                value={activityNote}
-                onChange={(e) => setActivityNote(e.target.value)}
-                className="flex-1 bg-sage-50 border border-sage-200 rounded-input px-3 py-2 text-sm focus:outline-none focus:border-sage-400"
-              />
-              <button 
-                onClick={handleLogActivity}
-                className="bg-[#1e4836] hover:bg-[#153427] text-white font-semibold px-4 py-2 rounded-input text-sm transition-colors shadow-card shrink-0"
-              >
-                Log
-              </button>
-            </div>
-          </div>
-
-        </div>
+      {creating && (
+        <NewAccountDrawer
+          owners={owners}
+          onClose={() => setCreating(false)}
+          onCreated={(id) => {
+            triggerToast("Account added");
+            setCreating(false);
+            router.push(`/sales/accounts/${id}`);
+          }}
+        />
       )}
     </div>
+  );
+}
+
+function NewAccountDrawer({
+  owners,
+  onClose,
+  onCreated,
+}: {
+  owners: ReturnType<typeof useMembers>["owners"];
+  onClose: () => void;
+  onCreated: (id: string) => void;
+}) {
+  const { triggerToast } = useToast();
+  const [form, setFormState] = useState<AccountFormState>({ name: "", website: "", industry: "", description: "", owner_id: null });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const ids = { name: useId(), website: useId(), industry: useId(), description: useId(), owner: useId() };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name.trim()) {
+      setErrors({ name: "Give the account a name." });
+      return;
+    }
+    setBusy(true);
+    try {
+      const created = await createAccount({
+        name: form.name.trim(),
+        website: form.website.trim() || null,
+        industry: form.industry.trim() || null,
+        description: form.description.trim() || null,
+        owner_id: form.owner_id,
+      });
+      onCreated(created.id);
+    } catch (err) {
+      const fe = salesFieldErrors(err);
+      setErrors(fe);
+      if (Object.keys(fe).length === 0) triggerToast(salesErrorMessage(err), "error");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Drawer
+      title="New account"
+      onClose={onClose}
+      footer={
+        <>
+          <button type="submit" form="new-account-form" className={BTN_ACCENT} disabled={busy}>
+            {busy ? "Adding..." : "Add account"}
+          </button>
+          <button type="button" onClick={onClose} className={BTN_SECONDARY}>
+            Cancel
+          </button>
+        </>
+      }
+    >
+      <form id="new-account-form" onSubmit={submit} noValidate className="flex flex-col gap-5">
+        <AccountFields ids={ids} form={form} setForm={(p) => setFormState((f) => ({ ...f, ...p }))} errors={errors} owners={owners} />
+      </form>
+    </Drawer>
   );
 }

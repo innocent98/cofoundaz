@@ -64,6 +64,26 @@ describe('useDashboardApi & Dashboard Mappers', () => {
       expect(kpis[3]).toMatchObject({ value: '2.5%', hasData: true });
     });
 
+    it('pipeline (Sales slice A): ok shows the open-deal value with a sparkline; no_data is the empty state; restricted hides the tile', () => {
+      const ok = mapKpis(raw({
+        ...noData,
+        pipeline: {
+          status: 'ok',
+          value_minor: 80000000,
+          currency: 'NGN',
+          trend: { delta: 20000000, series: [{ period: '2026-10-20', value: 60000000 }, { period: '2026-10-21', value: 80000000 }] },
+        },
+      }));
+      expect(ok[2]).toMatchObject({ id: 'pipeline', status: 'ok', value: '₦800.0K', hasData: true, series: [60000000, 80000000], deltaDirection: 'up' });
+      expect(ok.some((t) => t.value === 'Coming Soon')).toBe(false);
+
+      const empty = mapKpis(raw({ ...noData, pipeline: { status: 'no_data', value_minor: null, currency: null } }));
+      expect(empty[2]).toMatchObject({ status: 'no_data', value: 'No data yet', cta: { href: '/sales' } });
+
+      const hidden = mapKpis(raw({ ...noData, pipeline: { status: 'restricted', value_minor: null, currency: null } }));
+      expect(hidden[2]).toMatchObject({ status: 'restricted', hidden: true });
+    });
+
     it('ok with 0 is real data: ₦0, not the empty state', () => {
       const kpis = mapKpis(raw({ ...noData, revenue: { status: 'ok', value_minor: 0, currency: 'NGN' } }));
       expect(kpis[0]).toMatchObject({ value: '₦0', hasData: true, status: 'ok' });

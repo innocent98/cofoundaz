@@ -11,6 +11,34 @@ data-backed row below is a gap by construction. The Dashboard `pipeline` KPI ret
 Legend: ❌ gap · Slice: A (CRM core BE) · B (sequences + sending BE) · C (coach + analytics BE) · FE-A · FE-BC ·
 Severity: **Sec** > **High** > **Med** > **Low**
 
+## FE-A status (2026-10-21): Pipeline, Leads, Accounts on the real API
+
+Branch `feature/sales-fe-a`. Walked against the shared API `:8000` (develop with #165, migration 0063) from a worktree dev
+server, founder (`localhost`) and team member (`tm.localhost`) at 1440 and 375, mentor (`m.localhost`) and consultant
+(`bc.localhost`) at 1440 and 375. A scripted browser walk drove every control (43 steps per role and width, all pass; re-run
+after the last code change); test data is labelled "Walk test". Contract: API repo `docs/fe-integration-guide-sales-crm.md`.
+Mocked-API Playwright (`e2e/sales.spec.ts`, 23 tests incl. axe on 5 routes and 375 overflow) covers the same controls plus
+what cannot be produced live. SOP: `docs/sop/sales-crm-fe.md`.
+
+| # | Status | Evidence |
+|---|---|---|
+| 2 | ✅ | Founder + TM open all three pages and call the API (200). Mentor and consultant: `/sales`, `/sales/leads`, `/sales/accounts`, `/sales/accounts/<id>` show "You don't have access to this page.", no Sales Hub in the sidebar, and `/sales`, `/stages`, `/deals`, `/leads`, `/accounts` all 403 |
+| 3 | ✅ | Dashboard Pipeline Value tile read `₦250.0K` live (not "Coming Soon"), with the trend sparkline wired (`kpis.metrics.pipeline.trend`); no_data / restricted / ok covered in `useDashboardApi.test.ts` |
+| 4 | ✅ | ⌘K hits for an account, a contact, a lead and a deal each landed on the right place (account page; account page with the contact drawer open; `/sales/leads?lead=` card; `/sales?deal=` drawer). A contact with no account opens its drawer at `/sales/contacts?contact=`. **Not exercised:** the Sales page hits (Sales Hub, Leads, Accounts) |
+| 6 | ✅ | Edit stages: rename, reorder (up/down), add (blocked at 10), win %, delete an empty stage; Won/Lost and a stage with deals have Delete disabled; the API's own message is shown if it refuses; columns and forecast follow the saved stages |
+| 7 | ✅ | + Add deal (account, contact, ₦ value as kobo, stage, next step, due, owner); card opens the deal drawer: edit + save persists, stage select, activity timeline, notes, stage history, delete with confirm |
+| 8 | ✅ | Drag (native mouse drag and the keyboard/touch stage select) persists via `POST /deals/{id}/stage`; optimistic move rolls back and shows the API message when refused (unit + mocked e2e). Found and fixed a rollback race in the hook while writing its test |
+| 9 | ✅ | `canvas-confetti` burst (no ConfettiBurst component existed; `lib/confetti.ts`, skipped under reduced motion) plus an announced "Closed won: ..." line on the won move (canvas attached live). Lost opens the reason modal; the reason and note are sent in the same call and read back from the API ("Lost: Price", note) |
+| 10 | ◐ | Badge renders from the API's `is_stalled` / `days_inactive` and the drawer says "No activity for N days". **Not seen live**: no endpoint can age a deal, so it is proven by the mocked e2e and unit tests only. The stall-days setting (`PATCH /sales/settings`) has no control yet |
+| 11 | ✅ | Card shows account and contact names; avatar initial comes from the contact |
+| 12 | ✅ | Leads table: Name, Company, Source, Status, Owner, Created; quick-add takes name, company and email; status is changeable inline (persists after reload) |
+| 13 | ✅ | Real CSV: choose file, mapping step pre-filled from the API's suggestion, commit; toast "2 added, 1 duplicate skipped, 2 invalid", invalid rows listed (row + reason), re-import skipped all 3 duplicates. Source is not offered in the mapping (the API sets `csv` on every row) |
+| 14 | ✅ | "Make it a deal" creates the deal (first stage), account (when there is a company) and contact; banner links to the deal; lead shows Converted + View deal |
+| 16 | ✅ | `/sales/accounts/[id]` (list rows link to it; unknown id shows "Account not found") |
+| 17 | ✅ | Account page: editable info panel (name, website, industry, notes, owner), contacts list + add, open deals with stage and stall badge, lifetime won, activity log and notes. Delete is refused by the API while the account has deals (message shown) and works when empty |
+| 18 | ✅ | Contact drawer: edit fields, "Log activity" (call, email, meeting, note) timeline, delete; a contact activity also appears on its account's log |
+| 15, 19 | – | Enroll in a sequence: slice B / FE-BC |
+
 ## Cross-cutting
 | # | Gap | Sev | Slice |
 |---|---|---|---|

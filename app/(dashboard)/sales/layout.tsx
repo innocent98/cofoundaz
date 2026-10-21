@@ -48,7 +48,7 @@ export default function SalesLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
 
-        <main className="max-w-7xl mx-auto px-4 md:px-6 pt-6 flex-1 w-full space-y-6 pb-20">
+        <main className="max-w-7xl mx-auto px-4 md:px-6 pt-6 flex-1 w-full min-w-0 space-y-6 pb-20">
           {children}
         </main>
       </div>
