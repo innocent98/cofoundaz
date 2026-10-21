@@ -96,6 +96,7 @@ export interface DashboardRunwayMetric {
 }
 
 export interface DashboardPipelineMetric {
+  trend?: DashboardTrend;
   status: KpiMetricStatus;
   value_minor: number | null;
   currency: string | null;

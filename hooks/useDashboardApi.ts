@@ -190,7 +190,7 @@ export function mapKpis(k: any): KPISnapshot[] {
   const tiles = [
     tile("revenue", "revenue", "Monthly Revenue", "/finance", revenueTile(metrics.revenue), withTrend(metrics.revenue, "money")),
     tile("runway", "runway", "Runway", "/finance", runwayTile(metrics.runway), withTrend(metrics.runway, "months")),
-    tile("pipeline", "pipeline", "Pipeline Value", "/sales", pipelineTile(metrics.pipeline)),
+    tile("pipeline", "pipeline", "Pipeline Value", "/sales", pipelineTile(metrics.pipeline), withTrend(metrics.pipeline, "money")),
     tile("ctr", "ctr", "Campaign CTR", "/marketing", ctrTile(metrics.campaign_ctr), withTrend(metrics.campaign_ctr, "points")),
     tile(
       "tasks",

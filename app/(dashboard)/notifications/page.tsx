@@ -8,7 +8,7 @@ import { NotificationPreferences } from '@/components/notifications/notification
 import { Check, X, ChevronDown } from 'lucide-react';
 
 type NotificationTab = 'Inbox' | 'Preferences' | 'Digest & quiet hours' | 'Announcements';
-type FilterCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team' | 'Marketing';
+type FilterCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team' | 'Marketing' | 'Sales';
 type DigestMode = 'Off' | 'Daily' | 'Weekly';
 
 interface AnnouncementItem {
@@ -137,6 +137,7 @@ export default function NotificationsPage(): React.JSX.Element {
     if (activeFilter === 'Finance') return n.category === 'Finance';
     if (activeFilter === 'Team') return n.category === 'Team';
     if (activeFilter === 'Marketing') return n.category === 'Marketing';
+    if (activeFilter === 'Sales') return n.category === 'Sales';
     return true;
   });
 
@@ -223,6 +224,7 @@ export default function NotificationsPage(): React.JSX.Element {
                 { name: 'Finance', count: notifications.filter(n => n.category === 'Finance').length },
                 { name: 'Team', count: notifications.filter(n => n.category === 'Team').length },
                 { name: 'Marketing', count: notifications.filter(n => n.category === 'Marketing').length },
+                { name: 'Sales', count: notifications.filter(n => n.category === 'Sales').length },
               ].map((filter) => {
                 const isActive = activeFilter === filter.name;
                 return (

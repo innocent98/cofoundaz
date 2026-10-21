@@ -129,6 +129,38 @@ describe('useNotifications (provider + live stream)', () => {
   });
 });
 
+// Live captures: guide fe-integration-guide-sales-crm.md §8.2.
+describe('sales notifications', () => {
+  const won = {
+    id: 'fd3cc02d',
+    type: 'sales.deal.won',
+    title: 'Deal moved to Closed Won: Acme fleet rollout 🎉',
+    body: '',
+    data: { href: '/sales?deal=f9c69088', name: 'Acme fleet rollout', deal_id: 'f9c69088' },
+    read: false,
+    created_at: '2026-10-21T11:58:05.499756+00:00',
+  };
+  const stalled = {
+    ...won,
+    id: 'c3ecf76c',
+    type: 'sales.deal.stalled',
+    title: 'Deal stalled: Quiet renewal has had no activity for 20 days',
+    body: 'Suggest a follow-up',
+    data: { href: '/sales?deal=6c62e89d&followup=1', deal_id: '6c62e89d', days: 20 },
+  };
+
+  it('opens the deal drawer from data.href and files under Sales', () => {
+    expect(mapNotification(won)).toMatchObject({ href: '/sales?deal=f9c69088', category: 'Sales' });
+    expect(mapNotification(stalled)).toMatchObject({ href: '/sales?deal=6c62e89d&followup=1', actionText: 'Suggest a follow-up' });
+  });
+
+  it('falls back to the deal id, ignores a foreign href', () => {
+    expect(notificationHref('sales.deal.won', { deal_id: 'd9' })).toBe('/sales?deal=d9');
+    expect(notificationHref('sales.deal.won', { href: 'https://evil.example/x', deal_id: 'd9' })).toBe('/sales?deal=d9');
+    expect(notificationHref('sales.deal.won', { href: '//evil.example/x' })).toBe('/sales');
+  });
+});
+
 // Live captures: guide fe-integration-guide-marketing-prd.md §1 and §11.
 describe('marketing notifications', () => {
   const published: RawNotification = {

@@ -2,7 +2,7 @@ import React, { createContext, createElement, useContext, useState, useEffect, u
 import { apiClient, ApiError } from '@/lib/api/client';
 import { useRealtimeEvent } from '@/components/realtime-context';
 
-export type NotificationCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team' | 'Marketing';
+export type NotificationCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team' | 'Marketing' | 'Sales';
 
 export interface NotificationItem {
   id: string;
@@ -47,8 +47,17 @@ function marketingHref(type: string, data: Record<string, unknown> | null | unde
   return '/marketing';
 }
 
+/** Sales notifications (BE guide fe-integration-guide-sales-crm.md §8.2): follow `data.href` when it is a /sales path, else open the deal. */
+function salesHref(data: Record<string, unknown> | null | undefined): string {
+  const href = data?.href;
+  if (typeof href === 'string' && /^\/sales(\/|\?|$)/.test(href) && !href.startsWith('//')) return href;
+  if (typeof data?.deal_id === 'string') return `/sales?deal=${encodeURIComponent(data.deal_id)}`;
+  return '/sales';
+}
+
 export function notificationHref(type: string, data: Record<string, unknown> | null | undefined): string | null {
   if (type.startsWith('marketing.')) return marketingHref(type, data);
+  if (type.startsWith('sales.')) return salesHref(data);
   if (type === 'dashboard.briefing.ready') return '/dashboard';
   if (type === 'workspace.member.joined') return '/team';
   if (type === 'finance.runway.low') return '/finance/runway';
@@ -92,6 +101,7 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
 
 function categoryFor(type: string): NotificationCategory {
   if (type.startsWith('marketing')) return 'Marketing';
+  if (type.startsWith('sales')) return 'Sales';
   if (type.startsWith('mission') || type.startsWith('roadmap') || type.startsWith('business') || type.startsWith('assessment')) return 'Missions';
   if (type.startsWith('healthscore') || type.startsWith('finance') || type.startsWith('kpi')) return 'Finance';
   if (type.startsWith('workspace') || type.startsWith('document') || type.startsWith('team')) return 'Team';
@@ -100,6 +110,7 @@ function categoryFor(type: string): NotificationCategory {
 
 function iconFor(type: string): { iconText: string; iconBg: string } {
   if (type.startsWith('marketing')) return { iconText: '📣', iconBg: 'bg-[#F7EEDC]' };
+  if (type.startsWith('sales')) return { iconText: '💼', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('document')) return { iconText: '📄', iconBg: 'bg-[#EAF2ED]' };
   if (type.startsWith('business')) return { iconText: '🧩', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('assessment') || type.startsWith('healthscore')) return { iconText: '✓', iconBg: 'bg-[#EAF2ED]' };
@@ -137,7 +148,7 @@ export function mapNotification(n: RawNotification): NotificationItem {
     description: '', // body is always "" in v1, don't fabricate a subtitle
     time: relativeTime(n.created_at),
     // `body` is "" in v1 except where a type sends a CTA label (the insight notification: "See insight").
-    actionText: (n.type === 'validation.insight.detected' || n.type.startsWith('marketing.')) && n.body ? n.body : undefined,
+    actionText: (n.type === 'validation.insight.detected' || n.type.startsWith('marketing.') || n.type.startsWith('sales.')) && n.body ? n.body : undefined,
     href: notificationHref(n.type, n.data),
     isUnread: !n.read,
     iconBg,
