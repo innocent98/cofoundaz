@@ -133,7 +133,7 @@ feature missing) > **Med** (PRD feature partial) > **Low** (copy, polish, a11y)
 ## Decisions needed (proposed defaults; none block BE work on the other rows)
 | ID | Question | Proposed default | Who |
 |---|---|---|---|
-| D-FIN-1 | PRD says "TM (Finance grant)". Per-member module grants, or is every team member a finance user? | Every TM has full Finance access (consistent with Marketing, Validation, Business Builder). Grants become one cross-hub Team-page feature later. | **needs Adebayo** (product/permission model) |
+| D-FIN-1 | PRD says "TM (Finance grant)". Per-member module grants, or is every team member a finance user? | Every TM has full Finance access (consistent with Marketing, Validation, Business Builder). Grants become one cross-hub Team-page feature later. | **applied** by the lead from Adebayo's D-MKT-1 "keep" (grants are one cross-hub feature); reversible |
 | D-FIN-2 | Who manages the Paystack key? | Founder only can connect, replace or disconnect. TM and AC see status and sync, and no one sees the key after it is saved. Replace requires re-entry. | lead can decide |
 | D-FIN-3 | One source of spend truth for budgets? | Budget actuals = all outflow ledger rows by category (manual, expense, imported). Expenses stay for receipts. | **needs Adebayo** (changes how the cash and budget pages agree) |
 | D-FIN-4 | Is "Draft budget from actuals" AI? | Keep it deterministic. | lead can decide |
@@ -149,7 +149,7 @@ feature missing) > **Med** (PRD feature partial) > **Low** (copy, polish, a11y)
 - **Paystack live-money tests:** everything in rows 4 to 7 is buildable and testable with Paystack **test-mode** keys. Checking a
   real settlement or a live webhook needs a public HTTPS URL (a dev tunnel or staging) and a live key.
 - **QuickBooks / Xero:** deferred by decision. No work until it is reopened.
-- **Flutterwave:** a second adapter later. The provider interface is the only thing to do now.
+- **Flutterwave:** NOT blocked. Adebayo, 2026-10-21: offer Paystack **and** Flutterwave now, each founder chooses. Built in sequence in BE (a): `PaymentProvider` interface, `PaystackProvider`, then `FlutterwaveProvider`; testing needs Flutterwave test-mode keys from Adebayo.
 - **Accountant and investor accounts, and the overdue state** (see "Not walked").
 
 ## Counts (35 gaps)
