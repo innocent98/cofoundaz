@@ -9,7 +9,7 @@ x2), well inside the budget. Test data left behind, all on the existing walk cam
 (2026-10-10 and 2026-10-18, so the weekly readout had two weeks to compare) and one segment **Walk test seg**; the draft the
 plan added was deleted.
 
-**Result: 1 control FAILED on develop (fixed in FE PR #138, passing on the fix branch); Marketing is marked done once #138 merges.** Everything else in the three failing rows, the readout row and
+**Result (updated 2026-10-21 after #138 merged): all 15 rows pass. Gap 4b was fixed in FE #138 and verified live on its branch; develop `1b0d9c1` has byte-identical app code (only docs merged since). Marketing is DONE.** (Originally: 1 control failed on develop.) Everything else in the three failing rows, the readout row and
 gaps 1 to 9 passes, for founder and team member at both widths, with mentor and consultant denied everywhere.
 
 | Row / gap | Check | Result | Evidence (UI vs raw API) |
