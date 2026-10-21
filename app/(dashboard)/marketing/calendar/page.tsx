@@ -10,7 +10,7 @@ import {
   getCalendarEntry,
   isUuid,
   getPlanWeek,
-  planDayToIso,
+  planSlotIso,
   startPlanWeek,
   fieldErrorsOf,
   marketingErrorMessage,
@@ -223,7 +223,7 @@ function CalendarWorkbench() {
 
   /** A proposal whose 9:00 has already passed today is added as a draft, not scheduled into the past. */
   const proposalWhen = (p: PlanWeekEntry) => {
-    const iso = planDayToIso(planBase, p.day_offset);
+    const iso = planSlotIso(p, planBase);
     return { iso, late: new Date(iso).getTime() <= Date.now() };
   };
 
