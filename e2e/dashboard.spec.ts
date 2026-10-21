@@ -112,3 +112,37 @@ test.describe('Dashboard: founder', () => {
     expect(overflows).toBe(false)
   })
 })
+
+test.describe('Dashboard: Team activity load more (gap 11)', () => {
+  const row = (n: number) => ({
+    id: `act-${n}`,
+    actor: { name: 'Placeholder Person' },
+    summary: `Placeholder Person did thing ${n}`,
+    created_at: '2026-10-20T10:00:00Z',
+  })
+
+  test('Load more appends the next page, retries after a failure, and hides at the end', async ({ page }) => {
+    await setup(page, 'founder')
+    let failNext = true
+    await page.route('**/api/v1/dashboard/activity**', (route) => {
+      const cursor = new URL(route.request().url()).searchParams.get('cursor')
+      if (!cursor) return route.fulfill(json({ items: [row(1), row(2)], next_cursor: 'c2' }))
+      if (failNext) {
+        failNext = false
+        return route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ detail: 'boom' }) })
+      }
+      return route.fulfill(json({ items: [row(2), row(3)], next_cursor: null }))
+    })
+    await page.goto('/dashboard')
+    await expect(page.getByText('Placeholder Person did thing 2')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Load more' }).click()
+    await expect(page.getByText("Couldn't load more activity.")).toBeVisible()
+    await expect(page.getByText('Placeholder Person did thing 1')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Retry', exact: true }).click()
+    await expect(page.getByText('Placeholder Person did thing 3')).toBeVisible()
+    await expect(page.getByText('Placeholder Person did thing 2')).toHaveCount(1)
+    await expect(page.getByRole('button', { name: 'Load more' })).toHaveCount(0)
+  })
+})

@@ -174,7 +174,7 @@ So the stream filter is role-aware and works; the empty result is not a dead con
 ### New gaps
 | # | Sev | Role | Gap | Where |
 |---|---|---|---|---|
-| 11 | low | all | Team activity shows only the first page (20 rows) although `/dashboard/activity` returns `next_cursor`; no load-more, no scroll, so 9 of 29 rows are unreachable from the dashboard | FE activity card |
+| 11 | low | all | Team activity shows only the first page (20 rows) although `/dashboard/activity` returns `next_cursor`; no load-more, no scroll, so 9 of 29 rows are unreachable from the dashboard | FE activity card | **Fixed in PR** (`docs/sop/dashboard-activity-load-more.md`) |
 | 12 | low | mentor, consultant | Pre-#153 `mission.ready` / `mission.completed` / `dashboard.briefing.ready` rows are still in their inbox (a Missions tab count includes them); clicking `mission.ready` silently stays on `/notifications`. New events are not delivered. Fix: one-off cleanup of stored rows, or filter by role at read time | BE notifications list (or data cleanup) |
 
 ### Not exercised live
