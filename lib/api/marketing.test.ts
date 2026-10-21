@@ -41,6 +41,7 @@ import {
   listKeywords,
   marketingErrorMessage,
   planDayToIso,
+  planSlotIso,
   savePositioning,
   startCopy,
   startPlanWeek,
@@ -257,6 +258,24 @@ describe('marketing client: pure helpers', () => {
     const base = new Date(2026, 9, 17, 15, 30);
     const d = new Date(planDayToIso(base, 2));
     expect([d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()]).toEqual([2026, 9, 19, 9, 0]);
+  });
+
+  it("uses the API's scheduled_at for a plan proposal instead of day_offset", () => {
+    const now = Date.parse('2026-10-21T11:05:00Z');
+    const base = new Date(now);
+    // day 0 would be a past 09:00 today; the API already moved it to tomorrow
+    const iso = planSlotIso({ day_offset: 0, scheduled_at: '2026-10-22T09:00:00+00:00' }, base, now);
+    expect(iso).toBe('2026-10-22T09:00:00.000Z');
+  });
+
+  it('falls back to day_offset when scheduled_at is missing, invalid or not in the future', () => {
+    const now = Date.parse('2026-10-21T11:05:00Z');
+    const base = new Date(now);
+    const fallback = planDayToIso(base, 1);
+    expect(planSlotIso({ day_offset: 1 }, base, now)).toBe(fallback);
+    expect(planSlotIso({ day_offset: 1, scheduled_at: null }, base, now)).toBe(fallback);
+    expect(planSlotIso({ day_offset: 1, scheduled_at: 'nope' }, base, now)).toBe(fallback);
+    expect(planSlotIso({ day_offset: 1, scheduled_at: '2026-10-21T08:00:00Z' }, base, now)).toBe(fallback);
   });
 });
 

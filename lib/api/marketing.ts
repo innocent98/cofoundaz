@@ -304,6 +304,8 @@ export interface PlanWeekEntry {
   channel: ChannelKey;
   body: string;
   day_offset: number;
+  /** ISO instant chosen by the API: the next free 09:00 UTC slot, never in the past. */
+  scheduled_at?: string | null;
 }
 export type PlanWeekGeneration = Generation<{ entries?: PlanWeekEntry[] }>;
 
@@ -784,6 +786,22 @@ export function gapFillWeeks(
 export function planDayToIso(base: Date, dayOffset: number): string {
   const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + dayOffset, 9, 0, 0, 0);
   return d.toISOString();
+}
+
+/**
+ * The instant a plan proposal should be scheduled at: the API's `scheduled_at` when it is a valid time after `now`,
+ * otherwise the `day_offset` fallback (09:00 local), which the caller may still find to be in the past.
+ */
+export function planSlotIso(
+  entry: { day_offset: number; scheduled_at?: string | null },
+  base: Date,
+  now: number = Date.now()
+): string {
+  if (entry.scheduled_at) {
+    const t = new Date(entry.scheduled_at).getTime();
+    if (Number.isFinite(t) && t > now) return new Date(t).toISOString();
+  }
+  return planDayToIso(base, entry.day_offset);
 }
 
 /**
