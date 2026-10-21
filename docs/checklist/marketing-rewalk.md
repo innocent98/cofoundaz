@@ -127,15 +127,19 @@ access to this page." on every route and deep link, with no marketing data in se
 |---|---|---|---|---|
 | R | pending fix PR | Campaign readout | "750000 spent" in minor units, "2,400 impressions" vs the series' 2,500, "Last week had zero activity" | `fix/marketing-readout-figures` (in progress), not counted twice |
 | 1 | Medium | Overview "AI content ideas" | Shows 14 (`ai_content_ideas`), but the SEO page lists the newest run only (7). The count adds every content-gap run | BE: count the newest ready run |
-| 2 | Medium | Analytics Export CSV | `value` for `spend` is in minor units (30000) and the file has no unit note, while the page shows ₦300 | FE: export ₦ or add `spend_naira` / a unit column |
-| 3 | Low | Calendar week view | Month → Week jumps to the first week of the month (Sep 27 to Oct 3) instead of the week of today; the posts are off screen until Today is clicked | FE |
-| 4 | Low | Plan my first week | The first proposal is dated today 9:00 AM, which was already past at 10:17; the button still says "first week" once posts exist | BE prompt / FE label |
+| 2 | Medium | Analytics Export CSV | `value` for `spend` is in minor units (30000) and the file has no unit note, while the page shows ₦300 | FE: export ₦ or add `spend_naira` / a unit column **Fixed in the `fix/marketing-rewalk-fe` PR.** |
+| 3 | Low | Calendar week view | Month → Week jumps to the first week of the month (Sep 27 to Oct 3) instead of the week of today; the posts are off screen until Today is clicked | FE **Fixed in the `fix/marketing-rewalk-fe` PR.** |
+| 4 | Low | Plan my first week | The first proposal is dated today 9:00 AM, which was already past at 10:17; the button still says "first week" once posts exist | BE prompt / FE label FE part (label) fixed in the `fix/marketing-rewalk-fe` PR: reads "Plan another week" once posts exist. Past-dated slot is still BE. |
 | 5 | Low | ⌘K search | Campaign, post and segment hits link to the list page, not to the item (`?entry=<id>`, `/campaigns/<id>`) | BE hrefs |
-| 6 | Low | Analytics CAC | `₦326.5` on the cards, `₦535.71` in the leaderboard (decimal places differ) | FE formatter |
+| 6 | Low | Analytics CAC | `₦326.5` on the cards, `₦535.71` in the leaderboard (decimal places differ) | FE formatter **Fixed in the `fix/marketing-rewalk-fe` PR.** |
 | 7 | Low, known | Media preview | Every image shows "Preview unavailable" because the API returns a server path; honest label, no fix until media is served | BE (Cloudinary/serve URL) |
-| 8 | Low | Segment builder | "Give the segment a name." stays on screen after a name is typed, until Save is pressed again | FE |
+| 8 | Low | Segment builder | "Give the segment a name." stays on screen after a name is typed, until Save is pressed again | FE **Fixed in the `fix/marketing-rewalk-fe` PR.** |
 | 9 | Low | SEO content gaps | The previous run's off-brand ideas ("automated daily savings", FDIC) stay listed until the founder regenerates | BE: stale-run hint, or regenerate on context change |
 
 Browser note, not a product bug: the browser pane shares one cookie/localStorage profile across `localhost`, `tm.localhost`,
 `m.localhost` and `bc.localhost`, so a later login on another host replaced the founder's session on `localhost`. I logged in
 again; nothing else was affected.
+
+## Fix status (`fix/marketing-rewalk-fe`)
+Fixed in the FE PR and checked live on localhost:8000: 2 (CSV now in naira with a `unit` column, built client-side from the API file because the BE writes minor units), 3, 4 (label only), 6, 8.
+Pending BE merges, then FE follow-up: #161 readout figures (render structured figures), gap 9 `stale` flag (Regenerate prompt), gap 5 item hrefs (check `?entry=` / `/campaigns/<id>` open the item), gap 7 media file URL.

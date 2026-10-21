@@ -26,7 +26,9 @@ import {
   createCalendarEntry,
   deleteSegment,
   fieldErrorsOf,
+  formatCac,
   formatMoney,
+  majorUnitsCsv,
   gapFillWeeks,
   getAnalytics,
   getOverview,
@@ -419,5 +421,22 @@ describe('request paths', () => {
     api().mockResolvedValueOnce(ok({}));
     await getCalendarEntry('../auth/me');
     expect(api().mock.calls[0][0]).toBe('/marketing/calendar-entries/..%2Fauth%2Fme');
+  });
+});
+
+describe('analytics export in major units', () => {
+  const src = 'date,scope,channel,campaign,metric,value\n2026-10-20,business,email,"Walk, push",spend,30000\n2026-10-20,business,email,,visits,77\n';
+  it('converts spend to naira and adds a unit column', () => {
+    expect(majorUnitsCsv(src)).toBe(
+      'date,scope,channel,campaign,metric,value,unit\n2026-10-20,business,email,"Walk, push",spend,300,NGN\n2026-10-20,business,email,,visits,77,count\n'
+    );
+  });
+  it('leaves a file that already has a unit column alone', () => {
+    const withUnit = 'date,metric,value,unit\nx,spend,300,NGN\n';
+    expect(majorUnitsCsv(withUnit)).toBe(withUnit);
+  });
+  it('shows CAC with two decimals everywhere', () => {
+    expect(formatCac(32650)).toBe('₦326.50');
+    expect(formatCac(53571)).toBe('₦535.71');
   });
 });

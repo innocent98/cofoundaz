@@ -35,6 +35,15 @@ export function viewRange(view: CalendarView, anchor: Date): { from: Date; to: D
   };
 }
 
+/**
+ * Month to Week: land on the week that contains today when today is in the month being viewed,
+ * otherwise on the week of the 1st. (A selected day, e.g. a deep-linked post, sets the anchor itself.)
+ */
+export function weekAnchorForMonth(monthAnchor: Date, today: Date): Date {
+  const sameMonth = today.getFullYear() === monthAnchor.getFullYear() && today.getMonth() === monthAnchor.getMonth();
+  return sameMonth ? new Date(today.getFullYear(), today.getMonth(), today.getDate()) : new Date(monthAnchor.getFullYear(), monthAnchor.getMonth(), 1);
+}
+
 export function shiftAnchor(view: CalendarView, anchor: Date, dir: -1 | 1): Date {
   if (view === 'week') return new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + 7 * dir);
   return new Date(anchor.getFullYear(), anchor.getMonth() + dir, 1);

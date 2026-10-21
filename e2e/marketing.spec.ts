@@ -135,6 +135,7 @@ async function setup(page: Page, o: Opts = {}) {
         total: 1, limit: 25, offset: 0,
       }))
     }
+    if (path === '/segments/attributes') return route.fulfill(json({ text: [], channel_acquired: [], behaviour_tags: { max_tags: 10, max_length: 30 } }))
     if (path === '/segments') return route.fulfill(json({ segments: [] }))
     return route.fulfill(json({}))
   })
@@ -162,6 +163,34 @@ test.describe('Marketing: founder at 1440', () => {
     const box = (await save.boundingBox())!
     const hit = await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.closest('[role="dialog"]') !== null, { x: box.x + box.width / 2, y: box.y + box.height / 2 })
     expect(hit).toBe(true)
+  })
+
+  test('Month to Week opens on the week of today, and the plan button no longer says first week', async ({ page }) => {
+    const today = new Date()
+    today.setHours(14, 30, 0, 0)
+    await setup(page, { entries: [entry({ scheduled_at: today.toISOString() })] })
+    await page.goto('/marketing/calendar')
+    await expect(page.getByRole('button', { name: 'Plan another week' })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Plan my first week/ })).toHaveCount(0)
+    await page.getByRole('group', { name: 'Calendar view' }).getByRole('button', { name: 'week' }).click()
+    await expect(page.getByRole('group', { name: 'Week view' }).getByRole('button', { name: /Waitlist teaser/ })).toBeVisible()
+  })
+
+  test('segment name error clears once a name is typed', async ({ page }) => {
+    await setup(page)
+    await page.goto('/marketing/segments')
+    await page.getByRole('button', { name: /New segment|Create your first segment/ }).first().click()
+    await page.getByRole('button', { name: 'Save segment' }).click()
+    await expect(page.getByText('Give the segment a name.')).toBeVisible()
+    await page.getByLabel('Segment name').fill('Lagos merchants')
+    await expect(page.getByText('Give the segment a name.')).toHaveCount(0)
+  })
+
+  test('CAC uses two decimals on the cards and the leaderboard', async ({ page }) => {
+    await setup(page)
+    await page.goto('/marketing/analytics')
+    await expect(page.getByText('₦15.45').first()).toBeVisible()
+    await expect(page.getByText('₦20.00').first()).toBeVisible()
   })
 
   test('dragging a post to another day keeps its time and PATCHes scheduled_at', async ({ page }) => {

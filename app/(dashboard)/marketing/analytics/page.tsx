@@ -7,6 +7,7 @@ import {
   CHANNEL_LABELS,
   exportAnalyticsCsv,
   fieldErrorsOf,
+  formatCac,
   formatMoney,
   gapFillWeeks,
   ingestMetrics,
@@ -385,7 +386,7 @@ export default function MarketingAnalyticsPage() {
                               )}
                             </span>
                             <span className="text-sage-900 font-semibold">
-                              {r.cac === null ? 'No conversions yet' : formatMoney(r.cac)}
+                              {r.cac === null ? 'No conversions yet' : formatCac(r.cac)}
                             </span>
                           </div>
                           <div className="w-full bg-sage-100 h-3 rounded-full overflow-hidden p-0.5 border border-sage-200/50">
@@ -427,7 +428,7 @@ export default function MarketingAnalyticsPage() {
                             <td className="py-4 px-6 text-sage-500 font-medium">{item.clicks.toLocaleString()}</td>
                             <td className="py-4 px-6 text-sage-500 font-medium">{item.conversions.toLocaleString()}</td>
                             <td className="py-4 px-6 text-sage-500 font-medium">{formatMoney(item.spend)}</td>
-                            <td className="py-4 px-6 font-bold text-green-800 text-right">{item.cac === null ? 'No conversions' : formatMoney(item.cac)}</td>
+                            <td className="py-4 px-6 font-bold text-green-800 text-right">{item.cac === null ? 'No conversions' : formatCac(item.cac)}</td>
                           </tr>
                         ))}
                       </tbody>

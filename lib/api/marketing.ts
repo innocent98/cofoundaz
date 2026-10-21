@@ -630,7 +630,55 @@ export async function exportAnalyticsCsv(range: AnalyticsRange): Promise<{ blob:
   }
   const disposition = res.headers.get('content-disposition') ?? '';
   const filename = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? `marketing-metrics-${range}.csv`;
-  return { blob: await res.blob(), filename };
+  const text = await res.text();
+  return { blob: new Blob([majorUnitsCsv(text)], { type: 'text/csv;charset=utf-8' }), filename };
+}
+
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quoted) {
+      if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (ch === '"') quoted = false;
+      else cell += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === ',') { row.push(cell); cell = ''; }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += ch;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+const csvCell = (v: string) => (/[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+
+/**
+ * The API writes `spend` in minor units with no unit. Rewrite spend rows to naira (what the page
+ * shows) and add a `unit` column, so the file matches the screen. A file that already has a
+ * `unit` column is left alone.
+ */
+export function majorUnitsCsv(text: string): string {
+  const rows = parseCsv(text);
+  if (rows.length === 0) return text;
+  const header = rows[0];
+  const metricIdx = header.indexOf('metric');
+  const valueIdx = header.indexOf('value');
+  if (metricIdx < 0 || valueIdx < 0 || header.includes('unit')) return text;
+  const out = [[...header, 'unit']];
+  for (const r of rows.slice(1)) {
+    if (r.length === 1 && r[0] === '') continue;
+    if (r[metricIdx] === 'spend' && r[valueIdx] !== '' && !Number.isNaN(Number(r[valueIdx]))) {
+      const major = Number(r[valueIdx]) / 100;
+      out.push([...r.slice(0, valueIdx), String(major), ...r.slice(valueIdx + 1), 'NGN']);
+    } else out.push([...r, 'count']);
+  }
+  return out.map((r) => r.map(csvCell).join(',')).join('\n') + '\n';
 }
 
 // ---------------------------------------------------------------- media
@@ -658,6 +706,12 @@ export function formatMoney(minor: number | null | undefined): string {
   if (minor === null || minor === undefined) return '-';
   const major = minor / 100;
   return `₦${major.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+}
+
+/** Cost per customer is a small figure, so it always shows two decimals (cards and leaderboard agree). */
+export function formatCac(minor: number | null | undefined): string {
+  if (minor === null || minor === undefined) return '-';
+  return `₦${(minor / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export const CHANNEL_LABELS: Record<ChannelKey, string> = {

@@ -354,7 +354,10 @@ export default function MarketingSegmentsPage() {
         >
           <Field label="Segment name" htmlFor="seg-name" error={errors.name}>
             <input id="seg-name" className={INPUT} maxLength={200} value={form.name} placeholder="e.g. Small business founders"
-              onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              onChange={(e) => {
+                setForm({ ...form, name: e.target.value });
+                if (e.target.value.trim() && errors.name) setErrors((cur) => Object.fromEntries(Object.entries(cur).filter(([k]) => k !== 'name')));
+              }} />
           </Field>
           <RuleBuilder
             form={form}
