@@ -1,36 +1,33 @@
 # HANDOFF — Cofoundaz app-wide build-out (master)
 
 > **First message for a new lead session (start it yourself, from `/Users/adebayovictor/Documents/dev/cofoundaz`):**
-> *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §2b: get #162, #133 and #134 merged, then
-> re-check Marketing on develop and mark it done, then start Sales (no API: design first). No half-built pages; ask me only for
+> *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §2b. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If #134 hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/dashboard-done:docs/HANDOFF-master.md`
+> If the lead-6 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead6-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-21 11:15 WAT** (lead session 4 handover, prepared for a session Adebayo starts himself). This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-21 23:45 WAT** (lead session 6 handover). This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
-(`cofoundaz-api/docs/fe-integration-guide-*.md`), the master checklists (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`,
-`docs/checklist/buildout-status.md`), and memory.
+(`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
+(`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
 
 ---
 
 ## 0. FOR ADEBAYO
 
-### 0a. Open PRs (refreshed 2026-10-21 11:15 WAT, at the actual handover)
+### 0a. Open PRs (2026-10-21 23:45 WAT)
 | Repo | PR / branch | What | State |
 |---|---|---|---|
-| API | [#162](https://github.com/innocent98/Cofoundaz-api/pull/162) `fix/marketing-rewalk-be` | Marketing re-walk BE gaps 1 (idea count), 4 (no past plan slots), 5 (search hrefs to items), 9 (stale SEO flag), 7 (`GET /marketing/media/{id}/file`, marketing roles, workspace-scoped, path-checked) | **lead reviewed: OK**. Develop merged in (checklist conflict resolved), pushed at `7516409`; local 2730 tests, 97.59%. Check GitHub CI, then merge |
-| FE | [#133](https://github.com/innocent98/cofoundaz/pull/133) `fix/marketing-rewalk-fe` | Marketing re-walk FE gaps 2, 3, 4, 6, 8 | CI 5/5 green. Integrations of #161/#162 (readout figures, stale flag, media file) may be pending: read its PR body |
-| FE | [#134](https://github.com/innocent98/cofoundaz/pull/134) `docs/dashboard-done` | Dashboard gaps 11/12 re-checked, **Dashboard done**; this handoff refresh | docs |
-
-Merged since the first lead-5 draft: API #160 (notification read filter), #161 (readout figures); FE #130, #131, #132.
-Local API checkout at `37d2f65` (#161), DB `0062`. #162 has no migration.
+| API | [#170](https://github.com/innocent98/Cofoundaz-api/pull/170) `feature/finance-invoice-automation` | Finance slice (b): overdue + auto-reminders (7 days, cap 8, manual 24h gap), `finance.invoice.overdue|paid`, `finance.runway.updated`, invoice PDF. Migration **0066** on 0065 | **lead reviewed: OK** (row-locked booking, escaping, http(s)-only pay links). CI green. Merge, then pull + `alembic upgrade head` + restart api worker |
+| FE | [#144](https://github.com/innocent98/cofoundaz/pull/144) `docs/sales-rewalk` | Sales re-walk on merged develop: 173 control rows, 626/626 role × width checks pass, 0 fail (Sequences out of scope) | docs, CI green. Merge |
+| FE | `docs/lead6-handoff` | this handoff | docs |
 
 "Dependency review (PR only)" is red on every API PR: repo setup, not code. Ignore it.
 
-**Merged in lead session 4 (2026-10-20 16:30 → 2026-10-21 10:30):** API #153, #154, #155, #156, #157, #158, #159; FE #120-#129.
-Staging CD is **green again** on API `229e9fd` (Resend `cofoundaz.com` domain re-verified by Adebayo 2026-10-21; the live gate passes).
+**Merged in lead session 6 (2026-10-21 11:20 → 23:45):** API #162-#169 (Marketing BE re-walk, env x3, Sales A #165, Sales C #166,
+Finance payments #167, coach schema fix #168, env #169); FE #133, #134 (Dashboard done), #135-#143 (Marketing integrations,
+plan-week fix, Marketing done #141, Sales design #136, Finance gaps #139, Academy gaps #140, Sales FE #142/#143).
 
 ### 0b. Decisions (all also in memory)
 All are reversible and none blocks merging.
@@ -87,22 +84,36 @@ All are reversible and none blocks merging.
 25. **No `claude/` branch names (Adebayo, 2026-10-21, global):** use `feature/`, `fix/`, `docs/`, `chore/`. App branch prefix is set
     to `feature`; every brief names the exact branch (`git push -u origin HEAD:fix/<slug>`). Same strictness as no attribution.
 
-### 0c. Blocked on your accounts or a product call (not on code)
-- **Victoria (Legal, API #138):** parked until she replies. Her migration must now chain after **0062** (develop has 0060, 0061, 0062).
-- **Finance integrations:** Mono sandbox keys to come (Adebayo); Paystack keys + a formal yes on the per-founder-key approach (#22).
-- **Calendar sync:** Google OAuth values are now in the committed staging/production envs (API #154); sync code not built yet
-  (Calendar page). Outlook deferred.
-- **Smoke-test subdomains** parked; feedback by email / in-app widget needs an inbound-mail provider; Billing needs Paystack keys.
-- **Marketing external data** (D-MKT-8): real publishing, ad metrics, SEO data, segment sizes all wait on accounts.
+26. **Sales (D-SAL-1..10, design `docs/superpowers/specs/2026-10-21-sales-design.md`, approved 2026-10-21):** sequences **really
+    send**, via a **separate mail provider (not Resend)**; Adebayo says webmail/SMTP (host not confirmed yet). Env names agreed:
+    `SALES_OUTREACH_PROVIDER=smtp`, `SALES_OUTREACH_SMTP_HOST|PORT|SECURITY|USERNAME|PASSWORD`, `SALES_OUTREACH_FROM_EMAIL`,
+    `SALES_OUTREACH_IMAP_HOST|PORT` (bounce reading), `SALES_OUTREACH_HOURLY_LIMIT` (already in the env files). Webmail gives no
+    complaint feedback; Reply-To = the founder, so "Stop when they reply" stays a manual Mark replied. Lead defaults D-SAL-2..10 and
+    the builder-check calls (§11 of the spec). Memory `sales-decisions`.
+27. **Payments: Paystack AND Flutterwave now, founder chooses** (Adebayo 2026-10-21); per-founder secret keys pasted in Finance →
+    Integrations, Fernet-encrypted with `FINANCE_CONNECTIONS_ENCRYPTION_KEY` (D-FIN-9), founder-only connect (D-FIN-2). Flutterwave
+    webhooks are re-verified with the API (static `verif-hash` proves little). `API_PUBLIC_URL` = domain only (code appends `/api/v1`).
+28. **Finance (D-FIN-1..9):** D-FIN-1 TM full access (from D-MKT-1); **D-FIN-3 budgets = every money-out ledger row** (Adebayo);
+    D-FIN-9 key custody (Adebayo); rest lead defaults in `docs/checklist/finance-prd-gaps.md`. Memory `finance-decisions`.
+29. **Academy (D-ACA-1..5)** in `docs/checklist/academy-prd-gaps.md`: **D-ACA-1 content source, D-ACA-2 video hosting, D-ACA-5
+    certificate issuer + LinkedIn page are Adebayo's calls, still unanswered.**
 
----
+### 0c. Blocked on your accounts or a product call (not on code)
+- **Sales sequences (slice B):** needs the outreach mail host confirmed (SMTP/IMAP details are in the env files once known).
+- **Academy:** D-ACA-1/2/5 (content, video host, certificate issuer + LinkedIn page).
+- **Victoria (Legal, API #138):** parked until she replies. Her migration must now chain after **0066** (or the latest head).
+- **Mono bank connection:** sandbox keys pending (`MONO_SECRET_KEY`, `MONO_PUBLIC_KEY`, `MONO_WEBHOOK_SECRET`).
+- **Paystack/Flutterwave live checks:** a test-mode sync needs Adebayo to paste his test keys in the UI during the Finance re-walk
+  (sessions never read keys); a live webhook needs a public URL (staging).
+- **Calendar sync:** Google OAuth values in the envs; sync code not built yet. Outlook deferred.
+- **Smoke-test subdomains** parked; inbound mail (feedback by email, reply detection) not available; Billing needs Adebayo's Paystack.
+- **Marketing external data** (D-MKT-8): real publishing, ad metrics, SEO data, segment sizes wait on accounts.
 
 ## 1. Repos and local stack
 - FE `cofoundaz` (Next 16 App Router, React 19, Tailwind v4, TS strict) and API `cofoundaz-api` (FastAPI): sibling dirs under
   `/Users/adebayovictor/Documents/dev/cofoundaz`. The lead session works from the parent dir (not a git repo).
-- **develop heads (2026-10-21 10:40):** API `229e9fd` (#159), FE `cbebd4a` (#129). Main API checkout is at `18949a6` (#157):
-  Adebayo should `git -C cofoundaz-api pull --ff-only` (no migration since 0062). Dev DB `cofoundaz-api_db` at
-  **`0062_marketing_prd_b`**. Nothing runs on FE :3000 right now; sessions run their own FE dev server on a free port.
+- **develop heads (2026-10-21 23:45):** API `0e1af7b` (#168, env #169 after it), FE `946eade` (#143) + docs. Main API checkout on
+  develop; dev DB `cofoundaz-api_db` at **`0065_finance_payments_core`** (0066 comes with #170). Nothing runs on FE :3000 right now; sessions run their own FE dev server on a free port.
 - **Updating the shared stack needs Adebayo** (classifier blocks the lead and sub-sessions): give him
   `git -C cofoundaz-api pull --ff-only && docker compose -f cofoundaz-api/docker-compose.yml exec api alembic upgrade head && docker compose -f cofoundaz-api/docker-compose.yml restart api worker`.
   Also blocked for the lead: fast-forwarding the shared FE checkout, local DB UPDATEs, decrypting env files, opening a PR that
@@ -124,33 +135,34 @@ All are reversible and none blocks merging.
 ## 2. Status by page
 | Page | Gaps | BE | FE | Live re-walk on develop | State |
 |---|---|---|---|---|---|
-| Dashboard | 20/20 + gaps 11, 12 | #129-#134, #153, #155, #160 | #101, #104, #123, #130 | ✅ all 4 roles; gaps 11/12 re-checked 2026-10-21 (#134) | ✅ **Done** |
+| Dashboard | 20/20 + gaps 11, 12 | #129-#134, #153, #155, #160 | #101, #104, #123, #130 | ✅ all 4 roles (#134) | ✅ **Done** |
 | Today's Mission | 15/15 | #135, #143, #144 | #105, #110 | ✅ 2026-10-19 | ✅ Done |
 | Health Score | 10/10 | #136 | #106, #110 | ✅ 2026-10-19 | ✅ Done |
 | Roadmap | 11/11 | #137, #145 | #107, #110 | ✅ 2026-10-19 | ✅ Done |
 | Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19 | ✅ Done |
 | Validation | 14/14 | #149-#151 | #114, #115, #117 | ✅ 2026-10-20 | ✅ Done |
-| Assessment | 13/13 + A1-A6 | #152 | #121, #126 | ✅ 2026-10-20/21 incl. quarterly banner + bell (100-day backdate, restored) | ✅ **Done** (#127); A5 cleared by #160 |
-| Marketing | 35/35 + re-walk gaps 1-9 | #156, #157, #161, #162 | #129, #133, #135, #138 | ✅ re-check 2026-10-21: 15/15 (#137, fix #138) | ✅ **Done** |
-| Sales | design approved 2026-10-21 (#136) | slice A BE on `feature/sales-crm-core` | none yet | ⏳ | slice A BE in progress, FE stays on mock until it lands |
+| Assessment | 13/13 + A1-A6 | #152 | #121, #126 | ✅ 2026-10-20/21 | ✅ Done |
+| Marketing | 35/35 + re-walk gaps 1-9 | #156, #157, #161, #162 | #129, #133, #135, #138 | ✅ 15/15 (#137, #141) | ✅ **Done** |
+| Sales | 30 gaps (`sales-prd-gaps.md`); 5/6 sub-pages real | #165 (A), #166 (C), #168 | #142, #143 | ✅ 626/626 on 5 sub-pages (#144) | 🟡 **only Sequences left** (slice B BE + FE + its re-walk), blocked on mail host |
+| Finance | 35 gaps (`finance-prd-gaps.md`) | #167 (a payments), **#170 (b) open** | none yet (still old FE) | ⏳ | (c) ledger correctness and (d) model next, then one FE session, then re-walk |
+| Academy | 24 gaps (`academy-prd-gaps.md`) | API ✅ (Sept) | old FE | ⏳ | blocked on D-ACA-1/2/5 for content; non-content gaps could start |
 
-Remaining page order: **Sales** (no API) → Finance (API built in Sept, connectors deferred) → Funding (no API) → Investor
-Readiness (no API) → Legal (Victoria) → Marketplace (no API) → Academy (API ✅) → Documents (API ✅) → Calendar (API ✅, sync
-not built) → Team (partial: invites/members/comments only) → Analytics (no API) → Journal (API ✅) → Notifications (API ✅) →
-Settings (partial; Billing needs Paystack).
+Remaining after these: Documents (API ✅) → Calendar (API ✅, sync not built) → Journal (API ✅) → Notifications (API ✅) → Team
+(partial) → Settings (partial; Billing needs Paystack) → Funding, Investor Readiness, Marketplace, Analytics (no API: design first like
+Sales) → Legal (Victoria).
 
 ## 2b. Incoming (ordered)
-0. **Sessions from lead 4** (all idle, safe to archive once their PRs merge): `be-notif-readout` (owns #162), `marketing-fe-fixes`
-   (owns #133). Their reports go to lead 4's session, not yours: to follow up, `SendMessage` them by id (`local_13e5ffd2-8738-4caf-b540-bf54c96ea079`,
-   `local_4a69e765-0158-4ba8-b809-ee07304c3f3a`) or start fresh sub-sessions. A `lead-5` session was started by mistake and is idle; ignore or archive it.
-1. **After #162 + #133 merge** (Adebayo pulls the API checkout; no migration): if #133's body lists pending integrations
-   (readout structured figures, SEO stale prompt, media file blob, search hrefs opening items), one small FE session on
-   `fix/marketing-be-integrations` for those.
-2. **Marketing re-check on merged develop:** the 3 failing rows + readout row + gaps 1-9 from `docs/checklist/marketing-rewalk.md`,
-   founder + TM at 1440/375, mentor/consultant denial spot-check, one real-model readout. Then mark Marketing ✅ (docs PR).
-3. **Sales (PRD Module 11):** no API. Brainstorm/design first (superpowers:brainstorming), gap list = full PRD scope, decisions for
-   Adebayo, then BE slices → FE → re-walk, same pattern.
-4. **Victoria's PR** when it lands (chain after 0062; Opus-level review of scheduler/row-lock paths).
+0. **Lead-6 sessions** are all done (PRs merged or open above); safe to archive. Nothing is mid-task.
+1. **Get #170 + #144 merged** (and this handoff). After #170: Adebayo runs the stack update (migration 0066).
+2. **Finance slice (c) ledger correctness** (gap rows 2, 3, 15, 17, 18, 19, 28, 29, 30; private receipts are **Sec**): BE sub-session,
+   migration after the latest head, Opus-level review of receipts storage/signing. Then **(d) model** (rows 11, 12, 13). Then **one
+   Finance FE session** (Integrations rebuild for Paystack/Flutterwave, categories Select, budgets, model editor, invoices automation UI,
+   per `finance-prd-gaps.md` build order item 2), then the **Finance re-walk** (Adebayo pastes test keys for a sandbox sync).
+3. **Sales slice B (sequences)** as soon as Adebayo confirms the mail host: BE per the spec §4-§5 with an `OutreachSender` SMTP
+   implementation + IMAP bounce reader (adjust the spec's webhook part: webmail has no webhooks), Opus review (public unsubscribe,
+   row locks, sending caps), then FE Sequences, then re-walk Sequences and mark Sales ✅.
+4. **Academy** once D-ACA-1/2/5 are answered (or start its non-content gaps).
+5. Then the next pages in §2 order. Keep at most 2-3 sessions running.
 
 ## 2c. Follow-ups (not blocking)
 - `kpis.tasks_done_this_week` and `calibration.assessment_complete` are still returned to every role (needs an FE tile decision).
@@ -200,6 +212,18 @@ Settings (partial; Billing needs Paystack).
 - **The worker doesn't hot-reload:** `docker compose restart worker` after switching API branches. The re-walk used a
   local-only `local/rewalk` branch (develop + all fix branches) so the live stack stayed consistent; don't push it.
 - **AI budget for real-model checks:** delete today's `llm_usage_daily` row for NovaPay locally to test AI flows.
+
+- **Sub-session commits/pushes are sometimes denied by the classifier** (Finance walk, Academy walk). Don't push for them (that's
+  permission laundering): give Adebayo the exact commands. Briefs already say "if denied, report path/branch/SHA".
+- **Running API tests in a fresh worktree:** `poetry run` creates an empty venv there. Use the main checkout's venv
+  (`poetry env info -p` in `cofoundaz-api`) and CI's env vars (`SECRET_KEY`, `FIRST_SUPERUSER_EMAIL/PASSWORD`, `TEST_DATABASE_URL`,
+  `REDIS_URL`, `LOG_FILE_PATH=""`) with scratch DBs.
+- **The LLM stub doesn't enforce provider schema rules**: OpenAI strict `json_schema` needs `additionalProperties: false` and every
+  property required on every object (#168 broke real scorecards). New AI features: add the strict-schema walker test
+  (`tests/services/sales/test_coach_schemas.py`) and always do one real-model run in the FE walk.
+- **Stacked PRs merged before retarget skip PR CI** (#167): CI then only runs on develop after the merge. Retarget to develop and push
+  a commit before asking Adebayo to merge.
+- **Parallel BE slices both add a migration:** assign numbers up front and tell the second session to chain after the first.
 
 ## 4b. Follow-ups queued
 - **Lessons from 2026-10-19:** parallel FE sub-sessions that both add a shared module (e.g. `lib/api/comments.ts`) collide
