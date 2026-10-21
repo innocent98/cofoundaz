@@ -1,11 +1,14 @@
 # HANDOFF — Cofoundaz app-wide build-out (master)
 
-> **First message for a new (lead) session (lead 5):**
-> *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Follow §2b in order: fold in the BE session's
-> readout + re-walk-BE PRs, start the Marketing FE fixes, re-walk the fixed rows, then close Dashboard and Marketing and start
-> Sales (first page with no API). No half-built pages; ask Adebayo only for genuine product calls."*
+> **First message for a new lead session (start it yourself, from `/Users/adebayovictor/Documents/dev/cofoundaz`):**
+> *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §2b: get #162, #133 and #134 merged, then
+> re-check Marketing on develop and mark it done, then start Sales (no API: design first). No half-built pages; ask me only for
+> genuine product calls."*
+>
+> If #134 hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/dashboard-done:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-21 10:45 WAT** (lead session 4 → 5 handover). This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-21 11:15 WAT** (lead session 4 handover, prepared for a session Adebayo starts himself). This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), the master checklists (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`,
 `docs/checklist/buildout-status.md`), and memory.
@@ -14,14 +17,15 @@ Last updated: **2026-10-21 10:45 WAT** (lead session 4 → 5 handover). This fil
 
 ## 0. FOR ADEBAYO
 
-### 0a. Open PRs and in-flight work (at handover)
+### 0a. Open PRs (refreshed 2026-10-21 11:15 WAT, at the actual handover)
 | Repo | PR / branch | What | State |
 |---|---|---|---|
-| API | [#160](https://github.com/innocent98/Cofoundaz-api/pull/160) `fix/notifications-read-filter` | Notification list/unread/mark-read/read-all/stream filtered by role on READ (single `AUDIENCE` table shared with fan-out). Clears Dashboard gap 12 + Assessment A5 | **lead reviewed: OK**. CI 12 pass; only "Dependency review" red (known noise). Merge |
-| FE | [#130](https://github.com/innocent98/cofoundaz/pull/130) `fix/dashboard-activity-load-more` | Dashboard gap 11: Load more on Team activity (cursor, dedupe by id) | CI 5/5 green. Merge |
-| FE | [#131](https://github.com/innocent98/cofoundaz/pull/131) `docs/marketing-rewalk` | Marketing re-walk evidence: 75 rows, 71 pass, 3 fail, 1 pending readout fix; gaps 1-9 | docs. Merge |
-| API | `fix/marketing-readout-figures` (session [be-notif-readout](#local_13e5ffd2-8738-4caf-b540-bf54c96ea079)) | Readout figures computed in Python, money formatted, prose validated against them, structured figures in the response | built, full suite was running; PR not yet opened at handover |
-| API | `fix/marketing-rewalk-be` (same session, queued as its PR 3) | Marketing re-walk BE gaps 1, 4 (no past slots), 5 (search hrefs to items), 9 (stale SEO run flag), 7 if small (authenticated media file route) | asked by lead 10:35 |
+| API | [#162](https://github.com/innocent98/Cofoundaz-api/pull/162) `fix/marketing-rewalk-be` | Marketing re-walk BE gaps 1 (idea count), 4 (no past plan slots), 5 (search hrefs to items), 9 (stale SEO flag), 7 (`GET /marketing/media/{id}/file`, marketing roles, workspace-scoped, path-checked) | **lead reviewed: OK**. Develop merged in (checklist conflict resolved), pushed at `7516409`; local 2730 tests, 97.59%. Check GitHub CI, then merge |
+| FE | [#133](https://github.com/innocent98/cofoundaz/pull/133) `fix/marketing-rewalk-fe` | Marketing re-walk FE gaps 2, 3, 4, 6, 8 | CI 5/5 green. Integrations of #161/#162 (readout figures, stale flag, media file) may be pending: read its PR body |
+| FE | [#134](https://github.com/innocent98/cofoundaz/pull/134) `docs/dashboard-done` | Dashboard gaps 11/12 re-checked, **Dashboard done**; this handoff refresh | docs |
+
+Merged since the first lead-5 draft: API #160 (notification read filter), #161 (readout figures); FE #130, #131, #132.
+Local API checkout at `37d2f65` (#161), DB `0062`. #162 has no migration.
 
 "Dependency review (PR only)" is red on every API PR: repo setup, not code. Ignore it.
 
@@ -120,14 +124,14 @@ All are reversible and none blocks merging.
 ## 2. Status by page
 | Page | Gaps | BE | FE | Live re-walk on develop | State |
 |---|---|---|---|---|---|
-| Dashboard | 20/20 + gaps 11, 12 | #129-#134, #153, #155, **#160 open** | #101, #104, #123, **#130 open** | ✅ all 4 roles (#120, #128); live-stream isolation proven | closes when #130 + #160 merge (quick re-check of gaps 11/12) |
+| Dashboard | 20/20 + gaps 11, 12 | #129-#134, #153, #155, #160 | #101, #104, #123, #130 | ✅ all 4 roles; gaps 11/12 re-checked 2026-10-21 (#134) | ✅ **Done** |
 | Today's Mission | 15/15 | #135, #143, #144 | #105, #110 | ✅ 2026-10-19 | ✅ Done |
 | Health Score | 10/10 | #136 | #106, #110 | ✅ 2026-10-19 | ✅ Done |
 | Roadmap | 11/11 | #137, #145 | #107, #110 | ✅ 2026-10-19 | ✅ Done |
 | Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19 | ✅ Done |
 | Validation | 14/14 | #149-#151 | #114, #115, #117 | ✅ 2026-10-20 | ✅ Done |
 | Assessment | 13/13 + A1-A6 | #152 | #121, #126 | ✅ 2026-10-20/21 incl. quarterly banner + bell (100-day backdate, restored) | ✅ **Done** (#127); A5 cleared by #160 |
-| Marketing | 35/35 built | #156, #157 (+ readout, re-walk-BE PRs) | #129 (+ FE fixes) | 🟡 #131: 71/75 pass | closes after the fixes below + re-check |
+| Marketing | 35/35 + re-walk gaps 1-9 | #156, #157, #161, **#162 open** | #129, **#133 open** | 🟡 #131: 71/75 pass | closes after #162 + #133 merge and a re-check of the failing rows + readout row |
 
 Remaining page order: **Sales** (no API) → Finance (API built in Sept, connectors deferred) → Funding (no API) → Investor
 Readiness (no API) → Legal (Victoria) → Marketplace (no API) → Academy (API ✅) → Documents (API ✅) → Calendar (API ✅, sync
@@ -135,17 +139,17 @@ not built) → Team (partial: invites/members/comments only) → Analytics (no A
 Settings (partial; Billing needs Paystack).
 
 ## 2b. Incoming (ordered)
-1. **Fold in the BE session** ([be-notif-readout](#local_13e5ffd2-8738-4caf-b540-bf54c96ea079)): verify `fix/marketing-readout-figures`
-   and `fix/marketing-rewalk-be` PRs (head branch, CI, attribution; review the media file route's role gate if built).
-2. **Marketing FE fixes** (one FE sub-session, branch `fix/marketing-rewalk-fe`): re-walk gaps 2 (CSV spend in minor units → ₦ or a
-   unit column), 3 (week view should open on today's week), 6 (CAC decimals consistent), 8 (segment-name error clears on
-   typing), 4 FE label ("Plan my first week" once posts exist), plus render the readout's structured figures and the SEO stale
-   flag / media file URL from the BE PRs. Gap list: `docs/checklist/marketing-rewalk.md` (after #131 merges).
-3. **Re-check on merged develop:** Dashboard gaps 11 + 12 (all roles) and Marketing's failing rows + readout row, then mark both
-   ✅ in `buildout-status.md` (docs PR).
-4. **Sales (PRD Module 11):** no API. Brainstorm/design first (superpowers:brainstorming), gap list = full PRD scope, decisions for
+0. **Sessions from lead 4** (all idle, safe to archive once their PRs merge): `be-notif-readout` (owns #162), `marketing-fe-fixes`
+   (owns #133). Their reports go to lead 4's session, not yours: to follow up, `SendMessage` them by id (`local_13e5ffd2-8738-4caf-b540-bf54c96ea079`,
+   `local_4a69e765-0158-4ba8-b809-ee07304c3f3a`) or start fresh sub-sessions. A `lead-5` session was started by mistake and is idle; ignore or archive it.
+1. **After #162 + #133 merge** (Adebayo pulls the API checkout; no migration): if #133's body lists pending integrations
+   (readout structured figures, SEO stale prompt, media file blob, search hrefs opening items), one small FE session on
+   `fix/marketing-be-integrations` for those.
+2. **Marketing re-check on merged develop:** the 3 failing rows + readout row + gaps 1-9 from `docs/checklist/marketing-rewalk.md`,
+   founder + TM at 1440/375, mentor/consultant denial spot-check, one real-model readout. Then mark Marketing ✅ (docs PR).
+3. **Sales (PRD Module 11):** no API. Brainstorm/design first (superpowers:brainstorming), gap list = full PRD scope, decisions for
    Adebayo, then BE slices → FE → re-walk, same pattern.
-5. **Victoria's PR** when it lands (chain after 0062; Opus-level review of scheduler/row-lock paths).
+4. **Victoria's PR** when it lands (chain after 0062; Opus-level review of scheduler/row-lock paths).
 
 ## 2c. Follow-ups (not blocking)
 - `kpis.tasks_done_this_week` and `calibration.assessment_complete` are still returned to every role (needs an FE tile decision).
