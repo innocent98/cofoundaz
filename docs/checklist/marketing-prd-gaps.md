@@ -104,6 +104,49 @@ headline feature missing) > **Med** (PRD feature partial) > **Low** (copy, polis
 | 34 | Notification copy | "Scheduled post published: {title}" also fires when a never-scheduled draft is marked published. | | BE | Low | Use "Post published: {title}" when `scheduled_at` was null. |
 | 35 | Docs | No FE guide for segments or the overview endpoint. | | BE | Low | Add both guides from live captures when those areas change. |
 
+## Build status (2026-10-21)
+BE rows 2, 3, 4 (BE), 5 (BE), 6, 7, 8, 13, 16, 17, 18, 20, 21, 22, 24, 25, 26, 27 and 34 merged in API #156 and #157.
+FE half of every "FE" and "both" row built in `feature/marketing-prd-fe` (SOP `docs/sop/marketing-prd-fe.md`). 35 of 35 rows closed
+except what is blocked on accounts (see "Blocked on external accounts").
+
+| # | Status | Where |
+|---|---|---|
+| 1 | ✅ decided (D-MKT-1): team members keep full access, no grant UI | `lib/nav-access.ts` unchanged, e2e "a team member keeps full access" |
+| 2 | ✅ BE storage + FE slot only uses `/marketing/media` | `components/marketing-hub/media-slot.tsx` |
+| 3 | ✅ BE scheduler; FE refetches every minute while a post is due, says "Marked published", never "Posted" | calendar page, post drawer |
+| 4 | ✅ deep links, Marketing category, icon and "See results" | `hooks/useNotifications.ts`, notifications page |
+| 5 | ✅ AI weekly readout card on campaign detail | `components/marketing-hub/readout-card.tsx` |
+| 6 | ✅ `/marketing/campaigns/[id]` with totals, per-day and estimated by-channel charts | `app/(dashboard)/marketing/campaigns/[id]/page.tsx` |
+| 7 | ✅ CTR / Conv and period columns, phone cards | campaigns page |
+| 8 | ✅ wizard Content step attaches posts; detail page writes copy for the campaign | campaigns page, copy page |
+| 9 | ✅ month and week views | calendar page |
+| 10 | ✅ drag to reschedule, Alt + arrow keys, and the drawer date | `components/marketing-hub/calendar-views.tsx` |
+| 11 | ✅ "Write with AI" in the drawer | `write-with-ai.tsx` |
+| 12 | ✅ decided (D-MKT-2): one channel per post, said in the drawer | post drawer |
+| 13 | ✅ media slot (upload, library, remove, delete) | `media-slot.tsx` |
+| 14 | ✅ PRD empty state and "Plan my first week" | calendar page |
+| 15 | ✅ channel icon on every chip and legend entry, agenda under `md` | `channel-icon.tsx`, `calendar-views.tsx` |
+| 16 | ✅ BE; real-model Plan my first week, split and fit notes re-checked, no bracket placeholders | SOP |
+| 17 | ✅ Refine (inline), "Use" opens a calendar draft, Copy kept | copy page |
+| 18 | ✅ platform select and `n / limit` counters, over-limit said in words | copy page, `char-counter.tsx` |
+| 19 | ✅ History tab | copy page |
+| 20 | ✅ fit-level badge and 30-day stats per channel | channels page |
+| 21 | ✅ BE auto-status; the launch toast names the channels it started | `campaign-actions.tsx`, campaigns page |
+| 22 | ✅ "Estimated by you, updated {date}" and "(est.)" | SEO page |
+| 23 | ✅ Product prefilled with the workspace name | SEO page |
+| 24 | ✅ rule builder, definition chips, "(your estimate)" | segments page |
+| 25 | ✅ Export CSV | analytics page |
+| 26 | ✅ BE single scope; "Estimated" tag with the reason on CAC rows | analytics page |
+| 27 | ✅ Recorded entries table with confirmed delete | analytics page |
+| 28 | ✅ `ShellTopBar` | marketing layout |
+| 29 | ✅ the drawer now sits above the floating AI button | `drawer.tsx` |
+| 30 | ✅ `aria-label="{channel} status"` | channels page |
+| 31 | ✅ campaign cards under `md` | campaigns page |
+| 32 | ✅ confirm dialogs for Complete and Delete | `confirm-dialog.tsx` |
+| 33 | ✅ "For {objective} at your stage, I'd put {split}. Here's why." | campaigns page |
+| 34 | ✅ BE copy | notification text |
+| 35 | ✅ guides exist for the new routes (API `docs/fe-integration-guide-marketing-prd.md`) | API repo |
+
 **Counts:**
 - **By layer:** BE 5 (rows 2, 3, 16, 34, 35), FE 13, both 17. Total 35.
 - **By severity:** Sec 2 (rows 1, 2; neither is a live leak), High 3 (rows 3, 5, 6), Med 17, Low 13.

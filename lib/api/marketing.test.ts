@@ -1,6 +1,27 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import * as clientModule from './client';
 import {
+  MEDIA_MAX_BYTES,
+  channelsStartedByLaunch,
+  charCount,
+  definitionChips,
+  deleteMedia,
+  deleteMetric,
+  exportAnalyticsCsv,
+  fillSeriesDays,
+  formatPeriod,
+  getCampaignPerformance,
+  getCalendarEntry,
+  isOverLimit,
+  legacyDefinitionKeys,
+  listCampaignReadouts,
+  listCopyGenerations,
+  listCopyPlatforms,
+  listMedia,
+  listRecordedMetrics,
+  refineCopy,
+  summariseMix,
+  uploadMedia,
   createCampaign,
   createCalendarEntry,
   deleteSegment,
@@ -35,7 +56,7 @@ vi.mock('./client', () => {
       super(`API Error ${status}: ${statusText}`);
     }
   }
-  return { apiClient: vi.fn(), ApiError };
+  return { apiClient: vi.fn(), ApiError, API_BASE: '/api/v1' };
 });
 
 const api = () => vi.mocked(clientModule.apiClient);
@@ -233,5 +254,162 @@ describe('marketing client: pure helpers', () => {
     const base = new Date(2026, 9, 17, 15, 30);
     const d = new Date(planDayToIso(base, 2));
     expect([d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()]).toEqual([2026, 9, 19, 9, 0]);
+  });
+});
+
+// Shapes below are copied from cofoundaz-api/docs/fe-integration-guide-marketing-prd.md (live captures).
+describe('marketing client: PRD gap routes', () => {
+  it('reads one post for the notification deep link', async () => {
+    api().mockResolvedValueOnce(ok({ id: 'e1' }));
+    await getCalendarEntry('e1');
+    expect(api()).toHaveBeenCalledWith('/marketing/calendar-entries/e1', undefined);
+  });
+
+  it('filters posts and copy by campaign', async () => {
+    api().mockResolvedValueOnce(ok({ entries: [] }));
+    await listCalendarEntries({ campaign_id: 'c1' });
+    expect(api().mock.calls[0][0]).toBe('/marketing/calendar-entries?campaign_id=c1');
+    api().mockResolvedValueOnce(ok({ generations: [] }));
+    await listCopyGenerations('c1');
+    expect(api().mock.calls[1][0]).toBe('/marketing/copy/generations?campaign_id=c1');
+    api().mockResolvedValueOnce(ok({ generations: [] }));
+    await listCopyGenerations();
+    expect(api().mock.calls[2][0]).toBe('/marketing/copy/generations');
+  });
+
+  it('asks for campaign performance and readouts', async () => {
+    api().mockResolvedValueOnce(ok({ campaign_id: 'c1', series: [], by_channel: [] }));
+    await getCampaignPerformance('c1', '30d');
+    expect(api().mock.calls[0][0]).toBe('/marketing/campaigns/c1/performance?range=30d');
+    api().mockResolvedValueOnce(ok({ readouts: [{ id: 'r1' }] }));
+    expect(await listCampaignReadouts('c1')).toEqual([{ id: 'r1' }]);
+    expect(api().mock.calls[1][0]).toBe('/marketing/campaigns/c1/readouts');
+  });
+
+  it('refines one variant with the index and instruction in the body', async () => {
+    api().mockResolvedValueOnce(ok({ id: 'g2', status: 'generating' }));
+    await refineCopy({ parentId: 'g1', variantIndex: 1, instruction: 'Make it shorter' });
+    const [path, init] = api().mock.calls[0];
+    expect(path).toBe('/marketing/copy/generations/g1/refine');
+    expect(init).toMatchObject({ method: 'POST' });
+    expect(JSON.parse(String((init as RequestInit).body))).toEqual({ variant_index: 1, instruction: 'Make it shorter' });
+  });
+
+  it('loads the platform table', async () => {
+    api().mockResolvedValueOnce(ok({ platforms: [{ key: 'x', label: 'X', limit: 280, kind: 'hard' }] }));
+    expect((await listCopyPlatforms())[0].limit).toBe(280);
+  });
+
+  it('lists and deletes recorded metrics', async () => {
+    api().mockResolvedValueOnce(ok({ metrics: [], total: 0, limit: 25, offset: 0 }));
+    await listRecordedMetrics('30d', 25, 50);
+    expect(api().mock.calls[0][0]).toBe('/marketing/metrics?range=30d&limit=25&offset=50');
+    api().mockResolvedValueOnce(ok({ deleted: true }));
+    await deleteMetric('m1');
+    expect(api().mock.calls[1]).toEqual(['/marketing/metrics/m1', { method: 'DELETE', body: undefined }]);
+  });
+
+  it('uploads media as multipart with the file field, and lists and deletes it', async () => {
+    api().mockResolvedValueOnce(ok({ id: 'a1', filename: 'hero.png' }));
+    const file = new File([new Uint8Array(4)], 'hero.png', { type: 'image/png' });
+    await uploadMedia(file);
+    const [path, init] = api().mock.calls[0];
+    expect(path).toBe('/marketing/media');
+    expect((init as RequestInit).body).toBeInstanceOf(FormData);
+    expect(((init as RequestInit).body as FormData).get('file')).toBeInstanceOf(File);
+    api().mockResolvedValueOnce(ok({ media: [{ id: 'a1' }] }));
+    expect(await listMedia()).toEqual([{ id: 'a1' }]);
+    api().mockResolvedValueOnce(ok({ deleted: true }));
+    await deleteMedia('a1');
+    expect(api().mock.calls[2][0]).toBe('/marketing/media/a1');
+    expect(MEDIA_MAX_BYTES).toBe(5 * 1024 * 1024);
+  });
+});
+
+describe('CSV export', () => {
+  const fetchMock = vi.fn();
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock);
+    fetchMock.mockReset();
+    localStorage.setItem('cf_token', 'placeholder-token');
+    localStorage.setItem('cf_workspace_id', 'ws-1');
+  });
+
+  it('downloads text/csv with the bearer header and the server file name', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response('date,scope,channel,campaign,metric,value\n', {
+        status: 200,
+        headers: { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="marketing-metrics-30d.csv"' },
+      })
+    );
+    const { blob, filename } = await exportAnalyticsCsv('30d');
+    expect(filename).toBe('marketing-metrics-30d.csv');
+    expect(await blob.text()).toContain('date,scope,channel,campaign,metric,value');
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('/api/v1/marketing/analytics/export?range=30d');
+    expect((init.headers as Headers).get('Authorization')).toBe('Bearer placeholder-token');
+    expect((init.headers as Headers).get('X-Workspace-Id')).toBe('ws-1');
+  });
+
+  it('turns the JSON 422 into an ApiError', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: { code: 'VALIDATION_ERROR', message: 'range must be one of 7d, 30d, 90d.', field_errors: [] } }), { status: 422 })
+    );
+    await expect(exportAnalyticsCsv('30d')).rejects.toBeInstanceOf(ApiErr);
+  });
+});
+
+describe('marketing pure helpers', () => {
+  it('fills the days the API leaves out with zeros', () => {
+    const out = fillSeriesDays([
+      { date: '2026-10-20', impressions: 5, clicks: 1, conversions: 0, spend: 100 },
+      { date: '2026-10-22', impressions: 7, clicks: 2, conversions: 1, spend: 200 },
+    ]);
+    expect(out.map((p) => p.date)).toEqual(['2026-10-20', '2026-10-21', '2026-10-22']);
+    expect(out[1]).toEqual({ date: '2026-10-21', impressions: 0, clicks: 0, conversions: 0, spend: 0 });
+    expect(fillSeriesDays([])).toEqual([]);
+  });
+
+  it('extends a series to the end of the range', () => {
+    const out = fillSeriesDays([{ date: '2026-10-20', impressions: 1, clicks: 0, conversions: 0, spend: 0 }], { until: '2026-10-22' });
+    expect(out.map((p) => p.date)).toEqual(['2026-10-20', '2026-10-21', '2026-10-22']);
+  });
+
+  it('flags a variant over the platform limit from over_limit or from lengths', () => {
+    expect(isOverLimit({ limit: 280, lengths: [19, 300], over_limit: [1] }, 1)).toBe(true);
+    expect(isOverLimit({ limit: 280, lengths: [19, 300] }, 1)).toBe(true);
+    expect(isOverLimit({ limit: 280, lengths: [19, 300], over_limit: [] }, 0)).toBe(false);
+    expect(isOverLimit({ limit: null, lengths: [900] }, 0)).toBe(false);
+    expect(isOverLimit(null, 0)).toBe(false);
+  });
+
+  it('counts characters, not UTF-16 units', () => {
+    expect(charCount('Hi 🎉')).toBe(4);
+  });
+
+  it('renders definition chips, including old keys, without throwing', () => {
+    expect(
+      definitionChips({ location: 'Lagos', behaviour_tags: ['trial', 'mobile first'], channel_acquired: 'email', description: 'Small merchants', favourite_colour: 'green' })
+    ).toEqual(['Location: Lagos', 'trial', 'mobile first', 'Found via Email', 'Small merchants', 'favourite_colour: green']);
+    expect(definitionChips(null)).toEqual([]);
+    expect(legacyDefinitionKeys({ location: 'Lagos', description: 'x' })).toEqual(['description']);
+  });
+
+  it('names the channels a launch started, and nothing else', () => {
+    const ch = (key: string, status: string) => ({ id: key, key, status, notes: null }) as never;
+    expect(
+      channelsStartedByLaunch(
+        [ch('email', 'not_started'), ch('search', 'active'), ch('events', 'not_started')],
+        [ch('email', 'testing'), ch('search', 'active'), ch('events', 'not_started')]
+      )
+    ).toEqual(['Email is now Testing.']);
+  });
+
+  it('summarises the mix and the period honestly', () => {
+    expect(summariseMix({ email: 60, search: 40 })).toBe('Email 60%, Search 40%');
+    expect(summariseMix({})).toBe('No channel split set');
+    expect(formatPeriod(null, null)).toBe('No period set');
+    expect(formatPeriod('2026-10-20', '2026-11-03')).toMatch(/Oct 20, 2026 to Nov 3, 2026/);
+    expect(formatPeriod('2026-10-20', null)).toMatch(/^From /);
   });
 });

@@ -12,7 +12,7 @@ export const BTN_SECONDARY =
 export const BTN_DANGER =
   'bg-white border border-red-200 text-red-700 hover:bg-red-50 font-semibold px-3 py-1.5 rounded-card text-xs transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed';
 export const BTN_DISABLED =
-  'bg-sage-100 text-sage-400 font-semibold px-4 py-2 rounded-card text-sm cursor-not-allowed';
+  'bg-sage-100 text-sage-600 font-semibold px-4 py-2 rounded-card text-sm cursor-not-allowed';
 export const INPUT =
   'w-full bg-white border border-sage-300 rounded-card px-4 py-2.5 text-sm text-sage-900 outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400';
 export const LABEL = 'text-xs font-semibold text-sage-700 uppercase tracking-wider';

@@ -128,3 +128,44 @@ describe('useNotifications (provider + live stream)', () => {
     await waitFor(() => expect(vi.mocked(clientModule.apiClient).mock.calls.length).toBeGreaterThan(before));
   });
 });
+
+// Live captures: guide fe-integration-guide-marketing-prd.md §1 and §11.
+describe('marketing notifications', () => {
+  const published: RawNotification = {
+    id: 'c2c6c4a9',
+    type: 'marketing.post.published',
+    title: 'Scheduled post published: Waitlist teaser',
+    body: 'See results',
+    data: { href: '/marketing/calendar?entry=3eb508f6', title: 'Waitlist teaser', channel: 'organic_social', entry_id: '3eb508f6', was_scheduled: true },
+    read: false,
+    created_at: '2026-10-20T18:14:38.719632+00:00',
+  };
+  const readout: RawNotification = {
+    id: '484189f8',
+    type: 'marketing.campaign.readout.ready',
+    title: 'Campaign performance summary ready: Waitlist push',
+    body: 'See results',
+    data: { href: '/marketing/campaigns/56e3de5a', name: 'Waitlist push', readout_id: '50d8a1e9', campaign_id: '56e3de5a' },
+    read: false,
+    created_at: '2026-10-20T18:32:44.580169+00:00',
+  };
+
+  it('deep-links a published post to its calendar drawer and a readout to its campaign', () => {
+    expect(mapNotification(published).href).toBe('/marketing/calendar?entry=3eb508f6');
+    expect(mapNotification(readout).href).toBe('/marketing/campaigns/56e3de5a');
+  });
+
+  it('files them under Marketing with a See results action, not under Missions', () => {
+    const item = mapNotification(published);
+    expect(item.category).toBe('Marketing');
+    expect(item.actionText).toBe('See results');
+    expect(item.iconText).not.toBe('•');
+  });
+
+  it('falls back to ids when an older row has no href, and ignores a foreign href', () => {
+    expect(notificationHref('marketing.post.published', { entry_id: 'e9' })).toBe('/marketing/calendar?entry=e9');
+    expect(notificationHref('marketing.campaign.launched', { campaign_id: 'c9' })).toBe('/marketing/campaigns/c9');
+    expect(notificationHref('marketing.post.published', { href: 'https://evil.example/x', entry_id: 'e9' })).toBe('/marketing/calendar?entry=e9');
+    expect(notificationHref('marketing.post.published', { href: '//evil.example/x' })).toBe('/marketing');
+  });
+});

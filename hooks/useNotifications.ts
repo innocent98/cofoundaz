@@ -2,7 +2,7 @@ import React, { createContext, createElement, useContext, useState, useEffect, u
 import { apiClient, ApiError } from '@/lib/api/client';
 import { useRealtimeEvent } from '@/components/realtime-context';
 
-export type NotificationCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team';
+export type NotificationCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team' | 'Marketing';
 
 export interface NotificationItem {
   id: string;
@@ -33,7 +33,22 @@ export interface RawNotification {
 // `title` is generic per type and `body` is always "" in v1 (guide §1/§5); we
 // derive the icon and a filter category from the dotted `type`.
 /** Deep link for a notification, from its type and `data` (BE guides: KPIs 7b, briefing v2 section 5). */
+/** Only in-app Marketing paths are followed; anything else in `data.href` is ignored. */
+function marketingHref(type: string, data: Record<string, unknown> | null | undefined): string | null {
+  const href = data?.href;
+  if (typeof href === 'string' && /^\/marketing(\/|\?|$)/.test(href) && !href.startsWith('//')) return href;
+  // Older rows carry ids but no href.
+  if (type === 'marketing.post.published' && typeof data?.entry_id === 'string') {
+    return `/marketing/calendar?entry=${encodeURIComponent(data.entry_id)}`;
+  }
+  if (type.startsWith('marketing.campaign') && typeof data?.campaign_id === 'string') {
+    return `/marketing/campaigns/${encodeURIComponent(data.campaign_id)}`;
+  }
+  return '/marketing';
+}
+
 export function notificationHref(type: string, data: Record<string, unknown> | null | undefined): string | null {
+  if (type.startsWith('marketing.')) return marketingHref(type, data);
   if (type === 'dashboard.briefing.ready') return '/dashboard';
   if (type === 'workspace.member.joined') return '/team';
   if (type === 'finance.runway.low') return '/finance/runway';
@@ -76,6 +91,7 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
 }
 
 function categoryFor(type: string): NotificationCategory {
+  if (type.startsWith('marketing')) return 'Marketing';
   if (type.startsWith('mission') || type.startsWith('roadmap') || type.startsWith('business') || type.startsWith('assessment')) return 'Missions';
   if (type.startsWith('healthscore') || type.startsWith('finance') || type.startsWith('kpi')) return 'Finance';
   if (type.startsWith('workspace') || type.startsWith('document') || type.startsWith('team')) return 'Team';
@@ -83,6 +99,7 @@ function categoryFor(type: string): NotificationCategory {
 }
 
 function iconFor(type: string): { iconText: string; iconBg: string } {
+  if (type.startsWith('marketing')) return { iconText: '📣', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('document')) return { iconText: '📄', iconBg: 'bg-[#EAF2ED]' };
   if (type.startsWith('business')) return { iconText: '🧩', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('assessment') || type.startsWith('healthscore')) return { iconText: '✓', iconBg: 'bg-[#EAF2ED]' };
@@ -120,7 +137,7 @@ export function mapNotification(n: RawNotification): NotificationItem {
     description: '', // body is always "" in v1, don't fabricate a subtitle
     time: relativeTime(n.created_at),
     // `body` is "" in v1 except where a type sends a CTA label (the insight notification: "See insight").
-    actionText: n.type === 'validation.insight.detected' && n.body ? n.body : undefined,
+    actionText: (n.type === 'validation.insight.detected' || n.type.startsWith('marketing.')) && n.body ? n.body : undefined,
     href: notificationHref(n.type, n.data),
     isUnread: !n.read,
     iconBg,

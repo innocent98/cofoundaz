@@ -12,7 +12,7 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 | Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19, founder 1440 + 375 (all routes), consultant / mentor / TM on SWOT; real-model AI incl. full plan | Other roles walked on one artifact only |
 | Validation | 14/14 | #149, #150, #151 | #114, #115, #117 | ✅ (a) 2026-10-19, (b)+(c) 2026-10-20: founder 1440 + 375, TM, mentor, public page, real model incl. Apply | 3 minor FE items (notification tab context, 2 accessible names) |
 | Assessment | 13/13 + A1-A6 | #152 | #121, #126 | ✅ 2026-10-20: re-walked founder + TM + mentor (1440 + 375, every control vs the API, `assessment-rewalk.md`); quarterly banner + bell deep link live after a 100-day backdate (restored); fixes re-checked on merged develop `97a65f3` (A2, A3, A4 live; A1 + A6 live on the PR head, app code identical on develop) | A5 (pre-#152 mentor bell rows, info); A6 day count unit-tested, live only with the old "90 days" copy |
-| Marketing | gap list ✅ 0/35 | — | — | Walked live 2026-10-20 (founder 1440 + 375, TM, mentor, consultant; real model ×3), see `marketing-prd-gaps.md` | No permission leaks found; 2 Sec rows are a permission-model decision (D-MKT-1) and a preventive media-storage rule. Real publishing, ad/SEO data and segment sizes are blocked on external accounts |
+| Marketing | gap list ✅ 35/35 (minus account-blocked data) | #156, #157 | `feature/marketing-prd-fe` (open, see the PR) | Walked live 2026-10-20 (gaps); FE rows built and live-checked 2026-10-21: founder 1440 + 375, TM (notification deep link), mentor (clean denial, 403 on every new route); real model ×6 (`docs/sop/marketing-prd-fe.md`) | Publishing is a status only, metrics are typed in, SEO numbers are estimates, and the UI says so. Not live: Cloudinary image preview, 5 MB and 200 image caps. Touch drag is not offered; phones use the drawer date. Full re-walk of merged develop still to do |
 
 ## Cross-cutting fixes found along the way (all merged)
 Worker never registered notification subscribers (#130) · invite emails had no link (#131) · weekends-off reset streaks /
@@ -27,7 +27,7 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 | Dashboard re-walk: BE gaps 1-3, 8, 9 merged (API #153); FE gaps 1, 4-7, 10 fixed in the `feat-dashboard-fe-rows` PR (`docs/sop/dashboard-rewalk-fe-rows.md`); mentor/consultant to be re-walked once it merges | follow-up |
 | Validation: 3 minor FE items (see `validation-rewalk.md`) | follow-up |
 | Consolidate the two comment-thread UIs + mention helpers | refactor follow-up |
-| `ShellTopBar` on the remaining section layouts: Assessment, sales, investor-readiness, marketplace, academy, legal, funding, documents, ai, notifications, analytics-reports done; Marketing / Finance / Journal / Settings etc. not checked | per-page, as each page is walked |
+| `ShellTopBar` on the remaining section layouts: Assessment, Marketing, sales, investor-readiness, marketplace, academy, legal, funding, documents, ai, notifications, analytics-reports done; Finance / Journal / Settings etc. not checked | per-page, as each page is walked |
 | Invited team member loses the invite link after email verification | Team page walk |
 | Per-workspace timezones for the mission scheduler | follow-up |
 | Health benchmarks with real cohorts | needs usage data |

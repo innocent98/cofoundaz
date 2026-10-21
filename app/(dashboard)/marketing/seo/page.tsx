@@ -32,6 +32,7 @@ import {
   LABEL,
 } from '@/components/marketing-hub/states';
 import { Drawer, Field } from '@/components/marketing-hub/drawer';
+import { useWorkspace } from '@/components/workspace-context';
 import { useToast } from '../ToastContext';
 
 const CHECKLIST_LABEL: Record<ChecklistKey, string> = {
@@ -145,9 +146,9 @@ function KeywordsSection() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-sage-200 bg-sage-50/50 text-[11px] font-bold text-sage-400 uppercase tracking-wider">
+                  <tr className="border-b border-sage-200 bg-sage-50/50 text-[11px] font-bold text-sage-600 uppercase tracking-wider">
                     <th className="py-3.5 px-6">Keyword</th>
-                    <th className="py-3.5 px-6">Volume</th>
+                    <th className="py-3.5 px-6">Volume (est.)</th>
                     <th className="py-3.5 px-6">Difficulty</th>
                     <th className="py-3.5 px-6">Rank</th>
                     <th className="py-3.5 px-6">Target page</th>
@@ -164,7 +165,14 @@ function KeywordsSection() {
                     if (item.difficulty !== null && item.difficulty > 60) diffColor = 'text-red-600';
                     return (
                       <tr key={item.id} className="hover:bg-sage-50/50 transition-colors">
-                        <td className="py-4 px-6 font-semibold text-sage-900">{item.keyword}</td>
+                        <td className="py-4 px-6 font-semibold text-sage-900">
+                          {item.keyword}
+                          <p className="text-[11px] font-normal text-sage-500">
+                            {item.metrics_updated_at
+                              ? `Estimated by you, updated ${new Date(item.metrics_updated_at).toLocaleDateString()}`
+                              : 'No numbers entered yet'}
+                          </p>
+                        </td>
                         <td className="py-4 px-6 text-sage-600">{item.volume ?? '-'}</td>
                         <td className={`py-4 px-6 font-medium ${diffColor}`}>{item.difficulty ?? '-'}</td>
                         <td className="py-4 px-6 font-bold text-green-700">{item.current_rank ?? '-'}</td>
@@ -343,6 +351,7 @@ const POSITIONING_FIELDS: { key: keyof PositioningInput; label: string; placehol
 
 function PositioningSection() {
   const { positioning, status, error, reload, save } = usePositioning();
+  const { workspaceName } = useWorkspace();
   const { triggerToast } = useToast();
   const [form, setForm] = useState<PositioningInput | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -355,13 +364,14 @@ function PositioningSection() {
         setForm({
           audience: positioning.audience,
           need: positioning.need,
-          product: positioning.product,
+          // An empty Product starts as the workspace name; it is only saved when the founder saves.
+          product: positioning.product ?? workspaceName,
           category: positioning.category,
           differentiator: positioning.differentiator,
         })
       );
     }
-  }, [positioning, form]);
+  }, [positioning, form, workspaceName]);
 
   const filled = form ? POSITIONING_FIELDS.filter((f) => (form[f.key] ?? '').trim() !== '').length : 0;
 
