@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { RisksCard, OpportunitiesCard, RISKS_EMPTY_COPY, OPPORTUNITIES_EMPTY_COPY } from './risks-opportunities';
-import { ActivityCard, UpcomingCard, formatDueDate, initialsOf, ACTIVITY_EMPTY_COPY } from './activity-upcoming';
+import { ActivityCard, UpcomingCard, formatDueDate, initialsOf, ACTIVITY_EMPTY_COPY, ACTIVITY_MORE_ERROR_COPY } from './activity-upcoming';
 import { HealthCard, HEALTH_PENDING_COPY } from './health-card';
 import { CalibrationBanner, CALIBRATION_COPY } from './calibration-banner';
 import { GreetingHeader, greetingFor, greetingLine } from './greeting-header';
@@ -92,6 +92,27 @@ describe('Team activity and Next 7 days', () => {
     render(<ActivityCard items={[]} loading={false} error onRetry={onRetry} />);
     fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
     expect(onRetry).toHaveBeenCalled();
+  });
+
+  it('Load more shows only with more rows, disables while loading, and offers an inline retry on error', () => {
+    const onLoadMore = vi.fn();
+    const base = { items: [entry()], loading: false, error: false, onRetry: vi.fn(), onLoadMore };
+    const { rerender } = render(<ActivityCard {...base} hasMore={false} />);
+    expect(screen.queryByRole('button', { name: 'Load more' })).toBeNull();
+
+    rerender(<ActivityCard {...base} hasMore />);
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+    expect(onLoadMore).toHaveBeenCalledTimes(1);
+
+    rerender(<ActivityCard {...base} hasMore loadingMore />);
+    const busy = screen.getByRole('button', { name: 'Loading...' }) as HTMLButtonElement;
+    expect(busy.disabled).toBe(true);
+
+    rerender(<ActivityCard {...base} hasMore moreError />);
+    expect(screen.getByText(ACTIVITY_MORE_ERROR_COPY)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(onLoadMore).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("Victor Founder added 'X' to today's mission")).toBeTruthy();
   });
 
   it('upcoming rows show the due date and link to the roadmap', () => {

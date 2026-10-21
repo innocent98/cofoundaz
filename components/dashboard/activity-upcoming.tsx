@@ -8,6 +8,8 @@ import { CardError, CardSkeleton } from './card-states';
 
 export const ACTIVITY_EMPTY_COPY = 'Activity from you and your team will appear here.';
 
+export const ACTIVITY_MORE_ERROR_COPY = "Couldn't load more activity.";
+
 export function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '';
@@ -20,11 +22,21 @@ export function ActivityCard({
   loading,
   error,
   onRetry,
+  hasMore = false,
+  loadingMore = false,
+  moreError = false,
+  onLoadMore,
 }: {
   items: ActivityLogEntry[];
   loading: boolean;
   error: boolean;
   onRetry: () => void;
+  /** More (older) rows exist: the API returned a `next_cursor`. */
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  /** The last "Load more" failed; the rows already shown stay. */
+  moreError?: boolean;
+  onLoadMore?: () => void;
 }) {
   if (loading && items.length === 0) return <CardSkeleton label="Loading Team activity" rows={3} />;
   if (error && items.length === 0) return <CardError title="Team activity" onRetry={onRetry} />;
@@ -67,6 +79,20 @@ export function ActivityCard({
               );
             })}
           </ul>
+        )}
+        {items.length > 0 && onLoadMore && (moreError || hasMore) && (
+          <div className="pt-3 border-t border-sage-100 flex flex-col items-center gap-1" aria-live="polite">
+            {moreError && <p role="alert" className="text-xs text-sage-600">{ACTIVITY_MORE_ERROR_COPY}</p>}
+            <button
+              type="button"
+              onClick={onLoadMore}
+              disabled={loadingMore}
+              aria-busy={loadingMore}
+              className="min-h-[44px] px-3 text-sm font-bold text-[#266B4E] hover:text-[#12291F] underline cursor-pointer disabled:no-underline disabled:cursor-default disabled:text-sage-500"
+            >
+              {loadingMore ? 'Loading...' : moreError ? 'Retry' : 'Load more'}
+            </button>
+          </div>
         )}
       </div>
     </div>

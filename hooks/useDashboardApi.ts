@@ -534,24 +534,43 @@ export function prependActivity(prev: ActivityLogEntry[], entry: ActivityLogEntr
   return prev.some((x) => x.id === entry.id) ? prev : [entry, ...prev];
 }
 
+/** Appends an older page, skipping rows already shown (live prepends can overlap the page boundary). */
+export function appendActivity(prev: ActivityLogEntry[], older: ActivityLogEntry[]): ActivityLogEntry[] {
+  const seen = new Set(prev.map((x) => x.id));
+  const fresh: ActivityLogEntry[] = [];
+  for (const e of older) {
+    if (seen.has(e.id)) continue;
+    seen.add(e.id);
+    fresh.push(e);
+  }
+  return fresh.length ? [...prev, ...fresh] : prev;
+}
+
 export function useActivityFeed() {
   const [data, setData] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [moreError, setMoreError] = useState(false);
   const fetchActivityRef = useRef<(cursor?: string) => Promise<void>>(async () => {});
 
   const fetchActivity = useCallback(
     async (cursor?: string) => {
       try {
-        if (!cursor) setLoading(true);
-        setError(null);
+        if (cursor) {
+          setLoadingMore(true);
+          setMoreError(false);
+        } else {
+          setLoading(true);
+          setError(null);
+        }
 
         const res = await getDashboardActivity(cursor);
         const now = Date.now();
         const enriched = (res.data?.items ?? []).map((e: any) => toActivityEntry(e, now));
 
-        setData((prev) => (cursor ? [...prev, ...enriched] : enriched));
+        setData((prev) => (cursor ? appendActivity(prev, enriched) : enriched));
         setNextCursor(res.data?.next_cursor ?? null);
       } catch (err) {
         // Keyset pagination 422 recovery:
@@ -563,9 +582,12 @@ export function useActivityFeed() {
           return;
         }
 
-        setError(err instanceof Error ? err : new Error(String(err)));
+        // A failed load-more keeps the rows already shown and offers an inline retry.
+        if (cursor) setMoreError(true);
+        else setError(err instanceof Error ? err : new Error(String(err)));
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     },
     []
@@ -597,7 +619,12 @@ export function useActivityFeed() {
     setData,
     loading,
     error,
-    fetchMore: () => fetchActivity(nextCursor ?? undefined),
+    fetchMore: () => {
+      if (!nextCursor || loadingMore) return Promise.resolve();
+      return fetchActivity(nextCursor);
+    },
+    loadingMore,
+    moreError,
     hasMore: Boolean(nextCursor),
     nextCursor,
     refetch: () => fetchActivity(undefined),

@@ -162,6 +162,10 @@ export default function DashboardPage() {
               loading={activity.loading}
               error={activity.error !== null}
               onRetry={activity.refetch}
+              hasMore={activity.hasMore}
+              loadingMore={activity.loadingMore}
+              moreError={activity.moreError}
+              onLoadMore={activity.fetchMore}
             />
           </ErrorBoundary>
           <ErrorBoundary onRetry={refetch}>

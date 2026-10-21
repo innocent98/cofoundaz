@@ -495,6 +495,51 @@ describe('useDashboardApi & Dashboard Mappers', () => {
       });
     });
 
+    it('load more appends older rows, skips ids already shown, and hides the control at the end', async () => {
+      const row = (id: string) => ({ id, actor: { name: 'U' }, summary: `s ${id}`, created_at: '2026-09-26T14:00:00Z' });
+      vi.mocked(dashboardApi.getDashboardActivity)
+        .mockResolvedValueOnce({ data: { items: [row('a'), row('b')], next_cursor: 'c2' } })
+        .mockResolvedValueOnce({ data: { items: [row('b'), row('c')], next_cursor: null } });
+
+      const { result } = renderHook(() => useActivityFeed());
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.hasMore).toBe(true);
+
+      await act(async () => {
+        await result.current.fetchMore();
+      });
+
+      expect(dashboardApi.getDashboardActivity).toHaveBeenLastCalledWith('c2');
+      expect(result.current.data.map((x) => x.id)).toEqual(['a', 'b', 'c']);
+      expect(result.current.hasMore).toBe(false);
+      expect(result.current.loadingMore).toBe(false);
+    });
+
+    it('a failed load more keeps the rows, flags moreError (not the page error), and retries', async () => {
+      const row = (id: string) => ({ id, actor: { name: 'U' }, summary: `s ${id}`, created_at: '2026-09-26T14:00:00Z' });
+      vi.mocked(dashboardApi.getDashboardActivity)
+        .mockResolvedValueOnce({ data: { items: [row('a')], next_cursor: 'c2' } })
+        .mockRejectedValueOnce(new ApiError(500, 'boom', {}))
+        .mockResolvedValueOnce({ data: { items: [row('b')], next_cursor: null } });
+
+      const { result } = renderHook(() => useActivityFeed());
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      await act(async () => {
+        await result.current.fetchMore();
+      });
+      expect(result.current.moreError).toBe(true);
+      expect(result.current.error).toBeNull();
+      expect(result.current.data.map((x) => x.id)).toEqual(['a']);
+      expect(result.current.hasMore).toBe(true);
+
+      await act(async () => {
+        await result.current.fetchMore();
+      });
+      expect(result.current.moreError).toBe(false);
+      expect(result.current.data.map((x) => x.id)).toEqual(['a', 'b']);
+    });
+
     it('renders empty feed honestly without fabricating items', async () => {
       vi.mocked(dashboardApi.getDashboardActivity).mockResolvedValueOnce({
         data: { items: [], next_cursor: null },
