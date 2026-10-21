@@ -183,3 +183,11 @@ Created-invite path (real email), card error/Retry, KPI `ok` trend/sparkline/`is
 ### Verdict (2026-10-21)
 Every row 1-10 is verified or reduced to a low data-hygiene residual, and #155 holds for the feed and the stream. The Dashboard is **not** marked
 done yet: the "scroll and paginate" control fails (gap 11) and gap 12 leaves forbidden-feature rows in two roles' inboxes. Both are low; close them (or accept them) and the page is done.
+
+## Gaps 11 and 12 re-checked on merged develop (lead, 2026-10-21 11:10 WAT; API `37d2f65`, FE develop with #130)
+| Gap | Check | Result |
+|---|---|---|
+| 11 | `git diff <#130 head> origin/develop` over every app file #130 touched is empty; #130's session verified Load more live (founder reaches all ~29 rows; mentor pages stay role-filtered) | ✅ |
+| 12 | `GET /notifications?limit=100` + `/unread-count` via the API: mentor 36 rows, consultant 39 rows, **0** `mission.*` / `dashboard.briefing.*` / `assessment.*` / `validation.*` / `marketing.*`; founder still sees all of them (mission.ready 2, mission.completed 2, briefing 2, ...) | ✅ |
+
+Dashboard: **done**.
