@@ -13,6 +13,7 @@ import {
   CHANNEL_LABELS,
   OBJECTIVE_LABELS,
   fillSeriesDays,
+  isUuid,
   formatMoney,
   formatPeriod,
   summariseMix,
@@ -70,6 +71,20 @@ function MetricPicker({ value, onChange, label }: { value: SeriesMetric; onChang
 
 export default function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  if (!isUuid(id)) {
+    return (
+      <div className="space-y-4">
+        <Link href="/marketing/campaigns" className="inline-block text-sm font-semibold text-[#0e271f] hover:underline">
+          ← All campaigns
+        </Link>
+        <p role="alert" className="rounded-modal border border-sage-200 bg-white p-6 text-sm text-sage-700">Campaign not found.</p>
+      </div>
+    );
+  }
+  return <CampaignDetail id={id} />;
+}
+
+function CampaignDetail({ id }: { id: string }) {
   const router = useRouter();
   const { campaign, posts, copy } = useCampaign(id);
   const segs = useSegments();

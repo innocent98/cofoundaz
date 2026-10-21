@@ -413,3 +413,11 @@ describe('marketing pure helpers', () => {
     expect(formatPeriod('2026-10-20', null)).toMatch(/^From /);
   });
 });
+
+describe('request paths', () => {
+  it('encodes ids so a crafted value cannot change the path', async () => {
+    api().mockResolvedValueOnce(ok({}));
+    await getCalendarEntry('../auth/me');
+    expect(api().mock.calls[0][0]).toBe('/marketing/calendar-entries/..%2Fauth%2Fme');
+  });
+});

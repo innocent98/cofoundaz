@@ -428,6 +428,10 @@ function errorBody(err: unknown): ErrorBody['error'] | undefined {
   return undefined;
 }
 
+/** Ids that arrive from a URL (?entry=, ?generation=, /campaigns/[id]) must look like UUIDs before they reach a request path. */
+export const isUuid = (v: string | null | undefined): v is string =>
+  typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+
 /** 403 FORBIDDEN: the caller's membership role is not founder / team_member. */
 export function isForbiddenError(err: unknown): boolean {
   if (!(err instanceof ApiError) || err.status !== 403) return false;
@@ -493,30 +497,30 @@ export async function listCalendarEntries(q: CalendarEntryQuery = {}): Promise<C
   const data = await call<{ entries: CalendarEntry[] }>(`/calendar-entries${qs({ ...q })}`);
   return data.entries;
 }
-export const getCalendarEntry = (id: string) => call<CalendarEntry>(`/calendar-entries/${id}`);
+export const getCalendarEntry = (id: string) => call<CalendarEntry>(`/calendar-entries/${encodeURIComponent(id)}`);
 export const createCalendarEntry = (body: CalendarEntryInput) =>
   call<CalendarEntry>('/calendar-entries', json('POST', body));
 export const updateCalendarEntry = (id: string, body: CalendarEntryPatch) =>
-  call<CalendarEntry>(`/calendar-entries/${id}`, json('PATCH', body));
+  call<CalendarEntry>(`/calendar-entries/${encodeURIComponent(id)}`, json('PATCH', body));
 export const deleteCalendarEntry = (id: string) =>
-  call<{ deleted: boolean }>(`/calendar-entries/${id}`, json('DELETE'));
+  call<{ deleted: boolean }>(`/calendar-entries/${encodeURIComponent(id)}`, json('DELETE'));
 
 export const startPlanWeek = () => call<GenerationAccepted>('/calendar/plan-week', json('POST', {}));
-export const getPlanWeek = (id: string) => call<PlanWeekGeneration>(`/calendar/plan-week/${id}`);
+export const getPlanWeek = (id: string) => call<PlanWeekGeneration>(`/calendar/plan-week/${encodeURIComponent(id)}`);
 
 // ---------------------------------------------------------------- channels
 
 export const listChannels = () => call<MarketingChannel[]>('/channels');
 export const updateChannel = (key: ChannelKey, body: { status?: ChannelStatus; notes?: string | null }) =>
-  call<MarketingChannel>(`/channels/${key}`, json('PATCH', body));
+  call<MarketingChannel>(`/channels/${encodeURIComponent(key)}`, json('PATCH', body));
 
 export const startFitNotes = () => call<GenerationAccepted>('/channels/fit-notes/generate', json('POST', {}));
-export const getFitNotes = (id: string) => call<FitNotesGeneration>(`/channels/fit-notes/${id}`);
+export const getFitNotes = (id: string) => call<FitNotesGeneration>(`/channels/fit-notes/${encodeURIComponent(id)}`);
 
 export const startChannelPlan = (body: ChannelPlanInput) =>
   call<GenerationAccepted>('/channel-plan/recommend', json('POST', body));
 export const getChannelPlan = (id: string) =>
-  call<ChannelPlanGeneration>(`/channel-plan/recommendations/${id}`);
+  call<ChannelPlanGeneration>(`/channel-plan/recommendations/${encodeURIComponent(id)}`);
 
 // ---------------------------------------------------------------- segments
 
@@ -525,11 +529,11 @@ export async function listSegments(): Promise<Segment[]> {
 }
 export const createSegment = (body: SegmentInput) => call<Segment>('/segments', json('POST', body));
 export const updateSegment = (id: string, body: SegmentPatch) =>
-  call<Segment>(`/segments/${id}`, json('PATCH', body));
-export const deleteSegment = (id: string) => call<{ deleted: boolean }>(`/segments/${id}`, json('DELETE'));
+  call<Segment>(`/segments/${encodeURIComponent(id)}`, json('PATCH', body));
+export const deleteSegment = (id: string) => call<{ deleted: boolean }>(`/segments/${encodeURIComponent(id)}`, json('DELETE'));
 export const getSegmentAttributes = () => call<SegmentAttributes>('/segments/attributes');
 export async function listSegmentCampaigns(id: string): Promise<Campaign[]> {
-  return (await call<{ campaigns: Campaign[] }>(`/segments/${id}/campaigns`)).campaigns;
+  return (await call<{ campaigns: Campaign[] }>(`/segments/${encodeURIComponent(id)}/campaigns`)).campaigns;
 }
 
 // ---------------------------------------------------------------- campaigns
@@ -537,21 +541,21 @@ export async function listSegmentCampaigns(id: string): Promise<Campaign[]> {
 export async function listCampaigns(): Promise<Campaign[]> {
   return (await call<{ campaigns: Campaign[] }>('/campaigns')).campaigns;
 }
-export const getCampaign = (id: string) => call<Campaign>(`/campaigns/${id}`);
+export const getCampaign = (id: string) => call<Campaign>(`/campaigns/${encodeURIComponent(id)}`);
 export const getCampaignPerformance = (id: string, range: PerformanceRange = 'all') =>
-  call<CampaignPerformance>(`/campaigns/${id}/performance${qs({ range })}`);
+  call<CampaignPerformance>(`/campaigns/${encodeURIComponent(id)}/performance${qs({ range })}`);
 export async function listCampaignReadouts(id: string): Promise<CampaignReadout[]> {
-  return (await call<{ readouts: CampaignReadout[] }>(`/campaigns/${id}/readouts`)).readouts;
+  return (await call<{ readouts: CampaignReadout[] }>(`/campaigns/${encodeURIComponent(id)}/readouts`)).readouts;
 }
 export const createCampaign = (body: CampaignInput) => call<Campaign>('/campaigns', json('POST', body));
 export const updateCampaign = (id: string, body: CampaignPatch) =>
-  call<Campaign>(`/campaigns/${id}`, json('PATCH', body));
-export const deleteCampaign = (id: string) => call<{ deleted: boolean }>(`/campaigns/${id}`, json('DELETE'));
+  call<Campaign>(`/campaigns/${encodeURIComponent(id)}`, json('PATCH', body));
+export const deleteCampaign = (id: string) => call<{ deleted: boolean }>(`/campaigns/${encodeURIComponent(id)}`, json('DELETE'));
 
 // ---------------------------------------------------------------- copy
 
 export const startCopy = (body: CopyInput) => call<GenerationAccepted>('/copy/generate', json('POST', body));
-export const getCopy = (id: string) => call<CopyGeneration>(`/copy/generations/${id}`);
+export const getCopy = (id: string) => call<CopyGeneration>(`/copy/generations/${encodeURIComponent(id)}`);
 export async function listCopyGenerations(campaignId?: string): Promise<CopyGeneration[]> {
   return (await call<{ generations: CopyGeneration[] }>(`/copy/generations${qs({ campaign_id: campaignId })}`))
     .generations;
@@ -562,7 +566,7 @@ export async function listCopyPlatforms(): Promise<CopyPlatform[]> {
 /** Refine one variant. Creates a NEW generation linked through `inputs.refine`; the parent is untouched. */
 export const refineCopy = ({ parentId, variantIndex, instruction }: RefineInput) =>
   call<GenerationAccepted>(
-    `/copy/generations/${parentId}/refine`,
+    `/copy/generations/${encodeURIComponent(parentId)}/refine`,
     json('POST', { variant_index: variantIndex, instruction })
   );
 
@@ -573,24 +577,24 @@ export async function listKeywords(): Promise<Keyword[]> {
 }
 export const createKeyword = (body: KeywordInput) => call<Keyword>('/keywords', json('POST', body));
 export const updateKeyword = (id: string, body: KeywordPatch) =>
-  call<Keyword>(`/keywords/${id}`, json('PATCH', body));
-export const deleteKeyword = (id: string) => call<{ deleted: boolean }>(`/keywords/${id}`, json('DELETE'));
+  call<Keyword>(`/keywords/${encodeURIComponent(id)}`, json('PATCH', body));
+export const deleteKeyword = (id: string) => call<{ deleted: boolean }>(`/keywords/${encodeURIComponent(id)}`, json('DELETE'));
 
 export async function listTrackedPages(): Promise<TrackedPage[]> {
   return (await call<{ pages: TrackedPage[] }>('/seo/pages')).pages;
 }
 export const createTrackedPage = (url: string) => call<TrackedPage>('/seo/pages', json('POST', { url }));
 export const updateTrackedPage = (id: string, checklist: Partial<Record<ChecklistKey, boolean>>) =>
-  call<TrackedPage>(`/seo/pages/${id}`, json('PATCH', { checklist }));
+  call<TrackedPage>(`/seo/pages/${encodeURIComponent(id)}`, json('PATCH', { checklist }));
 export const deleteTrackedPage = (id: string) =>
-  call<{ deleted: boolean }>(`/seo/pages/${id}`, json('DELETE'));
+  call<{ deleted: boolean }>(`/seo/pages/${encodeURIComponent(id)}`, json('DELETE'));
 
 export const getPositioning = () => call<Positioning>('/positioning');
 // PUT is full-replace: always send all five parts.
 export const savePositioning = (body: PositioningInput) => call<Positioning>('/positioning', json('PUT', body));
 
 export const startContentGaps = () => call<GenerationAccepted>('/seo/content-gaps/generate', json('POST', {}));
-export const getContentGap = (id: string) => call<ContentGapGeneration>(`/seo/content-gaps/${id}`);
+export const getContentGap = (id: string) => call<ContentGapGeneration>(`/seo/content-gaps/${encodeURIComponent(id)}`);
 export async function listContentGaps(): Promise<ContentGapGeneration[]> {
   return (await call<{ generations: ContentGapGeneration[] }>('/seo/content-gaps')).generations;
 }
@@ -602,7 +606,7 @@ export const ingestMetrics = (points: MetricPoint[]) =>
 export async function listRecordedMetrics(range: AnalyticsRange, limit = 25, offset = 0): Promise<RecordedMetricsPage> {
   return call<RecordedMetricsPage>(`/metrics${qs({ range, limit: String(limit), offset: String(offset) })}`);
 }
-export const deleteMetric = (id: string) => call<{ deleted: boolean }>(`/metrics/${id}`, json('DELETE'));
+export const deleteMetric = (id: string) => call<{ deleted: boolean }>(`/metrics/${encodeURIComponent(id)}`, json('DELETE'));
 
 /**
  * GET /analytics/export is text/csv, not the JSON envelope, so a plain link cannot send the
@@ -642,7 +646,7 @@ export function uploadMedia(file: File): Promise<MarketingMedia> {
   body.append('file', file);
   return call<MarketingMedia>('/media', { method: 'POST', body });
 }
-export const deleteMedia = (id: string) => call<{ deleted: boolean }>(`/media/${id}`, json('DELETE'));
+export const deleteMedia = (id: string) => call<{ deleted: boolean }>(`/media/${encodeURIComponent(id)}`, json('DELETE'));
 
 export const getAnalytics = (range: AnalyticsRange = '30d') =>
   call<MarketingAnalytics>(`/analytics${qs({ range })}`);

@@ -8,6 +8,7 @@ import { useMarketingGeneration } from '@/hooks/useMarketingGeneration';
 import {
   CHANNEL_KEYS,
   getCalendarEntry,
+  isUuid,
   getPlanWeek,
   planDayToIso,
   startPlanWeek,
@@ -91,6 +92,10 @@ function CalendarWorkbench() {
   // ---- notification deep link: /marketing/calendar?entry={id} opens that post's drawer
   useEffect(() => {
     if (!entryParam) return;
+    if (!isUuid(entryParam)) {
+      window.history.replaceState(null, '', '/marketing/calendar');
+      return;
+    }
     let cancelled = false;
     void (async () => {
       try {

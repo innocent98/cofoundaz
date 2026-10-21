@@ -14,6 +14,8 @@ import type {
 
 // Shapes follow cofoundaz-api/docs/fe-integration-guide-marketing-prd.md (live captures).
 
+const CID = '54a87848-c841-45e3-9eee-1fe502b6f646';
+const EID = '3eb508f6-15b8-4959-a0a1-06a8bea034e5';
 const push = vi.hoisted(() => vi.fn());
 const replace = vi.hoisted(() => vi.fn());
 let search = new URLSearchParams();
@@ -89,7 +91,7 @@ import MarketingCalendarPage from './calendar/page';
 import MarketingLayout from './layout';
 
 const campaign: Campaign = {
-  id: 'c1',
+  id: CID,
   startup_id: 's1',
   name: 'Waitlist push',
   objective: 'launch',
@@ -107,7 +109,7 @@ const campaign: Campaign = {
 };
 
 const performance: CampaignPerformance = {
-  campaign_id: 'c1',
+  campaign_id: CID,
   name: 'Waitlist push',
   range: 'all',
   totals: { impressions: 2000, clicks: 100, conversions: 10, spend: 20000, click_through_rate: 5.0, conversion_rate: 10.0 },
@@ -120,7 +122,7 @@ const performance: CampaignPerformance = {
 
 const readout: CampaignReadout = {
   id: 'r1',
-  campaign_id: 'c1',
+  campaign_id: CID,
   week_start: '2026-10-19',
   status: 'ready',
   output: { headline: 'Clicks are up', summary: 'Email drove most of it.', wins: ['CTR 5%'], watch: [], next_step: 'Shift budget to email.' },
@@ -155,7 +157,7 @@ describe('Marketing layout', () => {
 
 describe('Campaign detail', () => {
   // React's `use` reads a settled thenable synchronously, so the page renders without suspending.
-  const settled = Object.assign(Promise.resolve({ id: 'c1' }), { status: 'fulfilled', value: { id: 'c1' } });
+  const settled = Object.assign(Promise.resolve({ id: CID }), { status: 'fulfilled', value: { id: CID } });
   const renderDetail = () => render(<CampaignDetailPage params={settled} />);
 
   it('shows the header, honest numbers note, readout, totals and both charts', async () => {
@@ -174,7 +176,7 @@ describe('Campaign detail', () => {
     renderDetail();
     const link = await screen.findByRole('link', { name: /Write copy for this campaign/ });
     const href = link.getAttribute('href') as string;
-    expect(href).toContain('campaign=c1');
+    expect(href).toContain(`campaign=${CID}`);
     expect(decodeURIComponent(href)).toContain('Launch campaign "Waitlist push" for Lagos merchants');
   });
 
@@ -190,12 +192,12 @@ describe('Campaign detail', () => {
   it('lists linked posts that deep-link into the calendar drawer', async () => {
     hooks.state.campaign = {
       campaign: resource(campaign),
-      posts: resource([{ id: 'e1', title: 'Waitlist teaser', channel: 'email', status: 'published', scheduled_at: null }] as CalendarEntry[]),
+      posts: resource([{ id: EID, title: 'Waitlist teaser', channel: 'email', status: 'published', scheduled_at: null }] as CalendarEntry[]),
       copy: resource([] as CopyGeneration[]),
     };
     renderDetail();
     const link = await screen.findByRole('link', { name: /Waitlist teaser/ });
-    expect(link).toHaveAttribute('href', '/marketing/calendar?entry=e1');
+    expect(link).toHaveAttribute('href', `/marketing/calendar?entry=${EID}`);
   });
 
   it('asks before completing a campaign and only then calls the API', async () => {
@@ -207,7 +209,7 @@ describe('Campaign detail', () => {
     const dialog = screen.getByRole('alertdialog');
     expect(dialog).toHaveTextContent('Completing a campaign is final');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Complete campaign' }));
-    await waitFor(() => expect(api.updateCampaign).toHaveBeenCalledWith('c1', { status: 'completed' }));
+    await waitFor(() => expect(api.updateCampaign).toHaveBeenCalledWith(CID, { status: 'completed' }));
   });
 });
 
@@ -215,7 +217,7 @@ describe('Campaigns list', () => {
   it('links the name to the detail page and shows CTR / Conv and the period', () => {
     render(<MarketingCampaignsPage />);
     const links = screen.getAllByRole('link', { name: 'Waitlist push' });
-    expect(links[0]).toHaveAttribute('href', '/marketing/campaigns/c1');
+    expect(links[0]).toHaveAttribute('href', `/marketing/campaigns/${CID}`);
     expect(screen.getAllByText('5.0% / 10.0%').length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Oct 20, 2026 to Nov 3, 2026/).length).toBeGreaterThan(0);
     expect(screen.getByRole('list', { name: 'Campaigns' })).toBeInTheDocument(); // the phone card list
@@ -408,8 +410,8 @@ describe('Content calendar', () => {
   });
 
   it('opens the drawer from a notification link (?entry=)', async () => {
-    search = new URLSearchParams('entry=e1');
-    const e = { id: 'e1', title: 'Waitlist teaser', channel: 'organic_social', status: 'published', body: 'Hi', media: null, campaign_id: null, scheduled_at: '2026-10-20T18:11:36Z', published_at: '2026-10-20T18:11:36Z' } as CalendarEntry;
+    search = new URLSearchParams(`entry=${EID}`);
+    const e = { id: EID, title: 'Waitlist teaser', channel: 'organic_social', status: 'published', body: 'Hi', media: null, campaign_id: null, scheduled_at: '2026-10-20T18:11:36Z', published_at: '2026-10-20T18:11:36Z' } as CalendarEntry;
     api.listCalendarEntries.mockResolvedValue([]);
     api.getCalendarEntry.mockResolvedValue(e);
     render(<MarketingCalendarPage />);
@@ -425,5 +427,17 @@ describe('analytics helpers used by the page', () => {
     const a: MarketingAnalytics['cac_by_channel'][number] = { channel: 'email', spend: 17000, conversions: 11, cac: 1545, attributed_spend: 12000, attributed_conversions: 6, estimated: true };
     const r: RecordedMetric = { id: 'm1', ts: '2026-10-20', metric: 'visits', value: 999, channel: null, campaign_id: null, campaign_name: null, created_at: '2026-10-20T18:14:39Z' };
     expect(a.estimated && r.value).toBe(999);
+  });
+});
+
+describe('ids from the URL', () => {
+  it('does not fetch or open anything for an id that is not a UUID', async () => {
+    search = new URLSearchParams('entry=../../auth/me');
+    render(<MarketingCalendarPage />);
+    await waitFor(() => expect(window.location.search).toBe(''));
+    expect(api.getCalendarEntry).not.toHaveBeenCalled();
+    const bad = Object.assign(Promise.resolve({ id: '../x' }), { status: 'fulfilled', value: { id: '../x' } });
+    render(<CampaignDetailPage params={bad} />);
+    expect(screen.getByText('Campaign not found.')).toBeInTheDocument();
   });
 });

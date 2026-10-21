@@ -13,6 +13,7 @@ import {
   charCount,
   createCalendarEntry,
   getCopy,
+  isUuid,
   isOverLimit,
   refineCopy,
   startCopy,
@@ -98,7 +99,7 @@ function CopyWorkbench() {
 
   // Opening a set from the campaign page (?generation=id).
   useEffect(() => {
-    if (!generationParam) return;
+    if (!isUuid(generationParam)) return;
     let cancelled = false;
     void (async () => {
       try {
