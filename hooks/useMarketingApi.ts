@@ -3,12 +3,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as api from '@/lib/api/marketing';
 import { isForbiddenError, marketingErrorMessage } from '@/lib/api/marketing';
+import { viewRange, type CalendarView } from '@/lib/marketing-calendar';
 import type {
   AnalyticsRange,
   CalendarEntry,
   CalendarEntryInput,
   CalendarEntryPatch,
   Campaign,
+  CampaignPerformance,
+  CampaignReadout,
+  CopyPlatform,
+  MarketingMedia,
+  PerformanceRange,
+  RecordedMetricsPage,
+  SegmentAttributes,
   CampaignInput,
   CampaignPatch,
   ChannelKey,
@@ -124,11 +132,13 @@ export function monthRange(month: Date): { from: string; to: string } {
   return { from: from.toISOString(), to: to.toISOString() };
 }
 
-/** Entries scheduled inside `month` (grid) plus unscheduled drafts (backlog). */
-export function useCalendar(month: Date) {
-  const year = month.getFullYear();
-  const monthIndex = month.getMonth();
-  const { from, to } = useMemo(() => monthRange(new Date(year, monthIndex, 1)), [year, monthIndex]);
+/** Entries scheduled inside the visible month or week (grid) plus unscheduled drafts (backlog). */
+export function useCalendar(anchor: Date, view: CalendarView = 'month') {
+  const stamp = anchor.getTime();
+  const { from, to } = useMemo(() => {
+    const r = viewRange(view, new Date(stamp));
+    return { from: r.from.toISOString(), to: r.to.toISOString() };
+  }, [stamp, view]);
   const grid = useResource<CalendarEntry[]>(useCallback(() => api.listCalendarEntries({ from, to }), [from, to]));
   const drafts = useResource<CalendarEntry[]>(
     useCallback(() => api.listCalendarEntries({ status: 'draft' }), [])
@@ -203,11 +213,57 @@ export function useCampaigns() {
   };
 }
 
-// ---------------------------------------------------------------- copy history
+// ---------------------------------------------------------------- campaign detail
+
+/** One campaign with its content links: the campaign row, linked posts and linked copy. */
+export function useCampaign(id: string) {
+  const campaign = useResource<Campaign>(useCallback(() => api.getCampaign(id), [id]));
+  const posts = useResource<CalendarEntry[]>(useCallback(() => api.listCalendarEntries({ campaign_id: id }), [id]));
+  const copy = useResource<CopyGeneration[]>(useCallback(() => api.listCopyGenerations(id), [id]));
+  return { campaign, posts, copy };
+}
+
+export function useCampaignPerformance(id: string, range: PerformanceRange) {
+  const fetcher = useCallback(() => api.getCampaignPerformance(id, range), [id, range]);
+  const res = useResource<CampaignPerformance>(fetcher);
+  return { performance: res.data, ...res };
+}
+
+export function useCampaignReadouts(id: string) {
+  const fetcher = useCallback(() => api.listCampaignReadouts(id), [id]);
+  const res = useResource<CampaignReadout[]>(fetcher);
+  return { readouts: res.data ?? [], ...res };
+}
+
+// ---------------------------------------------------------------- copy history + platforms
 
 export function useCopyHistory() {
-  const res = useResource<CopyGeneration[]>(api.listCopyGenerations);
+  const res = useResource<CopyGeneration[]>(useCallback(() => api.listCopyGenerations(), []));
   return { history: res.data ?? [], ...res };
+}
+
+export function useCopyPlatforms() {
+  const res = useResource<CopyPlatform[]>(api.listCopyPlatforms);
+  return { platforms: res.data ?? [], ...res };
+}
+
+// ---------------------------------------------------------------- media
+
+export function useMedia() {
+  const res = useResource<MarketingMedia[]>(api.listMedia);
+  return {
+    media: res.data ?? [],
+    ...res,
+    upload: afterMutation(res.reload, (file: File) => api.uploadMedia(file)),
+    remove: afterMutation(res.reload, (id: string) => api.deleteMedia(id)),
+  };
+}
+
+// ---------------------------------------------------------------- segment attributes
+
+export function useSegmentAttributes() {
+  const res = useResource<SegmentAttributes>(api.getSegmentAttributes);
+  return { attributes: res.data, ...res };
 }
 
 // ---------------------------------------------------------------- SEO
@@ -256,4 +312,17 @@ export function useAnalytics(range: AnalyticsRange) {
   const fetcher = useCallback(() => api.getAnalytics(range), [range]);
   const res = useResource<MarketingAnalytics>(fetcher);
   return { analytics: res.data, ...res };
+}
+
+/** The "Recorded entries" table: newest first, grows by `pageSize` per "Show more". */
+export function useRecordedMetrics(range: AnalyticsRange, pageSize = 25) {
+  const [limit, setLimit] = useState(pageSize);
+  const fetcher = useCallback(() => api.listRecordedMetrics(range, limit, 0), [range, limit]);
+  const res = useResource<RecordedMetricsPage>(fetcher);
+  return {
+    page: res.data,
+    ...res,
+    showMore: () => setLimit((n) => n + pageSize),
+    remove: afterMutation(res.reload, (id: string) => api.deleteMetric(id)),
+  };
 }

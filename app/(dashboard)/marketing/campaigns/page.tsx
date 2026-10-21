@@ -1,17 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Link from 'next/link';
-import { useCampaigns, useSegments } from '@/hooks/useMarketingApi';
+import { useCampaigns, useResource, useSegments } from '@/hooks/useMarketingApi';
 import { useMarketingGeneration } from '@/hooks/useMarketingGeneration';
 import {
   CHANNEL_KEYS,
   CHANNEL_LABELS,
+  OBJECTIVE_LABELS,
+  channelsStartedByLaunch,
   formatMoney,
+  listChannels,
+  formatPeriod,
   getChannelPlan,
+  listCalendarEntries,
   marketingErrorMessage,
   fieldErrorsOf,
   startChannelPlan,
+  summariseMix,
+  updateCalendarEntry,
   type Campaign,
   type CampaignObjective,
   type CampaignStatus,
@@ -21,7 +28,6 @@ import {
 } from '@/lib/api/marketing';
 import {
   BTN_ACCENT,
-  BTN_DANGER,
   BTN_PRIMARY,
   BTN_SECONDARY,
   CARD,
@@ -32,6 +38,8 @@ import {
   LABEL,
 } from '@/components/marketing-hub/states';
 import { Drawer } from '@/components/marketing-hub/drawer';
+import { CampaignActions } from '@/components/marketing-hub/campaign-actions';
+import { ChannelLabel } from '@/components/marketing-hub/channel-icon';
 import { useToast } from '../ToastContext';
 
 const OBJECTIVES: { value: CampaignObjective; label: string }[] = [
@@ -42,7 +50,7 @@ const OBJECTIVES: { value: CampaignObjective; label: string }[] = [
 ];
 
 const STATUS_STYLE: Record<CampaignStatus, string> = {
-  draft: 'bg-sage-100 text-sage-600',
+  draft: 'bg-sage-100 text-sage-700',
   active: 'bg-green-100 text-green-800',
   paused: 'bg-copper-100 text-copper-800',
   completed: 'bg-sage-200 text-sage-700',
@@ -54,6 +62,8 @@ interface Form {
   budgetMajor: string;
   mix: Record<ChannelKey, number>;
   segmentIds: string[];
+  /** Existing posts to link once the campaign is created (wizard only). */
+  postIds: string[];
   start: string;
   end: string;
 }
@@ -66,9 +76,17 @@ const blankForm = (): Form => ({
   budgetMajor: '',
   mix: { ...EMPTY_MIX },
   segmentIds: [],
+  postIds: [],
   start: '',
   end: '',
 });
+
+/** "CTR 5.0% / Conv 10.0%", or a plain "No data yet" when nothing was recorded for the campaign. */
+function rates(c: Campaign): string {
+  const m = c.metrics;
+  if (!m || (!m.impressions && !m.clicks && !m.conversions)) return 'No data yet';
+  return `${(m.click_through_rate ?? 0).toFixed(1)}% / ${(m.conversion_rate ?? 0).toFixed(1)}%`;
+}
 
 function formFromCampaign(c: Campaign): Form {
   return {
@@ -77,6 +95,7 @@ function formFromCampaign(c: Campaign): Form {
     budgetMajor: c.budget ? String(c.budget / 100) : '',
     mix: { ...EMPTY_MIX, ...(c.channel_mix as Record<ChannelKey, number>) },
     segmentIds: c.segment_ids,
+    postIds: [],
     start: c.period_start ?? '',
     end: c.period_end ?? '',
   };
@@ -100,13 +119,6 @@ function bodyFromForm(f: Form) {
     period_start: f.start || null,
     period_end: f.end || null,
   };
-}
-
-function summariseMix(mix: ChannelMix): string {
-  const parts = Object.entries(mix)
-    .filter(([, v]) => (v ?? 0) > 0)
-    .map(([k, v]) => `${CHANNEL_LABELS[k as ChannelKey]} ${Math.round(v ?? 0)}%`);
-  return parts.length ? parts.join(', ') : 'No channel split set';
 }
 
 // ------------------------------------------------------------------ form sections
@@ -257,8 +269,11 @@ function ChannelsSection({
 
       {proposal && (
         <div className="rounded-card border border-[#d2e2d8] bg-[#e2ede6] p-4 space-y-3">
+          <p className="text-sm font-semibold text-[#0e271f]">
+            For {OBJECTIVE_LABELS[form.objective].toLowerCase()} at your stage, I&apos;d put{' '}
+            {summariseMix(proposal.output.channel_mix ?? {}).replace('No channel split set', 'no split yet')}. Here&apos;s why.
+          </p>
           {proposal.output.rationale && <p className="text-sm text-[#0e271f]">{proposal.output.rationale}</p>}
-          <p className="text-xs text-[#1e4836] font-medium">{summariseMix(proposal.output.channel_mix ?? {})}</p>
           <div className="flex gap-2">
             <button type="button" onClick={apply} className={BTN_PRIMARY}>Apply this split</button>
             <button type="button" onClick={plan.reset} className={BTN_SECONDARY}>Dismiss</button>
@@ -293,12 +308,54 @@ function ChannelsSection({
   );
 }
 
+function ContentSection({ form, setForm }: { form: Form; setForm: (f: Form) => void }) {
+  // Posts not yet in a campaign and not yet published. Loaded only when this step is open.
+  const posts = useResource(useCallback(() => listCalendarEntries(), []));
+  const free = (posts.data ?? []).filter((e) => !e.campaign_id && e.status !== 'published');
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-sage-600">
+        Attach posts you already planned. After you save, the campaign page has a button that writes new copy for it with the AI.
+      </p>
+      {posts.status === 'loading' && <p className="text-sm text-sage-500">Loading your posts...</p>}
+      {posts.status === 'error' && <p role="alert" className="text-sm text-red-700">{posts.error}</p>}
+      {posts.status === 'ready' && free.length === 0 && (
+        <div className="rounded-card border border-sage-200 bg-sage-50/60 p-4 space-y-2">
+          <p className="text-sm text-sage-700">No unlinked posts to attach. You can still create the campaign and add content later.</p>
+          <Link href="/marketing/calendar" className="text-sm font-semibold text-[#0e271f] hover:underline">Open the calendar</Link>
+        </div>
+      )}
+      {free.length > 0 && (
+        <fieldset className="space-y-2">
+          <legend className={LABEL}>Posts to attach</legend>
+          {free.map((e) => {
+            const checked = form.postIds.includes(e.id);
+            return (
+              <label key={e.id} className="flex items-center gap-3 text-sm text-sage-800 cursor-pointer min-h-8">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() =>
+                    setForm({ ...form, postIds: checked ? form.postIds.filter((x) => x !== e.id) : [...form.postIds, e.id] })
+                  }
+                />
+                <span className="font-medium truncate">{e.title}</span>
+                <span className="text-xs text-sage-500 shrink-0"><ChannelLabel channel={e.channel} /></span>
+              </label>
+            );
+          })}
+        </fieldset>
+      )}
+    </div>
+  );
+}
+
 // ------------------------------------------------------------------ page
 
 export default function MarketingCampaignsPage() {
-  const { campaigns, status, error, reload, create, update, remove } = useCampaigns();
+  const { campaigns, status, error, reload, create, update } = useCampaigns();
   const segs = useSegments();
-  const { triggerToast, runAction } = useToast();
+  const { triggerToast } = useToast();
 
   const [wizardOpen, setWizardOpen] = useState(false);
   const [step, setStep] = useState(1);
@@ -306,8 +363,6 @@ export default function MarketingCampaignsPage() {
   const [editing, setEditing] = useState<Campaign | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   const segmentName = (id: string) => segs.segments.find((s) => s.id === id)?.name ?? 'Unknown segment';
 
@@ -329,12 +384,24 @@ export default function MarketingCampaignsPage() {
     setErrors({});
     try {
       const created = await create(bodyFromForm(form));
+      let unlinked = 0;
+      for (const postId of form.postIds) {
+        try {
+          await updateCalendarEntry(postId, { campaign_id: created.id });
+        } catch {
+          unlinked += 1;
+        }
+      }
       if (launch) {
+        const before = await listChannels().catch(() => null);
         await update(created.id, { status: 'active' });
-        triggerToast(`Campaign "${created.name}" launched.`);
+        const after = before ? await listChannels().catch(() => null) : null;
+        const notes = before && after ? channelsStartedByLaunch(before, after) : [];
+        triggerToast([`Campaign "${created.name}" launched.`, ...notes].join(' '));
       } else {
         triggerToast(`Campaign "${created.name}" saved as a draft.`);
       }
+      if (unlinked > 0) triggerToast(`Saved, but ${unlinked} ${unlinked === 1 ? 'post' : 'posts'} could not be linked. Link them from the post.`, 'error');
       closeWizard();
     } catch (err) {
       const fe = fieldErrorsOf(err);
@@ -369,20 +436,13 @@ export default function MarketingCampaignsPage() {
     }
   };
 
-  const transition = async (c: Campaign, next: CampaignStatus, message: string) => {
-    setBusyId(c.id);
-    await runAction(() => update(c.id, { status: next }), message);
-    setBusyId(null);
+  const startEdit = (c: Campaign) => {
+    setForm(formFromCampaign(c));
+    setErrors({});
+    setEditing(c);
   };
 
-  const doDelete = async (c: Campaign) => {
-    setBusyId(c.id);
-    const res = await runAction(() => remove(c.id), `Deleted "${c.name}".`);
-    setBusyId(null);
-    if (res.ok) setConfirmId(null);
-  };
-
-  const stepTitles = ['Objective', 'Audience', 'Channels and budget', 'Review'];
+  const stepTitles = ['Objective', 'Audience', 'Channels and budget', 'Content', 'Review'];
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -406,14 +466,15 @@ export default function MarketingCampaignsPage() {
               <div key={i} className={`h-1.5 flex-1 rounded-full ${i + 1 <= step ? 'bg-[#9C5B34]' : 'bg-sage-200'}`} />
             ))}
           </div>
-          <h3 className="font-semibold text-sage-900">Step {step} of 4: {stepTitles[step - 1]}</h3>
+          <h3 className="font-semibold text-sage-900">Step {step} of {stepTitles.length}: {stepTitles[step - 1]}</h3>
 
           {step === 1 && <ObjectiveSection form={form} setForm={setForm} errors={errors} />}
           {step === 2 && (
             <AudienceSection form={form} setForm={setForm} segments={segs.segments} loading={segs.status === 'loading'} />
           )}
           {step === 3 && <ChannelsSection form={form} setForm={setForm} errors={errors} />}
-          {step === 4 && (
+          {step === 4 && <ContentSection form={form} setForm={setForm} />}
+          {step === 5 && (
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div><dt className={LABEL}>Name</dt><dd className="text-sage-900 font-medium">{form.name || 'Not set'}</dd></div>
               <div><dt className={LABEL}>Objective</dt><dd className="text-sage-900 font-medium capitalize">{form.objective}</dd></div>
@@ -424,15 +485,16 @@ export default function MarketingCampaignsPage() {
                 <dt className={LABEL}>Segments</dt>
                 <dd className="text-sage-900 font-medium">{form.segmentIds.length ? form.segmentIds.map(segmentName).join(', ') : 'None'}</dd>
               </div>
-              <p className="md:col-span-2 text-sm text-sage-600">
-                Write the campaign&apos;s content in <Link href="/marketing/copy" className="font-semibold text-[#0e271f] hover:underline">AI Copy</Link>.
-              </p>
+              <div className="md:col-span-2">
+                <dt className={LABEL}>Posts to attach</dt>
+                <dd className="text-sage-900 font-medium">{form.postIds.length ? `${form.postIds.length} selected` : 'None'}</dd>
+              </div>
             </dl>
           )}
 
           <div className="flex flex-wrap gap-3">
             {step > 1 && <button type="button" onClick={() => setStep(step - 1)} className={BTN_SECONDARY}>Back</button>}
-            {step < 4 && (
+            {step < 5 && (
               <button
                 type="button"
                 onClick={() => setStep(step + 1)}
@@ -442,7 +504,7 @@ export default function MarketingCampaignsPage() {
                 Next step
               </button>
             )}
-            {step === 4 && (
+            {step === 5 && (
               <>
                 <button type="button" onClick={() => void submit(false)} disabled={busy} className={BTN_SECONDARY}>
                   {busy ? 'Saving...' : 'Save as draft'}
@@ -463,95 +525,78 @@ export default function MarketingCampaignsPage() {
               cta={<button type="button" onClick={openWizard} className={BTN_ACCENT}>+ Create your first campaign</button>}
             />
           ) : (
-            <div className={`${CARD} overflow-hidden`}>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-sage-200 bg-sage-50/50 text-[11px] font-bold text-sage-400 uppercase tracking-wider">
-                      <th className="py-3.5 px-6">Campaign</th>
-                      <th className="py-3.5 px-6">Objective</th>
-                      <th className="py-3.5 px-6">Budget</th>
-                      <th className="py-3.5 px-6">Channels</th>
-                      <th className="py-3.5 px-6">Status</th>
-                      <th className="py-3.5 px-6 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-sage-100 text-sm">
-                    {campaigns.map((c) => {
-                      const working = busyId === c.id;
-                      return (
+            <>
+              <div className={`${CARD} overflow-hidden hidden md:block`}>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-sage-200 bg-sage-50/50 text-[11px] font-bold text-sage-600 uppercase tracking-wider">
+                        <th scope="col" className="py-3.5 px-4">Campaign</th>
+                        <th scope="col" className="py-3.5 px-4">Objective</th>
+                        <th scope="col" className="py-3.5 px-4">Budget</th>
+                        <th scope="col" className="py-3.5 px-4">Period</th>
+                        <th scope="col" className="py-3.5 px-4">CTR / Conv</th>
+                        <th scope="col" className="py-3.5 px-4">Channels</th>
+                        <th scope="col" className="py-3.5 px-4">Status</th>
+                        <th scope="col" className="py-3.5 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-sage-100 text-sm">
+                      {campaigns.map((c) => (
                         <tr key={c.id} className="hover:bg-sage-50/50 transition-colors align-top">
-                          <td className="py-4 px-6">
-                            <p className="font-semibold text-sage-900">{c.name}</p>
+                          <td className="py-4 px-4">
+                            <Link href={`/marketing/campaigns/${c.id}`} className="font-semibold text-sage-900 hover:underline">
+                              {c.name}
+                            </Link>
                             {c.segment_ids.length > 0 && (
                               <p className="text-xs text-sage-500">{c.segment_ids.map(segmentName).join(', ')}</p>
                             )}
                           </td>
-                          <td className="py-4 px-6 text-sage-600 capitalize">{c.objective}</td>
-                          <td className="py-4 px-6 text-sage-900 font-medium">{formatMoney(c.budget)}</td>
-                          <td className="py-4 px-6 text-xs text-sage-600 max-w-[16rem]">{summariseMix(c.channel_mix)}</td>
-                          <td className="py-4 px-6">
+                          <td className="py-4 px-4 text-sage-600">{OBJECTIVE_LABELS[c.objective]}</td>
+                          <td className="py-4 px-4 text-sage-900 font-medium">{formatMoney(c.budget)}</td>
+                          <td className="py-4 px-4 text-xs text-sage-600">{formatPeriod(c.period_start, c.period_end)}</td>
+                          <td className="py-4 px-4 text-sage-900 font-medium tabular-nums">{rates(c)}</td>
+                          <td className="py-4 px-4 text-xs text-sage-600 max-w-[14rem]">{summariseMix(c.channel_mix)}</td>
+                          <td className="py-4 px-4">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${STATUS_STYLE[c.status]}`}>
                               {c.status}
                             </span>
                           </td>
-                          <td className="py-4 px-6">
-                            <div className="flex flex-wrap justify-end gap-2">
-                              {c.status === 'draft' && (
-                                <button type="button" disabled={working} onClick={() => void transition(c, 'active', `Launched "${c.name}".`)} className={BTN_PRIMARY}>
-                                  Launch
-                                </button>
-                              )}
-                              {c.status === 'active' && (
-                                <>
-                                  <button type="button" disabled={working} onClick={() => void transition(c, 'paused', `Paused "${c.name}".`)} className={BTN_SECONDARY}>
-                                    Pause
-                                  </button>
-                                  <button type="button" disabled={working} onClick={() => void transition(c, 'completed', `Completed "${c.name}".`)} className={BTN_SECONDARY}>
-                                    Complete
-                                  </button>
-                                </>
-                              )}
-                              {c.status === 'paused' && (
-                                <button type="button" disabled={working} onClick={() => void transition(c, 'active', `Resumed "${c.name}".`)} className={BTN_PRIMARY}>
-                                  Resume
-                                </button>
-                              )}
-                              {c.status !== 'completed' && (
-                                <button
-                                  type="button"
-                                  disabled={working}
-                                  onClick={() => {
-                                    setForm(formFromCampaign(c));
-                                    setErrors({});
-                                    setEditing(c);
-                                  }}
-                                  className={BTN_SECONDARY}
-                                >
-                                  Edit
-                                </button>
-                              )}
-                              {confirmId === c.id ? (
-                                <>
-                                  <button type="button" disabled={working} onClick={() => void doDelete(c)} className={BTN_DANGER}>
-                                    Confirm delete
-                                  </button>
-                                  <button type="button" onClick={() => setConfirmId(null)} className={BTN_SECONDARY}>Keep</button>
-                                </>
-                              ) : (
-                                <button type="button" disabled={working} onClick={() => setConfirmId(c.id)} className={BTN_DANGER}>
-                                  Delete
-                                </button>
-                              )}
+                          <td className="py-4 px-4">
+                            <div className="flex justify-end">
+                              <CampaignActions campaign={c} onChanged={reload} onEdit={() => startEdit(c)} />
                             </div>
                           </td>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+
+              <ul aria-label="Campaigns" className="space-y-3 md:hidden">
+                {campaigns.map((c) => (
+                  <li key={c.id} className={`${CARD} p-4 space-y-3`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <Link href={`/marketing/campaigns/${c.id}`} className="font-semibold text-sage-900 hover:underline break-words min-w-0">
+                        {c.name}
+                      </Link>
+                      <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${STATUS_STYLE[c.status]}`}>
+                        {c.status}
+                      </span>
+                    </div>
+                    <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                      <div><dt className="text-sage-600 font-bold uppercase tracking-wider">Objective</dt><dd className="text-sage-800 font-medium">{OBJECTIVE_LABELS[c.objective]}</dd></div>
+                      <div><dt className="text-sage-600 font-bold uppercase tracking-wider">Budget</dt><dd className="text-sage-800 font-medium">{formatMoney(c.budget)}</dd></div>
+                      <div><dt className="text-sage-600 font-bold uppercase tracking-wider">CTR / Conv</dt><dd className="text-sage-800 font-medium tabular-nums">{rates(c)}</dd></div>
+                      <div><dt className="text-sage-600 font-bold uppercase tracking-wider">Period</dt><dd className="text-sage-800 font-medium">{formatPeriod(c.period_start, c.period_end)}</dd></div>
+                      <div className="col-span-2"><dt className="text-sage-600 font-bold uppercase tracking-wider">Channels</dt><dd className="text-sage-800 font-medium">{summariseMix(c.channel_mix)}</dd></div>
+                    </dl>
+                    <CampaignActions campaign={c} onChanged={reload} onEdit={() => startEdit(c)} />
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </DataGate>
       )}

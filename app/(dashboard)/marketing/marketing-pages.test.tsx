@@ -9,6 +9,7 @@ const campaignsState: { value: unknown } = { value: null };
 vi.mock('@/hooks/useMarketingApi', () => ({
   useAnalytics: () => analyticsState.value,
   useCampaigns: () => campaignsState.value,
+  useRecordedMetrics: () => ({ page: { metrics: [], total: 0, limit: 25, offset: 0 }, status: 'ready', error: null, reload: vi.fn(), showMore: vi.fn(), remove: vi.fn() }),
 }));
 vi.mock('./ToastContext', () => ({
   useToast: () => ({ triggerToast: vi.fn(), runAction: vi.fn() }),

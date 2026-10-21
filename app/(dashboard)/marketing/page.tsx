@@ -9,7 +9,7 @@ import { BTN_ACCENT, CARD, DataGate } from '@/components/marketing-hub/states';
 function Tile({ label, value, note }: { label: string; value: string; note: string }) {
   return (
     <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card space-y-1">
-      <span className="text-[11px] font-bold text-sage-400 tracking-wider uppercase">{label}</span>
+      <span className="text-[11px] font-bold text-sage-600 tracking-wider uppercase">{label}</span>
       <div className="text-3xl font-display font-bold text-sage-900">{value}</div>
       <p className="text-xs text-sage-500">{note}</p>
     </div>
