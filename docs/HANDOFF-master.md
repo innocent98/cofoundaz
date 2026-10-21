@@ -131,7 +131,7 @@ All are reversible and none blocks merging.
 | Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19 | ✅ Done |
 | Validation | 14/14 | #149-#151 | #114, #115, #117 | ✅ 2026-10-20 | ✅ Done |
 | Assessment | 13/13 + A1-A6 | #152 | #121, #126 | ✅ 2026-10-20/21 incl. quarterly banner + bell (100-day backdate, restored) | ✅ **Done** (#127); A5 cleared by #160 |
-| Marketing | 35/35 + re-walk gaps 1-9 | #156, #157, #161, #162 | #129, #133, #135, #138 | 🟡 re-check 2026-10-21 on develop: 14/15 pass, 15th fixed in #138 | fix in FE [#138](https://github.com/innocent98/cofoundaz/pull/138) ("Plan another week" uses the API `scheduled_at`, verified live on the branch); mark ✅ once it merges (details `docs/checklist/marketing-rewalk.md`) |
+| Marketing | 35/35 + re-walk gaps 1-9 | #156, #157, #161, #162 | #129, #133, #135, #138 | ✅ re-check 2026-10-21: 15/15 (#137, fix #138) | ✅ **Done** |
 | Sales | design approved 2026-10-21 (#136) | slice A BE on `feature/sales-crm-core` | none yet | ⏳ | slice A BE in progress, FE stays on mock until it lands |
 
 Remaining page order: **Sales** (no API) → Finance (API built in Sept, connectors deferred) → Funding (no API) → Investor
