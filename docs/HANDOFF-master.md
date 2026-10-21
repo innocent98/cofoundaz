@@ -1,11 +1,14 @@
 # HANDOFF — Cofoundaz app-wide build-out (master)
 
-> **First message for a new (lead) session (lead 5):**
-> *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Follow §2b in order: fold in the BE session's
-> readout + re-walk-BE PRs, start the Marketing FE fixes, re-walk the fixed rows, then close Dashboard and Marketing and start
-> Sales (first page with no API). No half-built pages; ask Adebayo only for genuine product calls."*
+> **First message for a new lead session (start it yourself, from `/Users/adebayovictor/Documents/dev/cofoundaz`):**
+> *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §2b: get #162, #133 and #134 merged, then
+> re-check Marketing on develop and mark it done, then start Sales (no API: design first). No half-built pages; ask me only for
+> genuine product calls."*
+>
+> If #134 hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/dashboard-done:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-21 10:45 WAT** (lead session 4 → 5 handover). This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-21 11:15 WAT** (lead session 4 handover, prepared for a session Adebayo starts himself). This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), the master checklists (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`,
 `docs/checklist/buildout-status.md`), and memory.
@@ -17,7 +20,7 @@ Last updated: **2026-10-21 10:45 WAT** (lead session 4 → 5 handover). This fil
 ### 0a. Open PRs (refreshed 2026-10-21 11:15 WAT, at the actual handover)
 | Repo | PR / branch | What | State |
 |---|---|---|---|
-| API | [#162](https://github.com/innocent98/Cofoundaz-api/pull/162) `fix/marketing-rewalk-be` | Marketing re-walk BE gaps 1 (idea count), 4 (no past plan slots), 5 (search hrefs to items), 9 (stale SEO flag), 7 (`GET /marketing/media/{id}/file`, marketing roles, workspace-scoped, path-checked) | **lead reviewed: OK**; CI was running |
+| API | [#162](https://github.com/innocent98/Cofoundaz-api/pull/162) `fix/marketing-rewalk-be` | Marketing re-walk BE gaps 1 (idea count), 4 (no past plan slots), 5 (search hrefs to items), 9 (stale SEO flag), 7 (`GET /marketing/media/{id}/file`, marketing roles, workspace-scoped, path-checked) | **lead reviewed: OK**. Develop merged in (checklist conflict resolved), pushed at `7516409`; local 2730 tests, 97.59%. Check GitHub CI, then merge |
 | FE | [#133](https://github.com/innocent98/cofoundaz/pull/133) `fix/marketing-rewalk-fe` | Marketing re-walk FE gaps 2, 3, 4, 6, 8 | CI 5/5 green. Integrations of #161/#162 (readout figures, stale flag, media file) may be pending: read its PR body |
 | FE | [#134](https://github.com/innocent98/cofoundaz/pull/134) `docs/dashboard-done` | Dashboard gaps 11/12 re-checked, **Dashboard done**; this handoff refresh | docs |
 
@@ -136,6 +139,9 @@ not built) → Team (partial: invites/members/comments only) → Analytics (no A
 Settings (partial; Billing needs Paystack).
 
 ## 2b. Incoming (ordered)
+0. **Sessions from lead 4** (all idle, safe to archive once their PRs merge): `be-notif-readout` (owns #162), `marketing-fe-fixes`
+   (owns #133). Their reports go to lead 4's session, not yours: to follow up, `SendMessage` them by id (`local_13e5ffd2-8738-4caf-b540-bf54c96ea079`,
+   `local_4a69e765-0158-4ba8-b809-ee07304c3f3a`) or start fresh sub-sessions. A `lead-5` session was started by mistake and is idle; ignore or archive it.
 1. **After #162 + #133 merge** (Adebayo pulls the API checkout; no migration): if #133's body lists pending integrations
    (readout structured figures, SEO stale prompt, media file blob, search hrefs opening items), one small FE session on
    `fix/marketing-be-integrations` for those.
