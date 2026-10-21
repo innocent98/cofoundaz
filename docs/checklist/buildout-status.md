@@ -11,7 +11,7 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 | Roadmap | 11/11 | #137, #145 | #107, #110 | ✅ 2026-10-19, founder 1440 + 375, consultant, TM; real-model breakdown | Mentor not separately recorded |
 | Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19, founder 1440 + 375 (all routes), consultant / mentor / TM on SWOT; real-model AI incl. full plan | Other roles walked on one artifact only |
 | Validation | 14/14 | #149, #150, #151 | #114, #115, #117 | ✅ (a) 2026-10-19, (b)+(c) 2026-10-20: founder 1440 + 375, TM, mentor, public page, real model incl. Apply | 3 minor FE items (notification tab context, 2 accessible names) |
-| Assessment | 13/13 + A1-A6 | #152 | #121, #126 | 🟡 re-walked 2026-10-20, founder + TM + mentor (1440 + 375, every control vs the API, see `assessment-rewalk.md`); quarterly banner + bell deep link verified live by the lead after a 100-day backdate (restored). A1-A4 + A6 fixed in #126; **not done** until #126 merges and its rows are re-checked on develop | A5 (old pre-#152 mentor notifications, info) |
+| Assessment | 13/13 + A1-A6 | #152 | #121, #126 | ✅ 2026-10-20: re-walked founder + TM + mentor (1440 + 375, every control vs the API, `assessment-rewalk.md`); quarterly banner + bell deep link live after a 100-day backdate (restored); fixes re-checked on merged develop `97a65f3` (A2, A3, A4 live; A1 + A6 live on the PR head, app code identical on develop) | A5 (pre-#152 mentor bell rows, info); A6 day count unit-tested, live only with the old "90 days" copy |
 | Marketing | gap list ✅ 0/35 | — | — | Walked live 2026-10-20 (founder 1440 + 375, TM, mentor, consultant; real model ×3), see `marketing-prd-gaps.md` | No permission leaks found; 2 Sec rows are a permission-model decision (D-MKT-1) and a preventive media-storage rule. Real publishing, ad/SEO data and segment sizes are blocked on external accounts |
 
 ## Cross-cutting fixes found along the way (all merged)
@@ -28,7 +28,6 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 | Validation: 3 minor FE items (see `validation-rewalk.md`) | follow-up |
 | Consolidate the two comment-thread UIs + mention helpers | refactor follow-up |
 | `ShellTopBar` on the remaining section layouts: Assessment, sales, investor-readiness, marketplace, academy, legal, funding, documents, ai, notifications, analytics-reports done; Marketing / Finance / Journal / Settings etc. not checked | per-page, as each page is walked |
-| Assessment re-walk: gaps A1-A4 + A6 (banner day count) fixed in FE PR #126 (`docs/sop/assessment-rewalk-fixes.md`); quarterly banner and bell deep link verified live by the lead (`assessment-rewalk.md`, "Quarterly items, verified live"); A5 (old mentor bell rows) left | done pending PR merge |
 | Invited team member loses the invite link after email verification | Team page walk |
 | Per-workspace timezones for the mission scheduler | follow-up |
 | Health benchmarks with real cohorts | needs usage data |
