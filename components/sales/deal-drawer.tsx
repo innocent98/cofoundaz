@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useId, useState } from 'react';
+import Link from 'next/link';
 import { useToast } from '@/app/(dashboard)/sales/ToastContext';
 import {
   useAccountOptions,
@@ -453,6 +454,15 @@ function DealBody({
           </button>
         </div>
       </form>
+
+      <hr className="border-sage-200" />
+      <section aria-label="Call prep" className="space-y-2">
+        <h3 className="text-xs font-bold text-sage-500 uppercase tracking-wider">Call prep</h3>
+        <p className="text-sm text-sage-600">A one-page AI brief for your next call on this deal: objections, a goal and questions to ask.</p>
+        <Link href={`/sales/coach?tab=prep&deal=${encodeURIComponent(deal.id)}`} className={`${BTN_SECONDARY} inline-block`}>
+          Prep for a call
+        </Link>
+      </section>
 
       <hr className="border-sage-200" />
       <ActivityLog

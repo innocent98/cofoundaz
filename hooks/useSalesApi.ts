@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
-// Sequences and the AI Coach are not built yet (slices B and C): their pages still read this
-// seeded state. Pipeline, Leads and Accounts moved to hooks/useSalesCrm.ts + lib/api/sales.ts.
+// Sequences are not built yet (slice B waits on the outreach mail host): that page still reads this
+// seeded state. Pipeline, Leads, Accounts, the AI Coach and Analytics use hooks/useSalesCrm.ts,
+// hooks/useSalesCoach.ts and lib/api/sales.ts.
 
 export interface SequenceStep {
   stepNumber: number;
@@ -50,17 +51,6 @@ const INITIAL_SEQUENCES: SequenceItem[] = [
 
 export function useSalesApi() {
   const [sequences] = useState<SequenceItem[]>(INITIAL_SEQUENCES);
-  const [chatMessages, setChatMessages] = useState<string[]>([
-    "Honestly, I am not sure my riders will trust an app to hold their money. Convince me."
-  ]);
 
-  const sendMessageToCoach = useCallback((msg: string) => {
-    setChatMessages(prev => [...prev, msg, "Let us try that again. Why should I care about this?"]);
-  }, []);
-
-  return {
-    sequences,
-    chatMessages,
-    sendMessageToCoach,
-  };
+  return { sequences };
 }
