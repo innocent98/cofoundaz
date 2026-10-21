@@ -131,7 +131,8 @@ All are reversible and none blocks merging.
 | Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19 | ✅ Done |
 | Validation | 14/14 | #149-#151 | #114, #115, #117 | ✅ 2026-10-20 | ✅ Done |
 | Assessment | 13/13 + A1-A6 | #152 | #121, #126 | ✅ 2026-10-20/21 incl. quarterly banner + bell (100-day backdate, restored) | ✅ **Done** (#127); A5 cleared by #160 |
-| Marketing | 35/35 + re-walk gaps 1-9 | #156, #157, #161, **#162 open** | #129, **#133 open** | 🟡 #131: 71/75 pass | closes after #162 + #133 merge and a re-check of the failing rows + readout row |
+| Marketing | 35/35 + re-walk gaps 1-9 | #156, #157, #161, #162 | #129, #133, #135 | 🟡 re-check 2026-10-21 on develop: 14/15 pass | **one FE fix left**: "Plan another week" must use the API `scheduled_at` (today it builds a past 9:00 from `day_offset`); then re-check that row and mark ✅ (details `docs/checklist/marketing-rewalk.md`) |
+| Sales | design approved 2026-10-21 (#136) | slice A BE on `feature/sales-crm-core` | none yet | ⏳ | slice A BE in progress, FE stays on mock until it lands |
 
 Remaining page order: **Sales** (no API) → Finance (API built in Sept, connectors deferred) → Funding (no API) → Investor
 Readiness (no API) → Legal (Victoria) → Marketplace (no API) → Academy (API ✅) → Documents (API ✅) → Calendar (API ✅, sync
