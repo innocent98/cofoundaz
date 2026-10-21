@@ -32,7 +32,7 @@ date range. Design: `docs/superpowers/specs/2026-10-21-sales-design.md` §7, D-S
 - Local CI parity (the `ci.yml` jobs): typecheck, lint, `npm test`, `npm run build`, `npm run test:e2e`; counts are in the PR.
 - Unit: `lib/api/sales-coach.test.ts`, `hooks/useSalesCoach.test.tsx` (fake-timer polling, 409, bounded wait, cancel), `components/sales/coach.test.tsx`.
 - Playwright `e2e/sales-coach.spec.ts` (mocked with the guide's captured shapes): full role-play to scorecard and again, failed buyer turn, failed scorecard, over budget, call prep, deep link, analytics widgets, range and custom-range error, axe on 3 routes, 375 overflow, role denial.
-- Live against `:8000`: see the FE-C status table in `docs/checklist/sales-prd-gaps.md`.
+- Live against `:8000` with the real model (founder and team member at 1440 and 375, mentor and consultant denied): see the FE-C status table in `docs/checklist/sales-prd-gaps.md`. A first live run found API bug: both strict JSON schemas lacked `additionalProperties: false` (OpenAI 400), so every scorecard and call prep failed; fixed in API #168 and re-verified. That run also showed the failed-scorecard and failed-prep states for real.
 
 ## Operate / roll back
 No config. Revert the PR to return to the mock pages; nothing is stored FE side.
