@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import React from 'react';
 import { axe } from 'jest-axe';
-import type { CalendarEntry, CampaignReadout } from '@/lib/api/marketing';
+import type { CalendarEntry, CampaignReadout, ReadoutFigure, ReadoutFigures, ReadoutMetric } from '@/lib/api/marketing';
 import { CharCounter } from './char-counter';
 import { ConfirmDialog } from './confirm-dialog';
 import { Drawer } from './drawer';
@@ -10,10 +10,10 @@ import { Agenda, Legend, MonthGrid, PostChip, WeekGrid } from './calendar-views'
 import { ReadoutCard } from './readout-card';
 import { MediaSlot } from './media-slot';
 
-const api = vi.hoisted(() => ({ uploadMedia: vi.fn() }));
+const api = vi.hoisted(() => ({ uploadMedia: vi.fn(), fetchMediaBlob: vi.fn() }));
 vi.mock('@/lib/api/marketing', async () => {
   const actual = await vi.importActual<typeof import('@/lib/api/marketing')>('@/lib/api/marketing');
-  return { ...actual, uploadMedia: api.uploadMedia };
+  return { ...actual, uploadMedia: api.uploadMedia, fetchMediaBlob: api.fetchMediaBlob };
 });
 vi.mock('@/hooks/useMarketingApi', () => ({
   useMedia: () => ({ media: [], status: 'ready', error: null, remove: vi.fn() }),
@@ -222,6 +222,38 @@ describe('ReadoutCard', () => {
     expect(screen.getByRole('status')).toHaveTextContent("Writing this week's readout");
   });
 
+  const fig = (display: string): ReadoutFigure => ({ value: null, display });
+  const metrics = (f: (m: ReadoutMetric) => string) =>
+    Object.fromEntries((['spend', 'impressions', 'clicks', 'ctr', 'conversions', 'cac'] as ReadoutMetric[]).map((m) => [m, fig(f(m))])) as ReadoutFigures['this_week'];
+  const figures: ReadoutFigures = {
+    this_week: { ...metrics((m) => `tw-${m}`), spend: fig('\u20a61,500.00') },
+    last_week: metrics((m) => `lw-${m}`),
+    all_time: metrics((m) => `at-${m}`),
+    change: { ...metrics((m) => `ch-${m}`), clicks: fig('+56.3%'), cac: fig('n/a') },
+    windows: { this_week: { start: '2026-10-14', end: '2026-10-21' }, last_week: { start: '2026-10-07', end: '2026-10-14' } },
+    days_live: fig('12 days'),
+    currency: 'NGN',
+  };
+
+  it('renders every figure from the API display strings, not from the prose', () => {
+    render(<ReadoutCard readouts={[readout({ figures, output: { headline: 'H', summary: 'Spend was 999 this week.' } })]} loading={false} />);
+    const table = screen.getByRole('table', { name: 'Readout figures' });
+    expect(within(table).getByText('\u20a61,500.00')).toBeInTheDocument();
+    expect(within(table).getByText('+56.3%')).toBeInTheDocument();
+    expect(within(table).getByText('n/a')).toBeInTheDocument();
+    expect(within(table).getByText('lw-ctr')).toBeInTheDocument();
+    expect(within(table).getByText('at-conversions')).toBeInTheDocument();
+    expect(screen.getByText(/Live for 12 days/)).toBeInTheDocument();
+  });
+
+  it('shows the prose without a figures block when figures is null (old rows) or absent', () => {
+    const { rerender } = render(<ReadoutCard readouts={[readout({ figures: null })]} loading={false} />);
+    expect(screen.getByText('Email drove most of it.')).toBeInTheDocument();
+    expect(screen.queryByRole('table', { name: 'Readout figures' })).toBeNull();
+    rerender(<ReadoutCard readouts={[readout()]} loading={false} />);
+    expect(screen.queryByRole('table', { name: 'Readout figures' })).toBeNull();
+  });
+
   it('keeps older weeks behind a disclosure', () => {
     render(<ReadoutCard readouts={[readout(), readout({ id: 'r0', week_start: '2026-10-12', output: { headline: 'Old week', summary: 'Quiet.' } })]} loading={false} />);
     expect(screen.getByText('Earlier weeks (1)')).toBeInTheDocument();
@@ -251,13 +283,59 @@ describe('MediaSlot', () => {
     await waitFor(() => expect(onChange).toHaveBeenCalledWith(media));
   });
 
-  it('shows a file chip, not a broken box, when the preview cannot load, and can remove it', () => {
-    const onChange = vi.fn();
-    const media = { id: 'a1', filename: 'hero.png', content_type: 'image/png', size_bytes: 4, url: 'var/storage/hero.png', created_at: '2026-10-20T00:00:00Z' };
-    render(<MediaSlot media={media} onChange={onChange} />);
-    fireEvent.error(screen.getByAltText('hero.png'));
-    expect(screen.getByText('Preview unavailable')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Remove from this post' }));
-    expect(onChange).toHaveBeenCalledWith(null);
+  const media = { id: 'a1', filename: 'hero.png', content_type: 'image/png', size_bytes: 4, url: 'var/storage/hero.png', created_at: '2026-10-20T00:00:00Z' };
+
+  describe('preview', () => {
+    const created: string[] = [];
+    const revoked: string[] = [];
+    beforeEach(() => {
+      created.length = 0;
+      revoked.length = 0;
+      api.fetchMediaBlob.mockReset();
+      vi.stubGlobal('URL', Object.assign(URL, {
+        createObjectURL: vi.fn(() => {
+          const u = `blob:test/${created.length}`;
+          created.push(u);
+          return u;
+        }),
+        revokeObjectURL: vi.fn((u: string) => revoked.push(u)),
+      }));
+    });
+
+    it('shows the image from a blob fetched with auth, and revokes the object URL on unmount', async () => {
+      api.fetchMediaBlob.mockResolvedValueOnce(new Blob(['x'], { type: 'image/png' }));
+      const { unmount } = render(<MediaSlot media={media} onChange={vi.fn()} />);
+      const img = await screen.findByAltText('hero.png');
+      expect(img).toHaveAttribute('src', 'blob:test/0');
+      expect(api.fetchMediaBlob).toHaveBeenCalledWith('a1', expect.any(AbortSignal));
+      expect(revoked).toEqual([]);
+      unmount();
+      expect(revoked).toEqual(['blob:test/0']);
+    });
+
+    it('revokes the old object URL when a different image is chosen', async () => {
+      api.fetchMediaBlob.mockResolvedValue(new Blob(['x'], { type: 'image/png' }));
+      const { rerender } = render(<MediaSlot media={media} onChange={vi.fn()} />);
+      await screen.findByAltText('hero.png');
+      rerender(<MediaSlot media={{ ...media, id: 'a2', filename: 'two.png' }} onChange={vi.fn()} />);
+      await screen.findByAltText('two.png');
+      expect(revoked).toEqual(['blob:test/0']);
+    });
+
+    it('shows a file chip, not a broken box, when the file cannot be fetched, and can remove it', async () => {
+      api.fetchMediaBlob.mockRejectedValueOnce(new Error('nope'));
+      const onChange = vi.fn();
+      render(<MediaSlot media={media} onChange={onChange} />);
+      expect(await screen.findByText('Preview unavailable')).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Remove from this post' }));
+      expect(onChange).toHaveBeenCalledWith(null);
+    });
+
+    it('falls back to the chip when the image itself fails to decode', async () => {
+      api.fetchMediaBlob.mockResolvedValueOnce(new Blob(['x'], { type: 'image/png' }));
+      render(<MediaSlot media={media} onChange={vi.fn()} />);
+      fireEvent.error(await screen.findByAltText('hero.png'));
+      expect(screen.getByText('Preview unavailable')).toBeInTheDocument();
+    });
   });
 });

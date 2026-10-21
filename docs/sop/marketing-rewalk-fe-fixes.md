@@ -19,4 +19,4 @@ Unit: `lib/api/marketing.test.ts`, `lib/marketing-calendar.test.ts`, `marketing-
 FE only. Revert the PR. Dev against a local API needs `API_PROXY_TARGET=http://localhost:8000 npx next dev -p <port>` because the API's CORS allows only :3000.
 
 ## Follow-ups
-Waiting on BE: #161 (render structured readout figures), SEO `stale` flag (Regenerate prompt), search item hrefs (confirm the target routes open the item), media file URL.
+Done afterwards: see `marketing-be-integrations.md` (readout figures, stale flag, search hrefs, media preview).

@@ -8,6 +8,7 @@ import {
   deleteMedia,
   deleteMetric,
   exportAnalyticsCsv,
+  fetchMediaBlob,
   fillSeriesDays,
   formatPeriod,
   getCampaignPerformance,
@@ -438,5 +439,30 @@ describe('analytics export in major units', () => {
   it('shows CAC with two decimals everywhere', () => {
     expect(formatCac(32650)).toBe('₦326.50');
     expect(formatCac(53571)).toBe('₦535.71');
+  });
+});
+
+describe('media file preview', () => {
+  const fetchMock = vi.fn();
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock);
+    fetchMock.mockReset();
+    localStorage.setItem('cf_token', 'placeholder-token');
+    localStorage.setItem('cf_workspace_id', 'ws-1');
+  });
+
+  it('fetches the file route with the bearer and workspace headers and returns the blob', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(new Uint8Array([1, 2, 3]), { status: 200, headers: { 'content-type': 'image/png' } }));
+    const blob = await fetchMediaBlob('m 1');
+    expect(blob.size).toBe(3);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(String(url)).toMatch(/\/marketing\/media\/m%201\/file$/);
+    expect((init.headers as Headers).get('Authorization')).toBe('Bearer placeholder-token');
+    expect((init.headers as Headers).get('X-Workspace-Id')).toBe('ws-1');
+  });
+
+  it('throws an ApiError carrying the status on 403/404', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('', { status: 404, statusText: 'Not Found' }));
+    await expect(fetchMediaBlob('gone')).rejects.toMatchObject({ status: 404 });
   });
 });

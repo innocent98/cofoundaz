@@ -446,6 +446,9 @@ function ContentGapsSection() {
 
   const latest = history.history.find((g) => g.status === 'ready' && (g.output.gaps?.length ?? 0) > 0) ?? null;
   const gaps = latest?.output.gaps ?? [];
+  // Only the newest ready run says whether the brand details moved on; older runs and other kinds are ignored.
+  const newestReady = history.history.find((g) => g.status === 'ready');
+  const stale = newestReady?.stale === true;
 
   const find = async () => {
     const g = await gen.run();
@@ -467,6 +470,12 @@ function ContentGapsSection() {
         </button>
       </div>
       <GenerationNote phase={gen.phase} error={gen.error} generatingLabel="The AI is looking for topics you have not covered. This usually takes under a minute." />
+      {stale && gen.phase !== 'generating' && (
+        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-[#e6d3b3] bg-[#f6efe0] p-3.5 text-sm text-[#5b3b17]">
+          <p>Your brand details changed since these ideas were written.</p>
+          <button type="button" onClick={find} disabled={gen.busy} className={BTN_SECONDARY}>Regenerate</button>
+        </div>
+      )}
       {history.status === 'ready' && gaps.length === 0 && gen.phase !== 'generating' && (
         <EmptyState title="No content ideas yet" body="Track a few keywords, then ask the AI which topics are missing from your content." />
       )}
