@@ -347,6 +347,16 @@ describe('Segments rule builder', () => {
     });
   });
 
+  it('clears the name error as soon as a name is typed', () => {
+    hooks.state.segments = { segments: [], status: 'ready', error: null, reload: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn() };
+    render(<MarketingSegmentsPage />);
+    fireEvent.click(screen.getAllByRole('button', { name: /New segment|Create your first segment/ })[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Save segment' }));
+    expect(screen.getByText('Give the segment a name.')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Segment name'), { target: { value: 'L' } });
+    expect(screen.queryByText('Give the segment a name.')).toBeNull();
+  });
+
   it('caps tags at the server limit', () => {
     hooks.state.segments = { segments: [], status: 'ready', error: null, reload: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn() };
     render(<MarketingSegmentsPage />);
@@ -378,6 +388,14 @@ describe('Content calendar', () => {
     render(<MarketingCalendarPage />);
     expect(screen.getByRole('heading', { name: 'An empty calendar is a silent brand.' })).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Plan my first week/ }).length).toBeGreaterThan(0);
+  });
+
+  it('reads "Plan another week" once the calendar has posts', () => {
+    const e = { id: EID, title: 'Teaser', channel: 'email', status: 'draft', scheduled_at: null } as CalendarEntry;
+    hooks.state.calendar = { ...(hooks.state.calendar as object), entries: [e] };
+    render(<MarketingCalendarPage />);
+    expect(screen.getByRole('button', { name: /Plan another week/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Plan my first week/ })).toBeNull();
   });
 
   it('states that published is a status only and offers month and week views', () => {

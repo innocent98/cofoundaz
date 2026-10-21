@@ -23,6 +23,7 @@ import {
   rangeLabel,
   shiftAnchor,
   type CalendarView,
+  weekAnchorForMonth,
 } from '@/lib/marketing-calendar';
 import {
   BTN_ACCENT,
@@ -255,6 +256,7 @@ function CalendarWorkbench() {
   const planning = plan.busy;
   const isEmpty = cal.entries.length === 0 && cal.backlog.length === 0;
   const label = rangeLabel(view, anchor);
+  const planLabel = isEmpty ? 'Plan my first week' : 'Plan another week';
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -299,7 +301,7 @@ function CalendarWorkbench() {
                   aria-pressed={view === v}
                   onClick={() => {
                     setView(v);
-                    if (v === 'month') setAnchor(new Date(anchor.getFullYear(), anchor.getMonth(), 1));
+                    setAnchor(v === 'month' ? new Date(anchor.getFullYear(), anchor.getMonth(), 1) : weekAnchorForMonth(anchor, new Date()));
                   }}
                   className={`rounded-full px-3 py-1.5 capitalize cursor-pointer ${view === v ? 'bg-[#0e271f] text-white' : 'text-sage-600 hover:text-sage-900'}`}
                 >
@@ -316,7 +318,7 @@ function CalendarWorkbench() {
           </button>
           <button type="button" onClick={startPlan} disabled={planning} className={`${BTN_ACCENT} flex items-center gap-2`}>
             <span aria-hidden="true">✦</span>
-            <span>{planning ? 'Planning...' : 'Plan my first week'}</span>
+            <span>{planning ? 'Planning...' : planLabel}</span>
           </button>
         </div>
       </div>

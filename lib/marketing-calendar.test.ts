@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayKey, groupByDay, moveToDay, rangeLabel, shiftAnchor, toLocalInput, viewRange, weekDays, weekStart } from './marketing-calendar';
+import { dayKey, groupByDay, moveToDay, rangeLabel, shiftAnchor, toLocalInput, weekAnchorForMonth, viewRange, weekDays, weekStart } from './marketing-calendar';
 
 describe('marketing calendar helpers', () => {
   it('starts the week on Sunday and lists seven days', () => {
@@ -48,5 +48,14 @@ describe('marketing calendar helpers', () => {
     const g = groupByDay([a, b, c]);
     expect(g.get('2026-10-21')?.map((e) => e.id)).toEqual(['b', 'a']);
     expect(g.size).toBe(1);
+  });
+});
+
+describe('weekAnchorForMonth', () => {
+  it('lands on today when today is in the viewed month', () => {
+    expect(dayKey(weekAnchorForMonth(new Date(2026, 9, 1), new Date(2026, 9, 21, 10, 17)))).toBe('2026-10-21');
+  });
+  it('falls back to the first of another month', () => {
+    expect(dayKey(weekAnchorForMonth(new Date(2026, 10, 1), new Date(2026, 9, 21)))).toBe('2026-11-01');
   });
 });
