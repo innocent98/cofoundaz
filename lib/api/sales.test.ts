@@ -22,6 +22,7 @@ import {
   nairaToKobo,
   previewLeadImport,
   saveStages,
+  safeWebsiteHref,
   salesErrorMessage,
   salesFieldErrors,
   toStageInputs,
@@ -214,5 +215,15 @@ describe('money and pure helpers', () => {
 
   it('toStageInputs keeps ids and drops position', () => {
     expect(toStageInputs([{ id: 'a', name: 'New', position: 0, kind: 'open', win_probability: 10 }])).toEqual([{ id: 'a', name: 'New', kind: 'open', win_probability: 10 }]);
+  });
+});
+
+describe('safeWebsiteHref', () => {
+  it('links only http and https', () => {
+    expect(safeWebsiteHref('https://acme.example')).toBe('https://acme.example/');
+    expect(safeWebsiteHref('javascript:alert(1)')).toBeNull();
+    expect(safeWebsiteHref('data:text/html,x')).toBeNull();
+    expect(safeWebsiteHref('acme.example')).toBeNull();
+    expect(safeWebsiteHref(null)).toBeNull();
   });
 });

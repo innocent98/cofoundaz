@@ -526,3 +526,14 @@ export function isOverdue(date: string | null, now: Date = new Date()): boolean 
 export function toStageInputs(stages: Stage[]): StageInput[] {
   return stages.map((s) => ({ id: s.id, name: s.name, kind: s.kind, win_probability: s.win_probability }));
 }
+
+/** A website is only made a link when it parses as http or https; anything else is shown as plain text. */
+export function safeWebsiteHref(website: string | null | undefined): string | null {
+  if (!website) return null;
+  try {
+    const u = new URL(website);
+    return u.protocol === 'http:' || u.protocol === 'https:' ? u.href : null;
+  } catch {
+    return null;
+  }
+}

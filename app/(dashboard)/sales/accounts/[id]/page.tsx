@@ -11,6 +11,7 @@ import {
   formatMoney,
   getStages,
   isUuid,
+  safeWebsiteHref,
   salesErrorMessage,
   salesFieldErrors,
   updateAccount,
@@ -167,9 +168,13 @@ function AccountView({ id }: { id: string }) {
                   {data.account.website && (
                     <>
                       {data.account.industry ? " · " : ""}
-                      <a href={data.account.website} target="_blank" rel="noopener noreferrer" className="text-green-800 hover:underline">
-                        {data.account.website.replace(/^https?:\/\//, "")}
-                      </a>
+                      {safeWebsiteHref(data.account.website) ? (
+                        <a href={safeWebsiteHref(data.account.website) as string} target="_blank" rel="noopener noreferrer" className="text-green-800 hover:underline">
+                          {data.account.website.replace(/^https?:\/\//, "")}
+                        </a>
+                      ) : (
+                        <span>{data.account.website}</span>
+                      )}
                     </>
                   )}
                 </p>
