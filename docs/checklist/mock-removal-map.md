@@ -27,7 +27,7 @@ third-party accounts/credentials (user decision).
 - [ ] **Academy** certificate PDF download / share [BE+FE]
 - [ ] **Exports**: invoice PDF, model XLSX, canvas "Export to Documents" [BE+FE]
 - [ ] **Analytics & Reports** (report builder, exports, digests) [BE+FE]
-- [ ] **Sales** hub: Pipeline, Leads and Accounts are real (BE #165, FE-A, see `docs/sop/sales-crm-fe.md`); Sequences, AI Coach and Analytics are still mock (slices B, C) [BE+FE]
+- [ ] **Sales** hub: Pipeline, Leads and Accounts are real (BE #165, FE-A, see `docs/sop/sales-crm-fe.md`); AI Coach and Analytics are real (BE #166, FE-C, see `docs/sop/sales-coach-analytics-fe.md`); only Sequences is still mock (slice B) [BE+FE]
 - [ ] **Funding** hub (investor pipeline, cap table, grants, data room, term sheets, analytics) [BE+FE]
 - [ ] **Legal & Compliance** (Module 13, assigned to Victoria; spec `cofoundaz-api/docs/handoff/module-13-legal-compliance.md`) [BE+FE]
 - [ ] **Investor Readiness** (score, deck review, Q&A, narrative) [BE+FE]

@@ -537,3 +537,244 @@ export function safeWebsiteHref(website: string | null | undefined): string | nu
     return null;
   }
 }
+
+// ================================================================ Coach, call prep, analytics (slice C)
+// Shapes copied from cofoundaz-api/docs/fe-integration-guide-sales-coach-analytics.md (live captures).
+// Everything the AI writes is asynchronous: the POST answers at once with a `generating` / `scoring`
+// row and the page polls the GET. Over the daily AI budget is not an HTTP error: the row ends `failed`.
+
+export type CoachDifficulty = 'friendly' | 'neutral' | 'tough';
+export const COACH_DIFFICULTIES: { value: CoachDifficulty; label: string }[] = [
+  { value: 'friendly', label: 'Friendly' },
+  { value: 'neutral', label: 'Neutral' },
+  { value: 'tough', label: 'Tough' },
+];
+export const COACH_PERSONA_PRESETS = [
+  'Skeptical CFO',
+  'Busy owner',
+  'Budget-conscious buyer',
+  'Enthusiastic early adopter',
+  'Procurement lead',
+];
+export const MAX_PERSONA = 200;
+export const MAX_SCENARIO = 2000;
+export const MAX_TURN = 4000;
+
+export type CoachSessionStatus = 'active' | 'scoring' | 'ended';
+export type CoachMessageStatus = 'ready' | 'generating' | 'failed';
+
+export interface CoachMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  status: CoachMessageStatus;
+  /** Empty while `generating` and on a `failed` buyer turn. */
+  content: string;
+  created_at: string;
+}
+
+export interface Scorecard {
+  /** Whole numbers 0 to 10. */
+  scores: { discovery: number; objection_handling: number; next_step_close: number };
+  /** Mean of the three, one decimal. */
+  overall: number;
+  feedback: string[];
+}
+
+export interface CoachSession {
+  id: string;
+  mode: 'roleplay';
+  deal_id: string | null;
+  /** The deal's name when the session started; null for a scenario session. */
+  deal_name: string | null;
+  scenario: string | null;
+  persona: string;
+  difficulty: CoachDifficulty;
+  status: CoachSessionStatus;
+  scorecard: Scorecard | null;
+  /** `over_budget` | `generation_failed` | `bad_output` when scoring failed, else null. */
+  scorecard_error: string | null;
+  created_at: string;
+  ended_at: string | null;
+  /** Present on create / get / end; absent on the list endpoint. */
+  messages?: CoachMessage[];
+}
+
+export interface CoachSetup {
+  deal_id?: string | null;
+  scenario?: string | null;
+  persona: string;
+  difficulty: CoachDifficulty;
+  /** Optional opening line from the seller; queues the buyer's reply at once. */
+  message?: string;
+}
+
+export const createCoachSession = (setup: CoachSetup) =>
+  call<CoachSession>('/coach/sessions', json('POST', setup));
+export const getCoachSession = (sessionId: string) => call<CoachSession>(`/coach/sessions/${id(sessionId)}`);
+export const listCoachSessions = (query: { limit?: number; offset?: number } = {}) =>
+  call<CoachSession[]>(`/coach/sessions${qs({ ...query })}`);
+/** 202: returns the buyer's pending (`generating`) turn, not the seller's. */
+export const postCoachMessage = (sessionId: string, content: string) =>
+  call<CoachMessage>(`/coach/sessions/${id(sessionId)}/messages`, json('POST', { content }));
+/** 202: the session goes to `scoring`. Calling it again after a failed scorecard retries. */
+export const endCoachSession = (sessionId: string) => call<CoachSession>(`/coach/sessions/${id(sessionId)}/end`, json('POST'));
+
+/** "Practice this again" is a new session with the same setup (no endpoint of its own). */
+export function setupOf(s: Pick<CoachSession, 'deal_id' | 'scenario' | 'persona' | 'difficulty'>): CoachSetup {
+  return {
+    ...(s.deal_id ? { deal_id: s.deal_id } : {}),
+    ...(s.scenario ? { scenario: s.scenario } : {}),
+    persona: s.persona,
+    difficulty: s.difficulty,
+  };
+}
+
+/** The machine code of an error body (`REPLY_IN_PROGRESS`, `SCORING_IN_PROGRESS`, `SESSION_ENDED`, ...). */
+export function errorCodeOf(err: unknown): string | undefined {
+  return errorBody(err)?.code;
+}
+
+/** 409 while the buyer is still replying (sending or ending would both be refused). */
+export const isReplyInProgress = (err: unknown) => err instanceof ApiError && err.status === 409 && errorCodeOf(err) === 'REPLY_IN_PROGRESS';
+
+/** The buyer turn the seller is waiting on, if any. */
+export function pendingBuyerTurn(messages: CoachMessage[] | undefined): CoachMessage | null {
+  const last = messages?.[messages.length - 1];
+  return last && last.role === 'assistant' && last.status === 'generating' ? last : null;
+}
+
+/** True once the seller has said something (End session needs at least one seller turn). */
+export const sellerHasSpoken = (messages: CoachMessage[] | undefined) => (messages ?? []).some((m) => m.role === 'user');
+
+/** The last buyer turn failed (budget or provider): the seller can simply send again. */
+export function buyerTurnFailed(messages: CoachMessage[] | undefined): boolean {
+  const last = messages?.[messages.length - 1];
+  return !!last && last.role === 'assistant' && last.status === 'failed';
+}
+
+/**
+ * Honest copy for a failed AI row. `error` is the row's `error` / `scorecard_error`. The reset time is passed
+ * in (from GET /ai/status) so the limit message can say when it comes back.
+ */
+export function aiFailureMessage(error: string | null | undefined, what: 'reply' | 'scorecard' | 'call prep', resetsAt?: string): string {
+  if (error === 'over_budget') {
+    return `Your workspace has used its daily AI limit, so the ${what} could not be written. It resets at ${resetsAt ?? 'midnight UTC'}.`;
+  }
+  if (error === 'deal_missing') return 'This deal no longer exists, so a call prep could not be written.';
+  if (error === 'bad_output') return `The AI returned a ${what} we could not read. Nothing was lost; try again.`;
+  return `The AI could not write the ${what} just now. Nothing was lost; try again.`;
+}
+
+// ---- call prep
+
+export interface CallPrepOutput {
+  context: string;
+  call_goal: string;
+  objections: { objection: string; response: string }[];
+  discovery_questions: string[];
+}
+
+export interface CallPrep {
+  id: string;
+  deal_id: string;
+  status: 'generating' | 'ready' | 'failed';
+  output: CallPrepOutput | null;
+  /** `over_budget` | `generation_failed` | `deal_missing` when failed. */
+  error: string | null;
+  created_at: string;
+}
+
+/** The latest prep for a deal, or null when it never had one (a normal empty state, not a 404). */
+export const getCallPrep = (dealId: string) => call<CallPrep | null>(`/deals/${id(dealId)}/call-prep`);
+/** 202. A second request while one is generating is a 409 CALL_PREP_IN_PROGRESS. */
+export const requestCallPrep = (dealId: string) => call<CallPrep>(`/deals/${id(dealId)}/call-prep`, json('POST'));
+export const isCallPrepInProgress = (err: unknown) => err instanceof ApiError && err.status === 409 && errorCodeOf(err) === 'CALL_PREP_IN_PROGRESS';
+
+// ---- analytics
+
+export interface FunnelStage {
+  stage_id: string;
+  name: string;
+  kind: StageKind;
+  /** Cohort deals that reached this stage or any later one. */
+  reached: number;
+  /** Null for the first row and whenever the previous row is 0. */
+  conversion_from_previous_pct: number | null;
+}
+
+export interface LossReason {
+  reason: ClosedReason;
+  count: number;
+  value_minor: number;
+}
+
+export interface LeaderboardRow {
+  user_id: string;
+  /** Falls back to the member's email when they have no profile name. */
+  name: string;
+  total: number;
+  calls: number;
+  emails: number;
+  meetings: number;
+  notes: number;
+}
+
+export interface MonthlyRevenue {
+  /** YYYY-MM (UTC). */
+  month: string;
+  value_minor: number;
+  deal_count: number;
+}
+
+export interface SalesAnalytics {
+  from: string;
+  to: string;
+  currency: string;
+  funnel: { deals_created: number; stages: FunnelStage[] };
+  /** Null when nothing was won in range. */
+  avg_cycle_days: number | null;
+  won: { count: number; value_minor: number };
+  win_loss: { won: number; lost: number; win_rate_pct: number | null; loss_reasons: LossReason[] };
+  leaderboard: LeaderboardRow[];
+  /** Exactly 12 rows, oldest first. Ignores from / to. */
+  monthly_revenue: MonthlyRevenue[];
+}
+
+export const MAX_RANGE_DAYS = 366;
+
+export const getAnalytics = (range: { from?: string; to?: string } = {}) =>
+  call<SalesAnalytics>(`/analytics${qs({ ...range })}`);
+
+/** Inclusive UTC calendar-day range ending today, `days` long (7 means today and the 6 days before). */
+export function presetRange(days: number, now: Date = new Date()): { from: string; to: string } {
+  const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const from = new Date(to.getTime() - (days - 1) * 86_400_000);
+  return { from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) };
+}
+
+/** Client-side guard that mirrors the API's two range rules; null when the range is fine. */
+export function rangeError(from: string, to: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) return 'Pick a start and an end date.';
+  if (from > to) return 'The start date must be on or before the end date.';
+  const days = (Date.parse(to) - Date.parse(from)) / 86_400_000 + 1;
+  if (days > MAX_RANGE_DAYS) return `Pick a range of at most ${MAX_RANGE_DAYS} days.`;
+  return null;
+}
+
+export const CLOSED_REASON_LABELS: Record<ClosedReason, string> = Object.fromEntries(
+  CLOSED_REASONS.map((r) => [r.value, r.label])
+) as Record<ClosedReason, string>;
+
+/** "12 days", "1 day", "18.5 days"; "No won deals yet" when nothing closed in range. */
+export function formatCycle(days: number | null): string {
+  if (days === null) return 'No won deals yet';
+  const n = Number.isInteger(days) ? String(days) : days.toFixed(1);
+  return `${n} ${days === 1 ? 'day' : 'days'}`;
+}
+
+/** "Oct 2026" from a YYYY-MM month (UTC-safe). */
+export function monthLabel(month: string, long = false): string {
+  const [y, m] = month.split('-').map(Number);
+  const d = new Date(Date.UTC(y, m - 1, 1));
+  return d.toLocaleDateString('en-GB', { month: 'short', ...(long ? { year: 'numeric' as const } : {}), timeZone: 'UTC' });
+}

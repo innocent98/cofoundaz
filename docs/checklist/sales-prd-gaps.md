@@ -39,6 +39,31 @@ what cannot be produced live. SOP: `docs/sop/sales-crm-fe.md`.
 | 18 | ✅ | Contact drawer: edit fields, "Log activity" (call, email, meeting, note) timeline, delete; a contact activity also appears on its account's log |
 | 15, 19 | – | Enroll in a sequence: slice B / FE-BC |
 
+## FE-C status (2026-10-21): AI Coach and Analytics on the real API
+
+Branch `feature/sales-fe-c`. Walked against the shared API `:8000` (develop with #165, #166 and the strict-schema fix #168)
+from a worktree dev server on :3100: founder (`localhost`) and team member (`tm.localhost`) at 1440 and 375, mentor
+(`m.localhost`) and consultant (`bc.localhost`) denied at 1440 and 375, plus API 403s for both on every coach, call prep
+and analytics route and a 404 for a teammate's session id. Real model throughout (not the stub). Test data: a "Kolo rider
+savings pilot" deal plus the "Walk test" deals (two closed lost, one won) for the analytics widgets. Contract: API repo
+`docs/fe-integration-guide-sales-coach-analytics.md`. Mocked-API Playwright (`e2e/sales-coach.spec.ts`, 22 tests incl. axe on
+3 routes and 375 overflow) covers the same controls plus what cannot be produced live. SOP: `docs/sop/sales-coach-analytics-fe.md`.
+
+| # | Status | Evidence |
+|---|---|---|
+| 25 | ✅ | Setup validates ("Pick a deal or describe a scenario."), deal picker lists the real deals, persona text with presets, Friendly / Neutral / Tough. Real role-play on the Kolo deal (Skeptical HR lead, tough): 4 seller turns, 3 real buyer replies in character, grounded in the deal (cash savings, withdrawal trust, 50 rider pilot). Reply latency was roughly 10 to 30 s; the input and End session stay locked while the buyer is "replying". Reload loses the in-memory call, so the setup lists recent calls and reopens one (resumed a live call as the team member). Team member ran a scenario role-play at 1440 and 375 |
+| 26 | ✅ | End session on the real call gave a real scorecard: discovery 4, objection handling 3, next-step close 3 (overall 3.3/10) with four feedback lines that quote what the seller said (it repeated the same claims and asked for a start date too early), so calibration is believable on a weak call. "Practice this again" started a new session with the same deal, persona and difficulty. The scorecard failure path was seen live before #168 (OpenAI 400 on the schema): "We couldn't score this call", reason, "Try again", and Try again produced the scorecard once #168 was live |
+| 27 | ✅ | Call prep: deal picker, Generate, Regenerate (replaced the brief), deep link `?tab=prep&deal=` and a "Prep for a call" link in the deal drawer. Real brief for the Kolo deal: where it stands (names the account, contact and value correctly), 3 objections with responses, a goal, exactly 3 discovery questions; no dashes. Copy "Rehearse here, win out there." is under the page title |
+| 28 | ✅ | Funnel lists every stage incl. Contacted (16 created, 3 contacted, 2 qualified, 2 proposal, 1 negotiation, 1 won, each with the share of the stage before). Avg cycle length and win rate tiles read the API |
+| 29 | ✅ | Win/loss reasons is a recharts donut (Won, Lost: Price, Lost: Timing, with counts, percent and lost value; win rate in the centre). Activity leaderboard lists every founder and team member, zeros included. Monthly closed-won revenue is a recharts bar chart for the last 12 months (₦ from kobo; a ₦8,500,000.00 deal showed in October), labelled as not following the range |
+| 30 | ✅ | Date range select (7, 30, 90 days, 12 months, custom). Custom over 366 days shows the API's own message and sends nothing; a valid custom range reloaded the widgets |
+
+**Honest notes.** Two buyer turns got an upstream model 500 (worker log: "The server had an error while processing
+your request"); the page said "The buyer couldn't reply. Try sending again." and the retry worked, so that path was seen
+live. The budget-exhausted state is proven by unit and mocked e2e only (the shared workspace had budget left; not exhausted
+on purpose). A failed buyer turn leaves the seller's line in the thread, so sending again repeats it (the API has no retry).
+The 100k daily budget used for this walk: about 7k tokens (workspace counter 37.8k to 44.3k).
+
 ## Cross-cutting
 | # | Gap | Sev | Slice |
 |---|---|---|---|
