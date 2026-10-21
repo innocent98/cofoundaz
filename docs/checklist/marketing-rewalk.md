@@ -51,7 +51,7 @@ access to this page." on every route and deep link, with no marketing data in se
 | Campaign detail totals | open "FE walk push" | Impressions 3,800, Clicks 140, Conversions 14, Spend ₦7,500, CTR 3.7%, Conv 10.0% = `/performance` | ✅ | |
 | Campaign range select | Last 7 days | UI = `?range=7d` response | ✅ | all test data is inside 7 days |
 | Campaign charts | per-day + estimated split by channel | dates Oct 17, 18, 20, 21 and Email/Search bars = `series` and `by_channel`; "Estimated" label with the 60/40 sentence shown | ✅ | |
-| Readout card | load | headline, wins, watch, next step, "Written by AI…" label = `/readouts` | ⏳ | **pending fix PR** `fix/marketing-readout-figures`: text says "750000 spent" (minor units, unformatted) and "2,400 impressions" where the series sums to 2,500 |
+| Readout card | load | headline, wins, watch, next step, "Written by AI…" label = `/readouts` | ✅ **FE integrated** (`fix/marketing-be-integrations`) | Was: text said "750000 spent" (minor units, unformatted) and "2,400 impressions" where the series sums to 2,500 |
 | Campaign links | Posts on the calendar, AI copy written for it, audience, channels | lists = linked posts / copy generations / `segment_ids` / `channel_mix` | ✅ | |
 | Copy form | load | channel + platform options = `/copy/platforms` (X 280, Instagram 2200, LinkedIn 3000, Facebook 500, WhatsApp 1024, Google Ads 30 / 90, email subject 60) | ✅ | |
 | Copy generate | X, "Same-day settlement for Lagos merchants" (real model) | 3 variants; counters 189 / 167 / 175 of 280 = `output.lengths` = real string lengths | ✅ | |
@@ -125,16 +125,16 @@ access to this page." on every route and deep link, with no marketing data in se
 ## Gaps found
 | # | Severity | Where | What I saw | Likely owner |
 |---|---|---|---|---|
-| R | pending fix PR | Campaign readout | "750000 spent" in minor units, "2,400 impressions" vs the series' 2,500, "Last week had zero activity" | `fix/marketing-readout-figures` (in progress), not counted twice |
+| R | Fixed (API #161 + FE `fix/marketing-be-integrations`) | Campaign readout | "750000 spent" in minor units, "2,400 impressions" vs the series' 2,500, "Last week had zero activity" | Card now renders every number from `figures[*].display` (This week / Last week / Change / All time table). Live: an old row with `figures: null` shows prose only; a row with figures was checked by replaying the BE's captured `campaign_readouts.json` through the real card at 1440 and 375 (the weekly job writes new rows, none exists yet on the local account). |
 | 1 | Medium | Overview "AI content ideas" | Shows 14 (`ai_content_ideas`), but the SEO page lists the newest run only (7). The count adds every content-gap run | BE: count the newest ready run |
 | 2 | Medium | Analytics Export CSV | `value` for `spend` is in minor units (30000) and the file has no unit note, while the page shows ₦300 | FE: export ₦ or add `spend_naira` / a unit column **Fixed in the `fix/marketing-rewalk-fe` PR.** |
 | 3 | Low | Calendar week view | Month → Week jumps to the first week of the month (Sep 27 to Oct 3) instead of the week of today; the posts are off screen until Today is clicked | FE **Fixed in the `fix/marketing-rewalk-fe` PR.** |
 | 4 | Low | Plan my first week | The first proposal is dated today 9:00 AM, which was already past at 10:17; the button still says "first week" once posts exist | BE prompt / FE label FE part (label) fixed in the `fix/marketing-rewalk-fe` PR: reads "Plan another week" once posts exist. Past-dated slot is still BE. |
-| 5 | Low | ⌘K search | Campaign, post and segment hits link to the list page, not to the item (`?entry=<id>`, `/campaigns/<id>`) | BE hrefs |
+| 5 | Low | ⌘K search | Campaign, post and segment hits link to the list page, not to the item (`?entry=<id>`, `/campaigns/<id>`) | BE hrefs **Fixed (API #162 + FE `fix/marketing-be-integrations`).** Live as founder: ⌘K `scheduled teaser` + Enter opens the post's drawer at `/marketing/calendar?entry=<id>`; the campaign hit opens `/marketing/campaigns/<id>`; segment hit goes to `/marketing/segments`. No FE route work was needed. |
 | 6 | Low | Analytics CAC | `₦326.5` on the cards, `₦535.71` in the leaderboard (decimal places differ) | FE formatter **Fixed in the `fix/marketing-rewalk-fe` PR.** |
-| 7 | Low, known | Media preview | Every image shows "Preview unavailable" because the API returns a server path; honest label, no fix until media is served | BE (Cloudinary/serve URL) |
+| 7 | Low, known | Media preview | Every image shows "Preview unavailable" because the API returns a server path; honest label, no fix until media is served | BE (Cloudinary/serve URL) **Fixed (API #162 + FE `fix/marketing-be-integrations`).** The drawer fetches `GET /marketing/media/{id}/file` as a blob with the bearer header; live at 1440 and 375 the `hero.png` thumbnail renders (a blob: URL, 40-byte PNG). Cloudinary 302 not exercised (BE guide §15 says the same). |
 | 8 | Low | Segment builder | "Give the segment a name." stays on screen after a name is typed, until Save is pressed again | FE **Fixed in the `fix/marketing-rewalk-fe` PR.** |
-| 9 | Low | SEO content gaps | The previous run's off-brand ideas ("automated daily savings", FDIC) stay listed until the founder regenerates | BE: stale-run hint, or regenerate on context change |
+| 9 | Low | SEO content gaps | The previous run's off-brand ideas ("automated daily savings", FDIC) stay listed until the founder regenerates | BE: stale-run hint, or regenerate on context change **Fixed (API #162 + FE `fix/marketing-be-integrations`).** Live: runs with `stale: true` show "Your brand details changed since these ideas were written" + Regenerate (1440 and 375); the old 7 ideas stayed visible while generating; after the new run was ready the notice was gone and the API read `[false, true, true]` (only the newest ready run counts). |
 
 Browser note, not a product bug: the browser pane shares one cookie/localStorage profile across `localhost`, `tm.localhost`,
 `m.localhost` and `bc.localhost`, so a later login on another host replaced the founder's session on `localhost`. I logged in
@@ -142,4 +142,4 @@ again; nothing else was affected.
 
 ## Fix status (`fix/marketing-rewalk-fe`)
 Fixed in the FE PR and checked live on localhost:8000: 2 (CSV now in naira with a `unit` column, built client-side from the API file because the BE writes minor units), 3, 4 (label only), 6, 8.
-Pending BE merges, then FE follow-up: #161 readout figures (render structured figures), gap 9 `stale` flag (Regenerate prompt), gap 5 item hrefs (check `?entry=` / `/campaigns/<id>` open the item), gap 7 media file URL.
+Integrated in `fix/marketing-be-integrations`: #161 readout figures, gap 9 `stale` flag (Regenerate prompt), gap 5 item hrefs, gap 7 media file preview. Left for the lead's re-walk on develop.

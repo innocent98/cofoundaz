@@ -1,9 +1,53 @@
 import React from 'react';
-import type { CampaignReadout } from '@/lib/api/marketing';
+import type { CampaignReadout, ReadoutFigures, ReadoutMetric } from '@/lib/api/marketing';
 import { CARD } from './states';
 
 function weekOf(iso: string): string {
   return new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+const METRICS: { key: ReadoutMetric; label: string }[] = [
+  { key: 'spend', label: 'Spend' },
+  { key: 'impressions', label: 'Impressions' },
+  { key: 'clicks', label: 'Clicks' },
+  { key: 'ctr', label: 'Click-through rate' },
+  { key: 'conversions', label: 'Conversions' },
+  { key: 'cac', label: 'Cost per customer' },
+];
+
+/** Every number comes from the API's pre-formatted `display` strings, never from the written summary. */
+function FiguresTable({ figures }: { figures: ReadoutFigures }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Readout figures, scrollable">
+        <table className="w-full min-w-[28rem] border-collapse text-left text-sm" aria-label="Readout figures">
+          <thead>
+            <tr className="border-b border-sage-200 text-[11px] font-bold uppercase tracking-wider text-sage-600">
+              <th scope="col" className="py-2 pr-3">Measure</th>
+              <th scope="col" className="py-2 pr-3 text-right">This week</th>
+              <th scope="col" className="py-2 pr-3 text-right">Last week</th>
+              <th scope="col" className="py-2 pr-3 text-right">Change</th>
+              <th scope="col" className="py-2 text-right">All time</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-sage-100 tabular-nums text-sage-800">
+            {METRICS.map((m) => (
+              <tr key={m.key}>
+                <th scope="row" className="py-2 pr-3 font-medium text-sage-900">{m.label}</th>
+                <td className="py-2 pr-3 text-right">{figures.this_week[m.key].display}</td>
+                <td className="py-2 pr-3 text-right">{figures.last_week[m.key].display}</td>
+                <td className="py-2 pr-3 text-right">{figures.change[m.key].display}</td>
+                <td className="py-2 text-right">{figures.all_time[m.key].display}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-xs text-sage-500">
+        Live for {figures.days_live.display}. Counted by Cofoundaz from the numbers you recorded.
+      </p>
+    </div>
+  );
 }
 
 function Bullets({ title, items }: { title: string; items: string[] }) {
@@ -59,6 +103,7 @@ export function ReadoutCard({ readouts, loading }: { readouts: CampaignReadout[]
         <div className="space-y-4">
           {ready.output.headline && <p className="text-base font-semibold text-sage-900">{ready.output.headline}</p>}
           {ready.output.summary && <p className="text-sm text-sage-700 leading-relaxed">{ready.output.summary}</p>}
+          {ready.figures && <FiguresTable figures={ready.figures} />}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Bullets title="Wins" items={ready.output.wins ?? []} />
             <Bullets title="Watch" items={ready.output.watch ?? []} />

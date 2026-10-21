@@ -245,6 +245,8 @@ export interface Generation<O> {
   error: string | null;
   created_at: string;
   updated_at: string;
+  /** Only meaningful on content_gap runs (true = brand details changed since); null/absent on every other kind. */
+  stale?: boolean | null;
 }
 
 export interface GenerationAccepted {
@@ -369,6 +371,25 @@ export interface CampaignPerformance {
   }[];
 }
 
+/** One pre-formatted figure. `value` is the raw number (kobo for money), `display` is what to render ("n/a" when not computable). */
+export interface ReadoutFigure {
+  value: number | null;
+  display: string;
+}
+export type ReadoutMetric = 'spend' | 'impressions' | 'clicks' | 'ctr' | 'conversions' | 'cac';
+export type ReadoutWindowFigures = Record<ReadoutMetric, ReadoutFigure>;
+
+/** Computed by the API, a sibling of `output`. Null on rows written before the figures existed. */
+export interface ReadoutFigures {
+  this_week: ReadoutWindowFigures;
+  last_week: ReadoutWindowFigures;
+  all_time: ReadoutWindowFigures;
+  change: ReadoutWindowFigures;
+  windows: { this_week: { start: string; end: string }; last_week: { start: string; end: string } };
+  days_live: ReadoutFigure;
+  currency: string;
+}
+
 export interface CampaignReadout {
   id: string;
   campaign_id: string;
@@ -381,6 +402,7 @@ export interface CampaignReadout {
     watch?: string[];
     next_step?: string;
   } | null;
+  figures?: ReadoutFigures | null;
   error: string | null;
   created_at: string;
 }
@@ -685,6 +707,21 @@ export function majorUnitsCsv(text: string): string {
 
 export const MEDIA_MAX_BYTES = 5 * 1024 * 1024;
 export const MEDIA_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+
+/**
+ * GET /media/{id}/file returns the image bytes but needs the bearer header, which an <img src> cannot
+ * send. Fetch it as a blob; the caller owns the object URL and must revoke it.
+ */
+export async function fetchMediaBlob(id: string, signal?: AbortSignal): Promise<Blob> {
+  const headers = new Headers();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
+  const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('cf_workspace_id') : null;
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+  if (workspaceId) headers.set('X-Workspace-Id', workspaceId);
+  const res = await fetch(`${API_BASE}${BASE}/media/${encodeURIComponent(id)}/file`, { headers, signal });
+  if (!res.ok) throw new ApiError(res.status, res.statusText, null);
+  return res.blob();
+}
 
 export async function listMedia(): Promise<MarketingMedia[]> {
   return (await call<{ media: MarketingMedia[] }>('/media')).media;

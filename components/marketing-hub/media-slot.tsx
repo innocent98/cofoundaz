@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ImagePlus, Trash2 } from 'lucide-react';
 import { useMedia } from '@/hooks/useMarketingApi';
 import {
   MEDIA_MAX_BYTES,
   MEDIA_TYPES,
+  fetchMediaBlob,
   marketingErrorMessage,
   uploadMedia,
   type MarketingMedia,
@@ -14,13 +15,37 @@ import { BTN_DANGER, BTN_SECONDARY } from './states';
 import { ConfirmDialog } from './confirm-dialog';
 
 /**
- * An image preview that never shows a broken-image box. `url` is storage dependent (a relative
- * path on local-disk storage, a CDN URL when deployed), so a load failure falls back to the
- * file name instead of pretending the image is there.
+ * An image preview that never shows a broken-image box. The file route needs the bearer header,
+ * which an <img src> cannot send, so the bytes are fetched as a blob and shown through an object
+ * URL that is revoked when the image changes or the component unmounts. A failed load falls back
+ * to the file name instead of pretending the image is there.
  */
 export function MediaThumb({ media, className = 'h-28 w-28' }: { media: MarketingMedia; className?: string }) {
-  const [failed, setFailed] = useState(false);
-  if (failed) {
+  const [loaded, setLoaded] = useState<{ id: string; src: string | null } | null>(null);
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    let objectUrl: string | null = null;
+    fetchMediaBlob(media.id, ctrl.signal)
+      .then((blob) => {
+        if (ctrl.signal.aborted) return;
+        objectUrl = URL.createObjectURL(blob);
+        setLoaded({ id: media.id, src: objectUrl });
+      })
+      .catch(() => {
+        if (!ctrl.signal.aborted) setLoaded({ id: media.id, src: null });
+      });
+    return () => {
+      ctrl.abort();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [media.id]);
+
+  const current = loaded && loaded.id === media.id ? loaded : null;
+  if (!current) {
+    return <div role="status" aria-label={`Loading ${media.filename}`} className={`${className} animate-pulse rounded-card border border-sage-200 bg-sage-50`} />;
+  }
+  if (!current.src) {
     return (
       <div className={`${className} flex flex-col items-center justify-center gap-1 rounded-card border border-sage-200 bg-sage-50 p-2 text-center`}>
         <ImagePlus className="h-5 w-5 text-sage-600" aria-hidden="true" />
@@ -30,12 +55,12 @@ export function MediaThumb({ media, className = 'h-28 w-28' }: { media: Marketin
     );
   }
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- the URL is the API's, whatever storage backs it
+    // eslint-disable-next-line @next/next/no-img-element -- a blob: object URL, not a remote image
     <img
-      src={media.url}
+      src={current.src}
       alt={media.filename}
       className={`${className} rounded-card border border-sage-200 object-cover bg-sage-50`}
-      onError={() => setFailed(true)}
+      onError={() => setLoaded({ id: media.id, src: null })}
     />
   );
 }

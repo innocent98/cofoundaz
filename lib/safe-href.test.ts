@@ -12,3 +12,13 @@ describe('safeInternalHref', () => {
     }
   });
 });
+
+describe('marketing search hrefs', () => {
+  it.each([
+    '/marketing/campaigns/56e3de5a-c3d3-411f-aecf-afa46b32c369',
+    '/marketing/calendar?entry=3eb508f6-15b8-4959-a0a1-06a8bea034e5',
+    '/marketing/segments',
+  ])('passes %s through unchanged', (href) => {
+    expect(safeInternalHref(href)).toBe(href);
+  });
+});
