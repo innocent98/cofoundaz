@@ -23,8 +23,8 @@ next one re-chain its `down_revision` onto the previous before you merge it (the
 | # | Repo | PR / branch | What | State |
 |---|---|---|---|---|
 | 1 | API | [#171](https://github.com/innocent98/Cofoundaz-api/pull/171) `feature/finance-ledger-correctness` | Finance slice (c): private receipts (authenticated Cloudinary + signed 5-min links bound to the workspace, CSP sandbox), magic-byte upload check, `GET /finance/categories` + normalising, budgets = all outflows (D-FIN-3) + unbudgeted rows, pagination, NGN only, amount > 0, one model generation at a time (partial unique index). Migration **0067** | **lead reviewed: OK** (Opus review, 4 fixes applied in `783d4859`). Reds: Dependency review (known) and **GitGuardian = false positive** (expired e2e tokens signed with the public CI key, localhost URLs, in commit `7fd0b2fe`; redacted at head): **mark it "test credential" in GitGuardian**. After merge: stack update + run `scripts/privatise_legacy_receipts.py` once per environment |
-| 2 | API | [#172](https://github.com/innocent98/Cofoundaz-api/pull/172) `feature/sales-sequences` | Sales slice B: sequences send through the cPanel mailbox (SMTP), bounces read over IMAP, signed unsubscribe (GET page + POST, RFC 8058), send ledger with locks, global hourly cap. Migration **0068** | **not ready.** Opus review found 2 must-fixes (mailbox-policy rejections wrongly suppressing contacts; possible double send when the connection drops after DATA) + nits (IMAP starts at UIDNEXT, per-workspace cap share, unsubscribe key required in prod). Fixes written in the session's worktree, being tested at handover. Lead re-checks, then re-chain onto 0067 |
-| 3 | API | [#173](https://github.com/innocent98/Cofoundaz-api/pull/173) `feature/academy-be` | Academy BE: 8 courses / 24 lessons / 6 paths / 10 articles in `content/academy/` (all `review_status: draft`) + idempotent loader, YouTube-nocookie embeds, certificate PDF + worker handler, public `GET /verify/{code}` (60-bit `CFZ-XXXX-XXXX-XXXX`, rate-limited), LinkedIn add-to-profile URL, private lesson notes, `position_s`, recommendations by stage + gaps (D-ACA-3), notifications, search. Migration **0069** | **lead reviewed: OK** (Opus review, 5 nits fixed in `a36142bf`); PR CI was still running at handover. Re-chain onto 0068 before merge |
+| 2 | API | [#172](https://github.com/innocent98/Cofoundaz-api/pull/172) `feature/sales-sequences` | Sales slice B: sequences send through the cPanel mailbox (SMTP), bounces read over IMAP, signed unsubscribe (GET page + POST, RFC 8058), send ledger with locks, global hourly cap. Migration **0068** | **lead reviewed: OK** after fixes in `27f280c7` (Opus review: 2 must-fixes, mailbox-policy rejections suppressing contacts and a possible double send after DATA, plus 7 nits, all verified in the diff). PR CI was running at handover. Re-chain onto 0067 before merge |
+| 3 | API | [#173](https://github.com/innocent98/Cofoundaz-api/pull/173) `feature/academy-be` | Academy BE: 8 courses / 24 lessons / 6 paths / 10 articles in `content/academy/` (all `review_status: draft`) + idempotent loader, YouTube-nocookie embeds, certificate PDF + worker handler, public `GET /verify/{code}` (60-bit `CFZ-XXXX-XXXX-XXXX`, rate-limited), LinkedIn add-to-profile URL, private lesson notes, `position_s`, recommendations by stage + gaps (D-ACA-3), notifications, search. Migration **0069** | **lead reviewed: OK** (Opus review, 5 nits fixed in `a36142bf`); PR CI was running at handover. Re-chain onto 0068 before merge |
 | - | FE | [#146](https://github.com/innocent98/cofoundaz/pull/146) `docs/finance-prd-gaps` | Finance gap list update: Mono sandbox keys are available, Mono adapter scope, D-FIN-10 | lead reviewed: OK. Merge |
 | - | FE | `docs/lead7-handoff` | this handoff | docs |
 
@@ -185,18 +185,17 @@ Remaining after these: Documents (API ✅) → Calendar (API ✅, sync not built
 Sales) → Legal (Victoria).
 
 ## 2b. Incoming (ordered)
-0. **Lead-7 sub-sessions** (all three stopped at handover; see §0a): Finance (c) `local_6bb87aaa-9f36-4397-a718-9cb70ee397e5` (done, PR #171),
+0. **Lead-7 sub-sessions** (all three idle at handover, nothing mid-task; see §0a): Finance (c) `local_6bb87aaa-9f36-4397-a718-9cb70ee397e5` (done, PR #171),
    Sales B `local_2d6a9b25-a39c-40c5-90e0-d5c08a3c2086` (PR #172, see item 2), Academy BE `local_171a92eb-ac6f-4797-926f-42e2b71e740a` (PR #173).
    Message the one with context (`SendMessage` to its id) rather than starting fresh; worktrees are `wt/finance-ledger-correctness`,
    `wt/sales-sequences`, `wt/academy-be`.
 1. **Merge train:** #171 (after Adebayo marks GitGuardian) → stack update + receipts script → have #172's session re-chain 0068 onto
    `0067_finance_ledger_correctness`, merge develop, re-run gates → merge → have #173 re-chain 0069 onto `0068_sales_sequences` → merge.
    Check each head's CI, branch name and attribution before saying "merge #N".
-2. **#172 must-fixes:** at handover the Sales session had the fixes for all 9 review points **uncommitted** in `wt/sales-sequences`
-   (e2e running). The next lead: check `git -C wt/sales-sequences status`/log; if not pushed, message the session to finish, push and report.
-   Then verify in the diff: only `SMTPRecipientsRefused` 5xx → rejected; any failure after DATA starts → `unknown`, never retried, errors
-   after a 250 swallowed; IMAP starts at UIDNEXT on first run + header-first fetch; per-workspace cap share; HTML GET → 303 to the FE page;
-   suppression re-read just before send; `_one_line` on To/Reply-To; unsubscribe key required in prod; send windows per spec or follow-up.
+2. **#172 is fixed and lead-verified at `27f280c7`.** Only `SMTPRecipientsRefused` 5xx (not 530/535/554) suppresses a contact; any
+   failure once DATA starts settles as `unknown` and is never resent. Nit for later: `smtplib.data()` raises `SMTPDataError` on a definite
+   5xx, so a policy-refused message also lands as `unknown` (safe direction, the `code != 250` branch in `_data` is dead). Send windows:
+   see its SOP.
 3. **Finance (d) model** (rows 11, 12, 13: editable assumptions + recalculate without AI, 36 months + yearly rollup (D-FIN-8), real balance
    sheet with a check line) **+ Mono adapter** (FE #146 "Mono adapter" section, D-FIN-10; sandbox keys in env, never read them). BE
    sub-session, migration after the head at that time. Then **one Finance FE session** (Integrations rebuild for Paystack/Flutterwave/Mono,
