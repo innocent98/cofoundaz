@@ -7,6 +7,7 @@ import { BadgeCheck, ShieldAlert } from 'lucide-react';
 import { useResource } from '@/hooks/useLearning';
 import { verifyCredential } from '@/lib/api/learning';
 import { formatIssuedOn } from '@/lib/learning-format';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 // Public credential check, signed out: GET /verify/{code}. Shows the holder,
 // course, date and issuer and nothing else. 404 and 429 get plain copy.
@@ -18,6 +19,7 @@ export default function VerifyCredentialPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-sage-100 px-4 py-12">
       <div className="w-full max-w-md space-y-6 rounded-modal border border-sage-200 bg-white p-8 shadow-card">
+        <BrandLogo height={28} eager />
         <p className="text-xs font-bold uppercase tracking-widest text-copper-700">Cofoundaz credential check</p>
         <p className="rounded bg-sage-50 px-2 py-1 text-sm font-medium text-sage-900 break-all">{code}</p>
 

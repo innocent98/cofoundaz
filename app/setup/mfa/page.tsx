@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { totpSetup, totpVerify } from '@/lib/api/mfa';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 type Stage = 'loading' | 'setup' | 'already' | 'backup' | 'error';
 
@@ -112,7 +113,7 @@ export default function MfaSetupPage() {
   return (
     <div className="min-h-screen bg-[#F6F7F4] font-body text-[#1E2923]">
       <header className="bg-white border-b border-[#E8E8E2] px-6 py-4 flex items-center justify-between">
-        <div className="font-display font-bold text-xl tracking-tight text-[#1E2923]">Cofoundaz</div>
+        <BrandLogo height={26} eager />
         <div className="text-sm font-medium text-[#617065]">Account security</div>
       </header>
 

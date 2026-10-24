@@ -26,7 +26,9 @@ describe('public verify page', () => {
     v.verifyCredential.mockResolvedValue({ valid: true, holder_name: '<img src=x onerror=alert(1)>', course_title: 'C', issued_on: '2026-10-22', issuer: 'Cofoundaz' });
     const { container } = render(<VerifyCredentialPage />);
     await screen.findByText('Valid credential');
-    expect(container.querySelector('img')).toBeNull();
+    // The only image is the Cofoundaz logo; the injected <img> must stay text.
+    expect(container.querySelector('img[onerror], img[src="x"]')).toBeNull();
+    expect(screen.getByText('<img src=x onerror=alert(1)>')).toBeTruthy();
   });
 
   it('handles a revoked credential', async () => {

@@ -10,6 +10,7 @@ import { useHealthScore } from '@/hooks/useHealthScore';
 import { useNotifications } from '@/hooks/useNotifications';
 import { SEARCH_PLACEHOLDER } from '@/components/search/search-overlay';
 import { canInvite } from '@/lib/nav-access';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 interface DashboardNavbarProps {
   onInvite: () => void;
@@ -56,9 +57,9 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
         type="button"
         onClick={() => sidebar.openSidebar()}
         aria-label="Open sidebar"
-        className="lg:hidden shrink-0 bg-[#1C3B2B] text-[#D89A6E] font-bold h-9 w-9 flex items-center justify-center rounded-card text-lg hover:bg-[#25503a] transition-colors cursor-pointer"
+        className="lg:hidden shrink-0 h-9 w-9 flex items-center justify-center rounded-card hover:bg-sage-100 transition-colors cursor-pointer"
       >
-        C
+        <BrandLogo variant="mark" height={30} eager />
       </button>
 
       {/* Breadcrumbs */}
