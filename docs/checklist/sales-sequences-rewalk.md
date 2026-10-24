@@ -26,6 +26,12 @@ Every non-blocked control is ✅ except the two minor FE defects below. Sales st
 - **Email safety.** Every enrolment went into a *paused* sequence, I archived my sequences at the end (paused, or archived with live enrolments stopped), and every follow-up send dialog was cancelled with **Not yet** (`sent_at` stayed null on every draft, `sent_today` never moved because of this walk). The workspace also holds the lead's own live-send sequence `Lead live send check 2026-10-24` (created 12:37 UTC, active); I never edited, paused, enrolled into or archived it (its `updated_at` stayed `12:37:35`). `sent_today` went 1 to 2 during the walk because of that sequence, not mine.
 - Test data left in the NovaPay dev workspace: archived sequences `Rewalk paused A`, `Rewalk 375 paused`, `Rewalk TM 375 paused`, `Rewalk TM 1440 paused`, `Rewalk founder 1440 paused B`; follow-up drafts on the deals `Kolo rider savings pilot` (92e3231f, 98fdcb7f, d533a079) and `Walk test Co 446533` (2040ab3e), all unsent.
 
+## Update 2026-10-24 14:30: lead's live send
+
+The lead sent one real sequence step (sequence `e5b4701c`, 13:40:55 WAT) to Adebayo's Gmail through the cPanel mailbox: ledger `sent`, provider id `<835fd288-a1fe-4dc0-8087-619ba79cfab2@cofoundaz.com>`, worker `tick sent=1 rejected=0 failed=0`, enrolment `completed` / `finished`; From "Victor Founder at NovaPay", Reply-To the enrolling member, merge tags filled. It landed in spam (DKIM not on the authoritative nameservers, PTR): ops follow-up, not a Sales blocker. Source: the lead's report, not walked by me.
+
+What that covers: a real scheduled step send and its ledger/completion. What it does **not** cover, so those rows stay blocked: the deal **Send email** button (a different path, `send_follow_up`) and the public unsubscribe flow with a real token (the lead's message was not opened from this walk). **Sales is not marked Done**: the two FE ❌ below are still open.
+
 ## ❌ failures
 
 ### ❌ 1. Stale "active" count after a 409 on Stop (FE, minor)
@@ -57,7 +63,7 @@ Layer: **FE**. Not blocking, but it reads as if the form is still invalid.
 
 ## Not covered
 
-- **Blocked: lead's live send** (see the rows): pressing **Send email** on a deal follow-up, a real step send, the delivered message, a real unsubscribe token (read, Unsubscribe button, "already unsubscribed", suppression after unsubscribe), sent counts on People rows (`n of m sent`), and the sent/bounced row states.
+- **Still blocked after the lead's live send** (see the update above): pressing **Send email** on a deal follow-up and a real unsubscribe token (read, button, already unsubscribed, suppression). A real step send and the delivered message are now verified by the lead, not by this walk; also unproven live: sent counts (read, Unsubscribe button, "already unsubscribed", suppression after unsubscribe), sent counts on People rows (`n of m sent`), and the sent/bounced row states.
 - Not producible without sending or DB access: the "paused by bounces" banner and founder-only **Resume** button (still covered only by the FE's mocked e2e), `SEND_UNCERTAIN` / `SEND_LIMIT_REACHED` messages, `configured:false` banner.
 - Other Sales tabs (Pipeline, Accounts, AI Coach, Analytics) were only used as navigation targets; they have their own re-walks.
 
