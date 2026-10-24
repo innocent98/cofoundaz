@@ -94,6 +94,9 @@ headline feature missing) > **Med** (PRD feature partial) > **Low** (copy, polis
 - **By layer:** BE 8 (rows 1, 2, 6, 9, 16, 20, 23, 24), FE 8 (3, 11, 12, 15, 18, 19, 21, 22), both 8 (4, 5, 7, 8, 10, 13, 14, 17). Total 24.
 - **By severity:** Sec 2 (rows 1, 2; both preventive, nothing leaks today), High 6 (3, 4, 5, 6, 7, 8), Med 9 (9 to 17), Low 7 (18 to 24).
 
+## FE status (2026-10-24, `feature/academy-fe`)
+FE rows 3, 11, 12, 15, 18, 19, 21, 22 and the FE halves of 4, 5, 7, 8, 13, 14, 17 are closed; evidence in `academy-fe-walk.md`.
+
 ## Related, outside the Academy page
 - Dashboard and Mission could surface "Learn next" from this module; no such link exists yet. Decide with row 24.
 - Module 25.4 (CMS) is the long-term home of rows 5, 6 and 8's content.

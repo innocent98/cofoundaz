@@ -59,6 +59,10 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
   if (type.startsWith('marketing.')) return marketingHref(type, data);
   if (type.startsWith('sales.')) return salesHref(data);
   if (type === 'dashboard.briefing.ready') return '/dashboard';
+  if (type === 'learning.course.completed') return '/academy/certificates';
+  if (type === 'learning.course.recommended') {
+    return typeof data?.course_id === 'string' ? `/academy/courses/${encodeURIComponent(data.course_id)}` : '/academy';
+  }
   if (type === 'workspace.member.joined') return '/team';
   if (type === 'finance.runway.low') return '/finance/runway';
   if (type === 'assessment.completed') return '/assessment/results';
@@ -111,6 +115,7 @@ function categoryFor(type: string): NotificationCategory {
 function iconFor(type: string): { iconText: string; iconBg: string } {
   if (type.startsWith('marketing')) return { iconText: '📣', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('sales')) return { iconText: '💼', iconBg: 'bg-[#F7EEDC]' };
+  if (type.startsWith('learning')) return { iconText: '🎓', iconBg: 'bg-[#EAF2ED]' };
   if (type.startsWith('document')) return { iconText: '📄', iconBg: 'bg-[#EAF2ED]' };
   if (type.startsWith('business')) return { iconText: '🧩', iconBg: 'bg-[#F7EEDC]' };
   if (type.startsWith('assessment') || type.startsWith('healthscore')) return { iconText: '✓', iconBg: 'bg-[#EAF2ED]' };

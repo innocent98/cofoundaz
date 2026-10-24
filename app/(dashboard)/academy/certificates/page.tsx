@@ -1,79 +1,106 @@
 "use client";
 
-import React from "react";
-import { useAcademyApi } from "@/hooks/useAcademyApi";
+import React, { useState } from "react";
+import Link from "next/link";
+import { Award, Copy, Download, Share2 } from "lucide-react";
+import { useCertificates } from "@/hooks/useLearning";
+import { ResourceView } from "@/components/academy/parts";
+import { downloadCertificatePdf, isNotReadyError, learningErrorMessage, type Certificate } from "@/lib/api/learning";
+import { formatIssued, safeLinkedInUrl } from "@/lib/learning-format";
 import { useToast } from "../ToastContext";
-import { Award, Download, Share2 } from "lucide-react";
+
+function CertificateCard({ cert, onRefresh }: { cert: Certificate; onRefresh: () => void }) {
+  const { triggerToast } = useToast();
+  const [downloading, setDownloading] = useState(false);
+  const linkedin = safeLinkedInUrl(cert.linkedin_url);
+
+  const onDownload = async () => {
+    setDownloading(true);
+    try {
+      await downloadCertificatePdf(cert);
+    } catch (err) {
+      if (isNotReadyError(err)) onRefresh();
+      triggerToast(learningErrorMessage(err, "Could not download the PDF."));
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(cert.verify_url);
+      triggerToast("Verify link copied.");
+    } catch {
+      triggerToast("Could not copy the link. Select it from the verify page instead.");
+    }
+  };
+
+  return (
+    <article className="flex h-full flex-col overflow-hidden rounded-modal border border-sage-200 bg-white shadow-card">
+      <div className="relative flex flex-col items-center space-y-4 overflow-hidden bg-green-700 p-8 text-center">
+        <Award className="relative h-16 w-16 text-copper-500" aria-hidden="true" />
+        <div className="relative space-y-1">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-green-100">Certificate of Completion</p>
+          <h2 className="text-lg font-display font-bold text-white">{cert.course_title}</h2>
+          <p className="text-sm text-green-100">{cert.holder_name}</p>
+        </div>
+      </div>
+      <div className="flex flex-1 flex-col space-y-4 p-6">
+        <dl className="flex-1 space-y-2 text-xs text-sage-600">
+          <div className="flex justify-between gap-3"><dt className="font-bold uppercase tracking-wider">Issued on</dt><dd className="font-medium text-sage-900">{formatIssued(cert.issued_at)}</dd></div>
+          <div className="flex justify-between gap-3"><dt className="font-bold uppercase tracking-wider">Issued by</dt><dd className="font-medium text-sage-900">{cert.issuer}</dd></div>
+          <div className="flex justify-between gap-3"><dt className="font-bold uppercase tracking-wider">Credential ID</dt><dd className="rounded bg-sage-50 px-1.5 py-0.5 font-medium text-sage-900">{cert.credential_id}</dd></div>
+        </dl>
+        {!cert.pdf_ready && <p role="status" className="text-xs text-sage-600">Preparing your PDF...</p>}
+        <div className="grid grid-cols-2 gap-3 border-t border-sage-100 pt-4">
+          <button type="button" onClick={onDownload} disabled={!cert.pdf_ready || downloading} className="flex min-h-11 items-center justify-center gap-2 rounded-card border border-sage-300 bg-white px-3 text-xs font-semibold text-sage-800 shadow-card hover:bg-sage-50 disabled:opacity-60">
+            <Download className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{downloading ? "Downloading..." : "Download PDF"}</span>
+          </button>
+          {linkedin ? (
+            <a href={linkedin} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center justify-center gap-2 rounded-card bg-[#0A66C2] px-3 text-xs font-semibold text-white shadow-card hover:bg-[#004182]">
+              <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Add to LinkedIn</span>
+            </a>
+          ) : (
+            <span className="flex min-h-11 items-center justify-center rounded-card bg-sage-100 px-3 text-xs text-sage-600">LinkedIn link unavailable</span>
+          )}
+          <button type="button" onClick={onCopy} className="flex min-h-11 items-center justify-center gap-2 rounded-card border border-sage-300 bg-white px-3 text-xs font-semibold text-sage-800 hover:bg-sage-50">
+            <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Copy verify link</span>
+          </button>
+          <Link href={`/verify/${cert.credential_id}`} className="flex min-h-11 items-center justify-center rounded-card border border-sage-300 bg-white px-3 text-xs font-semibold text-sage-800 hover:bg-sage-50">
+            View verify page
+          </Link>
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export default function CertificatesPage() {
-  const { certificates } = useAcademyApi();
-  const { triggerToast } = useToast();
-
-  const handleDownload = (certId: string) => {
-    triggerToast(`Downloading certificate ${certId}...`);
-  };
-
-  const handleShare = (certId: string) => {
-    triggerToast(`Opening LinkedIn share dialogue for ${certId}...`);
-  };
-
+  const res = useCertificates();
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
       <div className="space-y-1">
         <h1 className="text-3xl font-display font-semibold text-sage-900">Certificates</h1>
-        <p className="text-sm text-sage-500">Credentials earned from completing Cofoundaz learning paths.</p>
+        <p className="text-sm text-sage-600">Credentials earned from completing courses.</p>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-        {certificates.map((cert) => (
-          <div key={cert.id} className="bg-white rounded-modal border border-sage-200 shadow-card overflow-hidden flex flex-col h-full hover:border-[#1e4836] transition-colors group">
-            
-            <div className="bg-[#1e4836] p-8 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#2a4d40] rounded-full blur-2xl transform translate-x-1/3 -translate-y-1/3"></div>
-              <Award className="w-16 h-16 text-[#D89A6E] relative z-10" />
-              <div className="space-y-1 relative z-10">
-                <p className="text-[10px] text-[#d4e2d9] uppercase tracking-widest font-bold">Certificate of Completion</p>
-                <h3 className="text-lg font-display font-bold text-white">{cert.courseTitle}</h3>
-              </div>
+      {res.stalled && <p role="status" className="text-sm text-sage-700">Still preparing. Check back soon.</p>}
+      <ResourceView res={res}>
+        {(certs) =>
+          certs.length === 0 ? (
+            <div className="py-12 text-center text-sm text-sage-600">
+              <p>Finish any course to earn your first certificate.</p>
+              <Link href="/academy/courses" className="mt-3 inline-flex min-h-11 items-center rounded-card bg-green-700 px-4 font-semibold text-white hover:bg-green-800">Browse courses</Link>
             </div>
-
-            <div className="p-6 space-y-4 flex-1 flex flex-col">
-              <div className="flex-1 space-y-2">
-                <div className="flex justify-between text-xs text-sage-500">
-                  <span className="uppercase font-bold tracking-wider">Issued on</span>
-                  <span className="font-medium text-sage-900">{cert.issuedOn}</span>
-                </div>
-                <div className="flex justify-between text-xs text-sage-500">
-                  <span className="uppercase font-bold tracking-wider">Credential ID</span>
-                  <span className="font-body text-sage-900 bg-sage-50 px-1.5 py-0.5 rounded">{cert.credentialCode}</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-sage-100 flex gap-3">
-                <button
-                  onClick={() => handleDownload(cert.id)}
-                  className="flex-1 bg-white hover:bg-sage-50 text-sage-800 border border-sage-300 font-semibold py-2 px-4 rounded-card text-xs transition-colors shadow-card flex items-center justify-center gap-2"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download</span>
-                </button>
-                <button
-                  onClick={() => handleShare(cert.id)}
-                  className="flex-1 bg-[#0A66C2] hover:bg-[#004182] text-white font-semibold py-2 px-4 rounded-card text-xs transition-colors shadow-card flex items-center justify-center gap-2"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>Share</span>
-                </button>
-              </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 pt-2 md:grid-cols-2 lg:grid-cols-3">
+              {certs.map((c) => <CertificateCard key={c.id} cert={c} onRefresh={res.reload} />)}
             </div>
-          </div>
-        ))}
-        {certificates.length === 0 && (
-          <div className="col-span-full py-12 text-center text-sage-500 text-sm">
-            You haven&apos;t earned any certificates yet. Complete a course to get started.
-          </div>
-        )}
-      </div>
+          )
+        }
+      </ResourceView>
     </div>
   );
 }
