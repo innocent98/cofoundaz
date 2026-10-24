@@ -244,7 +244,7 @@ export default function ExpensesPage() {
         <span className="inline-flex items-center gap-1 text-xs font-bold text-green-800">
           <FileText className="w-4 h-4" aria-hidden="true" /> On file
         </span>
-        <ReceiptButton expenseId={exp.id} vendor={exp.vendor} />
+        <ReceiptButton expenseId={exp.id} vendor={exp.vendor} onMissing={() => void refresh()} />
         <button type="button" className={linkBtn} disabled={busy} onClick={() => pickReceipt(exp)} aria-label={`Replace receipt for ${exp.vendor}`}>
           Replace
         </button>

@@ -242,4 +242,55 @@ describe('toFinanceError', () => {
     await api.recalculateModel('m1', true);
     expect(apiClient).toHaveBeenLastCalledWith('/finance/model/m1/recalculate', { method: 'POST', body: '{"refresh_actuals":true}' });
   });
+
+  it('resendInvoice POSTs with no body and unwraps the invoice', async () => {
+    apiClient.mockResolvedValueOnce({ data: { id: 'i1', last_sent_at: '2026-10-24T19:50:26Z' } });
+    const inv = await api.resendInvoice('i1');
+    expect(apiClient).toHaveBeenCalledWith('/finance/invoices/i1/resend', { method: 'POST' });
+    expect(inv.last_sent_at).toBe('2026-10-24T19:50:26Z');
+  });
+
+  it('toFinanceError keeps the RESEND_TOO_SOON message and code', () => {
+    const body = { error: { code: 'RESEND_TOO_SOON', message: 'This invoice was emailed a moment ago. Try again in 60 seconds.', field_errors: [] } };
+    const fe = api.toFinanceError(new ApiError(429, 'Too Many Requests', body));
+    expect(fe.code).toBe('RESEND_TOO_SOON');
+    expect(fe.message).toBe('This invoice was emailed a moment ago. Try again in 60 seconds.');
+  });
+
+  it('updateInvoice can clear account, notes and payment details with explicit nulls', async () => {
+    apiClient.mockResolvedValueOnce({ data: { id: 'i1' } });
+    await api.updateInvoice('i1', { account_id: null, notes: null, payment_details: null });
+    expect(apiClient).toHaveBeenCalledWith('/finance/invoices/i1', { method: 'PATCH', body: '{"account_id":null,"notes":null,"payment_details":null}' });
+  });
+
+  describe('xlsx exports', () => {
+    const click = vi.fn();
+    beforeEach(() => {
+      localStorage.setItem('cf_token', 'tok');
+      localStorage.setItem('cf_workspace_id', 'ws');
+      vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:x'), revokeObjectURL: vi.fn() }));
+      vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(click);
+    });
+
+    it('exportTransactionsXlsx sends the filters and auth headers and names the file from Content-Disposition', async () => {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        headers: new Headers({ 'Content-Disposition': 'attachment; filename="transactions.xlsx"' }),
+        blob: async () => new Blob(['PK']),
+      }));
+      vi.stubGlobal('fetch', fetchMock);
+      const name = await api.exportTransactionsXlsx({ direction: 'out', uncategorized: true });
+      expect(name).toBe('transactions.xlsx');
+      const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+      expect(url).toContain('/finance/transactions/export.xlsx?direction=out&uncategorized=true');
+      expect(init.headers).toEqual({ Authorization: 'Bearer tok', 'X-Workspace-Id': 'ws' });
+      expect(click).toHaveBeenCalled();
+    });
+
+    it('exportModelXlsx throws an ApiError carrying MODEL_NOT_READY on 409', async () => {
+      const body = { error: { code: 'MODEL_NOT_READY', message: 'not ready', field_errors: [] } };
+      vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 409, statusText: 'Conflict', json: async () => body })));
+      await expect(api.exportModelXlsx('m1')).rejects.toMatchObject({ status: 409, data: body });
+    });
+  });
 });

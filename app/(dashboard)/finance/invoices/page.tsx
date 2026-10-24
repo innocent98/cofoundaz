@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Download, FileText, Plus, Printer, Send } from "lucide-react";
 import { useInvoices } from "@/hooks/useFinanceApi";
@@ -12,6 +12,7 @@ import {
   markInvoicePaid,
   markInvoiceUnpaid,
   remindInvoice,
+  resendInvoice,
   sendInvoice,
   updateInvoice,
   type FinanceError,
@@ -19,7 +20,9 @@ import {
   type InvoiceInput,
   type InvoiceStatus,
   type InvoiceTerms,
+  type PaymentDetails,
 } from "@/lib/api/finance";
+import { getAccount, listAccounts, type Account } from "@/lib/api/sales";
 import { formatDate, formatMoney, minorToInput } from "@/lib/finance/format";
 import { parseLine, previewTotals, type DraftLine } from "@/lib/finance/invoiceMath";
 import { printInvoice } from "@/lib/finance/printInvoice";
@@ -63,6 +66,7 @@ const TERMS: { value: InvoiceTerms; label: string }[] = [
 type Pending =
   | { kind: "remind"; invoice: Invoice }
   | { kind: "send"; invoice: Invoice }
+  | { kind: "resend"; invoice: Invoice }
   | { kind: "paid"; invoice: Invoice }
   | { kind: "unpaid"; invoice: Invoice }
   | { kind: "delete"; invoice: Invoice };
@@ -78,6 +82,8 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
           : "bg-sage-100 text-sage-600 border-sage-200";
   return <span className={`text-[10px] font-bold px-2.5 py-1 rounded-pill border uppercase tracking-wider ${cls}`}>{status}</span>;
 }
+
+type PaymentFields = { bank_name: string; account_name: string; account_number: string; instructions: string };
 
 function Builder({
   editing,
@@ -100,9 +106,45 @@ function Builder({
   const [taxPercent, setTaxPercent] = useState(editing ? String(editing.tax_percent) : "0");
   const [terms, setTerms] = useState<InvoiceTerms>(editing?.terms ?? "net_30");
   const [autoRemind, setAutoRemind] = useState(editing?.auto_remind ?? false);
+  const [accountId, setAccountId] = useState(editing?.account_id ?? "");
+  const [accounts, setAccounts] = useState<Account[] | null>(null);
+  const [accountsFailed, setAccountsFailed] = useState(false);
+  const [notes, setNotes] = useState(editing?.notes ?? "");
+  const [bank, setBank] = useState<PaymentFields>({
+    bank_name: editing?.payment_details?.bank_name ?? "",
+    account_name: editing?.payment_details?.account_name ?? "",
+    account_number: editing?.payment_details?.account_number ?? "",
+    instructions: editing?.payment_details?.instructions ?? "",
+  });
   const [error, setError] = useState<FinanceError | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
   const [confirmSend, setConfirmSend] = useState(false);
+
+  // The client picker lists the workspace's Sales accounts. It is optional: if Sales is not
+  // available to this role or the list fails, the typed name and email still work.
+  useEffect(() => {
+    let live = true;
+    listAccounts({ limit: 200 })
+      .then((page) => live && setAccounts(page.items))
+      .catch(() => live && setAccountsFailed(true));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const pickAccount = async (id: string) => {
+    setAccountId(id);
+    const account = accounts?.find((a) => a.id === id);
+    if (!account) return;
+    setClientName(account.name);
+    try {
+      const detail = await getAccount(id);
+      const email = detail.contacts.find((c) => c.email)?.email;
+      if (email) setClientEmail(email);
+    } catch {
+      /* the contact is a convenience; the user can type the email */
+    }
+  };
 
   const tax = Number(taxPercent);
   const totals = previewTotals(lines, tax);
@@ -114,10 +156,26 @@ function Builder({
     if (!Number.isFinite(tax) || tax < 0 || tax > 100) return fail("Tax must be between 0 and 100.");
     const parsed = lines.map(parseLine);
     if (parsed.some((l) => l === null)) return fail("Each line needs a description, a whole quantity of 1 or more, and a price like 1500 or 1500.50.");
+    const filled = Object.values(bank).some((v) => v.trim());
+    if (filled && !(bank.bank_name.trim() && bank.account_name.trim() && bank.account_number.trim())) {
+      return fail("Payment details need a bank name, an account name and an account number. Clear all four to leave them out.");
+    }
+    if (notes.trim().length > 2000) return fail("Notes can be up to 2000 characters.");
     setLocalError(null);
+    const payment_details: PaymentDetails | null = filled
+      ? {
+          bank_name: bank.bank_name.trim(),
+          account_name: bank.account_name.trim(),
+          account_number: bank.account_number.trim(),
+          ...(bank.instructions.trim() ? { instructions: bank.instructions.trim() } : {}),
+        }
+      : null;
     return {
       client_name: clientName.trim(),
       client_email: clientEmail.trim(),
+      account_id: accountId || null,
+      notes: notes.trim() || null,
+      payment_details,
       line_items: parsed as NonNullable<(typeof parsed)[number]>[],
       tax_percent: tax,
       terms,
@@ -194,6 +252,18 @@ function Builder({
         </div>
 
         <div className="space-y-4">
+          {!accountsFailed && (
+            <Field label="Client from Sales (optional)" htmlFor="inv-account" error={error?.fieldErrors.account_id} hint="Picking a client fills the name and email. You can still change them.">
+              <select id="inv-account" className={inputCls} value={accountId} disabled={accounts === null} onChange={(e) => void pickAccount(e.target.value)}>
+                <option value="">{accounts === null ? "Loading clients" : "No linked client"}</option>
+                {accounts?.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Field label="Client name" htmlFor="inv-client" error={error?.fieldErrors.client_name}>
               <input id="inv-client" className={inputCls} value={clientName} onChange={(e) => setClientName(e.target.value)} maxLength={200} />
@@ -252,6 +322,32 @@ function Builder({
             </div>
           </div>
         </div>
+
+        <Field label="Notes (optional)" htmlFor="inv-notes" error={error?.fieldErrors.notes} hint="Shown on the PDF and in the email.">
+          <textarea id="inv-notes" rows={3} maxLength={2000} className={inputCls} value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </Field>
+
+        <fieldset className="space-y-3">
+          <legend className={labelCls}>Payment details (optional)</legend>
+          <p className="text-xs text-sage-500">Bank transfer details printed on the PDF and in the email. Clear all four fields to leave them out.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Field label="Bank name" htmlFor="inv-bank-name">
+              <input id="inv-bank-name" className={inputCls} value={bank.bank_name} onChange={(e) => setBank({ ...bank, bank_name: e.target.value })} />
+            </Field>
+            <Field label="Account name" htmlFor="inv-bank-acct-name">
+              <input id="inv-bank-acct-name" className={inputCls} value={bank.account_name} onChange={(e) => setBank({ ...bank, account_name: e.target.value })} />
+            </Field>
+            <Field label="Account number" htmlFor="inv-bank-number">
+              <input id="inv-bank-number" inputMode="numeric" className={inputCls} value={bank.account_number} onChange={(e) => setBank({ ...bank, account_number: e.target.value })} />
+            </Field>
+            <Field label="Instructions" htmlFor="inv-bank-instr">
+              <input id="inv-bank-instr" className={inputCls} value={bank.instructions} onChange={(e) => setBank({ ...bank, instructions: e.target.value })} />
+            </Field>
+          </div>
+          {error && Object.entries(error.fieldErrors).filter(([k]) => k.startsWith("payment_details")).map(([k, m]) => (
+            <p key={k} className="text-xs font-medium text-red-600">{m}</p>
+          ))}
+        </fieldset>
 
         <label className="flex items-start gap-2 max-md:min-h-11 text-sm text-sage-700">
           <input type="checkbox" checked={autoRemind} onChange={(e) => setAutoRemind(e.target.checked)} className="accent-green-900 mt-0.5" />
@@ -389,6 +485,7 @@ function InvoiceDetail({
         <div>
           <p className="font-bold text-sage-900">{invoice.client_name}</p>
           <p className="text-xs text-sage-500">{invoice.client_email}</p>
+          {invoice.account_name && <p className="text-xs text-sage-500">Sales client: {invoice.account_name}</p>}
           <p className="text-xs text-sage-500 mt-1">
             Issued {formatDate(invoice.issued_on)} · Due {formatDate(invoice.due_on)}
             {invoice.paid_at ? ` · Paid ${formatDate(invoice.paid_at)}` : ""}
@@ -419,6 +516,22 @@ function InvoiceDetail({
           </p>
           <p className="font-bold text-lg text-sage-900">Total {formatMoney(invoice.total_minor, invoice.currency)}</p>
         </div>
+
+        {invoice.notes && (
+          <div className="border-t border-sage-100 pt-3 space-y-1">
+            <p className="text-xs font-bold text-sage-600 uppercase">Notes</p>
+            <p className="text-sm text-sage-700 whitespace-pre-line break-words">{invoice.notes}</p>
+          </div>
+        )}
+        {invoice.payment_details && (
+          <div className="border-t border-sage-100 pt-3 space-y-1">
+            <p className="text-xs font-bold text-sage-600 uppercase">Pay by bank transfer</p>
+            <p className="text-sm text-sage-700">
+              {invoice.payment_details.bank_name} · {invoice.payment_details.account_name} · {invoice.payment_details.account_number}
+            </p>
+            {invoice.payment_details.instructions && <p className="text-xs text-sage-500">{invoice.payment_details.instructions}</p>}
+          </div>
+        )}
 
         {(invoice.status === "sent" || invoice.status === "overdue") && (
           <div className="border-t border-sage-100 pt-3 space-y-2">
@@ -470,10 +583,16 @@ function InvoiceDetail({
           </div>
         )}
 
+        {invoice.last_sent_at && <p className="text-xs text-sage-500">Last emailed {formatDate(invoice.last_sent_at)}.</p>}
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-sage-100">
           <button type="button" className={secondaryBtn} disabled={busy} onClick={() => onAction({ kind: "pdf", invoice })}>
             <Download className="w-4 h-4" aria-hidden="true" /> Download PDF
           </button>
+          {(invoice.status === "sent" || invoice.status === "overdue") && (
+            <button type="button" className={secondaryBtn} disabled={busy} onClick={() => onAction({ kind: "resend", invoice })}>
+              <Send className="w-4 h-4" aria-hidden="true" /> Resend invoice
+            </button>
+          )}
           {invoice.status === "overdue" && (
             <button type="button" className={secondaryBtn} disabled={busy || !rem.canRemind} onClick={() => onAction({ kind: "remind", invoice })}>
               <Send className="w-4 h-4" aria-hidden="true" /> Send reminder
@@ -523,6 +642,11 @@ function RowActions({ inv, nowMs, busy, onAction }: { inv: Invoice; nowMs: numbe
           aria-label={`Send a reminder for ${inv.number}`}
         >
           Send reminder
+        </button>
+      )}
+      {(inv.status === "sent" || inv.status === "overdue") && (
+        <button type="button" className={linkBtn} disabled={busy} onClick={() => onAction({ kind: "resend", invoice: inv })} aria-label={`Resend ${inv.number}`}>
+          Resend
         </button>
       )}
       {(inv.status === "sent" || inv.status === "overdue") && (
@@ -618,7 +742,9 @@ export default function InvoicesPage() {
     const res =
       pending.kind === "remind"
         ? await run(() => remindInvoice(inv.id), { success: `Reminder queued for ${inv.client_email}.` })
-        : pending.kind === "send"
+        : pending.kind === "resend"
+          ? await run(() => resendInvoice(inv.id), { success: `Sent to ${inv.client_email}.` })
+          : pending.kind === "send"
           ? await run(() => sendInvoice(inv.id), { success: `Invoice ${inv.number} sent to ${inv.client_email}.` })
           : pending.kind === "paid"
             ? await run(() => markInvoicePaid(inv.id), { success: `Invoice ${inv.number} marked paid. ${formatMoney(inv.total_minor, inv.currency)} added to cash on hand.` })
@@ -634,6 +760,8 @@ export default function InvoicesPage() {
     switch (p.kind) {
       case "remind":
         return { title: "Email a reminder?", body: `A reminder with the invoice attached will be emailed to ${inv.client_email}. You can send another after 24 hours.`, label: "Send reminder", danger: false };
+      case "resend":
+        return { title: "Email this invoice again?", body: `${inv.number} will be emailed to ${inv.client_email} again, with the PDF attached. You can resend once a minute.`, label: "Resend invoice", danger: false };
       case "send":
         return { title: "Send this invoice?", body: `${inv.number} will be emailed to ${inv.client_email}. Once sent it cannot be recalled or edited.`, label: "Send invoice", danger: false };
       case "paid":

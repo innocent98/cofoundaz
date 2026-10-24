@@ -42,9 +42,10 @@ async function receiptIsAvailable(url: string): Promise<boolean> {
  * a fresh signed link (valid about 5 minutes) and opens it in a new tab. The link
  * is never stored or rendered. The tab is opened synchronously and pointed at the
  * link afterwards so the pop-up blocker allows it. The link is checked first, so a
- * receipt whose file is gone shows a message instead of a tab of raw JSON.
+ * receipt whose file is gone shows a message instead of a tab of raw JSON. A 410
+ * RECEIPT_FILE_MISSING from the link request shows the API's message and calls `onMissing`.
  */
-export function ReceiptButton({ expenseId, vendor }: { expenseId: string; vendor: string }) {
+export function ReceiptButton({ expenseId, vendor, onMissing }: { expenseId: string; vendor: string; onMissing?: () => void }) {
   const { triggerToast } = useToast();
   const [busy, setBusy] = useState(false);
 
@@ -75,7 +76,13 @@ export function ReceiptButton({ expenseId, vendor }: { expenseId: string; vendor
     } catch (err) {
       tab?.close();
       const fe = toFinanceError(err, "Couldn't open the receipt. Try again.");
-      triggerToast(fe.status === 404 ? "This receipt is no longer available." : fe.message, "error");
+      if (fe.status === 410 || fe.code === "RECEIPT_FILE_MISSING") {
+        // The API cleared the receipt on the expense: show its message and refresh so Attach appears.
+        triggerToast(fe.message, "error");
+        onMissing?.();
+      } else {
+        triggerToast(fe.status === 404 ? "This receipt is no longer available." : fe.message, "error");
+      }
     } finally {
       setBusy(false);
     }
