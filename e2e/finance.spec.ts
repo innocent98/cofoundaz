@@ -543,13 +543,13 @@ test.describe('Finance model', () => {
 })
 
 test.describe('Finance roles', () => {
-  test('a mentor sees the not available state on every page and no data', async ({ page }) => {
-    await setup(page, freshState('mentor'))
-    for (const path of ['/finance', '/finance/budgets', '/finance/expenses', '/finance/invoices', '/finance/model', '/finance/integrations']) {
+  for (const path of ['/finance', '/finance/budgets', '/finance/expenses', '/finance/invoices', '/finance/model', '/finance/integrations']) {
+    test(`a mentor is kept out of ${path}`, async ({ page }) => {
+      await setup(page, freshState('mentor'))
       await page.goto(path)
       await expect(page.getByRole('heading', { name: "You don't have access to this page." })).toBeVisible()
-    }
-  })
+    })
+  }
 
   test('a member whose finance access the API refuses sees the not available state', async ({ page }) => {
     await setup(page, Object.assign(freshState('team_member'), { apiRole: 'mentor' }))
