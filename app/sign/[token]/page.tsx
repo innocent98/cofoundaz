@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Check, FileText, Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 // Public signing view — GET /sign/{token} (no auth). See
 // cofoundaz-api/docs/fe-integration-guide-documents-esignature.md §3–§4.
@@ -97,7 +98,7 @@ export default function PublicSignerPage() {
   return (
     <div className="min-h-screen bg-[#F6F7F4] font-body text-[#1E2923]">
       <header className="bg-white border-b border-[#E8E8E2] px-6 py-4 flex items-center justify-between">
-        <div className="font-display font-bold text-xl tracking-tight text-[#1E2923]">Cofoundaz</div>
+        <BrandLogo height={26} eager />
         <div className="text-sm font-medium text-[#617065]">Review &amp; Sign</div>
       </header>
 

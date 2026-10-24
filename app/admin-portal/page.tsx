@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import BrandLogo from '@/components/brand/BrandLogo';
 import { 
   LayoutDashboard, 
   Boxes, 
@@ -312,9 +313,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
         <div className="p-6 space-y-8">
           {/* Logo / Title */}
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-modal bg-[#B39353] flex items-center justify-center text-white font-bold text-sm shadow-card">
-              C
-            </div>
+            <BrandLogo variant="mark" tone="light" height={32} />
             <div>
               <h1 className="text-white font-display font-medium text-base tracking-tight leading-none">Cofoundaz</h1>
               <span className="text-[10px] font-bold tracking-widest text-[#B39353] uppercase">ADMIN</span>

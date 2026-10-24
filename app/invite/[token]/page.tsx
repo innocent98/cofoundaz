@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Check, Loader2, AlertTriangle, UserPlus, LogIn, Building2 } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 // Public invite-acceptance landing — GET /invitations/{token} (no auth) previews
 // the invite; POST /invitations/accept (verified user) joins the workspace.
@@ -119,7 +120,7 @@ export default function AcceptInvitePage() {
   return (
     <div className="min-h-screen bg-[#F6F7F4] font-body text-[#1E2923]">
       <header className="bg-white border-b border-[#E8E8E2] px-6 py-4 flex items-center justify-between">
-        <div className="font-display font-bold text-xl tracking-tight text-[#1E2923]">Cofoundaz</div>
+        <BrandLogo height={26} eager />
         <div className="text-sm font-medium text-[#617065]">Workspace invitation</div>
       </header>
 

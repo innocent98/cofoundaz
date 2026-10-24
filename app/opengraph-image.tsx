@@ -1,10 +1,15 @@
 import { ImageResponse } from 'next/og'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 
 export const alt = 'Cofoundaz: The co-founder who never sleeps.'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
 export default async function Image() {
+  // process.cwd() is the Next.js project directory; the light wordmark reads on the dark card.
+  const wordmark = await readFile(join(process.cwd(), 'public/brand/cofoundaz-wordmark-light.png'))
+  const wordmarkSrc = `data:image/png;base64,${wordmark.toString('base64')}`
   return new ImageResponse(
     (
       <div
@@ -18,22 +23,7 @@ export default async function Image() {
           padding: '80px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div
-            style={{
-              width: 48, height: 48, borderRadius: 14, background: '#1E4D3B',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <div
-              style={{
-                width: 20, height: 20, borderRadius: '50%',
-                border: '4px solid #BDA05F', borderRightColor: 'transparent',
-              }}
-            />
-          </div>
-          <div style={{ fontSize: 34, fontWeight: 600, color: '#FFFFFF' }}>Cofoundaz</div>
-        </div>
+        <img src={wordmarkSrc} alt="Cofoundaz" width={295} height={48} />
         <div style={{ marginTop: 40, fontSize: 76, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.05 }}>
           The co-founder who never sleeps.
         </div>

@@ -33,6 +33,8 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 | Invited team member loses the invite link after email verification | Team page walk |
 | Per-workspace timezones for the mission scheduler | follow-up |
 | Health benchmarks with real cohorts | needs usage data |
+| Brand: real logo + favicon everywhere (`feature/brand-logo`, 2026-10-24, SOP `docs/sop/brand-logo-and-favicon.md`) | done on branch, awaiting merge |
+| Brand colours: colour-token refactor, phase 1 hard-coded hex (≈5,500 in 223 files) to semantic tokens with zero visual change, phase 2 swap to navy `#051736` + blue `#0F6AFC` | queued: own session after the Finance re-walk fixes land |
 
 ## Blocked on accounts / product calls (not code)
 Mono production approval (sandbox keys now available) · Google calendar sync (OAuth values to re-encrypt; Outlook later) ·

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 export default function MarketingNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -30,25 +31,20 @@ export default function MarketingNavbar() {
           <div className="flex items-center gap-8 md:gap-12">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-card bg-[#1B4B38] flex items-center justify-center shadow-card">
-                <span className="font-display text-[#A68A48] font-bold text-lg leading-none">C</span>
-              </div>
-              <span className="font-display text-2xl font-bold text-[#12291F] tracking-tight">
-                Cofoundaz
-              </span>
+              <BrandLogo height={32} eager />
             </Link>
 
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center gap-8">
               <a
                 href="#product"
-                className="text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal"
+                className="text-[#33413B] hover:text-sage-500 transition-colors text-[15px] font-normal"
               >
                 Product
               </a>
               <a
                 href="#pricing"
-                className="text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal"
+                className="text-[#33413B] hover:text-sage-500 transition-colors text-[15px] font-normal"
               >
                 Pricing
               </a>
@@ -58,7 +54,7 @@ export default function MarketingNavbar() {
                 <button
                   onClick={() => setResourcesOpen(!resourcesOpen)}
                   onBlur={() => setTimeout(() => setResourcesOpen(false), 200)}
-                  className="flex items-center gap-1.5 text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal focus:outline-none cursor-pointer"
+                  className="flex items-center gap-1.5 text-[#33413B] hover:text-sage-500 transition-colors text-[15px] font-normal focus:outline-none cursor-pointer"
                   aria-expanded={resourcesOpen}
                 >
                   <span>Resources</span>
@@ -78,13 +74,13 @@ export default function MarketingNavbar() {
                   <div className="absolute top-full left-0 mt-2 w-48 rounded-input bg-white shadow-raised border border-sage-100 py-2 z-50">
                     <a
                       href="#blog"
-                      className="block px-4 py-2 text-[15px] text-[#33413B] hover:bg-slate-50 hover:text-slate-600"
+                      className="block px-4 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600"
                     >
                       Blog
                     </a>
                     <a
                       href="#guides"
-                      className="block px-4 py-2 text-[15px] text-[#33413B] hover:bg-slate-50 hover:text-slate-600"
+                      className="block px-4 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600"
                     >
                       Guides & Tools
                     </a>
@@ -94,7 +90,7 @@ export default function MarketingNavbar() {
 
               <a
                 href="#about"
-                className="text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal"
+                className="text-[#33413B] hover:text-sage-500 transition-colors text-[15px] font-normal"
               >
                 About
               </a>
@@ -145,21 +141,21 @@ export default function MarketingNavbar() {
           <a
             href="#product"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal"
+            className="block text-[#33413B] hover:text-sage-500 py-2 text-[15px] font-normal"
           >
             Product
           </a>
           <a
             href="#pricing"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal"
+            className="block text-[#33413B] hover:text-sage-500 py-2 text-[15px] font-normal"
           >
             Pricing
           </a>
           <div className="flex flex-col">
             <button
               onClick={() => setResourcesOpen(!resourcesOpen)}
-              className="flex items-center justify-between text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal w-full text-left focus:outline-none"
+              className="flex items-center justify-between text-[#33413B] hover:text-sage-500 py-2 text-[15px] font-normal w-full text-left focus:outline-none"
               aria-expanded={resourcesOpen}
             >
               <span>Resources</span>
@@ -179,14 +175,14 @@ export default function MarketingNavbar() {
                 <a
                   href="#blog"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-[#33413B] hover:text-slate-500 py-1.5 text-[15px] font-normal"
+                  className="block text-[#33413B] hover:text-sage-500 py-1.5 text-[15px] font-normal"
                 >
                   Blog
                 </a>
                 <a
                   href="#guides"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-[#33413B] hover:text-slate-500 py-1.5 text-[15px] font-normal"
+                  className="block text-[#33413B] hover:text-sage-500 py-1.5 text-[15px] font-normal"
                 >
                   Guides & Tools
                 </a>
@@ -196,7 +192,7 @@ export default function MarketingNavbar() {
           <a
             href="#about"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal"
+            className="block text-[#33413B] hover:text-sage-500 py-2 text-[15px] font-normal"
           >
             About
           </a>
