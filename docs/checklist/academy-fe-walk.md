@@ -198,3 +198,30 @@ mentor `m.localhost`, consultant `bc.localhost`. Widths: 1440 and 375. Founder r
 | LinkedIn dialog | the link is opened in a new tab and its href equals the API's `linkedin_url`; the LinkedIn form itself was not opened (no account) |
 | Revoked credential copy | unit-tested only (API has no revoke yet) |
 | `learning.course.recommended` notification deep link | unit-tested mapping only; needs a stage change |
+
+## Re-walk fixes (`fix/academy-rewalk-fe`, 2026-10-24): D1 and D4
+Own dev server on :3291 against the local API, Playwright driving the real UI at 375 x 812 and 1440 x 812 for founder, team member,
+mentor and consultant (`/dashboard`, open the bell).
+
+| Control | FE result | Expectation | Pass |
+|---|---|---|---|
+| bell-founder-375 panel position | x=16 right=359 width=343 (viewport 375) | needs 16px gutters | yes |
+| bell-founder-375 failed list | shows "Could not load notifications." + Retry, not "No new notifications." | GET /notifications 500 (blocked in browser) | yes |
+| bell-founder-375 Retry | error cleared, 8 rows | request succeeds | yes |
+| bell-team_member-375 panel position | x=16 right=359 width=343 (viewport 375) | needs 16px gutters | yes |
+| bell-team_member-375 failed list | shows "Could not load notifications." + Retry, not "No new notifications." | GET /notifications 500 (blocked in browser) | yes |
+| bell-team_member-375 Retry | error cleared, 8 rows | request succeeds | yes |
+| bell-mentor-375 panel position | x=16 right=359 width=343 (viewport 375) | needs 16px gutters | yes |
+| bell-consultant-375 panel position | x=16 right=359 width=343 (viewport 375) | needs 16px gutters | yes |
+| bell-founder-1440 panel position | x=932 right=1316 width=384 (viewport 1440) | inside viewport | yes |
+| bell-founder-1440 failed list | shows "Could not load notifications." + Retry, not "No new notifications." | GET /notifications 500 (blocked in browser) | yes |
+| bell-founder-1440 Retry | error cleared, 8 rows | request succeeds | yes |
+| bell-team_member-1440 panel position | x=1024 right=1408 width=384 (viewport 1440) | inside viewport | yes |
+| bell-team_member-1440 failed list | shows "Could not load notifications." + Retry, not "No new notifications." | GET /notifications 500 (blocked in browser) | yes |
+| bell-team_member-1440 Retry | error cleared, 8 rows | request succeeds | yes |
+| bell-mentor-1440 panel position | x=1024 right=1408 width=384 (viewport 1440) | inside viewport | yes |
+| bell-consultant-1440 panel position | x=1024 right=1408 width=384 (viewport 1440) | inside viewport | yes |
+
+- **D1:** the popover is `fixed inset-x-4` below `md` (16 px gutters whatever else sits in the header) and `md:absolute md:right-0 md:w-96` from `md`. It is the only bell popover in the app (`components/dashboardnavbar.tsx`); `NotificationBell` elsewhere is a plain link.
+- **D4:** the failure was produced by aborting `GET /notifications?...` with a 500 in the browser (the API itself was healthy), then letting it through and pressing Retry.
+- **D2** (name prompt, `PATCH /auth/me`): unit and mocked Playwright (1440 and 375) pass with the captured shapes. **Not yet verified live**: the API route is on branch `feature/profile-name-update` and not merged; live rows to be added once it is.
