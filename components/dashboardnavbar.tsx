@@ -21,13 +21,14 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
   const sidebar = useSidebar();
   const { openSearch } = useSearch();
   const { role } = useWorkspace();
-  const { items, unreadCount, markRead, markAllRead } = useNotifications();
+  const { items, unreadCount, markRead, markAllRead, error: notifError, refetch: refetchNotifs } = useNotifications();
   // Real Health Score (GET /health-score). Hidden until an assessment exists,
   // so there is never a fabricated number in the shell.
   const { data: health, loading: healthLoading } = useHealthScore();
   const showHealth = !healthLoading && health.status === 'ok';
 
   const [bellOpen, setBellOpen] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -116,7 +117,7 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
           </button>
 
           {bellOpen && (
-            <div className="absolute top-12 right-0 z-50 w-[min(24rem,calc(100vw-2rem))] bg-white border border-sage-100 rounded-modal shadow-raised p-4">
+            <div className="fixed inset-x-4 top-16 z-50 md:absolute md:inset-x-auto md:top-12 md:right-0 md:w-96 bg-white border border-sage-100 rounded-modal shadow-raised p-4">
               <div className="flex items-center justify-between pb-3 border-b border-sage-100 mb-2">
                 <h4 className="font-bold text-sm text-sage-900">Notifications</h4>
                 {unreadCount > 0 && (
@@ -125,7 +126,22 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
                   </button>
                 )}
               </div>
-              {recent.length === 0 ? (
+              {(notifError || retrying) && recent.length === 0 ? (
+                <div role="alert" className="p-4 text-center text-sm text-sage-700">
+                  <p>Could not load notifications.</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRetrying(true);
+                      void Promise.resolve(refetchNotifs()).finally(() => setRetrying(false));
+                    }}
+                    disabled={retrying}
+                    className="mt-2 min-h-11 rounded-card bg-[#114B32] px-4 text-xs font-semibold text-white hover:bg-[#0e3e29] disabled:opacity-60"
+                  >
+                    {retrying ? 'Retrying...' : 'Retry'}
+                  </button>
+                </div>
+              ) : recent.length === 0 ? (
                 <div className="p-4 text-center text-sm text-sage-500">No new notifications.</div>
               ) : (
                 <ul className="space-y-1 max-h-[60vh] overflow-y-auto">

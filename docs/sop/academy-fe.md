@@ -41,3 +41,11 @@ No env or migration. Revert the PR; the API is untouched. The preview needs the 
 - YouTube player and position reporting need one real video to verify live.
 - API: legacy certificates never get a PDF; verify rate limit is per code, not per visitor (see the walk doc).
 - No e2e (Playwright) spec for Academy was added; coverage is unit plus the live walk.
+
+## Update 2026-10-24: re-walk fixes D1 and D4 (`fix/academy-rewalk-fe`)
+| Defect | Fix |
+|---|---|
+| D1 bell popover clipped 64 px off the left at 375 for the founder (Invite button pushed the bell inward, popover was `right-0`) | `components/dashboardnavbar.tsx`: `fixed inset-x-4 top-16` below `md`, `md:absolute md:right-0 md:w-96` from `md` |
+| D4 bell said "No new notifications." when the list request failed | same file: an error state "Could not load notifications." with Retry (uses `useNotifications().error` and `refetch`); the empty state only shows after a successful load |
+| D2 no profile-name prompt before finishing a course | **Not done.** The only endpoint that writes `profile.full_name` is `PATCH /onboarding/state`; for an invited member it runs `resolve_or_create_workspace`, which creates a new founder workspace for them. Needs an API endpoint first |
+Tests: `components/dashboardnavbar.test.tsx` (error state, viewport classes).

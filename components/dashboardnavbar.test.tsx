@@ -9,6 +9,8 @@ const markRead = vi.fn();
 const markAllRead = vi.fn();
 let items: Array<Record<string, unknown>> = [];
 let unread = 0;
+let notifError: Error | null = null;
+const refetch = vi.fn().mockResolvedValue(undefined);
 let health: { status: string; score: number; weeklyDelta: number } = { status: 'ok', score: 93, weeklyDelta: 3 };
 
 vi.mock('@/components/sidebar-context', () => ({ useSidebar: () => ({ openSidebar: vi.fn(), closeSidebar: vi.fn() }) }));
@@ -16,7 +18,7 @@ vi.mock('@/components/search/search-context', () => ({ useSearch: () => ({ openS
 vi.mock('@/components/workspace-context', () => ({ useWorkspace: () => ({ me: null, role, loading: false }) }));
 vi.mock('@/hooks/useHealthScore', () => ({ useHealthScore: () => ({ data: health, loading: false }) }));
 vi.mock('@/hooks/useNotifications', () => ({
-  useNotifications: () => ({ items, unreadCount: unread, markRead, markAllRead }),
+  useNotifications: () => ({ items, unreadCount: unread, markRead, markAllRead, error: notifError, refetch }),
 }));
 
 const note = (over: Record<string, unknown>) => ({
@@ -35,6 +37,8 @@ describe('DashboardNavbar (top bar, PRD 2.1)', () => {
     role = 'founder';
     items = [];
     unread = 0;
+    notifError = null;
+    refetch.mockClear();
     health = { status: 'ok', score: 93, weeklyDelta: 3 };
     openSearch.mockReset();
     markRead.mockReset();
@@ -101,5 +105,24 @@ describe('DashboardNavbar (top bar, PRD 2.1)', () => {
     rerender(<DashboardNavbar onInvite={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Toggle notifications' }));
     expect(screen.getByText('No new notifications.')).toBeTruthy();
+  });
+
+  it('a failed notifications request shows an error with Retry, never the empty state', () => {
+    notifError = new Error('boom');
+    render(<DashboardNavbar onInvite={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle notifications' }));
+    expect(screen.getByText('Could not load notifications.')).toBeInTheDocument();
+    expect(screen.queryByText('No new notifications.')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('the panel is pinned inside the viewport on phones (16 px gutters) and anchored to the bell from md', () => {
+    render(<DashboardNavbar onInvite={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle notifications' }));
+    const panel = screen.getByText('Notifications', { selector: 'h4' }).closest('div[class*="shadow-raised"]') as HTMLElement;
+    expect(panel.className).toContain('fixed');
+    expect(panel.className).toContain('inset-x-4');
+    expect(panel.className).toContain('md:absolute');
   });
 });
