@@ -32,6 +32,18 @@ The lead sent one real sequence step (sequence `e5b4701c`, 13:40:55 WAT) to Adeb
 
 What that covers: a real scheduled step send and its ledger/completion. What it does **not** cover, so those rows stay blocked: the deal **Send email** button (a different path, `send_follow_up`) and the public unsubscribe flow with a real token (the lead's message was not opened from this walk). **Sales is not marked Done**: the two FE ❌ below are still open.
 
+## Update 2026-10-24 14:45: lead's live deal follow-up send
+
+Recorded from the lead's report (done with Adebayo's OK; not walked by me). Deal `fe248a70-44b1-4a3e-a649-e8da32d6143a` ("Lead follow-up live check 2026-10-24"), AI draft `92480794-7368-4c7b-8e0f-3165f1883440` ready.
+
+| Step | Result (lead's evidence) | Status |
+|---|---|---|
+| Send to the contact that already got the 13:40 step | **429 `SEND_LIMIT_REACHED`** "This contact already got an email today." (per-contact daily cap, live) | ✅ |
+| Send after switching the deal to Adebayo's alias contact | **200** `{"sent": true, "send_id": "8e8e7f75-37fb-4444-b7d6-b300bee87588", "to": "adevictor98+followup@gmail.com", "draft_id": "92480794-7368-4c7b-8e0f-3165f1883440"}`; ledger `sent` 14:43:46 WAT, provider id `<8e8e7f75-37fb-4444-b7d6-b300bee87588@cofoundaz.com>` | ✅ |
+| Repeat send of the same draft | **409 `DRAFT_ALREADY_SENT`** | ✅ |
+
+This closes the follow-up **Send email** rows that were `blocked: lead's live send` (founder and team member, 1440 and 375): the send path works live. The FE click itself was done by the lead, not in these rows. The guide's "success body unit-test shape only" is now captured live (status 200). Still open: the real unsubscribe click (Adebayo) and the two FE fixes.
+
 ## ❌ failures
 
 ### ❌ 1. Stale "active" count after a 409 on Stop (FE, minor)
@@ -63,7 +75,7 @@ Layer: **FE**. Not blocking, but it reads as if the form is still invalid.
 
 ## Not covered
 
-- **Still blocked after the lead's live send** (see the update above): pressing **Send email** on a deal follow-up and a real unsubscribe token (read, button, already unsubscribed, suppression). A real step send and the delivered message are now verified by the lead, not by this walk; also unproven live: sent counts (read, Unsubscribe button, "already unsubscribed", suppression after unsubscribe), sent counts on People rows (`n of m sent`), and the sent/bounced row states.
+- **Still blocked after the lead's live send** (see the update above): a real unsubscribe token (the follow-up **Send email** path is now verified by the lead, see above) (read, button, already unsubscribed, suppression). A real step send and the delivered message are now verified by the lead, not by this walk; also unproven live: sent counts (read, Unsubscribe button, "already unsubscribed", suppression after unsubscribe), sent counts on People rows (`n of m sent`), and the sent/bounced row states.
 - Not producible without sending or DB access: the "paused by bounces" banner and founder-only **Resume** button (still covered only by the FE's mocked e2e), `SEND_UNCERTAIN` / `SEND_LIMIT_REACHED` messages, `configured:false` banner.
 - Other Sales tabs (Pipeline, Accounts, AI Coach, Analytics) were only used as navigation targets; they have their own re-walks.
 
