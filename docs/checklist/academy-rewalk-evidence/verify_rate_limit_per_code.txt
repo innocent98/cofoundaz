@@ -1,0 +1,5 @@
+36 calls to one unknown code, then another unknown code and a real code:
+404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 404 429 429 429 429 429 429 
+same code -> {"error":{"code":"RATE_LIMITED","message":"Too many requests. Slow down a moment.","field_errors":[]}} HTTP 429
+different unknown code -> {"error":{"code":"NOT_FOUND","message":"Not found.","field_errors":[]}} HTTP 404
+real code -> {"data":{"valid":true,"holder_name":"Victor Founder","course_title":"Shape the problem","issued_on":"2026-10-21","issuer":"Cofoundaz"},"meta":null} HTTP 200

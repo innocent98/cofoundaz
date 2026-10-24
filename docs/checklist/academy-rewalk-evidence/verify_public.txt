@@ -1,0 +1,4 @@
+GET /verify/CFZ-LAQ7-BMS4-N877 -> {"data":{"valid":true,"holder_name":"Victor Founder","course_title":"Find a repeatable channel","issued_on":"2026-10-24","issuer":"Cofoundaz"},"meta":null} HTTP 200
+GET /verify/CFZ-C4MB-SWRU-DRXE -> {"data":{"valid":true,"holder_name":"Victor Founder","course_title":"Shape the problem","issued_on":"2026-10-21","issuer":"Cofoundaz"},"meta":null} HTTP 200
+GET /verify/CFZ-AAAA-BBBB-CCCC -> {"error":{"code":"NOT_FOUND","message":"Not found.","field_errors":[]}} HTTP 404
+GET /verify/abc -> {"error":{"code":"NOT_FOUND","message":"Not found.","field_errors":[]}} HTTP 404

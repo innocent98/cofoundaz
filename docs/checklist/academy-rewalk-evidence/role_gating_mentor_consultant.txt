@@ -1,0 +1,32 @@
+--- bb-mentor-1@example.com
+memberships [{'startup_id': '11ba2aa0-8c8d-4035-adb8-62530988ed44', 'name': 'NovaPay', 'role': 'mentor'}]
+GET /learning/recommendations -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/courses -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/courses/idea-shape-the-problem -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/paths -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/articles -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/articles/article-pricing-basics -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/certificates -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/lessons/idea-shape-the-problem-1/notes -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /search?q=runway -> {"data":{"query":"runway","results":[]},"meta":null} HTTP 200 
+POST /learning/enrollments -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+PATCH /learning/lessons/idea-shape-the-problem-1/progress -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+PUT /learning/lessons/idea-shape-the-problem-1/notes -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+--- bb-consultant-1@example.com
+memberships [{'startup_id': '11ba2aa0-8c8d-4035-adb8-62530988ed44', 'name': 'NovaPay', 'role': 'business_consultant'}]
+GET /learning/recommendations -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/courses -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/courses/idea-shape-the-problem -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/paths -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/articles -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/articles/article-pricing-basics -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/certificates -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /learning/lessons/idea-shape-the-problem-1/notes -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+GET /search?q=runway -> {"data":{"query":"runway","results":[]},"meta":null} HTTP 200 
+POST /learning/enrollments -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+PATCH /learning/lessons/idea-shape-the-problem-1/progress -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+PUT /learning/lessons/idea-shape-the-problem-1/notes -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+rewalk-tm@example.com GET founder cert pdf -> {"error":{"code":"NOT_FOUND","message":"Not found.","field_errors":[]}} HTTP 404 
+bb-mentor-1@example.com GET founder cert pdf -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+bb-consultant-1@example.com GET founder cert pdf -> {"error":{"code":"FORBIDDEN","message":"You don't have permission to do that.","field_errors":[]}} HTTP 403 
+{"error":{"code":"UNAUTHORIZED","message":"Not authenticated.","field_errors":[]}} HTTP 401
