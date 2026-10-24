@@ -99,6 +99,22 @@ The 100k daily budget used for this walk: about 7k tokens (workspace counter 37.
 | 18 | No contact drawer; "Log activity" only toasts; timeline static | High | A, FE-A |
 | 19 | No enroll-in-sequence from a contact row | Med | B, FE-BC |
 
+## FE-B status (2026-10-24): Sequences on the real API
+
+Branch `feature/sales-sequences-fe`. Walked live against the local API (develop, migration 0069), founder, team member and
+mentor at 1440 and 375, every control checked against the raw API (`sales-sequences-fe-walk.md`). Nothing was sent: all
+enrolments went into paused sequences. SOP: `docs/sop/sales-sequences-fe.md`.
+
+| # | Status | Evidence |
+|---|---|---|
+| 15 | ✅ | Leads: Enrol on a row and on the deep-link card; summary lists skips (no email, already in it) |
+| 19 | ✅ | Contact drawer: Enrol in sequence enrols with `contact_id` set (raw API) |
+| 20 | ✅ | + New sequence creates (posted body matches raw); list shows steps, active, enrolled and reply rate from the API |
+| 21 | ✅ | Add / remove steps (cap 10), wait days 0 to 60, chips insert at the caret, preview, Save / Discard, API field errors |
+| 22 | ✅ | Write with AI polls the draft and fills the step unsaved; failure and slow states worded |
+| 23 | ✅ FE | Sending banner, enrol skips incl. suppressed, People list, Mark replied, Stop, public `/unsubscribe/[token]` (real signed token: read, unsubscribe, already unsubscribed, then `suppressed` on enrol). **Not walked live:** a real send |
+| 24 | ✅ FE | Paused-by-bounces banner with founder-only Resume (mocked e2e from the guide capture); **not produced live** |
+
 ## 11.4 Email Sequences
 | # | Gap | Sev | Slice |
 |---|---|---|---|
