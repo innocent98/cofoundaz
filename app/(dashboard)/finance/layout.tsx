@@ -4,13 +4,10 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ToastProvider } from "./ToastContext";
-import { useSidebar } from '@/components/sidebar-context';
-import { HealthPill } from '@/components/health-pill';
-import { NotificationBell } from '@/components/notification-bell';
+import { ShellTopBar } from "@/components/shell-top-bar";
 
 export default function FinanceLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { openSidebar } = useSidebar();
 
   const navItems = [
     { name: "Cash flow", path: "/finance" },
@@ -25,35 +22,14 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
   return (
     <ToastProvider>
       <div className="flex flex-col min-h-full min-w-0 bg-[#f5f7f5] text-[#2c3531] font-body w-full">
-        
-        {/* Outer Single Top Header */}
-        <div className="sticky top-0 z-40 bg-white border-b border-green-100 shadow-card w-full">
-          <header className="flex w-full items-center justify-between gap-2 px-6 py-3 border-b border-green-100">
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              <button
-                type="button"
-                aria-label="Open menu"
-                onClick={openSidebar}
-                className="lg:hidden h-8 w-8 rounded-full bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-[11px] shadow-card hover:opacity-90 transition-opacity shrink-0"
-              >
-                C
-              </button>
+        {/* Shared top bar (search, health, bell, invite) plus the section tabs */}
+        <div className="sticky top-0 z-40 bg-[#F7F7F5] border-b border-[#EBEBE6] w-full">
+          <ShellTopBar title="Finance Hub" />
 
-              <div className="flex min-w-0 items-center gap-1 text-sm text-sage-500">
-                <Link href="/dashboard" className="truncate hover:text-sage-700 font-medium text-sm">Workspace</Link>
-                <span className="text-sage-400">/</span>
-                <span className="truncate font-bold text-[#1E2923] text-base">Finance Hub</span>
-              </div>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-2">
-              <HealthPill className="bg-green-100 text-green-900 px-2 py-1 rounded-full text-[10px] md:text-xs font-medium flex items-center gap-1 border border-green-200" />
-
-              <NotificationBell />
-            </div>
-          </header>
-
-          <nav className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none bg-white px-6 py-2">
+          <nav
+            aria-label="Finance sections"
+            className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none bg-[#F7F7F5] px-4 md:px-8 py-3"
+          >
             {navItems.map((tab) => {
               const isActive = pathname === tab.path || (tab.path !== "/finance" && pathname?.startsWith(tab.path));
               return (
@@ -61,10 +37,10 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
                   key={tab.name}
                   href={tab.path}
                   aria-current={isActive ? "page" : undefined}
-                  className={`px-3.5 py-1.5 md:px-4 md:py-2 rounded-full text-[11px] md:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     isActive
-                      ? "bg-copper-200 text-copper-700 shadow-card font-semibold"
-                      : "bg-sage-100 text-sage-700 hover:bg-green-100"
+                      ? "bg-[#EAD5C6] text-[#1E2923] font-bold shadow-card"
+                      : "bg-white border border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]"
                   }`}
                 >
                   {tab.name}
@@ -74,7 +50,7 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
           </nav>
         </div>
 
-        <main className="max-w-7xl mx-auto px-4 md:px-6 pt-6 flex-1 w-full space-y-6 pb-20">
+        <main className="max-w-7xl mx-auto px-4 md:px-6 pt-6 flex-1 w-full min-w-0 space-y-6 pb-20">
           {children}
         </main>
       </div>

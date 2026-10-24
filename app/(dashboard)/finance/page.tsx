@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, MessageSquare, Plus, Wallet } from "lucide-react";
-import { useCashFlow, useTransactions, useKnownCategories } from "@/hooks/useFinanceApi";
+import { useCashFlow, useCategories, useTransactions, useUncategorizedCount } from "@/hooks/useFinanceApi";
 import {
   createTransaction,
   deleteTransaction,
@@ -11,10 +11,15 @@ import {
   type CashFlow,
   type Transaction,
   type TransactionDirection,
+  type TransactionFilters,
+  type TransactionSource,
   type FinanceError,
 } from "@/lib/api/finance";
 import { useAiDrawer } from "@/components/ai-drawer-context";
-import { formatDate, formatMoney, plainText, shortMonth, todayIso, toMinor, minorToInput } from "@/lib/finance/format";
+import { formatDate, formatMoney, formatMoneyWhole, plainText, todayIso, toMinor, minorToInput } from "@/lib/finance/format";
+import { CategorySelect } from "./_components/CategorySelect";
+import { CashFlowChart } from "./_components/charts";
+import { LoadMore } from "./_components/LoadMore";
 import {
   ConfirmDialog,
   EmptyBlock,
@@ -36,7 +41,7 @@ import { useFinanceAction } from "./_components/useFinanceAction";
 
 type Filter = "all" | "uncategorized" | "in" | "out";
 
-function RunwayBanner({ cashFlow, onAsk }: { cashFlow: CashFlow; onAsk: () => void }) {
+function RunwayBanner({ cashFlow, onAsk }: { cashFlow: CashFlow; onAsk: (seed: string) => void }) {
   // Drive the banner from runway_low, never from a null runway_months: null is
   // "not burning" OR "out of cash" depending on the flag and the burn.
   if (!cashFlow.runway_low) return null;
@@ -55,13 +60,33 @@ function RunwayBanner({ cashFlow, onAsk }: { cashFlow: CashFlow; onAsk: () => vo
           <p className="text-sm text-red-600 opacity-90 mt-0.5">Let&apos;s look at levers: costs, pricing or funding.</p>
         </div>
       </div>
-      <button type="button" onClick={onAsk} className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">
+      <button type="button" onClick={() => onAsk(advisorSeed(cashFlow))} className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">
         <MessageSquare className="w-4 h-4" aria-hidden="true" />
         Ask Finance Advisor
       </button>
     </div>
   );
 }
+
+function advisorSeed(cf: CashFlow): string {
+  const burn = formatMoneyWhole(cf.monthly_burn, cf.currency);
+  return cf.runway_months === null
+    ? `I am out of cash and my monthly burn is ${burn}. What levers should I look at first?`
+    : `My runway is ${cf.runway_months} months and my monthly burn is ${burn}. What levers should I look at?`;
+}
+
+const SOURCE_LABEL: Record<TransactionSource, string> = {
+  manual: "Manual",
+  invoice: "Invoice",
+  expense: "Expense",
+  bank: "Bank",
+  accounting: "Accounting",
+  paystack: "Paystack",
+  flutterwave: "Flutterwave",
+};
+
+/** Imported rows (payments and bank) keep their category editable; invoice and expense rows belong to their record. */
+const CATEGORY_EDITABLE: TransactionSource[] = ["manual", "paystack", "flutterwave", "bank"];
 
 function runwayTile(cf: CashFlow): { value: string; sub: string } {
   if (cf.runway_months !== null) return { value: `${cf.runway_months} months`, sub: "Cash on hand divided by burn" };
@@ -103,7 +128,7 @@ function TransactionForm({
   return (
     <form onSubmit={submit} className="space-y-4">
       <p className="text-xs text-sage-500">
-        For money movements that are not an expense or an invoice. Log spend under Expenses so it is not counted twice.
+        For money movements that are not an expense or an invoice. Spend with a receipt belongs under Expenses; do not add the same spend in both places.
       </p>
       <Field label="Type" htmlFor="tx-direction">
         <select id="tx-direction" className={inputCls} value={direction} onChange={(e) => setDirection(e.target.value as TransactionDirection)}>
@@ -123,12 +148,7 @@ function TransactionForm({
         </Field>
       </div>
       <Field label="Category (optional)" htmlFor="tx-cat" error={error?.fieldErrors.category}>
-        <input id="tx-cat" list="tx-cat-list" className={inputCls} value={category} onChange={(e) => setCategory(e.target.value)} maxLength={120} />
-        <datalist id="tx-cat-list">
-          {categories.map((c) => (
-            <option key={c} value={c} />
-          ))}
-        </datalist>
+        <CategorySelect id="tx-cat" value={category} onChange={setCategory} options={categories} emptyLabel="No category" />
       </Field>
       <FormError message={localError ?? (error && !Object.keys(error.fieldErrors).length ? error.message : null)} />
       <div className="flex gap-3 justify-end pt-1">
@@ -143,6 +163,9 @@ function TransactionForm({
   );
 }
 
+const ADD_NEW = "__add_new__";
+
+/** Inline category editor: pick one from the list, or add a new one. Saves on pick or on Set. */
 function CategoryCell({
   tx,
   categories,
@@ -154,54 +177,137 @@ function CategoryCell({
   busy: boolean;
   onSet: (value: string) => void;
 }) {
+  const [adding, setAdding] = useState(false);
   const [value, setValue] = useState("");
-  if (tx.category) {
-    return <span className="text-sage-700 bg-white border border-sage-200 px-2 py-1 rounded-input text-xs">{tx.category}</span>;
+  if (!CATEGORY_EDITABLE.includes(tx.source)) {
+    return tx.category ? (
+      <span className="text-sage-700 bg-white border border-sage-200 px-2 py-1 rounded-input text-xs">{tx.category}</span>
+    ) : (
+      <span className="text-xs text-sage-600">Uncategorized</span>
+    );
   }
-  if (tx.source !== "manual") return <span className="text-xs text-sage-400">Uncategorized</span>;
+  if (adding) {
+    return (
+      <form
+        className="flex items-center gap-1.5"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (value.trim()) {
+            onSet(value.trim());
+            setAdding(false);
+            setValue("");
+          }
+        }}
+      >
+        <input
+          aria-label={`New category for ${tx.description}`}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="New category"
+          maxLength={120}
+          autoComplete="off"
+          className="text-xs bg-white border border-copper-600 text-copper-700 rounded-input px-2 py-1 w-32 outline-none font-medium"
+        />
+        <button type="submit" disabled={busy || !value.trim()} className={linkBtn}>
+          Set
+        </button>
+        <button type="button" className={linkBtn} onClick={() => setAdding(false)}>
+          Cancel
+        </button>
+      </form>
+    );
+  }
+  const known = tx.category && !categories.some((c) => c.toLowerCase() === tx.category!.toLowerCase());
   return (
-    <form
-      className="flex items-center gap-1.5"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (value.trim()) onSet(value.trim());
+    <select
+      aria-label={`Category for ${tx.description}`}
+      value={tx.category ?? ""}
+      disabled={busy}
+      onChange={(e) => {
+        if (e.target.value === ADD_NEW) setAdding(true);
+        else if (e.target.value !== (tx.category ?? "")) onSet(e.target.value);
       }}
+      className={`text-xs rounded-input px-2 py-1 max-w-[10rem] outline-none font-medium bg-white border ${
+        tx.category ? "border-sage-200 text-sage-700" : "border-copper-600 text-copper-700"
+      }`}
     >
-      <input
-        aria-label={`Category for ${tx.description}`}
-        list="tx-cat-list-inline"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Add category"
-        maxLength={120}
-        className="text-xs bg-white border border-copper-600 text-copper-700 rounded-input px-2 py-1 w-32 outline-none font-medium"
-      />
-      <datalist id="tx-cat-list-inline">
-        {categories.map((c) => (
-          <option key={c} value={c} />
-        ))}
-      </datalist>
-      <button type="submit" disabled={busy || !value.trim()} className={linkBtn}>
-        Set
-      </button>
-    </form>
+      {!tx.category && <option value="">Add category</option>}
+      {known && <option value={tx.category!}>{tx.category}</option>}
+      {categories.map((c) => (
+        <option key={c} value={c}>
+          {c}
+        </option>
+      ))}
+      <option value={ADD_NEW}>Add category...</option>
+    </select>
   );
+}
+
+function filtersFor(filter: Filter): TransactionFilters {
+  if (filter === "uncategorized") return { uncategorized: true };
+  if (filter === "in" || filter === "out") return { direction: filter };
+  return {};
+}
+
+function RowActions({
+  tx,
+  onEdit,
+  onDelete,
+}: {
+  tx: Transaction;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  if (tx.source === "manual") {
+    return (
+      <span className="inline-flex items-center gap-3">
+        <button type="button" className={linkBtn} onClick={onEdit} aria-label={`Edit ${tx.description}`}>
+          Edit
+        </button>
+        <button type="button" className={dangerLinkBtn} onClick={onDelete} aria-label={`Delete ${tx.description}`}>
+          Delete
+        </button>
+      </span>
+    );
+  }
+  if (tx.source === "invoice") {
+    return (
+      <Link href="/finance/invoices" className="text-xs text-sage-500 hover:underline">
+        From an invoice. Mark it unpaid to change.
+      </Link>
+    );
+  }
+  if (tx.source === "expense") {
+    return (
+      <Link href="/finance/expenses" className="text-xs text-sage-500 hover:underline">
+        From an expense. Edit it there.
+      </Link>
+    );
+  }
+  return <span className="text-xs text-sage-600">Imported. Only the category can change.</span>;
+}
+
+function TxNote({ tx }: { tx: Transaction }) {
+  if (tx.category !== "Paystack payout") return null;
+  return <span className="block text-xs font-medium text-copper-700 mt-0.5">Paystack payout, not counted as income</span>;
 }
 
 export default function CashFlowPage() {
   const cashFlow = useCashFlow();
-  const transactions = useTransactions();
-  const categories = useKnownCategories();
+  const [filter, setFilter] = useState<Filter>("all");
+  const transactions = useTransactions(filtersFor(filter));
+  const uncategorized = useUncategorizedCount();
+  const categoryList = useCategories();
+  const categories = useMemo(() => (categoryList.data ?? []).map((c) => c.name), [categoryList.data]);
   const { openAiDrawer } = useAiDrawer();
   const { run, busy } = useFinanceAction();
 
-  const [filter, setFilter] = useState<Filter>("all");
   const [formFor, setFormFor] = useState<"new" | Transaction | null>(null);
   const [formError, setFormError] = useState<FinanceError | null>(null);
   const [deleting, setDeleting] = useState<Transaction | null>(null);
 
   const refresh = async () => {
-    await Promise.all([cashFlow.reload(), transactions.reload()]);
+    await Promise.all([cashFlow.reload(), transactions.reload(), uncategorized.reload(), categoryList.reload()]);
   };
 
   const closeForm = () => {
@@ -210,16 +316,10 @@ export default function CashFlowPage() {
   };
 
   const today = todayIso();
-  const all = useMemo(() => transactions.data ?? [], [transactions.data]);
-  const uncategorizedCount = all.filter((t) => !t.category).length;
-  const visible = all.filter((t) => {
-    if (filter === "uncategorized") return !t.category;
-    if (filter === "in" || filter === "out") return t.direction === filter;
-    return true;
-  });
-
+  const visible = transactions.items;
+  const uncategorizedCount = uncategorized.data ?? 0;
   const categorizeInline = async (tx: Transaction, category: string) => {
-    const res = await run(() => updateTransaction(tx.id, { category }), { success: "Category saved." });
+    const res = await run(() => updateTransaction(tx.id, { category: category || null }), { success: "Category saved." });
     if (res.ok) await refresh();
   };
 
@@ -287,35 +387,34 @@ export default function CashFlowPage() {
   }
 
   const cf = cashFlow.data;
-  const maxBar = cf ? Math.max(1, ...cf.by_month.flatMap((m) => [m.inflow, m.outflow])) : 1;
   const tile = cf ? runwayTile(cf) : null;
 
   return (
     <div className="space-y-6 animate-fadeIn">
       {header}
 
-      {cashFlow.status === "loading" || transactions.status === "loading" ? (
+      {cashFlow.status === "loading" ? (
         <LoadingBlock label="Loading cash flow" />
       ) : cashFlow.status === "error" || !cf ? (
         <ErrorBlock message={cashFlow.error ?? "Couldn't load cash flow."} onRetry={() => void cashFlow.reload()} />
       ) : (
         <>
-          <RunwayBanner cashFlow={cf} onAsk={openAiDrawer} />
+          <RunwayBanner cashFlow={cf} onAsk={(seed) => openAiDrawer({ seed })} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
               <p className="text-xs text-sage-500 font-medium uppercase">Cash on hand</p>
-              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoney(cf.cash_on_hand, cf.currency)}</p>
+              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoneyWhole(cf.cash_on_hand, cf.currency)}</p>
               <span className="text-xs text-sage-500 mt-2 block font-medium">Transactions dated today or earlier</span>
             </div>
             <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
               <p className="text-xs text-sage-500 font-medium uppercase">Monthly burn</p>
-              <p className="text-2xl font-bold text-red-600 mt-1">{formatMoney(cf.monthly_burn, cf.currency)}</p>
+              <p className="text-2xl font-bold text-red-600 mt-1">{formatMoneyWhole(cf.monthly_burn, cf.currency)}</p>
               <span className="text-xs text-sage-500 mt-2 block font-medium">Net, average of the last 3 months</span>
             </div>
             <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
               <p className="text-xs text-sage-500 font-medium uppercase">Monthly money in</p>
-              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoney(cf.monthly_revenue, cf.currency)}</p>
+              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoneyWhole(cf.monthly_revenue, cf.currency)}</p>
               <span className="text-xs text-sage-500 mt-2 block font-medium">All inflows, average of the last 3 months</span>
             </div>
             <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
@@ -325,7 +424,7 @@ export default function CashFlowPage() {
             </div>
           </div>
 
-          {all.length === 0 ? (
+          {transactions.status === "ready" && visible.length === 0 && filter === "all" ? (
             <EmptyBlock
               icon={<Wallet className="w-6 h-6" aria-hidden="true" />}
               title="No transactions yet"
@@ -342,21 +441,7 @@ export default function CashFlowPage() {
             <>
               <div className="bg-white rounded-modal border border-sage-200 p-6 shadow-card space-y-4">
                 <h2 className="font-bold text-sage-900">Cash flow, last 6 months</h2>
-                <div className="h-48 w-full flex items-end justify-between gap-2 border-b border-sage-100 pb-2">
-                  {cf.by_month.map((m) => (
-                    <div key={m.month} className="flex-1 flex flex-col justify-end gap-1 items-center h-full" title={`${m.month}: in ${formatMoney(m.inflow, cf.currency)}, out ${formatMoney(m.outflow, cf.currency)}`}>
-                      <div className="w-full flex gap-1 justify-center items-end h-[80%]">
-                        <div className="w-1/3 bg-green-800 rounded-t-input" style={{ height: `${(m.inflow / maxBar) * 100}%` }}></div>
-                        <div className="w-1/3 bg-red-600 rounded-t-input" style={{ height: `${(m.outflow / maxBar) * 100}%` }}></div>
-                      </div>
-                      <span className="text-[10px] text-sage-400 font-medium">{shortMonth(m.month)}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex items-center gap-4 text-xs font-medium text-sage-600 justify-center">
-                  <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-input bg-green-800"></div> Money in</div>
-                  <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-input bg-red-600"></div> Money out</div>
-                </div>
+                <CashFlowChart cashFlow={cf} />
               </div>
 
               <div className="bg-white rounded-modal border border-sage-200 overflow-hidden shadow-card">
@@ -386,75 +471,94 @@ export default function CashFlowPage() {
                     ))}
                   </div>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[760px]">
-                    <thead>
-                      <tr className="bg-sage-50/50 border-b border-sage-100 text-xs font-bold text-sage-400 uppercase tracking-wider">
-                        <th className="py-4 px-6">Date</th>
-                        <th className="py-4 px-4">Description</th>
-                        <th className="py-4 px-4">Category</th>
-                        <th className="py-4 px-4">Source</th>
-                        <th className="py-4 px-4 text-right">Amount</th>
-                        <th className="py-4 px-6 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-sage-100 text-sm">
+                {transactions.status === "loading" ? (
+                  <LoadingBlock label="Loading transactions" />
+                ) : transactions.status === "error" ? (
+                  <ErrorBlock message={transactions.error ?? "Couldn't load transactions."} onRetry={() => void transactions.reload()} />
+                ) : visible.length === 0 ? (
+                  <div className="p-8 text-center text-sage-500 font-medium text-sm">No transactions match this filter.</div>
+                ) : (
+                  <>
+                    <ul className="md:hidden divide-y divide-sage-100" aria-label="Transactions">
                       {visible.map((tx) => (
-                        <tr key={tx.id} className="hover:bg-sage-50/50 transition-colors">
-                          <td className="py-4 px-6 text-sage-600 font-medium whitespace-nowrap">
-                            {formatDate(tx.date)}
-                            {tx.date > today && (
-                              <span className="ml-2 bg-copper-100 text-copper-700 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">Scheduled</span>
-                            )}
-                          </td>
-                          <td className="py-4 px-4 font-semibold text-sage-900">{plainText(tx.description)}</td>
-                          <td className="py-4 px-4">
-                            <CategoryCell tx={tx} categories={categories} busy={busy} onSet={(c) => void categorizeInline(tx, c)} />
-                          </td>
-                          <td className="py-4 px-4">
+                        <li key={tx.id} className="p-4 space-y-2">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="font-semibold text-sage-900 break-words">{plainText(tx.description)}</p>
+                              <TxNote tx={tx} />
+                              <p className="text-xs text-sage-500 mt-0.5">
+                                {formatDate(tx.date)}
+                                {tx.date > today ? " (scheduled)" : ""}
+                              </p>
+                            </div>
+                            <p className={`font-bold whitespace-nowrap ${tx.direction === "in" ? "text-green-800" : "text-sage-900"}`}>
+                              {tx.direction === "in" ? "+" : "-"}
+                              {formatMoney(tx.amount_minor, tx.currency)}
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2">
                             <span className="bg-sage-100 text-sage-600 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider border border-sage-200">
-                              {tx.source}
+                              {SOURCE_LABEL[tx.source] ?? tx.source}
                             </span>
-                          </td>
-                          <td className={`py-4 px-4 font-bold text-right whitespace-nowrap ${tx.direction === "in" ? "text-green-800" : "text-sage-900"}`}>
-                            {tx.direction === "in" ? "+" : "-"}
-                            {formatMoney(tx.amount_minor, tx.currency)}
-                          </td>
-                          <td className="py-4 px-6 text-right whitespace-nowrap">
-                            {tx.source === "manual" ? (
-                              <span className="inline-flex items-center gap-3">
-                                <button type="button" className={linkBtn} onClick={() => setFormFor(tx)} aria-label={`Edit ${tx.description}`}>
-                                  Edit
-                                </button>
-                                <button type="button" className={dangerLinkBtn} onClick={() => setDeleting(tx)} aria-label={`Delete ${tx.description}`}>
-                                  Delete
-                                </button>
-                              </span>
-                            ) : tx.source === "invoice" ? (
-                              <Link href="/finance/invoices" className="text-xs text-sage-500 hover:underline">
-                                From an invoice. Mark it unpaid to change.
-                              </Link>
-                            ) : tx.source === "expense" ? (
-                              <Link href="/finance/expenses" className="text-xs text-sage-500 hover:underline">
-                                From an expense. Edit it there.
-                              </Link>
-                            ) : (
-                              <span className="text-xs text-sage-400">Managed by its source</span>
-                            )}
-                          </td>
-                        </tr>
+                            <CategoryCell tx={tx} categories={categories} busy={busy} onSet={(c) => void categorizeInline(tx, c)} />
+                          </div>
+                          <RowActions tx={tx} onEdit={() => setFormFor(tx)} onDelete={() => setDeleting(tx)} />
+                        </li>
                       ))}
-                    </tbody>
-                  </table>
-                  {visible.length === 0 && <div className="p-8 text-center text-sage-500 font-medium text-sm">No transactions match this filter.</div>}
-                </div>
+                    </ul>
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-sage-50/50 border-b border-sage-100 text-xs font-bold text-sage-600 uppercase tracking-wider">
+                            <th className="py-4 px-6">Date</th>
+                            <th className="py-4 px-4">Description</th>
+                            <th className="py-4 px-4">Category</th>
+                            <th className="py-4 px-4">Source</th>
+                            <th className="py-4 px-4 text-right">Amount</th>
+                            <th className="py-4 px-6 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-sage-100 text-sm">
+                          {visible.map((tx) => (
+                            <tr key={tx.id} className="hover:bg-sage-50/50 transition-colors">
+                              <td className="py-4 px-6 text-sage-600 font-medium whitespace-nowrap">
+                                {formatDate(tx.date)}
+                                {tx.date > today && (
+                                  <span className="ml-2 bg-copper-100 text-copper-700 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">Scheduled</span>
+                                )}
+                              </td>
+                              <td className="py-4 px-4 font-semibold text-sage-900">
+                                {plainText(tx.description)}
+                                <TxNote tx={tx} />
+                              </td>
+                              <td className="py-4 px-4">
+                                <CategoryCell tx={tx} categories={categories} busy={busy} onSet={(c) => void categorizeInline(tx, c)} />
+                              </td>
+                              <td className="py-4 px-4">
+                                <span className="bg-sage-100 text-sage-600 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider border border-sage-200">
+                                  {SOURCE_LABEL[tx.source] ?? tx.source}
+                                </span>
+                              </td>
+                              <td className={`py-4 px-4 font-bold text-right whitespace-nowrap ${tx.direction === "in" ? "text-green-800" : "text-sage-900"}`}>
+                                {tx.direction === "in" ? "+" : "-"}
+                                {formatMoney(tx.amount_minor, tx.currency)}
+                              </td>
+                              <td className="py-4 px-6 text-right">
+                                <RowActions tx={tx} onEdit={() => setFormFor(tx)} onDelete={() => setDeleting(tx)} />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <LoadMore list={transactions} noun="transactions" />
+                  </>
+                )}
               </div>
             </>
           )}
         </>
       )}
-
-      {transactions.status === "error" && cf && <ErrorBlock message={transactions.error ?? "Couldn't load transactions."} onRetry={() => void transactions.reload()} />}
 
       {formFor && (
         <Modal title={formFor === "new" ? "Add transaction" : "Edit transaction"} onClose={closeForm}>

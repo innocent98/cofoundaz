@@ -5,7 +5,8 @@ import Link from "next/link";
 import { AlertTriangle, LineChart, Plus } from "lucide-react";
 import { useCashFlow, useRunway } from "@/hooks/useFinanceApi";
 import { saveRunwayAssumptions, type FinanceError, type Runway, type RunwayScenario, type RunwayScenarioKey } from "@/lib/api/finance";
-import { formatMoney, formatMonth, minorToThousands, shortMonth, thousandsToMinor } from "@/lib/finance/format";
+import { formatMoney, formatMoneyWhole, formatMonth, minorToInput, toMinor } from "@/lib/finance/format";
+import { RunwayChart } from "../_components/charts";
 import {
   EmptyBlock,
   Field,
@@ -19,13 +20,13 @@ import {
 } from "../_components/ui";
 import { useFinanceAction } from "../_components/useFinanceAction";
 
-const SCENARIOS: { key: RunwayScenarioKey; label: string; stroke: string }[] = [
-  { key: "base", label: "Base", stroke: "var(--color-green-900)" },
-  { key: "best", label: "Best", stroke: "var(--color-copper-600)" },
-  { key: "worst", label: "Worst", stroke: "var(--color-red-600)" },
+const SCENARIOS: { key: RunwayScenarioKey; label: string }[] = [
+  { key: "base", label: "Base" },
+  { key: "best", label: "Best" },
+  { key: "worst", label: "Worst" },
 ];
 
-function headline(s: RunwayScenario, horizon: number): { value: string; sub: string; critical: boolean } {
+function headline(s: RunwayScenario, horizon: number, label: string): { value: string; sub: string; critical: boolean } {
   // null and 0 are opposites: test both explicitly, never with a falsy check.
   if (s.runway_months === null) {
     return { value: `${horizon}+ months`, sub: `Cash stays above zero for the whole ${horizon} month projection.`, critical: false };
@@ -35,57 +36,9 @@ function headline(s: RunwayScenario, horizon: number): { value: string; sub: str
   }
   return {
     value: `${s.runway_months} months`,
-    sub: s.cash_out_date ? `Cash runs out in ${formatMonth(s.cash_out_date)}.` : "Cash runs out inside the projection.",
+    sub: s.cash_out_date ? `At ${label.toLowerCase()} case, cash out: ${formatMonth(s.cash_out_date)}.` : "Cash runs out inside the projection.",
     critical: s.runway_months < 6,
   };
-}
-
-function ProjectionChart({ runway, selected }: { runway: Runway; selected: RunwayScenarioKey }) {
-  const all = SCENARIOS.flatMap((s) => runway.scenarios[s.key].by_month.map((p) => p.cash_balance));
-  const min = Math.min(0, ...all);
-  const max = Math.max(0, ...all);
-  const span = max - min || 1;
-  const n = runway.scenarios[selected].by_month.length;
-  const x = (i: number) => (n <= 1 ? 0 : (i / (n - 1)) * 100);
-  const y = (v: number) => 100 - ((v - min) / span) * 100;
-  const zeroY = y(0);
-  const months = runway.scenarios[selected].by_month;
-
-  return (
-    <div className="space-y-2">
-      <div className="relative min-h-[250px] h-[250px] border-l border-b border-sage-200">
-        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100" role="img" aria-label="Projected cash balance for the base, best and worst scenarios">
-          <line x1="0" x2="100" y1={zeroY} y2={zeroY} stroke="var(--color-red-200)" strokeDasharray="2 2" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-          {SCENARIOS.map((s) => (
-            <polyline
-              key={s.key}
-              fill="none"
-              stroke={s.stroke}
-              strokeWidth={s.key === selected ? 2.5 : 1.5}
-              strokeOpacity={s.key === selected ? 1 : 0.35}
-              vectorEffect="non-scaling-stroke"
-              points={runway.scenarios[s.key].by_month.map((p, i) => `${x(i)},${y(p.cash_balance)}`).join(" ")}
-            />
-          ))}
-        </svg>
-        <span className="absolute right-2 text-[10px] text-red-600 font-bold bg-white px-1 -translate-y-1/2" style={{ top: `${zeroY}%` }}>
-          Zero cash
-        </span>
-      </div>
-      <div className="flex justify-between text-[10px] font-medium text-sage-400">
-        <span>{months[0] ? shortMonth(months[0].month) : ""}</span>
-        <span>{months[n - 1] ? shortMonth(months[n - 1].month) : ""}</span>
-      </div>
-      <div className="flex items-center gap-4 text-xs font-medium text-sage-600 justify-center">
-        {SCENARIOS.map((s) => (
-          <span key={s.key} className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-input" style={{ background: s.stroke }}></span>
-            {s.label}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function AssumptionsPanel({
@@ -97,8 +50,8 @@ function AssumptionsPanel({
 }) {
   const a = runway.assumptions;
   const [growth, setGrowth] = useState(String(a.mom_growth_percent));
-  const [hiring, setHiring] = useState(String(minorToThousands(a.hiring_spend_minor)));
-  const [oneOff, setOneOff] = useState(String(minorToThousands(a.one_off_costs_minor)));
+  const [hiring, setHiring] = useState(minorToInput(a.hiring_spend_minor));
+  const [oneOff, setOneOff] = useState(minorToInput(a.one_off_costs_minor));
   const [error, setError] = useState<FinanceError | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
   const { run, busy } = useFinanceAction();
@@ -106,21 +59,19 @@ function AssumptionsPanel({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const g = Number(growth);
-    const h = Number(hiring);
-    const o = Number(oneOff);
-    if (![g, h, o].every((v) => Number.isFinite(v) && v >= 0) || growth.trim() === "" || hiring.trim() === "" || oneOff.trim() === "") {
-      return setLocalError("Enter zero or a positive number in every field.");
-    }
+    const h = toMinor(hiring);
+    const o = toMinor(oneOff);
+    if (growth.trim() === "" || !Number.isFinite(g) || g < 0) return setLocalError("Growth must be zero or a positive whole number.");
     if (!Number.isInteger(g) || g > 1000) return setLocalError("Growth must be a whole number from 0 to 1000.");
+    if (h === null || o === null) return setLocalError("Enter hiring spend and one-off costs in naira, like 200000 or 200000.50.");
     setLocalError(null);
     setError(null);
-    // The screen speaks NGN thousands; the API wants kobo.
     const res = await run(
       () =>
         saveRunwayAssumptions({
           mom_growth_percent: g,
-          hiring_spend_minor: thousandsToMinor(h),
-          one_off_costs_minor: thousandsToMinor(o),
+          hiring_spend_minor: h,
+          one_off_costs_minor: o,
         }),
       { success: "Assumptions saved. Scenarios updated.", quiet: true },
     );
@@ -131,15 +82,25 @@ function AssumptionsPanel({
   return (
     <form onSubmit={(e) => void submit(e)} className="lg:col-span-4 bg-white rounded-modal border border-sage-200 p-6 shadow-card space-y-5">
       <h2 className="font-bold text-sage-900 border-b border-sage-100 pb-3">Assumptions</h2>
-      <p className="text-xs text-sage-500">Saved for this workspace. Best and worst cases are fixed offsets from these.</p>
+      <p className="text-xs text-sage-500">Saved for this workspace. The base case uses these as saved.</p>
+      <dl className="text-xs text-sage-600 bg-sage-50 border border-sage-200 rounded-input p-3 space-y-1">
+        <div>
+          <dt className="inline font-bold">Best case: </dt>
+          <dd className="inline">growth 10 points higher and costs 10% lower.</dd>
+        </div>
+        <div>
+          <dt className="inline font-bold">Worst case: </dt>
+          <dd className="inline">growth 10 points lower (not below 0) and costs 15% higher.</dd>
+        </div>
+      </dl>
       <Field label="MoM growth %" htmlFor="rw-growth" error={error?.fieldErrors.mom_growth_percent}>
         <input id="rw-growth" type="number" min={0} max={1000} step={1} className={inputCls} value={growth} onChange={(e) => setGrowth(e.target.value)} />
       </Field>
-      <Field label="Hiring spend (NGN thousands per month)" htmlFor="rw-hiring" error={error?.fieldErrors.hiring_spend_minor} hint="20 means 20,000 naira.">
-        <input id="rw-hiring" type="number" min={0} step="any" className={inputCls} value={hiring} onChange={(e) => setHiring(e.target.value)} />
+      <Field label="Hiring spend per month (NGN)" htmlFor="rw-hiring" error={error?.fieldErrors.hiring_spend_minor} hint="A monthly cost added on top of your current burn.">
+        <input id="rw-hiring" inputMode="decimal" className={inputCls} value={hiring} onChange={(e) => setHiring(e.target.value)} />
       </Field>
-      <Field label="One-off costs (NGN thousands)" htmlFor="rw-oneoff" error={error?.fieldErrors.one_off_costs_minor} hint="50 means 50,000 naira.">
-        <input id="rw-oneoff" type="number" min={0} step="any" className={inputCls} value={oneOff} onChange={(e) => setOneOff(e.target.value)} />
+      <Field label="One-off costs (NGN)" htmlFor="rw-oneoff" error={error?.fieldErrors.one_off_costs_minor} hint="A single cost taken once in the projection.">
+        <input id="rw-oneoff" inputMode="decimal" className={inputCls} value={oneOff} onChange={(e) => setOneOff(e.target.value)} />
       </Field>
       <FormError message={localError ?? (error && !Object.keys(error.fieldErrors).length ? error.message : null)} />
       <button type="submit" className={`${darkBtn} w-full`} disabled={busy}>
@@ -187,7 +148,7 @@ export default function RunwayPage() {
             );
           }
           const s = rw.scenarios[scenario];
-          const h = headline(s, rw.horizon_months);
+          const h = headline(s, rw.horizon_months, SCENARIOS.find((x) => x.key === scenario)?.label ?? "Base");
           return (
             <>
               {cashFlow.data?.runway_low && (
@@ -224,11 +185,11 @@ export default function RunwayPage() {
                 <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
                   <div className="p-4 bg-sage-50 border border-sage-200 rounded-card">
                     <p className="text-xs text-sage-500 font-medium uppercase mb-1">Avg net burn (scenario)</p>
-                    <p className="text-xl font-bold text-red-600">{formatMoney(s.avg_net_burn_minor, b.currency)}</p>
+                    <p className="text-xl font-bold text-red-600">{formatMoneyWhole(s.avg_net_burn_minor, b.currency)}</p>
                   </div>
                   <div className="p-4 bg-sage-50 border border-sage-200 rounded-card">
                     <p className="text-xs text-sage-500 font-medium uppercase mb-1">Cash on hand now</p>
-                    <p className="text-xl font-bold text-sage-900">{formatMoney(b.cash_on_hand, b.currency)}</p>
+                    <p className="text-xl font-bold text-sage-900">{formatMoneyWhole(b.cash_on_hand, b.currency)}</p>
                   </div>
                 </div>
               </div>
@@ -238,13 +199,35 @@ export default function RunwayPage() {
 
                 <div className="lg:col-span-8 bg-white rounded-modal border border-sage-200 p-6 shadow-card space-y-4">
                   <h2 className="font-bold text-sage-900 border-b border-sage-100 pb-3">Cash balance projection</h2>
-                  <ProjectionChart runway={rw} selected={scenario} />
+                  <RunwayChart runway={rw} selected={scenario} />
+                  <table className="w-full text-left text-sm">
+                    <caption className="sr-only">Cash-out date by scenario</caption>
+                    <thead>
+                      <tr className="text-xs text-sage-600 uppercase tracking-wider">
+                        <th className="py-2 pr-4">Scenario</th>
+                        <th className="py-2 pr-4">Runway</th>
+                        <th className="py-2 text-right">Cash out</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-sage-100">
+                      {SCENARIOS.map((sc) => {
+                        const x = rw.scenarios[sc.key];
+                        return (
+                          <tr key={sc.key}>
+                            <td className="py-2 pr-4 font-semibold text-sage-800">{sc.label} case</td>
+                            <td className="py-2 pr-4 text-sage-600">{x.runway_months === null ? `${rw.horizon_months}+ months` : x.runway_months === 0 ? "Out of cash" : `${x.runway_months} months`}</td>
+                            <td className="py-2 text-right font-semibold text-sage-900">{x.cash_out_date ? formatMonth(x.cash_out_date) : "Not in this projection"}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                   <details className="text-sm">
                     <summary className="cursor-pointer font-semibold text-sage-700">Month by month ({SCENARIOS.find((x) => x.key === scenario)?.label} case)</summary>
                     <div className="overflow-x-auto mt-3">
                       <table className="w-full text-left min-w-[420px]">
                         <thead>
-                          <tr className="text-xs text-sage-400 uppercase tracking-wider">
+                          <tr className="text-xs text-sage-600 uppercase tracking-wider">
                             <th className="py-2 pr-4">Month</th>
                             <th className="py-2 pr-4 text-right">Net</th>
                             <th className="py-2 text-right">Cash balance</th>

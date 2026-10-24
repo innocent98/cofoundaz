@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
 import { Copy, FileText, Plus, Sparkles } from "lucide-react";
-import { useBudgets, useKnownCategories } from "@/hooks/useFinanceApi";
+import { useBudgets, useCategories } from "@/hooks/useFinanceApi";
 import {
   copyLastMonthBudgets,
   createBudget,
@@ -11,10 +11,11 @@ import {
   draftBudgetsFromActuals,
   updateBudget,
   type Budget,
+  type BudgetStatus,
   type FinanceError,
 } from "@/lib/api/finance";
 import { clampPercent, currentMonth, formatMoney, formatMonth, minorToInput, toMinor } from "@/lib/finance/format";
-import { CategoryInput } from "../_components/CategoryInput";
+import { CategorySelect } from "../_components/CategorySelect";
 import {
   ConfirmDialog,
   EmptyBlock,
@@ -52,14 +53,14 @@ function BudgetForm({
   onCancel: () => void;
 }) {
   const [category, setCategory] = useState(initial?.category ?? "");
-  const [limit, setLimit] = useState(initial ? minorToInput(initial.limit_minor) : "");
+  const [limit, setLimit] = useState(initial?.limit_minor != null ? minorToInput(initial.limit_minor) : "");
   const [notes, setNotes] = useState(initial?.notes ?? "");
   const [localError, setLocalError] = useState<string | null>(null);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const minor = toMinor(limit);
-    if (!initial && !category.trim()) return setLocalError("Pick or type a category.");
+    if (!category.trim()) return setLocalError("Pick or type a category.");
     if (minor === null) return setLocalError("Enter a limit like 250000 or 250000.50.");
     setLocalError(null);
     onSubmit({ category: category.trim(), limitMinor: minor, notes: notes.trim() });
@@ -67,12 +68,12 @@ function BudgetForm({
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <p className="text-xs text-sage-500">Budget for {formatMonth(month)}. Spent is worked out from your Expenses in the same category.</p>
+      <p className="text-xs text-sage-500">Budget for {formatMonth(month)}. Spent is every money-out entry in the same category this month.</p>
       {initial ? (
         <p className="text-sm font-semibold text-sage-900">Category: {initial.category}</p>
       ) : (
-        <Field label="Category" htmlFor="bd-cat" error={error?.fieldErrors.category} hint="Must match the category text on your expenses exactly.">
-          <CategoryInput id="bd-cat" value={category} onChange={setCategory} options={categories} />
+        <Field label="Category" htmlFor="bd-cat" error={error?.fieldErrors.category} hint="Spend in this category is matched to the budget automatically.">
+          <CategorySelect id="bd-cat" value={category} onChange={setCategory} options={categories} />
         </Field>
       )}
       <Field label="Monthly limit (NGN)" htmlFor="bd-limit" error={error?.fieldErrors.limit_minor}>
@@ -87,23 +88,79 @@ function BudgetForm({
           Cancel
         </button>
         <button type="submit" className={primaryBtn} disabled={busy}>
-          {busy ? "Saving" : initial ? "Save changes" : "Create budget"}
+          {busy ? "Saving" : initial?.id ? "Save changes" : "Create budget"}
         </button>
       </div>
     </form>
   );
 }
 
+const STATUS_LABEL: Record<BudgetStatus, string> = {
+  under: "Under budget",
+  near: "Near the limit",
+  over: "Over budget",
+  unbudgeted: "No budget set",
+};
+
+function StatusChip({ status }: { status: BudgetStatus }) {
+  const tone =
+    status === "over"
+      ? "bg-red-50 text-red-600 border-red-200"
+      : status === "near"
+        ? "bg-copper-100 text-copper-700 border-copper-200"
+        : status === "unbudgeted"
+          ? "bg-sage-100 text-sage-600 border-sage-200"
+          : "bg-green-50 text-green-800 border-green-200";
+  return <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-input border uppercase tracking-wider ${tone}`}>{STATUS_LABEL[status]}</span>;
+}
+
+function VarianceBar({ b }: { b: Budget }) {
+  const over = b.over_budget;
+  return (
+    <div className="space-y-1">
+      <div className="w-full bg-sage-100 rounded-pill h-2 overflow-hidden" role="img" aria-label={b.percent_used === null ? "No limit" : `${b.percent_used}% of the budget used`}>
+        <div className={`${over ? "bg-red-600" : "bg-green-800"} h-full rounded-pill`} style={{ width: `${clampPercent(b.percent_used)}%` }}></div>
+      </div>
+      <p className="text-[11px] text-sage-500">{b.percent_used === null ? "No limit set" : `${b.percent_used}% used`}</p>
+    </div>
+  );
+}
+
+function RowButtons({ b, onEdit, onDelete }: { b: Budget; onEdit: () => void; onDelete: () => void }) {
+  if (b.unbudgeted || !b.id) {
+    return (
+      <button type="button" className={linkBtn} onClick={onEdit} aria-label={`Set a budget for ${b.category}`}>
+        Set budget
+      </button>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-3">
+      <button type="button" className={linkBtn} onClick={onEdit} aria-label={`Edit ${b.category} budget`}>
+        Edit
+      </button>
+      <button type="button" className={dangerLinkBtn} onClick={onDelete} aria-label={`Delete ${b.category} budget`}>
+        Delete
+      </button>
+    </span>
+  );
+}
+
 export default function BudgetsPage() {
   const [month, setMonth] = useState(currentMonth());
   const budgets = useBudgets(month);
-  const categories = useKnownCategories();
+  const categoryList = useCategories();
+  const categories = (categoryList.data ?? []).map((c) => c.name);
   const { run, busy } = useFinanceAction();
   const { triggerToast } = useToast();
 
   const [formFor, setFormFor] = useState<"new" | Budget | null>(null);
   const [formError, setFormError] = useState<FinanceError | null>(null);
   const [deleting, setDeleting] = useState<Budget | null>(null);
+
+  const refreshAll = async () => {
+    await Promise.all([budgets.reload(), categoryList.reload()]);
+  };
 
   const closeForm = () => {
     setFormFor(null);
@@ -143,9 +200,9 @@ export default function BudgetsPage() {
 
   const submitForm = async (v: { category: string; limitMinor: number; notes: string }) => {
     setFormError(null);
-    const editing = formFor && formFor !== "new" ? formFor : null;
-    const res = editing
-      ? await run(() => updateBudget(editing.id, { limit_minor: v.limitMinor, notes: v.notes || null }), { success: "Budget updated.", quiet: true })
+    const editing = formFor && formFor !== "new" && formFor.id ? formFor : null;
+    const res = editing && editing.id
+      ? await run(() => updateBudget(editing.id as string, { limit_minor: v.limitMinor, notes: v.notes || null }), { success: "Budget updated.", quiet: true })
       : await run(
           () =>
             createBudget({
@@ -158,7 +215,7 @@ export default function BudgetsPage() {
         );
     if (res.ok) {
       closeForm();
-      await budgets.reload();
+      await refreshAll();
     } else {
       setFormError(res.error);
     }
@@ -166,9 +223,11 @@ export default function BudgetsPage() {
 
   const confirmDelete = async () => {
     if (!deleting) return;
-    const res = await run(() => deleteBudget(deleting.id), { success: "Budget deleted. Your expenses are untouched." });
+    if (!deleting.id) return;
+    const deletingId = deleting.id;
+    const res = await run(() => deleteBudget(deletingId), { success: "Budget deleted. Your expenses are untouched." });
     setDeleting(null);
-    if (res.ok) await budgets.reload();
+    if (res.ok) await refreshAll();
   };
 
   return (
@@ -201,7 +260,7 @@ export default function BudgetsPage() {
             <EmptyBlock
               icon={<FileText className="w-6 h-6" aria-hidden="true" />}
               title={`No budget set for ${formatMonth(month)}`}
-              body="Draft limits from last month's spending, copy last month's budgets, or add one category at a time."
+              body="A budget is a plan for your money. Start with last month's actuals."
             >
               <button type="button" disabled={busy} onClick={() => void seed("draft")} className={darkBtn}>
                 <Sparkles className="w-4 h-4" aria-hidden="true" /> Draft budget from actuals
@@ -216,8 +275,8 @@ export default function BudgetsPage() {
           ) : (
             <>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs text-sage-500">
-                  Spent comes from <Link href="/finance/expenses" className="underline font-semibold">Expenses</Link> in the same category. Manual transactions do not count.
+                <p className="text-xs text-sage-500 max-w-xl">
+                  Spent is every money-out entry of the month in the category: manual transactions, <Link href="/finance/expenses" className="underline font-semibold">expenses</Link> and imported payments. Totals can look higher than before because manual spend now counts.
                 </p>
                 <div className="flex gap-4">
                   <button type="button" disabled={busy} onClick={() => void seed("draft")} className="text-xs font-bold text-copper-600 hover:underline flex items-center gap-1 disabled:opacity-50">
@@ -229,55 +288,71 @@ export default function BudgetsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {rows.map((b) => {
-                  const over = b.over_budget;
-                  return (
-                    <div key={b.id} className={`bg-white p-5 rounded-modal border ${over ? "border-red-200" : "border-sage-200"} space-y-4 shadow-card`}>
-                      <div className="flex justify-between items-start gap-2">
-                        <div>
-                          <h2 className="font-bold text-sage-900">{b.category}</h2>
-                          <span className="text-xs text-sage-500 font-medium">{formatMonth(b.period_month)} allocation</span>
-                        </div>
-                        {over && <span className="bg-red-50 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-input border border-red-200 uppercase tracking-wider">Over budget</span>}
+              <div className="bg-white rounded-modal border border-sage-200 overflow-hidden shadow-card">
+                <ul className="md:hidden divide-y divide-sage-100" aria-label="Budgets">
+                  {rows.map((b) => (
+                    <li key={b.id ?? `u-${b.category}`} className="p-4 space-y-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <h2 className="font-bold text-sage-900">{b.category}</h2>
+                        <StatusChip status={b.status} />
                       </div>
-
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between items-center text-xs font-bold">
-                          <span className={over ? "text-red-600" : "text-green-800"}>{b.percent_used === null ? "No limit set" : `${b.percent_used}% used`}</span>
-                          <span className="text-sage-400">Limit: {formatMoney(b.limit_minor, b.currency)}</span>
-                        </div>
-                        {b.percent_used !== null && (
-                          <div className="w-full bg-sage-100 rounded-pill h-2 overflow-hidden">
-                            <div className={`${over ? "bg-red-600" : "bg-green-800"} h-full rounded-pill transition-all`} style={{ width: `${clampPercent(b.percent_used)}%` }}></div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex justify-between items-center pt-2 border-t border-sage-100 text-sm">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] text-sage-400 font-bold uppercase tracking-wider">Spent</span>
-                          <span className="font-semibold text-sage-900">{formatMoney(b.spent_minor, b.currency)}</span>
-                        </div>
-                        <div className="flex flex-col text-right">
-                          <span className="text-[10px] text-sage-400 font-bold uppercase tracking-wider">{b.variance_minor > 0 ? "Over by" : "Left"}</span>
-                          <span className={`font-semibold ${over ? "text-red-600" : "text-green-600"}`}>{formatMoney(Math.abs(b.variance_minor), b.currency)}</span>
-                        </div>
-                      </div>
-
-                      {b.notes && <p className="text-xs text-sage-500">{b.notes}</p>}
-
-                      <div className="flex justify-end gap-3 pt-1">
-                        <button type="button" className={linkBtn} onClick={() => setFormFor(b)} aria-label={`Edit ${b.category} budget`}>
-                          Edit
-                        </button>
-                        <button type="button" className={dangerLinkBtn} onClick={() => setDeleting(b)} aria-label={`Delete ${b.category} budget`}>
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                      <p className="text-xs text-sage-500">
+                        Spent {formatMoney(b.spent_minor, b.currency)}
+                        {b.limit_minor === null ? "" : ` of ${formatMoney(b.limit_minor, b.currency)}`}
+                      </p>
+                      {b.limit_minor !== null && <VarianceBar b={b} />}
+                      <RowButtons b={b} onEdit={() => setFormFor(b)} onDelete={() => setDeleting(b)} />
+                    </li>
+                  ))}
+                </ul>
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-sage-50/50 border-b border-sage-100 text-[11px] text-sage-600 font-bold uppercase tracking-wider">
+                        <th className="py-4 px-6">Category</th>
+                        <th className="py-4 px-4 text-right">Budget</th>
+                        <th className="py-4 px-4 text-right">Spent</th>
+                        <th className="py-4 px-4 text-right">Variance</th>
+                        <th className="py-4 px-4">Status</th>
+                        <th className="py-4 px-6 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-sage-100 text-sm">
+                      {rows.map((b) => (
+                        <tr key={b.id ?? `u-${b.category}`} className="hover:bg-sage-50/50 transition-colors align-top">
+                          <td className="py-4 px-6">
+                            <p className="font-semibold text-sage-900">{b.category}</p>
+                            {b.notes && <p className="text-xs text-sage-500 mt-0.5">{b.notes}</p>}
+                          </td>
+                          <td className="py-4 px-4 text-right whitespace-nowrap text-sage-700">
+                            {b.limit_minor === null ? <span className="text-sage-600">None</span> : formatMoney(b.limit_minor, b.currency)}
+                          </td>
+                          <td className="py-4 px-4 text-right whitespace-nowrap font-semibold text-sage-900">{formatMoney(b.spent_minor, b.currency)}</td>
+                          <td className="py-4 px-4 text-right whitespace-nowrap">
+                            {b.variance_minor === null ? (
+                              <span className="text-sage-600">Not applicable</span>
+                            ) : (
+                              <span className={b.variance_minor > 0 ? "text-red-600 font-semibold" : "text-green-800 font-semibold"}>
+                                {b.variance_minor > 0 ? "Over by " : "Left "}
+                                {formatMoney(Math.abs(b.variance_minor), b.currency)}
+                                {b.variance_percent !== null && (
+                                  <span className="block text-xs font-medium">{b.variance_percent > 0 ? "+" : ""}{b.variance_percent}%</span>
+                                )}
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 w-48">
+                            <StatusChip status={b.status} />
+                            {b.limit_minor !== null && <div className="mt-2"><VarianceBar b={b} /></div>}
+                          </td>
+                          <td className="py-4 px-6 text-right whitespace-nowrap">
+                            <RowButtons b={b} onEdit={() => setFormFor(b)} onDelete={() => setDeleting(b)} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </>
           )
@@ -285,7 +360,7 @@ export default function BudgetsPage() {
       </ResourceGate>
 
       {formFor && (
-        <Modal title={formFor === "new" ? "New budget" : `Edit ${formFor.category} budget`} onClose={closeForm}>
+        <Modal title={formFor === "new" ? "New budget" : formFor.id ? `Edit ${formFor.category} budget` : `Set ${formFor.category} budget`} onClose={closeForm}>
           <BudgetForm initial={formFor === "new" ? undefined : formFor} month={month} categories={categories} busy={busy} error={formError} onSubmit={(v) => void submitForm(v)} onCancel={closeForm} />
         </Modal>
       )}

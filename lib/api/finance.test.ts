@@ -21,16 +21,17 @@ describe('Finance SDK (lib/api/finance.ts)', () => {
   });
 
   it('listTransactions unwraps data.transactions and builds the query', async () => {
-    apiClient.mockResolvedValueOnce({ data: { transactions: [{ id: 't1' }] } });
+    apiClient.mockResolvedValueOnce({ data: { transactions: [{ id: 't1' }] }, meta: { next_cursor: 'c2', total_estimate: 7 } });
     const res = await api.listTransactions({ uncategorized: true, direction: 'out' });
-    expect(res).toEqual([{ id: 't1' }]);
-    expect(apiClient).toHaveBeenCalledWith('/finance/transactions?uncategorized=true&direction=out');
+    expect(res).toEqual({ items: [{ id: 't1' }], nextCursor: 'c2', total: 7 });
+    expect(apiClient).toHaveBeenCalledWith('/finance/transactions?uncategorized=true&direction=out&limit=50');
   });
 
-  it('listTransactions with no filters sends no query string', async () => {
-    apiClient.mockResolvedValueOnce({ data: { transactions: [] } });
-    await api.listTransactions();
-    expect(apiClient).toHaveBeenCalledWith('/finance/transactions');
+  it('listTransactions passes the cursor back unchanged and treats a missing meta as the last page', async () => {
+    apiClient.mockResolvedValueOnce({ data: { transactions: [] }, meta: null });
+    const res = await api.listTransactions({}, 'abc==', 10);
+    expect(apiClient).toHaveBeenCalledWith('/finance/transactions?limit=10&cursor=abc%3D%3D');
+    expect(res).toEqual({ items: [], nextCursor: null, total: null });
   });
 
   it('createTransaction POSTs minor units and returns the row', async () => {
@@ -78,13 +79,13 @@ describe('Finance SDK (lib/api/finance.ts)', () => {
   it('listInvoices unwraps data.invoices and filters by status', async () => {
     apiClient.mockResolvedValueOnce({ data: { invoices: [] } });
     await api.listInvoices('overdue');
-    expect(apiClient).toHaveBeenCalledWith('/finance/invoices?status=overdue');
+    expect(apiClient).toHaveBeenCalledWith('/finance/invoices?status=overdue&limit=50');
   });
 
   it('listExpenses and getExpenseSummary pass month filters', async () => {
     apiClient.mockResolvedValueOnce({ data: { expenses: [] } });
     await api.listExpenses({ month: '2026-10' });
-    expect(apiClient).toHaveBeenCalledWith('/finance/expenses?month=2026-10');
+    expect(apiClient).toHaveBeenCalledWith('/finance/expenses?month=2026-10&limit=50');
     apiClient.mockResolvedValueOnce({ data: { month: '2026-10', rows: [] } });
     await api.getExpenseSummary('2026-10');
     expect(apiClient).toHaveBeenLastCalledWith('/finance/expenses/summary?month=2026-10');
@@ -181,5 +182,64 @@ describe('toFinanceError', () => {
   it('falls back for non-API errors and unparseable bodies', () => {
     expect(api.toFinanceError(new TypeError('network'), 'Nope').message).toBe('Nope');
     expect(api.toFinanceError(apiError(500, 'oops'), 'Fallback').message).toBe('Fallback');
+  });
+
+  it('listCategories unwraps data.categories', async () => {
+    apiClient.mockResolvedValueOnce({ data: { categories: [{ name: 'Rent', is_default: true, in_use: false }] } });
+    expect(await api.listCategories()).toEqual([{ name: 'Rent', is_default: true, in_use: false }]);
+    expect(apiClient).toHaveBeenCalledWith('/finance/categories');
+  });
+
+  it('getReceiptLink asks the receipt route for a fresh signed link', async () => {
+    const link = { url: 'https://api.example/finance/receipts/download?token=t', expires_at: '2026-10-24T12:00:00+00:00', content_type: 'image/png' };
+    apiClient.mockResolvedValueOnce({ data: link });
+    expect(await api.getReceiptLink('e1')).toEqual(link);
+    expect(apiClient).toHaveBeenCalledWith('/finance/expenses/e1/receipt');
+  });
+
+  it('integrations: list, sync and disconnect use the provider route', async () => {
+    apiClient.mockResolvedValueOnce({ data: { encryption_configured: true, providers: [] } });
+    await api.getIntegrations();
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/integrations');
+    apiClient.mockResolvedValueOnce({ data: { connection: { id: 'c1' }, summary: { imported: 1 } } });
+    expect((await api.syncIntegration('paystack')).summary.imported).toBe(1);
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/integrations/paystack/sync', { method: 'POST' });
+    apiClient.mockResolvedValueOnce({ data: { id: 'c1', status: 'disconnected' } });
+    await api.disconnectIntegration('mono');
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/integrations/mono/disconnect', { method: 'POST' });
+  });
+
+  it('connect sends the secret key (and hash for Flutterwave) and the Mono code', async () => {
+    apiClient.mockResolvedValue({ data: { id: 'c1' } });
+    await api.connectPaymentProvider('paystack', { secret_key: 'sk_test_PLACEHOLDER' });
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/integrations/paystack/connect', {
+      method: 'POST',
+      body: '{"secret_key":"sk_test_PLACEHOLDER"}',
+    });
+    await api.connectPaymentProvider('flutterwave', { secret_key: 'FLWSECK_TEST-PLACEHOLDER', secret_hash: 'hash' });
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/integrations/flutterwave/connect', {
+      method: 'POST',
+      body: '{"secret_key":"FLWSECK_TEST-PLACEHOLDER","secret_hash":"hash"}',
+    });
+    await api.connectMono('code_placeholder');
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/integrations/mono/connect', { method: 'POST', body: '{"code":"code_placeholder"}' });
+  });
+
+  it('invoice automation routes: remind and pay-link POST with no body', async () => {
+    apiClient.mockResolvedValue({ data: { id: 'i1' } });
+    await api.remindInvoice('i1');
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/invoices/i1/remind', { method: 'POST' });
+    await api.createPayLink('i1');
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/invoices/i1/pay-link', { method: 'POST' });
+  });
+
+  it('model: patch assumptions sends only the changed keys and recalculate can refresh actuals', async () => {
+    apiClient.mockResolvedValue({ data: { id: 'm1' } });
+    await api.patchModelAssumptions('m1', { ar_days: 30, hiring_plan: null });
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/model/m1/assumptions', { method: 'PATCH', body: '{"ar_days":30,"hiring_plan":null}' });
+    await api.recalculateModel('m1');
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/model/m1/recalculate', { method: 'POST', body: '{}' });
+    await api.recalculateModel('m1', true);
+    expect(apiClient).toHaveBeenLastCalledWith('/finance/model/m1/recalculate', { method: 'POST', body: '{"refresh_actuals":true}' });
   });
 });

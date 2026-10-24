@@ -101,7 +101,7 @@ export function useFinancialModel() {
     };
   }, [fetchLatest, poll]);
 
-  const generate = useCallback(async (): Promise<{ ok: boolean; message?: string; forbidden?: boolean }> => {
+  const generate = useCallback(async (): Promise<{ ok: boolean; message?: string; forbidden?: boolean; alreadyRunning?: boolean }> => {
     setStarting(true);
     setTimedOut(false);
     try {
@@ -114,6 +114,14 @@ export function useFinancialModel() {
       return { ok: true };
     } catch (err) {
       const fe = toFinanceError(err, "Couldn't start the model. Try again.");
+      // Someone on the team already started one: show it as running and keep polling.
+      if (fe.code === 'MODEL_ALREADY_GENERATING') {
+        setModel(null);
+        setError(null);
+        setPhase('generating');
+        poll(Date.now());
+        return { ok: true, alreadyRunning: true };
+      }
       return { ok: false, message: fe.message, forbidden: fe.forbidden };
     } finally {
       setStarting(false);
@@ -127,5 +135,11 @@ export function useFinancialModel() {
     if (result === 'generating') poll(Date.now());
   }, [fetchLatest, poll]);
 
-  return { phase, model, error, timedOut, starting, generate, checkAgain };
+  /** Swap in a fresh server copy of the model (after saving edits or recalculating). */
+  const replaceModel = useCallback((next: FinancialModel) => {
+    setModel(next);
+    setPhase(next.status);
+  }, []);
+
+  return { phase, model, error, timedOut, starting, generate, checkAgain, replaceModel };
 }
