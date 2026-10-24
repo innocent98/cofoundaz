@@ -8,7 +8,7 @@ Re-walk of the Sales **Sequences** sub-page on merged `develop` (FE `fc1a425`, i
 **120 control rows: 110 ✅, 2 ❌, 5 blocked (real send, `blocked: lead's live send`), 3 other (1 environment note, 1 observation, 1 cross-reference).**
 
 
-Every non-blocked control is ✅ except the two minor FE defects below. Sales stays 🟡 until the lead's live send.
+Original walk: every non-blocked control was ✅ except the two minor FE defects below. Both are now fixed and re-checked (see the 15:55 update); the blocked rows were closed by the lead's live sends.
 
 | Role | 1440 | 375 |
 |---|---|---|
@@ -16,7 +16,7 @@ Every non-blocked control is ✅ except the two minor FE defects below. Sales st
 | Team member | full walk (13 rows) | full walk (14 rows) |
 | Mentor | denied, 403 on every endpoint (2 rows) | denied (3 rows) |
 | Consultant | denied, 403 on every endpoint (2 rows) | denied (2 rows) |
-| Public `/unsubscribe/<token>` | forged token only (valid token blocked) | forged token only |
+| Public `/unsubscribe/<token>` | forged token (valid-token flow later done by Adebayo, see the 15:55 update) | forged token only |
 
 ## How it was walked
 
@@ -30,7 +30,7 @@ Every non-blocked control is ✅ except the two minor FE defects below. Sales st
 
 The lead sent one real sequence step (sequence `e5b4701c`, 13:40:55 WAT) to Adebayo's Gmail through the cPanel mailbox: ledger `sent`, provider id `<835fd288-a1fe-4dc0-8087-619ba79cfab2@cofoundaz.com>`, worker `tick sent=1 rejected=0 failed=0`, enrolment `completed` / `finished`; From "Victor Founder at NovaPay", Reply-To the enrolling member, merge tags filled. It landed in spam (DKIM not on the authoritative nameservers, PTR): ops follow-up, not a Sales blocker. Source: the lead's report, not walked by me.
 
-What that covers: a real scheduled step send and its ledger/completion. What it does **not** cover, so those rows stay blocked: the deal **Send email** button (a different path, `send_follow_up`) and the public unsubscribe flow with a real token (the lead's message was not opened from this walk). **Sales is not marked Done**: the two FE ❌ below are still open.
+(Superseded by the later updates below: the follow-up send and the unsubscribe click have since been done.) What that covers: a real scheduled step send and its ledger/completion. What it does **not** cover, so those rows stay blocked: the deal **Send email** button (a different path, `send_follow_up`) and the public unsubscribe flow with a real token (the lead's message was not opened from this walk). The two FE ❌ were still open at that time (now fixed, see the 15:55 update).
 
 ## Update 2026-10-24 14:45: lead's live deal follow-up send
 
@@ -42,9 +42,26 @@ Recorded from the lead's report (done with Adebayo's OK; not walked by me). Deal
 | Send after switching the deal to Adebayo's alias contact | **200** `{"sent": true, "send_id": "8e8e7f75-37fb-4444-b7d6-b300bee87588", "to": "adevictor98+followup@gmail.com", "draft_id": "92480794-7368-4c7b-8e0f-3165f1883440"}`; ledger `sent` 14:43:46 WAT, provider id `<8e8e7f75-37fb-4444-b7d6-b300bee87588@cofoundaz.com>` | ✅ |
 | Repeat send of the same draft | **409 `DRAFT_ALREADY_SENT`** | ✅ |
 
-This closes the follow-up **Send email** rows that were `blocked: lead's live send` (founder and team member, 1440 and 375): the send path works live. The FE click itself was done by the lead, not in these rows. The guide's "success body unit-test shape only" is now captured live (status 200). Still open: the real unsubscribe click (Adebayo) and the two FE fixes.
+This closes the follow-up **Send email** rows that were `blocked: lead's live send` (founder and team member, 1440 and 375): the send path works live. The FE click itself was done by the lead, not in these rows. The guide's "success body unit-test shape only" is now captured live (status 200). The unsubscribe click and the two FE fixes were closed later (15:55 update).
 
-## ❌ failures
+## Update 2026-10-24 15:55: re-check after FE #154 and the unsubscribe round trip
+
+Walked by hand on merged develop `8ac8a55` (FE on `localhost:3000`, API `:8000`), founder, at 1440 and 375, against the raw API. Setup enrolments went into paused sequences through the enrol endpoint; every control under test was clicked in the browser. The test sequences were archived afterwards. No email was sent.
+
+| Row | Viewport | Result | Evidence | Status |
+|---|---|---|---|---|
+| ❌ 1 (stale active count after a 409 on Stop) | 1440 | After Mark replied on A and a Stop dialog on B ended elsewhere (`POST /sales/enrollments/{B}/stop` 200), clicking **Stop emails** gave toast "This enrollment has already ended." and the card header went to "0 active · 2 enrolled · 50% reply rate · Paused", matching raw `active_enrollments: 0, total_enrollments: 2, reply_rate: 0.5`. Archive dialog now says "Nobody is being emailed from it right now." | ✅ fixed |
+| ❌ 1 | 375 | Same steps: toast, header "0 active · 2 enrolled · 50% reply rate · Paused" = raw `[0, 2, 0.5]`; Archive dialog "Nobody is being emailed from it right now." | ✅ fixed |
+| ❌ 2 (inline errors linger) | 1440 | Create with an empty step 2 showed "Add a subject." and "Write the email."; typing the subject removed "Add a subject." at once, typing the body removed "Write the email.". No request in between (`total` stayed 1 until the real Create). | ✅ fixed |
+| ❌ 2 | 375 | Same: both errors shown, each cleared as its field was filled | ✅ fixed |
+| Suppression after the real unsubscribe | 1440 and 375 | Contact drawer **Enrol in sequence** on the unsubscribed contact (masked `a***@gmail.com`) into a paused sequence: "Adebayo Victor unsubscribed or bounced earlier."; raw `POST /sales/sequences/{id}/enroll` 200 `enrolled: 0, skipped: [suppressed]`; sequence `total_enrollments` unchanged | ✅ |
+| Real unsubscribe click (lead's report, Adebayo's click) | public page | The `+followup` email's link `/unsubscribe/jo5_dTf7…` (token not recorded) showed "Unsubscribe from NovaPay?" with "a***@gmail.com will stop getting emails from NovaPay."; after **Unsubscribe**: "You won't hear from NovaPay again" / "a***@gmail.com will not get any more emails from NovaPay." Network GET then POST `/api/v1/public/sales/unsubscribe/<token>`, both 200. DB: new `sales_suppressions` row for the alias, `reason=unsubscribed`, created 2026-10-24 14:49:51 UTC, NovaPay (the only earlier row is `fe-walk-unsub@example.com`, 11:22). Re-checks: GET 200 `{"data":{"email":"a***@gmail.com","sender":"NovaPay","unsubscribed":true},"meta":null}`; repeat POST 200 (idempotent); tampered token 404 `{"error":{"code":"NOT_FOUND","message":"Not found.","field_errors":[]}}` | ✅ (lead's evidence) |
+
+The forged-token 404 and the suppression-on-enrol skip are also confirmed by this walk (the 404 earlier in this file, the skip above).
+
+With this, **every row in this file is ✅ except the observation below**; the earlier blocked rows are closed by the lead's live sends (step send, follow-up send) and Adebayo's unsubscribe click.
+
+## ❌ failures (both fixed by FE #154, re-checked above)
 
 ### ❌ 1. Stale "active" count after a 409 on Stop (FE, minor)
 
@@ -75,7 +92,7 @@ Layer: **FE**. Not blocking, but it reads as if the form is still invalid.
 
 ## Not covered
 
-- **Still blocked after the lead's live send** (see the update above): a real unsubscribe token (the follow-up **Send email** path is now verified by the lead, see above) (read, button, already unsubscribed, suppression). A real step send and the delivered message are now verified by the lead, not by this walk; also unproven live: sent counts (read, Unsubscribe button, "already unsubscribed", suppression after unsubscribe), sent counts on People rows (`n of m sent`), and the sent/bounced row states.
+- **Closed after the original walk** (see the updates above; the live sends and the unsubscribe click were done by the lead and Adebayo, not by this walk): a real unsubscribe token (the follow-up **Send email** path is now verified by the lead, see above) (read, button, already unsubscribed, suppression). A real step send and the delivered message are now verified by the lead, not by this walk; also unproven live: sent counts (read, Unsubscribe button, "already unsubscribed", suppression after unsubscribe), sent counts on People rows (`n of m sent`), and the sent/bounced row states.
 - Not producible without sending or DB access: the "paused by bounces" banner and founder-only **Resume** button (still covered only by the FE's mocked e2e), `SEND_UNCERTAIN` / `SEND_LIMIT_REACHED` messages, `configured:false` banner.
 - Other Sales tabs (Pipeline, Accounts, AI Coach, Analytics) were only used as navigation targets; they have their own re-walks.
 
