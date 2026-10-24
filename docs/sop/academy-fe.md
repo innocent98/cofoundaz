@@ -41,3 +41,11 @@ No env or migration. Revert the PR; the API is untouched. The preview needs the 
 - YouTube player and position reporting need one real video to verify live.
 - API: legacy certificates never get a PDF; verify rate limit is per code, not per visitor (see the walk doc).
 - No e2e (Playwright) spec for Academy was added; coverage is unit plus the live walk.
+
+## Update 2026-10-24: re-walk fixes D1 and D4 (`fix/academy-rewalk-fe`)
+| Defect | Fix |
+|---|---|
+| D1 bell popover clipped 64 px off the left at 375 for the founder (Invite button pushed the bell inward, popover was `right-0`) | `components/dashboardnavbar.tsx`: `fixed inset-x-4 top-16` below `md`, `md:absolute md:right-0 md:w-96` from `md` |
+| D4 bell said "No new notifications." when the list request failed | same file: an error state "Could not load notifications." with Retry (uses `useNotifications().error` and `refetch`); the empty state only shows after a successful load |
+| D2 no profile-name prompt before finishing a course | `components/academy/name-prompt.tsx` + the lesson page: when the completing action would finish the course and `me.profile` is null or `full_name` is empty, an inline form asks for the name (says the certificate prints it for good), `PATCH /auth/me {full_name}` (`lib/api/profile.ts`), replaces the cached `me` through `WorkspaceContext.setMe` with the normalised response, then completes the lesson. 422 shows the API message under the input. Needs API branch `feature/profile-name-update` |
+Tests: `components/dashboardnavbar.test.tsx`, `components/academy/name-prompt.test.tsx`, lesson page test, `lib/api/profile.test.ts`, mocked Playwright `e2e/academy-name.spec.ts` (shapes from `fe-integration-guide-profile.md`). Live check against the real API waits for that API PR to merge.

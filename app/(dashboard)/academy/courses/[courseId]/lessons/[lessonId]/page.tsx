@@ -7,6 +7,9 @@ import { Award, CheckCircle2, ChevronLeft, Clock } from "lucide-react";
 import { useCourse } from "@/hooks/useLearning";
 import { DraftBadge, ResourceView } from "@/components/academy/parts";
 import { Markdown } from "@/components/academy/markdown";
+import { NamePrompt } from "@/components/academy/name-prompt";
+import { useWorkspace } from "@/components/workspace-context";
+import { hasProfileName } from "@/lib/api/profile";
 import { NoteEditor } from "@/components/academy/note-editor";
 import { VideoPlayer } from "@/components/academy/video-player";
 import { saveProgress, learningErrorMessage, type Certificate, type CourseDetail, type Lesson } from "@/lib/api/learning";
@@ -16,6 +19,8 @@ import { useToast } from "../../../../ToastContext";
 function LessonView({ course, lesson, reload }: { course: CourseDetail; lesson: Lesson; reload: () => void }) {
   const router = useRouter();
   const { triggerToast } = useToast();
+  const { me, loading: meLoading, setMe } = useWorkspace();
+  const [askName, setAskName] = useState(false);
   const [tab, setTab] = useState<"transcript" | "notes">("transcript");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +38,19 @@ function LessonView({ course, lesson, reload }: { course: CourseDetail; lesson: 
     [lesson.id],
   );
 
-  const onComplete = async () => {
+  // Finishing the course issues the certificate with the profile name, frozen for good.
+  const finishesCourse = course.lessons.every((l) => l.id === lesson.id || l.completed);
+  const nameMissing = !meLoading && me !== null && !hasProfileName(me);
+
+  const onComplete = () => {
+    if (finishesCourse && nameMissing) {
+      setAskName(true);
+      return;
+    }
+    void completeLesson();
+  };
+
+  const completeLesson = async () => {
     setBusy(true);
     setError(null);
     try {
@@ -66,6 +83,17 @@ function LessonView({ course, lesson, reload }: { course: CourseDetail; lesson: 
           <p className="rounded-card border border-sage-200 bg-sage-50 px-4 py-3 text-sm text-sage-700">
             There is no video for this lesson yet. Read the transcript below.
           </p>
+        )}
+
+        {askName && (
+          <NamePrompt
+            onCancel={() => setAskName(false)}
+            onSaved={(next) => {
+              setMe(next);
+              setAskName(false);
+              void completeLesson();
+            }}
+          />
         )}
 
         {earned && (
