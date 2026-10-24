@@ -228,8 +228,19 @@ export interface RunwayScenario {
 
 export type RunwayScenarioKey = 'base' | 'best' | 'worst';
 
+/** Hiring and one-off rows the runway reads (read-only) from the newest complete Financial Model. */
+export interface RunwayModelRows {
+  model_id: string | null;
+  /** In-app path of the model page, where the rows are edited. */
+  href: string;
+  hiring_plan: { role: string; start_month: string; monthly_cost_minor: number }[];
+  one_offs: { label: string; month: string; amount_minor: number }[];
+}
+
 export interface Runway {
   assumptions: RunwayAssumptions;
+  /** Top level of `data`, next to `assumptions` (not inside it). */
+  model_rows: RunwayModelRows;
   baseline: RunwayBaseline;
   horizon_months: number;
   scenarios: Record<RunwayScenarioKey, RunwayScenario>;
@@ -239,7 +250,10 @@ export async function getRunway(): Promise<Runway> {
   return unwrap(await apiClient<Envelope<Runway>>('/finance/runway'));
 }
 
-/** Partial update. Returns the fully recomputed runway: do not GET afterwards. */
+/**
+ * Partial update of the three scalars. Returns the fully recomputed runway: do not GET afterwards.
+ * Never send hiring_plan, one_offs or capex: the API answers 422 (those rows live in the model).
+ */
 export async function saveRunwayAssumptions(patch: Partial<RunwayAssumptions>): Promise<Runway> {
   return unwrap(
     await apiClient<Envelope<Runway>>('/finance/runway/assumptions', { method: 'PUT', body: json(patch) }),
@@ -277,6 +291,13 @@ export interface Invoice {
   paid_at: string | null;
   auto_remind: boolean;
   transaction_id: string | null;
+  /** Sales account of this workspace; null when no client is linked or the account was deleted. */
+  account_id: string | null;
+  account_name: string | null;
+  notes: string | null;
+  payment_details: PaymentDetails | null;
+  /** When the email last went out (first send or resend). */
+  last_sent_at: string | null;
   /** Hosted checkout link; null when none was created (draft, no connection, or creation failed). */
   pay_url: string | null;
   pay_provider: PaymentProviderId | null;
@@ -289,8 +310,18 @@ export interface Invoice {
   updated_at: string;
 }
 
+export interface PaymentDetails {
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+  instructions?: string | null;
+}
+
 export interface InvoiceInput {
   client_name: string;
+  account_id?: string | null;
+  notes?: string | null;
+  payment_details?: PaymentDetails | null;
   client_email: string;
   line_items: { description: string; quantity: number; unit_price_minor: number }[];
   tax_percent?: number;
@@ -316,22 +347,32 @@ export async function remindInvoice(id: string): Promise<Invoice> {
   return unwrap(await apiClient<Envelope<Invoice>>(`/finance/invoices/${id}/remind`, { method: 'POST' }));
 }
 
+/** Emails the invoice again (sent or overdue only). 429 RESEND_TOO_SOON inside 60 s. */
+export async function resendInvoice(id: string): Promise<Invoice> {
+  return unwrap(await apiClient<Envelope<Invoice>>(`/finance/invoices/${id}/resend`, { method: 'POST' }));
+}
+
 /** Creates or retries the pay link of a sent NGN invoice while a connection is active. */
 export async function createPayLink(id: string): Promise<Invoice> {
   return unwrap(await apiClient<Envelope<Invoice>>(`/finance/invoices/${id}/pay-link`, { method: 'POST' }));
 }
 
-/**
- * Fetches the invoice PDF with the bearer token (a plain link cannot send it) and
- * hands the browser a blob download. Throws ApiError.
- */
-export async function downloadInvoicePdf(invoice: Pick<Invoice, 'id' | 'number'>): Promise<void> {
+function authHeaders(): Record<string, string> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
   const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('cf_workspace_id') : null;
   const headers: Record<string, string> = {};
   if (token) headers.Authorization = `Bearer ${token}`;
   if (workspaceId) headers['X-Workspace-Id'] = workspaceId;
-  const res = await fetch(`${API_BASE}/finance/invoices/${encodeURIComponent(invoice.id)}/pdf`, { headers });
+  return headers;
+}
+
+/**
+ * Fetches a file route with the bearer token (a plain link cannot send it) and hands the
+ * browser a blob download, named by the response's Content-Disposition (else `fallbackName`).
+ * Throws ApiError with the parsed error body on a non-2xx answer. Returns the file name used.
+ */
+async function downloadFile(path: string, fallbackName: string): Promise<string> {
+  const res = await fetch(`${API_BASE}${path}`, { headers: authHeaders() });
   if (!res.ok) {
     let data: unknown = null;
     try {
@@ -341,15 +382,33 @@ export async function downloadInvoicePdf(invoice: Pick<Invoice, 'id' | 'number'>
     }
     throw new ApiError(res.status, res.statusText, data);
   }
+  const cd = res.headers.get('Content-Disposition') ?? '';
+  const name = /filename="?([^";]+)"?/i.exec(cd)?.[1] ?? fallbackName;
   const blob = await res.blob();
   const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = objectUrl;
-  a.download = `invoice-${invoice.number}.pdf`;
+  a.download = name;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
+  return name;
+}
+
+/** Invoice PDF as a blob download. Throws ApiError. */
+export async function downloadInvoicePdf(invoice: Pick<Invoice, 'id' | 'number'>): Promise<void> {
+  await downloadFile(`/finance/invoices/${encodeURIComponent(invoice.id)}/pdf`, `invoice-${invoice.number}.pdf`);
+}
+
+/** XLSX of the ledger with the list's filters (amounts are naira with decimals). */
+export function exportTransactionsXlsx(filters: TransactionFilters = {}): Promise<string> {
+  return downloadFile(`/finance/transactions/export.xlsx${query({ ...filters })}`, 'transactions.xlsx');
+}
+
+/** XLSX of a complete model (P&L, Cash flow, Balance sheet). 409 MODEL_NOT_READY otherwise. */
+export function exportModelXlsx(modelId: string): Promise<string> {
+  return downloadFile(`/finance/model/${encodeURIComponent(modelId)}/export.xlsx`, 'financial-model.xlsx');
 }
 
 export async function createInvoice(input: InvoiceInput): Promise<Invoice> {

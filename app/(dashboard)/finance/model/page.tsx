@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { AlertTriangle, Check, Download, Loader2, RefreshCw, Settings2, Sparkles } from "lucide-react";
 import { useFinancialModel } from "@/hooks/useFinancialModel";
-import { recalculateModel, toFinanceError, type FinancialModel, type ModelRow, type ModelStatement } from "@/lib/api/finance";
+import { exportModelXlsx, recalculateModel, toFinanceError, type FinancialModel, type ModelRow, type ModelStatement } from "@/lib/api/finance";
 import { formatDate, formatMajor, formatMoney, formatMonth } from "@/lib/finance/format";
 import { applyRevenueSensitivity, modelToCsv } from "@/lib/finance/model";
 import { useToast } from "../ToastContext";
@@ -81,6 +81,21 @@ export default function FinancialModelPage() {
     a.remove();
     URL.revokeObjectURL(url);
     triggerToast("Model exported as CSV.");
+  };
+
+  const [xlsxBusy, setXlsxBusy] = useState(false);
+  const exportXlsx = async () => {
+    if (!model) return;
+    setXlsxBusy(true);
+    try {
+      await exportModelXlsx(model.id);
+      triggerToast("Model exported to Excel.");
+    } catch (err) {
+      const fe = toFinanceError(err, "Couldn't export the model. Try again.");
+      triggerToast(fe.code === "MODEL_NOT_READY" ? "The model is still being built. Export it once it is ready." : fe.message, "error");
+    } finally {
+      setXlsxBusy(false);
+    }
   };
 
   const points = useMemo(() => (model && model.months ? chartPoints(model, view) : []), [model, view]);
@@ -210,12 +225,15 @@ export default function FinancialModelPage() {
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button type="button" onClick={() => setConfirmRegen(true)} disabled={starting} className={secondaryBtn}>
                 <Sparkles className="w-4 h-4" aria-hidden="true" /> {starting ? "Starting" : "Regenerate"}
               </button>
               <button type="button" onClick={exportCsv} disabled={!yearlyOk} className={secondaryBtn}>
                 <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
+              </button>
+              <button type="button" onClick={() => void exportXlsx()} disabled={xlsxBusy || model.status !== "complete"} className={secondaryBtn}>
+                <Download className="w-4 h-4" aria-hidden="true" /> {xlsxBusy ? "Exporting" : "Export Excel"}
               </button>
             </div>
           </div>
