@@ -308,7 +308,7 @@ export default function BudgetsPage() {
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-sage-50/50 border-b border-sage-100 text-[11px] text-sage-400 font-bold uppercase tracking-wider">
+                      <tr className="bg-sage-50/50 border-b border-sage-100 text-[11px] text-sage-600 font-bold uppercase tracking-wider">
                         <th className="py-4 px-6">Category</th>
                         <th className="py-4 px-4 text-right">Budget</th>
                         <th className="py-4 px-4 text-right">Spent</th>
@@ -325,12 +325,12 @@ export default function BudgetsPage() {
                             {b.notes && <p className="text-xs text-sage-500 mt-0.5">{b.notes}</p>}
                           </td>
                           <td className="py-4 px-4 text-right whitespace-nowrap text-sage-700">
-                            {b.limit_minor === null ? <span className="text-sage-400">None</span> : formatMoney(b.limit_minor, b.currency)}
+                            {b.limit_minor === null ? <span className="text-sage-600">None</span> : formatMoney(b.limit_minor, b.currency)}
                           </td>
                           <td className="py-4 px-4 text-right whitespace-nowrap font-semibold text-sage-900">{formatMoney(b.spent_minor, b.currency)}</td>
                           <td className="py-4 px-4 text-right whitespace-nowrap">
                             {b.variance_minor === null ? (
-                              <span className="text-sage-400">Not applicable</span>
+                              <span className="text-sage-600">Not applicable</span>
                             ) : (
                               <span className={b.variance_minor > 0 ? "text-red-600 font-semibold" : "text-green-800 font-semibold"}>
                                 {b.variance_minor > 0 ? "Over by " : "Left "}

@@ -183,7 +183,7 @@ function CategoryCell({
     return tx.category ? (
       <span className="text-sage-700 bg-white border border-sage-200 px-2 py-1 rounded-input text-xs">{tx.category}</span>
     ) : (
-      <span className="text-xs text-sage-400">Uncategorized</span>
+      <span className="text-xs text-sage-600">Uncategorized</span>
     );
   }
   if (adding) {
@@ -284,7 +284,7 @@ function RowActions({
       </Link>
     );
   }
-  return <span className="text-xs text-sage-400">Imported. Only the category can change.</span>;
+  return <span className="text-xs text-sage-600">Imported. Only the category can change.</span>;
 }
 
 function TxNote({ tx }: { tx: Transaction }) {
@@ -509,7 +509,7 @@ export default function CashFlowPage() {
                     <div className="hidden md:block overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-sage-50/50 border-b border-sage-100 text-xs font-bold text-sage-400 uppercase tracking-wider">
+                          <tr className="bg-sage-50/50 border-b border-sage-100 text-xs font-bold text-sage-600 uppercase tracking-wider">
                             <th className="py-4 px-6">Date</th>
                             <th className="py-4 px-4">Description</th>
                             <th className="py-4 px-4">Category</th>

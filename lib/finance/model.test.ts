@@ -37,4 +37,23 @@ describe('financial model helpers', () => {
       'Balance sheet,"Cash, total",1.00,2.00',
     ]);
   });
+  it('subtracts depreciation from the re-derived net income', () => {
+    const rows = applyRevenueSensitivity([...pnl.slice(0, 4), { label: 'Depreciation', values: [50, 50] }, { label: 'Net income', values: [350, 1250] }], 10);
+    expect(rows.find((r) => r.label === 'Net income')!.values).toEqual([440, 1430]);
+  });
+  it('exports the yearly rollup with period labels', () => {
+    const model = {
+      months: ['2026-11'],
+      pnl: { rows: pnl.slice(0, 1) },
+      cash_flow: null,
+      balance_sheet: null,
+      yearly: {
+        periods: [{ label: 'Year 1', start_month: '2026-11', end_month: '2027-10' }],
+        pnl: { rows: [{ label: 'Revenue', values: [123456] }] },
+        cash_flow: { rows: [] },
+        balance_sheet: { rows: [] },
+      },
+    } as unknown as FinancialModel;
+    expect(modelToCsv(model, true).split('\n')).toEqual(['Statement,Line,Year 1', 'P&L,Revenue,1234.56']);
+  });
 });

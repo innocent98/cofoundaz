@@ -18,11 +18,13 @@ export function applyRevenueSensitivity(rows: ModelRow[], pct: number): ModelRow
   const revenue = row(rows, 'Revenue');
   const cogs = row(rows, 'COGS');
   const opex = row(rows, 'Opex');
+  // Models with capex also carry Depreciation, which is part of net income.
+  const depreciation = row(rows, 'Depreciation');
   if (!revenue || !cogs || !opex) return rows;
   const rev = revenue.map((v) => Math.round(v * m));
   const cg = cogs.map((v) => Math.round(v * m));
   const gross = rev.map((v, i) => v - cg[i]);
-  const net = gross.map((v, i) => v - opex[i]);
+  const net = gross.map((v, i) => v - opex[i] - (depreciation?.[i] ?? 0));
   return rows.map((r) => {
     switch (r.label) {
       case 'Revenue':
@@ -43,14 +45,15 @@ function csvCell(s: string): string {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
-/** All three statements as one CSV in major units (minor / 100). */
-export function modelToCsv(model: FinancialModel): string {
-  const months = model.months ?? [];
-  const lines: string[] = [['Statement', 'Line', ...months].map(csvCell).join(',')];
+/** All three statements as one CSV in major units (minor / 100); `yearly` exports the yearly rollup instead of the months. */
+export function modelToCsv(model: FinancialModel, yearly = false): string {
+  const source = yearly && model.yearly ? model.yearly : model;
+  const columns = yearly && model.yearly ? model.yearly.periods.map((p) => p.label) : (model.months ?? []);
+  const lines: string[] = [['Statement', 'Line', ...columns].map(csvCell).join(',')];
   const sections: [string, ModelRow[] | undefined][] = [
-    ['P&L', model.pnl?.rows],
-    ['Cash flow', model.cash_flow?.rows],
-    ['Balance sheet', model.balance_sheet?.rows],
+    ['P&L', source.pnl?.rows],
+    ['Cash flow', source.cash_flow?.rows],
+    ['Balance sheet', source.balance_sheet?.rows],
   ];
   for (const [name, rows] of sections) {
     for (const r of rows ?? []) {

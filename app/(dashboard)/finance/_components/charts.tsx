@@ -10,12 +10,14 @@ import {
   Line,
   Pie,
   PieChart,
+  ReferenceDot,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import type { CashFlow } from "@/lib/api/finance";
+import type { CashFlow, Runway, RunwayScenarioKey } from "@/lib/api/finance";
 import { formatMoney, shortMonth } from "@/lib/finance/format";
 import { cashSeries } from "@/lib/finance/cashSeries";
 
@@ -76,7 +78,8 @@ export function CashFlowChart({ cashFlow }: { cashFlow: CashFlow }) {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <table className="sr-only">
+      <div className="sr-only">
+      <table>
         <caption>Cash flow by month</caption>
         <thead>
           <tr>
@@ -99,6 +102,7 @@ export function CashFlowChart({ cashFlow }: { cashFlow: CashFlow }) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
@@ -149,6 +153,91 @@ export function ExpenseDonut({
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+export interface ModelChartPoint {
+  label: string;
+  revenue: number;
+  netIncome: number;
+  cash: number;
+}
+
+/** Revenue bars with net income and closing cash lines, monthly or yearly. */
+export function ModelChart({ points, currency }: { points: ModelChartPoint[]; currency: string }) {
+  const summary = points.map((p) => `${p.label}: revenue ${formatMoney(p.revenue, currency)}, net income ${formatMoney(p.netIncome, currency)}, closing cash ${formatMoney(p.cash, currency)}`).join(". ");
+  return (
+    <div>
+      <div className="h-60 w-full" role="img" aria-label={`Projection chart. ${summary}`}>
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={points} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid stroke={GRID} vertical={false} />
+            <XAxis dataKey="label" tick={{ fill: AXIS, fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={24} />
+            <YAxis tick={{ fill: AXIS, fontSize: 11 }} axisLine={false} tickLine={false} width={60} tickFormatter={compactMoney} />
+            <Tooltip contentStyle={tooltipStyle} formatter={(v, name) => [formatMoney(Number(v), currency), String(name)]} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Bar dataKey="revenue" name="Revenue" fill={GREEN} radius={[3, 3, 0, 0]} isAnimationActive={false} />
+            <Line dataKey="netIncome" name="Net income" stroke={RED} strokeWidth={2} dot={false} isAnimationActive={false} />
+            <Line dataKey="cash" name="Closing cash" stroke="#173B28" strokeWidth={2} strokeDasharray="5 3" dot={false} isAnimationActive={false} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+      <p className="sr-only">The same figures are in the tables below.</p>
+    </div>
+  );
+}
+
+const SCENARIO_META: { key: RunwayScenarioKey; label: string; color: string }[] = [
+  { key: "base", label: "Base", color: GREEN },
+  { key: "best", label: "Best", color: COPPER },
+  { key: "worst", label: "Worst", color: RED },
+];
+
+/** Projected cash balance for the three scenarios, with the zero line and each cash-out month marked. */
+export function RunwayChart({ runway, selected }: { runway: Runway; selected: RunwayScenarioKey }) {
+  const months = runway.scenarios.base.by_month.map((p) => p.month);
+  const rows = months.map((month, i) => ({
+    month,
+    label: shortMonth(month),
+    base: runway.scenarios.base.by_month[i]?.cash_balance ?? null,
+    best: runway.scenarios.best.by_month[i]?.cash_balance ?? null,
+    worst: runway.scenarios.worst.by_month[i]?.cash_balance ?? null,
+  }));
+  const currency = runway.baseline.currency;
+  const summary = SCENARIO_META.map((m) => {
+    const out = runway.scenarios[m.key].cash_out_date;
+    return `${m.label} case ${out ? `runs out in ${out}` : "does not run out"}`;
+  }).join(". ");
+  return (
+    <div className="h-64 w-full" role="img" aria-label={`Projected cash balance by scenario. ${summary}.`}>
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={rows} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
+          <CartesianGrid stroke={GRID} vertical={false} />
+          <XAxis dataKey="label" tick={{ fill: AXIS, fontSize: 11 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: AXIS, fontSize: 11 }} axisLine={false} tickLine={false} width={60} tickFormatter={compactMoney} />
+          <Tooltip contentStyle={tooltipStyle} formatter={(v, name) => [formatMoney(Number(v), currency), String(name)]} />
+          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <ReferenceLine y={0} stroke={RED} strokeDasharray="4 3" label={{ value: "Zero cash", position: "insideTopRight", fill: RED, fontSize: 10 }} />
+          {SCENARIO_META.map((m) => (
+            <Line
+              key={m.key}
+              dataKey={m.key}
+              name={`${m.label} case`}
+              stroke={m.color}
+              strokeWidth={m.key === selected ? 3 : 1.5}
+              strokeOpacity={m.key === selected ? 1 : 0.4}
+              dot={false}
+              isAnimationActive={false}
+            />
+          ))}
+          {SCENARIO_META.map((m) => {
+            const out = runway.scenarios[m.key].cash_out_date;
+            const point = out ? runway.scenarios[m.key].by_month.find((p) => p.month === out) : undefined;
+            return point ? <ReferenceDot key={m.key} x={shortMonth(point.month)} y={point.cash_balance} r={5} fill={m.color} stroke="#FFFFFF" /> : null;
+          })}
+        </ComposedChart>
+      </ResponsiveContainer>
     </div>
   );
 }

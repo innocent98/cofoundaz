@@ -289,7 +289,7 @@ export default function ExpensesPage() {
         ) : summary.status === "ready" && summary.data && summary.data.rows.length > 0 ? (
           <>
             <ExpenseDonut rows={summary.data.rows} total={summary.data.total_minor} currency={summary.data.currency} />
-            <p className="text-[11px] text-sage-400">Includes expenses dated later in the month.</p>
+            <p className="text-[11px] text-sage-600">Includes expenses dated later in the month.</p>
           </>
         ) : summary.status === "error" ? (
           <p role="alert" className="text-sm text-red-600">
@@ -322,7 +322,7 @@ export default function ExpensesPage() {
                       {formatDate(exp.expense_date)} · {exp.category}
                       {exp.expense_date > today ? " · Scheduled" : ""}
                     </p>
-                    {exp.notes && <p className="text-xs text-sage-400 mt-0.5">{exp.notes}</p>}
+                    {exp.notes && <p className="text-xs text-sage-600 mt-0.5">{exp.notes}</p>}
                   </div>
                   <p className="font-bold text-sage-900 whitespace-nowrap">{formatMoney(exp.amount_minor, exp.currency)}</p>
                 </div>
@@ -345,7 +345,7 @@ export default function ExpensesPage() {
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-sage-50/50 border-b border-sage-100 text-[11px] text-sage-400 font-bold uppercase tracking-wider">
+                <tr className="bg-sage-50/50 border-b border-sage-100 text-[11px] text-sage-600 font-bold uppercase tracking-wider">
                   <th className="py-4 px-6">Vendor / date</th>
                   <th className="py-4 px-4">Category</th>
                   <th className="py-4 px-4 text-center">Recurring</th>
@@ -363,7 +363,7 @@ export default function ExpensesPage() {
                         {formatDate(exp.expense_date)}
                         {exp.expense_date > today && <span className="ml-2 text-copper-700 font-bold">Scheduled</span>}
                       </p>
-                      {exp.notes && <p className="text-xs text-sage-400 mt-0.5">{exp.notes}</p>}
+                      {exp.notes && <p className="text-xs text-sage-600 mt-0.5">{exp.notes}</p>}
                     </td>
                     <td className="py-3 px-4 text-sage-600 font-medium">{exp.category}</td>
                     <td className="py-3 px-4 text-center">

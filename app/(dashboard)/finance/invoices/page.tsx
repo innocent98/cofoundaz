@@ -298,7 +298,7 @@ function Builder({
           <div className="flex-1 border-y border-sage-100 py-4 mb-4">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-sage-400 border-b border-sage-50">
+                <tr className="text-left text-xs text-sage-600 border-b border-sage-50">
                   <th className="pb-2">Description</th>
                   <th className="pb-2 text-right">Amount</th>
                 </tr>
@@ -333,7 +333,7 @@ function Builder({
             </div>
           </div>
         </div>
-        <p className="text-center text-[10px] text-sage-400 font-bold uppercase tracking-widest mt-6">Preview. The server confirms the totals when you save.</p>
+        <p className="text-center text-[10px] text-sage-600 font-bold uppercase tracking-widest mt-6">Preview. The server confirms the totals when you save.</p>
       </div>
 
       {confirmSend && (
@@ -396,7 +396,7 @@ function InvoiceDetail({
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs text-sage-400 border-b border-sage-100">
+            <tr className="text-left text-xs text-sage-600 border-b border-sage-100">
               <th className="pb-2">Description</th>
               <th className="pb-2 text-right">Amount</th>
             </tr>
@@ -707,7 +707,7 @@ export default function InvoicesPage() {
                     <div className="hidden md:block overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-sage-50/50 border-b border-sage-100 text-xs text-sage-400 font-bold uppercase tracking-wider">
+                          <tr className="bg-sage-50/50 border-b border-sage-100 text-xs text-sage-600 font-bold uppercase tracking-wider">
                             <th className="py-4 px-6">Invoice</th>
                             <th className="py-4 px-4">Client</th>
                             <th className="py-4 px-4">Due</th>
@@ -723,7 +723,7 @@ export default function InvoicesPage() {
                               <td className="py-4 px-6 font-semibold text-sage-900">{inv.number}</td>
                               <td className="py-4 px-4 text-sage-600 font-medium">
                                 {inv.client_name}
-                                <span className="block text-xs text-sage-400">{inv.client_email}</span>
+                                <span className="block text-xs text-sage-600">{inv.client_email}</span>
                               </td>
                               <td className="py-4 px-4 text-sage-500 font-medium">{inv.due_on ? formatDate(inv.due_on) : "Set when sent"}</td>
                               <td className="py-4 px-4 font-bold text-sage-900 text-right whitespace-nowrap">{formatMoney(inv.total_minor, inv.currency)}</td>
