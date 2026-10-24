@@ -1,0 +1,2 @@
+{"data":{"cash_on_hand":211950000,"monthly_burn":96016667,"monthly_revenue":153583333,"runway_months":2.2,"runway_low":true,"currency":"NGN","by_month":[{"month":"2026-05","inflow":0,"outflow":0,"net":0},{"month":"2026-06","inflow":0,"outflow":0,"net":0},{"month":"2026-07","inflow":500000000,"outflow":0,"net":500000000},{"month":"2026-08","inflow":120000000,"outflow":90000000,"net":30000000},{"month":"2026-09","inflow":150000000,"outflow":95500000,"net":54500000},{"month":"2026-10","inflow":190750000,"outflow":563300000,"net":-372550000}]},"meta":null}
+HTTP 200
