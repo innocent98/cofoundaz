@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, LineChart, Plus } from "lucide-react";
 import { useCashFlow, useRunway } from "@/hooks/useFinanceApi";
-import { saveRunwayAssumptions, type FinanceError, type Runway, type RunwayScenario, type RunwayScenarioKey } from "@/lib/api/finance";
+import { saveRunwayAssumptions, type FinanceError, type Runway, type RunwayModelRows, type RunwayScenario, type RunwayScenarioKey } from "@/lib/api/finance";
 import { formatMoney, formatMonth, minorToInput, toMinor } from "@/lib/finance/format";
 import { RunwayChart } from "../_components/charts";
 import {
@@ -16,6 +16,7 @@ import {
   ResourceGate,
   darkBtn,
   inputCls,
+  linkBtn,
   primaryBtn,
 } from "../_components/ui";
 import { useFinanceAction } from "../_components/useFinanceAction";
@@ -96,7 +97,7 @@ function AssumptionsPanel({
       <Field label="MoM growth %" htmlFor="rw-growth" error={error?.fieldErrors.mom_growth_percent}>
         <input id="rw-growth" type="number" min={0} max={1000} step={1} className={inputCls} value={growth} onChange={(e) => setGrowth(e.target.value)} />
       </Field>
-      <Field label="Hiring spend per month (NGN)" htmlFor="rw-hiring" error={error?.fieldErrors.hiring_spend_minor} hint="A monthly cost added on top of your current burn.">
+      <Field label="Hiring spend per month (NGN)" htmlFor="rw-hiring" error={error?.fieldErrors.hiring_spend_minor} hint="A monthly cost added on top of your current burn. Named hires come from your financial model.">
         <input id="rw-hiring" inputMode="decimal" className={inputCls} value={hiring} onChange={(e) => setHiring(e.target.value)} />
       </Field>
       <Field label="One-off costs (NGN)" htmlFor="rw-oneoff" error={error?.fieldErrors.one_off_costs_minor} hint="A single cost taken once in the projection.">
@@ -107,6 +108,74 @@ function AssumptionsPanel({
         {busy ? "Saving" : "Save assumptions"}
       </button>
     </form>
+  );
+}
+
+function ModelRowsCard({ rows, currency }: { rows: RunwayModelRows | undefined; currency: string }) {
+  const hires = rows?.hiring_plan ?? [];
+  const oneOffs = rows?.one_offs ?? [];
+  const href = rows?.href ?? "/finance/model";
+  return (
+    <section aria-labelledby="rw-model-rows" className="bg-white rounded-modal border border-sage-200 p-6 shadow-card space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sage-100 pb-3">
+        <h2 id="rw-model-rows" className="font-bold text-sage-900">
+          From your financial model
+        </h2>
+        <Link href={href} className={linkBtn}>
+          Edit in the model
+        </Link>
+      </div>
+      {!rows?.model_id ? (
+        <p className="text-sm text-sage-500">
+          No financial model yet. Build one and its hiring and one-off rows will count in these scenarios.{" "}
+          <Link href={href} className="font-bold text-sage-700 hover:underline">
+            Open the financial model
+          </Link>
+        </p>
+      ) : (
+        <>
+          <p className="text-xs text-sage-500">Read only. The scenarios above already include these rows. Change them in the financial model.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-xs font-bold text-sage-600 uppercase tracking-wider mb-2">Hiring plan</h3>
+              {hires.length === 0 ? (
+                <p className="text-sm text-sage-500">No hires in the model.</p>
+              ) : (
+                <ul className="divide-y divide-sage-100 text-sm">
+                  {hires.map((h, i) => (
+                    <li key={`${h.role}-${i}`} className="py-2 flex justify-between gap-3">
+                      <span className="text-sage-800">
+                        {h.role}
+                        <span className="block text-xs text-sage-500">From {formatMonth(h.start_month)}</span>
+                      </span>
+                      <span className="font-semibold text-sage-900 whitespace-nowrap">{formatMoney(h.monthly_cost_minor, currency)} a month</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-sage-600 uppercase tracking-wider mb-2">One-off costs</h3>
+              {oneOffs.length === 0 ? (
+                <p className="text-sm text-sage-500">No one-off costs in the model.</p>
+              ) : (
+                <ul className="divide-y divide-sage-100 text-sm">
+                  {oneOffs.map((o, i) => (
+                    <li key={`${o.label}-${i}`} className="py-2 flex justify-between gap-3">
+                      <span className="text-sage-800">
+                        {o.label}
+                        <span className="block text-xs text-sage-500">{formatMonth(o.month)}</span>
+                      </span>
+                      <span className="font-semibold text-sage-900 whitespace-nowrap">{formatMoney(o.amount_minor, currency)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </section>
   );
 }
 
@@ -223,7 +292,7 @@ export default function RunwayPage() {
                     </tbody>
                   </table>
                   <details className="text-sm">
-                    <summary className="cursor-pointer font-semibold text-sage-700">Month by month ({SCENARIOS.find((x) => x.key === scenario)?.label} case)</summary>
+                    <summary className="cursor-pointer max-md:min-h-11 max-md:flex max-md:items-center font-semibold text-sage-700">Month by month ({SCENARIOS.find((x) => x.key === scenario)?.label} case)</summary>
                     <div className="overflow-x-auto mt-3">
                       <table className="w-full text-left min-w-[420px]">
                         <thead>
@@ -250,6 +319,8 @@ export default function RunwayPage() {
                   </p>
                 </div>
               </div>
+
+              <ModelRowsCard rows={rw.model_rows} currency={b.currency} />
             </>
           );
         }}

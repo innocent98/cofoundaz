@@ -2,11 +2,12 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, MessageSquare, Plus, Wallet } from "lucide-react";
+import { AlertTriangle, Download, MessageSquare, Plus, Wallet } from "lucide-react";
 import { useCashFlow, useCategories, useTransactions, useUncategorizedCount } from "@/hooks/useFinanceApi";
 import {
   createTransaction,
   deleteTransaction,
+  exportTransactionsXlsx,
   updateTransaction,
   type CashFlow,
   type Transaction,
@@ -69,11 +70,13 @@ function RunwayBanner({ cashFlow, onAsk }: { cashFlow: CashFlow; onAsk: (seed: s
   );
 }
 
+// The Advisor now reads the founder's real cash, burn, runway and overdue invoices server-side
+// (API slice e), so the seed is only a question and carries no figures from the client. (Live check: the
+// wording "What levers should I look at first?" made the model return an empty completion, so avoid it.)
 function advisorSeed(cf: CashFlow): string {
-  const burn = formatMoney(cf.monthly_burn, cf.currency);
   return cf.runway_months === null
-    ? `I am out of cash and my monthly burn is ${burn}. What levers should I look at first?`
-    : `My runway is ${cf.runway_months} months and my monthly burn is ${burn}. What levers should I look at?`;
+    ? "I am out of cash and still burning. Give me three ways to stretch what I have."
+    : "Give me three ways to extend my runway.";
 }
 
 const SOURCE_LABEL: Record<TransactionSource, string> = {
@@ -488,6 +491,14 @@ export default function CashFlowPage() {
                         {key === "uncategorized" && uncategorizedCount > 0 ? ` (${uncategorizedCount})` : ""}
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      className={`${secondaryBtn} !py-1 !px-3 text-xs`}
+                      disabled={busy}
+                      onClick={() => void run(() => exportTransactionsXlsx(filtersFor(filter)), { success: "Transactions exported to Excel.", fallback: "Couldn't export the transactions. Try again." })}
+                    >
+                      <Download className="w-4 h-4" aria-hidden="true" /> Export Excel
+                    </button>
                   </div>
                 </div>
                 {transactions.status === "loading" ? (

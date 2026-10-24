@@ -1,6 +1,6 @@
 # Finance Hub: click-through re-walk (merged develop)
 
-**Date:** 2026-10-24. **Verdict: not done yet.** API #182 (the Funding fix) was merged during the walk and the six re-check rows were redone on it, see "Funding fix re-check". Everything that could be clicked without a real third-party key passes except the items under "Failures" (no blocking defect; 5 open defects after the Funding fix: 2 on the API side, 5 on the FE side, all Low or Medium). **Still open:** (1) real imports: the Paystack and Flutterwave test accounts hold no transactions, so ledger import and payout tagging could not be exercised, (3) Mono sandbox sync fails server-side (D7). Finance should not be marked Done until those close.
+**Date:** 2026-10-24. **Verdict (original walk): not done yet. See "Slice (e) re-check, 2026-10-24" at the end for the current state.** API #182 (the Funding fix) was merged during the walk and the six re-check rows were redone on it, see "Funding fix re-check". Everything that could be clicked without a real third-party key passes except the items under "Failures" (no blocking defect; 5 open defects after the Funding fix: 2 on the API side, 5 on the FE side, all Low or Medium). **Still open:** (1) real imports: the Paystack and Flutterwave test accounts hold no transactions, so ledger import and payout tagging could not be exercised, (3) Mono sandbox sync fails server-side (D7). Finance should not be marked Done until those close.
 
 **What was walked.** Merged `origin/develop` `8ac8a55` (includes FE #153) on the shared dev server `localhost:3000` (proxy to the docker API on `:8000`, develop `a9fd3a50`, migration 0070, worker up). Every row was clicked or typed **by hand in the Claude browser pane** (no Playwright, no scripted UI). Page text, `innerText` and `getBoundingClientRect` were used only to read results. Each result was then compared with the raw API (`curl` with the same account's bearer token and `X-Workspace-Id`, same minute). Widths: **1440** (pane emulation 1440x900) and **375** (375x812). Raw API captures are in `finance-rewalk-evidence/` (no tokens in them).
 
@@ -47,7 +47,7 @@
 | R8 | Restore growth 5, save | form shows `5,200000,100000` | `GET` equal | ✅ |
 | R9 | "Month by month (Base case)" disclosure | 12 rows; Nov 2026 net −₦1,081,975, cash ₦941,525 | `by_month[0]` net −108197500, `cash_balance` 94152500 | ✅ ⚠ N5 |
 | R10 | Cash balance chart and scenario table | 3 rows: 1.9 / 12+ / 1.3 months, cash-out dates | equal to R1..R3 | ✅ |
-| R11 | Footnote | "Money in counts every inflow, including funding rounds, so a recent raise makes revenue look higher than it is." | this is exactly D1 | ✅ 🔁 |
+| R11 | Footnote | "Money in counts every inflow, including funding rounds, so a recent raise makes revenue look higher than it is." | this is exactly D1 | ✅ 🔁 (footnote reworded in FE #160, re-checked 2026-10-24 slice (e): now says funding adds to cash but is not revenue) |
 
 ## 3. Founder (F), 1440: Budgets `/finance/budgets`
 
@@ -107,7 +107,7 @@
 | E6 | Edit (prefilled), amount 2000, save | ₦2,000 | expense and linked ledger row both 200000 | ✅ |
 | E7 | Delete (confirm says receipt deleted and amount added back to cash) | Row gone | `GET` 404; cash back | ✅ |
 | E8 | View receipt, receipt uploaded by the API today | New tab titled "download (8×8)": the image | `GET /expenses/{id}/receipt` 200 then `GET /finance/receipts/download?token=…` 200 | ✅ |
-| E9 | View receipt, legacy expense `cbee3c6d` | New tab with raw JSON | download link 404 `NOT_FOUND` "Not found." (file gone, `has_receipt` still true) | ❌ see D2 |
+| E9 | View receipt, legacy expense `cbee3c6d` | New tab with raw JSON | download link 404 `NOT_FOUND` "Not found." (file gone, `has_receipt` still true) | ❌ see D2 → ✅ slice (e) re-check E9b |
 | E10 | Remove receipt (confirm "The expense stays.") | Row says "Attach" again | `has_receipt: false`, `receipt_url: null` | ✅ |
 | E11 | Attach / Replace (file chooser) | ⏳ the pane cannot open a file chooser. The API side was exercised with `curl -F file=@receipt.png;type=image/png` → 200, `has_receipt: true` | | ⏳ |
 
@@ -143,7 +143,7 @@
 | N5 | Connect Flutterwave opens | Two password fields: Secret key (FLWSECK_TEST- / FLWSECK-) and Secret hash | | ✅ |
 | N6 | Connect bank (Mono) | After about 10 s the Mono widget opens in-page ("Sandbox uses Mono to link your account") | `connect_config` as N1 | ✅ |
 | N7 | Mono, with Adebayo's OK for the sandbox consent: Link account → consent tick → Continue → GTBank → Success → data status Available → NGN savings account → Continue | "Your account has been linked successfully!" then the card reads "Connected as GTBank · Samuel Olamide · SANDBOX · Account ending e694" | `POST /finance/integrations/mono/connect` 200: connection `status: active`, `mode: test`, `key_last4: e694`, `account_name: GTBank · Samuel Olamide`; no code or token in any response | ✅ |
-| N8 | Mono: Sync now (and the auto-sync after linking) | Card shows "We could not reach Mono. We will retry automatically." and "Last synced: Never" | `POST .../mono/sync` 200 with `summary: {}`, `last_error: "We could not reach Mono. We will retry automatically."`, `last_sync_at: null` (twice); 0 bank rows in the ledger | ❌ see D7 |
+| N8 | Mono: Sync now (and the auto-sync after linking) | Card shows "We could not reach Mono. We will retry automatically." and "Last synced: Never" | `POST .../mono/sync` 200 with `summary: {}`, `last_error: "We could not reach Mono. We will retry automatically."`, `last_sync_at: null` (twice); 0 bank rows in the ledger | ❌ see D7 → ✅ slice (e) re-check N8b |
 | N9 | Mono widget after success | Pressing Continue on the widget's success screen returns it to its welcome screen; it closes only with its X (the first X taps in the pane did nothing because the success screen sits on top) | | ✅ ⚠ N6 |
 | N10 | Mono: Disconnect (confirm "Historical data stays; new data stops syncing.") | Toast "Bank (Mono) disconnected. Imported history stays." | `connection: null` | ✅ |
 | N11 | Paystack: Connect with Adebayo's `sk_test_…` key | Dialog closes, toast "Connected to Paystack in test mode. Use Sync now to import your payments." Card: Connected · TEST MODE · "Key ••••90e0", Last synced Never, webhook URL with Copy and the dashboard instructions | `POST .../paystack/connect` 200: `status: active`, `mode: test`, `key_last4: 90e0`, `webhook_url`; **the key is not in the API response** (grep of the full `GET /finance/integrations` body: 0 hits), **not in the page DOM after saving** (0 hits), and not in the database in plaintext (`finance_connections`, 3 rows, 0 hits for the key or the Flutterwave key/hash) | ✅ |
@@ -169,7 +169,7 @@
 | P5 | Delete the card (confirm) | Row gone | count 19 → 18 | ✅ |
 | P6 | Bell panel at 375 | Fits (left 16), all rows readable | | ✅ ⚠ the Academy re-walk D1 does not reproduce here |
 | P7 | Budgets: cards "Spent ₦200,000 of ₦40,000 · 500% used" with Edit / Delete, "Set budget" | equal to 1440 | | ✅ |
-| P8 | Invoices: cards with number, client, "Due 8 Nov 2026", amount, status, View / Mark paid / PDF | equal | | ✅ ❌ see D3 (no Auto-remind control on cards) |
+| P8 | Invoices: cards with number, client, "Due 8 Nov 2026", amount, status, View / Mark paid / PDF | equal | | ✅ ❌ see D3 → ✅ slice (e) re-check |
 | P9 | Invoice builder at 375 | Fields at 16 px gutters, terms select and tax side by side, `scrollWidth` 375 | | ✅ |
 | P10 | Expenses: cards with "Recurring", Attach / View / Replace / Remove, Edit / Delete | equal | | ✅ |
 | P11 | Model: statements scroll inside their card | `scrollWidth` 375 | | ✅ |
@@ -309,3 +309,54 @@ Rows are counted from the tables above (a row with ✅ and a ⚠, 🔁 or ❌ ma
 | **Total** | **141** | **133** | **5** | **4 ❌ rows (E9, P8, N8, R11)**, 1 ⚠ |
 
 Defects: **D1 API Medium (known, 🔁), D2 API+FE Low, D3 FE Medium, D4 FE Low, D6 FE Low, D7 API Medium** (D5 is a note). D1 is fixed. Open: 5 defects, 2 API-side (D2, D7), 5 FE-side (D2, D3, D4, D6, D8).
+
+
+---
+
+## Slice (e) re-check, 2026-10-24
+
+**Branch** `feature/finance-slice-e-fe` (this PR) on my own `next dev -p 3950`, proxy to the shared API `:8000` (develop `4143bbc0`, migration 0071). FE base: develop `5088d83` (includes #160). **Accounts/hosts:** founder `localhost:3950`, team member `tm.localhost:3950`, mentor `m.localhost:3950`, consultant `bc.localhost:3950` (all four logged in through the real login form; throwaway local accounts, never committed). Widths 1440 (pane) and 375 (emulated). Clicks and typing were done in the Claude browser pane; the iframe and `getBoundingClientRect` scripts were used only to read results and to survey the role pages, and every outcome was checked against the raw API (same account's bearer token, same minute). Raw API facts below are quoted from the responses, with no tokens.
+
+### Earlier defects, re-verified on merged develop (#160) plus this branch
+
+| Row | Check | Result | Evidence |
+|---|---|---|---|
+| D2 / E9b | Receipt whose file is gone: created expense "Slice E Receipt Test", uploaded a 1x1 PNG, deleted the file in the API container's local storage, clicked View receipt | The tab closes, the row flips from "View receipt" to **Attach** (refetch), no JSON tab | `GET /finance/expenses/{id}/receipt` **410** (network log). The 410 body per guide: `RECEIPT_FILE_MISSING` "This receipt file is no longer available. Upload it again." (toast text itself not caught by my reader; asserted in `ReceiptButton.test.tsx`) ✅ |
+| D3 / P8b | 375, invoice card INV-2026-004 | Card has **Auto-remind** (44 px), View, Resend, Mark paid, PDF, all 44 px | `getBoundingClientRect` heights 44 ✅ |
+| D4 | Money with kobo | "₦25,000.50" (card, View), "₦556,970.32" (runway tile), "Tax (0%) ₦0" | page text ✅ |
+| D6 | 375 audit of every Finance page plus the invoice builder: interactive elements under 44 px | Only the runway "Month by month" summary (20 px) was found, fixed here (`max-md:min-h-11`). Left alone, as in #160: the inline "expenses" link in the budgets note and the app shell header (search, bell, invite 30 to 36 px). No horizontal scroll (`scrollWidth` 375) on any page ✅ |
+| D8 / R11 | Runway footnote | "Funding (a raise, investment or grant) adds to your cash on hand but is not counted as revenue and does not reduce burn." ✅ |
+| D7 / N8b | Integrations, Connect bank, Mono sandbox (consent, GTBank, Success, Available, NGN savings account ending 3461, Continue) | "Your account has been linked successfully!". Card: "Connected as GTBank · Samuel Olamide · SANDBOX · Account ending 3461", "Last sync: 142 transactions imported." A second Sync now: "Last sync: Nothing new to import." A third inside the cooldown: **429** (API log). **D7 is fixed by API slice (e).** | `POST /finance/integrations/mono/connect` 200 (2.11 s) then `POST .../mono/sync` 200 (4.71 s) in the API log; `GET /finance/integrations` mono connection: `status: active`, `mode: test`, `last_error: null`, `last_sync_summary {fetched 142, credits 79, debits 63, imported 0, duplicates 0, skipped_currency 0}` (the bank adapter counts rows under credits/debits; the card text adds them). 142 `source: bank` rows in the ledger. No WARNING line was logged because nothing failed ✅ |
+
+### The four asks and Advisor
+
+| Ask | Check | Result | Evidence |
+|---|---|---|---|
+| Runway rows (D-FIN-12) | Added a hire ("Slice E engineer", ₦300,000 from 2026-11) and a one-off ("Slice E laptops", ₦50,000, 2026-12) through the model's own PATCH, reloaded Runway | New **From your financial model** card lists both, read only, with "Edit in the model" linking `/finance/model`. Base case moved **1.9 to 1.5 months**, avg net burn ₦556,970.32 to ₦861,136.99. With no rows the card reads "No hires in the model." / "No one-off costs in the model."; with no model it shows the empty message. FE sends only the three scalars (`PUT` body unchanged) | `GET /finance/runway` `data.model_rows {model_id, href: "/finance/model", hiring_plan[1], one_offs[1]}` ✅. Rows removed again afterwards (runway back to 1.9) |
+| Invoice client picker, notes, payment details | Builder: picked "Kolo Riders Co-op" | Name and email prefilled ("funke@kolo.example", first contact with an email). Only a bank name typed: "Payment details need a bank name, an account name and an account number. Clear all four to leave them out." (no request). All fields filled, Save draft: `account_id`, `account_name`, `notes`, `payment_details` returned. Edit prefilled all of them; unlinking the client and clearing notes and all four bank fields sent explicit nulls and the API returned `account_id: null`, `notes: null`, `payment_details: null`. After send, View shows "Sales client", **Notes**, **Pay by bank transfer** (GTBank · NovaPay Ltd · 0123456789) | `POST/PATCH /finance/invoices` 200 each; email body in the worker log carries "Pay by bank transfer ... Bank: GTBank ... Account number: 0123456789" and the notes ✅ |
+| Resend | Send INV-2026-004, then Resend (row, confirm dialog) | Inside 60 s: toast "This invoice was emailed a moment ago. Try again in 43 seconds." (and "...29 seconds." a minute later: the count is from the first send). After 60 s: toast "Sent to funke@kolo.example.", `last_sent_at` moved, View shows "Last emailed 24 Oct 2026." Button only on sent and overdue rows. Mentor and consultant `POST .../resend`: 403 | 429 `RESEND_TOO_SOON` shown as-is, 200 after ✅ |
+| XLSX | Cash flow, chip **Money out**, Export Excel; Model, Export Excel | Toasts "Transactions exported to Excel." / "Model exported to Excel."; browser download via blob with the auth headers | Network: `GET /api/v1/finance/transactions/export.xlsx?direction=out` 200 and `GET /api/v1/finance/model/3661ef86.../export.xlsx` 200. Team member: both 200, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, body starts `PK`. Mentor and consultant: both **403 `FORBIDDEN`** ✅ ⚠ note: exporting while the model shows "Edited, not yet recalculated" exports the stored statements without the edits (it is the saved model); the page banner already says so |
+| Receipt 410 | see D2 / E9b | ✅ | |
+| Advisor finance context | Founder: **Ask Finance Advisor**; then API conversations with the live model | Real reply with the real ledger: "Your cash on hand is **NGN 2,118,000**, and your monthly burn is **NGN 960,667**. Your runway is approximately **2.2 months**." and "three ways to extend my runway" quotes ₦2.118m, ₦960,667, 2.2 months and NGN 1.536m monthly revenue. Team member (a Finance role) gets the same figures (NGN 2.118m, 960,667, 2.2 months). **Mentor and consultant: `GET/POST /ai/conversations` are 403 for them, so no figures reach them at all.** FE seed shortened to a figure-free question ("Give me three ways to extend my runway.") | worker log + `GET /ai/conversations/{id}` (`status: ready`) ✅ |
+
+### New findings
+
+| # | Layer | Severity | Finding |
+|---|---|---|---|
+| D9 | API (LLM) | Medium | The question wording "What levers should I look at first?" (also "...first to extend my runway?") makes the model return nothing: worker log `job ai.cofounder.reply failed: LLM API returned an empty completion.` on every retry; the assistant message stays `generating` and the drawer shows "Thinking..." with no end or error. Neighbouring wordings ("Give me three ways to extend my runway.", "What is my cash on hand...") answer fine. The old FE seed ended with exactly that phrase, which is the C15 symptom of the first walk. FE avoided the phrase, but the API should (a) end a message after its last retry as failed with a visible message and (b) not send a prompt that yields an empty completion. |
+| D10 | API | Low to Medium | A `source: bank` ledger row accepts `PATCH {"amount_minor": 100}` with **200** (amount changed, direction too) and `DELETE` with 200, while the guide says category is the only edit allowed on an imported row. Expense rows are correctly refused (422 "This transaction is managed by an expense"). The FE hides Edit/Delete on imported rows, so only API clients can do it. I used the delete to clean up my 142 sandbox rows. |
+| N11 | note | | Runway model rows come from the newest complete model; a model that is still "Edited, not yet recalculated" is read with its edits (the hire moved the runway before I recalculated). |
+
+### Rows I could not close
+
+| Row | Why | What closes it |
+|---|---|---|
+| **I21, N21** (Paystack test payment: "Paid via Paystack" tag, imported row category-only edit, needs-attention banner, skipped non-NGN counts) | No Paystack connection exists in this workspace (all three providers show "Not connected"), and a Paystack secret test key is typed into the Connect dialog by hand. I do not have a key and must not read or copy env secrets, so I could not connect, open a pay link, or pay with Paystack's test card. | Adebayo (or the lead) connects the Paystack **test** key on Integrations; then: View an invoice, Create pay link, open it, pay with Paystack's published test card, Sync now, and walk the tag, the imported row, the banner and the skipped counts. If Paystack test mode produces no payout/settlement, payout tagging stays covered by API tests only. **Not exercised:** the bank-sourced equivalent below. |
+| Imported row, category-only edit (bank source) | Walked with the bank rows: they show a category select and **no Edit or Delete**; the API lets a client change more (D10) | ✅ for the FE rule; the API rule is D10 |
+| I20 (print window), E11 (file chooser) | The pane cannot drive them | ⏳ unchanged |
+
+### Cleanup
+Deleted: the 141 remaining sandbox bank rows (and the one I deleted first), the "Slice E Receipt Test" expense, the model hire and one-off rows (model recalculated). Mono disconnected through the UI (confirm: "Historical data stays; new data stops syncing."). Cash on hand is back to ₦2,119,500. Left behind: invoice INV-2026-004 (sent; sent invoices cannot be deleted), several AI conversations from the Advisor checks (founder and team member).
+
+### Counts after this re-check
+Original 141 rows: 133 ✅ before; E9, P8, N8, R11 are now ✅ (137 ✅), 4 ⏳ (I20, I21, E11, N21). New defects D9, D10 are API-side.
