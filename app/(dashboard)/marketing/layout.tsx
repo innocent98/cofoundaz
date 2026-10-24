@@ -26,18 +26,18 @@ function MarketingLayoutContent({ children }: { children: React.ReactNode }) {
   const activePath = active?.path ?? '/marketing';
 
   return (
-    <div className="relative flex min-h-full w-full min-w-0 flex-col bg-[#f5f7f5] text-[#2c3531] font-body">
+    <div className="relative flex min-h-full w-full min-w-0 flex-col bg-neutral-xf5f7f5 text-neutral-x2c3531 font-body">
       {/* TOAST NOTIFICATION */}
       <div aria-live="polite" role="status" className="fixed top-4 left-1/2 -translate-x-1/2 z-[80]">
         {toast.show && (
           <div
             className={`px-5 py-3 rounded-modal shadow-raised flex items-center gap-3 border ${
               toast.kind === 'error'
-                ? 'bg-red-50 border-red-200 text-red-800'
-                : 'bg-[#0e271f] border-[#1f4236] text-sage-100'
+                ? 'bg-danger-50 border-danger-200 text-danger-800'
+                : 'bg-brand-rail-deep border-brand-x1f4236 text-neutral-100'
             }`}
           >
-            <span className={`font-bold text-sm ${toast.kind === 'error' ? 'text-red-600' : 'text-green-400'}`} aria-hidden="true">
+            <span className={`font-bold text-sm ${toast.kind === 'error' ? 'text-danger-600' : 'text-brand-400'}`} aria-hidden="true">
               {toast.kind === 'error' ? '!' : '✓'}
             </span>
             <span className="font-medium text-sm tracking-wide">{toast.message}</span>
@@ -45,10 +45,10 @@ function MarketingLayoutContent({ children }: { children: React.ReactNode }) {
         )}
       </div>
 
-      <div className="sticky top-0 z-40 bg-[#F7F7F5] border-b border-[#EBEBE6]">
+      <div className="sticky top-0 z-40 bg-surface-subtle border-b border-line-soft">
         <ShellTopBar title="Marketing Hub" />
 
-        <nav aria-label="Marketing sections" className="px-4 md:px-8 py-3 bg-[#F7F7F5]">
+        <nav aria-label="Marketing sections" className="px-4 md:px-8 py-3 bg-surface-subtle">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
             {tabs.map((tab) => {
               const isActive = activePath === tab.path;
@@ -59,8 +59,8 @@ function MarketingLayoutContent({ children }: { children: React.ReactNode }) {
                   aria-current={isActive ? 'page' : undefined}
                   className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-[#EAD5C6] text-[#1E2923] font-bold shadow-card'
-                      : 'bg-white border border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]'
+                      ? 'bg-accent-200 text-ink font-bold shadow-card'
+                      : 'bg-white border border-line-soft text-ink-muted hover:border-neutral-xc5cfc7'
                   }`}
                 >
                   {tab.name}

@@ -212,8 +212,8 @@ export function SequenceCard({
   };
 
   return (
-    <form onSubmit={save} noValidate className="bg-white rounded-modal border border-sage-200/90 p-6 md:p-8 shadow-card space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-sage-100">
+    <form onSubmit={save} noValidate className="bg-white rounded-modal border border-neutral-200/90 p-6 md:p-8 shadow-card space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-neutral-100">
         <div className="min-w-0 flex-1 space-y-1">
           <label htmlFor={nameId} className="sr-only">
             Sequence name
@@ -228,24 +228,24 @@ export function SequenceCard({
               clearError('name');
             }}
             aria-invalid={!!errors.name}
-            className="w-full text-xl md:text-2xl font-display font-bold text-sage-900 bg-transparent border-b border-transparent hover:border-sage-200 focus:border-sage-400 outline-none"
+            className="w-full text-xl md:text-2xl font-display font-bold text-neutral-900 bg-transparent border-b border-transparent hover:border-neutral-200 focus:border-neutral-400 outline-none"
           />
           {errors.name && (
-            <p role="alert" className="text-xs text-red-700">
+            <p role="alert" className="text-xs text-danger-700">
               {errors.name}
             </p>
           )}
           {sequence && (
-            <span className="text-sm text-sage-500 font-medium block">
+            <span className="text-sm text-neutral-500 font-medium block">
               {sequence.active_enrollments} active · {sequence.total_enrollments} enrolled · {replyRateLabel(sequence.reply_rate)}
               {sequence.status === 'paused' ? ' · Paused' : ''}
             </span>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 bg-sage-50/50 border border-sage-200 rounded-card p-3">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 bg-neutral-50/50 border border-neutral-200 rounded-card p-3">
           <div className="flex items-center gap-2" title="You press Mark replied on a person to stop their emails">
-            <input type="checkbox" checked disabled readOnly className="rounded border-sage-300 text-[#1e4836]" id={`${stageId}-reply`} />
-            <label htmlFor={`${stageId}-reply`} className="text-sm text-sage-600 font-medium cursor-not-allowed">
+            <input type="checkbox" checked disabled readOnly className="rounded border-neutral-300 text-brand-hover" id={`${stageId}-reply`} />
+            <label htmlFor={`${stageId}-reply`} className="text-sm text-neutral-600 font-medium cursor-not-allowed">
               Stop when they reply (press Mark replied)
             </label>
           </div>
@@ -254,10 +254,10 @@ export function SequenceCard({
               type="checkbox"
               checked={stopOnStage}
               onChange={(e) => setStopOnStage(e.target.checked)}
-              className="rounded border-sage-300 text-[#1e4836] focus:ring-[#1e4836] cursor-pointer"
+              className="rounded border-neutral-300 text-brand-hover focus:ring-brand-hover cursor-pointer"
               id={stageId}
             />
-            <label htmlFor={stageId} className="text-sm text-sage-700 font-medium cursor-pointer">
+            <label htmlFor={stageId} className="text-sm text-neutral-700 font-medium cursor-pointer">
               Stop when deal moves stage
             </label>
           </div>
@@ -265,7 +265,7 @@ export function SequenceCard({
       </div>
 
       {errors.steps && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-danger-700">
           {errors.steps}
         </p>
       )}
@@ -279,14 +279,14 @@ export function SequenceCard({
           const daysErr = errors[`steps.${i}.wait_days`];
           const canAi = !isNew && i < saved.length;
           return (
-            <div key={step.key} className="bg-[#f7f9f8] rounded-card p-4 md:p-6 border border-sage-200/70 flex flex-col md:flex-row items-start gap-4 md:gap-6">
-              <div className="w-8 h-8 rounded-input bg-[#e2ede6] text-[#1e4836] font-display font-bold text-sm flex items-center justify-center flex-shrink-0 border border-[#d2e2d8]">
+            <div key={step.key} className="bg-neutral-xf7f9f8 rounded-card p-4 md:p-6 border border-neutral-200/70 flex flex-col md:flex-row items-start gap-4 md:gap-6">
+              <div className="w-8 h-8 rounded-input bg-neutral-xe2ede6 text-brand-hover font-display font-bold text-sm flex items-center justify-center flex-shrink-0 border border-brand-xd2e2d8">
                 {i + 1}
               </div>
               <div className="space-y-3 flex-1 min-w-0 w-full">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <label htmlFor={`days-${step.key}`} className="text-xs text-sage-500 font-bold uppercase tracking-wider">
+                    <label htmlFor={`days-${step.key}`} className="text-xs text-neutral-500 font-bold uppercase tracking-wider">
                       Wait (days)
                     </label>
                     <input
@@ -298,14 +298,14 @@ export function SequenceCard({
                       value={step.wait_days}
                       onChange={(e) => setStep(step.key, { wait_days: e.target.value })}
                       aria-invalid={!!daysErr}
-                      className="text-sm font-medium bg-white border border-sage-200 rounded px-2 py-1 w-20"
+                      className="text-sm font-medium bg-white border border-neutral-200 rounded px-2 py-1 w-20"
                     />
-                    <span className="text-xs text-sage-500">{parseDays(step.wait_days) !== null ? waitLabel(Number(step.wait_days), i === 0) : ''}</span>
+                    <span className="text-xs text-neutral-500">{parseDays(step.wait_days) !== null ? waitLabel(Number(step.wait_days), i === 0) : ''}</span>
                   </div>
                   {steps.length > 1 && (
                     <button
                       type="button"
-                      className="text-xs text-sage-500 hover:text-red-700 cursor-pointer"
+                      className="text-xs text-neutral-500 hover:text-danger-700 cursor-pointer"
                       aria-label={`Remove step ${i + 1}`}
                       onClick={() => {
                         clearStepErrors();
@@ -317,13 +317,13 @@ export function SequenceCard({
                   )}
                 </div>
                 {daysErr && (
-                  <p role="alert" className="text-xs text-red-700">
+                  <p role="alert" className="text-xs text-danger-700">
                     {daysErr}
                   </p>
                 )}
 
                 <div className="space-y-2">
-                  <label htmlFor={`subject-${step.key}`} className="text-xs font-bold text-sage-500 uppercase tracking-wider block">
+                  <label htmlFor={`subject-${step.key}`} className="text-xs font-bold text-neutral-500 uppercase tracking-wider block">
                     Subject
                   </label>
                   <input
@@ -336,15 +336,15 @@ export function SequenceCard({
                     onFocus={() => (focus.current = { key: step.key, field: 'subject' })}
                     onChange={(e) => setStep(step.key, { subject: e.target.value })}
                     aria-invalid={!!subjectErr}
-                    className="w-full font-display font-bold text-sage-900 text-base border border-sage-300 rounded-input px-3 py-2 bg-white focus:outline-none focus:border-sage-500"
+                    className="w-full font-display font-bold text-neutral-900 text-base border border-neutral-300 rounded-input px-3 py-2 bg-white focus:outline-none focus:border-neutral-500"
                   />
                   {subjectErr && (
-                    <p role="alert" className="text-xs text-red-700">
+                    <p role="alert" className="text-xs text-danger-700">
                       {subjectErr}
                     </p>
                   )}
                   {usesEmptyable && !subjectErr && (
-                    <p className="text-xs text-copper-800">
+                    <p className="text-xs text-accent-800">
                       If a contact has no company or last name, a missing value is left out, so this subject goes out as &ldquo;{subjectRendered || '(empty)'}&rdquo;.
                     </p>
                   )}
@@ -352,7 +352,7 @@ export function SequenceCard({
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label htmlFor={`body-${step.key}`} className="text-xs font-bold text-sage-500 uppercase tracking-wider block">
+                    <label htmlFor={`body-${step.key}`} className="text-xs font-bold text-neutral-500 uppercase tracking-wider block">
                       Body
                     </label>
                     <button
@@ -363,7 +363,7 @@ export function SequenceCard({
                         setAiFor(aiFor === step.key ? null : step.key);
                         setAiError(null);
                       }}
-                      className="text-xs font-bold text-[#9C5B34] flex items-center gap-1 hover:text-[#8A5330] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="text-xs font-bold text-accent-600 flex items-center gap-1 hover:text-accent-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span aria-hidden="true">✨</span> Write with AI
                     </button>
@@ -384,7 +384,7 @@ export function SequenceCard({
                     </div>
                   )}
                   {aiError?.key === step.key && (
-                    <p role="alert" className="text-xs text-red-700">
+                    <p role="alert" className="text-xs text-danger-700">
                       {aiError.message}
                     </p>
                   )}
@@ -398,16 +398,16 @@ export function SequenceCard({
                     onFocus={() => (focus.current = { key: step.key, field: 'body' })}
                     onChange={(e) => setStep(step.key, { body: e.target.value })}
                     aria-invalid={!!bodyErr}
-                    className="w-full text-sm text-sage-700 font-medium leading-relaxed border border-sage-300 rounded-input px-3 py-2 bg-white focus:outline-none focus:border-sage-500"
+                    className="w-full text-sm text-neutral-700 font-medium leading-relaxed border border-neutral-300 rounded-input px-3 py-2 bg-white focus:outline-none focus:border-neutral-500"
                   />
                   {bodyErr && (
-                    <p role="alert" className="text-xs text-red-700">
+                    <p role="alert" className="text-xs text-danger-700">
                       {bodyErr}
                     </p>
                   )}
                   {previewing && (
-                    <div className="rounded-card border border-sage-200 bg-white p-3 text-sm text-sage-700 whitespace-pre-wrap">
-                      <p className="font-semibold text-sage-900">{previewTemplate(step.subject, SAMPLE)}</p>
+                    <div className="rounded-card border border-neutral-200 bg-white p-3 text-sm text-neutral-700 whitespace-pre-wrap">
+                      <p className="font-semibold text-neutral-900">{previewTemplate(step.subject, SAMPLE)}</p>
                       {previewTemplate(step.body, SAMPLE)}
                     </div>
                   )}
@@ -417,7 +417,7 @@ export function SequenceCard({
                         key={tag}
                         type="button"
                         onClick={() => insertTag(tag)}
-                        className="text-[10px] bg-sage-200 text-sage-700 px-2 py-0.5 rounded font-bold uppercase cursor-pointer hover:bg-sage-300 transition-colors"
+                        className="text-[10px] bg-neutral-200 text-neutral-700 px-2 py-0.5 rounded font-bold uppercase cursor-pointer hover:bg-neutral-300 transition-colors"
                       >
                         {`{{${tag}}}`}
                       </button>
@@ -445,13 +445,13 @@ export function SequenceCard({
         <button type="button" className={BTN_SECONDARY} aria-pressed={previewing} onClick={() => setPreviewing((p) => !p)}>
           {previewing ? 'Hide preview' : 'Preview with a sample contact'}
         </button>
-        {steps.length >= MAX_STEPS && <span className="text-xs text-sage-500">{STEP_LIMIT_MESSAGE}</span>}
+        {steps.length >= MAX_STEPS && <span className="text-xs text-neutral-500">{STEP_LIMIT_MESSAGE}</span>}
       </div>
 
-      <div className="pt-4 border-t border-sage-100 flex items-start gap-3">
+      <div className="pt-4 border-t border-neutral-100 flex items-start gap-3">
         <span className="text-lg" aria-hidden="true">🔒</span>
-        <div className="text-xs text-sage-500 font-medium leading-relaxed">
-          <span className="text-sage-700 font-bold block mb-0.5">Compliance note</span>
+        <div className="text-xs text-neutral-500 font-medium leading-relaxed">
+          <span className="text-neutral-700 font-bold block mb-0.5">Compliance note</span>
           Every email ends with your startup name and an unsubscribe link, and you cannot edit that footer. Anyone who unsubscribes or bounces is removed from every sequence and cannot be enrolled again.
         </div>
       </div>

@@ -72,50 +72,50 @@ export function PlanReadinessCard() {
   };
 
   if (error && !data) {
-    return <p role="alert" className="text-sm text-[#A34B4B] bg-[#FBEBEB] border border-[#F0D5D5] rounded-modal p-4">{error}</p>;
+    return <p role="alert" className="text-sm text-danger-text bg-danger-wash border border-danger-xf0d5d5 rounded-modal p-4">{error}</p>;
   }
-  if (!data) return <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card h-56 animate-pulse" />;
+  if (!data) return <div className="bg-white rounded-modal border border-line-soft shadow-card h-56 animate-pulse" />;
 
   const missing = data.total - data.ready_count;
 
   return (
-    <section aria-labelledby="readiness-title" className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
-      <div className="px-6 py-4 border-b border-[#EBEBE6] bg-[#FBFBFA] flex items-center justify-between gap-3">
-        <h3 id="readiness-title" className="font-bold text-[#1E2923] text-sm">What your plan is built from</h3>
-        <span className="text-xs font-bold text-[#556358]" aria-live="polite">{data.ready_count} of {data.total} ready</span>
+    <section aria-labelledby="readiness-title" className="bg-white rounded-modal border border-line-soft shadow-card overflow-hidden">
+      <div className="px-6 py-4 border-b border-line-soft bg-surface-faint flex items-center justify-between gap-3">
+        <h3 id="readiness-title" className="font-bold text-ink text-sm">What your plan is built from</h3>
+        <span className="text-xs font-bold text-ink-body" aria-live="polite">{data.ready_count} of {data.total} ready</span>
       </div>
-      <ul className="divide-y divide-[#F0F0EC]">
+      <ul className="divide-y divide-line-faint">
         {data.items.map((item) => (
           <li key={item.type} className="px-6 py-3 flex items-center gap-3">
             {isReady(item) ? (
-              <CheckCircle2 className="w-4 h-4 text-[#183B28] shrink-0" aria-label="Ready" />
+              <CheckCircle2 className="w-4 h-4 text-brand-strong shrink-0" aria-label="Ready" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-[#9C5B34] shrink-0" aria-label="Needs attention" />
+              <AlertTriangle className="w-4 h-4 text-accent-600 shrink-0" aria-label="Needs attention" />
             )}
-            <Link href={READINESS_PATH[item.type] ?? '/business-builder'} className="text-sm font-semibold text-[#1E2923] hover:underline">
+            <Link href={READINESS_PATH[item.type] ?? '/business-builder'} className="text-sm font-semibold text-ink hover:underline">
               {item.label}
             </Link>
-            <span className="ml-auto text-xs text-[#768478]">{readinessNote(item)}</span>
+            <span className="ml-auto text-xs text-ink-soft">{readinessNote(item)}</span>
           </li>
         ))}
       </ul>
       {missing > 0 && (
-        <div className="px-6 py-4 border-t border-[#EBEBE6] flex flex-wrap items-center gap-3">
+        <div className="px-6 py-4 border-t border-line-soft flex flex-wrap items-center gap-3">
           {canEdit ? (
             <button
               type="button"
               onClick={() => setConfirming(true)}
               disabled={drafting || isOverBudget}
               title={isOverBudget ? `AI is paused until ${formattedResetsAt}` : undefined}
-              className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2.5 rounded-card text-xs transition-colors border border-[#EAD5C6] disabled:opacity-60 shadow-card"
+              className="flex items-center gap-1.5 bg-accent-xf5ecdc hover:bg-accent-200 text-accent-900 font-bold px-4 py-2.5 rounded-card text-xs transition-colors border border-accent-200 disabled:opacity-60 shadow-card"
             >
-              {drafting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />}
+              {drafting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 fill-accent-700 text-accent-700" />}
               {drafting ? 'Drafting missing sections' : 'Draft missing sections with AI'}
             </button>
           ) : (
-            <p className="text-xs text-[#768478]">A founder or team member can draft the missing sections.</p>
+            <p className="text-xs text-ink-soft">A founder or team member can draft the missing sections.</p>
           )}
-          {note && <span role="status" className="text-[11px] font-semibold text-[#B0483B]">{note}</span>}
+          {note && <span role="status" className="text-[11px] font-semibold text-danger-600">{note}</span>}
         </div>
       )}
       <AiConfirmModal

@@ -35,7 +35,7 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 | Per-workspace timezones for the mission scheduler | follow-up |
 | Health benchmarks with real cohorts | needs usage data |
 | Brand: real logo + favicon everywhere (`feature/brand-logo`, 2026-10-24, SOP `docs/sop/brand-logo-and-favicon.md`) | done on branch, awaiting merge |
-| Brand colours: colour-token refactor, phase 1 hard-coded hex (≈5,500 in 223 files) to semantic tokens with zero visual change, phase 2 swap to navy `#051736` + blue `#0F6AFC` | queued: own session after the Finance re-walk fixes land |
+| Brand colours: colour-token refactor. **Phase 1 done on branch `refactor/colour-tokens` (2026-10-24, SOP `docs/sop/colour-tokens.md`)**: all ~5,500 hard-coded colours in ~310 files are now tokens in `styles/colour-tokens.css`, a lint rule blocks new ones, screenshot diff in the PR. Phase 2 (still to do, separate small PR): swap the `brand-*` values to navy `#051736` + blue `#0F6AFC` | phase 1 awaiting merge; phase 2 queued |
 
 ## Blocked on accounts / product calls (not code)
 Mono production approval (sandbox keys now available) · Google calendar sync (OAuth values to re-encrypt; Outlook later) ·

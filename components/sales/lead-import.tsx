@@ -101,8 +101,8 @@ export function LeadImportModal({
       className="bg-white rounded-t-modal md:rounded-modal w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-accent outline-none p-6 md:p-8 space-y-5"
     >
       <div>
-        <h2 className="text-xl font-display font-bold text-sage-900">Import leads from CSV</h2>
-        <p className="text-sm text-sage-500 mt-1">
+        <h2 className="text-xl font-display font-bold text-neutral-900">Import leads from CSV</h2>
+        <p className="text-sm text-neutral-500 mt-1">
           {step.kind === 'choose' && 'Choose a .csv file (2 MB or smaller, up to 5,000 rows). The first row must be the column names.'}
           {step.kind === 'map' && 'Match your columns to lead fields. Nothing is saved until you import.'}
           {step.kind === 'done' && 'Import finished.'}
@@ -111,7 +111,7 @@ export function LeadImportModal({
 
       {step.kind === 'choose' && (
         <div className="space-y-3">
-          <label htmlFor={fileId} className="text-xs font-semibold text-sage-700 uppercase tracking-wider block">
+          <label htmlFor={fileId} className="text-xs font-semibold text-neutral-700 uppercase tracking-wider block">
             CSV file
           </label>
           <input
@@ -121,15 +121,15 @@ export function LeadImportModal({
             accept=".csv,text/csv"
             disabled={busy}
             onChange={(e) => void choose(e.target.files?.[0])}
-            className="block w-full text-sm text-sage-700 file:mr-4 file:rounded-card file:border file:border-sage-300 file:bg-white file:px-4 file:py-2 file:text-sm file:font-semibold file:text-sage-700 hover:file:bg-sage-50"
+            className="block w-full text-sm text-neutral-700 file:mr-4 file:rounded-card file:border file:border-neutral-300 file:bg-white file:px-4 file:py-2 file:text-sm file:font-semibold file:text-neutral-700 hover:file:bg-neutral-50"
           />
-          {busy && <p role="status" className="text-sm text-sage-500">Reading the file...</p>}
+          {busy && <p role="status" className="text-sm text-neutral-500">Reading the file...</p>}
         </div>
       )}
 
       {step.kind === 'map' && (
         <div className="space-y-5">
-          <p className="text-sm text-sage-700">
+          <p className="text-sm text-neutral-700">
             Found <strong>{step.preview.row_count}</strong> row{step.preview.row_count === 1 ? '' : 's'} and{' '}
             <strong>{step.preview.headers.length}</strong> columns.
           </p>
@@ -146,11 +146,11 @@ export function LeadImportModal({
             ))}
           </div>
 
-          <div className="relative overflow-x-auto border border-sage-200 rounded-card">
+          <div className="relative overflow-x-auto border border-neutral-200 rounded-card">
             <table className="w-full text-left text-xs">
               <caption className="sr-only">First rows of your file</caption>
               <thead>
-                <tr className="bg-sage-50 text-sage-500 uppercase tracking-wider">
+                <tr className="bg-neutral-50 text-neutral-500 uppercase tracking-wider">
                   {step.preview.headers.map((h, i) => (
                     <th key={`${h}-${i}`} scope="col" className="px-3 py-2 whitespace-nowrap">
                       {h}
@@ -158,11 +158,11 @@ export function LeadImportModal({
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-sage-100">
+              <tbody className="divide-y divide-neutral-100">
                 {step.preview.sample_rows.map((row, ri) => (
                   <tr key={ri}>
                     {step.preview.headers.map((_, ci) => (
-                      <td key={ci} className="px-3 py-2 whitespace-nowrap text-sage-700">
+                      <td key={ci} className="px-3 py-2 whitespace-nowrap text-neutral-700">
                         {row[ci] ?? ''}
                       </td>
                     ))}
@@ -171,7 +171,7 @@ export function LeadImportModal({
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-sage-500">
+          <p className="text-xs text-neutral-500">
             Duplicates (same email as an existing lead or contact, or earlier in this file) are skipped. Every imported lead
             gets the source &ldquo;CSV import&rdquo;.
           </p>
@@ -180,15 +180,15 @@ export function LeadImportModal({
 
       {step.kind === 'done' && (
         <div className="space-y-4">
-          <p role="status" className="text-base font-semibold text-sage-900">
+          <p role="status" className="text-base font-semibold text-neutral-900">
             {importSummary(step.result)}
           </p>
           {step.result.invalid_rows.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-sage-800">
+              <h3 className="text-sm font-semibold text-neutral-800">
                 {step.result.invalid_total} row{step.result.invalid_total === 1 ? '' : 's'} could not be imported
               </h3>
-              <ul className="text-sm text-sage-700 space-y-1 max-h-48 overflow-y-auto border border-sage-200 rounded-card p-3">
+              <ul className="text-sm text-neutral-700 space-y-1 max-h-48 overflow-y-auto border border-neutral-200 rounded-card p-3">
                 {step.result.invalid_rows.map((r) => (
                   <li key={r.row}>
                     Row {r.row}: {r.error}
@@ -196,7 +196,7 @@ export function LeadImportModal({
                 ))}
               </ul>
               {step.result.invalid_total > step.result.invalid_rows.length && (
-                <p className="text-xs text-sage-500">Showing the first {step.result.invalid_rows.length}.</p>
+                <p className="text-xs text-neutral-500">Showing the first {step.result.invalid_rows.length}.</p>
               )}
             </div>
           )}
@@ -204,7 +204,7 @@ export function LeadImportModal({
       )}
 
       {error && (
-        <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-card px-4 py-3">
+        <p role="alert" className="text-sm text-danger-700 bg-danger-50 border border-danger-200 rounded-card px-4 py-3">
           {error}
         </p>
       )}
@@ -244,7 +244,7 @@ function MappingRow({
   const id = useId();
   return (
     <div className="flex items-center justify-between gap-3">
-      <label htmlFor={id} className="text-sm font-semibold text-sage-700 w-28 shrink-0">
+      <label htmlFor={id} className="text-sm font-semibold text-neutral-700 w-28 shrink-0">
         {label}
       </label>
       <select id={id} className={INPUT} value={value} onChange={(e) => onChange(e.target.value)}>

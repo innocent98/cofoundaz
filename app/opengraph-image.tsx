@@ -1,3 +1,4 @@
+// colour-ok-file: next/og (Satori) renders to an image server-side and cannot resolve CSS variables.
 import { ImageResponse } from 'next/og'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'

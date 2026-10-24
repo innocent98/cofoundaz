@@ -11,7 +11,7 @@ import { canSee } from '@/lib/nav-access';
 
 const tabClass = (active: boolean) =>
   `relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-semibold transition-colors ${
-    active ? 'text-[#266B4E]' : 'text-sage-500 hover:text-sage-700'
+    active ? 'text-brand-x266b4e' : 'text-neutral-500 hover:text-neutral-700'
   }`;
 
 /**
@@ -27,7 +27,7 @@ export function MobileTabBar() {
   const on = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-30 flex border-t border-sage-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-raised md:hidden">
+    <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-30 flex border-t border-neutral-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-raised md:hidden">
       <Link href="/dashboard" className={tabClass(on('/dashboard'))} aria-current={on('/dashboard') ? 'page' : undefined}>
         <Home className="h-5 w-5" aria-hidden="true" />
         Home
@@ -48,7 +48,7 @@ export function MobileTabBar() {
         <span className="relative">
           <Bell className="h-5 w-5" aria-hidden="true" />
           {unreadCount > 0 && (
-            <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#12291F] px-1 text-[10px] font-bold text-white">
+            <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-900 px-1 text-[10px] font-bold text-white">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}

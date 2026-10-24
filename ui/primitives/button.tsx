@@ -9,13 +9,13 @@ type Size = 'sm' | 'md' | 'lg'
  * actions use `primary`, `secondary`, `ghost`, or `onDark`.
  */
 const VARIANTS: Record<Variant, string> = {
-  accent: 'bg-copper-600 text-white font-bold hover:bg-copper-700 shadow-card',
-  primary: 'bg-green-700 text-white font-semibold hover:bg-green-600',
+  accent: 'bg-accent-600 text-white font-bold hover:bg-accent-700 shadow-card',
+  primary: 'bg-brand-700 text-white font-semibold hover:bg-brand-600',
   secondary:
-    'bg-white text-green-700 font-semibold border border-sage-300 hover:bg-green-50',
-  ghost: 'text-green-700 font-semibold hover:text-green-600',
+    'bg-white text-brand-700 font-semibold border border-neutral-300 hover:bg-brand-50',
+  ghost: 'text-brand-700 font-semibold hover:text-brand-600',
   onDark:
-    'bg-green-800 text-white font-semibold border border-green-700 hover:bg-green-700',
+    'bg-brand-800 text-white font-semibold border border-brand-700 hover:bg-brand-700',
 }
 
 const SIZES: Record<Size, string> = {

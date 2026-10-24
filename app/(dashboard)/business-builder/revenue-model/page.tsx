@@ -82,7 +82,7 @@ export default function RevenueModelPage() {
             {canWrite && (
               <button
                 onClick={openCreate}
-                className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
+                className="bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{suggestMode ? 'Suggest a stream' : 'Add stream'}</span>
@@ -93,22 +93,22 @@ export default function RevenueModelPage() {
       />
 
       {loading && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card h-56 animate-pulse" />
+        <div className="bg-white rounded-modal border border-line-soft shadow-card h-56 animate-pulse" />
       )}
 
       {!loading && error && (
-        <div className="bg-[#FBEBEB] border border-[#F0D5D5] rounded-modal p-4 text-sm text-[#A34B4B]">{error}</div>
+        <div className="bg-danger-wash border border-danger-xf0d5d5 rounded-modal p-4 text-sm text-danger-text">{error}</div>
       )}
 
       {!loading && !error && records.length === 0 && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-12 text-center flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#F0F4F1] text-[#183B28] flex items-center justify-center">
+        <div className="bg-white rounded-modal border border-line-soft shadow-card p-12 text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-neutral-xf0f4f1 text-brand-strong flex items-center justify-center">
             <TrendingUp className="w-6 h-6" />
           </div>
-          <p className="text-sm font-bold text-[#1E2923]">No revenue streams yet</p>
-          <p className="text-xs text-[#768478] max-w-xs">Map out how the business makes money, each stream, its basis, and an estimate.</p>
+          <p className="text-sm font-bold text-ink">No revenue streams yet</p>
+          <p className="text-xs text-ink-soft max-w-xs">Map out how the business makes money, each stream, its basis, and an estimate.</p>
           {canWrite && (
-            <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
+            <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
               <Plus className="w-3.5 h-3.5" /><span>{suggestMode ? 'Suggest the first stream' : 'Add your first stream'}</span>
             </button>
           )}
@@ -116,43 +116,43 @@ export default function RevenueModelPage() {
       )}
 
       {!loading && records.length > 0 && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
+        <div className="bg-white rounded-modal border border-line-soft shadow-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[560px]">
               <thead>
-                <tr className="bg-[#FAFAFA] border-b border-[#EBEBE6]">
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Stream</th>
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Basis</th>
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Est. monthly</th>
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase text-right">Actions</th>
+                <tr className="bg-surface-ghost border-b border-line-soft">
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Stream</th>
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Basis</th>
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Est. monthly</th>
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F0F0EC]">
+              <tbody className="divide-y divide-line-faint">
                 {records.map((rec) => (
                   <React.Fragment key={rec.id}>
-                  <tr className="hover:bg-[#FAF9F5] transition-colors group">
-                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">
+                  <tr className="hover:bg-neutral-xfaf9f5 transition-colors group">
+                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-ink">
                       {(rec.data.name as string) || '-'}
                       <RecordEdited record={rec} className="font-normal" />
                       <button
                         type="button"
                         onClick={() => setOpenAssumptions((o) => (o === rec.id ? null : rec.id))}
                         aria-expanded={openAssumptions === rec.id}
-                        className="mt-1 text-[11px] font-semibold text-[#183B28] hover:underline"
+                        className="mt-1 text-[11px] font-semibold text-brand-strong hover:underline"
                       >
                         Assumptions
                       </button>
                     </td>
-                    <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.pricing_basis as string) || '-'}</td>
-                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#183B28]">{fmtMoney(rec.data.est_monthly)}</td>
+                    <td className="py-4 px-6 text-xs md:text-sm text-ink-body">{(rec.data.pricing_basis as string) || '-'}</td>
+                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-brand-strong">{fmtMoney(rec.data.est_monthly)}</td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-1">
                         {threads.button(rec.id, (rec.data.name as string) || 'this stream')}
                         {canWrite && (<>
-                        <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors" aria-label={`Edit stream: ${(rec.data.name as string) || 'untitled'}`}>
+                        <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-ink-soft hover:text-brand-strong hover:bg-neutral-xf0f4f1 transition-colors" aria-label={`Edit stream: ${(rec.data.name as string) || 'untitled'}`}>
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
-                        <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label={`Delete stream: ${(rec.data.name as string) || 'untitled'}`}>
+                        <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-ink-soft hover:text-danger-text hover:bg-danger-wash transition-colors" aria-label={`Delete stream: ${(rec.data.name as string) || 'untitled'}`}>
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                         </>)}
@@ -160,13 +160,13 @@ export default function RevenueModelPage() {
                     </td>
                   </tr>
                   {openAssumptions === rec.id && (
-                    <tr className="bg-[#FAFAFA]">
-                      <td colSpan={4} className="px-6 py-3 text-xs text-[#556358] whitespace-pre-wrap">
+                    <tr className="bg-surface-ghost">
+                      <td colSpan={4} className="px-6 py-3 text-xs text-ink-body whitespace-pre-wrap">
                         {typeof rec.data.assumptions === 'string' && rec.data.assumptions.trim()
                           ? rec.data.assumptions
                           : 'No assumptions written for this stream yet.'}
                         {canWrite && (
-                          <button type="button" onClick={() => openEdit(rec)} className="ml-3 font-semibold text-[#183B28] hover:underline">
+                          <button type="button" onClick={() => openEdit(rec)} className="ml-3 font-semibold text-brand-strong hover:underline">
                             {suggestMode ? 'Suggest an edit' : 'Edit'}
                           </button>
                         )}
@@ -177,9 +177,9 @@ export default function RevenueModelPage() {
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t border-[#EBEBE6] bg-[#FAFAFA]">
-                  <td className="py-3 px-6 text-xs font-bold text-[#768478] uppercase tracking-wider" colSpan={2}>Total est. monthly</td>
-                  <td className="py-3 px-6 text-sm font-bold text-[#183B28]">{fmtMoney(totalMonthly)}</td>
+                <tr className="border-t border-line-soft bg-surface-ghost">
+                  <td className="py-3 px-6 text-xs font-bold text-ink-soft uppercase tracking-wider" colSpan={2}>Total est. monthly</td>
+                  <td className="py-3 px-6 text-sm font-bold text-brand-strong">{fmtMoney(totalMonthly)}</td>
                   <td />
                 </tr>
               </tfoot>

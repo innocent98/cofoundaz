@@ -27,25 +27,25 @@ export default function CoursesCatalogPage() {
 
   const chip = (active: boolean) =>
     `inline-flex min-h-11 items-center rounded-full border px-4 text-xs font-semibold transition-colors ${
-      active ? "border-green-700 bg-green-700 text-white" : "border-sage-200 bg-white text-sage-700 hover:bg-sage-50"
+      active ? "border-brand-700 bg-brand-700 text-white" : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
     }`;
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-display font-semibold text-sage-900">Course catalog</h1>
-          <p className="text-sm text-sage-600">Explore all available founder playbooks.</p>
+          <h1 className="text-3xl font-display font-semibold text-neutral-900">Course catalog</h1>
+          <p className="text-sm text-neutral-600">Explore all available founder playbooks.</p>
         </div>
         <div className="relative w-full md:w-64">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sage-500" aria-hidden="true" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" aria-hidden="true" />
           <input
             type="search"
             aria-label="Search courses"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search courses"
-            className="min-h-11 w-full rounded-full border border-sage-200 bg-white pl-9 pr-4 text-sm text-sage-900 shadow-card focus:border-green-700 focus:outline-none"
+            className="min-h-11 w-full rounded-full border border-neutral-200 bg-white pl-9 pr-4 text-sm text-neutral-900 shadow-card focus:border-brand-700 focus:outline-none"
           />
         </div>
       </div>
@@ -69,7 +69,7 @@ export default function CoursesCatalogPage() {
               ))}
             </div>
             {shown.length === 0 ? (
-              <p className="py-12 text-center text-sm text-sage-600">No courses match.</p>
+              <p className="py-12 text-center text-sm text-neutral-600">No courses match.</p>
             ) : (
               <div className="grid grid-cols-1 gap-6 pt-2 md:grid-cols-2 lg:grid-cols-3">
                 {shown.map((c) => (

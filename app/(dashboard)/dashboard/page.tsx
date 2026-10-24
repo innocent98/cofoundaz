@@ -74,15 +74,15 @@ export default function DashboardPage() {
   const topCards = 1 + (missionRestricted ? 0 : 1) + (restricted ? 0 : 1);
 
   return (
-    <div className="relative flex min-h-screen w-full min-w-0 flex-col bg-[#F7F8F6] text-[#1C201D] font-body">
+    <div className="relative flex min-h-screen w-full min-w-0 flex-col bg-neutral-xf7f8f6 text-neutral-x1c201d font-body">
       <DashboardNavbar onInvite={() => setInviteOpen(true)} />
 
       {toast && (
         <div
           role="status"
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#0F1E16] text-white px-5 py-3 rounded-modal shadow-accent shadow-black/25 inline-flex items-center gap-2.5 border border-[#1E3A29]"
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-neutral-x0f1e16 text-white px-5 py-3 rounded-modal shadow-accent shadow-black/25 inline-flex items-center gap-2.5 border border-brand-x1e3a29"
         >
-          {toast.kind === 'ok' && <Check className="w-4 h-4 text-[#D4A359] stroke-[3] shrink-0" />}
+          {toast.kind === 'ok' && <Check className="w-4 h-4 text-accent-xd4a359 stroke-[3] shrink-0" />}
           <p className="text-sm font-medium text-white">{toast.text}</p>
         </div>
       )}

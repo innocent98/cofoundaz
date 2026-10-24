@@ -11,7 +11,7 @@ export function celebrate(): void {
       particleCount: 150,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#2D5A3F', '#D89A6E', '#9C5B34', '#B5D4C0'],
+      colors: ['#2D5A3F', '#D89A6E', '#9C5B34', '#B5D4C0'], // colour-ok: canvas-confetti paints on a <canvas>; it cannot resolve CSS variables
       disableForReducedMotion: true,
     });
   } catch {

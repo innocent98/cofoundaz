@@ -58,8 +58,8 @@ export default function MissionUpcomingPage() {
     <main className="p-4 md:p-8 max-w-4xl w-full mx-auto flex flex-col gap-6">
       <div className="flex flex-col gap-8 pt-2 pb-12">
         <div>
-          <h2 className="text-3xl font-display font-semibold text-[#1E2923] tracking-tight">Upcoming</h2>
-          <p className="text-xs md:text-sm text-[#768478] mt-1.5 font-normal">
+          <h2 className="text-3xl font-display font-semibold text-ink tracking-tight">Upcoming</h2>
+          <p className="text-xs md:text-sm text-ink-soft mt-1.5 font-normal">
             The next 7 days, drawn from your roadmap.
             {canReorder && ' Drag tasks or use the arrows to change their order.'}
           </p>
@@ -68,13 +68,13 @@ export default function MissionUpcomingPage() {
         {loading && (
           <div role="status" aria-label="Loading upcoming missions" className="flex flex-col gap-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="bg-white rounded-modal h-24 border border-[#EBEBE6] shadow-card animate-pulse" />
+              <div key={i} className="bg-white rounded-modal h-24 border border-line-soft shadow-card animate-pulse" />
             ))}
           </div>
         )}
 
         {!loading && error && (
-          <div role="alert" className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-modal p-4 text-sm text-[#B0483B] flex items-center justify-between gap-3">
+          <div role="alert" className="bg-danger-tint border border-danger-xfad7d7 rounded-modal p-4 text-sm text-danger-600 flex items-center justify-between gap-3">
             <span>{error}</span>
             <button type="button" onClick={() => void refetch()} className="text-xs font-semibold underline cursor-pointer">
               Try again
@@ -90,16 +90,16 @@ export default function MissionUpcomingPage() {
           <ol aria-busy={saving} className={`flex flex-col gap-6 ${saving ? 'opacity-70' : ''}`}>
             {days.map((day) => (
               <li key={day.date} className="flex flex-col gap-2.5">
-                <h3 className="text-sm font-semibold text-[#1E2923]">{dayHeading(day.date)}</h3>
+                <h3 className="text-sm font-semibold text-ink">{dayHeading(day.date)}</h3>
 
                 {day.restDay ? (
-                  <div className="bg-[#F5F5F0] rounded-modal px-5 py-4 border border-[#EBEBE6] text-sm text-[#617065]">
+                  <div className="bg-surface-muted rounded-modal px-5 py-4 border border-line-soft text-sm text-ink-muted">
                     {MISSION_COPY.restDay}. {MISSION_COPY.restBody}
                   </div>
                 ) : day.tasks.length === 0 ? (
-                  <div className="bg-white rounded-modal px-5 py-4 border border-dashed border-[#D5DDD6] text-sm text-[#617065]">
+                  <div className="bg-white rounded-modal px-5 py-4 border border-dashed border-line-strong text-sm text-ink-muted">
                     {MISSION_COPY.nothingQueued} Add tasks to your{' '}
-                    <Link href="/roadmap" className="font-semibold text-[#183B28] underline">
+                    <Link href="/roadmap" className="font-semibold text-brand-strong underline">
                       roadmap
                     </Link>
                     .
@@ -117,20 +117,20 @@ export default function MissionUpcomingPage() {
                           onDrop={() => drop(task.roadmapTaskId)}
                           onDragEnd={() => setDragId(null)}
                           className={`bg-white rounded-modal px-5 py-4 border shadow-card flex items-center gap-3 ${
-                            dragId === task.roadmapTaskId ? 'border-[#183B28] opacity-60' : 'border-[#EBEBE6]'
+                            dragId === task.roadmapTaskId ? 'border-brand-strong opacity-60' : 'border-line-soft'
                           }`}
                         >
-                          {canReorder && <GripVertical className="w-4 h-4 text-[#8E9B90] shrink-0 cursor-grab" aria-hidden="true" />}
+                          {canReorder && <GripVertical className="w-4 h-4 text-ink-subtle shrink-0 cursor-grab" aria-hidden="true" />}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[#1E2923]">{task.title}</p>
+                            <p className="text-sm font-semibold text-ink">{task.title}</p>
                             <div className="flex items-center gap-2 flex-wrap mt-2">
                               {task.milestone && <MilestoneChip milestone={task.milestone} />}
-                              <span className="inline-flex items-center gap-1.5 bg-[#F5F5F0] text-[#617065] text-xs font-medium px-3 py-1 rounded-full">
+                              <span className="inline-flex items-center gap-1.5 bg-surface-muted text-ink-muted text-xs font-medium px-3 py-1 rounded-full">
                                 <Clock className="w-3 h-3" aria-hidden="true" />
                                 {task.effort}
                               </span>
                               {task.carriedOver && (
-                                <span className="bg-[#F7EEDC] text-[#8A5330] text-xs font-medium px-3 py-1 rounded-full">Carried over</span>
+                                <span className="bg-accent-xf7eedc text-accent-700 text-xs font-medium px-3 py-1 rounded-full">Carried over</span>
                               )}
                             </div>
                           </div>
@@ -141,7 +141,7 @@ export default function MissionUpcomingPage() {
                                 aria-label={`Move up: ${task.title}`}
                                 disabled={idx === 0 || saving}
                                 onClick={() => move(task.roadmapTaskId, -1)}
-                                className="p-1 rounded-input text-[#617065] hover:text-[#1E2923] hover:bg-[#F5F5F0] disabled:opacity-30 cursor-pointer disabled:cursor-default"
+                                className="p-1 rounded-input text-ink-muted hover:text-ink hover:bg-surface-muted disabled:opacity-30 cursor-pointer disabled:cursor-default"
                               >
                                 <ArrowUp className="w-4 h-4" aria-hidden="true" />
                               </button>
@@ -150,7 +150,7 @@ export default function MissionUpcomingPage() {
                                 aria-label={`Move down: ${task.title}`}
                                 disabled={idx === order.length - 1 || saving}
                                 onClick={() => move(task.roadmapTaskId, 1)}
-                                className="p-1 rounded-input text-[#617065] hover:text-[#1E2923] hover:bg-[#F5F5F0] disabled:opacity-30 cursor-pointer disabled:cursor-default"
+                                className="p-1 rounded-input text-ink-muted hover:text-ink hover:bg-surface-muted disabled:opacity-30 cursor-pointer disabled:cursor-default"
                               >
                                 <ArrowDown className="w-4 h-4" aria-hidden="true" />
                               </button>

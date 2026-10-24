@@ -53,47 +53,47 @@ export default function UnsubscribePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f5f7f5] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-modal border border-sage-200/80 shadow-card p-8 space-y-4 text-center">
+    <main className="min-h-screen bg-neutral-xf5f7f5 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-modal border border-neutral-200/80 shadow-card p-8 space-y-4 text-center">
         {view.kind === 'loading' && (
-          <p role="status" className="text-sm text-sage-500">
+          <p role="status" className="text-sm text-neutral-500">
             Loading...
           </p>
         )}
         {view.kind === 'invalid' && (
           <>
-            <h1 className="font-display font-semibold text-xl text-sage-900">This link does not work</h1>
-            <p className="text-sm text-sage-600">
+            <h1 className="font-display font-semibold text-xl text-neutral-900">This link does not work</h1>
+            <p className="text-sm text-neutral-600">
               It may be incomplete or out of date. Use the unsubscribe link from the most recent email you received.
             </p>
           </>
         )}
         {view.kind === 'error' && (
           <>
-            <h1 className="font-display font-semibold text-xl text-sage-900">Something went wrong</h1>
-            <p role="alert" className="text-sm text-sage-600">
+            <h1 className="font-display font-semibold text-xl text-neutral-900">Something went wrong</h1>
+            <p role="alert" className="text-sm text-neutral-600">
               We could not check this link. Please try again in a moment.
             </p>
           </>
         )}
         {view.kind === 'ready' && view.status.unsubscribed && (
           <>
-            <h1 className="font-display font-semibold text-xl text-sage-900">
+            <h1 className="font-display font-semibold text-xl text-neutral-900">
               {view.justDone ? `You won't hear from ${view.status.sender} again` : "You're already unsubscribed"}
             </h1>
-            <p className="text-sm text-sage-600">
+            <p className="text-sm text-neutral-600">
               {view.status.email} will not get any more emails from {view.status.sender}.
             </p>
           </>
         )}
         {view.kind === 'ready' && !view.status.unsubscribed && (
           <>
-            <h1 className="font-display font-semibold text-xl text-sage-900">Unsubscribe from {view.status.sender}?</h1>
-            <p className="text-sm text-sage-600">
+            <h1 className="font-display font-semibold text-xl text-neutral-900">Unsubscribe from {view.status.sender}?</h1>
+            <p className="text-sm text-neutral-600">
               {view.status.email} will stop getting emails from {view.status.sender}.
             </p>
             {failed && (
-              <p role="alert" className="text-sm text-red-700">
+              <p role="alert" className="text-sm text-danger-700">
                 That did not go through. Please try again.
               </p>
             )}

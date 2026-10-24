@@ -77,19 +77,19 @@ export function ScriptEditor({
   };
 
   const input =
-    'w-full bg-white border border-sage-200 rounded-card px-3 py-2 text-sm text-sage-900 focus:outline-none focus:border-[#1e4836]';
+    'w-full bg-white border border-neutral-200 rounded-card px-3 py-2 text-sm text-neutral-900 focus:outline-none focus:border-brand-hover';
 
   return (
-    <section aria-label="Script editor" className="bg-white rounded-modal p-6 md:p-8 border border-sage-200/80 space-y-5 shadow-card">
+    <section aria-label="Script editor" className="bg-white rounded-modal p-6 md:p-8 border border-neutral-200/80 space-y-5 shadow-card">
       <div className="flex items-start justify-between gap-3">
-        <h2 className="text-lg font-display font-bold text-sage-900">Edit script</h2>
-        <button type="button" onClick={onClose} className="text-sm font-semibold text-sage-600 hover:text-sage-900 cursor-pointer">
+        <h2 className="text-lg font-display font-bold text-neutral-900">Edit script</h2>
+        <button type="button" onClick={onClose} className="text-sm font-semibold text-neutral-600 hover:text-neutral-900 cursor-pointer">
           Close
         </button>
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="script-title" className="block text-xs font-semibold uppercase tracking-wider text-sage-500">
+        <label htmlFor="script-title" className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
           Title
         </label>
         <input
@@ -104,20 +104,20 @@ export function ScriptEditor({
         />
       </div>
 
-      <p className="text-xs text-[#9C5B34] font-medium">Tip: {SCRIPT_HINT}</p>
+      <p className="text-xs text-accent-600 font-medium">Tip: {SCRIPT_HINT}</p>
 
       <ol className="space-y-4">
         {rows.map((row, i) => (
-          <li key={row.key} className="border border-sage-200 rounded-card p-4 space-y-3">
+          <li key={row.key} className="border border-neutral-200 rounded-card p-4 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold text-sage-500">Question {i + 1}</span>
+              <span className="text-xs font-bold text-neutral-500">Question {i + 1}</span>
               <span className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => move(i, i - 1)}
                   disabled={i === 0}
                   aria-label={`Move question ${i + 1} up`}
-                  className="p-1.5 rounded-input text-sage-600 hover:bg-sage-100 disabled:opacity-30 cursor-pointer"
+                  className="p-1.5 rounded-input text-neutral-600 hover:bg-neutral-100 disabled:opacity-30 cursor-pointer"
                 >
                   <ArrowUp className="w-4 h-4" />
                 </button>
@@ -126,7 +126,7 @@ export function ScriptEditor({
                   onClick={() => move(i, i + 1)}
                   disabled={i === rows.length - 1}
                   aria-label={`Move question ${i + 1} down`}
-                  className="p-1.5 rounded-input text-sage-600 hover:bg-sage-100 disabled:opacity-30 cursor-pointer"
+                  className="p-1.5 rounded-input text-neutral-600 hover:bg-neutral-100 disabled:opacity-30 cursor-pointer"
                 >
                   <ArrowDown className="w-4 h-4" />
                 </button>
@@ -134,7 +134,7 @@ export function ScriptEditor({
                   type="button"
                   onClick={() => remove(i)}
                   aria-label={`Remove question ${i + 1}`}
-                  className="p-1.5 rounded-input text-sage-400 hover:text-[#B0483B] hover:bg-sage-100 cursor-pointer"
+                  className="p-1.5 rounded-input text-neutral-400 hover:text-danger-600 hover:bg-neutral-100 cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -154,7 +154,7 @@ export function ScriptEditor({
               value={row.tip}
               maxLength={MAX_SCRIPT_TEXT}
               onChange={(e) => patch(i, { tip: e.target.value })}
-              className={`${input} text-[#9C5B34]`}
+              className={`${input} text-accent-600`}
             />
           </li>
         ))}
@@ -164,13 +164,13 @@ export function ScriptEditor({
         type="button"
         onClick={add}
         disabled={rows.length >= MAX_SCRIPT_QUESTIONS}
-        className="flex items-center gap-1.5 text-sm font-semibold text-[#183B28] hover:underline disabled:opacity-40 cursor-pointer"
+        className="flex items-center gap-1.5 text-sm font-semibold text-brand-strong hover:underline disabled:opacity-40 cursor-pointer"
       >
         <Plus className="w-4 h-4" /> Add question
       </button>
 
       {error && (
-        <p role="alert" className="text-sm font-semibold text-[#B0483B]">
+        <p role="alert" className="text-sm font-semibold text-danger-600">
           {error}
         </p>
       )}
@@ -180,13 +180,13 @@ export function ScriptEditor({
           type="button"
           onClick={submit}
           disabled={saving}
-          className="bg-[#183B28] hover:bg-[#11291C] disabled:opacity-60 text-white font-semibold px-5 py-2.5 rounded-card text-sm inline-flex items-center gap-2 shadow-card cursor-pointer"
+          className="bg-brand-strong hover:bg-brand-rail disabled:opacity-60 text-white font-semibold px-5 py-2.5 rounded-card text-sm inline-flex items-center gap-2 shadow-card cursor-pointer"
         >
           {saving && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
           {saving ? 'Saving…' : 'Save script'}
         </button>
         {saved && (
-          <span role="status" className="text-sm font-semibold text-[#183B28]">
+          <span role="status" className="text-sm font-semibold text-brand-strong">
             Saved
           </span>
         )}

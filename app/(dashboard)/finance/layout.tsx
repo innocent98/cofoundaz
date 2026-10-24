@@ -21,14 +21,14 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
 
   return (
     <ToastProvider>
-      <div className="flex flex-col min-h-full min-w-0 bg-[#f5f7f5] text-[#2c3531] font-body w-full">
+      <div className="flex flex-col min-h-full min-w-0 bg-neutral-xf5f7f5 text-neutral-x2c3531 font-body w-full">
         {/* Shared top bar (search, health, bell, invite) plus the section tabs */}
-        <div className="sticky top-0 z-40 bg-[#F7F7F5] border-b border-[#EBEBE6] w-full">
+        <div className="sticky top-0 z-40 bg-surface-subtle border-b border-line-soft w-full">
           <ShellTopBar title="Finance Hub" />
 
           <nav
             aria-label="Finance sections"
-            className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none bg-[#F7F7F5] px-4 md:px-8 py-3"
+            className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none bg-surface-subtle px-4 md:px-8 py-3"
           >
             {navItems.map((tab) => {
               const isActive = pathname === tab.path || (tab.path !== "/finance" && pathname?.startsWith(tab.path));
@@ -39,8 +39,8 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
                   aria-current={isActive ? "page" : undefined}
                   className={`px-4 py-2 max-md:min-h-11 inline-flex items-center rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     isActive
-                      ? "bg-[#EAD5C6] text-[#1E2923] font-bold shadow-card"
-                      : "bg-white border border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]"
+                      ? "bg-accent-200 text-ink font-bold shadow-card"
+                      : "bg-white border border-line-soft text-ink-muted hover:border-neutral-xc5cfc7"
                   }`}
                 >
                   {tab.name}

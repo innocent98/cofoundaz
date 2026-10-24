@@ -21,17 +21,17 @@ import { useToast } from '../ToastContext';
 const STATUS_LABEL = CHANNEL_STATUS_LABELS;
 
 const FIT_BADGE: Record<FitLevel, string> = {
-  high: 'bg-green-100 text-green-800',
-  medium: 'bg-copper-100 text-copper-800',
-  low: 'bg-sage-200 text-sage-700',
+  high: 'bg-brand-100 text-brand-800',
+  medium: 'bg-accent-100 text-accent-800',
+  low: 'bg-neutral-200 text-neutral-700',
 };
 const FIT_MARK: Record<FitLevel, string> = { high: '▲', medium: '●', low: '▼' };
 
 const STATUS_BADGE: Record<ChannelStatus, string> = {
-  active: 'bg-green-100 text-green-800',
-  testing: 'bg-copper-100 text-copper-800',
-  paused: 'bg-sage-200 text-sage-700',
-  not_started: 'bg-sage-100 text-sage-700',
+  active: 'bg-brand-100 text-brand-800',
+  testing: 'bg-accent-100 text-accent-800',
+  paused: 'bg-neutral-200 text-neutral-700',
+  not_started: 'bg-neutral-100 text-neutral-700',
 };
 
 export default function MarketingChannelsPage() {
@@ -71,9 +71,9 @@ export default function MarketingChannelsPage() {
     <div className="space-y-6 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">Channels</h1>
+          <h1 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 tracking-tight">Channels</h1>
           {generatedAt && (
-            <p className="text-xs text-sage-500">AI fit notes as of {new Date(generatedAt).toLocaleString()}. The AI&apos;s judgement, not data.</p>
+            <p className="text-xs text-neutral-500">AI fit notes as of {new Date(generatedAt).toLocaleString()}. The AI&apos;s judgement, not data.</p>
           )}
         </div>
         <button type="button" onClick={generate} disabled={fit.busy} className={`${BTN_ACCENT} self-start md:self-auto`}>
@@ -96,21 +96,21 @@ export default function MarketingChannelsPage() {
               <div key={ch.key} className={`${CARD} p-6 flex flex-col justify-between space-y-4`}>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-display font-semibold text-lg text-sage-900 flex items-center gap-2">
-                      <ChannelIcon channel={ch.key} className="h-4 w-4 text-[#9C5B34]" />
+                    <h3 className="font-display font-semibold text-lg text-neutral-900 flex items-center gap-2">
+                      <ChannelIcon channel={ch.key} className="h-4 w-4 text-accent-600" />
                       {CHANNEL_LABELS[ch.key]}
                     </h3>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${STATUS_BADGE[ch.status]}`}>
                       {STATUS_LABEL[ch.status]}
                     </span>
                   </div>
-                  <p className="text-xs md:text-sm font-medium text-sage-500">
+                  <p className="text-xs md:text-sm font-medium text-neutral-500">
                     {st
                       ? `Last 30 days: ${st.visits.toLocaleString()} visits, ${st.clicks.toLocaleString()} clicks, ${st.conversions.toLocaleString()} conversions, ${formatMoney(st.spend)} spent`
                       : 'No tracked results yet'}
                   </p>
                   <div className="flex items-center gap-2 pt-1">
-                    <label htmlFor={`status-${ch.key}`} className="text-xs font-semibold text-sage-700 uppercase tracking-wider">
+                    <label htmlFor={`status-${ch.key}`} className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">
                       Status
                     </label>
                     <select
@@ -128,8 +128,8 @@ export default function MarketingChannelsPage() {
                   </div>
                 </div>
 
-                <div className="bg-[#f2f6f4] rounded-card p-3.5 flex items-start gap-3 border border-[#e4ece7]">
-                  <div className="w-5 h-5 rounded-[6px] bg-[#9C5B34] text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                <div className="bg-neutral-xf2f6f4 rounded-card p-3.5 flex items-start gap-3 border border-neutral-xe4ece7">
+                  <div className="w-5 h-5 rounded-[6px] bg-accent-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                     ✦
                   </div>
                   <div className="space-y-1.5">
@@ -139,7 +139,7 @@ export default function MarketingChannelsPage() {
                         {FIT_LABELS[ch.fit_level]}
                       </span>
                     )}
-                    <p className="text-xs md:text-sm text-[#1e382c] font-medium leading-relaxed">
+                    <p className="text-xs md:text-sm text-brand-x1e382c font-medium leading-relaxed">
                       {ch.ai_fit_note ?? 'No AI fit note yet. Use "Generate AI fit notes" above.'}
                     </p>
                   </div>
@@ -147,7 +147,7 @@ export default function MarketingChannelsPage() {
 
                 {editingKey === ch.key ? (
                   <div className="space-y-2">
-                    <label htmlFor={`notes-${ch.key}`} className="text-xs font-semibold text-sage-700 uppercase tracking-wider">Your notes</label>
+                    <label htmlFor={`notes-${ch.key}`} className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">Your notes</label>
                     <textarea id={`notes-${ch.key}`} rows={3} className={INPUT} value={noteDraft} onChange={(e) => setNoteDraft(e.target.value)} />
                     <div className="flex gap-2">
                       <button type="button" disabled={working} onClick={() => void saveNotes(ch)} className={BTN_PRIMARY}>Save notes</button>
@@ -156,8 +156,8 @@ export default function MarketingChannelsPage() {
                   </div>
                 ) : (
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm text-sage-700">
-                      <span className="font-semibold text-sage-900">Your notes: </span>
+                    <p className="text-sm text-neutral-700">
+                      <span className="font-semibold text-neutral-900">Your notes: </span>
                       {ch.notes || 'None yet.'}
                     </p>
                     <button
@@ -166,7 +166,7 @@ export default function MarketingChannelsPage() {
                         setNoteDraft(ch.notes ?? '');
                         setEditingKey(ch.key);
                       }}
-                      className="text-xs font-semibold text-[#0e271f] hover:underline cursor-pointer shrink-0"
+                      className="text-xs font-semibold text-brand-rail-deep hover:underline cursor-pointer shrink-0"
                     >
                       Edit notes
                     </button>

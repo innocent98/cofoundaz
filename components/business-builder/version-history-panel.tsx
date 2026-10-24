@@ -45,11 +45,11 @@ function Preview({ detail, defs }: { detail: CanvasVersionDetail; defs: BlockDef
         const items = Array.isArray(v) ? v : typeof v === 'string' && v ? [v] : [];
         return (
           <div key={d.key}>
-            <p className="text-[10px] font-bold tracking-wider text-[#768478] uppercase">{d.label}</p>
+            <p className="text-[10px] font-bold tracking-wider text-ink-soft uppercase">{d.label}</p>
             {items.length === 0 ? (
-              <p className="text-xs italic text-[#B7C0B8]">Empty</p>
+              <p className="text-xs italic text-neutral-xb7c0b8">Empty</p>
             ) : (
-              <ul className="mt-1 list-disc list-inside text-xs text-[#1E2923] space-y-0.5">
+              <ul className="mt-1 list-disc list-inside text-xs text-ink space-y-0.5">
                 {items.map((it, i) => <li key={i}>{it}</li>)}
               </ul>
             )}
@@ -151,19 +151,19 @@ export function VersionHistoryPanel({ open, type, blockDefs, canRestore, flush, 
   const currentVersion = rows[0]?.version;
 
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end bg-[#061A12]/30" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-[60] flex justify-end bg-brand-x061a12/30" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <aside role="dialog" aria-modal="true" aria-label="Version history" className="bg-white w-full md:max-w-md h-full shadow-raised flex flex-col">
-        <div className="px-6 py-4 border-b border-[#E8E8E2] flex items-center justify-between bg-[#FBFBFA] shrink-0">
-          <h3 className="font-bold text-[#1E2923]">Version history</h3>
-          <button type="button" onClick={onClose} className="text-[#8E9B90] hover:text-[#1E2923] p-1 rounded-input hover:bg-[#E8E8E2]" aria-label="Close history">
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between bg-surface-faint shrink-0">
+          <h3 className="font-bold text-ink">Version history</h3>
+          <button type="button" onClick={onClose} className="text-ink-subtle hover:text-ink p-1 rounded-input hover:bg-line" aria-label="Close history">
             <X size={16} />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5">
-          {loading && <div className="flex items-center gap-2 text-xs text-[#768478]"><Loader2 className="w-4 h-4 animate-spin" /> Loading</div>}
+          {loading && <div className="flex items-center gap-2 text-xs text-ink-soft"><Loader2 className="w-4 h-4 animate-spin" /> Loading</div>}
           {!loading && rows.length === 0 && !error && (
-            <p className="text-sm text-[#768478]">No saved versions yet. Each save you make will show up here.</p>
+            <p className="text-sm text-ink-soft">No saved versions yet. Each save you make will show up here.</p>
           )}
 
           {rows.length > 0 && (
@@ -177,14 +177,14 @@ export function VersionHistoryPanel({ open, type, blockDefs, canRestore, flush, 
                       onClick={() => choose(r.version)}
                       aria-pressed={selected === r.version}
                       className={`w-full text-left rounded-card border px-3 py-2.5 transition-colors ${
-                        selected === r.version ? 'border-[#183B28] bg-[#F2F7F4]' : 'border-[#EBEBE6] hover:bg-[#FAFAFA]'
+                        selected === r.version ? 'border-brand-strong bg-brand-50' : 'border-line-soft hover:bg-surface-ghost'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-[#1E2923]">Version {r.version}</span>
-                        {isCurrent && <span className="text-[10px] font-bold uppercase tracking-wider text-[#183B28] bg-[#E6EFEA] rounded-full px-2 py-0.5">Current</span>}
+                        <span className="text-sm font-bold text-ink">Version {r.version}</span>
+                        {isCurrent && <span className="text-[10px] font-bold uppercase tracking-wider text-brand-strong bg-neutral-xe6efea rounded-full px-2 py-0.5">Current</span>}
                       </div>
-                      <p className="text-xs text-[#556358]">
+                      <p className="text-xs text-ink-body">
                         {SOURCE_LABEL[r.source] ?? 'Edited'} by {r.edited_by ? r.edited_by.name || 'a teammate' : 'AI'}, {relativeTime(r.created_at)}
                       </p>
                     </button>
@@ -195,15 +195,15 @@ export function VersionHistoryPanel({ open, type, blockDefs, canRestore, flush, 
           )}
 
           {selected !== null && (
-            <div className="border-t border-[#EBEBE6] pt-4 flex flex-col gap-3">
-              <p className="text-xs font-bold text-[#1E2923]">Preview of version {selected}</p>
-              {detailLoading && <Loader2 className="w-4 h-4 animate-spin text-[#768478]" />}
+            <div className="border-t border-line-soft pt-4 flex flex-col gap-3">
+              <p className="text-xs font-bold text-ink">Preview of version {selected}</p>
+              {detailLoading && <Loader2 className="w-4 h-4 animate-spin text-ink-soft" />}
               {detail && <Preview detail={detail} defs={blockDefs} />}
             </div>
           )}
 
           {error && (
-            <div role="alert" className="flex flex-col gap-2 text-xs font-semibold text-[#B0483B] bg-[#FBEBEB] border border-[#F0D5D5] rounded-input px-3 py-2">
+            <div role="alert" className="flex flex-col gap-2 text-xs font-semibold text-danger-600 bg-danger-wash border border-danger-xf0d5d5 rounded-input px-3 py-2">
               <span className="flex items-start gap-1.5"><AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" /> {error}</span>
               {stale && (
                 <button type="button" onClick={reloadAndRetry} className="self-start underline">Reload the latest version</button>
@@ -213,19 +213,19 @@ export function VersionHistoryPanel({ open, type, blockDefs, canRestore, flush, 
         </div>
 
         {canRestore && detail && selected !== currentVersion && (
-          <div className="px-6 py-4 border-t border-[#E8E8E2] shrink-0 flex flex-col gap-2">
+          <div className="px-6 py-4 border-t border-line shrink-0 flex flex-col gap-2">
             {confirming ? (
               <>
-                <p className="text-xs text-[#556358]">Restoring saves version {selected} as a new version. Your history is kept.</p>
+                <p className="text-xs text-ink-body">Restoring saves version {selected} as a new version. Your history is kept.</p>
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => setConfirming(false)} className="flex-1 px-4 py-2 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] rounded-card text-sm font-bold">Cancel</button>
-                  <button type="button" onClick={restore} disabled={restoring} className="flex-1 px-4 py-2 bg-[#183B28] hover:bg-[#12261C] disabled:opacity-60 text-white rounded-card text-sm font-bold">
+                  <button type="button" onClick={() => setConfirming(false)} className="flex-1 px-4 py-2 bg-white border border-neutral-xdcdcd6 hover:bg-surface-muted rounded-card text-sm font-bold">Cancel</button>
+                  <button type="button" onClick={restore} disabled={restoring} className="flex-1 px-4 py-2 bg-brand-strong hover:bg-brand-rail-ink disabled:opacity-60 text-white rounded-card text-sm font-bold">
                     {restoring ? 'Restoring' : 'Restore'}
                   </button>
                 </div>
               </>
             ) : (
-              <button type="button" onClick={() => setConfirming(true)} className="flex items-center justify-center gap-1.5 px-4 py-2 bg-[#183B28] hover:bg-[#12261C] text-white rounded-card text-sm font-bold">
+              <button type="button" onClick={() => setConfirming(true)} className="flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-strong hover:bg-brand-rail-ink text-white rounded-card text-sm font-bold">
                 <RotateCcw className="w-3.5 h-3.5" /> Restore this version
               </button>
             )}

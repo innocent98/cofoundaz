@@ -16,13 +16,13 @@ export function CharCounter({
   platformLabel?: string;
 }) {
   if (typeof limit !== 'number') {
-    return <p className="text-xs text-sage-500 tabular-nums">{count} characters</p>;
+    return <p className="text-xs text-neutral-500 tabular-nums">{count} characters</p>;
   }
   const over = count > limit;
   const forPlatform = platformLabel ? ` for ${platformLabel}` : '';
   return (
     <p
-      className={`text-xs tabular-nums ${over ? 'text-red-700 font-semibold' : 'text-sage-500'}`}
+      className={`text-xs tabular-nums ${over ? 'text-danger-700 font-semibold' : 'text-neutral-500'}`}
       aria-label={`${count} of ${limit} characters${forPlatform}${over ? `, ${count - limit} over` : ''}`}
     >
       <span aria-hidden="true">

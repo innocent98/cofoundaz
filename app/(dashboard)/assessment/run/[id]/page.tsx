@@ -16,10 +16,10 @@ import { useToast } from "../../ToastContext";
 
 const OPTION_BASE =
   "bg-white rounded-modal p-5 border transition-all cursor-pointer shadow-card font-medium text-sm md:text-base";
-const OPTION_ON = "border-[#1e4836] bg-[#f0f5f2] text-[#0e271f]";
-const OPTION_OFF = "border-sage-200 hover:border-sage-300 text-sage-800";
+const OPTION_ON = "border-brand-hover bg-neutral-xf0f5f2 text-brand-rail-deep";
+const OPTION_OFF = "border-neutral-200 hover:border-neutral-300 text-neutral-800";
 const PRIMARY_BTN =
-  "bg-[#1e4836] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#153427] text-white font-bold text-sm px-6 py-3 rounded-[8px] transition-colors";
+  "bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-x153427 text-white font-bold text-sm px-6 py-3 rounded-[8px] transition-colors";
 
 /** One input per qtype. Keyed by question.key by the parent so its local state resets per question. */
 function QuestionInput({
@@ -100,7 +100,7 @@ function QuestionInput({
               >
                 <span
                   className={`w-5 h-5 rounded border flex items-center justify-center ${
-                    isSelected ? "bg-[#1e4836] border-[#1e4836]" : "border-sage-300 bg-white"
+                    isSelected ? "bg-brand-hover border-brand-hover" : "border-neutral-300 bg-white"
                   }`}
                 >
                   {isSelected && <span className="text-white text-xs">✓</span>}
@@ -129,7 +129,7 @@ function QuestionInput({
         }}
       >
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sage-500 font-semibold text-lg">₦</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 font-semibold text-lg">₦</span>
           <input
             type="number"
             inputMode="decimal"
@@ -137,7 +137,7 @@ function QuestionInput({
             value={text}
             onChange={(e) => setText(e.target.value)}
             aria-label={question.prompt}
-            className="w-full bg-white border border-sage-300 rounded-modal p-4 pl-10 shadow-card text-lg outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400"
+            className="w-full bg-white border border-neutral-300 rounded-modal p-4 pl-10 shadow-card text-lg outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
             placeholder="0"
           />
         </div>
@@ -155,7 +155,7 @@ function QuestionInput({
         value={text}
         onChange={(e) => setText(e.target.value)}
         aria-label={question.prompt}
-        className="w-full h-32 bg-white border border-sage-300 rounded-modal p-4 shadow-card text-base outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400 resize-none"
+        className="w-full h-32 bg-white border border-neutral-300 rounded-modal p-4 shadow-card text-base outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 resize-none"
         placeholder="Type your answer here..."
       />
       <button type="button" onClick={() => onSubmit(text.trim())} disabled={disabled || text.trim() === ""} className={PRIMARY_BTN}>
@@ -194,17 +194,17 @@ function CompletionScreen({
   return (
     <div className="flex flex-col items-center min-h-[60vh] text-center space-y-6 animate-fadeIn max-w-lg mx-auto">
       <div
-        className="w-16 h-16 rounded-full bg-[#1e4836] text-white flex items-center justify-center font-bold text-2xl mb-2"
+        className="w-16 h-16 rounded-full bg-brand-hover text-white flex items-center justify-center font-bold text-2xl mb-2"
         aria-label={`Health Score ${health.score}`}
       >
         {health.score}
       </div>
       <div className="space-y-2">
-        <h1 className="text-3xl font-display font-semibold text-sage-900">Your Health Score is now {health.score}.</h1>
-        <p className="text-sage-600 font-medium">Here&apos;s what changed.</p>
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">Your Health Score is now {health.score}.</h1>
+        <p className="text-neutral-600 font-medium">Here&apos;s what changed.</p>
         {health.delta !== null && health.previous_score !== null && (
           <p
-            className={`text-sm font-semibold ${health.delta < 0 ? "text-[#B0483B]" : "text-[#1e4836]"}`}
+            className={`text-sm font-semibold ${health.delta < 0 ? "text-danger-600" : "text-brand-hover"}`}
             data-testid="health-delta"
           >
             {health.delta === 0
@@ -212,7 +212,7 @@ function CompletionScreen({
               : `${formatDelta(health.delta)} from ${health.previous_score}`}
           </p>
         )}
-        {narrativeIsUseful(result) && <p className="text-sage-500">{result.narrative}</p>}
+        {narrativeIsUseful(result) && <p className="text-neutral-500">{result.narrative}</p>}
       </div>
       <div className="w-full space-y-3 pt-2">
         {DIMENSION_ORDER.map((dim) => {
@@ -222,24 +222,24 @@ function CompletionScreen({
           return (
             <div
               key={dim}
-              className="bg-white rounded-modal p-4 border border-sage-200/80 shadow-card flex items-center justify-between font-medium"
+              className="bg-white rounded-modal p-4 border border-neutral-200/80 shadow-card flex items-center justify-between font-medium"
             >
-              <span className="text-sage-800">{DIMENSION_LABEL[dim]}</span>
+              <span className="text-neutral-800">{DIMENSION_LABEL[dim]}</span>
               <span className="flex items-center gap-2">
                 {change.previous !== null && (
-                  <span className="text-xs text-sage-500" data-testid={`prev-${dim}`}>
+                  <span className="text-xs text-neutral-500" data-testid={`prev-${dim}`}>
                     was {change.previous}
                   </span>
                 )}
                 {delta !== null && (
                   <span
-                    className={`text-xs font-semibold ${delta < 0 ? "text-[#B0483B]" : delta > 0 ? "text-[#1e4836]" : "text-sage-500"}`}
+                    className={`text-xs font-semibold ${delta < 0 ? "text-danger-600" : delta > 0 ? "text-brand-hover" : "text-neutral-500"}`}
                     aria-label={`${DIMENSION_LABEL[dim]} change ${formatDelta(delta)}`}
                   >
                     {formatDelta(delta)}
                   </span>
                 )}
-                <span className="text-[#1e4836] font-semibold" data-testid={`score-${dim}`}>
+                <span className="text-brand-hover font-semibold" data-testid={`score-${dim}`}>
                   {change.score}/100
                 </span>
               </span>
@@ -251,14 +251,14 @@ function CompletionScreen({
         <button
           type="button"
           onClick={onDashboard}
-          className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-8 py-3 rounded-card transition-colors w-full shadow-card"
+          className="bg-accent-600 hover:bg-accent-700 text-white font-semibold px-8 py-3 rounded-card transition-colors w-full shadow-card"
         >
           See my dashboard
         </button>
         <button
           type="button"
           onClick={onResults}
-          className="bg-white border border-sage-200 text-sage-800 font-semibold px-8 py-3 rounded-card hover:border-sage-300 transition-colors w-full"
+          className="bg-white border border-neutral-200 text-neutral-800 font-semibold px-8 py-3 rounded-card hover:border-neutral-300 transition-colors w-full"
         >
           View past results
         </button>
@@ -288,8 +288,8 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
   if (phase === "loading") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4" role="status">
-        <div className="w-10 h-10 rounded-full border-4 border-sage-200 border-t-[#9C5B34] animate-spin" />
-        <p className="text-sage-500 text-sm">Loading your assessment...</p>
+        <div className="w-10 h-10 rounded-full border-4 border-neutral-200 border-t-[var(--color-accent-600)] animate-spin" />
+        <p className="text-neutral-500 text-sm">Loading your assessment...</p>
       </div>
     );
   }
@@ -299,10 +299,10 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
     const readOnly = loadStatus === 403;
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4 max-w-md mx-auto" role="alert">
-        <h2 className="text-xl font-display font-semibold text-sage-900">
+        <h2 className="text-xl font-display font-semibold text-neutral-900">
           {readOnly ? "This check-in is read-only for you" : "We couldn't load this assessment"}
         </h2>
-        <p className="text-sage-500 text-sm">
+        <p className="text-neutral-500 text-sm">
           {readOnly ? "Only founders can take the assessment. You can still read every past result." : loadError}
         </p>
         <div className="flex gap-3">
@@ -318,7 +318,7 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
               <button
                 type="button"
                 onClick={() => router.push("/assessment")}
-                className="bg-white border border-sage-200 text-sage-800 font-bold text-sm px-6 py-3 rounded-[8px] hover:border-sage-300 transition-colors"
+                className="bg-white border border-neutral-200 text-neutral-800 font-bold text-sm px-6 py-3 rounded-[8px] hover:border-neutral-300 transition-colors"
               >
                 Back to overview
               </button>
@@ -333,9 +333,9 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 animate-fadeIn" role="status">
         <div className="relative flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full border-4 border-sage-200 border-t-[#9C5B34] animate-spin"></div>
+          <div className="w-16 h-16 rounded-full border-4 border-neutral-200 border-t-[var(--color-accent-600)] animate-spin"></div>
         </div>
-        <h2 className="text-2xl font-display font-semibold text-sage-900 tracking-tight animate-pulse">
+        <h2 className="text-2xl font-display font-semibold text-neutral-900 tracking-tight animate-pulse">
           Done. Recalibrating your workspace…
         </h2>
       </div>
@@ -346,8 +346,8 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
     if (!result.health) {
       return (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4" role="status">
-          <div className="w-10 h-10 rounded-full border-4 border-sage-200 border-t-[#9C5B34] animate-spin" />
-          <p className="text-sage-500 text-sm">Opening your results...</p>
+          <div className="w-10 h-10 rounded-full border-4 border-neutral-200 border-t-[var(--color-accent-600)] animate-spin" />
+          <p className="text-neutral-500 text-sm">Opening your results...</p>
         </div>
       );
     }
@@ -371,22 +371,22 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
     <div className="max-w-2xl mx-auto space-y-8 animate-fadeIn pt-4">
       {/* SECTION HEADER & PROGRESS BAR */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-xs font-semibold text-sage-500">
+        <div className="flex items-center justify-between text-xs font-semibold text-neutral-500">
           <span className="uppercase tracking-wider">
             Section {progress.sectionNumber} of {progress.totalSections}: {question.section}
           </span>
           <button
             type="button"
             onClick={handleSaveAndExit}
-            className="text-sage-700 hover:text-sage-900 cursor-pointer border border-sage-200 px-3 py-1.5 rounded bg-white shadow-card"
+            className="text-neutral-700 hover:text-neutral-900 cursor-pointer border border-neutral-200 px-3 py-1.5 rounded bg-white shadow-card"
           >
             Save & exit
           </button>
         </div>
 
-        <div className="w-full bg-[#d2e2d8]/60 rounded-full h-2 overflow-hidden">
+        <div className="w-full bg-brand-xd2e2d8/60 rounded-full h-2 overflow-hidden">
           <div
-            className="bg-[#1e4836] h-full rounded-full transition-all duration-300"
+            className="bg-brand-hover h-full rounded-full transition-all duration-300"
             role="progressbar"
             aria-label="Assessment progress"
             aria-valuemin={0}
@@ -396,22 +396,22 @@ export default function AssessmentRunnerPage({ params }: { params: Promise<{ id:
           ></div>
         </div>
 
-        <p className="text-xs text-sage-400 italic">Adaptive: I skip anything that doesn&apos;t apply to you.</p>
+        <p className="text-xs text-neutral-400 italic">Adaptive: I skip anything that doesn&apos;t apply to you.</p>
       </div>
 
       {/* QUESTION CARD */}
       <div className="space-y-6 pt-4">
         <div className="space-y-2">
-          <h2 className="text-2xl md:text-3xl font-display font-semibold text-sage-900 tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-display font-semibold text-neutral-900 tracking-tight">
             {question.prompt}
           </h2>
-          {question.helper && <p className="text-sm text-sage-500">{question.helper}</p>}
+          {question.helper && <p className="text-sm text-neutral-500">{question.helper}</p>}
         </div>
 
         <QuestionInput key={question.key} question={question} disabled={submitting} onSubmit={(v) => void answer(v)} />
 
         {answerError && (
-          <p role="alert" className="text-sm text-[#B0483B]">
+          <p role="alert" className="text-sm text-danger-600">
             {answerError}
           </p>
         )}

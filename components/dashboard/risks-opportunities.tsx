@@ -11,20 +11,20 @@ export const RISKS_EMPTY_COPY = 'No open risks. I’m watching runway, deadlines
 export const OPPORTUNITIES_EMPTY_COPY = 'Opportunities I spot (grants, quick wins, market signals) will show up here.';
 
 const SEVERITY_DOT: Record<RiskItem['severity'], string> = {
-  high: 'bg-[#B84335]',
-  medium: 'bg-[#9C5B34]',
-  low: 'bg-[#C9A54B]',
+  high: 'bg-danger-xb84335',
+  medium: 'bg-accent-600',
+  low: 'bg-accent-xc9a54b',
 };
 
 function Shell({ title, status, busyLabel, children }: { title: string; status: AIContentStatus; busyLabel: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
+    <div className="bg-white border border-neutral-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
       <div>
-        <div className="flex items-center justify-between pb-3 border-b border-sage-100">
-          <h3 className="font-bold text-base text-[#1D2A24]">{title}</h3>
+        <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+          <h3 className="font-bold text-base text-ink-deep">{title}</h3>
           {status === 'generating' && (
-            <span className="text-xs text-sage-500 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-copper-600 animate-spin" style={{ animationDuration: '3s' }} />
+            <span className="text-xs text-neutral-500 flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-accent-600 animate-spin" style={{ animationDuration: '3s' }} />
               {busyLabel}
             </span>
           )}
@@ -38,8 +38,8 @@ function Shell({ title, status, busyLabel, children }: { title: string; status: 
 function Generating() {
   return (
     <div className="space-y-3 py-4">
-      <div className="h-3.5 bg-sage-100 rounded-pill w-4/5 animate-pulse" />
-      <div className="h-3.5 bg-sage-100 rounded-pill w-3/5 animate-pulse" />
+      <div className="h-3.5 bg-neutral-100 rounded-pill w-4/5 animate-pulse" />
+      <div className="h-3.5 bg-neutral-100 rounded-pill w-3/5 animate-pulse" />
     </div>
   );
 }
@@ -49,10 +49,10 @@ function Row({ dot, text, href, cta }: { dot: string; text: string; href: string
     <li className="py-3.5 flex items-center justify-between gap-4">
       <div className="flex items-center gap-3 min-w-0">
         <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${dot}`} aria-hidden="true" />
-        <p className="text-sm text-sage-700 leading-snug">{text}</p>
+        <p className="text-sm text-neutral-700 leading-snug">{text}</p>
       </div>
       {safeInternalHref(href) ? (
-        <Link href={safeInternalHref(href) as string} className="text-xs font-bold text-[#266B4E] hover:underline shrink-0">
+        <Link href={safeInternalHref(href) as string} className="text-xs font-bold text-brand-x266b4e hover:underline shrink-0">
           {cta}
         </Link>
       ) : null}
@@ -78,9 +78,9 @@ export function RisksCard({
       {status === 'generating' ? (
         <Generating />
       ) : items.length === 0 ? (
-        <p className="text-sm text-sage-500 py-6">{RISKS_EMPTY_COPY}</p>
+        <p className="text-sm text-neutral-500 py-6">{RISKS_EMPTY_COPY}</p>
       ) : (
-        <ul className="divide-y divide-sage-100">
+        <ul className="divide-y divide-neutral-100">
           {items.map((risk) => (
             <Row key={risk.id} dot={SEVERITY_DOT[risk.severity]} text={risk.description} href={risk.moduleLink} cta="Review" />
           ))}
@@ -108,11 +108,11 @@ export function OpportunitiesCard({
       {status === 'generating' ? (
         <Generating />
       ) : items.length === 0 ? (
-        <p className="text-sm text-sage-500 py-6">{OPPORTUNITIES_EMPTY_COPY}</p>
+        <p className="text-sm text-neutral-500 py-6">{OPPORTUNITIES_EMPTY_COPY}</p>
       ) : (
-        <ul className="divide-y divide-sage-100">
+        <ul className="divide-y divide-neutral-100">
           {items.map((opp) => (
-            <Row key={opp.id} dot="bg-[#266B4E]" text={opp.description} href={opp.moduleLink} cta="See fit" />
+            <Row key={opp.id} dot="bg-brand-x266b4e" text={opp.description} href={opp.moduleLink} cta="See fit" />
           ))}
         </ul>
       )}

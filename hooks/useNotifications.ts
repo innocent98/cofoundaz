@@ -113,18 +113,18 @@ function categoryFor(type: string): NotificationCategory {
 }
 
 function iconFor(type: string): { iconText: string; iconBg: string } {
-  if (type.startsWith('marketing')) return { iconText: '📣', iconBg: 'bg-[#F7EEDC]' };
-  if (type.startsWith('sales')) return { iconText: '💼', iconBg: 'bg-[#F7EEDC]' };
-  if (type.startsWith('learning')) return { iconText: '🎓', iconBg: 'bg-[#EAF2ED]' };
-  if (type.startsWith('document')) return { iconText: '📄', iconBg: 'bg-[#EAF2ED]' };
-  if (type.startsWith('business')) return { iconText: '🧩', iconBg: 'bg-[#F7EEDC]' };
-  if (type.startsWith('assessment') || type.startsWith('healthscore')) return { iconText: '✓', iconBg: 'bg-[#EAF2ED]' };
-  if (type.startsWith('mission')) return { iconText: '◎', iconBg: 'bg-[#EAF2ED]' };
-  if (type.startsWith('dashboard')) return { iconText: '✦', iconBg: 'bg-[#EAF2ED]' };
-  if (type.startsWith('kpi')) return { iconText: '↗', iconBg: 'bg-[#F7EEDC]' };
-  if (type.startsWith('roadmap')) return { iconText: '🗺', iconBg: 'bg-[#F7EEDC]' };
-  if (type.startsWith('workspace') || type.startsWith('team')) return { iconText: '👤', iconBg: 'bg-[#EAF2ED]' };
-  return { iconText: '•', iconBg: 'bg-[#F5F5F0]' };
+  if (type.startsWith('marketing')) return { iconText: '📣', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('sales')) return { iconText: '💼', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('learning')) return { iconText: '🎓', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('document')) return { iconText: '📄', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('business')) return { iconText: '🧩', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('assessment') || type.startsWith('healthscore')) return { iconText: '✓', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('mission')) return { iconText: '◎', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('dashboard')) return { iconText: '✦', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('kpi')) return { iconText: '↗', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('roadmap')) return { iconText: '🗺', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('workspace') || type.startsWith('team')) return { iconText: '👤', iconBg: 'bg-brand-tint' };
+  return { iconText: '•', iconBg: 'bg-surface-muted' };
 }
 
 function relativeTime(iso: string): string {

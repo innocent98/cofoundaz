@@ -41,54 +41,54 @@ export function ActivityCard({
   if (loading && items.length === 0) return <CardSkeleton label="Loading Team activity" rows={3} />;
   if (error && items.length === 0) return <CardError title="Team activity" onRetry={onRetry} />;
   return (
-    <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
+    <div className="bg-white border border-neutral-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
       <div>
-        <h3 className="font-bold text-base text-[#1D2A24] pb-4 border-b border-sage-100">Team activity</h3>
+        <h3 className="font-bold text-base text-ink-deep pb-4 border-b border-neutral-100">Team activity</h3>
         {items.length === 0 ? (
-          <p className="text-sm text-sage-500 py-6">{ACTIVITY_EMPTY_COPY}</p>
+          <p className="text-sm text-neutral-500 py-6">{ACTIVITY_EMPTY_COPY}</p>
         ) : (
-          <ul className="divide-y divide-sage-100">
+          <ul className="divide-y divide-neutral-100">
             {items.map((a) => {
               const system = a.actor === 'System';
               return (
                 <li key={a.id} className="py-3 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
                     {system ? (
-                      <div className="w-7 h-7 rounded-full bg-[#9C5B34] flex items-center justify-center shrink-0" aria-hidden="true">
-                        <Sparkles className="w-3.5 h-3.5 text-[#1F4D3A]" />
+                      <div className="w-7 h-7 rounded-full bg-accent-600 flex items-center justify-center shrink-0" aria-hidden="true">
+                        <Sparkles className="w-3.5 h-3.5 text-brand-x1f4d3a" />
                       </div>
                     ) : (
                       <div
-                        className="w-7 h-7 rounded-full bg-[#1F4D3A] text-white font-bold text-[10px] flex items-center justify-center shrink-0"
+                        className="w-7 h-7 rounded-full bg-brand-x1f4d3a text-white font-bold text-[10px] flex items-center justify-center shrink-0"
                         aria-hidden="true"
                       >
                         {initialsOf(a.actor)}
                       </div>
                     )}
-                    <p className="text-xs text-sage-700 truncate">
+                    <p className="text-xs text-neutral-700 truncate">
                       {a.summary || (
                         <>
-                          <span className="font-medium text-[#1D2A24]">{a.actor}</span>{' '}
+                          <span className="font-medium text-ink-deep">{a.actor}</span>{' '}
                           {[a.verb, a.entity].filter(Boolean).join(' ')}
                         </>
                       )}
                     </p>
                   </div>
-                  <span className="text-[11px] text-sage-500 shrink-0">{a.relativeTime}</span>
+                  <span className="text-[11px] text-neutral-500 shrink-0">{a.relativeTime}</span>
                 </li>
               );
             })}
           </ul>
         )}
         {items.length > 0 && onLoadMore && (moreError || hasMore) && (
-          <div className="pt-3 border-t border-sage-100 flex flex-col items-center gap-1" aria-live="polite">
-            {moreError && <p role="alert" className="text-xs text-sage-600">{ACTIVITY_MORE_ERROR_COPY}</p>}
+          <div className="pt-3 border-t border-neutral-100 flex flex-col items-center gap-1" aria-live="polite">
+            {moreError && <p role="alert" className="text-xs text-neutral-600">{ACTIVITY_MORE_ERROR_COPY}</p>}
             <button
               type="button"
               onClick={onLoadMore}
               disabled={loadingMore}
               aria-busy={loadingMore}
-              className="min-h-[44px] px-3 text-sm font-bold text-[#266B4E] hover:text-[#12291F] underline cursor-pointer disabled:no-underline disabled:cursor-default disabled:text-sage-500"
+              className="min-h-[44px] px-3 text-sm font-bold text-brand-x266b4e hover:text-brand-900 underline cursor-pointer disabled:no-underline disabled:cursor-default disabled:text-neutral-500"
             >
               {loadingMore ? 'Loading...' : moreError ? 'Retry' : 'Load more'}
             </button>
@@ -123,24 +123,24 @@ export function UpcomingCard({
   if (loading) return <CardSkeleton label="Loading Next 7 days" rows={3} />;
   if (error) return <CardError title="Next 7 days" onRetry={onRetry} />;
   return (
-    <div className="bg-white border border-sage-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
+    <div className="bg-white border border-neutral-200/60 rounded-[24px] p-6 shadow-card flex flex-col justify-between">
       <div>
-        <h3 className="font-bold text-base text-[#1D2A24] pb-4 border-b border-sage-100">Next 7 days</h3>
+        <h3 className="font-bold text-base text-ink-deep pb-4 border-b border-neutral-100">Next 7 days</h3>
         {items.length === 0 ? (
-          <p className="text-xs text-sage-500 py-4">Nothing scheduled in the next 7 days.</p>
+          <p className="text-xs text-neutral-500 py-4">Nothing scheduled in the next 7 days.</p>
         ) : (
           <ul className="space-y-3.5 mt-3">
             {items.slice(0, 6).map((item) => {
               const due = formatDueDate(item.dueOn);
               return (
                 <li key={item.id}>
-                  <Link href="/roadmap/milestones" className="flex items-center gap-3 rounded-card hover:bg-sage-50 transition-colors -mx-1.5 px-1.5 py-1">
-                    <div className="w-9 h-9 rounded-card bg-[#EAF2ED] text-[#1F4D3A] flex items-center justify-center shrink-0">
+                  <Link href="/roadmap/milestones" className="flex items-center gap-3 rounded-card hover:bg-neutral-50 transition-colors -mx-1.5 px-1.5 py-1">
+                    <div className="w-9 h-9 rounded-card bg-brand-tint text-brand-x1f4d3a flex items-center justify-center shrink-0">
                       <CalendarDays className="w-4 h-4" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-[#1D2A24] truncate">{item.title || 'Untitled'}</p>
-                      {due && <p className="text-[11px] text-sage-500">Due {due}</p>}
+                      <p className="text-xs font-bold text-ink-deep truncate">{item.title || 'Untitled'}</p>
+                      {due && <p className="text-[11px] text-neutral-500">Due {due}</p>}
                     </div>
                   </Link>
                 </li>

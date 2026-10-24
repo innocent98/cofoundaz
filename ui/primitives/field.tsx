@@ -1,7 +1,7 @@
 import { cn } from '../lib/cn'
 
 export const fieldControlClasses =
-  'mt-1.5 w-full rounded-input border border-sage-300 bg-white px-3.5 py-3 text-[15px] text-sage-900 placeholder:text-sage-500'
+  'mt-1.5 w-full rounded-input border border-neutral-300 bg-white px-3.5 py-3 text-[15px] text-neutral-900 placeholder:text-neutral-500'
 
 /**
  * `children` is a render prop, not a node. The caller owns the control
@@ -29,12 +29,12 @@ export function Field({
 
   return (
     <div className={cn('block', className)}>
-      <label htmlFor={htmlFor} className="text-[13px] font-semibold text-sage-700">
+      <label htmlFor={htmlFor} className="text-[13px] font-semibold text-neutral-700">
         {label}
       </label>
       {children(helpId)}
       {help ? (
-        <span id={helpId} className="mt-1.5 block text-xs text-sage-500">
+        <span id={helpId} className="mt-1.5 block text-xs text-neutral-500">
           {help}
         </span>
       ) : null}

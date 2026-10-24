@@ -37,26 +37,26 @@ export function FitList({
   const exists = !!link && links.some((l) => sameLink(l, link));
 
   return (
-    <section aria-labelledby="fit-title" className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-6 flex flex-col gap-4">
+    <section aria-labelledby="fit-title" className="bg-white rounded-modal border border-line-soft shadow-card p-6 flex flex-col gap-4">
       <div>
-        <h3 id="fit-title" className="text-sm font-bold text-[#1E2923]">Fit</h3>
-        <p className="text-xs text-[#768478] mt-0.5">Join each pain reliever to the pain it answers, and each gain creator to the gain it delivers.</p>
+        <h3 id="fit-title" className="text-sm font-bold text-ink">Fit</h3>
+        <p className="text-xs text-ink-soft mt-0.5">Join each pain reliever to the pain it answers, and each gain creator to the gain it delivers.</p>
       </div>
 
       {links.length === 0 ? (
-        <p className="text-xs text-[#768478]">No fit-lines yet.</p>
+        <p className="text-xs text-ink-soft">No fit-lines yet.</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {links.map((l) => (
-            <li key={`${l.from_block}:${l.from_item}>${l.to_block}:${l.to_item}`} className="flex items-center gap-3 text-xs bg-[#F7F7F5] rounded-card px-3 py-2">
-              <Link2 className={`w-3.5 h-3.5 shrink-0 ${l.to_block === 'gains' ? 'text-[#183B28]' : 'text-[#9C5B34]'}`} />
+            <li key={`${l.from_block}:${l.from_item}>${l.to_block}:${l.to_item}`} className="flex items-center gap-3 text-xs bg-surface-subtle rounded-card px-3 py-2">
+              <Link2 className={`w-3.5 h-3.5 shrink-0 ${l.to_block === 'gains' ? 'text-brand-strong' : 'text-accent-600'}`} />
               <span className="flex-1 min-w-0">
-                <span className="font-semibold text-[#1E2923]">{l.from_item}</span>
-                <span className="text-[#768478]"> answers the {TO_LABEL[l.to_block] ?? 'item'} </span>
-                <span className="font-semibold text-[#1E2923]">{l.to_item}</span>
+                <span className="font-semibold text-ink">{l.from_item}</span>
+                <span className="text-ink-soft"> answers the {TO_LABEL[l.to_block] ?? 'item'} </span>
+                <span className="font-semibold text-ink">{l.to_item}</span>
               </span>
               {canEdit && (
-                <button type="button" onClick={() => onChange(links.filter((x) => !sameLink(x, l)))} className="text-[#768478] hover:text-[#A34B4B] p-1" aria-label={`Remove the fit-line from ${l.from_item} to ${l.to_item}`}>
+                <button type="button" onClick={() => onChange(links.filter((x) => !sameLink(x, l)))} className="text-ink-soft hover:text-danger-text p-1" aria-label={`Remove the fit-line from ${l.from_item} to ${l.to_item}`}>
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -66,8 +66,8 @@ export function FitList({
       )}
 
       {canEdit && (
-        <div className="flex flex-col md:flex-row md:items-end gap-3 border-t border-[#EBEBE6] pt-4">
-          <label className="flex flex-col gap-1 flex-1 text-[11px] font-bold tracking-wider text-[#768478] uppercase">
+        <div className="flex flex-col md:flex-row md:items-end gap-3 border-t border-line-soft pt-4">
+          <label className="flex flex-col gap-1 flex-1 text-[11px] font-bold tracking-wider text-ink-soft uppercase">
             From
             <select
               value={from}
@@ -75,7 +75,7 @@ export function FitList({
                 setFrom(e.target.value);
                 setTo('');
               }}
-              className="border border-[#D5DDD6] rounded-input px-3 py-2 text-xs normal-case tracking-normal text-[#1E2923] bg-white"
+              className="border border-line-strong rounded-input px-3 py-2 text-xs normal-case tracking-normal text-ink bg-white"
             >
               <option value="">Pick a pain reliever or gain creator</option>
               {sources.map((s, i) => (
@@ -83,13 +83,13 @@ export function FitList({
               ))}
             </select>
           </label>
-          <label className="flex flex-col gap-1 flex-1 text-[11px] font-bold tracking-wider text-[#768478] uppercase">
+          <label className="flex flex-col gap-1 flex-1 text-[11px] font-bold tracking-wider text-ink-soft uppercase">
             To
             <select
               value={to}
               onChange={(e) => setTo(e.target.value)}
               disabled={!picked}
-              className="border border-[#D5DDD6] rounded-input px-3 py-2 text-xs normal-case tracking-normal text-[#1E2923] bg-white disabled:opacity-50"
+              className="border border-line-strong rounded-input px-3 py-2 text-xs normal-case tracking-normal text-ink bg-white disabled:opacity-50"
             >
               <option value="">{picked ? `Pick the ${TO_LABEL[targetBlock as string]}` : 'Pick a source first'}</option>
               {targets.map((t, i) => (
@@ -106,13 +106,13 @@ export function FitList({
               setFrom('');
               setTo('');
             }}
-            className="px-4 py-2 bg-[#183B28] hover:bg-[#12261C] disabled:opacity-50 text-white rounded-card text-xs font-bold"
+            className="px-4 py-2 bg-brand-strong hover:bg-brand-rail-ink disabled:opacity-50 text-white rounded-card text-xs font-bold"
           >
             {exists ? 'Already connected' : 'Connect'}
           </button>
         </div>
       )}
-      {error && <p role="alert" className="text-[11px] font-semibold text-[#B0483B]">{error}</p>}
+      {error && <p role="alert" className="text-[11px] font-semibold text-danger-600">{error}</p>}
     </section>
   );
 }

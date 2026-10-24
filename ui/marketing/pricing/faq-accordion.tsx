@@ -15,7 +15,7 @@ export function FaqAccordion() {
         const panelId = `${baseId}-panel-${index}`
 
         return (
-          <div key={item.question} className="overflow-hidden rounded-card border border-green-100 bg-white">
+          <div key={item.question} className="overflow-hidden rounded-card border border-brand-100 bg-white">
             <button
               type="button"
               id={triggerId}
@@ -24,9 +24,9 @@ export function FaqAccordion() {
               onClick={() => setOpen(isOpen ? -1 : index)}
               className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
             >
-              <span className="text-base font-semibold text-sage-900">{item.question}</span>
+              <span className="text-base font-semibold text-neutral-900">{item.question}</span>
               {/* Deviation D-1: copper-700 for copper text on a white surface. */}
-              <span aria-hidden="true" className="flex-none text-lg font-semibold text-copper-700">
+              <span aria-hidden="true" className="flex-none text-lg font-semibold text-accent-700">
                 {isOpen ? '−' : '+'}
               </span>
             </button>
@@ -35,7 +35,7 @@ export function FaqAccordion() {
               role="region"
               aria-labelledby={triggerId}
               hidden={!isOpen}
-              className="px-5 pb-5 text-[15px] leading-relaxed text-sage-700"
+              className="px-5 pb-5 text-[15px] leading-relaxed text-neutral-700"
             >
               {item.answer}
             </div>

@@ -49,28 +49,28 @@ export function VerifyEmailClient({ token }: { token: string }) {
   }, [status, router]);
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-modal shadow-card border border-sage-100 text-center">
+    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-modal shadow-card border border-neutral-100 text-center">
       {status === 'verifying' && (
         <>
-          <h1 className="text-xl font-bold text-sage-900 mb-2">Verifying your email…</h1>
-          <p className="text-sm text-sage-500">One moment while we confirm your link.</p>
+          <h1 className="text-xl font-bold text-neutral-900 mb-2">Verifying your email…</h1>
+          <p className="text-sm text-neutral-500">One moment while we confirm your link.</p>
         </>
       )}
 
       {status === 'success' && (
         <>
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-700">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700">
             <CheckCircle2 className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-bold font-display text-sage-900 mb-2">
+          <h1 className="text-2xl font-bold font-display text-neutral-900 mb-2">
             You&apos;re verified. Let&apos;s build.
           </h1>
-          <p className="text-sm text-sage-500 mb-6">
+          <p className="text-sm text-neutral-500 mb-6">
             Your account is active. Taking you to your workspace…
           </p>
           <Link
             href="/dashboard"
-            className="inline-block px-5 py-2.5 bg-green-900 text-white rounded-card font-semibold text-sm hover:bg-green-800 transition-colors"
+            className="inline-block px-5 py-2.5 bg-brand-900 text-white rounded-card font-semibold text-sm hover:bg-brand-800 transition-colors"
           >
             Continue
           </Link>
@@ -79,11 +79,11 @@ export function VerifyEmailClient({ token }: { token: string }) {
 
       {status === 'error' && (
         <>
-          <h1 className="text-xl font-bold text-sage-900 mb-2">Verification failed</h1>
-          <p className="text-sm text-sage-500 mb-6">{message}</p>
+          <h1 className="text-xl font-bold text-neutral-900 mb-2">Verification failed</h1>
+          <p className="text-sm text-neutral-500 mb-6">{message}</p>
           <Link
             href="/verify"
-            className="inline-block px-5 py-2.5 bg-green-900 text-white rounded-card font-semibold text-sm hover:bg-green-800 transition-colors"
+            className="inline-block px-5 py-2.5 bg-brand-900 text-white rounded-card font-semibold text-sm hover:bg-brand-800 transition-colors"
           >
             Resend verification email
           </Link>

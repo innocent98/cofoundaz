@@ -23,9 +23,9 @@ import {
 // is real API data — the score history, the five dimension scores, and a single
 // dimension's trend — never synthesised.
 
-const GREEN = '#2D5A3F';
-const GRID = '#EBEBE6';
-const AXIS = '#768478';
+const GREEN = 'var(--color-brand-mid)';
+const GRID = 'var(--color-line-soft)';
+const AXIS = 'var(--color-ink-soft)';
 
 function fmtDate(iso: string): string {
   const d = new Date(iso);
@@ -68,11 +68,11 @@ export function timeAxisProps(times: number[]): { ticks?: number[]; tickFormatte
 }
 
 const tooltipStyle = {
-  background: '#FFFFFF',
+  background: 'var(--color-white)',
   border: `1px solid ${GRID}`,
   borderRadius: 10,
   fontSize: 12,
-  boxShadow: '0 4px 16px rgba(20,41,31,0.08)',
+  boxShadow: '0 4px 16px var(--color-shadow-soft)',
 } as const;
 
 export interface ScorePoint {
@@ -136,7 +136,7 @@ export function ScoreHistoryChart({
         <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={false} width={44} />
         <Tooltip
           contentStyle={tooltipStyle}
-          labelStyle={{ color: '#1E2923', fontWeight: 700 }}
+          labelStyle={{ color: 'var(--color-ink)', fontWeight: 700 }}
           labelFormatter={(v) => fmtDateTime(v as number)}
           formatter={(v) => [v as number, 'Score']}
         />
@@ -150,7 +150,7 @@ export function ScoreHistoryChart({
             shape={(props: { cx?: number; cy?: number }) => (
               <g>
                 <title>{`${d.label}, ${fmtDateTime(d.t)}`}</title>
-                <circle cx={props.cx} cy={props.cy} r={7} fill="#9C5B34" stroke="#FFFFFF" strokeWidth={2} />
+                <circle cx={props.cx} cy={props.cy} r={7} fill="var(--color-accent-600)" stroke="var(--color-white)" strokeWidth={2} />
               </g>
             )}
           />
@@ -202,7 +202,7 @@ export function DimensionTrendChart({ points, height = 180 }: { points: ScorePoi
         <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={false} width={44} />
         <Tooltip
           contentStyle={tooltipStyle}
-          labelStyle={{ color: '#1E2923', fontWeight: 700 }}
+          labelStyle={{ color: 'var(--color-ink)', fontWeight: 700 }}
           labelFormatter={(v) => fmtDateTime(v as number)}
           formatter={(v) => [v as number, 'Score']}
         />
@@ -223,7 +223,7 @@ export function DimensionsRadar({ data, height = 280 }: { data: RadarDatum[]; he
     <ResponsiveContainer width="100%" height={height}>
       <RadarChart data={data} outerRadius="72%">
         <PolarGrid stroke={GRID} />
-        <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12, fill: '#55625A', fontWeight: 600 }} />
+        <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12, fill: 'var(--color-neutral-x55625a)', fontWeight: 600 }} />
         <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 10, fill: AXIS }} axisLine={false} />
         <Radar dataKey="score" stroke={GREEN} strokeWidth={2} fill={GREEN} fillOpacity={0.18} />
         <Tooltip contentStyle={tooltipStyle} formatter={(v) => [v as number, 'Score']} />

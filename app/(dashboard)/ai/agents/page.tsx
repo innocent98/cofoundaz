@@ -94,16 +94,16 @@ export default function AgentsPage() {
           <div className="w-full h-0.5 bg-white/80 rounded-full" />
         </div>
       );
-      case 'currency': return <span className="font-bold text-sm text-[#D89A6E]">₦</span>;
-      case 'section': return <span className="font-display text-sm font-bold text-[#D89A6E]">§</span>;
-      case 'pie': return <PieChart className="w-4 h-4 text-[#D89A6E]" />;
-      case 'trending': return <TrendingUp className="w-4 h-4 text-[#D89A6E]" />;
-      case 'diamond': return <Diamond className="w-4 h-4 text-[#D89A6E]" />;
-      case 'star': return <Star className="w-4 h-4 text-[#D89A6E] fill-[#D89A6E]" />;
+      case 'currency': return <span className="font-bold text-sm text-accent-500">₦</span>;
+      case 'section': return <span className="font-display text-sm font-bold text-accent-500">§</span>;
+      case 'pie': return <PieChart className="w-4 h-4 text-accent-500" />;
+      case 'trending': return <TrendingUp className="w-4 h-4 text-accent-500" />;
+      case 'diamond': return <Diamond className="w-4 h-4 text-accent-500" />;
+      case 'star': return <Star className="w-4 h-4 text-accent-500 fill-accent-500" />;
       case 'check': return <Check className="w-4 h-4 stroke-[3] text-white" />;
-      case 'arrow': return <ArrowRight className="w-4 h-4 text-[#D89A6E]" />;
-      case 'layers': return <Layers className="w-4 h-4 text-[#D89A6E]" />;
-      case 'sun': return <Sun className="w-4 h-4 text-[#D89A6E]" />;
+      case 'arrow': return <ArrowRight className="w-4 h-4 text-accent-500" />;
+      case 'layers': return <Layers className="w-4 h-4 text-accent-500" />;
+      case 'sun': return <Sun className="w-4 h-4 text-accent-500" />;
       default: return null;
     }
   };
@@ -116,10 +116,10 @@ export default function AgentsPage() {
   return (
     <div className="max-w-6xl w-full mx-auto flex flex-col gap-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#1E2923] tracking-tight mb-1">
+        <h2 className="text-2xl font-bold text-ink tracking-tight mb-1">
           Your bench
         </h2>
-        <p className="text-xs text-[#617065]">
+        <p className="text-xs text-ink-muted">
           Every specialist, one chat away. You never have to pick, I route automatically, but you can go direct.
         </p>
       </div>
@@ -128,29 +128,29 @@ export default function AgentsPage() {
         {benchAgents.map((agent) => (
           <div
             key={agent.id}
-            className="bg-white rounded-modal p-5 border border-[#EBEBE6] shadow-card flex flex-col justify-between"
+            className="bg-white rounded-modal p-5 border border-line-soft shadow-card flex flex-col justify-between"
           >
             <div>
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-9 h-9 rounded-card bg-[#183B28] text-white flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-card bg-brand-strong text-white flex items-center justify-center shrink-0">
                   {renderBenchIcon(agent.iconType)}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-sm text-[#1E2923] leading-tight">
+                  <h3 className="font-bold text-sm text-ink leading-tight">
                     {agent.name}
                   </h3>
-                  <span className="text-[11px] font-semibold text-[#9C5B34]">
+                  <span className="text-[11px] font-semibold text-accent-600">
                     {agent.category}
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-[#556358] leading-relaxed mb-6">
+              <p className="text-xs text-ink-body leading-relaxed mb-6">
                 {agent.description}
               </p>
             </div>
             <button
               onClick={() => handleAskAgent(agent)}
-              className="w-full bg-white hover:bg-[#F5F5F0] text-[#183B28] font-semibold text-xs py-2 rounded-card border border-[#D5DDD6] transition-colors"
+              className="w-full bg-white hover:bg-surface-muted text-brand-strong font-semibold text-xs py-2 rounded-card border border-line-strong transition-colors"
             >
               {agent.buttonText}
             </button>

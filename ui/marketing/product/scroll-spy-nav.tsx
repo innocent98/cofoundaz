@@ -28,7 +28,7 @@ export function ScrollSpyNav() {
   }, [])
 
   return (
-    <div className="sticky top-[71px] z-30 border-b border-green-100 bg-white/92 backdrop-blur-[12px]">
+    <div className="sticky top-[71px] z-30 border-b border-brand-100 bg-white/92 backdrop-blur-[12px]">
       <nav
         aria-label="Product sections"
         className="mx-auto flex h-14 max-w-[1280px] items-center gap-1.5 overflow-x-auto px-4 md:justify-center md:flex-wrap md:px-6"
@@ -41,8 +41,8 @@ export function ScrollSpyNav() {
             className={cn(
               'whitespace-nowrap rounded-pill border px-4 py-2 text-[13.5px] font-semibold transition-colors',
               active === item.anchor
-                ? 'border-green-200 bg-green-100 text-green-700'
-                : 'border-green-100 bg-green-50 text-sage-700 hover:bg-green-100'
+                ? 'border-brand-200 bg-brand-100 text-brand-700'
+                : 'border-brand-100 bg-brand-50 text-neutral-700 hover:bg-brand-100'
             )}
           >
             {item.label}

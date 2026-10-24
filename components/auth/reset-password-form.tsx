@@ -22,12 +22,12 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   if (!token) {
     return (
-      <div className="w-full max-w-md mx-auto p-8 bg-white rounded-modal shadow-card border border-sage-100 text-center">
-        <h1 className="text-xl font-bold text-sage-900 mb-2">Invalid reset link</h1>
-        <p className="text-sm text-sage-500 mb-6">This password reset link is missing a valid token.</p>
+      <div className="w-full max-w-md mx-auto p-8 bg-white rounded-modal shadow-card border border-neutral-100 text-center">
+        <h1 className="text-xl font-bold text-neutral-900 mb-2">Invalid reset link</h1>
+        <p className="text-sm text-neutral-500 mb-6">This password reset link is missing a valid token.</p>
         <Link
           href="/forgot-password"
-          className="inline-block px-5 py-2.5 bg-green-900 text-white rounded-card font-semibold text-sm hover:bg-green-800 transition-colors"
+          className="inline-block px-5 py-2.5 bg-brand-900 text-white rounded-card font-semibold text-sm hover:bg-brand-800 transition-colors"
         >
           Request new reset link
         </Link>
@@ -72,24 +72,24 @@ export function ResetPasswordForm({ token }: { token: string }) {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-modal shadow-card border border-sage-100">
+    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-modal shadow-card border border-neutral-100">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold font-display text-sage-900">Set new password</h1>
-        <p className="text-sm text-sage-500 mt-2">Enter your new account password below.</p>
+        <h1 className="text-2xl font-bold font-display text-neutral-900">Set new password</h1>
+        <p className="text-sm text-neutral-500 mt-2">Enter your new account password below.</p>
       </div>
 
       {success ? (
-        <div className="p-4 bg-green-50 text-green-800 rounded-card text-sm border border-green-200 text-center">
+        <div className="p-4 bg-brand-50 text-brand-800 rounded-card text-sm border border-brand-200 text-center">
           Password updated. Redirecting you to login&hellip;
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="p-3 bg-red-50 text-red-700 text-sm rounded-input border border-red-200">{error}</div>
+            <div className="p-3 bg-danger-50 text-danger-700 text-sm rounded-input border border-danger-200">{error}</div>
           )}
 
           <div>
-            <label htmlFor="new-password" className="block text-xs font-semibold uppercase tracking-wider text-sage-600 mb-2">
+            <label htmlFor="new-password" className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-2">
               New password
             </label>
             <input
@@ -99,12 +99,12 @@ export function ResetPasswordForm({ token }: { token: string }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 8 characters"
-              className="w-full px-4 py-3 rounded-card border border-sage-200 focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600 transition-colors"
+              className="w-full px-4 py-3 rounded-card border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-600 transition-colors"
             />
           </div>
 
           <div>
-            <label htmlFor="confirm-password" className="block text-xs font-semibold uppercase tracking-wider text-sage-600 mb-2">
+            <label htmlFor="confirm-password" className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-2">
               Confirm new password
             </label>
             <input
@@ -114,14 +114,14 @@ export function ResetPasswordForm({ token }: { token: string }) {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Re-enter your new password"
-              className="w-full px-4 py-3 rounded-card border border-sage-200 focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600 transition-colors"
+              className="w-full px-4 py-3 rounded-card border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-600 transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-green-900 hover:bg-green-800 disabled:opacity-50 text-white font-semibold rounded-card transition-colors cursor-pointer"
+            className="w-full py-3 bg-brand-900 hover:bg-brand-800 disabled:opacity-50 text-white font-semibold rounded-card transition-colors cursor-pointer"
           >
             {loading ? 'Updating password…' : 'Update password'}
           </button>

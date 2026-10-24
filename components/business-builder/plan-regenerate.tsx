@@ -50,14 +50,14 @@ export function RegenerateSection({ onDone }: { onDone: () => Promise<void> }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">Regenerate a section</p>
+      <p className="text-[11px] font-bold tracking-wider text-ink-soft uppercase">Regenerate a section</p>
       <div className="flex flex-wrap items-center gap-2">
         <select
           aria-label="Section to regenerate"
           value={key}
           onChange={(e) => setKey(e.target.value)}
           disabled={busy}
-          className="border border-[#D5DDD6] rounded-input px-3 py-2 text-xs bg-white focus:outline-none focus:border-[#4D6D58]"
+          className="border border-line-strong rounded-input px-3 py-2 text-xs bg-white focus:outline-none focus:border-line-focus"
         >
           {PLAN_SECTIONS.map((s) => (
             <option key={s.key} value={s.key}>{s.heading}</option>
@@ -68,18 +68,18 @@ export function RegenerateSection({ onDone }: { onDone: () => Promise<void> }) {
           onClick={() => setConfirming(true)}
           disabled={busy || isOverBudget}
           title={isOverBudget ? `AI is paused until ${formattedResetsAt}` : undefined}
-          className="flex items-center gap-1.5 bg-white hover:bg-[#F5F5F0] disabled:opacity-60 text-[#1E2923] font-semibold px-4 py-2 rounded-card text-xs border border-[#EBEBE6] shadow-card transition-colors"
+          className="flex items-center gap-1.5 bg-white hover:bg-surface-muted disabled:opacity-60 text-ink font-semibold px-4 py-2 rounded-card text-xs border border-line-soft shadow-card transition-colors"
         >
-          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 text-[#556358]" />}
+          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 text-ink-body" />}
           {busy ? 'Rewriting' : 'Regenerate'}
         </button>
       </div>
       {isOverBudget && (
-        <p className="text-[11px] font-semibold text-[#8A5330] max-w-md">
+        <p className="text-[11px] font-semibold text-accent-700 max-w-md">
           {OVER_BUDGET_MESSAGE}
         </p>
       )}
-      {note && <p role="status" className="text-[11px] font-semibold text-[#B0483B] max-w-md">{note}</p>}
+      {note && <p role="status" className="text-[11px] font-semibold text-danger-600 max-w-md">{note}</p>}
       <AiConfirmModal
         open={confirming}
         title={`Rewrite ${heading}`}

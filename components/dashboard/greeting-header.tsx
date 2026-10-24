@@ -25,12 +25,12 @@ export function GreetingHeader({
   const startup = startupName?.trim();
   return (
     <section className="mb-6 w-full">
-      <h1 className="text-3xl font-display font-bold text-sage-900 mb-1">
+      <h1 className="text-3xl font-display font-bold text-neutral-900 mb-1">
         {greetingLine(greetingFor(now.getHours()), firstName)}
       </h1>
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-sage-500">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-neutral-500">
         <p>Here&apos;s where {startup || 'your startup'} stands today.</p>
-        <span className="text-sage-500">{formattedDate}</span>
+        <span className="text-neutral-500">{formattedDate}</span>
       </div>
     </section>
   );
@@ -39,8 +39,8 @@ export function GreetingHeader({
 export function GreetingSkeleton() {
   return (
     <section className="mb-6 w-full" role="status" aria-label="Loading your dashboard">
-      <div className="h-9 w-72 max-w-full rounded-pill bg-sage-100 animate-pulse mb-3" />
-      <div className="h-4 w-56 max-w-full rounded-pill bg-sage-100 animate-pulse" />
+      <div className="h-9 w-72 max-w-full rounded-pill bg-neutral-100 animate-pulse mb-3" />
+      <div className="h-4 w-56 max-w-full rounded-pill bg-neutral-100 animate-pulse" />
     </section>
   );
 }

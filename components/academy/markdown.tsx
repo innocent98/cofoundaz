@@ -24,7 +24,7 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
     }
     if (part.startsWith('`') && part.endsWith('`') && part.length > 2) {
       return (
-        <code key={key} className="rounded bg-sage-100 px-1 py-0.5 text-[0.9em]">
+        <code key={key} className="rounded bg-neutral-100 px-1 py-0.5 text-[0.9em]">
           {part.slice(1, -1)}
         </code>
       );
@@ -41,7 +41,7 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
         <a
           key={key}
           href={href}
-          className="text-[#8A5330] underline underline-offset-2"
+          className="text-accent-700 underline underline-offset-2"
           {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
           {link[1]}
@@ -53,12 +53,12 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
 }
 
 const HEADING_CLASS: Record<number, string> = {
-  1: 'text-2xl font-display font-semibold text-sage-900 mt-6',
-  2: 'text-xl font-display font-semibold text-sage-900 mt-6',
-  3: 'text-lg font-semibold text-sage-900 mt-5',
-  4: 'text-base font-semibold text-sage-900 mt-4',
-  5: 'text-sm font-semibold text-sage-900 mt-4',
-  6: 'text-sm font-semibold text-sage-700 mt-4',
+  1: 'text-2xl font-display font-semibold text-neutral-900 mt-6',
+  2: 'text-xl font-display font-semibold text-neutral-900 mt-6',
+  3: 'text-lg font-semibold text-neutral-900 mt-5',
+  4: 'text-base font-semibold text-neutral-900 mt-4',
+  5: 'text-sm font-semibold text-neutral-900 mt-4',
+  6: 'text-sm font-semibold text-neutral-700 mt-4',
 };
 
 export function Markdown({ source, className = '' }: { source: string; className?: string }) {
@@ -80,7 +80,7 @@ export function Markdown({ source, className = '' }: { source: string; className
       while (i < lines.length && !lines[i].trim().startsWith('```')) code.push(lines[i++]);
       i++;
       blocks.push(
-        <pre key={key()} className="overflow-x-auto rounded-card bg-sage-100 p-3 text-xs">
+        <pre key={key()} className="overflow-x-auto rounded-card bg-neutral-100 p-3 text-xs">
           <code>{code.join('\n')}</code>
         </pre>,
       );
@@ -100,7 +100,7 @@ export function Markdown({ source, className = '' }: { source: string; className
       continue;
     }
     if (/^(-{3,}|\*{3,})\s*$/.test(line)) {
-      blocks.push(<hr key={key()} className="my-4 border-sage-200" />);
+      blocks.push(<hr key={key()} className="my-4 border-neutral-200" />);
       i++;
       continue;
     }
@@ -109,7 +109,7 @@ export function Markdown({ source, className = '' }: { source: string; className
       while (i < lines.length && /^>\s?/.test(lines[i])) quote.push(lines[i++].replace(/^>\s?/, ''));
       const k = key();
       blocks.push(
-        <blockquote key={k} className="border-l-4 border-[#EAD5C6] pl-4 italic text-sage-700">
+        <blockquote key={k} className="border-l-4 border-accent-200 pl-4 italic text-neutral-700">
           {renderInline(quote.join(' '), k)}
         </blockquote>,
       );
@@ -152,5 +152,5 @@ export function Markdown({ source, className = '' }: { source: string; className
     blocks.push(<p key={k}>{renderInline(para.join(' '), k)}</p>);
   }
 
-  return <div className={`space-y-3 text-sm leading-relaxed text-sage-700 ${className}`}>{blocks}</div>;
+  return <div className={`space-y-3 text-sm leading-relaxed text-neutral-700 ${className}`}>{blocks}</div>;
 }

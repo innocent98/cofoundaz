@@ -93,27 +93,27 @@ export const AGENDA_GROUPS_DATA: AgendaDayGroupData[] = [
   {
     dateLabel: 'TODAY, MON JUL 27',
     items: [
-      { time: '09:00', title: 'Weekly review', subtitle: 'With Daniel', type: 'Meeting', borderColor: 'border-l-[#183B28]' },
-      { time: '17:00', title: 'Close validation milestone', subtitle: 'Roadmap milestone', type: 'Milestone', borderColor: 'border-l-[#B39353]' },
+      { time: '09:00', title: 'Weekly review', subtitle: 'With Daniel', type: 'Meeting', borderColor: 'border-l-[var(--color-brand-strong)]' },
+      { time: '17:00', title: 'Close validation milestone', subtitle: 'Roadmap milestone', type: 'Milestone', borderColor: 'border-l-[var(--color-accent-gold)]' },
     ]
   },
   {
     dateLabel: 'TOMORROW, TUE',
     items: [
-      { time: '14:00', title: 'Send pricing survey to 20 users', subtitle: 'From your mission', type: 'Task', borderColor: 'border-l-[#1E3E2B]' },
+      { time: '14:00', title: 'Send pricing survey to 20 users', subtitle: 'From your mission', type: 'Task', borderColor: 'border-l-[var(--color-brand-x1e3e2b)]' },
     ]
   },
   {
     dateLabel: 'WED JUL 29',
     items: [
-      { time: 'All day', title: 'Grant deadline, GIZ Digital Inclusion Fund', subtitle: 'Application due', type: 'Deadline', borderColor: 'border-l-[#B93838]' },
+      { time: 'All day', title: 'Grant deadline, GIZ Digital Inclusion Fund', subtitle: 'Application due', type: 'Deadline', borderColor: 'border-l-[var(--color-danger-bold)]' },
     ]
   },
   {
     dateLabel: 'THU JUL 30',
     items: [
-      { time: '11:00', title: 'Demo call, MarketPlus', subtitle: 'Sales pipeline', type: 'Meeting', borderColor: 'border-l-[#183B28]' },
-      { time: '15:00', title: 'Review runway assumptions', subtitle: 'With Grace', type: 'Task', borderColor: 'border-l-[#1E3E2B]' },
+      { time: '11:00', title: 'Demo call, MarketPlus', subtitle: 'Sales pipeline', type: 'Meeting', borderColor: 'border-l-[var(--color-brand-strong)]' },
+      { time: '15:00', title: 'Review runway assumptions', subtitle: 'With Grace', type: 'Task', borderColor: 'border-l-[var(--color-brand-x1e3e2b)]' },
     ]
   },
 ];
@@ -125,8 +125,8 @@ export const MILESTONES_DATA_LIST: MilestoneItemData[] = [
     status: 'On track',
     progress: 85,
     tasksInfo: '11 of 13 tasks complete',
-    progressBarClass: 'bg-[#B39353]',
-    badgeClass: 'bg-[#F2ECE1] text-[#7A6025]',
+    progressBarClass: 'bg-accent-gold',
+    badgeClass: 'bg-accent-xf2ece1 text-accent-x7a6025',
     iconType: 'progress',
   },
   {
@@ -135,9 +135,9 @@ export const MILESTONES_DATA_LIST: MilestoneItemData[] = [
     status: 'At risk',
     progress: 35,
     tasksInfo: '3 of 9 tasks complete · blocked on survey send',
-    cardBorderClass: 'border-[#B93838]/60 bg-white',
-    progressBarClass: 'bg-[#B93838]',
-    badgeClass: 'bg-[#FDF2F2] text-[#B93838]',
+    cardBorderClass: 'border-danger-bold/60 bg-white',
+    progressBarClass: 'bg-danger-bold',
+    badgeClass: 'bg-danger-tint text-danger-bold',
     iconType: 'risk',
   },
   {
@@ -146,8 +146,8 @@ export const MILESTONES_DATA_LIST: MilestoneItemData[] = [
     status: 'Complete',
     progress: 100,
     tasksInfo: '6 of 6 tasks complete',
-    progressBarClass: 'bg-[#183B28]',
-    badgeClass: 'bg-[#E5EFEA] text-[#183B28]',
+    progressBarClass: 'bg-brand-strong',
+    badgeClass: 'bg-neutral-xe5efea text-brand-strong',
     iconType: 'complete',
   },
   {
@@ -156,8 +156,8 @@ export const MILESTONES_DATA_LIST: MilestoneItemData[] = [
     status: 'Not started',
     progress: 0,
     tasksInfo: '0 of 8 tasks complete',
-    progressBarClass: 'bg-[#D5DDD6]',
-    badgeClass: 'bg-[#F5F5F0] text-[#617065]',
+    progressBarClass: 'bg-line-strong',
+    badgeClass: 'bg-surface-muted text-ink-muted',
     iconType: 'default',
   },
   {
@@ -166,8 +166,8 @@ export const MILESTONES_DATA_LIST: MilestoneItemData[] = [
     status: 'Not started',
     progress: 0,
     tasksInfo: '0 of 12 tasks complete',
-    progressBarClass: 'bg-[#D5DDD6]',
-    badgeClass: 'bg-[#F5F5F0] text-[#617065]',
+    progressBarClass: 'bg-line-strong',
+    badgeClass: 'bg-surface-muted text-ink-muted',
     iconType: 'default',
   },
 ];

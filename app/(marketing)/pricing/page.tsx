@@ -22,7 +22,7 @@ export default function PricingPage() {
       <JsonLd data={faqPageJsonLd()} />
       <Container className="pb-6 pt-16 text-center">
         <SectionHeading as="h1" eyebrow={pricing.hero.eyebrow} title={pricing.hero.title} subtitle={pricing.hero.subtitle} className="[&_p]:max-w-[52ch]" />
-        <ul className="mt-5 flex flex-wrap justify-center gap-5 text-[13.5px] text-sage-500">
+        <ul className="mt-5 flex flex-wrap justify-center gap-5 text-[13.5px] text-neutral-500">
           {pricing.hero.ticks.map((tick) => (
             <li key={tick}>
               <span aria-hidden="true">✓ </span>
@@ -46,10 +46,10 @@ export default function PricingPage() {
       </Container>
 
       <Container width="narrow" className="pb-14">
-        {/* green-900 for maximum contrast (~13:1) on this light bg-copper-100
+        {/* green-900 for maximum contrast (~13:1) on this light bg-accent-100
             wash. copper-700 would also pass here (5.3:1), but green-900 matches
             the Badge accent-tone / banner text pattern used elsewhere. */}
-        <p className="rounded-card border border-copper-200 bg-copper-100 px-6 py-5 text-center text-[15px] font-semibold text-green-900">
+        <p className="rounded-card border border-accent-200 bg-accent-100 px-6 py-5 text-center text-[15px] font-semibold text-brand-900">
           {pricing.addOnsBanner}
         </p>
       </Container>

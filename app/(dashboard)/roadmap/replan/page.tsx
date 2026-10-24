@@ -92,18 +92,18 @@ export default function ReplanPage() {
   return (
     <div className="flex flex-col gap-8 h-full pb-12">
       <div>
-        <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">AI Re-Plan</h2>
-        <p className="text-xs text-[#617065] mt-1.5">Review adjustments to your roadmap before applying them.</p>
+        <h2 className="text-3xl font-display font-medium text-ink tracking-tight">AI Re-Plan</h2>
+        <p className="text-xs text-ink-muted mt-1.5">Review adjustments to your roadmap before applying them.</p>
       </div>
 
       {error && (
-        <div className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-card p-3 text-xs font-semibold text-[#B0483B]">{error}</div>
+        <div className="bg-danger-tint border border-danger-xfad7d7 rounded-card p-3 text-xs font-semibold text-danger-600">{error}</div>
       )}
 
       {applyResult && (
-        <div className="bg-[#EAF2ED] border border-[#CDE1D3] rounded-modal p-4 flex items-start gap-3 shadow-card">
-          <CheckCircle2 className="w-5 h-5 text-[#2D5A3F] shrink-0 mt-0.5" />
-          <div className="text-sm text-[#2D5A3F]">
+        <div className="bg-brand-tint border border-brand-xcde1d3 rounded-modal p-4 flex items-start gap-3 shadow-card">
+          <CheckCircle2 className="w-5 h-5 text-brand-mid shrink-0 mt-0.5" />
+          <div className="text-sm text-brand-mid">
             <p className="font-bold">{applyResult.summary || 'Nothing to apply'}</p>
             <p className="text-xs mt-0.5">
               {applyResult.applied.length} applied
@@ -115,16 +115,16 @@ export default function ReplanPage() {
 
       {/* Drift banner — offer the flow when milestones have slipped (guide §9) */}
       {slippedCount > 0 ? (
-        <div className="bg-[#FDF2F2] border border-[#FAD7D7] rounded-modal p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
+        <div className="bg-danger-tint border border-danger-xfad7d7 rounded-modal p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
           <div className="flex items-start gap-4">
-            <div className="p-2 bg-white rounded-full shrink-0 shadow-card border border-[#FAD7D7]">
-              <AlertTriangle className="w-5 h-5 text-[#B0483B]" />
+            <div className="p-2 bg-white rounded-full shrink-0 shadow-card border border-danger-xfad7d7">
+              <AlertTriangle className="w-5 h-5 text-danger-600" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#993A2E]">
+              <h3 className="text-sm font-bold text-danger-x993a2e">
                 {slippedCount} milestone{slippedCount === 1 ? '' : 's'} {slippedCount === 1 ? 'has' : 'have'} slipped. Want me to re-plan?
               </h3>
-              <p className="text-xs text-[#B0483B] mt-1 leading-relaxed">
+              <p className="text-xs text-danger-600 mt-1 leading-relaxed">
                 Some target dates are now in the past. Let me propose a realistic shift, you choose what to accept.
               </p>
             </div>
@@ -132,21 +132,21 @@ export default function ReplanPage() {
           <button
             onClick={generate}
             disabled={generating}
-            className="bg-[#B0483B] hover:bg-[#993A2E] disabled:opacity-60 text-white text-xs font-bold py-2.5 px-5 rounded-card transition-colors shadow-card shrink-0 whitespace-nowrap"
+            className="bg-danger-600 hover:bg-danger-x993a2e disabled:opacity-60 text-white text-xs font-bold py-2.5 px-5 rounded-card transition-colors shadow-card shrink-0 whitespace-nowrap"
           >
             {generating ? 'Generating…' : 'Generate Re-plan'}
           </button>
         </div>
       ) : (
-        <div className="bg-[#EAF2ED] border border-[#CDE1D3] rounded-modal p-6 flex items-center justify-between gap-4 shadow-card">
+        <div className="bg-brand-tint border border-brand-xcde1d3 rounded-modal p-6 flex items-center justify-between gap-4 shadow-card">
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-[#2D5A3F] shrink-0" />
-            <p className="text-sm font-bold text-[#2D5A3F]">You&apos;re on track, no milestones have slipped.</p>
+            <CheckCircle2 className="w-5 h-5 text-brand-mid shrink-0" />
+            <p className="text-sm font-bold text-brand-mid">You&apos;re on track, no milestones have slipped.</p>
           </div>
           <button
             onClick={generate}
             disabled={generating}
-            className="bg-white hover:bg-[#F5F5F0] border border-[#CDE1D3] text-[#2D5A3F] text-xs font-bold py-2 px-4 rounded-card transition-colors shrink-0 disabled:opacity-60"
+            className="bg-white hover:bg-surface-muted border border-brand-xcde1d3 text-brand-mid text-xs font-bold py-2 px-4 rounded-card transition-colors shrink-0 disabled:opacity-60"
           >
             {generating ? 'Checking…' : 'Check for adjustments'}
           </button>
@@ -155,27 +155,27 @@ export default function ReplanPage() {
 
       {/* Proposal — only after Generate, only if there are changes */}
       {proposal && changes.length > 0 && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card flex flex-col">
-          <div className="p-6 border-b border-[#EBEBE6] flex items-center gap-3">
-            <div className="p-1.5 bg-[#F7EEDC] rounded-[6px]">
-              <Sparkles className="w-5 h-5 fill-[#8A5330] text-[#8A5330]" />
+        <div className="bg-white rounded-modal border border-line-soft shadow-card flex flex-col">
+          <div className="p-6 border-b border-line-soft flex items-center gap-3">
+            <div className="p-1.5 bg-accent-xf7eedc rounded-[6px]">
+              <Sparkles className="w-5 h-5 fill-accent-700 text-accent-700" />
             </div>
             <div>
-              <h3 className="font-bold text-[#1E2923]">Proposed Adjustments</h3>
-              <p className="text-xs text-[#768478]">
+              <h3 className="font-bold text-ink">Proposed Adjustments</h3>
+              <p className="text-xs text-ink-soft">
                 {proposalSummary}. Review carefully, rejected items keep their current dates.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col divide-y divide-[#EBEBE6]">
+          <div className="flex flex-col divide-y divide-line-soft">
             {changes.map((c) => {
               const isAccepted = accepted.has(c.change_id);
               return (
-                <div key={c.change_id} className={`p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors ${isAccepted ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
+                <div key={c.change_id} className={`p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors ${isAccepted ? 'bg-white' : 'bg-surface-ghost'}`}>
                   <div className="flex flex-col gap-1.5 flex-1">
-                    <span className="text-sm font-bold text-[#1E2923]">{c.title}</span>
-                    <span className="text-xs text-[#9C5B34] font-semibold">{c.reason}</span>
+                    <span className="text-sm font-bold text-ink">{c.title}</span>
+                    <span className="text-xs text-accent-600 font-semibold">{c.reason}</span>
                   </div>
 
                   <div className="flex items-center flex-1">
@@ -184,10 +184,10 @@ export default function ReplanPage() {
 
                   <div className="shrink-0 flex items-center justify-end">
                     <button type="button" onClick={() => toggle(c.change_id)} className="flex items-center gap-2 cursor-pointer group">
-                      <span className={`text-xs font-bold ${isAccepted ? 'text-[#2D5A3F]' : 'text-[#768478]'}`}>
+                      <span className={`text-xs font-bold ${isAccepted ? 'text-brand-mid' : 'text-ink-soft'}`}>
                         {isAccepted ? 'Accepted' : 'Rejected'}
                       </span>
-                      <div className={`relative w-12 h-6 rounded-full transition-colors ${isAccepted ? 'bg-[#183B28]' : 'bg-[#DCE6E1]'}`}>
+                      <div className={`relative w-12 h-6 rounded-full transition-colors ${isAccepted ? 'bg-brand-strong' : 'bg-neutral-xdce6e1'}`}>
                         <div className={`absolute top-1 bottom-1 w-4 bg-white rounded-full transition-all shadow-card ${isAccepted ? 'left-7' : 'left-1'}`} />
                       </div>
                     </button>
@@ -197,12 +197,12 @@ export default function ReplanPage() {
             })}
           </div>
 
-          <div className="p-6 bg-[#F7F7F5] rounded-b-modal border-t border-[#EBEBE6] flex justify-end">
+          <div className="p-6 bg-surface-subtle rounded-b-modal border-t border-line-soft flex justify-end">
             <button
               onClick={apply}
               disabled={accepted.size === 0 || applying}
               className={`py-2.5 px-6 rounded-card font-bold text-xs transition-all shadow-card flex items-center gap-2 ${
-                accepted.size > 0 && !applying ? 'bg-[#183B28] hover:bg-[#11291C] text-white' : 'bg-[#EBEBE6] text-[#A3B1A6] cursor-not-allowed'
+                accepted.size > 0 && !applying ? 'bg-brand-strong hover:bg-brand-rail text-white' : 'bg-line-soft text-neutral-xa3b1a6 cursor-not-allowed'
               }`}
             >
               <Check className="w-4 h-4" />
@@ -213,55 +213,55 @@ export default function ReplanPage() {
       )}
 
       {proposal && changes.length === 0 && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-8 text-center">
-          <p className="text-sm font-bold text-[#1E2923]">No adjustments needed</p>
-          <p className="text-xs text-[#768478] mt-1">Your milestone dates are all still realistic.</p>
+        <div className="bg-white rounded-modal border border-line-soft shadow-card p-8 text-center">
+          <p className="text-sm font-bold text-ink">No adjustments needed</p>
+          <p className="text-xs text-ink-soft mt-1">Your milestone dates are all still realistic.</p>
         </div>
       )}
 
       {/* Re-plan history — real audit trail */}
       <div className="flex flex-col gap-4 mt-2">
-        <h3 className="text-sm font-bold text-[#1E2923]">Re-plan History</h3>
+        <h3 className="text-sm font-bold text-ink">Re-plan History</h3>
         {history.length === 0 ? (
-          <div className="bg-white rounded-card border border-[#EBEBE6] p-5 shadow-card">
-            <p className="text-xs text-[#768478] italic">No re-plans applied yet.</p>
+          <div className="bg-white rounded-card border border-line-soft p-5 shadow-card">
+            <p className="text-xs text-ink-soft italic">No re-plans applied yet.</p>
           </div>
         ) : (
           history.map((h) => {
             const open = expandedHistory.has(h.id);
             return (
-              <div key={h.id} className="bg-white rounded-card border border-[#EBEBE6] shadow-card overflow-hidden">
+              <div key={h.id} className="bg-white rounded-card border border-line-soft shadow-card overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleHistory(h.id)}
                   aria-expanded={open}
                   aria-controls={`replan-history-${h.id}`}
-                  className="w-full p-5 flex items-center justify-between gap-4 text-left hover:bg-[#FBFBFA] transition-colors"
+                  className="w-full p-5 flex items-center justify-between gap-4 text-left hover:bg-surface-faint transition-colors"
                 >
                   <div className="flex flex-col gap-1 min-w-0">
-                    <span className="text-xs font-bold text-[#1E2923]">
+                    <span className="text-xs font-bold text-ink">
                       {h.summary} · {fmtDateTime(h.created_at)}
                     </span>
-                    <span className="text-[11px] text-[#768478] truncate">
+                    <span className="text-[11px] text-ink-soft truncate">
                       {h.applied_by?.name ? `By ${h.applied_by.name}` : 'Applied'},{' '}
                       {h.changes.map((c) => c.title).join(', ')}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="bg-[#F5F5F0] px-2 py-1 rounded text-[10px] font-bold text-[#617065]">
+                    <span className="bg-surface-muted px-2 py-1 rounded text-[10px] font-bold text-ink-muted">
                       {h.change_count} change{h.change_count === 1 ? '' : 's'}
                     </span>
-                    <ChevronDown className={`w-4 h-4 text-[#8E9B90] transition-transform ${open ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 text-ink-subtle transition-transform ${open ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
 
                 {open && (
-                  <div id={`replan-history-${h.id}`} className="border-t border-[#EBEBE6] divide-y divide-[#F2F2EE]">
+                  <div id={`replan-history-${h.id}`} className="border-t border-line-soft divide-y divide-neutral-xf2f2ee">
                     {h.changes.map((c, i) => (
                       <div key={`${h.id}-${c.milestone_id}-${i}`} className="px-5 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
                         <div className="flex flex-col gap-1 min-w-0 flex-1">
-                          <span className="text-xs font-bold text-[#1E2923]">{c.title}</span>
-                          {c.reason && <span className="text-[11px] text-[#9C5B34] font-semibold">{c.reason}</span>}
+                          <span className="text-xs font-bold text-ink">{c.title}</span>
+                          {c.reason && <span className="text-[11px] text-accent-600 font-semibold">{c.reason}</span>}
                         </div>
                         <DateDiff oldDue={c.old_due} newDue={c.new_due} />
                       </div>

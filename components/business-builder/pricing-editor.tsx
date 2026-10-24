@@ -13,7 +13,7 @@ interface Row {
 }
 
 const inputClass =
-  'w-full border border-[#D5DDD6] rounded-input px-3 py-2 text-xs focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58] placeholder:text-[#6F7D72] disabled:bg-transparent disabled:border-transparent disabled:px-0';
+  'w-full border border-line-strong rounded-input px-3 py-2 text-xs focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus placeholder:text-neutral-x6f7d72 disabled:bg-transparent disabled:border-transparent disabled:px-0';
 
 function seed(record: BusinessRecord | null): { model: string; rows: Row[] } {
   const model = typeof record?.data.model_type === 'string' ? (record.data.model_type as string) : 'subscription';
@@ -62,10 +62,10 @@ export function PricingEditor({ record, modelOptions, canWrite, suggestMode, hea
   };
 
   return (
-    <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
-      <div className="px-6 py-4 border-b border-[#EBEBE6] bg-[#FAFAFA] flex flex-col gap-3">
+    <div className="bg-white rounded-modal border border-line-soft shadow-card overflow-hidden">
+      <div className="px-6 py-4 border-b border-line-soft bg-surface-ghost flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">Pricing model</p>
+          <p className="text-[11px] font-bold tracking-wider text-ink-soft uppercase">Pricing model</p>
           <div className="flex items-center gap-1">{headerExtras}</div>
         </div>
         <div role="radiogroup" aria-label="Pricing model" className="flex flex-wrap gap-2">
@@ -78,7 +78,7 @@ export function PricingEditor({ record, modelOptions, canWrite, suggestMode, hea
               disabled={!canWrite}
               onClick={() => setModel(opt)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
-                model === opt ? 'bg-[#183B28] text-white border-[#183B28]' : 'bg-white text-[#556358] border-[#EBEBE6] hover:border-[#C5CFC7]'
+                model === opt ? 'bg-brand-strong text-white border-brand-strong' : 'bg-white text-ink-body border-line-soft hover:border-neutral-xc5cfc7'
               } disabled:cursor-default`}
             >
               {modelLabel(opt)}
@@ -90,14 +90,14 @@ export function PricingEditor({ record, modelOptions, canWrite, suggestMode, hea
       <div className="relative overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[560px]">
           <thead>
-            <tr className="border-b border-[#EBEBE6]">
-              <th className="py-3 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase w-1/5">Tier</th>
-              <th className="py-3 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase w-[30%]">Price</th>
-              <th className="py-3 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase w-1/2">What&apos;s included</th>
+            <tr className="border-b border-line-soft">
+              <th className="py-3 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase w-1/5">Tier</th>
+              <th className="py-3 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase w-[30%]">Price</th>
+              <th className="py-3 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase w-1/2">What&apos;s included</th>
               {canWrite && <th className="w-10"><span className="sr-only">Remove</span></th>}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#F0F0EC]">
+          <tbody className="divide-y divide-line-faint">
             {rows.map((row, i) => (
               <tr key={i} className="align-top">
                 <td className="py-3 px-6">
@@ -111,7 +111,7 @@ export function PricingEditor({ record, modelOptions, canWrite, suggestMode, hea
                 </td>
                 {canWrite && (
                   <td className="py-3 pr-4">
-                    <button type="button" onClick={() => setRows((prev) => (prev.length === 1 ? [{ name: '', price: '', features: '' }] : prev.filter((_, idx) => idx !== i)))} className="p-2 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label={`Remove tier ${i + 1}`}>
+                    <button type="button" onClick={() => setRows((prev) => (prev.length === 1 ? [{ name: '', price: '', features: '' }] : prev.filter((_, idx) => idx !== i)))} className="p-2 rounded-input text-ink-soft hover:text-danger-text hover:bg-danger-wash transition-colors" aria-label={`Remove tier ${i + 1}`}>
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </td>
@@ -122,10 +122,10 @@ export function PricingEditor({ record, modelOptions, canWrite, suggestMode, hea
         </table>
       </div>
 
-      <div className="px-6 py-4 border-t border-[#EBEBE6] flex flex-wrap items-center justify-between gap-3">
+      <div className="px-6 py-4 border-t border-line-soft flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col gap-1">
           {canWrite && (
-            <button type="button" onClick={() => setRows((prev) => [...prev, { name: '', price: '', features: '' }])} className="flex items-center gap-1 text-xs font-semibold text-[#183B28] hover:text-[#12261C] self-start">
+            <button type="button" onClick={() => setRows((prev) => [...prev, { name: '', price: '', features: '' }])} className="flex items-center gap-1 text-xs font-semibold text-brand-strong hover:text-brand-rail-ink self-start">
               <Plus className="w-3.5 h-3.5" /> Add tier
             </button>
           )}
@@ -133,13 +133,13 @@ export function PricingEditor({ record, modelOptions, canWrite, suggestMode, hea
         </div>
         {canWrite && (
           <div className="flex items-center gap-2">
-            {error && <span role="alert" className="text-[11px] font-semibold text-[#B0483B]">{error}</span>}
+            {error && <span role="alert" className="text-[11px] font-semibold text-danger-600">{error}</span>}
             {(onCancel || (record && dirty)) && (
-              <button type="button" onClick={() => { if (record) { setModel(initial.model); setRows(initial.rows); } onCancel?.(); }} className="px-4 py-2 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] rounded-card text-xs font-bold">
+              <button type="button" onClick={() => { if (record) { setModel(initial.model); setRows(initial.rows); } onCancel?.(); }} className="px-4 py-2 bg-white border border-neutral-xdcdcd6 hover:bg-surface-muted rounded-card text-xs font-bold">
                 {record ? 'Discard' : 'Cancel'}
               </button>
             )}
-            <button type="button" onClick={save} disabled={saving || !dirty} className="px-4 py-2 bg-[#183B28] hover:bg-[#12261C] disabled:opacity-50 text-white rounded-card text-xs font-bold">
+            <button type="button" onClick={save} disabled={saving || !dirty} className="px-4 py-2 bg-brand-strong hover:bg-brand-rail-ink disabled:opacity-50 text-white rounded-card text-xs font-bold">
               {saving ? 'Saving' : suggestMode ? 'Suggest this' : 'Save pricing'}
             </button>
           </div>

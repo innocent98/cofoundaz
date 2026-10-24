@@ -10,8 +10,8 @@ import { useNotifications } from '@/hooks/useNotifications';
  * — the badge hides at 0 rather than showing a hardcoded number.
  */
 export function NotificationBell({
-  className = 'relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors',
-  iconClassName = 'w-4 h-4 text-[#66756F]',
+  className = 'relative w-9 h-9 rounded-full border border-neutral-xdce6e1 bg-white flex items-center justify-center cursor-pointer hover:bg-neutral-50 transition-colors',
+  iconClassName = 'w-4 h-4 text-neutral-x66756f',
 }: {
   className?: string;
   iconClassName?: string;
@@ -21,7 +21,7 @@ export function NotificationBell({
     <Link href="/notifications" aria-label="Notifications" className={className}>
       <Bell className={iconClassName} />
       {unreadCount > 0 && (
-        <span className="absolute -top-1 -right-1 bg-[#12291F] text-white text-[10px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center font-bold">
+        <span className="absolute -top-1 -right-1 bg-brand-900 text-white text-[10px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center font-bold">
           {unreadCount > 9 ? '9+' : unreadCount}
         </span>
       )}

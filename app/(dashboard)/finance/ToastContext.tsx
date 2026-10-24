@@ -34,13 +34,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         <div
           role={toast.kind === 'error' ? 'alert' : 'status'}
           className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex max-w-[90vw] items-center gap-2.5 px-5 py-3 rounded-card shadow-raised transition-all duration-300 border animate-fadeIn text-white ${
-            toast.kind === 'error' ? 'bg-red-700 border-red-800' : 'bg-green-950 border-sage-700'
+            toast.kind === 'error' ? 'bg-danger-700 border-danger-800' : 'bg-brand-950 border-neutral-700'
           }`}
         >
           {toast.kind === 'error' ? (
             <AlertTriangle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
           ) : (
-            <Check className="w-4 h-4 text-green-300 flex-shrink-0" aria-hidden="true" />
+            <Check className="w-4 h-4 text-brand-300 flex-shrink-0" aria-hidden="true" />
           )}
           <p className="text-sm font-medium">{toast.message}</p>
         </div>

@@ -6,5 +6,5 @@ import { lastEditedLabel } from '@/lib/relative-time';
 export function RecordEdited({ record, className = '' }: { record: BusinessRecord; className?: string }) {
   const label = lastEditedLabel(record.updated_at, record.updated_by);
   if (!label) return null;
-  return <p className={`text-[11px] text-[#8E9B90] ${className}`}>{label}</p>;
+  return <p className={`text-[11px] text-ink-subtle ${className}`}>{label}</p>;
 }

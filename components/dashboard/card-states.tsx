@@ -10,7 +10,7 @@ export function SkeletonBar({ className = '', dark = false }: { className?: stri
   return (
     <div
       aria-hidden="true"
-      className={`h-3.5 rounded-pill animate-pulse ${dark ? 'bg-[#1E4D3B]/60' : 'bg-sage-100'} ${className}`}
+      className={`h-3.5 rounded-pill animate-pulse ${dark ? 'bg-brand-700/60' : 'bg-neutral-100'} ${className}`}
     />
   );
 }
@@ -33,7 +33,7 @@ export function CardSkeleton({
       role="status"
       aria-label={label}
       className={`rounded-card p-6 shadow-card flex flex-col gap-4 ${
-        dark ? 'bg-[#12291F]' : 'bg-white border border-sage-100'
+        dark ? 'bg-brand-900' : 'bg-white border border-neutral-100'
       } ${className}`}
     >
       <SkeletonBar dark={dark} className="w-1/3 h-4" />
@@ -62,15 +62,15 @@ export function CardError({
     <div
       role="alert"
       className={`rounded-card p-6 shadow-card flex flex-col items-center justify-center text-center gap-3 min-h-[160px] ${
-        dark ? 'bg-[#12291F] text-white' : 'bg-white border border-red-200/80'
+        dark ? 'bg-brand-900 text-white' : 'bg-white border border-danger-200/80'
       } ${className}`}
     >
-      <p className={`text-sm font-medium ${dark ? 'text-sage-200' : 'text-sage-600'}`}>{CARD_ERROR_COPY}</p>
+      <p className={`text-sm font-medium ${dark ? 'text-neutral-200' : 'text-neutral-600'}`}>{CARD_ERROR_COPY}</p>
       <button
         type="button"
         onClick={onRetry}
         aria-label={`Retry loading ${title}`}
-        className={`text-sm font-bold underline cursor-pointer ${dark ? 'text-copper-500 hover:text-white' : 'text-[#266B4E] hover:text-[#12291F]'}`}
+        className={`text-sm font-bold underline cursor-pointer ${dark ? 'text-accent-500 hover:text-white' : 'text-brand-x266b4e hover:text-brand-900'}`}
       >
         Retry
       </button>

@@ -86,7 +86,7 @@ export function FitOverlay({
     >
       {lines.map((l) => {
         const gain = l.link.to_block === 'gains';
-        const color = gain ? '#183B28' : '#9C5B34';
+        const color = gain ? 'var(--color-brand-strong)' : 'var(--color-accent-600)';
         return (
           <g key={l.key}>
             <path d={l.d} fill="none" stroke={color} strokeWidth={2} strokeOpacity={0.65} />

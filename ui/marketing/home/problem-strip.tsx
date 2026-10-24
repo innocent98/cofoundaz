@@ -14,12 +14,12 @@ export function ProblemStrip() {
             <Card key={card.title} className="p-8">
               <div
                 aria-hidden="true"
-                className="flex h-11 w-11 items-center justify-center rounded-[11px] bg-green-50 text-xl text-green-600"
+                className="flex h-11 w-11 items-center justify-center rounded-[11px] bg-brand-50 text-xl text-brand-600"
               >
                 {card.icon}
               </div>
-              <h3 className="mb-2 mt-5 text-[19px] font-bold text-sage-900">{card.title}</h3>
-              <p className="text-[15px] leading-relaxed text-sage-700">{card.body}</p>
+              <h3 className="mb-2 mt-5 text-[19px] font-bold text-neutral-900">{card.title}</h3>
+              <p className="text-[15px] leading-relaxed text-neutral-700">{card.body}</p>
             </Card>
           ))}
         </div>

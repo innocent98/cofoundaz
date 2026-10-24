@@ -24,9 +24,9 @@ export function SendingBanner({ status, onChanged }: { status: SendingStatus; on
 
   if (!status.configured) {
     return (
-      <div role="status" className={`${CARD} p-4 border-copper-200 bg-copper-50/40`}>
-        <p className="text-sm font-semibold text-sage-900">Sending isn&apos;t set up yet</p>
-        <p className="text-sm text-sage-600">
+      <div role="status" className={`${CARD} p-4 border-accent-200 bg-accent-50/40`}>
+        <p className="text-sm font-semibold text-neutral-900">Sending isn&apos;t set up yet</p>
+        <p className="text-sm text-neutral-600">
           You can build sequences and enrol people now. Nothing is sent until outreach email is connected for this workspace.
         </p>
       </div>
@@ -35,15 +35,15 @@ export function SendingBanner({ status, onChanged }: { status: SendingStatus; on
 
   if (status.paused) {
     return (
-      <div role="alert" className="rounded-modal border border-red-200 bg-red-50 p-4 flex flex-wrap items-center justify-between gap-3">
+      <div role="alert" className="rounded-modal border border-danger-200 bg-danger-50 p-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-red-800">Sales emails are paused</p>
-          <p className="text-sm text-red-700">
+          <p className="text-sm font-semibold text-danger-800">Sales emails are paused</p>
+          <p className="text-sm text-danger-700">
             {status.paused_reason === 'bounces'
               ? 'Too many emails bounced, so sending stopped for the whole workspace. Check your lists, then resume.'
               : 'Sending is paused for this workspace.'}
           </p>
-          {role !== 'founder' && <p className="text-sm text-red-700">Ask a founder to resume sending.</p>}
+          {role !== 'founder' && <p className="text-sm text-danger-700">Ask a founder to resume sending.</p>}
         </div>
         {role === 'founder' && (
           <button type="button" className={BTN_ACCENT} disabled={busy} onClick={() => void resume()}>
@@ -57,7 +57,7 @@ export function SendingBanner({ status, onChanged }: { status: SendingStatus; on
   const pct = Math.min(100, Math.round((status.sent_today / Math.max(1, status.daily_cap)) * 100));
   return (
     <div className={`${CARD} p-4 flex flex-wrap items-center gap-x-6 gap-y-2`}>
-      <p className="text-sm font-semibold text-sage-900">
+      <p className="text-sm font-semibold text-neutral-900">
         Sending from {status.domain ?? 'your outreach mailbox'}
       </p>
       <div className="flex items-center gap-3 min-w-[200px]">
@@ -67,15 +67,15 @@ export function SendingBanner({ status, onChanged }: { status: SendingStatus; on
           aria-valuemin={0}
           aria-valuemax={status.daily_cap}
           aria-valuenow={status.sent_today}
-          className="h-2 w-40 rounded-full bg-sage-100 overflow-hidden"
+          className="h-2 w-40 rounded-full bg-neutral-100 overflow-hidden"
         >
-          <div className="h-full bg-[#1e4836]" style={{ width: `${pct}%` }} />
+          <div className="h-full bg-brand-hover" style={{ width: `${pct}%` }} />
         </div>
-        <span className="text-sm text-sage-700">
+        <span className="text-sm text-neutral-700">
           {status.sent_today} of {status.daily_cap} sent today
         </span>
       </div>
-      <p className="text-xs text-sage-500">If a day&apos;s limit is reached, the next step simply goes out the next day.</p>
+      <p className="text-xs text-neutral-500">If a day&apos;s limit is reached, the next step simply goes out the next day.</p>
     </div>
   );
 }

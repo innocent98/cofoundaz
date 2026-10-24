@@ -78,7 +78,7 @@ function AssistantText({ content }: { content: string }) {
         }
         if (b.kind === 'quote') {
           return (
-            <blockquote key={i} className="border-l-2 border-sage-200 pl-3 italic text-sage-600">
+            <blockquote key={i} className="border-l-2 border-neutral-200 pl-3 italic text-neutral-600">
               {renderInline(b.text)}
             </blockquote>
           );
@@ -104,18 +104,18 @@ export function ChatMessageContent({ message }: { message: ChatMessage }) {
   }
   if (message.status === 'generating') {
     return (
-      <div className="flex items-center gap-2 h-5 text-sage-500" role="status" aria-label="Your co-founder is thinking">
+      <div className="flex items-center gap-2 h-5 text-neutral-500" role="status" aria-label="Your co-founder is thinking">
         <span className="flex items-center gap-1" aria-hidden="true">
-          <span className="w-1.5 h-1.5 bg-sage-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-          <span className="w-1.5 h-1.5 bg-sage-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-          <span className="w-1.5 h-1.5 bg-sage-400 rounded-full animate-bounce" />
+          <span className="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+          <span className="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+          <span className="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce" />
         </span>
         <span className="text-xs">Thinking…</span>
       </div>
     );
   }
   if (message.status === 'failed') {
-    return <p className="text-sage-600">{REPLY_FAILED_COPY}</p>;
+    return <p className="text-neutral-600">{REPLY_FAILED_COPY}</p>;
   }
   return <AssistantText content={message.content} />;
 }

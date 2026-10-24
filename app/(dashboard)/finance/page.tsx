@@ -51,17 +51,17 @@ function RunwayBanner({ cashFlow, onAsk }: { cashFlow: CashFlow; onAsk: (seed: s
       ? "You are out of cash and still burning."
       : `Runway is under 6 months: ${cashFlow.runway_months} months left.`;
   return (
-    <div className="bg-red-50 border border-red-200 rounded-card p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-card">
+    <div className="bg-danger-50 border border-danger-200 rounded-card p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-card">
       <div className="flex items-center gap-3">
-        <div className="bg-white p-2 rounded-full shadow-card text-red-600">
+        <div className="bg-white p-2 rounded-full shadow-card text-danger-600">
           <AlertTriangle className="w-5 h-5" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-sm font-bold text-red-600">{headline}</h2>
-          <p className="text-sm text-red-600 opacity-90 mt-0.5">Let&apos;s look at levers: costs, pricing or funding.</p>
+          <h2 className="text-sm font-bold text-danger-600">{headline}</h2>
+          <p className="text-sm text-danger-600 opacity-90 mt-0.5">Let&apos;s look at levers: costs, pricing or funding.</p>
         </div>
       </div>
-      <button type="button" onClick={() => onAsk(advisorSeed(cashFlow))} className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 max-md:min-h-11 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">
+      <button type="button" onClick={() => onAsk(advisorSeed(cashFlow))} className="bg-white border border-danger-200 text-danger-600 hover:bg-danger-50 px-4 py-2 max-md:min-h-11 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">
         <MessageSquare className="w-4 h-4" aria-hidden="true" />
         Ask Finance Advisor
       </button>
@@ -128,7 +128,7 @@ function TransactionForm({
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <p className="text-xs text-sage-500">
+      <p className="text-xs text-neutral-500">
         For money movements that are not an expense or an invoice. Spend with a receipt belongs under Expenses; do not add the same spend in both places.
       </p>
       <Field label="Type" htmlFor="tx-direction">
@@ -182,9 +182,9 @@ function CategoryCell({
   const [value, setValue] = useState("");
   if (!CATEGORY_EDITABLE.includes(tx.source)) {
     return tx.category ? (
-      <span className="text-sage-700 bg-white border border-sage-200 px-2 py-1 rounded-input text-xs">{tx.category}</span>
+      <span className="text-neutral-700 bg-white border border-neutral-200 px-2 py-1 rounded-input text-xs">{tx.category}</span>
     ) : (
-      <span className="text-xs text-sage-600">Uncategorized</span>
+      <span className="text-xs text-neutral-600">Uncategorized</span>
     );
   }
   if (adding) {
@@ -207,7 +207,7 @@ function CategoryCell({
           placeholder="New category"
           maxLength={120}
           autoComplete="off"
-          className="text-xs bg-white border border-copper-600 text-copper-700 rounded-input px-2 py-1 max-md:min-h-11 w-32 outline-none font-medium"
+          className="text-xs bg-white border border-accent-600 text-accent-700 rounded-input px-2 py-1 max-md:min-h-11 w-32 outline-none font-medium"
         />
         <button type="submit" disabled={busy || !value.trim()} className={linkBtn}>
           Set
@@ -229,7 +229,7 @@ function CategoryCell({
         else if (e.target.value !== (tx.category ?? "")) onSet(e.target.value);
       }}
       className={`text-xs rounded-input px-2 py-1 max-md:min-h-11 max-w-[10rem] outline-none font-medium bg-white border ${
-        tx.category ? "border-sage-200 text-sage-700" : "border-copper-600 text-copper-700"
+        tx.category ? "border-neutral-200 text-neutral-700" : "border-accent-600 text-accent-700"
       }`}
     >
       {!tx.category && <option value="">Add category</option>}
@@ -273,24 +273,24 @@ function RowActions({
   }
   if (tx.source === "invoice") {
     return (
-      <Link href="/finance/invoices" className="text-xs text-sage-500 hover:underline max-md:inline-flex max-md:items-center max-md:min-h-11">
+      <Link href="/finance/invoices" className="text-xs text-neutral-500 hover:underline max-md:inline-flex max-md:items-center max-md:min-h-11">
         From an invoice. Mark it unpaid to change.
       </Link>
     );
   }
   if (tx.source === "expense") {
     return (
-      <Link href="/finance/expenses" className="text-xs text-sage-500 hover:underline max-md:inline-flex max-md:items-center max-md:min-h-11">
+      <Link href="/finance/expenses" className="text-xs text-neutral-500 hover:underline max-md:inline-flex max-md:items-center max-md:min-h-11">
         From an expense. Edit it there.
       </Link>
     );
   }
-  return <span className="text-xs text-sage-600">Imported. Only the category can change.</span>;
+  return <span className="text-xs text-neutral-600">Imported. Only the category can change.</span>;
 }
 
 function TxNote({ tx }: { tx: Transaction }) {
   if (tx.category !== "Paystack payout") return null;
-  return <span className="block text-xs font-medium text-copper-700 mt-0.5">Paystack payout, not counted as income</span>;
+  return <span className="block text-xs font-medium text-accent-700 mt-0.5">Paystack payout, not counted as income</span>;
 }
 
 export default function CashFlowPage() {
@@ -405,31 +405,31 @@ export default function CashFlowPage() {
           <RunwayBanner cashFlow={cf} onAsk={(seed) => openAiDrawer({ seed })} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
-              <p className="text-xs text-sage-500 font-medium uppercase">Cash on hand</p>
-              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoney(cf.cash_on_hand, cf.currency)}</p>
-              <span className="text-xs text-sage-500 mt-2 block font-medium">Transactions dated today or earlier</span>
+            <div className="bg-white p-5 rounded-modal border border-neutral-200 shadow-card">
+              <p className="text-xs text-neutral-500 font-medium uppercase">Cash on hand</p>
+              <p className="text-2xl font-bold text-neutral-900 mt-1">{formatMoney(cf.cash_on_hand, cf.currency)}</p>
+              <span className="text-xs text-neutral-500 mt-2 block font-medium">Transactions dated today or earlier</span>
             </div>
-            <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
-              <p className="text-xs text-sage-500 font-medium uppercase">Monthly burn</p>
-              <p className="text-2xl font-bold text-red-600 mt-1">{formatMoney(cf.monthly_burn, cf.currency)}</p>
-              <span className="text-xs text-sage-500 mt-2 block font-medium">Net, average of the last 3 months, funding excluded</span>
+            <div className="bg-white p-5 rounded-modal border border-neutral-200 shadow-card">
+              <p className="text-xs text-neutral-500 font-medium uppercase">Monthly burn</p>
+              <p className="text-2xl font-bold text-danger-600 mt-1">{formatMoney(cf.monthly_burn, cf.currency)}</p>
+              <span className="text-xs text-neutral-500 mt-2 block font-medium">Net, average of the last 3 months, funding excluded</span>
             </div>
-            <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
-              <p className="text-xs text-sage-500 font-medium uppercase">Monthly revenue</p>
-              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoney(cf.monthly_revenue, cf.currency)}</p>
-              <span className="text-xs text-sage-500 mt-2 block font-medium">Average of the last 3 months, funding excluded</span>
+            <div className="bg-white p-5 rounded-modal border border-neutral-200 shadow-card">
+              <p className="text-xs text-neutral-500 font-medium uppercase">Monthly revenue</p>
+              <p className="text-2xl font-bold text-neutral-900 mt-1">{formatMoney(cf.monthly_revenue, cf.currency)}</p>
+              <span className="text-xs text-neutral-500 mt-2 block font-medium">Average of the last 3 months, funding excluded</span>
             </div>
-            <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
-              <p className="text-xs text-sage-500 font-medium uppercase">Runway</p>
-              <p className={`text-2xl font-bold mt-1 ${cf.runway_low ? "text-red-600" : "text-sage-900"}`}>{tile?.value}</p>
-              <span className="text-xs text-sage-500 mt-2 block font-medium">{tile?.sub}</span>
+            <div className="bg-white p-5 rounded-modal border border-neutral-200 shadow-card">
+              <p className="text-xs text-neutral-500 font-medium uppercase">Runway</p>
+              <p className={`text-2xl font-bold mt-1 ${cf.runway_low ? "text-danger-600" : "text-neutral-900"}`}>{tile?.value}</p>
+              <span className="text-xs text-neutral-500 mt-2 block font-medium">{tile?.sub}</span>
             </div>
           </div>
 
           {nudge && (
-            <div role="status" className="bg-copper-100 border border-copper-200 rounded-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <p className="text-sm text-sage-800">
+            <div role="status" className="bg-accent-100 border border-accent-200 rounded-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <p className="text-sm text-neutral-800">
                 <span className="font-semibold">{formatMoney(nudge.amount_minor, nudge.currency)} came in uncategorised</span> ({plainText(nudge.description)}). Is this a raise or investment? Funding adds to your cash but is not counted as revenue.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -458,14 +458,14 @@ export default function CashFlowPage() {
             </EmptyBlock>
           ) : (
             <>
-              <div className="bg-white rounded-modal border border-sage-200 p-6 shadow-card space-y-4">
-                <h2 className="font-bold text-sage-900">Cash flow, last 6 months</h2>
+              <div className="bg-white rounded-modal border border-neutral-200 p-6 shadow-card space-y-4">
+                <h2 className="font-bold text-neutral-900">Cash flow, last 6 months</h2>
                 <CashFlowChart cashFlow={cf} />
               </div>
 
-              <div className="bg-white rounded-modal border border-sage-200 overflow-hidden shadow-card">
-                <div className="p-4 border-b border-sage-100 flex flex-wrap items-center justify-between gap-3 bg-sage-50/50">
-                  <h2 className="font-bold text-sage-900">Transactions</h2>
+              <div className="bg-white rounded-modal border border-neutral-200 overflow-hidden shadow-card">
+                <div className="p-4 border-b border-neutral-100 flex flex-wrap items-center justify-between gap-3 bg-neutral-50/50">
+                  <h2 className="font-bold text-neutral-900">Transactions</h2>
                   <div className="flex flex-wrap items-center gap-2">
                     {(
                       [
@@ -481,7 +481,7 @@ export default function CashFlowPage() {
                         onClick={() => setFilter(key)}
                         aria-pressed={filter === key}
                         className={`px-3 py-1 max-md:min-h-11 rounded-pill text-xs font-semibold transition-colors ${
-                          filter === key ? "bg-green-900 text-white" : "bg-white border border-sage-200 text-sage-600 hover:bg-sage-50"
+                          filter === key ? "bg-brand-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50"
                         }`}
                       >
                         {label}
@@ -495,28 +495,28 @@ export default function CashFlowPage() {
                 ) : transactions.status === "error" ? (
                   <ErrorBlock message={transactions.error ?? "Couldn't load transactions."} onRetry={() => void transactions.reload()} />
                 ) : visible.length === 0 ? (
-                  <div className="p-8 text-center text-sage-500 font-medium text-sm">No transactions match this filter.</div>
+                  <div className="p-8 text-center text-neutral-500 font-medium text-sm">No transactions match this filter.</div>
                 ) : (
                   <>
-                    <ul className="md:hidden divide-y divide-sage-100" aria-label="Transactions">
+                    <ul className="md:hidden divide-y divide-neutral-100" aria-label="Transactions">
                       {visible.map((tx) => (
                         <li key={tx.id} className="p-4 space-y-2">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <p className="font-semibold text-sage-900 break-words">{plainText(tx.description)}</p>
+                              <p className="font-semibold text-neutral-900 break-words">{plainText(tx.description)}</p>
                               <TxNote tx={tx} />
-                              <p className="text-xs text-sage-500 mt-0.5">
+                              <p className="text-xs text-neutral-500 mt-0.5">
                                 {formatDate(tx.date)}
                                 {tx.date > today ? " (scheduled)" : ""}
                               </p>
                             </div>
-                            <p className={`font-bold whitespace-nowrap ${tx.direction === "in" ? "text-green-800" : "text-sage-900"}`}>
+                            <p className={`font-bold whitespace-nowrap ${tx.direction === "in" ? "text-brand-800" : "text-neutral-900"}`}>
                               {tx.direction === "in" ? "+" : "-"}
                               {formatMoney(tx.amount_minor, tx.currency)}
                             </p>
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="bg-sage-100 text-sage-600 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider border border-sage-200">
+                            <span className="bg-neutral-100 text-neutral-600 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider border border-neutral-200">
                               {SOURCE_LABEL[tx.source] ?? tx.source}
                             </span>
                             <CategoryCell tx={tx} categories={categories} busy={busy} onSet={(c) => void categorizeInline(tx, c)} />
@@ -528,7 +528,7 @@ export default function CashFlowPage() {
                     <div className="hidden md:block overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-sage-50/50 border-b border-sage-100 text-xs font-bold text-sage-600 uppercase tracking-wider">
+                          <tr className="bg-neutral-50/50 border-b border-neutral-100 text-xs font-bold text-neutral-600 uppercase tracking-wider">
                             <th className="py-4 px-6">Date</th>
                             <th className="py-4 px-4">Description</th>
                             <th className="py-4 px-4">Category</th>
@@ -537,16 +537,16 @@ export default function CashFlowPage() {
                             <th className="py-4 px-6 text-right">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-sage-100 text-sm">
+                        <tbody className="divide-y divide-neutral-100 text-sm">
                           {visible.map((tx) => (
-                            <tr key={tx.id} className="hover:bg-sage-50/50 transition-colors">
-                              <td className="py-4 px-6 text-sage-600 font-medium whitespace-nowrap">
+                            <tr key={tx.id} className="hover:bg-neutral-50/50 transition-colors">
+                              <td className="py-4 px-6 text-neutral-600 font-medium whitespace-nowrap">
                                 {formatDate(tx.date)}
                                 {tx.date > today && (
-                                  <span className="ml-2 bg-copper-100 text-copper-700 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">Scheduled</span>
+                                  <span className="ml-2 bg-accent-100 text-accent-700 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">Scheduled</span>
                                 )}
                               </td>
-                              <td className="py-4 px-4 font-semibold text-sage-900">
+                              <td className="py-4 px-4 font-semibold text-neutral-900">
                                 {plainText(tx.description)}
                                 <TxNote tx={tx} />
                               </td>
@@ -554,11 +554,11 @@ export default function CashFlowPage() {
                                 <CategoryCell tx={tx} categories={categories} busy={busy} onSet={(c) => void categorizeInline(tx, c)} />
                               </td>
                               <td className="py-4 px-4">
-                                <span className="bg-sage-100 text-sage-600 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider border border-sage-200">
+                                <span className="bg-neutral-100 text-neutral-600 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider border border-neutral-200">
                                   {SOURCE_LABEL[tx.source] ?? tx.source}
                                 </span>
                               </td>
-                              <td className={`py-4 px-4 font-bold text-right whitespace-nowrap ${tx.direction === "in" ? "text-green-800" : "text-sage-900"}`}>
+                              <td className={`py-4 px-4 font-bold text-right whitespace-nowrap ${tx.direction === "in" ? "text-brand-800" : "text-neutral-900"}`}>
                                 {tx.direction === "in" ? "+" : "-"}
                                 {formatMoney(tx.amount_minor, tx.currency)}
                               </td>

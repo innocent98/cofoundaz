@@ -47,18 +47,18 @@ export function KPIStrip({
 function StatCard({ kpi, onRetry, role }: { kpi: KPISnapshot; onRetry?: () => void; role: MemberRole | null }) {
   if (kpi.error) {
     return (
-      <div className="bg-white p-5 rounded-card border border-red-200 shadow-card flex flex-col justify-between">
+      <div className="bg-white p-5 rounded-card border border-danger-200 shadow-card flex flex-col justify-between">
         <div>
-          <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
+          <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block mb-3">
             {kpi.label}
           </span>
-          <p className="text-sm font-semibold text-[#B0483B] mb-2">{CARD_ERROR_COPY}</p>
+          <p className="text-sm font-semibold text-danger-600 mb-2">{CARD_ERROR_COPY}</p>
         </div>
         {onRetry && (
           <button
             type="button"
             onClick={onRetry}
-            className="text-[10px] font-bold text-sage-600 hover:text-sage-900 underline text-left mt-2 cursor-pointer"
+            className="text-[10px] font-bold text-neutral-600 hover:text-neutral-900 underline text-left mt-2 cursor-pointer"
           >
             Retry
           </button>
@@ -76,21 +76,21 @@ function StatCard({ kpi, onRetry, role }: { kpi: KPISnapshot; onRetry?: () => vo
   // A role that cannot open the target page gets the tile without a link (it would only bounce to access-denied).
   const linked = href !== null && canSee('/' + (href.split('/')[1] ?? ''), role);
   const className = `bg-white p-5 rounded-card border ${
-        isAlert ? 'border-[#B0483B]' : 'border-sage-100'
+        isAlert ? 'border-danger-600' : 'border-neutral-100'
       } shadow-card flex flex-col justify-between ${linked ? 'hover:shadow-raised transition-shadow' : ''} group`;
   const inner = (
     <>
       <div>
-        <span className="text-[10px] font-bold text-sage-500 uppercase tracking-wider block mb-3">
+        <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block mb-3">
           {kpi.label}
         </span>
         <div className="mb-2">
           <span
             className={`font-bold font-display leading-tight ${
               isComingSoon || isEmpty
-                ? 'text-base font-medium text-sage-500'
+                ? 'text-base font-medium text-neutral-500'
                 : 'text-2xl'
-            } ${isAlert ? 'text-[#B0483B]' : 'text-[#1C201D]'}`}
+            } ${isAlert ? 'text-danger-600' : 'text-neutral-x1c201d'}`}
           >
             {kpi.value}
           </span>
@@ -98,27 +98,27 @@ function StatCard({ kpi, onRetry, role }: { kpi: KPISnapshot; onRetry?: () => vo
         {kpi.series && kpi.series.length >= 2 ? (
           <Sparkline
             values={kpi.series}
-            className={`mb-1 ${kpi.deltaDirection === 'down' ? 'text-[#B0483B]' : 'text-[#266B4E]'}`}
+            className={`mb-1 ${kpi.deltaDirection === 'down' ? 'text-danger-600' : 'text-brand-x266b4e'}`}
           />
         ) : null}
       </div>
       <div className="flex flex-wrap items-center justify-between mt-2 min-h-[20px] gap-x-2 gap-y-1">
         {isEmpty && kpi.cta ? (
-          <span className="text-[10px] font-bold text-sage-600 group-hover:text-sage-900 underline">
+          <span className="text-[10px] font-bold text-neutral-600 group-hover:text-neutral-900 underline">
             {kpi.cta.label}
           </span>
         ) : null}
         {!isEmpty && kpi.hint ? (
-          <span className="text-[10px] text-sage-500">{kpi.hint}</span>
+          <span className="text-[10px] text-neutral-500">{kpi.hint}</span>
         ) : null}
         {kpi.deltaLabel ? (
           <span
             className={`text-[10px] font-bold px-1.5 py-0.5 rounded-pill ${
               kpi.deltaDirection === 'up'
-                ? 'bg-[#E3EFE9] text-[#12291F]'
+                ? 'bg-brand-100 text-brand-900'
                 : kpi.deltaDirection === 'down'
-                  ? 'bg-[#F6E3DF] text-[#8A2E22]'
-                  : 'bg-sage-100 text-sage-700'
+                  ? 'bg-danger-xf6e3df text-danger-deep'
+                  : 'bg-neutral-100 text-neutral-700'
             }`}
           >
             {kpi.deltaLabel}

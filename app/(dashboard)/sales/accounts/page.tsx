@@ -44,7 +44,7 @@ export default function AccountsPage() {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-3xl font-display font-semibold text-sage-900">Accounts</h1>
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">Accounts</h1>
         <button type="button" onClick={() => setCreating(true)} className={BTN_ACCENT}>
           + New account
         </button>
@@ -72,25 +72,25 @@ export default function AccountsPage() {
           />
         ) : (
           <div className={`${CARD} overflow-hidden`}>
-            <ul className="divide-y divide-sage-100">
+            <ul className="divide-y divide-neutral-100">
               {items.map((acc) => (
                 <li key={acc.id}>
                   <Link
                     href={`/sales/accounts/${acc.id}`}
-                    className="flex flex-col md:flex-row md:items-center justify-between gap-1 md:gap-4 px-5 py-4 hover:bg-sage-50/70 transition-colors"
+                    className="flex flex-col md:flex-row md:items-center justify-between gap-1 md:gap-4 px-5 py-4 hover:bg-neutral-50/70 transition-colors"
                   >
                     <div className="min-w-0">
-                      <h2 className="font-display font-bold text-sage-900 text-base truncate">{acc.name}</h2>
-                      <p className="text-xs text-sage-500 truncate">
+                      <h2 className="font-display font-bold text-neutral-900 text-base truncate">{acc.name}</h2>
+                      <p className="text-xs text-neutral-500 truncate">
                         {[acc.industry, acc.website?.replace(/^https?:\/\//, "")].filter(Boolean).join(" · ") || "No details yet"}
                       </p>
                     </div>
-                    <span className="text-xs text-sage-500 shrink-0">Owner: {nameOf(acc.owner_id)}</span>
+                    <span className="text-xs text-neutral-500 shrink-0">Owner: {nameOf(acc.owner_id)}</span>
                   </Link>
                 </li>
               ))}
             </ul>
-            <div className="flex items-center justify-between gap-3 px-5 py-3 border-t border-sage-100 text-xs text-sage-500">
+            <div className="flex items-center justify-between gap-3 px-5 py-3 border-t border-neutral-100 text-xs text-neutral-500">
               <span>
                 {offset + 1} to {offset + items.length} of {total}
               </span>

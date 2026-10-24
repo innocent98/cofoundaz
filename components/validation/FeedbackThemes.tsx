@@ -43,9 +43,9 @@ export function FeedbackThemes({
   return (
     <section aria-label="Themes" className="space-y-4">
       <div className="space-y-1">
-        <h2 className="text-lg font-display font-semibold text-sage-900">Themes</h2>
+        <h2 className="text-lg font-display font-semibold text-neutral-900">Themes</h2>
         {set.run && (
-          <p className="text-xs text-sage-500">
+          <p className="text-xs text-neutral-500">
             {AI_LABEL} Last grouped {new Date(set.run.created_at).toLocaleString()} from {set.run.item_count}{' '}
             {set.run.item_count === 1 ? 'item' : 'items'}.
           </p>
@@ -53,21 +53,21 @@ export function FeedbackThemes({
       </div>
 
       {clustering && (
-        <div role="status" className="bg-white rounded-modal p-8 border border-sage-200/80 flex flex-col items-center text-center gap-3 shadow-card">
-          <div className="w-10 h-10 rounded-full border-4 border-sage-200 border-t-[#9C5B34] animate-spin" />
-          <p className="text-sage-700 font-display italic">Reading every note for patterns… This can take up to a minute.</p>
+        <div role="status" className="bg-white rounded-modal p-8 border border-neutral-200/80 flex flex-col items-center text-center gap-3 shadow-card">
+          <div className="w-10 h-10 rounded-full border-4 border-neutral-200 border-t-[var(--color-accent-600)] animate-spin" />
+          <p className="text-neutral-700 font-display italic">Reading every note for patterns… This can take up to a minute.</p>
         </div>
       )}
 
       {message && !clustering && (
-        <p role="status" data-testid="themes-message" className="text-sm text-sage-700 bg-[#FDF4E3] border border-[#EAD5C6] rounded-card px-4 py-3">
+        <p role="status" data-testid="themes-message" className="text-sm text-neutral-700 bg-accent-xfdf4e3 border border-accent-200 rounded-card px-4 py-3">
           {message}
         </p>
       )}
 
       {!clustering && set.themes.length === 0 && !message && (
-        <div className="bg-white rounded-modal p-6 border border-dashed border-sage-200 text-center">
-          <p className="text-sm text-sage-500">No themes yet. Choose Find themes to group your feedback into patterns.</p>
+        <div className="bg-white rounded-modal p-6 border border-dashed border-neutral-200 text-center">
+          <p className="text-sm text-neutral-500">No themes yet. Choose Find themes to group your feedback into patterns.</p>
         </div>
       )}
 
@@ -126,16 +126,16 @@ function ThemeCard({
   };
 
   return (
-    <li className="bg-white rounded-modal p-5 md:p-6 border border-sage-200/80 shadow-card space-y-3">
+    <li className="bg-white rounded-modal p-5 md:p-6 border border-neutral-200/80 shadow-card space-y-3">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="flex items-start gap-4 min-w-0">
-          <div className="w-10 h-10 rounded-card bg-green-100 text-[#1e4836] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-card bg-brand-100 text-brand-hover flex items-center justify-center shrink-0">
             <Sparkles className="w-4 h-4" aria-hidden="true" />
           </div>
           <div className="space-y-1 min-w-0">
-            <h3 className="font-bold text-sage-900 text-sm md:text-base break-words">{plainProse(theme.label)}</h3>
-            <p className="text-sm text-sage-700 break-words">{plainProse(theme.summary)}</p>
-            <p className="text-xs text-sage-400 font-medium">
+            <h3 className="font-bold text-neutral-900 text-sm md:text-base break-words">{plainProse(theme.label)}</h3>
+            <p className="text-sm text-neutral-700 break-words">{plainProse(theme.summary)}</p>
+            <p className="text-xs text-neutral-400 font-medium">
               {theme.sources.map((s) => SOURCE_LABEL[s]).join(', ')}
             </p>
           </div>
@@ -143,7 +143,7 @@ function ThemeCard({
 
         <div className="shrink-0 self-start md:text-right space-y-1">
           {sent ? (
-            <div className="text-xs font-semibold text-[#183B28]" data-testid="on-roadmap">
+            <div className="text-xs font-semibold text-brand-strong" data-testid="on-roadmap">
               On your roadmap{milestoneTitle ? `: ${milestoneTitle}` : ''}{' '}
               <Link href="/roadmap" className="underline">
                 View
@@ -154,13 +154,13 @@ function ThemeCard({
               type="button"
               onClick={startPicking}
               disabled={picking || noOpen}
-              className="bg-white hover:bg-sage-50 border border-sage-200 text-sage-700 font-semibold px-4 py-2 rounded-card text-xs transition-all cursor-pointer shadow-card disabled:opacity-60"
+              className="bg-white hover:bg-neutral-50 border border-neutral-200 text-neutral-700 font-semibold px-4 py-2 rounded-card text-xs transition-all cursor-pointer shadow-card disabled:opacity-60"
             >
               Send to roadmap
             </button>
           )}
           {!sent && noOpen && (
-            <p className="text-xs text-sage-500 max-w-[16rem]">
+            <p className="text-xs text-neutral-500 max-w-[16rem]">
               Your roadmap has no open milestone. Add one on the{' '}
               <Link href="/roadmap" className="underline font-semibold">
                 Roadmap
@@ -172,14 +172,14 @@ function ThemeCard({
       </div>
 
       {picking && !sent && (
-        <div className="bg-[#F7F7F5] border border-sage-200 rounded-card p-3 flex flex-col md:flex-row md:items-end gap-3">
+        <div className="bg-surface-subtle border border-neutral-200 rounded-card p-3 flex flex-col md:flex-row md:items-end gap-3">
           <label className="flex-1 space-y-1 min-w-0">
-            <span className="text-xs font-semibold text-sage-600">Add it to which milestone?</span>
+            <span className="text-xs font-semibold text-neutral-600">Add it to which milestone?</span>
             <select
               value={choice}
               onChange={(e) => setChoice(e.target.value)}
               disabled={milestones === null}
-              className="w-full bg-white border border-sage-200 rounded-input px-3 py-2 text-sm cursor-pointer"
+              className="w-full bg-white border border-neutral-200 rounded-input px-3 py-2 text-sm cursor-pointer"
             >
               {milestones === null && <option value="">First open milestone</option>}
               {openMilestones.map((m) => (
@@ -194,7 +194,7 @@ function ThemeCard({
               type="button"
               onClick={() => setPicking(false)}
               disabled={busy}
-              className="px-3 py-2 rounded-card text-xs font-semibold text-sage-600 hover:bg-sage-100 cursor-pointer"
+              className="px-3 py-2 rounded-card text-xs font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
             >
               Cancel
             </button>
@@ -202,7 +202,7 @@ function ThemeCard({
               type="button"
               onClick={send}
               disabled={busy}
-              className="px-4 py-2 rounded-card text-xs font-bold bg-[#183B28] hover:bg-[#11291C] text-white inline-flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              className="px-4 py-2 rounded-card text-xs font-bold bg-brand-strong hover:bg-brand-rail text-white inline-flex items-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />} Add to roadmap
             </button>
@@ -210,7 +210,7 @@ function ThemeCard({
         </div>
       )}
       {error && (
-        <p role="alert" className="text-sm font-semibold text-[#B0483B]">
+        <p role="alert" className="text-sm font-semibold text-danger-600">
           {error}
         </p>
       )}
@@ -219,7 +219,7 @@ function ThemeCard({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex items-center gap-1 text-xs font-semibold text-[#183B28] hover:underline cursor-pointer"
+        className="flex items-center gap-1 text-xs font-semibold text-brand-strong hover:underline cursor-pointer"
       >
         {open ? <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" /> : <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />}
         {open ? 'Hide quotes' : `Show ${theme.items.length} ${theme.items.length === 1 ? 'quote' : 'quotes'}`}
@@ -227,9 +227,9 @@ function ThemeCard({
       {open && (
         <ul className="space-y-2">
           {theme.items.map((i) => (
-            <li key={i.id} className="border-l-2 border-[#9FBBAA] pl-3 space-y-0.5">
-              <p className="text-sm italic text-sage-800 break-words">“{i.text}”</p>
-              <p className="text-xs text-sage-400">
+            <li key={i.id} className="border-l-2 border-brand-x9fbbaa pl-3 space-y-0.5">
+              <p className="text-sm italic text-neutral-800 break-words">“{i.text}”</p>
+              <p className="text-xs text-neutral-400">
                 {SOURCE_LABEL[i.source]} · {formatReceivedOn(i.received_on)}
               </p>
             </li>

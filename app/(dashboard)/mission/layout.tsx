@@ -21,13 +21,13 @@ export default function MissionLayout({
   ];
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-[#F7F7F5] text-[#1E2923] min-h-screen">
+    <div className="flex-1 flex flex-col min-w-0 bg-surface-subtle text-ink min-h-screen">
       {/* Sticky Top Header & Tabs Wrapper */}
-      <div className="sticky top-0 z-40 bg-[#F7F7F5]">
+      <div className="sticky top-0 z-40 bg-surface-subtle">
         <ShellTopBar title="Today's Mission" />
 
         {/* Sticky Tab Navigation Bar */}
-        <nav aria-label="Mission sections" className="border-b border-[#EBEBE6] px-4 md:px-8 py-3 bg-[#F7F7F5]">
+        <nav aria-label="Mission sections" className="border-b border-line-soft px-4 md:px-8 py-3 bg-surface-subtle">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
             {tabs.map((tab) => {
               const isActive = pathname === tab.href;
@@ -38,8 +38,8 @@ export default function MissionLayout({
                   aria-current={isActive ? 'page' : undefined}
                   className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-[#EAD5C6] text-[#1E2923] font-semibold'
-                      : 'bg-transparent text-[#617065] hover:bg-[#EBEBE6]'
+                      ? 'bg-accent-200 text-ink font-semibold'
+                      : 'bg-transparent text-ink-muted hover:bg-line-soft'
                   }`}
                 >
                   {tab.name}

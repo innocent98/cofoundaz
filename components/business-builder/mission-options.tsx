@@ -70,26 +70,26 @@ export function MissionOptions({
           onClick={() => setConfirming(true)}
           disabled={busy || isOverBudget}
           title={isOverBudget ? `AI is paused until ${formattedResetsAt}` : undefined}
-          className="flex items-center gap-1.5 text-xs font-bold text-[#8A5330] hover:text-[#522F1A] disabled:opacity-50 transition-colors"
+          className="flex items-center gap-1.5 text-xs font-bold text-accent-700 hover:text-accent-900 disabled:opacity-50 transition-colors"
         >
-          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 fill-[#8A5330]" />}
+          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 fill-accent-700" />}
           {busy ? 'Drafting options' : 'Give me 3 options'}
         </button>
-        {note && <span role="status" className="text-[11px] font-semibold text-[#B0483B]">{note}</span>}
+        {note && <span role="status" className="text-[11px] font-semibold text-danger-600">{note}</span>}
       </div>
 
       {options.length > 0 && (
         <ul className="grid grid-cols-1 md:grid-cols-3 gap-3" aria-label={`${field} options`}>
           {options.map((o, i) => (
-            <li key={i} className="bg-[#FDF8EE] border border-[#EAD5C6] rounded-card p-4 flex flex-col justify-between gap-3">
-              <p className="text-xs text-[#1E2923] leading-relaxed">{o}</p>
+            <li key={i} className="bg-neutral-xfdf8ee border border-accent-200 rounded-card p-4 flex flex-col justify-between gap-3">
+              <p className="text-xs text-ink leading-relaxed">{o}</p>
               <button
                 type="button"
                 onClick={() => {
                   onUse(o);
                   setOptions([]);
                 }}
-                className="self-start px-3 py-1.5 bg-[#183B28] hover:bg-[#12261C] text-white rounded-card text-xs font-bold transition-colors"
+                className="self-start px-3 py-1.5 bg-brand-strong hover:bg-brand-rail-ink text-white rounded-card text-xs font-bold transition-colors"
               >
                 Use this
               </button>

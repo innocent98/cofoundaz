@@ -5,8 +5,8 @@ import { MISSION_COPY } from './mission-copy';
 export function MissionLoading() {
   return (
     <div role="status" className="flex flex-col items-center justify-center gap-3 py-24 text-center">
-      <Loader2 className="w-6 h-6 text-[#2D5A3F] animate-spin" aria-hidden="true" />
-      <p className="text-sm font-medium text-[#617065]">{MISSION_COPY.building}</p>
+      <Loader2 className="w-6 h-6 text-brand-mid animate-spin" aria-hidden="true" />
+      <p className="text-sm font-medium text-ink-muted">{MISSION_COPY.building}</p>
     </div>
   );
 }

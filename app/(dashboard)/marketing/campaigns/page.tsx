@@ -50,10 +50,10 @@ const OBJECTIVES: { value: CampaignObjective; label: string }[] = [
 ];
 
 const STATUS_STYLE: Record<CampaignStatus, string> = {
-  draft: 'bg-sage-100 text-sage-700',
-  active: 'bg-green-100 text-green-800',
-  paused: 'bg-copper-100 text-copper-800',
-  completed: 'bg-sage-200 text-sage-700',
+  draft: 'bg-neutral-100 text-neutral-700',
+  active: 'bg-brand-100 text-brand-800',
+  paused: 'bg-accent-100 text-accent-800',
+  completed: 'bg-neutral-200 text-neutral-700',
 };
 
 interface Form {
@@ -137,7 +137,7 @@ function ObjectiveSection({ form, setForm, errors }: { form: Form; setForm: (f: 
           className={INPUT}
           placeholder="e.g. Q4 launch push"
         />
-        {errors.name && <p role="alert" className="text-xs text-red-700">{errors.name}</p>}
+        {errors.name && <p role="alert" className="text-xs text-danger-700">{errors.name}</p>}
       </div>
       <div className="space-y-1.5">
         <label htmlFor="camp-objective" className={LABEL}>Objective</label>
@@ -177,12 +177,12 @@ function AudienceSection({
   segments: { id: string; name: string; est_size: number | null }[];
   loading: boolean;
 }) {
-  if (loading) return <p className="text-sm text-sage-500">Loading your segments...</p>;
+  if (loading) return <p className="text-sm text-neutral-500">Loading your segments...</p>;
   if (segments.length === 0) {
     return (
-      <div className="rounded-card border border-sage-200 bg-sage-50/60 p-4 space-y-2">
-        <p className="text-sm text-sage-700">You have no audience segments yet. You can still create the campaign without one.</p>
-        <Link href="/marketing/segments" className="text-sm font-semibold text-[#0e271f] hover:underline">
+      <div className="rounded-card border border-neutral-200 bg-neutral-50/60 p-4 space-y-2">
+        <p className="text-sm text-neutral-700">You have no audience segments yet. You can still create the campaign without one.</p>
+        <Link href="/marketing/segments" className="text-sm font-semibold text-brand-rail-deep hover:underline">
           Create a segment
         </Link>
       </div>
@@ -194,7 +194,7 @@ function AudienceSection({
       {segments.map((s) => {
         const checked = form.segmentIds.includes(s.id);
         return (
-          <label key={s.id} className="flex items-center gap-3 text-sm text-sage-800 cursor-pointer">
+          <label key={s.id} className="flex items-center gap-3 text-sm text-neutral-800 cursor-pointer">
             <input
               type="checkbox"
               checked={checked}
@@ -206,7 +206,7 @@ function AudienceSection({
               }
             />
             <span className="font-medium">{s.name}</span>
-            {s.est_size !== null && <span className="text-xs text-sage-500">~{s.est_size.toLocaleString()}</span>}
+            {s.est_size !== null && <span className="text-xs text-neutral-500">~{s.est_size.toLocaleString()}</span>}
           </label>
         );
       })}
@@ -255,7 +255,7 @@ function ChannelsSection({
           className={INPUT}
           placeholder="0"
         />
-        {errors.budget && <p role="alert" className="text-xs text-red-700">{errors.budget}</p>}
+        {errors.budget && <p role="alert" className="text-xs text-danger-700">{errors.budget}</p>}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -268,12 +268,12 @@ function ChannelsSection({
       <GenerationNote phase={plan.phase} error={plan.error} generatingLabel="The AI is weighing channels for this objective..." />
 
       {proposal && (
-        <div className="rounded-card border border-[#d2e2d8] bg-[#e2ede6] p-4 space-y-3">
-          <p className="text-sm font-semibold text-[#0e271f]">
+        <div className="rounded-card border border-brand-xd2e2d8 bg-neutral-xe2ede6 p-4 space-y-3">
+          <p className="text-sm font-semibold text-brand-rail-deep">
             For {OBJECTIVE_LABELS[form.objective].toLowerCase()} at your stage, I&apos;d put{' '}
             {summariseMix(proposal.output.channel_mix ?? {}).replace('No channel split set', 'no split yet')}. Here&apos;s why.
           </p>
-          {proposal.output.rationale && <p className="text-sm text-[#0e271f]">{proposal.output.rationale}</p>}
+          {proposal.output.rationale && <p className="text-sm text-brand-rail-deep">{proposal.output.rationale}</p>}
           <div className="flex gap-2">
             <button type="button" onClick={apply} className={BTN_PRIMARY}>Apply this split</button>
             <button type="button" onClick={plan.reset} className={BTN_SECONDARY}>Dismiss</button>
@@ -284,8 +284,8 @@ function ChannelsSection({
       <div className="space-y-3">
         {CHANNEL_KEYS.map((k) => (
           <div key={k} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1">
-            <label htmlFor={`mix-${k}`} className="text-sm font-medium text-sage-800">{CHANNEL_LABELS[k]}</label>
-            <span className="text-xs text-sage-600 tabular-nums">
+            <label htmlFor={`mix-${k}`} className="text-sm font-medium text-neutral-800">{CHANNEL_LABELS[k]}</label>
+            <span className="text-xs text-neutral-600 tabular-nums">
               {form.mix[k]}%{budgetCents > 0 && form.mix[k] > 0 ? ` · ${formatMoney(Math.round((budgetCents * form.mix[k]) / 100))}` : ''}
             </span>
             <input
@@ -295,12 +295,12 @@ function ChannelsSection({
               max={100}
               value={form.mix[k]}
               onChange={(e) => setForm({ ...form, mix: { ...form.mix, [k]: Number(e.target.value) } })}
-              className="col-span-2 w-full accent-[#9C5B34]"
+              className="col-span-2 w-full accent-accent-600"
             />
           </div>
         ))}
-        {errors.channel_mix && <p role="alert" className="text-xs text-red-700">{errors.channel_mix}</p>}
-        <p className="text-xs text-sage-500">
+        {errors.channel_mix && <p role="alert" className="text-xs text-danger-700">{errors.channel_mix}</p>}
+        <p className="text-xs text-neutral-500">
           Split totals {total}%. It does not have to add up to 100; spend per channel is budget times its percentage.
         </p>
       </div>
@@ -314,15 +314,15 @@ function ContentSection({ form, setForm }: { form: Form; setForm: (f: Form) => v
   const free = (posts.data ?? []).filter((e) => !e.campaign_id && e.status !== 'published');
   return (
     <div className="space-y-4">
-      <p className="text-sm text-sage-600">
+      <p className="text-sm text-neutral-600">
         Attach posts you already planned. After you save, the campaign page has a button that writes new copy for it with the AI.
       </p>
-      {posts.status === 'loading' && <p className="text-sm text-sage-500">Loading your posts...</p>}
-      {posts.status === 'error' && <p role="alert" className="text-sm text-red-700">{posts.error}</p>}
+      {posts.status === 'loading' && <p className="text-sm text-neutral-500">Loading your posts...</p>}
+      {posts.status === 'error' && <p role="alert" className="text-sm text-danger-700">{posts.error}</p>}
       {posts.status === 'ready' && free.length === 0 && (
-        <div className="rounded-card border border-sage-200 bg-sage-50/60 p-4 space-y-2">
-          <p className="text-sm text-sage-700">No unlinked posts to attach. You can still create the campaign and add content later.</p>
-          <Link href="/marketing/calendar" className="text-sm font-semibold text-[#0e271f] hover:underline">Open the calendar</Link>
+        <div className="rounded-card border border-neutral-200 bg-neutral-50/60 p-4 space-y-2">
+          <p className="text-sm text-neutral-700">No unlinked posts to attach. You can still create the campaign and add content later.</p>
+          <Link href="/marketing/calendar" className="text-sm font-semibold text-brand-rail-deep hover:underline">Open the calendar</Link>
         </div>
       )}
       {free.length > 0 && (
@@ -331,7 +331,7 @@ function ContentSection({ form, setForm }: { form: Form; setForm: (f: Form) => v
           {free.map((e) => {
             const checked = form.postIds.includes(e.id);
             return (
-              <label key={e.id} className="flex items-center gap-3 text-sm text-sage-800 cursor-pointer min-h-8">
+              <label key={e.id} className="flex items-center gap-3 text-sm text-neutral-800 cursor-pointer min-h-8">
                 <input
                   type="checkbox"
                   checked={checked}
@@ -340,7 +340,7 @@ function ContentSection({ form, setForm }: { form: Form; setForm: (f: Form) => v
                   }
                 />
                 <span className="font-medium truncate">{e.title}</span>
-                <span className="text-xs text-sage-500 shrink-0"><ChannelLabel channel={e.channel} /></span>
+                <span className="text-xs text-neutral-500 shrink-0"><ChannelLabel channel={e.channel} /></span>
               </label>
             );
           })}
@@ -447,7 +447,7 @@ export default function MarketingCampaignsPage() {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">Campaigns</h1>
+        <h1 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 tracking-tight">Campaigns</h1>
         {!wizardOpen && (
           <button type="button" onClick={openWizard} className={`${BTN_ACCENT} self-start md:self-auto`}>
             + New campaign
@@ -458,15 +458,15 @@ export default function MarketingCampaignsPage() {
       {wizardOpen ? (
         <div className={`${CARD} p-6 md:p-8 space-y-6`}>
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-display font-semibold text-sage-900">Campaign wizard</h2>
-            <button type="button" onClick={closeWizard} className="text-sage-500 hover:text-sage-900 text-sm font-semibold">Cancel</button>
+            <h2 className="text-xl font-display font-semibold text-neutral-900">Campaign wizard</h2>
+            <button type="button" onClick={closeWizard} className="text-neutral-500 hover:text-neutral-900 text-sm font-semibold">Cancel</button>
           </div>
           <div className="flex gap-2" aria-hidden="true">
             {stepTitles.map((_, i) => (
-              <div key={i} className={`h-1.5 flex-1 rounded-full ${i + 1 <= step ? 'bg-[#9C5B34]' : 'bg-sage-200'}`} />
+              <div key={i} className={`h-1.5 flex-1 rounded-full ${i + 1 <= step ? 'bg-accent-600' : 'bg-neutral-200'}`} />
             ))}
           </div>
-          <h3 className="font-semibold text-sage-900">Step {step} of {stepTitles.length}: {stepTitles[step - 1]}</h3>
+          <h3 className="font-semibold text-neutral-900">Step {step} of {stepTitles.length}: {stepTitles[step - 1]}</h3>
 
           {step === 1 && <ObjectiveSection form={form} setForm={setForm} errors={errors} />}
           {step === 2 && (
@@ -476,18 +476,18 @@ export default function MarketingCampaignsPage() {
           {step === 4 && <ContentSection form={form} setForm={setForm} />}
           {step === 5 && (
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div><dt className={LABEL}>Name</dt><dd className="text-sage-900 font-medium">{form.name || 'Not set'}</dd></div>
-              <div><dt className={LABEL}>Objective</dt><dd className="text-sage-900 font-medium capitalize">{form.objective}</dd></div>
-              <div><dt className={LABEL}>Budget</dt><dd className="text-sage-900 font-medium">{formatMoney(toCents(form.budgetMajor))}</dd></div>
-              <div><dt className={LABEL}>Period</dt><dd className="text-sage-900 font-medium">{form.start || form.end ? `${form.start || '?'} to ${form.end || '?'}` : 'Not set'}</dd></div>
-              <div className="md:col-span-2"><dt className={LABEL}>Channel split</dt><dd className="text-sage-900 font-medium">{summariseMix(mixPayload(form.mix))}</dd></div>
+              <div><dt className={LABEL}>Name</dt><dd className="text-neutral-900 font-medium">{form.name || 'Not set'}</dd></div>
+              <div><dt className={LABEL}>Objective</dt><dd className="text-neutral-900 font-medium capitalize">{form.objective}</dd></div>
+              <div><dt className={LABEL}>Budget</dt><dd className="text-neutral-900 font-medium">{formatMoney(toCents(form.budgetMajor))}</dd></div>
+              <div><dt className={LABEL}>Period</dt><dd className="text-neutral-900 font-medium">{form.start || form.end ? `${form.start || '?'} to ${form.end || '?'}` : 'Not set'}</dd></div>
+              <div className="md:col-span-2"><dt className={LABEL}>Channel split</dt><dd className="text-neutral-900 font-medium">{summariseMix(mixPayload(form.mix))}</dd></div>
               <div className="md:col-span-2">
                 <dt className={LABEL}>Segments</dt>
-                <dd className="text-sage-900 font-medium">{form.segmentIds.length ? form.segmentIds.map(segmentName).join(', ') : 'None'}</dd>
+                <dd className="text-neutral-900 font-medium">{form.segmentIds.length ? form.segmentIds.map(segmentName).join(', ') : 'None'}</dd>
               </div>
               <div className="md:col-span-2">
                 <dt className={LABEL}>Posts to attach</dt>
-                <dd className="text-sage-900 font-medium">{form.postIds.length ? `${form.postIds.length} selected` : 'None'}</dd>
+                <dd className="text-neutral-900 font-medium">{form.postIds.length ? `${form.postIds.length} selected` : 'None'}</dd>
               </div>
             </dl>
           )}
@@ -530,7 +530,7 @@ export default function MarketingCampaignsPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-sage-200 bg-sage-50/50 text-[11px] font-bold text-sage-600 uppercase tracking-wider">
+                      <tr className="border-b border-neutral-200 bg-neutral-50/50 text-[11px] font-bold text-neutral-600 uppercase tracking-wider">
                         <th scope="col" className="py-3.5 px-4">Campaign</th>
                         <th scope="col" className="py-3.5 px-4">Objective</th>
                         <th scope="col" className="py-3.5 px-4">Budget</th>
@@ -541,22 +541,22 @@ export default function MarketingCampaignsPage() {
                         <th scope="col" className="py-3.5 px-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-sage-100 text-sm">
+                    <tbody className="divide-y divide-neutral-100 text-sm">
                       {campaigns.map((c) => (
-                        <tr key={c.id} className="hover:bg-sage-50/50 transition-colors align-top">
+                        <tr key={c.id} className="hover:bg-neutral-50/50 transition-colors align-top">
                           <td className="py-4 px-4">
-                            <Link href={`/marketing/campaigns/${c.id}`} className="font-semibold text-sage-900 hover:underline">
+                            <Link href={`/marketing/campaigns/${c.id}`} className="font-semibold text-neutral-900 hover:underline">
                               {c.name}
                             </Link>
                             {c.segment_ids.length > 0 && (
-                              <p className="text-xs text-sage-500">{c.segment_ids.map(segmentName).join(', ')}</p>
+                              <p className="text-xs text-neutral-500">{c.segment_ids.map(segmentName).join(', ')}</p>
                             )}
                           </td>
-                          <td className="py-4 px-4 text-sage-600">{OBJECTIVE_LABELS[c.objective]}</td>
-                          <td className="py-4 px-4 text-sage-900 font-medium">{formatMoney(c.budget)}</td>
-                          <td className="py-4 px-4 text-xs text-sage-600">{formatPeriod(c.period_start, c.period_end)}</td>
-                          <td className="py-4 px-4 text-sage-900 font-medium tabular-nums">{rates(c)}</td>
-                          <td className="py-4 px-4 text-xs text-sage-600 max-w-[14rem]">{summariseMix(c.channel_mix)}</td>
+                          <td className="py-4 px-4 text-neutral-600">{OBJECTIVE_LABELS[c.objective]}</td>
+                          <td className="py-4 px-4 text-neutral-900 font-medium">{formatMoney(c.budget)}</td>
+                          <td className="py-4 px-4 text-xs text-neutral-600">{formatPeriod(c.period_start, c.period_end)}</td>
+                          <td className="py-4 px-4 text-neutral-900 font-medium tabular-nums">{rates(c)}</td>
+                          <td className="py-4 px-4 text-xs text-neutral-600 max-w-[14rem]">{summariseMix(c.channel_mix)}</td>
                           <td className="py-4 px-4">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${STATUS_STYLE[c.status]}`}>
                               {c.status}
@@ -578,7 +578,7 @@ export default function MarketingCampaignsPage() {
                 {campaigns.map((c) => (
                   <li key={c.id} className={`${CARD} p-4 space-y-3`}>
                     <div className="flex items-start justify-between gap-3">
-                      <Link href={`/marketing/campaigns/${c.id}`} className="font-semibold text-sage-900 hover:underline break-words min-w-0">
+                      <Link href={`/marketing/campaigns/${c.id}`} className="font-semibold text-neutral-900 hover:underline break-words min-w-0">
                         {c.name}
                       </Link>
                       <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${STATUS_STYLE[c.status]}`}>
@@ -586,11 +586,11 @@ export default function MarketingCampaignsPage() {
                       </span>
                     </div>
                     <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-                      <div><dt className="text-sage-600 font-bold uppercase tracking-wider">Objective</dt><dd className="text-sage-800 font-medium">{OBJECTIVE_LABELS[c.objective]}</dd></div>
-                      <div><dt className="text-sage-600 font-bold uppercase tracking-wider">Budget</dt><dd className="text-sage-800 font-medium">{formatMoney(c.budget)}</dd></div>
-                      <div><dt className="text-sage-600 font-bold uppercase tracking-wider">CTR / Conv</dt><dd className="text-sage-800 font-medium tabular-nums">{rates(c)}</dd></div>
-                      <div><dt className="text-sage-600 font-bold uppercase tracking-wider">Period</dt><dd className="text-sage-800 font-medium">{formatPeriod(c.period_start, c.period_end)}</dd></div>
-                      <div className="col-span-2"><dt className="text-sage-600 font-bold uppercase tracking-wider">Channels</dt><dd className="text-sage-800 font-medium">{summariseMix(c.channel_mix)}</dd></div>
+                      <div><dt className="text-neutral-600 font-bold uppercase tracking-wider">Objective</dt><dd className="text-neutral-800 font-medium">{OBJECTIVE_LABELS[c.objective]}</dd></div>
+                      <div><dt className="text-neutral-600 font-bold uppercase tracking-wider">Budget</dt><dd className="text-neutral-800 font-medium">{formatMoney(c.budget)}</dd></div>
+                      <div><dt className="text-neutral-600 font-bold uppercase tracking-wider">CTR / Conv</dt><dd className="text-neutral-800 font-medium tabular-nums">{rates(c)}</dd></div>
+                      <div><dt className="text-neutral-600 font-bold uppercase tracking-wider">Period</dt><dd className="text-neutral-800 font-medium">{formatPeriod(c.period_start, c.period_end)}</dd></div>
+                      <div className="col-span-2"><dt className="text-neutral-600 font-bold uppercase tracking-wider">Channels</dt><dd className="text-neutral-800 font-medium">{summariseMix(c.channel_mix)}</dd></div>
                     </dl>
                     <CampaignActions campaign={c} onChanged={reload} onEdit={() => startEdit(c)} />
                   </li>

@@ -68,9 +68,9 @@ function BudgetForm({
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <p className="text-xs text-sage-500">Budget for {formatMonth(month)}. Spent is every money-out entry in the same category this month.</p>
+      <p className="text-xs text-neutral-500">Budget for {formatMonth(month)}. Spent is every money-out entry in the same category this month.</p>
       {initial ? (
-        <p className="text-sm font-semibold text-sage-900">Category: {initial.category}</p>
+        <p className="text-sm font-semibold text-neutral-900">Category: {initial.category}</p>
       ) : (
         <Field label="Category" htmlFor="bd-cat" error={error?.fieldErrors.category} hint="Spend in this category is matched to the budget automatically.">
           <CategorySelect id="bd-cat" value={category} onChange={setCategory} options={categories} />
@@ -105,12 +105,12 @@ const STATUS_LABEL: Record<BudgetStatus, string> = {
 function StatusChip({ status }: { status: BudgetStatus }) {
   const tone =
     status === "over"
-      ? "bg-red-50 text-red-600 border-red-200"
+      ? "bg-danger-50 text-danger-600 border-danger-200"
       : status === "near"
-        ? "bg-copper-100 text-copper-700 border-copper-200"
+        ? "bg-accent-100 text-accent-700 border-accent-200"
         : status === "unbudgeted"
-          ? "bg-sage-100 text-sage-600 border-sage-200"
-          : "bg-green-50 text-green-800 border-green-200";
+          ? "bg-neutral-100 text-neutral-600 border-neutral-200"
+          : "bg-brand-50 text-brand-800 border-brand-200";
   return <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-input border uppercase tracking-wider ${tone}`}>{STATUS_LABEL[status]}</span>;
 }
 
@@ -118,10 +118,10 @@ function VarianceBar({ b }: { b: Budget }) {
   const over = b.over_budget;
   return (
     <div className="space-y-1">
-      <div className="w-full bg-sage-100 rounded-pill h-2 overflow-hidden" role="img" aria-label={b.percent_used === null ? "No limit" : `${b.percent_used}% of the budget used`}>
-        <div className={`${over ? "bg-red-600" : "bg-green-800"} h-full rounded-pill`} style={{ width: `${clampPercent(b.percent_used)}%` }}></div>
+      <div className="w-full bg-neutral-100 rounded-pill h-2 overflow-hidden" role="img" aria-label={b.percent_used === null ? "No limit" : `${b.percent_used}% of the budget used`}>
+        <div className={`${over ? "bg-danger-600" : "bg-brand-800"} h-full rounded-pill`} style={{ width: `${clampPercent(b.percent_used)}%` }}></div>
       </div>
-      <p className="text-[11px] text-sage-500">{b.percent_used === null ? "No limit set" : `${b.percent_used}% used`}</p>
+      <p className="text-[11px] text-neutral-500">{b.percent_used === null ? "No limit set" : `${b.percent_used}% used`}</p>
     </div>
   );
 }
@@ -245,7 +245,7 @@ export default function BudgetsPage() {
               type="month"
               value={month}
               onChange={(e) => e.target.value && setMonth(e.target.value)}
-              className="bg-white border border-sage-200 rounded-card px-3 py-2 max-md:min-h-11 text-sm font-medium focus:outline-none focus:border-copper-600"
+              className="bg-white border border-neutral-200 rounded-card px-3 py-2 max-md:min-h-11 text-sm font-medium focus:outline-none focus:border-accent-600"
             />
             <button type="button" onClick={() => setFormFor("new")} className={primaryBtn}>
               <Plus className="w-4 h-4" aria-hidden="true" /> New budget
@@ -275,28 +275,28 @@ export default function BudgetsPage() {
           ) : (
             <>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs text-sage-500 max-w-xl">
+                <p className="text-xs text-neutral-500 max-w-xl">
                   Spent is every money-out entry of the month in the category: manual transactions, <Link href="/finance/expenses" className="underline font-semibold">expenses</Link> and imported payments. Totals can look higher than before because manual spend now counts.
                 </p>
                 <div className="flex gap-4">
-                  <button type="button" disabled={busy} onClick={() => void seed("draft")} className="text-xs font-bold text-copper-600 hover:underline flex items-center gap-1 max-md:min-h-11 disabled:opacity-50">
+                  <button type="button" disabled={busy} onClick={() => void seed("draft")} className="text-xs font-bold text-accent-600 hover:underline flex items-center gap-1 max-md:min-h-11 disabled:opacity-50">
                     <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> Draft missing from actuals
                   </button>
-                  <button type="button" disabled={busy} onClick={() => void seed("copy")} className="text-xs font-bold text-copper-600 hover:underline flex items-center gap-1 max-md:min-h-11 disabled:opacity-50">
+                  <button type="button" disabled={busy} onClick={() => void seed("copy")} className="text-xs font-bold text-accent-600 hover:underline flex items-center gap-1 max-md:min-h-11 disabled:opacity-50">
                     <Copy className="w-3.5 h-3.5" aria-hidden="true" /> Copy last month&apos;s budgets
                   </button>
                 </div>
               </div>
 
-              <div className="bg-white rounded-modal border border-sage-200 overflow-hidden shadow-card">
-                <ul className="md:hidden divide-y divide-sage-100" aria-label="Budgets">
+              <div className="bg-white rounded-modal border border-neutral-200 overflow-hidden shadow-card">
+                <ul className="md:hidden divide-y divide-neutral-100" aria-label="Budgets">
                   {rows.map((b) => (
                     <li key={b.id ?? `u-${b.category}`} className="p-4 space-y-2">
                       <div className="flex items-start justify-between gap-3">
-                        <h2 className="font-bold text-sage-900">{b.category}</h2>
+                        <h2 className="font-bold text-neutral-900">{b.category}</h2>
                         <StatusChip status={b.status} />
                       </div>
-                      <p className="text-xs text-sage-500">
+                      <p className="text-xs text-neutral-500">
                         Spent {formatMoney(b.spent_minor, b.currency)}
                         {b.limit_minor === null ? "" : ` of ${formatMoney(b.limit_minor, b.currency)}`}
                       </p>
@@ -308,7 +308,7 @@ export default function BudgetsPage() {
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-sage-50/50 border-b border-sage-100 text-[11px] text-sage-600 font-bold uppercase tracking-wider">
+                      <tr className="bg-neutral-50/50 border-b border-neutral-100 text-[11px] text-neutral-600 font-bold uppercase tracking-wider">
                         <th className="py-4 px-6">Category</th>
                         <th className="py-4 px-4 text-right">Budget</th>
                         <th className="py-4 px-4 text-right">Spent</th>
@@ -317,22 +317,22 @@ export default function BudgetsPage() {
                         <th className="py-4 px-6 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-sage-100 text-sm">
+                    <tbody className="divide-y divide-neutral-100 text-sm">
                       {rows.map((b) => (
-                        <tr key={b.id ?? `u-${b.category}`} className="hover:bg-sage-50/50 transition-colors align-top">
+                        <tr key={b.id ?? `u-${b.category}`} className="hover:bg-neutral-50/50 transition-colors align-top">
                           <td className="py-4 px-6">
-                            <p className="font-semibold text-sage-900">{b.category}</p>
-                            {b.notes && <p className="text-xs text-sage-500 mt-0.5">{b.notes}</p>}
+                            <p className="font-semibold text-neutral-900">{b.category}</p>
+                            {b.notes && <p className="text-xs text-neutral-500 mt-0.5">{b.notes}</p>}
                           </td>
-                          <td className="py-4 px-4 text-right whitespace-nowrap text-sage-700">
-                            {b.limit_minor === null ? <span className="text-sage-600">None</span> : formatMoney(b.limit_minor, b.currency)}
+                          <td className="py-4 px-4 text-right whitespace-nowrap text-neutral-700">
+                            {b.limit_minor === null ? <span className="text-neutral-600">None</span> : formatMoney(b.limit_minor, b.currency)}
                           </td>
-                          <td className="py-4 px-4 text-right whitespace-nowrap font-semibold text-sage-900">{formatMoney(b.spent_minor, b.currency)}</td>
+                          <td className="py-4 px-4 text-right whitespace-nowrap font-semibold text-neutral-900">{formatMoney(b.spent_minor, b.currency)}</td>
                           <td className="py-4 px-4 text-right whitespace-nowrap">
                             {b.variance_minor === null ? (
-                              <span className="text-sage-600">Not applicable</span>
+                              <span className="text-neutral-600">Not applicable</span>
                             ) : (
-                              <span className={b.variance_minor > 0 ? "text-red-600 font-semibold" : "text-green-800 font-semibold"}>
+                              <span className={b.variance_minor > 0 ? "text-danger-600 font-semibold" : "text-brand-800 font-semibold"}>
                                 {b.variance_minor > 0 ? "Over by " : "Left "}
                                 {formatMoney(Math.abs(b.variance_minor), b.currency)}
                                 {b.variance_percent !== null && (

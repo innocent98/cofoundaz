@@ -24,18 +24,18 @@ import { cashSeries } from "@/lib/finance/cashSeries";
 // Finance charts (recharts), themed like the other hubs. Every number is the API's;
 // each chart is also announced as text and has a visually hidden table.
 
-const GREEN = "#2D5A3F";
-const RED = "#A65243";
-const COPPER = "#9C5B34";
-const GRID = "#EBEBE6";
-const AXIS = "#768478";
+const GREEN = "var(--color-brand-mid)";
+const RED = "var(--color-danger-xa65243)";
+const COPPER = "var(--color-accent-600)";
+const GRID = "var(--color-line-soft)";
+const AXIS = "var(--color-ink-soft)";
 
 const tooltipStyle = {
-  background: "#FFFFFF",
+  background: "var(--color-white)",
   border: `1px solid ${GRID}`,
   borderRadius: 10,
   fontSize: 12,
-  boxShadow: "0 4px 16px rgba(20,41,31,0.08)",
+  boxShadow: "0 4px 16px var(--color-shadow-soft)",
 } as const;
 
 /** "₦1.5M" style axis ticks from kobo. */
@@ -74,7 +74,7 @@ export function CashFlowChart({ cashFlow }: { cashFlow: CashFlow }) {
             <Bar dataKey="inflow" name="Money in" fill={GREEN} radius={[3, 3, 0, 0]} isAnimationActive={false} />
             <Bar dataKey="outflow" name="Money out" fill={RED} radius={[3, 3, 0, 0]} isAnimationActive={false} />
             <Bar dataKey="net" name="Net" fill={COPPER} radius={[3, 3, 0, 0]} isAnimationActive={false} />
-            <Line dataKey="cash" name="Cash at month end" stroke="#173B28" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3 }} isAnimationActive={false} />
+            <Line dataKey="cash" name="Cash at month end" stroke="var(--color-brand-x173b28)" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3 }} isAnimationActive={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -107,7 +107,7 @@ export function CashFlowChart({ cashFlow }: { cashFlow: CashFlow }) {
   );
 }
 
-const SLICES = ["#2D5A3F", "#9C5B34", "#A65243", "#768478", "#D4A27F", "#4A7A60", "#7A5C4F"];
+const SLICES = ["var(--color-chart-1)", "var(--color-chart-2)", "var(--color-chart-3)", "var(--color-chart-4)", "var(--color-chart-5)", "var(--color-chart-6)", "var(--color-chart-7)"];
 
 /** Spend by category as a donut with a text legend (readable without colour). */
 export function ExpenseDonut({
@@ -135,8 +135,8 @@ export function ExpenseDonut({
           </PieChart>
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-lg font-display font-bold text-sage-900">{formatMoney(total, currency)}</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-sage-600">Total</span>
+          <span className="text-lg font-display font-bold text-neutral-900">{formatMoney(total, currency)}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-600">Total</span>
         </div>
       </div>
       <ul className="w-full space-y-2 text-sm">
@@ -144,11 +144,11 @@ export function ExpenseDonut({
           <li key={r.category} className="flex items-center justify-between gap-3">
             <span className="flex items-center gap-2 min-w-0">
               <span className="h-2.5 w-2.5 rounded-input shrink-0" style={{ background: r.color }} aria-hidden="true" />
-              <span className="truncate text-sage-700 font-medium">{r.category}</span>
+              <span className="truncate text-neutral-700 font-medium">{r.category}</span>
             </span>
-            <span className="whitespace-nowrap text-sage-900">
+            <span className="whitespace-nowrap text-neutral-900">
               <span className="font-bold">{formatMoney(r.total_minor, currency)}</span>
-              <span className="text-sage-500 ml-2">{r.percent}%</span>
+              <span className="text-neutral-500 ml-2">{r.percent}%</span>
             </span>
           </li>
         ))}
@@ -179,7 +179,7 @@ export function ModelChart({ points, currency }: { points: ModelChartPoint[]; cu
             <Legend wrapperStyle={{ fontSize: 12 }} />
             <Bar dataKey="revenue" name="Revenue" fill={GREEN} radius={[3, 3, 0, 0]} isAnimationActive={false} />
             <Line dataKey="netIncome" name="Net income" stroke={RED} strokeWidth={2} dot={false} isAnimationActive={false} />
-            <Line dataKey="cash" name="Closing cash" stroke="#173B28" strokeWidth={2} strokeDasharray="5 3" dot={false} isAnimationActive={false} />
+            <Line dataKey="cash" name="Closing cash" stroke="var(--color-brand-x173b28)" strokeWidth={2} strokeDasharray="5 3" dot={false} isAnimationActive={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -234,7 +234,7 @@ export function RunwayChart({ runway, selected }: { runway: Runway; selected: Ru
           {SCENARIO_META.map((m) => {
             const out = runway.scenarios[m.key].cash_out_date;
             const point = out ? runway.scenarios[m.key].by_month.find((p) => p.month === out) : undefined;
-            return point ? <ReferenceDot key={m.key} x={shortMonth(point.month)} y={point.cash_balance} r={5} fill={m.color} stroke="#FFFFFF" /> : null;
+            return point ? <ReferenceDot key={m.key} x={shortMonth(point.month)} y={point.cash_balance} r={5} fill={m.color} stroke="var(--color-white)" /> : null;
           })}
         </ComposedChart>
       </ResponsiveContainer>

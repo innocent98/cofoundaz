@@ -19,7 +19,7 @@ export default function SequencesPage() {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-display font-semibold text-sage-900">Email sequences</h1>
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">Email sequences</h1>
         {sequences.status === "ready" && (
           <button type="button" disabled={creating} onClick={() => setCreating(true)} className={BTN_ACCENT}>
             + New sequence

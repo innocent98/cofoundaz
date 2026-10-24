@@ -47,33 +47,33 @@ export default function ScriptsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl md:text-3xl font-display font-semibold text-sage-900 tracking-tight">Interview scripts</h1>
+      <h1 className="text-2xl md:text-3xl font-display font-semibold text-neutral-900 tracking-tight">Interview scripts</h1>
 
-      <section aria-label="Generate a script" className="bg-white rounded-modal p-6 md:p-8 border border-sage-200/80 space-y-5 shadow-card max-w-4xl">
+      <section aria-label="Generate a script" className="bg-white rounded-modal p-6 md:p-8 border border-neutral-200/80 space-y-5 shadow-card max-w-4xl">
         <div>
-          <h2 className="block text-xs font-semibold uppercase tracking-wider text-sage-500 mb-2">
+          <h2 className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">
             Generate a script for (pick up to {MAX_SCRIPT_ASSUMPTIONS})
           </h2>
-          <p className="text-xs text-[#9C5B34] font-medium">Tip: {SCRIPT_HINT}</p>
+          <p className="text-xs text-accent-600 font-medium">Tip: {SCRIPT_HINT}</p>
         </div>
 
         {assumptionsError ? (
-          <div className="flex items-center justify-between gap-3 bg-[#FBEAE7] border border-[#F0C9C2] rounded-card px-4 py-3">
-            <span className="flex items-center gap-2 text-sm text-[#8A2E22]">
+          <div className="flex items-center justify-between gap-3 bg-danger-xfbeae7 border border-danger-xf0c9c2 rounded-card px-4 py-3">
+            <span className="flex items-center gap-2 text-sm text-danger-deep">
               <AlertTriangle className="w-4 h-4 shrink-0" /> {assumptionsError}
             </span>
-            <button onClick={() => refetchAssumptions()} className="text-xs font-semibold text-[#8A2E22] underline cursor-pointer">
+            <button onClick={() => refetchAssumptions()} className="text-xs font-semibold text-danger-deep underline cursor-pointer">
               Retry
             </button>
           </div>
         ) : assumptionsLoading && assumptions.length === 0 ? (
-          <div className="flex items-center gap-2 text-sage-500 text-sm">
+          <div className="flex items-center gap-2 text-neutral-500 text-sm">
             <Loader2 className="w-4 h-4 animate-spin" /> Loading assumptions…
           </div>
         ) : assumptions.length === 0 ? (
-          <p className="text-sm text-sage-500">
+          <p className="text-sm text-neutral-500">
             You have no assumptions yet.{' '}
-            <Link href="/validation/assumptions" className="font-semibold text-[#183B28] underline">
+            <Link href="/validation/assumptions" className="font-semibold text-brand-strong underline">
               Add one on the Assumptions tab
             </Link>{' '}
             to write a script for it.
@@ -86,7 +86,7 @@ export default function ScriptsPage() {
                 <li key={a.id}>
                   <label
                     className={`flex items-start gap-3 border rounded-card px-4 py-3 text-sm cursor-pointer ${
-                      checked ? 'border-[#9C5B34] bg-[#FDF4E3]' : 'border-sage-200 hover:bg-sage-50'
+                      checked ? 'border-accent-600 bg-accent-xfdf4e3' : 'border-neutral-200 hover:bg-neutral-50'
                     }`}
                   >
                     <input
@@ -96,7 +96,7 @@ export default function ScriptsPage() {
                       onChange={() => toggle(a.id)}
                       className="mt-0.5"
                     />
-                    <span className="text-sage-900 break-words min-w-0">{a.statement}</span>
+                    <span className="text-neutral-900 break-words min-w-0">{a.statement}</span>
                   </label>
                 </li>
               );
@@ -109,15 +109,15 @@ export default function ScriptsPage() {
             type="button"
             onClick={onGenerate}
             disabled={generating || picked.length === 0}
-            className="bg-[#9C5B34] hover:bg-[#8A5330] disabled:opacity-50 text-white font-semibold px-5 py-3 rounded-card text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-card whitespace-nowrap"
+            className="bg-accent-600 hover:bg-accent-700 disabled:opacity-50 text-white font-semibold px-5 py-3 rounded-card text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-card whitespace-nowrap"
           >
             {generating ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Sparkles className="w-4 h-4" />}
             <span>{generating ? 'Writing your script…' : 'Generate script'}</span>
           </button>
-          {atLimit && <span className="text-xs text-sage-500">That is the most a script can cover.</span>}
+          {atLimit && <span className="text-xs text-neutral-500">That is the most a script can cover.</span>}
         </div>
         {notice && (
-          <p role="alert" className="text-sm font-semibold text-[#8A2E22]">
+          <p role="alert" className="text-sm font-semibold text-danger-deep">
             {notice}
           </p>
         )}
@@ -130,24 +130,24 @@ export default function ScriptsPage() {
       )}
 
       <section aria-label="Saved scripts" className="max-w-4xl space-y-3">
-        <h2 className="text-sm font-bold text-sage-900">Your scripts</h2>
+        <h2 className="text-sm font-bold text-neutral-900">Your scripts</h2>
         {error && (
-          <div className="flex items-center justify-between gap-3 bg-[#FBEAE7] border border-[#F0C9C2] rounded-card px-4 py-3">
-            <span className="flex items-center gap-2 text-sm text-[#8A2E22]">
+          <div className="flex items-center justify-between gap-3 bg-danger-xfbeae7 border border-danger-xf0c9c2 rounded-card px-4 py-3">
+            <span className="flex items-center gap-2 text-sm text-danger-deep">
               <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
             </span>
-            <button onClick={() => refetch()} className="text-xs font-semibold text-[#8A2E22] underline cursor-pointer">
+            <button onClick={() => refetch()} className="text-xs font-semibold text-danger-deep underline cursor-pointer">
               Retry
             </button>
           </div>
         )}
         {loading && scripts.length === 0 ? (
-          <div className="flex items-center gap-2 text-sage-500 text-sm py-6">
+          <div className="flex items-center gap-2 text-neutral-500 text-sm py-6">
             <Loader2 className="w-4 h-4 animate-spin" /> Loading scripts…
           </div>
         ) : scripts.length === 0 ? (
-          <div className="bg-white rounded-modal p-8 border border-dashed border-sage-200 text-center">
-            <p className="text-sm text-sage-500">No scripts yet. Pick an assumption above and generate one.</p>
+          <div className="bg-white rounded-modal p-8 border border-dashed border-neutral-200 text-center">
+            <p className="text-sm text-neutral-500">No scripts yet. Pick an assumption above and generate one.</p>
           </div>
         ) : (
           <ul className="space-y-3">
@@ -155,12 +155,12 @@ export default function ScriptsPage() {
               <li
                 key={s.id}
                 className={`bg-white rounded-modal p-4 border shadow-card flex items-center justify-between gap-3 ${
-                  s.id === openId ? 'border-[#9C5B34]' : 'border-sage-200/80'
+                  s.id === openId ? 'border-accent-600' : 'border-neutral-200/80'
                 }`}
               >
                 <button type="button" onClick={() => openScript(s.id)} className="text-left min-w-0 flex-1 cursor-pointer">
-                  <span className="block font-bold text-sm text-sage-900 truncate">{s.title}</span>
-                  <span className="block text-xs text-sage-500">
+                  <span className="block font-bold text-sm text-neutral-900 truncate">{s.title}</span>
+                  <span className="block text-xs text-neutral-500">
                     {s.questions.length} {s.questions.length === 1 ? 'question' : 'questions'}
                     {s.created_at ? ` · ${new Date(s.created_at).toLocaleDateString()}` : ''}
                   </span>
@@ -169,7 +169,7 @@ export default function ScriptsPage() {
                   type="button"
                   onClick={() => setToDelete({ id: s.id, title: s.title })}
                   aria-label={`Delete script ${s.title}`}
-                  className="p-1.5 rounded-input text-sage-400 hover:text-[#B0483B] hover:bg-sage-100 cursor-pointer shrink-0"
+                  className="p-1.5 rounded-input text-neutral-400 hover:text-danger-600 hover:bg-neutral-100 cursor-pointer shrink-0"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

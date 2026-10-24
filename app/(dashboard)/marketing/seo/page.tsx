@@ -121,7 +121,7 @@ function KeywordsSection() {
   return (
     <section aria-label="Keyword tracker" className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-display font-semibold text-xl text-sage-900">Keywords</h2>
+        <h2 className="font-display font-semibold text-xl text-neutral-900">Keywords</h2>
         <button type="button" onClick={() => { setErrors({}); setForm(blankKw()); }} className={BTN_ACCENT}>+ Add keyword</button>
       </div>
       <DataGate status={status} error={error} onRetry={reload} loadingLabel="Loading your keywords">
@@ -133,20 +133,20 @@ function KeywordsSection() {
           />
         ) : (
           <div className={`${CARD} overflow-hidden flex flex-col`}>
-            <div className="p-4 border-b border-sage-200 bg-sage-50/50 flex justify-end">
+            <div className="p-4 border-b border-neutral-200 bg-neutral-50/50 flex justify-end">
               <input
                 type="text"
                 aria-label="Search keywords"
                 placeholder="Search keywords..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="text-sm px-3 py-1.5 border border-sage-300 rounded focus:outline-none focus:border-sage-500 w-64"
+                className="text-sm px-3 py-1.5 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 w-64"
               />
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-sage-200 bg-sage-50/50 text-[11px] font-bold text-sage-600 uppercase tracking-wider">
+                  <tr className="border-b border-neutral-200 bg-neutral-50/50 text-[11px] font-bold text-neutral-600 uppercase tracking-wider">
                     <th className="py-3.5 px-6">Keyword</th>
                     <th className="py-3.5 px-6">Volume (est.)</th>
                     <th className="py-3.5 px-6">Difficulty</th>
@@ -155,28 +155,28 @@ function KeywordsSection() {
                     <th className="py-3.5 px-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-sage-100 text-sm">
+                <tbody className="divide-y divide-neutral-100 text-sm">
                   {filtered.length === 0 && (
-                    <tr><td colSpan={6} className="py-6 px-6 text-sage-500">No keywords match your search.</td></tr>
+                    <tr><td colSpan={6} className="py-6 px-6 text-neutral-500">No keywords match your search.</td></tr>
                   )}
                   {filtered.map((item) => {
-                    let diffColor = 'text-sage-600';
-                    if (item.difficulty !== null && item.difficulty < 30) diffColor = 'text-green-600';
-                    if (item.difficulty !== null && item.difficulty > 60) diffColor = 'text-red-600';
+                    let diffColor = 'text-neutral-600';
+                    if (item.difficulty !== null && item.difficulty < 30) diffColor = 'text-brand-600';
+                    if (item.difficulty !== null && item.difficulty > 60) diffColor = 'text-danger-600';
                     return (
-                      <tr key={item.id} className="hover:bg-sage-50/50 transition-colors">
-                        <td className="py-4 px-6 font-semibold text-sage-900">
+                      <tr key={item.id} className="hover:bg-neutral-50/50 transition-colors">
+                        <td className="py-4 px-6 font-semibold text-neutral-900">
                           {item.keyword}
-                          <p className="text-[11px] font-normal text-sage-500">
+                          <p className="text-[11px] font-normal text-neutral-500">
                             {item.metrics_updated_at
                               ? `Estimated by you, updated ${new Date(item.metrics_updated_at).toLocaleDateString()}`
                               : 'No numbers entered yet'}
                           </p>
                         </td>
-                        <td className="py-4 px-6 text-sage-600">{item.volume ?? '-'}</td>
+                        <td className="py-4 px-6 text-neutral-600">{item.volume ?? '-'}</td>
                         <td className={`py-4 px-6 font-medium ${diffColor}`}>{item.difficulty ?? '-'}</td>
-                        <td className="py-4 px-6 font-bold text-green-700">{item.current_rank ?? '-'}</td>
-                        <td className="py-4 px-6 text-sage-600">{item.target_page ?? '-'}</td>
+                        <td className="py-4 px-6 font-bold text-brand-700">{item.current_rank ?? '-'}</td>
+                        <td className="py-4 px-6 text-neutral-600">{item.target_page ?? '-'}</td>
                         <td className="py-4 px-6">
                           <div className="flex justify-end gap-2">
                             <button type="button" onClick={() => { setErrors({}); setForm(kwFrom(item)); }} className={BTN_SECONDARY}>Edit</button>
@@ -274,12 +274,12 @@ function PagesSection() {
 
   return (
     <section aria-label="On-page checklist" className="space-y-3">
-      <h2 className="font-display font-semibold text-xl text-sage-900">On-page checklist</h2>
+      <h2 className="font-display font-semibold text-xl text-neutral-900">On-page checklist</h2>
       <form onSubmit={add} className={`${CARD} p-4 flex flex-wrap items-start gap-3`}>
         <div className="flex-1 min-w-[14rem] space-y-1">
           <label htmlFor="page-url" className="sr-only">Page URL</label>
           <input id="page-url" className={INPUT} maxLength={500} placeholder="/pricing" value={url} onChange={(e) => { setUrl(e.target.value); setUrlError(null); }} />
-          {urlError && <p role="alert" className="text-xs text-red-700">{urlError}</p>}
+          {urlError && <p role="alert" className="text-xs text-danger-700">{urlError}</p>}
         </div>
         <button type="submit" disabled={adding} className={BTN_PRIMARY}>{adding ? 'Adding...' : 'Track page'}</button>
       </form>
@@ -291,16 +291,16 @@ function PagesSection() {
             {pages.map((p) => (
               <div key={p.id} className={`${CARD} p-5 space-y-3`}>
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="font-semibold text-sage-900 truncate">{p.url}</h3>
-                  <span className="text-xs font-semibold text-sage-600 tabular-nums">{p.completed}/{p.total}</span>
+                  <h3 className="font-semibold text-neutral-900 truncate">{p.url}</h3>
+                  <span className="text-xs font-semibold text-neutral-600 tabular-nums">{p.completed}/{p.total}</span>
                 </div>
-                <div className="h-2 rounded-full bg-sage-100 overflow-hidden" role="progressbar" aria-valuenow={p.completed} aria-valuemin={0} aria-valuemax={p.total} aria-label={`${p.url} checklist progress`}>
-                  <div className="h-full bg-[#1e4836]" style={{ width: `${(p.completed / p.total) * 100}%` }} />
+                <div className="h-2 rounded-full bg-neutral-100 overflow-hidden" role="progressbar" aria-valuenow={p.completed} aria-valuemin={0} aria-valuemax={p.total} aria-label={`${p.url} checklist progress`}>
+                  <div className="h-full bg-brand-hover" style={{ width: `${(p.completed / p.total) * 100}%` }} />
                 </div>
                 <ul className="grid grid-cols-1 gap-1.5">
                   {CHECKLIST_KEYS.map((k) => (
                     <li key={k}>
-                      <label className="flex items-center gap-2 text-sm text-sage-800 cursor-pointer">
+                      <label className="flex items-center gap-2 text-sm text-neutral-800 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={p.checklist[k]}
@@ -399,16 +399,16 @@ function PositioningSection() {
 
   return (
     <section aria-label="Brand positioning" className="space-y-3">
-      <h2 className="font-display font-semibold text-xl text-sage-900">Brand positioning statement</h2>
+      <h2 className="font-display font-semibold text-xl text-neutral-900">Brand positioning statement</h2>
       <DataGate status={status} error={error} onRetry={reload} loadingLabel="Loading your positioning">
         {form && (
           <div className={`${CARD} p-6 md:p-8 space-y-5`}>
             {positioning?.statement ? (
-              <p className="text-sm md:text-base text-sage-800 leading-relaxed" data-testid="positioning-statement">
+              <p className="text-sm md:text-base text-neutral-800 leading-relaxed" data-testid="positioning-statement">
                 {positioning.statement}
               </p>
             ) : (
-              <p className="text-sm text-sage-500">Fill in the five parts below to build your statement.</p>
+              <p className="text-sm text-neutral-500">Fill in the five parts below to build your statement.</p>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {POSITIONING_FIELDS.map((f) => (
@@ -425,7 +425,7 @@ function PositioningSection() {
               ))}
             </div>
             {filled > 0 && filled < 5 && (
-              <p className="text-xs text-sage-500">Fill in all five parts for a complete statement. {filled} of 5 done.</p>
+              <p className="text-xs text-neutral-500">Fill in all five parts for a complete statement. {filled} of 5 done.</p>
             )}
             <button type="button" onClick={onSave} disabled={saving} className={BTN_PRIMARY}>
               {saving ? 'Saving...' : 'Save positioning'}
@@ -462,8 +462,8 @@ function ContentGapsSection() {
     <section aria-label="Content gaps" className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display font-semibold text-xl text-sage-900">Content gaps</h2>
-          <p className="text-xs text-sage-500">Topics you have not covered yet, based on your tracked keywords.</p>
+          <h2 className="font-display font-semibold text-xl text-neutral-900">Content gaps</h2>
+          <p className="text-xs text-neutral-500">Topics you have not covered yet, based on your tracked keywords.</p>
         </div>
         <button type="button" onClick={find} disabled={gen.busy} className={BTN_ACCENT}>
           {gen.busy ? 'Looking for gaps...' : '✦ Find content ideas'}
@@ -471,7 +471,7 @@ function ContentGapsSection() {
       </div>
       <GenerationNote phase={gen.phase} error={gen.error} generatingLabel="The AI is looking for topics you have not covered. This usually takes under a minute." />
       {stale && gen.phase !== 'generating' && (
-        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-[#e6d3b3] bg-[#f6efe0] p-3.5 text-sm text-[#5b3b17]">
+        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-accent-xe6d3b3 bg-accent-xf6efe0 p-3.5 text-sm text-accent-x5b3b17">
           <p>Your brand details changed since these ideas were written.</p>
           <button type="button" onClick={find} disabled={gen.busy} className={BTN_SECONDARY}>Regenerate</button>
         </div>
@@ -483,12 +483,12 @@ function ContentGapsSection() {
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {gaps.map((g, i) => (
             <li key={`${g.title}-${i}`} className={`${CARD} p-5 space-y-2`}>
-              <h3 className="font-semibold text-sage-900">{g.title}</h3>
-              <p className="text-xs"><span className={LABEL}>Target keyword </span><span className="text-sage-800 font-medium">{g.target_keyword}</span></p>
-              <p className="text-sm text-sage-700">{g.angle}</p>
+              <h3 className="font-semibold text-neutral-900">{g.title}</h3>
+              <p className="text-xs"><span className={LABEL}>Target keyword </span><span className="text-neutral-800 font-medium">{g.target_keyword}</span></p>
+              <p className="text-sm text-neutral-700">{g.angle}</p>
               <Link
                 href={`/marketing/copy?message=${encodeURIComponent(`${g.title}. ${g.angle} (keyword: ${g.target_keyword})`)}`}
-                className="inline-block text-sm font-semibold text-[#0e271f] hover:underline"
+                className="inline-block text-sm font-semibold text-brand-rail-deep hover:underline"
               >
                 Write it
               </Link>
@@ -503,7 +503,7 @@ function ContentGapsSection() {
 export default function MarketingSeoPage() {
   return (
     <div className="space-y-10 animate-fadeIn">
-      <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">SEO tools</h1>
+      <h1 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 tracking-tight">SEO tools</h1>
       <KeywordsSection />
       <ContentGapsSection />
       <PagesSection />

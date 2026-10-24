@@ -96,68 +96,68 @@ export default function PublicSignerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F7F4] font-body text-[#1E2923]">
-      <header className="bg-white border-b border-[#E8E8E2] px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-neutral-xf6f7f4 font-body text-ink">
+      <header className="bg-white border-b border-line px-6 py-4 flex items-center justify-between">
         <BrandLogo height={26} eager />
-        <div className="text-sm font-medium text-[#617065]">Review &amp; Sign</div>
+        <div className="text-sm font-medium text-ink-muted">Review &amp; Sign</div>
       </header>
 
       <main className="max-w-2xl mx-auto py-10 px-4">
         {loading && (
-          <div className="flex items-center justify-center gap-2 text-[#617065] py-24">
+          <div className="flex items-center justify-center gap-2 text-ink-muted py-24">
             <Loader2 className="w-5 h-5 animate-spin" /> Loading document…
           </div>
         )}
 
         {!loading && invalid && (
-          <div className="bg-white rounded-modal shadow-card border border-[#E8E8E2] p-10 text-center flex flex-col items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-[#FBEBEB] text-[#B0483B] flex items-center justify-center">
+          <div className="bg-white rounded-modal shadow-card border border-line p-10 text-center flex flex-col items-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-danger-wash text-danger-600 flex items-center justify-center">
               <AlertTriangle className="w-7 h-7" />
             </div>
             <h1 className="text-xl font-display font-bold">This link is no longer valid</h1>
-            <p className="text-sm text-[#617065] max-w-sm">
+            <p className="text-sm text-ink-muted max-w-sm">
               It may have already been signed, been cancelled, or expired. Ask the sender for a fresh link.
             </p>
           </div>
         )}
 
         {!loading && !invalid && result && (
-          <div className="bg-white rounded-modal shadow-card border border-[#E8E8E2] p-10 text-center flex flex-col items-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-[#EAF2ED] text-[#2D5A3F] flex items-center justify-center">
+          <div className="bg-white rounded-modal shadow-card border border-line p-10 text-center flex flex-col items-center gap-3">
+            <div className="w-16 h-16 rounded-full bg-brand-tint text-brand-mid flex items-center justify-center">
               <Check className="w-8 h-8" />
             </div>
             <h1 className="text-2xl font-display font-bold">Signed, thank you</h1>
-            <p className="text-sm text-[#617065]">
+            <p className="text-sm text-ink-muted">
               {result.status === 'complete'
                 ? `All ${result.total} signature${result.total === 1 ? '' : 's'} are in, this document is complete.`
                 : `${result.signed_count} of ${result.total} signed, we’ll let the others know it’s their turn.`}
             </p>
-            <p className="text-xs text-[#8E9B90]">You can safely close this tab.</p>
+            <p className="text-xs text-ink-subtle">You can safely close this tab.</p>
           </div>
         )}
 
         {!loading && !invalid && !result && view && (
-          <div className="bg-white rounded-modal shadow-card border border-[#E8E8E2] overflow-hidden">
-            <div className="border-b border-[#E8E8E2] px-6 py-4 bg-[#FBFBFA]">
+          <div className="bg-white rounded-modal shadow-card border border-line overflow-hidden">
+            <div className="border-b border-line px-6 py-4 bg-surface-faint">
               <h2 className="text-lg font-semibold">{view.request.title}</h2>
-              <p className="text-sm text-[#617065]">Hi {view.signer.name || view.signer.email}, please review and sign below.</p>
+              <p className="text-sm text-ink-muted">Hi {view.signer.name || view.signer.email}, please review and sign below.</p>
             </div>
 
             <div className="p-6 flex flex-col gap-6">
-              <div className="flex items-center gap-3 bg-[#F7F7F5] border border-[#E8E8E2] rounded-card p-4">
-                <div className="w-10 h-10 rounded-input bg-white border border-[#E8E8E2] flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5 text-[#617065]" />
+              <div className="flex items-center gap-3 bg-surface-subtle border border-line rounded-card p-4">
+                <div className="w-10 h-10 rounded-input bg-white border border-line flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-ink-muted" />
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="text-sm font-bold truncate">{view.file.filename}</span>
-                  <span className="text-xs text-[#8E9B90]">{fmtSize(view.file.size_bytes)}</span>
+                  <span className="text-xs text-ink-subtle">{fmtSize(view.file.size_bytes)}</span>
                 </div>
                 {/^https?:\/\//.test(view.file.url) && (
                   <a
                     href={view.file.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs font-semibold text-[#183B28] hover:text-[#11291C]"
+                    className="flex items-center gap-1 text-xs font-semibold text-brand-strong hover:text-brand-rail"
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> Open
                   </a>
@@ -172,19 +172,19 @@ export default function PublicSignerPage() {
                   <iframe
                     src={view.file.url}
                     title={view.file.filename}
-                    className="w-full h-80 rounded-card border border-[#E8E8E2] bg-[#F7F7F5]"
+                    className="w-full h-80 rounded-card border border-line bg-surface-subtle"
                   />
                 ) : view.file.content_type?.startsWith('image/') ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={view.file.url}
                     alt={view.file.filename}
-                    className="w-full max-h-80 object-contain rounded-card border border-[#E8E8E2] bg-[#F7F7F5]"
+                    className="w-full max-h-80 object-contain rounded-card border border-line bg-surface-subtle"
                   />
                 ) : null)}
 
               <form onSubmit={sign} className="flex flex-col gap-4">
-                <label className="text-xs font-bold text-[#55625A] uppercase tracking-wider" htmlFor="typed-name">
+                <label className="text-xs font-bold text-neutral-x55625a uppercase tracking-wider" htmlFor="typed-name">
                   Type your full name to sign
                 </label>
                 <input
@@ -193,30 +193,30 @@ export default function PublicSignerPage() {
                   value={typedName}
                   onChange={(e) => setTypedName(e.target.value)}
                   placeholder="Your full name"
-                  className="w-full border border-[#D5DDD6] rounded-input px-3 py-2.5 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58]"
+                  className="w-full border border-line-strong rounded-input px-3 py-2.5 text-sm focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus"
                 />
 
                 {/* Adopt-your-signature: render the typed name in a script face so
                     the signer sees their signature before committing. What we
                     submit is still the typed name, the API records typed_name only. */}
-                <div className="rounded-card border border-dashed border-[#D5DDD6] bg-[#FBFBFA] px-4 py-3">
-                  <span className="block text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider mb-1">
+                <div className="rounded-card border border-dashed border-line-strong bg-surface-faint px-4 py-3">
+                  <span className="block text-[10px] font-bold text-ink-subtle uppercase tracking-wider mb-1">
                     Your signature
                   </span>
                   <span
-                    className="block text-2xl text-[#1E2923] leading-tight min-h-[2rem]"
+                    className="block text-2xl text-ink leading-tight min-h-[2rem]"
                     style={{ fontFamily: "'Snell Roundhand', 'Segoe Script', 'Brush Script MT', cursive", fontStyle: 'italic' }}
                   >
-                    {typedName.trim() || <span className="text-[#C3CBC4]">Your signature appears here</span>}
+                    {typedName.trim() || <span className="text-neutral-xc3cbc4">Your signature appears here</span>}
                   </span>
                 </div>
 
-                <label className="flex items-start gap-2 text-[11px] text-[#617065] leading-relaxed cursor-pointer">
+                <label className="flex items-start gap-2 text-[11px] text-ink-muted leading-relaxed cursor-pointer">
                   <input
                     type="checkbox"
                     checked={consented}
                     onChange={(e) => setConsented(e.target.checked)}
-                    className="mt-0.5 accent-[#183B28] w-3.5 h-3.5 shrink-0"
+                    className="mt-0.5 accent-brand-strong w-3.5 h-3.5 shrink-0"
                   />
                   <span>
                     I agree that typing my name above is my electronic signature, and I consent to sign this
@@ -224,11 +224,11 @@ export default function PublicSignerPage() {
                   </span>
                 </label>
 
-                {error && <p className="text-xs font-semibold text-[#B0483B]">{error}</p>}
+                {error && <p className="text-xs font-semibold text-danger-600">{error}</p>}
                 <button
                   type="submit"
                   disabled={submitting || !consented || !typedName.trim()}
-                  className="mt-1 bg-[#183B28] hover:bg-[#11291C] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card"
+                  className="mt-1 bg-brand-strong hover:bg-brand-rail disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card"
                 >
                   {submitting ? 'Signing…' : 'Sign document'}
                 </button>

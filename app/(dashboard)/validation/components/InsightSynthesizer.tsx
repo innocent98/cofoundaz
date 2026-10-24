@@ -127,12 +127,12 @@ function Inner({ source }: { source: InsightSource }) {
           type="button"
           onClick={onSynthesize}
           disabled={synthesizing}
-          className={`${btn} bg-[#FDF4E3] hover:bg-[#F5ECDC] text-[#8A5330] border border-[#EAD5C6]`}
+          className={`${btn} bg-accent-xfdf4e3 hover:bg-accent-xf5ecdc text-accent-700 border border-accent-200`}
         >
-          {synthesizing ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Sparkles className="w-4 h-4 fill-[#8A5330]" aria-hidden="true" />}
+          {synthesizing ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Sparkles className="w-4 h-4 fill-accent-700" aria-hidden="true" />}
           <span>{synthesizing ? 'Synthesizing…' : 'Synthesize insights'}</span>
         </button>
-        <button type="button" onClick={openHistory} className={`${btn} bg-white hover:bg-sage-50 text-[#617065] border border-[#EBEBE6]`}>
+        <button type="button" onClick={openHistory} className={`${btn} bg-white hover:bg-neutral-50 text-ink-muted border border-line-soft`}>
           <History className="w-4 h-4" aria-hidden="true" />
           <span>Past reports</span>
         </button>
@@ -145,17 +145,17 @@ function Inner({ source }: { source: InsightSource }) {
           onClose={() => {
             if (!toDelete) close();
           }}
-          overlayClassName="fixed inset-0 z-50 flex justify-end bg-[#1E2923]/40 backdrop-blur-sm"
+          overlayClassName="fixed inset-0 z-50 flex justify-end bg-ink/40 backdrop-blur-sm"
           className="w-full max-w-md bg-white h-full shadow-accent flex flex-col outline-none"
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEBE6] bg-[#F7F7F5]">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-line-soft bg-surface-subtle">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#8A5330] fill-[#8A5330]" aria-hidden="true" />
-              <h2 className="text-lg font-display font-bold text-[#1E2923]">
+              <Sparkles className="w-5 h-5 text-accent-700 fill-accent-700" aria-hidden="true" />
+              <h2 className="text-lg font-display font-bold text-ink">
                 {panel.view === 'history' ? 'Past reports' : 'AI insights'}
               </h2>
             </div>
-            <button type="button" onClick={close} className="text-sm font-bold text-[#617065] hover:text-[#1E2923] cursor-pointer">
+            <button type="button" onClick={close} className="text-sm font-bold text-ink-muted hover:text-ink cursor-pointer">
               Close
             </button>
           </div>
@@ -163,22 +163,22 @@ function Inner({ source }: { source: InsightSource }) {
           <div className="flex-1 overflow-y-auto p-6">
             {panel.view === 'loading' && (
               <div role="status" className="flex flex-col items-center justify-center h-full gap-4 text-center">
-                <div className="w-12 h-12 rounded-full border-4 border-[#FDF4E3] border-t-[#D89A6E] animate-spin" />
+                <div className="w-12 h-12 rounded-full border-4 border-accent-xfdf4e3 border-t-[var(--color-accent-500)] animate-spin" />
                 <div>
-                  <h3 className="font-bold text-[#1E2923]">{panel.label}</h3>
-                  <p className="text-sm text-[#617065] mt-1">This can take up to a minute.</p>
+                  <h3 className="font-bold text-ink">{panel.label}</h3>
+                  <p className="text-sm text-ink-muted mt-1">This can take up to a minute.</p>
                 </div>
               </div>
             )}
 
             {panel.view === 'empty' && (
-              <div data-testid="insight-empty" className="border border-dashed border-[#EBEBE6] rounded-card p-6 text-center">
-                <p className="text-sm text-[#617065]">{panel.message}</p>
+              <div data-testid="insight-empty" className="border border-dashed border-line-soft rounded-card p-6 text-center">
+                <p className="text-sm text-ink-muted">{panel.message}</p>
               </div>
             )}
 
             {panel.view === 'error' && (
-              <p role="alert" className="text-sm font-semibold text-[#8A2E22]">
+              <p role="alert" className="text-sm font-semibold text-danger-deep">
                 {panel.message}
               </p>
             )}
@@ -195,16 +195,16 @@ function Inner({ source }: { source: InsightSource }) {
 
             {panel.view === 'history' &&
               (panel.items.length === 0 ? (
-                <p className="text-sm text-[#617065]">No reports yet. Run “Synthesize insights” to create one.</p>
+                <p className="text-sm text-ink-muted">No reports yet. Run “Synthesize insights” to create one.</p>
               ) : (
                 <ul className="flex flex-col gap-3">
                   {panel.items.map((it) => (
-                    <li key={it.id} className="border border-[#EBEBE6] rounded-card p-3 flex items-center justify-between gap-3">
+                    <li key={it.id} className="border border-line-soft rounded-card p-3 flex items-center justify-between gap-3">
                       <button type="button" onClick={() => openReport(it.id)} className="text-left min-w-0 flex-1 cursor-pointer">
-                        <span className="block text-sm font-bold text-[#1E2923] truncate">
+                        <span className="block text-sm font-bold text-ink truncate">
                           {SOURCE_LABEL[it.source] ?? it.source} · {new Date(it.created_at).toLocaleDateString()}
                         </span>
-                        <span className="block text-xs text-[#617065]">
+                        <span className="block text-xs text-ink-muted">
                           {insightInputsLine(it.inputs)} · {it.patterns.length} {it.patterns.length === 1 ? 'pattern' : 'patterns'}
                         </span>
                       </button>
@@ -212,7 +212,7 @@ function Inner({ source }: { source: InsightSource }) {
                         type="button"
                         onClick={() => setToDelete(it)}
                         aria-label={`Delete report from ${new Date(it.created_at).toLocaleDateString()}`}
-                        className="p-1.5 rounded-input text-sage-400 hover:text-[#B0483B] hover:bg-sage-100 cursor-pointer shrink-0"
+                        className="p-1.5 rounded-input text-neutral-400 hover:text-danger-600 hover:bg-neutral-100 cursor-pointer shrink-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

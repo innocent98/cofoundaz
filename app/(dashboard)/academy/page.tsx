@@ -13,8 +13,8 @@ export default function AcademyRecommendedPage() {
   return (
     <div className="space-y-8 animate-fadeIn pb-12">
       <div className="space-y-1">
-        <h1 className="text-3xl font-display font-semibold text-sage-900">Learning Academy</h1>
-        <p className="text-sm text-sage-600">Short courses and playbooks picked for where your startup is now.</p>
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">Learning Academy</h1>
+        <p className="text-sm text-neutral-600">Short courses and playbooks picked for where your startup is now.</p>
       </div>
 
       <ResourceView res={res}>
@@ -26,14 +26,14 @@ export default function AcademyRecommendedPage() {
               {data.hero && hero && (
                 <section
                   aria-labelledby="learn-next"
-                  className="relative flex flex-col gap-6 overflow-hidden rounded-modal border border-green-800 bg-green-900 p-6 shadow-card md:p-8"
+                  className="relative flex flex-col gap-6 overflow-hidden rounded-modal border border-brand-800 bg-brand-900 p-6 shadow-card md:p-8"
                 >
-                  <p id="learn-next" className="text-xs font-bold uppercase tracking-widest text-copper-500">
+                  <p id="learn-next" className="text-xs font-bold uppercase tracking-widest text-accent-500">
                     Learn next
                   </p>
                   <div className="flex items-start gap-3.5">
-                    <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-copper-200" aria-hidden="true" />
-                    <p className="text-sm font-medium italic leading-relaxed text-green-100" data-testid="hero-reason">
+                    <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-accent-200" aria-hidden="true" />
+                    <p className="text-sm font-medium italic leading-relaxed text-brand-100" data-testid="hero-reason">
                       {data.hero.reason}
                     </p>
                   </div>
@@ -42,8 +42,8 @@ export default function AcademyRecommendedPage() {
                       <h2 className="text-2xl font-display font-bold text-white">{hero.title}</h2>
                       <DraftBadge status={hero.review_status} />
                     </div>
-                    <p className="text-sm text-green-200">{hero.summary}</p>
-                    <p className="flex items-center gap-3 text-sm font-medium text-green-200">
+                    <p className="text-sm text-brand-200">{hero.summary}</p>
+                    <p className="flex items-center gap-3 text-sm font-medium text-brand-200">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" aria-hidden="true" /> {formatDuration(hero.duration_min)}
                       </span>
@@ -55,7 +55,7 @@ export default function AcademyRecommendedPage() {
                   <div>
                     <Link
                       href={`/academy/courses/${hero.id}`}
-                      className="inline-flex min-h-11 items-center gap-2 rounded-card bg-copper-600 px-6 py-2.5 text-sm font-semibold text-white shadow-card hover:bg-copper-700"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-card bg-accent-600 px-6 py-2.5 text-sm font-semibold text-white shadow-card hover:bg-accent-700"
                     >
                       <span>{courseCta(hero)}</span>
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -66,7 +66,7 @@ export default function AcademyRecommendedPage() {
 
               {data.continue_watching.length > 0 && (
                 <section className="space-y-4" aria-labelledby="continue-heading">
-                  <h2 id="continue-heading" className="text-sm font-semibold uppercase tracking-wider text-sage-900">
+                  <h2 id="continue-heading" className="text-sm font-semibold uppercase tracking-wider text-neutral-900">
                     Continue watching
                   </h2>
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -78,15 +78,15 @@ export default function AcademyRecommendedPage() {
                             ? `/academy/courses/${c.id}/lessons/${c.next_lesson_id}`
                             : `/academy/courses/${c.id}`
                         }
-                        className="flex items-center gap-4 rounded-modal border border-sage-200 bg-white p-4 shadow-card transition-colors hover:border-copper-600"
+                        className="flex items-center gap-4 rounded-modal border border-neutral-200 bg-white p-4 shadow-card transition-colors hover:border-accent-600"
                       >
                         <ProgressRing pct={c.progress} completed={c.completed} size={48} />
                         <span className="min-w-0 flex-1">
                           <span className="flex items-center gap-2">
-                            <span className="truncate text-sm font-semibold text-sage-900">{c.title}</span>
+                            <span className="truncate text-sm font-semibold text-neutral-900">{c.title}</span>
                             <DraftBadge status={c.review_status} />
                           </span>
-                          <span className="text-xs text-sage-600">{c.progress}% complete · Continue</span>
+                          <span className="text-xs text-neutral-600">{c.progress}% complete · Continue</span>
                         </span>
                       </Link>
                     ))}
@@ -96,7 +96,7 @@ export default function AcademyRecommendedPage() {
 
               {shelf.length > 0 && (
                 <section className="space-y-4" aria-labelledby="shelf-heading">
-                  <h2 id="shelf-heading" className="text-sm font-semibold uppercase tracking-wider text-sage-900">
+                  <h2 id="shelf-heading" className="text-sm font-semibold uppercase tracking-wider text-neutral-900">
                     {data.stage ? `For the ${stageLabel(data.stage)} stage` : "Start here"}
                   </h2>
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -108,9 +108,9 @@ export default function AcademyRecommendedPage() {
               )}
 
               {!data.hero && shelf.length === 0 && data.continue_watching.length === 0 && (
-                <p className="text-sm text-sage-600">
+                <p className="text-sm text-neutral-600">
                   You have finished everything for this stage.{" "}
-                  <Link href="/academy/courses" className="font-semibold text-copper-700 underline">
+                  <Link href="/academy/courses" className="font-semibold text-accent-700 underline">
                     Browse all courses
                   </Link>
                 </p>

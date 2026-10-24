@@ -46,12 +46,12 @@ export function ExportButton({ target }: { target: Target }) {
         type="button"
         onClick={onClick}
         disabled={busy}
-        className="flex items-center gap-1.5 bg-white hover:bg-[#F5F5F0] disabled:opacity-60 text-[#1E2923] font-semibold px-4 py-2 rounded-card text-xs transition-colors border border-[#EBEBE6] shadow-card"
+        className="flex items-center gap-1.5 bg-white hover:bg-surface-muted disabled:opacity-60 text-ink font-semibold px-4 py-2 rounded-card text-xs transition-colors border border-line-soft shadow-card"
       >
-        {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5 text-[#556358]" />}
+        {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5 text-ink-body" />}
         <span>Export</span>
       </button>
-      {error && <span role="alert" className="text-[11px] font-semibold text-[#B0483B] max-w-[240px] text-right">{error}</span>}
+      {error && <span role="alert" className="text-[11px] font-semibold text-danger-600 max-w-[240px] text-right">{error}</span>}
     </div>
   );
 }

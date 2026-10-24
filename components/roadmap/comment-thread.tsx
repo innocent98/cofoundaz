@@ -38,9 +38,9 @@ export function CommentThread({ entityType, entityId, members }: CommentThreadPr
 
   return (
     <section aria-label="Comments" className="flex flex-col gap-3">
-      {loading && <p className="text-xs text-[#8E9B90]">Loading comments…</p>}
+      {loading && <p className="text-xs text-ink-subtle">Loading comments…</p>}
       {loadError && (
-        <p className="text-xs text-[#B0483B]">
+        <p className="text-xs text-danger-600">
           Couldn&apos;t load comments.{' '}
           <button type="button" onClick={() => void reload()} className="underline font-semibold">
             Retry
@@ -48,7 +48,7 @@ export function CommentThread({ entityType, entityId, members }: CommentThreadPr
         </p>
       )}
       {!loading && !loadError && comments.length === 0 && (
-        <p className="text-xs text-[#8E9B90]">No comments yet.{canPost ? ' Start the conversation below.' : ''}</p>
+        <p className="text-xs text-ink-subtle">No comments yet.{canPost ? ' Start the conversation below.' : ''}</p>
       )}
 
       <ul className="flex flex-col gap-3">
@@ -66,7 +66,7 @@ export function CommentThread({ entityType, entityId, members }: CommentThreadPr
       </ul>
 
       {error && (
-        <p role="alert" className="text-xs text-[#B0483B]">
+        <p role="alert" className="text-xs text-danger-600">
           {error}
         </p>
       )}
@@ -77,7 +77,7 @@ export function CommentThread({ entityType, entityId, members }: CommentThreadPr
           onSubmit={(body, ids) => guard(() => post(body, ids), "Couldn't post that comment. Try again.")}
         />
       ) : (
-        <p className="text-xs text-[#8E9B90]">Investors can read comments but not post.</p>
+        <p className="text-xs text-ink-subtle">Investors can read comments but not post.</p>
       )}
     </section>
   );
@@ -115,9 +115,9 @@ function CommentRow({
   };
 
   return (
-    <li className={`rounded-card border p-3 flex flex-col gap-1.5 ${resolved ? 'bg-[#F5F5F0] border-[#EBEBE6] opacity-80' : 'bg-white border-[#EBEBE6]'}`}>
-      <div className="flex items-center justify-between gap-2 text-[11px] text-[#768478]">
-        <span className="font-bold text-[#1E2923] truncate">{c.author.name?.trim() || 'Teammate'}</span>
+    <li className={`rounded-card border p-3 flex flex-col gap-1.5 ${resolved ? 'bg-surface-muted border-line-soft opacity-80' : 'bg-white border-line-soft'}`}>
+      <div className="flex items-center justify-between gap-2 text-[11px] text-ink-soft">
+        <span className="font-bold text-ink truncate">{c.author.name?.trim() || 'Teammate'}</span>
         <span className="shrink-0">
           {relativeStamp(c.created_at)}
           {c.edited_at ? ' · edited' : ''}
@@ -143,10 +143,10 @@ function CommentRow({
             maxLength={COMMENT_MAX}
             onChange={(e) => setDraft(e.target.value)}
             rows={3}
-            className="w-full border border-[#D5DDD6] rounded-input px-3 py-2 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58]"
+            className="w-full border border-line-strong rounded-input px-3 py-2 text-sm focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus"
           />
           <div className="flex gap-2">
-            <button type="submit" disabled={busy || !draft.trim()} className="px-3 py-1 rounded-input bg-[#183B28] text-white text-xs font-bold disabled:opacity-40">
+            <button type="submit" disabled={busy || !draft.trim()} className="px-3 py-1 rounded-input bg-brand-strong text-white text-xs font-bold disabled:opacity-40">
               Save
             </button>
             <button
@@ -155,17 +155,17 @@ function CommentRow({
                 setEditing(false);
                 setDraft(c.body);
               }}
-              className="px-3 py-1 rounded-input text-xs font-semibold text-[#617065] hover:bg-[#EBEBE6]"
+              className="px-3 py-1 rounded-input text-xs font-semibold text-ink-muted hover:bg-line-soft"
             >
               Cancel
             </button>
           </div>
         </form>
       ) : (
-        <p className="text-sm text-[#1E2923] whitespace-pre-wrap break-words">
+        <p className="text-sm text-ink whitespace-pre-wrap break-words">
           {segments.map((seg, i) =>
             seg.mention ? (
-              <span key={i} className="font-semibold text-[#8A5330] bg-[#FDF2E6] rounded px-0.5">
+              <span key={i} className="font-semibold text-accent-700 bg-accent-xfdf2e6 rounded px-0.5">
                 {seg.text}
               </span>
             ) : (
@@ -176,13 +176,13 @@ function CommentRow({
       )}
 
       {!editing && (
-        <div className="flex items-center gap-1 -ml-1.5 text-[#768478]">
+        <div className="flex items-center gap-1 -ml-1.5 text-ink-soft">
           {canResolve && (
             <button
               type="button"
               disabled={busy}
               onClick={() => void run(onResolve)}
-              className="flex items-center gap-1 px-1.5 py-1 rounded-input text-[11px] font-semibold hover:bg-[#EBEBE6] disabled:opacity-40"
+              className="flex items-center gap-1 px-1.5 py-1 rounded-input text-[11px] font-semibold hover:bg-line-soft disabled:opacity-40"
             >
               {resolved ? <RotateCcw className="w-3 h-3" aria-hidden="true" /> : <Check className="w-3 h-3" aria-hidden="true" />}
               {resolved ? 'Reopen thread' : 'Resolve thread'}
@@ -198,17 +198,17 @@ function CommentRow({
                   setDraft(c.body);
                   setEditing(true);
                 }}
-                className="p-1.5 rounded-input hover:bg-[#EBEBE6] disabled:opacity-40"
+                className="p-1.5 rounded-input hover:bg-line-soft disabled:opacity-40"
               >
                 <Pencil className="w-3 h-3" aria-hidden="true" />
               </button>
               {confirmDelete ? (
                 <span className="flex items-center gap-1 text-[11px]">
-                  <span className="font-semibold text-[#B0483B]">Delete this comment?</span>
-                  <button type="button" disabled={busy} onClick={() => void run(onDelete)} className="px-1.5 py-0.5 rounded-input font-bold text-[#B0483B] hover:bg-[#FBEBEB]">
+                  <span className="font-semibold text-danger-600">Delete this comment?</span>
+                  <button type="button" disabled={busy} onClick={() => void run(onDelete)} className="px-1.5 py-0.5 rounded-input font-bold text-danger-600 hover:bg-danger-wash">
                     Yes
                   </button>
-                  <button type="button" onClick={() => setConfirmDelete(false)} className="px-1.5 py-0.5 rounded-input font-semibold hover:bg-[#EBEBE6]">
+                  <button type="button" onClick={() => setConfirmDelete(false)} className="px-1.5 py-0.5 rounded-input font-semibold hover:bg-line-soft">
                     No
                   </button>
                 </span>
@@ -218,7 +218,7 @@ function CommentRow({
                   aria-label="Delete comment"
                   disabled={busy}
                   onClick={() => setConfirmDelete(true)}
-                  className="p-1.5 rounded-input hover:text-[#A34B4B] hover:bg-[#FBEBEB] disabled:opacity-40"
+                  className="p-1.5 rounded-input hover:text-danger-text hover:bg-danger-wash disabled:opacity-40"
                 >
                   <Trash2 className="w-3 h-3" aria-hidden="true" />
                 </button>
@@ -323,14 +323,14 @@ function Composer({ members, onSubmit }: { members: TeamMember[]; onSubmit: (bod
             void submit();
           }
         }}
-        className="w-full border border-[#D5DDD6] rounded-input px-3 py-2 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58] placeholder:text-[#8E9B90] disabled:opacity-60"
+        className="w-full border border-line-strong rounded-input px-3 py-2 text-sm focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus placeholder:text-ink-subtle disabled:opacity-60"
       />
       {open && (
         <ul
           id="mention-options"
           role="listbox"
           aria-label="Mention a teammate"
-          className="absolute left-0 right-0 bottom-full mb-1 z-10 bg-white border border-[#EBEBE6] rounded-card shadow-raised overflow-hidden"
+          className="absolute left-0 right-0 bottom-full mb-1 z-10 bg-white border border-line-soft rounded-card shadow-raised overflow-hidden"
         >
           {options.map((o, i) => (
             <li
@@ -342,7 +342,7 @@ function Composer({ members, onSubmit }: { members: TeamMember[]; onSubmit: (bod
                 e.preventDefault();
                 choose(i);
               }}
-              className={`px-3 py-2 text-sm cursor-pointer ${i === activeIndex ? 'bg-[#EAF2ED] font-semibold' : ''}`}
+              className={`px-3 py-2 text-sm cursor-pointer ${i === activeIndex ? 'bg-brand-tint font-semibold' : ''}`}
             >
               {o.label}
             </li>
@@ -350,13 +350,13 @@ function Composer({ members, onSubmit }: { members: TeamMember[]; onSubmit: (bod
         </ul>
       )}
       <div className="flex items-center justify-between">
-        <span className="text-[11px] text-[#8E9B90]">
+        <span className="text-[11px] text-ink-subtle">
           {text.length}/{COMMENT_MAX}
         </span>
         <button
           type="submit"
           disabled={busy || !text.trim()}
-          className="px-4 py-1.5 rounded-input bg-[#183B28] hover:bg-[#11291C] text-white text-xs font-bold disabled:opacity-40 transition-colors"
+          className="px-4 py-1.5 rounded-input bg-brand-strong hover:bg-brand-rail text-white text-xs font-bold disabled:opacity-40 transition-colors"
         >
           {busy ? 'Posting…' : 'Comment'}
         </button>

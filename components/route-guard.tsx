@@ -29,11 +29,11 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
 
   return (
     <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-8 text-center">
-      <h2 className="text-2xl font-display font-semibold text-[#1E2923]">You don&apos;t have access to this page.</h2>
-      <p className="text-sm text-[#617065]">Your role in this workspace doesn&apos;t include this section.</p>
+      <h2 className="text-2xl font-display font-semibold text-ink">You don&apos;t have access to this page.</h2>
+      <p className="text-sm text-ink-muted">Your role in this workspace doesn&apos;t include this section.</p>
       <Link
         href="/dashboard"
-        className="rounded-card bg-[#9C5B34] px-4 py-2 text-sm font-semibold text-white hover:bg-copper-700"
+        className="rounded-card bg-accent-600 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-700"
       >
         Back to dashboard
       </Link>

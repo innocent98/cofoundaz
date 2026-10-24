@@ -48,9 +48,9 @@ export function SalesGate({
   if (status === 'loading') return <LoadingState label={loadingLabel} />;
   if (status === 'forbidden') {
     return (
-      <div role="status" className="bg-white rounded-modal border border-sage-200/80 shadow-card p-8 space-y-2">
-        <h2 className="font-display font-semibold text-lg text-sage-900">Not available for your role</h2>
-        <p className="text-sm text-sage-600">
+      <div role="status" className="bg-white rounded-modal border border-neutral-200/80 shadow-card p-8 space-y-2">
+        <h2 className="font-display font-semibold text-lg text-neutral-900">Not available for your role</h2>
+        <p className="text-sm text-neutral-600">
           The Sales Hub is open to founders and team members of this workspace. Ask a founder if you need access.
         </p>
       </div>
@@ -66,7 +66,7 @@ export function StallBadge({ deal, long = false }: { deal: Pick<Deal, 'is_stalle
   return (
     <span
       title={`No activity for ${deal.days_inactive} days`}
-      className="bg-copper-100 text-copper-800 text-[10px] font-bold px-2 py-0.5 rounded-[6px] flex items-center gap-1 shrink-0"
+      className="bg-accent-100 text-accent-800 text-[10px] font-bold px-2 py-0.5 rounded-[6px] flex items-center gap-1 shrink-0"
     >
       <span aria-hidden="true">⚠</span> {long ? `Stalled, ${deal.days_inactive} days` : 'Stalled'}
     </span>
@@ -100,10 +100,10 @@ export function OwnerSelect({
 }
 
 const KIND_STYLE: Record<ActivityKind, string> = {
-  note: 'bg-sage-100 text-sage-700',
-  call: 'bg-green-100 text-green-800',
-  email: 'bg-copper-100 text-copper-800',
-  meeting: 'bg-green-50 text-green-700',
+  note: 'bg-neutral-100 text-neutral-700',
+  call: 'bg-brand-100 text-brand-800',
+  email: 'bg-accent-100 text-accent-800',
+  meeting: 'bg-brand-50 text-brand-700',
 };
 
 /**
@@ -162,7 +162,7 @@ export function ActivityLog({
 
   return (
     <section aria-label={heading} className="space-y-4">
-      <h3 className="text-xs font-bold text-sage-500 uppercase tracking-wider">{heading}</h3>
+      <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{heading}</h3>
 
       <form onSubmit={submit} className="space-y-3" noValidate>
         <div className="flex gap-2">
@@ -197,28 +197,28 @@ export function ActivityLog({
       {activities.status === 'loading' && <LoadingState label="Loading activity" />}
       {activities.status === 'error' && <ErrorState message={activities.error ?? 'Could not load activity.'} onRetry={() => void activities.reload()} />}
       {activities.status === 'ready' && items.length === 0 && (
-        <p className="text-sm text-sage-500">No activity yet. Log the first call, email, meeting or note above.</p>
+        <p className="text-sm text-neutral-500">No activity yet. Log the first call, email, meeting or note above.</p>
       )}
       {items.length > 0 && (
         <ul className="space-y-3">
           {items.map((a) => (
-            <li key={a.id} className="flex items-start justify-between gap-3 text-sm border-b border-sage-100 pb-3 last:border-0">
+            <li key={a.id} className="flex items-start justify-between gap-3 text-sm border-b border-neutral-100 pb-3 last:border-0">
               <div className="min-w-0 space-y-1">
                 <div className="flex items-center gap-2">
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${KIND_STYLE[a.kind]}`}>
                     {ACTIVITY_KIND_LABELS[a.kind]}
                   </span>
-                  <span className="text-xs text-sage-500">
+                  <span className="text-xs text-neutral-500">
                     {nameOf(a.author_id)} · {relativeTime(a.occurred_at)}
                   </span>
                 </div>
-                <p className="text-sage-800 whitespace-pre-wrap break-words">{a.body}</p>
+                <p className="text-neutral-800 whitespace-pre-wrap break-words">{a.body}</p>
               </div>
               <button
                 type="button"
                 onClick={() => void remove(a.id)}
                 aria-label={`Delete ${ACTIVITY_KIND_LABELS[a.kind].toLowerCase()} from ${relativeTime(a.occurred_at)}`}
-                className="text-xs text-sage-500 hover:text-red-700 shrink-0 cursor-pointer"
+                className="text-xs text-neutral-500 hover:text-danger-700 shrink-0 cursor-pointer"
               >
                 Delete
               </button>

@@ -117,13 +117,13 @@ function SmokeTestsView() {
   if (mode === 'results') {
     if (!selected) {
       return loading ? (
-        <div className="flex items-center justify-center gap-2 text-sage-500 py-16">
+        <div className="flex items-center justify-center gap-2 text-neutral-500 py-16">
           <Loader2 className="w-5 h-5 animate-spin" /> <span className="text-sm">Loading…</span>
         </div>
       ) : (
-        <div className="bg-white rounded-modal p-10 border border-dashed border-sage-200 text-center space-y-3">
-          <p className="text-sm text-sage-500">That smoke test is no longer available.</p>
-          <button onClick={toList} className="text-sm font-bold text-[#183B28] underline cursor-pointer">Back to smoke tests</button>
+        <div className="bg-white rounded-modal p-10 border border-dashed border-neutral-200 text-center space-y-3">
+          <p className="text-sm text-neutral-500">That smoke test is no longer available.</p>
+          <button onClick={toList} className="text-sm font-bold text-brand-strong underline cursor-pointer">Back to smoke tests</button>
         </div>
       );
     }
@@ -139,44 +139,44 @@ function SmokeTestsView() {
     <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">Smoke tests</h2>
-          <p className="text-sm text-[#617065] mt-1.5">Validate demand with simple landing pages.</p>
+          <h2 className="text-3xl font-display font-bold text-ink tracking-tight">Smoke tests</h2>
+          <p className="text-sm text-ink-muted mt-1.5">Validate demand with simple landing pages.</p>
         </div>
         <button
           onClick={() => { setDraft(null); setMode('builder'); }}
-          className="bg-[#183B28] hover:bg-[#11291C] text-white px-5 py-2.5 rounded-card font-bold text-sm flex items-center justify-center gap-2 shadow-card cursor-pointer self-start md:self-auto"
+          className="bg-brand-strong hover:bg-brand-rail text-white px-5 py-2.5 rounded-card font-bold text-sm flex items-center justify-center gap-2 shadow-card cursor-pointer self-start md:self-auto"
         >
           <Plus className="w-4 h-4" /> <span>New smoke test</span>
         </button>
       </div>
 
       {error && (
-        <div className="flex items-center justify-between gap-3 bg-[#FBEAE7] border border-[#F0C9C2] rounded-card px-4 py-3">
-          <span className="flex items-center gap-2 text-sm text-[#8A2E22]"><AlertTriangle className="w-4 h-4 shrink-0" /> {error}</span>
-          <button onClick={() => { void refetch(); }} className="text-xs font-semibold text-[#8A2E22] underline cursor-pointer">Retry</button>
+        <div className="flex items-center justify-between gap-3 bg-danger-xfbeae7 border border-danger-xf0c9c2 rounded-card px-4 py-3">
+          <span className="flex items-center gap-2 text-sm text-danger-deep"><AlertTriangle className="w-4 h-4 shrink-0" /> {error}</span>
+          <button onClick={() => { void refetch(); }} className="text-xs font-semibold text-danger-deep underline cursor-pointer">Retry</button>
         </div>
       )}
 
       {loading && tests.length === 0 ? (
-        <div className="flex items-center justify-center gap-2 text-sage-500 py-16"><Loader2 className="w-5 h-5 animate-spin" /> <span className="text-sm">Loading smoke tests…</span></div>
+        <div className="flex items-center justify-center gap-2 text-neutral-500 py-16"><Loader2 className="w-5 h-5 animate-spin" /> <span className="text-sm">Loading smoke tests…</span></div>
       ) : tests.length === 0 ? (
-        <div className="bg-white rounded-modal p-10 border border-dashed border-sage-200 text-center">
-          <p className="text-sm text-sage-500">No smoke tests yet. Create one to put a landing page online and track its conversion.</p>
+        <div className="bg-white rounded-modal p-10 border border-dashed border-neutral-200 text-center">
+          <p className="text-sm text-neutral-500">No smoke tests yet. Create one to put a landing page online and track its conversion.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
+        <div className="bg-white rounded-modal border border-line-soft shadow-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[640px]">
               <thead>
-                <tr className="bg-[#FAFAFA] border-b border-[#EBEBE6]">
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase w-1/3">Test name</th>
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Status</th>
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase text-right">Visits</th>
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase text-right">Conversion</th>
+                <tr className="bg-surface-ghost border-b border-line-soft">
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase w-1/3">Test name</th>
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Status</th>
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase text-right">Visits</th>
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase text-right">Conversion</th>
                   <th className="py-3.5 px-6"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F0F0EC]">
+              <tbody className="divide-y divide-line-faint">
                 {tests.map((test) => {
                   const isLive = test.status === 'live';
                   const st = statsById[test.id];
@@ -186,24 +186,24 @@ function SmokeTestsView() {
                       tabIndex={0}
                       onClick={() => { setSelectedId(test.id); setMode('results'); }}
                       onKeyDown={(e) => { if (e.key === 'Enter') { setSelectedId(test.id); setMode('results'); } }}
-                      className="hover:bg-[#FAF9F5] transition-colors cursor-pointer group"
+                      className="hover:bg-neutral-xfaf9f5 transition-colors cursor-pointer group"
                     >
-                      <td className="py-4 px-6 text-sm font-bold text-[#1E2923]">
+                      <td className="py-4 px-6 text-sm font-bold text-ink">
                         {test.name}
-                        {test.slug && <div className="text-xs font-medium text-[#617065] mt-0.5">/p/{test.slug}</div>}
+                        {test.slug && <div className="text-xs font-medium text-ink-muted mt-0.5">/p/{test.slug}</div>}
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${isLive ? 'bg-[#E6EFEA] text-[#183B28]' : test.status === 'ended' ? 'bg-[#F0F0EC] text-[#617065]' : 'bg-[#FDF4E3] text-[#8A5330]'}`}>
-                          {isLive && <span className="w-1.5 h-1.5 rounded-full bg-[#2E7A56] mr-1.5 animate-pulse" />}
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${isLive ? 'bg-neutral-xe6efea text-brand-strong' : test.status === 'ended' ? 'bg-line-faint text-ink-muted' : 'bg-accent-xfdf4e3 text-accent-700'}`}>
+                          {isLive && <span className="w-1.5 h-1.5 rounded-full bg-brand-x2e7a56 mr-1.5 animate-pulse" />}
                           {STATUS_LABEL[test.status] ?? test.status}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-sm font-bold text-[#1E2923] text-right">{st ? st.visits : '-'}</td>
+                      <td className="py-4 px-6 text-sm font-bold text-ink text-right">{st ? st.visits : '-'}</td>
                       <td className="py-4 px-6 text-sm text-right">
-                        <span className="font-bold text-[#1E2923]">{st ? `${st.conversion}%` : '-'}</span>
-                        <span className="text-[#8E9B90] text-xs ml-1">/ {test.targetConversion}%</span>
+                        <span className="font-bold text-ink">{st ? `${st.conversion}%` : '-'}</span>
+                        <span className="text-ink-subtle text-xs ml-1">/ {test.targetConversion}%</span>
                       </td>
-                      <td className="py-4 px-6 text-right"><ChevronRight className="w-5 h-5 text-[#A0AABA] group-hover:text-[#183B28] inline-block" /></td>
+                      <td className="py-4 px-6 text-right"><ChevronRight className="w-5 h-5 text-info-xa0aaba group-hover:text-brand-strong inline-block" /></td>
                     </tr>
                   );
                 })}

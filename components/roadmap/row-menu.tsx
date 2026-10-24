@@ -53,12 +53,12 @@ export function RowMenu({ label, items }: { label: string; items: RowMenuItem[] 
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="p-1.5 text-[#768478] hover:bg-[#EBEBE6] rounded-input transition-colors"
+        className="p-1.5 text-ink-soft hover:bg-line-soft rounded-input transition-colors"
       >
         <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
       </button>
       {open && (
-        <div role="menu" aria-label={label} className="absolute right-0 top-full mt-1 z-30 min-w-[140px] bg-white border border-[#EBEBE6] rounded-card shadow-raised py-1 text-left">
+        <div role="menu" aria-label={label} className="absolute right-0 top-full mt-1 z-30 min-w-[140px] bg-white border border-line-soft rounded-card shadow-raised py-1 text-left">
           {items.map((it) => (
             <button
               key={it.label}
@@ -68,7 +68,7 @@ export function RowMenu({ label, items }: { label: string; items: RowMenuItem[] 
                 close(false);
                 it.onSelect();
               }}
-              className={`block w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#F5F5F0] focus:bg-[#F5F5F0] outline-none ${it.danger ? 'text-[#B0483B]' : 'text-[#1E2923]'}`}
+              className={`block w-full text-left px-3 py-2 text-xs font-semibold hover:bg-surface-muted focus:bg-surface-muted outline-none ${it.danger ? 'text-danger-600' : 'text-ink'}`}
             >
               {it.label}
             </button>

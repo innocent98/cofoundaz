@@ -48,7 +48,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   return (
     <button
       type="button"
-      className="inline-flex items-center gap-1 text-xs font-bold text-green-800 hover:underline"
+      className="inline-flex items-center gap-1 text-xs font-bold text-brand-800 hover:underline"
       aria-label={label}
       onClick={() => {
         void navigator.clipboard
@@ -74,36 +74,36 @@ function ConnectionDetails({ entry, c }: { entry: ProviderEntry; c: Connection }
   return (
     <div className="space-y-3 text-sm">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1 text-xs font-bold text-green-800">
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-800">
           <Check className="w-4 h-4" aria-hidden="true" />
           {c.account_name ? `Connected as ${c.account_name}` : "Connected"}
         </span>
         {c.mode === "test" && (
-          <span className="bg-copper-100 text-copper-700 border border-copper-200 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">
+          <span className="bg-accent-100 text-accent-700 border border-accent-200 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">
             {bank ? "Sandbox" : "Test mode"}
           </span>
         )}
-        <span className="text-xs text-sage-500">
-          {bank ? "Account ending" : "Key"} <span className="font-semibold text-sage-700">{bank ? c.key_last4 : `••••${c.key_last4}`}</span>
+        <span className="text-xs text-neutral-500">
+          {bank ? "Account ending" : "Key"} <span className="font-semibold text-neutral-700">{bank ? c.key_last4 : `••••${c.key_last4}`}</span>
         </span>
       </div>
-      <p className="text-xs text-sage-500">
-        Last synced: <span className="font-semibold text-sage-700">{formatWhen(c.last_sync_at)}</span>
+      <p className="text-xs text-neutral-500">
+        Last synced: <span className="font-semibold text-neutral-700">{formatWhen(c.last_sync_at)}</span>
       </p>
       {c.last_sync_summary && Object.keys(c.last_sync_summary).length > 0 && (
-        <p className="text-xs text-sage-500">Last sync: {describeSync(c.last_sync_summary)}</p>
+        <p className="text-xs text-neutral-500">Last sync: {describeSync(c.last_sync_summary)}</p>
       )}
       {c.status === "active" && c.last_error && (
-        <p className="text-xs font-medium text-copper-700 bg-copper-100/60 border border-copper-200 rounded-input px-3 py-2">{c.last_error}</p>
+        <p className="text-xs font-medium text-accent-700 bg-accent-100/60 border border-accent-200 rounded-input px-3 py-2">{c.last_error}</p>
       )}
       {!bank && meta.webhookIn && (
-        <div className="bg-sage-50 border border-sage-200 rounded-input p-3 space-y-1.5">
+        <div className="bg-neutral-50 border border-neutral-200 rounded-input p-3 space-y-1.5">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-bold text-sage-600 uppercase">Webhook URL</p>
+            <p className="text-xs font-bold text-neutral-600 uppercase">Webhook URL</p>
             <CopyButton text={c.webhook_url} label={`Copy the ${meta.webhookIn} webhook URL`} />
           </div>
-          <p className="text-xs text-sage-700 break-all">{c.webhook_url}</p>
-          <p className="text-xs text-sage-500">
+          <p className="text-xs text-neutral-700 break-all">{c.webhook_url}</p>
+          <p className="text-xs text-neutral-500">
             Paste this URL into your {meta.webhookIn} dashboard under Webhooks so paid invoices update automatically. Without it, payments still import on sync, but invoices will not be marked paid by themselves.
           </p>
         </div>
@@ -210,19 +210,19 @@ function ProviderCard({
   };
 
   return (
-    <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card flex flex-col gap-5">
+    <div className="bg-white p-6 rounded-modal border border-neutral-200/80 shadow-card flex flex-col gap-5">
       <div className="flex items-start gap-3.5">
-        <div className="w-10 h-10 rounded-card bg-sage-100 flex items-center justify-center font-bold text-sage-800 text-sm border border-sage-200/60 flex-shrink-0" aria-hidden="true">
+        <div className="w-10 h-10 rounded-card bg-neutral-100 flex items-center justify-center font-bold text-neutral-800 text-sm border border-neutral-200/60 flex-shrink-0" aria-hidden="true">
           {bank ? <Landmark className="w-5 h-5" /> : meta.initials}
         </div>
         <div className="min-w-0">
-          <h2 className="font-semibold text-sage-900 text-base">{entry.label}</h2>
-          <p className="text-xs text-sage-500 mt-0.5 font-medium">{meta.description}</p>
+          <h2 className="font-semibold text-neutral-900 text-base">{entry.label}</h2>
+          <p className="text-xs text-neutral-500 mt-0.5 font-medium">{meta.description}</p>
         </div>
       </div>
 
       {needsAttention && (
-        <div role="alert" className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-input p-3 text-sm text-red-700">
+        <div role="alert" className="flex items-start gap-2 bg-danger-50 border border-danger-200 rounded-input p-3 text-sm text-danger-700">
           <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
           <div>
             <p className="font-semibold">{entry.label} connection needs attention. Reconnect to resume syncing.</p>
@@ -235,7 +235,7 @@ function ProviderCard({
       {c ? (
         <ConnectionDetails entry={entry} c={c} />
       ) : (
-        <p className="text-xs text-sage-600 font-semibold">Not connected</p>
+        <p className="text-xs text-neutral-600 font-semibold">Not connected</p>
       )}
 
       <FormError message={error} />
@@ -275,24 +275,24 @@ function ProviderCard({
         )}
 
         {isFounder && c && (
-          <button type="button" className="text-xs font-bold text-red-600 hover:underline ml-auto disabled:opacity-50" disabled={busy !== null} onClick={() => setDialog("disconnect")}>
+          <button type="button" className="text-xs font-bold text-danger-600 hover:underline ml-auto disabled:opacity-50" disabled={busy !== null} onClick={() => setDialog("disconnect")}>
             Disconnect
           </button>
         )}
       </div>
 
-      {!isFounder && !c && <p className="text-xs text-sage-500">Only a founder can connect {entry.label}. Ask a founder in this workspace.</p>}
-      {!isFounder && c && <p className="text-xs text-sage-500">Only a founder can replace or disconnect this connection. You can sync it.</p>}
+      {!isFounder && !c && <p className="text-xs text-neutral-500">Only a founder can connect {entry.label}. Ask a founder in this workspace.</p>}
+      {!isFounder && c && <p className="text-xs text-neutral-500">Only a founder can replace or disconnect this connection. You can sync it.</p>}
       {isFounder && !c && !bank && otherPaymentConnected && (
-        <p className="text-xs text-sage-500">Disconnect {otherPaymentConnected.label} first. One payment account can be connected at a time.</p>
+        <p className="text-xs text-neutral-500">Disconnect {otherPaymentConnected.label} first. One payment account can be connected at a time.</p>
       )}
       {bank && !monoReady && (
-        <p className="text-xs font-semibold text-sage-600">Coming soon. Bank linking is not switched on for this environment yet.</p>
+        <p className="text-xs font-semibold text-neutral-600">Coming soon. Bank linking is not switched on for this environment yet.</p>
       )}
       {bank && monoReady && entry.connect_config?.sandbox && (
-        <p className="text-xs text-sage-500">Sandbox only: you can link test banks. No real bank accounts.</p>
+        <p className="text-xs text-neutral-500">Sandbox only: you can link test banks. No real bank accounts.</p>
       )}
-      {!encryptionOk && <p className="text-xs font-semibold text-red-600">Payments are not available right now.</p>}
+      {!encryptionOk && <p className="text-xs font-semibold text-danger-600">Payments are not available right now.</p>}
 
       {dialog === "key" && (
         <SecretKeyDialog
@@ -330,12 +330,12 @@ function Cards({ data, reload }: { data: Integrations; reload: () => Promise<voi
   return (
     <>
       {!data.encryption_configured && (
-        <p role="alert" className="text-sm font-semibold text-red-700 bg-red-50 border border-red-200 rounded-card p-4">
+        <p role="alert" className="text-sm font-semibold text-danger-700 bg-danger-50 border border-danger-200 rounded-card p-4">
           Payments are not available right now. Connecting and syncing are switched off until the server is configured.
         </p>
       )}
       <section aria-labelledby="pay-h" className="space-y-3">
-        <h2 id="pay-h" className="text-sm font-bold text-sage-700 uppercase tracking-wider">
+        <h2 id="pay-h" className="text-sm font-bold text-neutral-700 uppercase tracking-wider">
           Payments
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -352,7 +352,7 @@ function Cards({ data, reload }: { data: Integrations; reload: () => Promise<voi
         </div>
       </section>
       <section aria-labelledby="bank-h" className="space-y-3">
-        <h2 id="bank-h" className="text-sm font-bold text-sage-700 uppercase tracking-wider">
+        <h2 id="bank-h" className="text-sm font-bold text-neutral-700 uppercase tracking-wider">
           Bank
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -368,7 +368,7 @@ function Cards({ data, reload }: { data: Integrations; reload: () => Promise<voi
           ))}
         </div>
       </section>
-      <p className="text-xs text-sage-500">QuickBooks and Xero are not planned yet.</p>
+      <p className="text-xs text-neutral-500">QuickBooks and Xero are not planned yet.</p>
     </>
   );
 }

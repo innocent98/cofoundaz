@@ -23,7 +23,7 @@ export function BreakdownButton({ state, onRun, disabled, className }: Breakdown
         onClick={onRun}
         disabled={disabled || working}
         title="Ask AI to break this down"
-        className="flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-[#8A5330] hover:text-copper-700 px-3 py-1.5 rounded-card hover:bg-[#FDFBF7] transition-colors border border-[#F2E8D5] disabled:opacity-60"
+        className="flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-accent-700 hover:text-accent-700 px-3 py-1.5 rounded-card hover:bg-neutral-xfdfbf7 transition-colors border border-accent-xf2e8d5 disabled:opacity-60"
       >
         {working ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" /> : <Sparkles className="w-3 h-3" aria-hidden="true" />}
         {working ? BREAKDOWN_COPY.working : 'Break down'}
@@ -31,7 +31,7 @@ export function BreakdownButton({ state, onRun, disabled, className }: Breakdown
       <p
         role="status"
         aria-live="polite"
-        className={`text-[11px] font-medium mt-1 ${state?.phase === 'error' ? 'text-[#B0483B]' : 'text-[#2D5A3F]'}`}
+        className={`text-[11px] font-medium mt-1 ${state?.phase === 'error' ? 'text-danger-600' : 'text-brand-mid'}`}
       >
         {state && state.phase !== 'working' ? state.message : ''}
       </p>

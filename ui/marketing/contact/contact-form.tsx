@@ -30,15 +30,15 @@ export function ContactForm() {
         ref={successRef}
         role="status"
         tabIndex={-1}
-        className="mt-9 rounded-card border border-green-200 bg-green-100 p-8 text-center"
+        className="mt-9 rounded-card border border-brand-200 bg-brand-100 p-8 text-center"
       >
         <span
           aria-hidden="true"
-          className="mx-auto mb-3.5 flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-[22px] text-white"
+          className="mx-auto mb-3.5 flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-[22px] text-white"
         >
           ✓
         </span>
-        <p className="text-[17px] font-semibold text-green-900">{contact.success}</p>
+        <p className="text-[17px] font-semibold text-brand-900">{contact.success}</p>
       </div>
     )
   }

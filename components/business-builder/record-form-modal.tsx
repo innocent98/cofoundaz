@@ -53,7 +53,7 @@ function fromFormValue(field: FormField, value: string): unknown {
 }
 
 const inputClass =
-  'w-full border border-[#D5DDD6] rounded-input px-3 py-2 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58] placeholder:text-[#A3B899]';
+  'w-full border border-line-strong rounded-input px-3 py-2 text-sm focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus placeholder:text-brand-xa3b899';
 
 export function RecordFormModal({
   title,
@@ -88,14 +88,14 @@ export function RecordFormModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-[#061A12]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-brand-x061a12/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-modal w-full max-w-lg shadow-raised overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
-        <div className="px-6 py-4 border-b border-[#E8E8E2] flex items-center justify-between bg-[#FBFBFA] shrink-0">
-          <h3 className="font-bold text-[#1E2923]">{title}</h3>
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between bg-surface-faint shrink-0">
+          <h3 className="font-bold text-ink">{title}</h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-[#8E9B90] hover:text-[#1E2923] transition-colors p-1 rounded-input hover:bg-[#E8E8E2]"
+            className="text-ink-subtle hover:text-ink transition-colors p-1 rounded-input hover:bg-line"
             aria-label="Close"
           >
             <X size={16} />
@@ -117,9 +117,9 @@ export function RecordFormModal({
                 key={field.key}
                 className={`space-y-1.5 ${field.half ? 'md:col-span-1' : 'md:col-span-2'}`}
               >
-                <label htmlFor={id} className="text-xs font-bold text-[#55625A] uppercase tracking-wider">
+                <label htmlFor={id} className="text-xs font-bold text-neutral-x55625a uppercase tracking-wider">
                   {field.label}
-                  {field.required && <span className="text-[#A34B4B]"> *</span>}
+                  {field.required && <span className="text-danger-text"> *</span>}
                 </label>
 
                 {field.type === 'textarea' && (
@@ -178,10 +178,10 @@ export function RecordFormModal({
                 )}
 
                 {field.type === 'list' && (
-                  <p className="text-[10px] text-[#8E9B90]">One per line.</p>
+                  <p className="text-[10px] text-ink-subtle">One per line.</p>
                 )}
                 {fieldError && (
-                  <p id={`${id}-error`} className="text-xs font-medium text-[#A34B4B]">
+                  <p id={`${id}-error`} className="text-xs font-medium text-danger-text">
                     {fieldError}
                   </p>
                 )}
@@ -191,7 +191,7 @@ export function RecordFormModal({
           </div>
 
           {error && (
-            <p className="text-xs text-[#A34B4B] bg-[#FBEBEB] border border-[#F0D5D5] rounded-input px-3 py-2">
+            <p className="text-xs text-danger-text bg-danger-wash border border-danger-xf0d5d5 rounded-input px-3 py-2">
               {error}
             </p>
           )}
@@ -200,14 +200,14 @@ export function RecordFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-sm font-bold transition-colors"
+              className="flex-1 px-4 py-2 bg-white border border-neutral-xdcdcd6 hover:bg-surface-muted text-ink rounded-card text-sm font-bold transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 px-4 py-2 bg-[#183B28] hover:bg-[#12261C] disabled:opacity-60 text-white rounded-card text-sm font-bold transition-colors"
+              className="flex-1 px-4 py-2 bg-brand-strong hover:bg-brand-rail-ink disabled:opacity-60 text-white rounded-card text-sm font-bold transition-colors"
             >
               {submitting ? 'Saving…' : suggestMode ? 'Suggest this' : 'Save'}
             </button>

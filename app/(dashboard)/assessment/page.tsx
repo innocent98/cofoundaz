@@ -9,7 +9,7 @@ import { canTakeAssessment } from "@/lib/nav-access";
 import { daysSinceCompletion } from "@/lib/assessment-insights";
 
 const PRIMARY_LINK =
-  "bg-[#1e4836] hover:bg-[#153427] text-white font-bold text-sm px-5 py-2.5 rounded-[8px] transition-colors text-center";
+  "bg-brand-hover hover:bg-brand-x153427 text-white font-bold text-sm px-5 py-2.5 rounded-[8px] transition-colors text-center";
 
 export default function AssessmentStartPage() {
   const router = useRouter();
@@ -35,17 +35,17 @@ export default function AssessmentStartPage() {
         <div
           role="region"
           aria-label="Quarterly re-assessment due"
-          className="bg-[#F7EEDC] rounded-card p-4 border border-[#D89A6E]/40 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-3"
+          className="bg-accent-xf7eedc rounded-card p-4 border border-accent-500/40 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-3"
         >
           <div className="space-y-1">
-            <h3 className="text-[#1E2923] font-semibold text-sm">Time for your quarterly check-in</h3>
-            <p className="text-[#617065] text-xs">{daysSince === null ? "It has been over 90 days" : `It has been ${daysSince} days`} since your last assessment. Keep your Health Score honest.</p>
+            <h3 className="text-ink font-semibold text-sm">Time for your quarterly check-in</h3>
+            <p className="text-ink-muted text-xs">{daysSince === null ? "It has been over 90 days" : `It has been ${daysSince} days`} since your last assessment. Keep your Health Score honest.</p>
           </div>
           <button
             type="button"
             onClick={() => void handleBegin()}
             disabled={starting}
-            className="shrink-0 bg-[#9C5B34] hover:bg-[#8A5330] disabled:opacity-60 text-white font-bold text-xs px-4 py-2 rounded-[8px] transition-colors shadow-card"
+            className="shrink-0 bg-accent-600 hover:bg-accent-700 disabled:opacity-60 text-white font-bold text-xs px-4 py-2 rounded-[8px] transition-colors shadow-card"
           >
             {starting ? "Starting..." : "Start re-assessment"}
           </button>
@@ -53,10 +53,10 @@ export default function AssessmentStartPage() {
       )}
 
       {founder && inProgress && (
-        <div className="bg-[#EAD5C6] rounded-card p-4 border border-[#D89A6E]/30 shadow-card flex items-center justify-between gap-3">
+        <div className="bg-accent-200 rounded-card p-4 border border-accent-500/30 shadow-card flex items-center justify-between gap-3">
           <div className="space-y-1">
-            <h3 className="text-[#1E2923] font-semibold text-sm">You have an assessment in progress</h3>
-            <p className="text-[#617065] text-xs">
+            <h3 className="text-ink font-semibold text-sm">You have an assessment in progress</h3>
+            <p className="text-ink-muted text-xs">
               {typeof pct === "number"
                 ? `You're ${pct}% through. Pick up where you left off.`
                 : "Pick up where you left off."}
@@ -64,29 +64,29 @@ export default function AssessmentStartPage() {
           </div>
           <button
             onClick={() => router.push('/assessment/in-progress')}
-            className="shrink-0 bg-white text-[#12291F] font-bold text-xs px-4 py-2 rounded-[8px] hover:bg-sage-50 transition-colors shadow-card"
+            className="shrink-0 bg-white text-brand-900 font-bold text-xs px-4 py-2 rounded-[8px] hover:bg-neutral-50 transition-colors shadow-card"
           >
             Resume
           </button>
         </div>
       )}
 
-      <div className="bg-white rounded-modal p-8 md:p-12 border border-sage-200/80 shadow-card flex flex-col items-center text-center space-y-6">
-        <div className="w-16 h-16 rounded-full bg-sage-100 flex items-center justify-center mb-2">
+      <div className="bg-white rounded-modal p-8 md:p-12 border border-neutral-200/80 shadow-card flex flex-col items-center text-center space-y-6">
+        <div className="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
           <span className="text-3xl">🧭</span>
         </div>
 
-        <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">
+        <h1 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 tracking-tight">
           Let&apos;s calibrate {workspaceName ?? "your startup"}
         </h1>
 
-        <p className="text-sage-600 text-sm md:text-base max-w-lg leading-relaxed">
+        <p className="text-neutral-600 text-sm md:text-base max-w-lg leading-relaxed">
           Honest answers make everything smarter, your score, your roadmap, your advisors. There are no wrong answers, only accurate ones.
         </p>
 
         {readOnly ? (
           <div className="pt-4 w-full max-w-sm space-y-4">
-            <p className="text-sm text-sage-600">
+            <p className="text-sm text-neutral-600">
               Only founders can take the assessment. You can read every result and compare check-ins.
             </p>
             <div className="flex flex-col md:flex-row gap-3 justify-center">
@@ -95,7 +95,7 @@ export default function AssessmentStartPage() {
               </Link>
               <Link
                 href="/assessment/compare"
-                className="bg-white border border-sage-200 text-sage-800 font-bold text-sm px-5 py-2.5 rounded-[8px] hover:border-sage-300 transition-colors text-center"
+                className="bg-white border border-neutral-200 text-neutral-800 font-bold text-sm px-5 py-2.5 rounded-[8px] hover:border-neutral-300 transition-colors text-center"
               >
                 Compare
               </Link>
@@ -106,17 +106,17 @@ export default function AssessmentStartPage() {
             <button
               onClick={() => void handleBegin()}
               disabled={starting || historyLoading || !founder}
-              className="w-full bg-[#1e4836] disabled:opacity-60 disabled:cursor-not-allowed hover:bg-[#153427] text-white font-bold text-base px-6 py-3.5 rounded-[8px] transition-colors shadow-card flex items-center justify-center gap-2"
+              className="w-full bg-brand-hover disabled:opacity-60 disabled:cursor-not-allowed hover:bg-brand-x153427 text-white font-bold text-base px-6 py-3.5 rounded-[8px] transition-colors shadow-card flex items-center justify-center gap-2"
             >
               {starting ? "Starting..." : historyLoading ? "Loading..." : inProgress ? "Continue" : completed.length > 0 ? "Start a check-in" : "Begin"}
             </button>
             {startError && (
-              <p role="alert" className="text-sm text-[#B0483B] mt-3">
+              <p role="alert" className="text-sm text-danger-600 mt-3">
                 {startError}
               </p>
             )}
             {historyError && !startError && (
-              <p className="text-xs text-sage-500 mt-3">We couldn&apos;t check for an assessment in progress. {historyError}</p>
+              <p className="text-xs text-neutral-500 mt-3">We couldn&apos;t check for an assessment in progress. {historyError}</p>
             )}
           </div>
         )}

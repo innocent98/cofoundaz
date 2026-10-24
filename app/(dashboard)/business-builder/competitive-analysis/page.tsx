@@ -42,10 +42,10 @@ function buildFields(fields: RecordField[], axes: PositioningAxes): FormField[] 
 
 function threatBadge(threat: unknown): string {
   switch (String(threat)) {
-    case 'high': return 'bg-[#FBEBEB] text-[#B83E3E]';
-    case 'medium': return 'bg-[#F7EFE0] text-[#9C5B34]';
-    case 'low': return 'bg-[#EBF5F0] text-[#2E7A56]';
-    default: return 'bg-[#F0F0EC] text-[#768478]';
+    case 'high': return 'bg-danger-wash text-danger-xb83e3e';
+    case 'medium': return 'bg-accent-xf7efe0 text-accent-600';
+    case 'low': return 'bg-neutral-xebf5f0 text-brand-x2e7a56';
+    default: return 'bg-line-faint text-ink-soft';
   }
 }
 
@@ -123,7 +123,7 @@ export default function CompetitiveAnalysisPage() {
             {canWrite && (
               <button
                 onClick={openCreate}
-                className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
+                className="bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
               >
                 <Plus className="w-3.5 h-3.5" /><span>{suggestMode ? 'Suggest a competitor' : 'Add competitor'}</span>
               </button>
@@ -132,21 +132,21 @@ export default function CompetitiveAnalysisPage() {
         }
       />
 
-      {loading && <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card h-64 animate-pulse" />}
+      {loading && <div className="bg-white rounded-modal border border-line-soft shadow-card h-64 animate-pulse" />}
 
       {!loading && error && (
-        <div className="bg-[#FBEBEB] border border-[#F0D5D5] rounded-modal p-4 text-sm text-[#A34B4B]">{error}</div>
+        <div className="bg-danger-wash border border-danger-xf0d5d5 rounded-modal p-4 text-sm text-danger-text">{error}</div>
       )}
 
       {!loading && !error && records.length === 0 && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-12 text-center flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#F0F4F1] text-[#183B28] flex items-center justify-center">
+        <div className="bg-white rounded-modal border border-line-soft shadow-card p-12 text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-neutral-xf0f4f1 text-brand-strong flex items-center justify-center">
             <Swords className="w-6 h-6" />
           </div>
-          <p className="text-sm font-bold text-[#1E2923]">No competitors yet</p>
-          <p className="text-xs text-[#768478] max-w-xs">Track who else solves this problem, how they position, and where they sit on cost vs trust.</p>
+          <p className="text-sm font-bold text-ink">No competitors yet</p>
+          <p className="text-xs text-ink-soft max-w-xs">Track who else solves this problem, how they position, and where they sit on cost vs trust.</p>
           {canWrite && (
-            <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
+            <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
               <Plus className="w-3.5 h-3.5" /><span>{suggestMode ? 'Suggest the first competitor' : 'Add your first competitor'}</span>
             </button>
           )}
@@ -155,25 +155,25 @@ export default function CompetitiveAnalysisPage() {
 
       {!loading && records.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-7 bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
+          <div className="lg:col-span-7 bg-white rounded-modal border border-line-soft shadow-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[460px]">
                 <thead>
-                  <tr className="bg-[#FAFAFA] border-b border-[#EBEBE6]">
-                    <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Competitor</th>
-                    <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Positioning</th>
-                    <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Threat</th>
-                    <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase text-right">Actions</th>
+                  <tr className="bg-surface-ghost border-b border-line-soft">
+                    <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Competitor</th>
+                    <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Positioning</th>
+                    <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Threat</th>
+                    <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#F0F0EC]">
+                <tbody className="divide-y divide-line-faint">
                   {records.map((rec) => (
-                    <tr key={rec.id} className="hover:bg-[#FAF9F5] transition-colors group">
-                      <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">
+                    <tr key={rec.id} className="hover:bg-neutral-xfaf9f5 transition-colors group">
+                      <td className="py-4 px-6 text-xs md:text-sm font-bold text-ink">
                         {(rec.data.name as string) || '-'}
                         <RecordEdited record={rec} className="font-normal" />
                       </td>
-                      <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.positioning as string) || '-'}</td>
+                      <td className="py-4 px-6 text-xs md:text-sm text-ink-body">{(rec.data.positioning as string) || '-'}</td>
                       <td className="py-4 px-6">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold capitalize ${threatBadge(rec.data.threat_level)}`}>
                           {String(rec.data.threat_level || '-')}
@@ -183,10 +183,10 @@ export default function CompetitiveAnalysisPage() {
                         <div className="flex items-center justify-end gap-1">
                           {threads.button(rec.id, (rec.data.name as string) || 'this competitor')}
                           {canWrite && (<>
-                          <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors" aria-label={`Edit competitor: ${(rec.data.name as string) || 'untitled'}`}>
+                          <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-ink-soft hover:text-brand-strong hover:bg-neutral-xf0f4f1 transition-colors" aria-label={`Edit competitor: ${(rec.data.name as string) || 'untitled'}`}>
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
-                          <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label={`Delete competitor: ${(rec.data.name as string) || 'untitled'}`}>
+                          <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-ink-soft hover:text-danger-text hover:bg-danger-wash transition-colors" aria-label={`Delete competitor: ${(rec.data.name as string) || 'untitled'}`}>
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                           </>)}
@@ -199,13 +199,13 @@ export default function CompetitiveAnalysisPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-5 bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-4">
+          <div className="lg:col-span-5 bg-white rounded-modal p-6 border border-line-soft shadow-card flex flex-col gap-4">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-xs font-bold text-[#1E2923]">Positioning map</h3>
+              <h3 className="text-xs font-bold text-ink">Positioning map</h3>
               {access.canEdit && (
                 <button
                   onClick={() => setAxesOpen(true)}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-[#183B28] hover:text-[#11291C]"
+                  className="flex items-center gap-1 text-[11px] font-semibold text-brand-strong hover:text-brand-rail"
                 >
                   <SlidersHorizontal className="w-3 h-3" /> Edit axes
                 </button>
