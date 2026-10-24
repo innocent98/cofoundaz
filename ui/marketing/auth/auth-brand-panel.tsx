@@ -1,16 +1,12 @@
 import Link from "next/link";
+import BrandLogo from "@/components/brand/BrandLogo";
 
 export function AuthBrandPanel() {
   return (
     <div className="bg-[#0b241a] text-white p-8 lg:p-12 flex flex-col justify-between min-h-screen">
       {/* Top Header / Logo */}
       <Link href="/" className="flex items-center gap-3 w-fit">
-        <div className="w-9 h-9 bg-white text-[#0b241a] font-bold text-xl rounded-card flex items-center justify-center shadow-card">
-          C
-        </div>
-        <span className="font-display text-2xl tracking-tight font-medium text-white">
-          Cofoundaz
-        </span>
+        <BrandLogo tone="light" height={32} eager />
       </Link>
 
       {/* Main Content */}

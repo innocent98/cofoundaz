@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Loader2, AlertTriangle, Eye } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 // Public shared-document view — GET /shared/{token} (no auth). See
 // cofoundaz-api/docs/fe-integration-guide-documents-sharing.md §5. `document` is
@@ -62,7 +63,7 @@ export default function PublicSharedPage() {
   return (
     <div className="min-h-screen bg-[#F6F7F4] font-body text-[#1E2923]">
       <header className="bg-white border-b border-[#E8E8E2] px-6 py-4 flex items-center justify-between">
-        <div className="font-display font-bold text-xl tracking-tight text-[#1E2923]">Cofoundaz</div>
+        <BrandLogo height={26} eager />
         {data && (
           <span className="flex items-center gap-1.5 bg-[#F5F5F0] text-[#617065] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#E8E8E2] capitalize">
             <Eye className="w-3.5 h-3.5" /> {data.access_level === 'comment' ? 'View & comment' : 'View only'}

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Check, Loader2, AlertTriangle } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
+import BrandLogo from '@/components/brand/BrandLogo';
 import {
   getPublicSurvey,
   submitSurveyResponse,
@@ -84,8 +85,7 @@ export default function PublicSurveyPage() {
     <div className="min-h-[100dvh] bg-[#F4F6F5] flex flex-col items-center px-4 py-10 md:py-16">
       {/* Brand */}
       <div className="flex items-center gap-2.5 mb-8">
-        <div className="bg-[#9C5B34] text-white font-bold h-8 w-8 flex items-center justify-center rounded-card text-sm">C</div>
-        <span className="text-lg font-display font-bold text-[#12291F] tracking-tight">Cofoundaz</span>
+        <BrandLogo height={28} eager />
       </div>
 
       <div className="w-full max-w-xl">
