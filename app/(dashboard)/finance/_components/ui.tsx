@@ -9,18 +9,18 @@ import type { FinanceResource } from "@/hooks/useFinanceResource";
 // loading, empty, error and "not available for your role" the same way.
 
 export const inputCls =
-  "w-full bg-sage-50 border border-sage-200 rounded-input px-3 py-2 text-sm text-sage-900 focus:outline-none focus:border-copper-600";
+  "w-full bg-sage-50 border border-sage-200 rounded-input px-3 py-2 max-md:min-h-11 text-sm text-sage-900 focus:outline-none focus:border-copper-600";
 export const labelCls = "text-xs font-bold text-sage-500 uppercase";
 export const primaryBtn =
-  "bg-copper-600 text-white px-4 py-2 rounded-card text-sm font-medium inline-flex items-center justify-center gap-1.5 hover:bg-copper-700 transition-colors shadow-card disabled:opacity-60 disabled:cursor-not-allowed";
+  "bg-copper-600 text-white px-4 py-2 max-md:min-h-11 rounded-card text-sm font-medium inline-flex items-center justify-center gap-1.5 hover:bg-copper-700 transition-colors shadow-card disabled:opacity-60 disabled:cursor-not-allowed";
 export const darkBtn =
-  "bg-green-900 text-white px-4 py-2 rounded-card text-sm font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-green-800 transition-colors shadow-card disabled:opacity-60 disabled:cursor-not-allowed";
+  "bg-green-900 text-white px-4 py-2 max-md:min-h-11 rounded-card text-sm font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-green-800 transition-colors shadow-card disabled:opacity-60 disabled:cursor-not-allowed";
 export const secondaryBtn =
-  "bg-white text-sage-700 border border-sage-200 px-4 py-2 rounded-card text-sm font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-sage-50 transition-colors shadow-card disabled:opacity-60 disabled:cursor-not-allowed";
+  "bg-white text-sage-700 border border-sage-200 px-4 py-2 max-md:min-h-11 rounded-card text-sm font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-sage-50 transition-colors shadow-card disabled:opacity-60 disabled:cursor-not-allowed";
 export const dangerBtn =
-  "bg-red-600 text-white px-4 py-2 rounded-card text-sm font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-red-700 transition-colors shadow-card disabled:opacity-60 disabled:cursor-not-allowed";
-export const linkBtn = "text-xs font-bold text-green-800 hover:underline disabled:opacity-50";
-export const dangerLinkBtn = "text-xs font-bold text-red-600 hover:underline disabled:opacity-50";
+  "bg-red-600 text-white px-4 py-2 max-md:min-h-11 rounded-card text-sm font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-red-700 transition-colors shadow-card disabled:opacity-60 disabled:cursor-not-allowed";
+export const linkBtn = "inline-flex items-center max-md:min-h-11 text-xs font-bold text-green-800 hover:underline disabled:opacity-50";
+export const dangerLinkBtn = "inline-flex items-center max-md:min-h-11 text-xs font-bold text-red-600 hover:underline disabled:opacity-50";
 
 export function PageHeader({
   title,
@@ -169,7 +169,7 @@ export function Modal({
       >
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-display font-bold text-sage-900">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="Close" className="text-sage-500 hover:text-sage-800">
+          <button type="button" onClick={onClose} aria-label="Close" className="inline-flex items-center justify-center max-md:min-h-11 max-md:min-w-11 text-sage-500 hover:text-sage-800">
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
