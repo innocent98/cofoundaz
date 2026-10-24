@@ -1,4 +1,4 @@
-import { ApiError, apiClient } from './client';
+import { API_BASE, ApiError, apiClient } from './client';
 import { fieldErrorsOf, formatCac, isForbiddenError, isUuid } from './marketing';
 
 // Typed client for the Sales CRM backend (Module 11, slice A), /api/v1/sales/*.
@@ -777,4 +777,232 @@ export function monthLabel(month: string, long = false): string {
   const [y, m] = month.split('-').map(Number);
   const d = new Date(Date.UTC(y, m - 1, 1));
   return d.toLocaleDateString('en-GB', { month: 'short', ...(long ? { year: 'numeric' as const } : {}), timeZone: 'UTC' });
+}
+
+// ---- sequences + outreach (slice B)
+// Shapes copied from cofoundaz-api/docs/fe-integration-guide-sales-sequences.md (live captures).
+// Trap: enrollment timestamps end in "Z", sequence and draft timestamps in "+00:00"; both parse with Date.
+
+export const MAX_STEPS = 10;
+export const MAX_WAIT_DAYS = 60;
+export const MERGE_TAGS = ['first_name', 'last_name', 'company', 'sender_name'] as const;
+export type MergeTag = (typeof MERGE_TAGS)[number];
+
+export interface SequenceStep {
+  wait_days: number;
+  subject: string;
+  body: string;
+}
+
+export type SequenceStatus = 'active' | 'paused' | 'archived';
+
+export interface Sequence {
+  id: string;
+  name: string;
+  steps: SequenceStep[];
+  step_count: number;
+  stop_on_stage_change: boolean;
+  status: SequenceStatus;
+  active_enrollments: number;
+  total_enrollments: number;
+  /** Replied / total enrollments, 0..1. */
+  reply_rate: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SequenceInput {
+  name: string;
+  steps: SequenceStep[];
+  stop_on_stage_change: boolean;
+}
+
+export type SequencePatch = Partial<SequenceInput & { status: 'active' | 'paused' }>;
+
+export type EnrollmentStatus = 'active' | 'completed' | 'replied' | 'unsubscribed' | 'bounced' | 'stopped';
+export const ENROLLMENT_STATUSES: EnrollmentStatus[] = ['active', 'completed', 'replied', 'unsubscribed', 'bounced', 'stopped'];
+
+export interface Enrollment {
+  id: string;
+  sequence_id: string;
+  lead_id: string | null;
+  contact_id: string | null;
+  email: string;
+  first_name: string;
+  last_name: string;
+  company: string;
+  sender_name: string;
+  sender_email: string;
+  status: EnrollmentStatus;
+  stopped_reason: string | null;
+  /** Steps already sent. */
+  current_step: number;
+  next_send_at: string | null;
+  created_at: string;
+}
+
+export type EnrollSkipReason = 'no_email' | 'suppressed' | 'already_active' | 'converted' | 'not_found';
+
+export interface EnrollResult {
+  enrolled: number;
+  enrollments: Enrollment[];
+  skipped: { id: string; reason: EnrollSkipReason }[];
+}
+
+export interface SendingStatus {
+  configured: boolean;
+  reason: string | null;
+  domain: string | null;
+  sent_today: number;
+  daily_cap: number;
+  hourly_cap: number | null;
+  paused: boolean;
+  paused_reason: string | null;
+  paused_at: string | null;
+}
+
+export interface Draft {
+  id: string;
+  kind: 'sequence_step' | 'follow_up';
+  status: 'generating' | 'ready' | 'failed';
+  sequence_id: string | null;
+  step_index: number | null;
+  deal_id: string | null;
+  subject: string | null;
+  body: string | null;
+  error: 'over_budget' | 'generation_failed' | 'bad_output' | 'target_missing' | null;
+  sent_at: string | null;
+  created_at: string;
+}
+
+export interface UnsubscribeStatus {
+  email: string;
+  sender: string;
+  unsubscribed: boolean;
+}
+
+export const listSequences = (query: { include_archived?: boolean; limit?: number; offset?: number } = {}) =>
+  call<Page<Sequence>>(`/sequences${qs({ ...query })}`);
+export const getSequence = (sequenceId: string) => call<Sequence>(`/sequences/${id(sequenceId)}`);
+export const createSequence = (input: SequenceInput) => call<Sequence>('/sequences', json('POST', input));
+export const updateSequence = (sequenceId: string, patch: SequencePatch) =>
+  call<Sequence>(`/sequences/${id(sequenceId)}`, json('PATCH', patch));
+/** Archives it and stops its live enrollments. */
+export const archiveSequence = (sequenceId: string) => call<Sequence>(`/sequences/${id(sequenceId)}`, json('DELETE'));
+
+export const listEnrollments = (sequenceId: string, query: { status?: EnrollmentStatus; limit?: number; offset?: number } = {}) =>
+  call<Page<Enrollment>>(`/sequences/${id(sequenceId)}/enrollments${qs({ ...query })}`);
+export const enrollInSequence = (sequenceId: string, who: { lead_ids?: string[]; contact_ids?: string[] }) =>
+  call<EnrollResult>(`/sequences/${id(sequenceId)}/enroll`, json('POST', who));
+export const markEnrollmentReplied = (enrollmentId: string) => call<Enrollment>(`/enrollments/${id(enrollmentId)}/replied`, json('POST'));
+export const stopEnrollment = (enrollmentId: string) => call<Enrollment>(`/enrollments/${id(enrollmentId)}/stop`, json('POST'));
+
+export const getSendingStatus = () => call<SendingStatus>('/sending');
+/** Founder only; a team member gets 403. */
+export const resumeSending = () => call<SendingStatus>('/sending/resume', json('POST'));
+
+/** 202; poll getDraft until status is ready or failed. Nothing is appended to the step. */
+export const requestStepDraft = (sequenceId: string, stepIndex: number, instructions?: string) =>
+  call<Draft>(`/sequences/${id(sequenceId)}/steps/${stepIndex}/write`, json('POST', instructions ? { instructions } : {}));
+export const getDraft = (draftId: string) => call<Draft>(`/drafts/${id(draftId)}`);
+
+/** 202; a second call while one is generating is a 409 DRAFT_IN_PROGRESS. */
+export const requestFollowUp = (dealId: string) => call<Draft>(`/deals/${id(dealId)}/follow-up`, json('POST'));
+/** The latest follow-up draft, or null when none was ever written. */
+export const getFollowUp = (dealId: string) => call<Draft | null>(`/deals/${id(dealId)}/follow-up`);
+export const sendFollowUp = (dealId: string, input: { draft_id: string; subject: string; body: string }) =>
+  call<{ sent: boolean; send_id: string; to: string; draft_id: string }>(`/deals/${id(dealId)}/follow-up/send`, json('POST', input));
+
+export const isDraftInProgress = (err: unknown) => err instanceof ApiError && err.status === 409 && errorCodeOf(err) === 'DRAFT_IN_PROGRESS';
+
+// ---- public unsubscribe (no auth; deliberately not apiClient, which would attach a token and bounce on 401)
+
+async function publicUnsubscribe(token: string, method: 'GET' | 'POST'): Promise<UnsubscribeStatus> {
+  const res = await fetch(`${API_BASE}/public/sales/unsubscribe/${encodeURIComponent(token)}`, {
+    method,
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) throw new PublicUnsubscribeError(res.status);
+  return ((await res.json()) as Envelope<UnsubscribeStatus>).data;
+}
+export class PublicUnsubscribeError extends Error {
+  constructor(public status: number) {
+    super(`Unsubscribe request failed (${status})`);
+  }
+}
+export const getUnsubscribeStatus = (token: string) => publicUnsubscribe(token, 'GET');
+export const confirmUnsubscribe = (token: string) => publicUnsubscribe(token, 'POST');
+
+// ---- sequence helpers
+
+export const STEP_LIMIT_MESSAGE = `A sequence has 1 to ${MAX_STEPS} steps.`;
+
+/** Wait before a step: 0 reads "Send straight away" on step 1 and "Same day" later. */
+export function waitLabel(days: number, first: boolean): string {
+  if (days === 0) return first ? 'Sends as soon as they are enrolled' : 'Sends the same day as the step before';
+  return `Sends ${days} ${days === 1 ? 'day' : 'days'} after the step before`;
+}
+
+export function replyRateLabel(rate: number): string {
+  return `${Math.round(rate * 1000) / 10}% reply rate`;
+}
+
+/** Merge tags a template uses that have no value for this contact are sent as empty text. */
+export function previewTemplate(text: string, sample: Record<MergeTag, string>): string {
+  return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (m, tag: string) => (tag in sample ? sample[tag as MergeTag] : m));
+}
+
+/** Tags in `text` that are not one of the four supported ones. */
+export function unknownTags(text: string): string[] {
+  const out: string[] = [];
+  for (const m of text.matchAll(/\{\{\s*(\w+)\s*\}\}/g)) if (!(MERGE_TAGS as readonly string[]).includes(m[1])) out.push(m[1]);
+  return out;
+}
+
+export const SKIP_REASON_LABELS: Record<EnrollSkipReason, string> = {
+  no_email: 'has no email address',
+  suppressed: 'unsubscribed or bounced earlier',
+  already_active: 'is already in this sequence',
+  converted: 'became a contact, enrol the contact instead',
+  not_found: 'could not be found',
+};
+
+export const ENROLLMENT_STATUS_LABELS: Record<EnrollmentStatus, string> = {
+  active: 'Active',
+  completed: 'Finished',
+  replied: 'Replied',
+  unsubscribed: 'Unsubscribed',
+  bounced: 'Bounced',
+  stopped: 'Stopped',
+};
+
+export const STOPPED_REASON_LABELS: Record<string, string> = {
+  marked_replied: 'Marked as replied',
+  stopped_by_member: 'Stopped by a member',
+  sequence_archived: 'Sequence archived',
+  deal_stage_changed: 'Deal changed stage',
+  send_failed: 'Send failed',
+  no_sender: 'The sender is no longer in the workspace',
+  finished: 'All steps sent',
+  unsubscribed: 'Unsubscribed',
+  bounced: 'Address bounced',
+};
+
+export function enrollSummary(r: EnrollResult): string {
+  const parts = [r.enrolled === 1 ? '1 person enrolled' : `${r.enrolled} people enrolled`];
+  if (r.skipped.length) parts.push(`${r.skipped.length} skipped`);
+  return parts.join(', ');
+}
+
+/** Map a follow-up send failure code to what the member should do next. */
+export function followUpSendMessage(err: unknown): string {
+  const code = errorCodeOf(err);
+  switch (code) {
+    case 'SEND_UNCERTAIN':
+      return 'This email may have been delivered. Check your mailbox or ask the contact before trying again.';
+    case 'SEND_LIMIT_REACHED':
+      return salesErrorMessage(err, 'The sending limit is reached. Try again later.');
+    default:
+      return salesErrorMessage(err, 'Could not send this email.');
+  }
 }

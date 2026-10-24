@@ -4,6 +4,7 @@ import React, { useId, useState } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/app/(dashboard)/sales/ToastContext';
 import { useContact, useMembers } from '@/hooks/useSalesCrm';
+import { EnrollDialog } from './enroll-dialog';
 import {
   contactName,
   createContact,
@@ -161,6 +162,7 @@ function ContactBody({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
   const setForm = (patch: Partial<ContactForm>) => setFormState((f) => ({ ...f, ...patch }));
 
   const save = async (e: React.FormEvent) => {
@@ -214,6 +216,9 @@ function ContactBody({
           <button type="submit" className={BTN_ACCENT} disabled={busy}>
             {busy ? 'Saving...' : 'Save changes'}
           </button>
+          <button type="button" className={BTN_SECONDARY} onClick={() => setEnrolling(true)} disabled={busy}>
+            Enrol in sequence
+          </button>
           <button type="button" className={BTN_DANGER} onClick={() => setConfirmDelete(true)} disabled={busy}>
             Delete contact
           </button>
@@ -227,6 +232,12 @@ function ContactBody({
         nameOf={nameOf}
         onLogged={onChanged}
       />
+      {enrolling && (
+        <EnrollDialog
+          targets={{ label: contactName(contact), contact_ids: [contact.id] }}
+          onClose={() => setEnrolling(false)}
+        />
+      )}
       {confirmDelete && (
         <ConfirmDialog
           title="Delete this contact?"

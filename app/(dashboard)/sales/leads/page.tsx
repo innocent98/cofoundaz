@@ -24,6 +24,7 @@ import {
 } from "@/lib/api/sales";
 import { useToast } from "../ToastContext";
 import { LeadImportModal } from "@/components/sales/lead-import";
+import { EnrollDialog } from "@/components/sales/enroll-dialog";
 import {
   BTN_ACCENT,
   BTN_SECONDARY,
@@ -71,6 +72,7 @@ function LeadsInner() {
   const [adding, setAdding] = useState(false);
   const [converted, setConverted] = useState<{ dealId: string; label: string } | null>(null);
   const [toDelete, setToDelete] = useState<Lead | null>(null);
+  const [toEnroll, setToEnroll] = useState<Lead | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const ids = { name: useId(), company: useId(), email: useId(), search: useId(), status: useId() };
 
@@ -205,6 +207,11 @@ function LeadsInner() {
           </div>
           <div className="flex gap-3">
             {focused.data.status !== "converted" && (
+              <button type="button" className={BTN_SECONDARY} onClick={() => setToEnroll(focused.data as Lead)}>
+                Enrol in sequence
+              </button>
+            )}
+            {focused.data.status !== "converted" && (
               <button type="button" className={BTN_ACCENT} disabled={busyId === focused.data.id} onClick={() => void handleConvert(focused.data as Lead)}>
                 Make it a deal
               </button>
@@ -316,6 +323,14 @@ function LeadsInner() {
                           <>
                             <button
                               type="button"
+                              onClick={() => setToEnroll(lead)}
+                              aria-label={`Enrol ${leadTitle(lead)} in a sequence`}
+                              className="mr-4 text-xs font-bold text-[#1e4836] hover:underline cursor-pointer"
+                            >
+                              Enrol
+                            </button>
+                            <button
+                              type="button"
                               disabled={busyId === lead.id}
                               onClick={() => void handleConvert(lead)}
                               aria-label={`Make ${leadTitle(lead)} a deal`}
@@ -365,6 +380,10 @@ function LeadsInner() {
             void leads.reload();
           }}
         />
+      )}
+
+      {toEnroll && (
+        <EnrollDialog targets={{ label: leadTitle(toEnroll), lead_ids: [toEnroll.id] }} onClose={() => setToEnroll(null)} />
       )}
 
       {toDelete && (

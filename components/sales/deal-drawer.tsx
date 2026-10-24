@@ -1,5 +1,6 @@
 'use client';
 
+import { FollowUpSection } from './follow-up';
 import React, { useId, useState } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/app/(dashboard)/sales/ToastContext';
@@ -463,6 +464,9 @@ function DealBody({
           Prep for a call
         </Link>
       </section>
+
+      <hr className="border-sage-200" />
+      <FollowUpSection dealId={deal.id} hasContact={!!deal.contact_id} />
 
       <hr className="border-sage-200" />
       <ActivityLog
