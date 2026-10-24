@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
 import {
   getCashFlow,
+  getIntegrations,
+  listCategories,
   getRunway,
   listBudgets,
   listExpenses,
@@ -10,11 +12,16 @@ import {
   type Budget,
   type CashFlow,
   type Expense,
+  type FinanceCategory,
+  type Integrations,
+  type InvoiceStatus,
+  type TransactionFilters,
   type ExpenseSummary,
   type Invoice,
   type Runway,
   type Transaction,
 } from '@/lib/api/finance';
+import { useFinancePaged, type PagedList } from './useFinancePaged';
 import { useFinanceResource, type FinanceResource } from './useFinanceResource';
 
 // Finance Hub data hooks. Each wraps one list/summary endpoint in the shared
@@ -25,23 +32,27 @@ export function useCashFlow(): FinanceResource<CashFlow> {
   return useFinanceResource(getCashFlow);
 }
 
-export function useTransactions(): FinanceResource<Transaction[]> {
-  const load = useCallback(() => listTransactions(), []);
-  return useFinanceResource(load);
+export function useTransactions(filters: TransactionFilters): PagedList<Transaction> {
+  const { uncategorized, category, direction, date_from, date_to } = filters;
+  const fetchPage = useCallback(
+    (cursor: string | null) => listTransactions({ uncategorized, category, direction, date_from, date_to }, cursor),
+    [uncategorized, category, direction, date_from, date_to],
+  );
+  return useFinancePaged(fetchPage);
 }
 
 export function useRunway(): FinanceResource<Runway> {
   return useFinanceResource(getRunway);
 }
 
-export function useInvoices(): FinanceResource<Invoice[]> {
-  const load = useCallback(() => listInvoices(), []);
-  return useFinanceResource(load);
+export function useInvoices(status?: InvoiceStatus): PagedList<Invoice> {
+  const fetchPage = useCallback((cursor: string | null) => listInvoices(status, cursor), [status]);
+  return useFinancePaged(fetchPage);
 }
 
-export function useExpenses(month: string): FinanceResource<Expense[]> {
-  const load = useCallback(() => listExpenses({ month }), [month]);
-  return useFinanceResource(load);
+export function useExpenses(month: string): PagedList<Expense> {
+  const fetchPage = useCallback((cursor: string | null) => listExpenses({ month }, cursor), [month]);
+  return useFinancePaged(fetchPage);
 }
 
 export function useExpenseSummary(month: string): FinanceResource<ExpenseSummary> {
@@ -55,23 +66,20 @@ export function useBudgets(month: string): FinanceResource<Budget[]> {
 }
 
 /**
- * Categories already used on expenses, for the shared picker on the Expenses and
- * Budgets forms. Budget "spent" matches the category string exactly, so both
- * forms must offer the same list.
+ * The category list for every picker: the defaults plus every category the
+ * workspace has used, one entry per case-folded name. `reload` after a write
+ * that may introduce a new category.
  */
-export const SUGGESTED_CATEGORIES = [
-  'Payroll',
-  'Infrastructure',
-  'Software',
-  'Marketing',
-  'Operations',
-  'Legal',
-  'Equipment',
-];
+export function useCategories(): FinanceResource<FinanceCategory[]> {
+  return useFinanceResource(listCategories);
+}
 
-export function useKnownCategories(): string[] {
-  const load = useCallback(() => listExpenses(), []);
-  const { data } = useFinanceResource(load);
-  const used = (data ?? []).map((e) => e.category);
-  return Array.from(new Set([...used, ...SUGGESTED_CATEGORIES]));
+export function useIntegrations(): FinanceResource<Integrations> {
+  return useFinanceResource(getIntegrations);
+}
+
+/** Exact count of ledger rows with no category, for the "Needs a category" chip. */
+export function useUncategorizedCount(): FinanceResource<number> {
+  const load = useCallback(async () => (await listTransactions({ uncategorized: true }, null, 1)).total ?? 0, []);
+  return useFinanceResource(load);
 }

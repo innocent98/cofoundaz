@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { FileText, Plus, Receipt, UploadCloud } from "lucide-react";
-import { useExpenses, useExpenseSummary, useKnownCategories } from "@/hooks/useFinanceApi";
+import { useCategories, useExpenses, useExpenseSummary } from "@/hooks/useFinanceApi";
 import {
   RECEIPT_MAX_BYTES,
   RECEIPT_TYPES,
@@ -15,7 +15,10 @@ import {
   type FinanceError,
 } from "@/lib/api/finance";
 import { currentMonth, formatDate, formatMoney, formatMonth, minorToInput, todayIso, toMinor } from "@/lib/finance/format";
-import { CategoryInput } from "../_components/CategoryInput";
+import { CategorySelect } from "../_components/CategorySelect";
+import { ExpenseDonut } from "../_components/charts";
+import { LoadMore } from "../_components/LoadMore";
+import { ReceiptButton } from "../_components/ReceiptButton";
 import {
   ConfirmDialog,
   EmptyBlock,
@@ -25,7 +28,7 @@ import {
   LoadingBlock,
   Modal,
   PageHeader,
-  ResourceGate,
+  ErrorBlock,
   dangerLinkBtn,
   darkBtn,
   inputCls,
@@ -85,8 +88,8 @@ function ExpenseForm({
       <Field label="Vendor" htmlFor="ex-vendor" error={error?.fieldErrors.vendor}>
         <input id="ex-vendor" className={inputCls} value={vendor} onChange={(e) => setVendor(e.target.value)} maxLength={200} />
       </Field>
-      <Field label="Category" htmlFor="ex-cat" error={error?.fieldErrors.category} hint="Budgets match this text exactly, so reuse a category you already have.">
-        <CategoryInput id="ex-cat" value={category} onChange={setCategory} options={categories} />
+      <Field label="Category" htmlFor="ex-cat" error={error?.fieldErrors.category} hint="Budgets match by category, so pick the one you budget against.">
+        <CategorySelect id="ex-cat" value={category} onChange={setCategory} options={categories} />
       </Field>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Amount (NGN)" htmlFor="ex-amount" error={error?.fieldErrors.amount_minor}>
@@ -128,7 +131,8 @@ export default function ExpensesPage() {
   const [month, setMonth] = useState(currentMonth());
   const expenses = useExpenses(month);
   const summary = useExpenseSummary(month);
-  const categories = useKnownCategories();
+  const categoryList = useCategories();
+  const categories = (categoryList.data ?? []).map((c) => c.name);
   const { run, busy } = useFinanceAction();
   const { triggerToast } = useToast();
 
@@ -140,7 +144,7 @@ export default function ExpensesPage() {
   const uploadTarget = useRef<Expense | null>(null);
 
   const refresh = async () => {
-    await Promise.all([expenses.reload(), summary.reload()]);
+    await Promise.all([expenses.reload(), summary.reload(), categoryList.reload()]);
   };
   const closeForm = () => {
     setFormFor(null);
@@ -233,6 +237,27 @@ export default function ExpensesPage() {
 
   const today = todayIso();
 
+  // Receipts open only through the signed-link route; the expense never carries a storage URL.
+  const receiptControls = (exp: Expense) =>
+    exp.has_receipt ? (
+      <>
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-green-800">
+          <FileText className="w-4 h-4" aria-hidden="true" /> On file
+        </span>
+        <ReceiptButton expenseId={exp.id} vendor={exp.vendor} />
+        <button type="button" className={linkBtn} disabled={busy} onClick={() => pickReceipt(exp)} aria-label={`Replace receipt for ${exp.vendor}`}>
+          Replace
+        </button>
+        <button type="button" className={dangerLinkBtn} disabled={busy} onClick={() => setRemovingReceipt(exp)} aria-label={`Remove receipt for ${exp.vendor}`}>
+          Remove
+        </button>
+      </>
+    ) : (
+      <button type="button" className={`${linkBtn} inline-flex items-center gap-1 text-copper-600`} disabled={busy} onClick={() => pickReceipt(exp)} aria-label={`Attach receipt for ${exp.vendor}`}>
+        <UploadCloud className="w-4 h-4" aria-hidden="true" /> Attach
+      </button>
+    );
+
   return (
     <div className="space-y-6 animate-fadeIn">
       <PageHeader
@@ -257,133 +282,122 @@ export default function ExpensesPage() {
         }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 bg-white p-6 rounded-modal border border-sage-200 shadow-card space-y-4 self-start">
-          <h2 className="font-bold text-sage-900 border-b border-sage-100 pb-2">Category breakdown ({formatMonth(month)})</h2>
-          {summary.status === "loading" ? (
-            <LoadingBlock label="Loading breakdown" />
-          ) : summary.status === "ready" && summary.data && summary.data.rows.length > 0 ? (
-            <>
-              <p className="text-sm text-sage-600">
-                Total <span className="font-bold text-sage-900">{formatMoney(summary.data.total_minor, summary.data.currency)}</span>
-              </p>
-              <ul className="space-y-3">
-                {summary.data.rows.map((r) => (
-                  <li key={r.category} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-medium text-sage-700">
-                      <span>{r.category}</span>
-                      <span className="font-bold">{r.percent}%</span>
-                    </div>
-                    <div className="w-full bg-sage-100 rounded-pill h-2 overflow-hidden">
-                      <div className="bg-green-800 h-full rounded-pill" style={{ width: `${Math.min(100, (r.total_minor / Math.max(1, summary.data!.total_minor)) * 100)}%` }}></div>
-                    </div>
-                    <p className="text-[11px] text-sage-500">{formatMoney(r.total_minor, summary.data!.currency)}</p>
-                  </li>
-                ))}
-              </ul>
-              <p className="text-[11px] text-sage-400">Includes expenses dated later in the month.</p>
-            </>
-          ) : summary.status === "error" ? (
-            <p role="alert" className="text-sm text-red-600">
-              {summary.error}
-            </p>
-          ) : (
-            <p className="text-sm text-sage-500">No expenses in {formatMonth(month)} yet.</p>
-          )}
-        </div>
-
-        <div className="lg:col-span-2">
-          <ResourceGate resource={expenses} loadingLabel="Loading expenses">
-            {(rows) =>
-              rows.length === 0 ? (
-                <EmptyBlock icon={<Receipt className="w-6 h-6" aria-hidden="true" />} title={`No expenses in ${formatMonth(month)}`} body="Log what you spend. Each expense comes off your cash on hand, feeds your budgets and can carry a receipt.">
-                  <button type="button" onClick={() => setFormFor("new")} className={darkBtn}>
-                    <Plus className="w-4 h-4" aria-hidden="true" /> Add an expense
-                  </button>
-                </EmptyBlock>
-              ) : (
-                <div className="bg-white rounded-modal border border-sage-200 overflow-hidden shadow-card">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse min-w-[820px]">
-                      <thead>
-                        <tr className="bg-sage-50/50 border-b border-sage-100 text-[11px] text-sage-400 font-bold uppercase tracking-wider">
-                          <th className="py-4 px-6">Vendor / date</th>
-                          <th className="py-4 px-4">Category</th>
-                          <th className="py-4 px-4 text-center">Recurring</th>
-                          <th className="py-4 px-4">Receipt</th>
-                          <th className="py-4 px-4 text-right">Amount</th>
-                          <th className="py-4 px-6 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-sage-100 text-sm">
-                        {rows.map((exp) => (
-                          <tr key={exp.id} className="hover:bg-sage-50/50 transition-colors">
-                            <td className="py-3 px-6">
-                              <p className="font-semibold text-sage-900">{exp.vendor}</p>
-                              <p className="text-xs text-sage-500 font-medium">
-                                {formatDate(exp.expense_date)}
-                                {exp.expense_date > today && <span className="ml-2 text-copper-700 font-bold">Scheduled</span>}
-                              </p>
-                              {exp.notes && <p className="text-xs text-sage-400 mt-0.5">{exp.notes}</p>}
-                            </td>
-                            <td className="py-3 px-4 text-sage-600 font-medium">{exp.category}</td>
-                            <td className="py-3 px-4 text-center">
-                              <input
-                                type="checkbox"
-                                checked={exp.recurring}
-                                disabled={busy}
-                                onChange={() => void toggleRecurring(exp)}
-                                aria-label={`Recurring for ${exp.vendor}`}
-                                className="accent-copper-600 cursor-pointer"
-                              />
-                            </td>
-                            <td className="py-3 px-4">
-                              {exp.has_receipt ? (
-                                <span className="inline-flex items-center gap-2">
-                                  {exp.receipt_url && /^https?:\/\//.test(exp.receipt_url) ? (
-                                    <a href={exp.receipt_url} target="_blank" rel="noopener noreferrer" className={`${linkBtn} inline-flex items-center gap-1`}>
-                                      <FileText className="w-4 h-4" aria-hidden="true" /> View
-                                    </a>
-                                  ) : (
-                                    <span className="inline-flex items-center gap-1 text-xs font-bold text-green-800">
-                                      <FileText className="w-4 h-4" aria-hidden="true" /> On file
-                                    </span>
-                                  )}
-                                  <button type="button" className={linkBtn} disabled={busy} onClick={() => pickReceipt(exp)} aria-label={`Replace receipt for ${exp.vendor}`}>
-                                    Replace
-                                  </button>
-                                  <button type="button" className={dangerLinkBtn} disabled={busy} onClick={() => setRemovingReceipt(exp)} aria-label={`Remove receipt for ${exp.vendor}`}>
-                                    Remove
-                                  </button>
-                                </span>
-                              ) : (
-                                <button type="button" className={`${linkBtn} inline-flex items-center gap-1 text-copper-600`} disabled={busy} onClick={() => pickReceipt(exp)} aria-label={`Attach receipt for ${exp.vendor}`}>
-                                  <UploadCloud className="w-4 h-4" aria-hidden="true" /> Attach
-                                </button>
-                              )}
-                            </td>
-                            <td className="py-3 px-4 font-bold text-sage-900 text-right whitespace-nowrap">{formatMoney(exp.amount_minor, exp.currency)}</td>
-                            <td className="py-3 px-6 text-right whitespace-nowrap">
-                              <span className="inline-flex items-center gap-3">
-                                <button type="button" className={linkBtn} onClick={() => setFormFor(exp)} aria-label={`Edit ${exp.vendor}`}>
-                                  Edit
-                                </button>
-                                <button type="button" className={dangerLinkBtn} onClick={() => setDeleting(exp)} aria-label={`Delete ${exp.vendor}`}>
-                                  Delete
-                                </button>
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )
-            }
-          </ResourceGate>
-        </div>
+      <div className="bg-white p-6 rounded-modal border border-sage-200 shadow-card space-y-4">
+        <h2 className="font-bold text-sage-900 border-b border-sage-100 pb-2">Category breakdown ({formatMonth(month)})</h2>
+        {summary.status === "loading" ? (
+          <LoadingBlock label="Loading breakdown" />
+        ) : summary.status === "ready" && summary.data && summary.data.rows.length > 0 ? (
+          <>
+            <ExpenseDonut rows={summary.data.rows} total={summary.data.total_minor} currency={summary.data.currency} />
+            <p className="text-[11px] text-sage-400">Includes expenses dated later in the month.</p>
+          </>
+        ) : summary.status === "error" ? (
+          <p role="alert" className="text-sm text-red-600">
+            {summary.error}
+          </p>
+        ) : (
+          <p className="text-sm text-sage-500">No expenses in {formatMonth(month)} yet.</p>
+        )}
       </div>
+
+      {expenses.status === "loading" ? (
+        <LoadingBlock label="Loading expenses" />
+      ) : expenses.status === "error" ? (
+        <ErrorBlock message={expenses.error ?? "Couldn't load expenses."} onRetry={() => void expenses.reload()} />
+      ) : expenses.items.length === 0 ? (
+        <EmptyBlock icon={<Receipt className="w-6 h-6" aria-hidden="true" />} title={`No expenses in ${formatMonth(month)}`} body="Log what you spend. Each expense comes off your cash on hand, feeds your budgets and can carry a receipt.">
+          <button type="button" onClick={() => setFormFor("new")} className={darkBtn}>
+            <Plus className="w-4 h-4" aria-hidden="true" /> Add an expense
+          </button>
+        </EmptyBlock>
+      ) : (
+        <div className="bg-white rounded-modal border border-sage-200 overflow-hidden shadow-card">
+          <ul className="md:hidden divide-y divide-sage-100" aria-label="Expenses">
+            {expenses.items.map((exp) => (
+              <li key={exp.id} className="p-4 space-y-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-sage-900 break-words">{exp.vendor}</p>
+                    <p className="text-xs text-sage-500">
+                      {formatDate(exp.expense_date)} · {exp.category}
+                      {exp.expense_date > today ? " · Scheduled" : ""}
+                    </p>
+                    {exp.notes && <p className="text-xs text-sage-400 mt-0.5">{exp.notes}</p>}
+                  </div>
+                  <p className="font-bold text-sage-900 whitespace-nowrap">{formatMoney(exp.amount_minor, exp.currency)}</p>
+                </div>
+                <label className="flex items-center gap-2 text-xs text-sage-600">
+                  <input type="checkbox" checked={exp.recurring} disabled={busy} onChange={() => void toggleRecurring(exp)} className="accent-copper-600" />
+                  Recurring
+                </label>
+                <div className="flex flex-wrap items-center gap-3">{receiptControls(exp)}</div>
+                <div className="flex items-center gap-4">
+                  <button type="button" className={linkBtn} onClick={() => setFormFor(exp)} aria-label={`Edit ${exp.vendor}`}>
+                    Edit
+                  </button>
+                  <button type="button" className={dangerLinkBtn} onClick={() => setDeleting(exp)} aria-label={`Delete ${exp.vendor}`}>
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-sage-50/50 border-b border-sage-100 text-[11px] text-sage-400 font-bold uppercase tracking-wider">
+                  <th className="py-4 px-6">Vendor / date</th>
+                  <th className="py-4 px-4">Category</th>
+                  <th className="py-4 px-4 text-center">Recurring</th>
+                  <th className="py-4 px-4">Receipt</th>
+                  <th className="py-4 px-4 text-right">Amount</th>
+                  <th className="py-4 px-6 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-sage-100 text-sm">
+                {expenses.items.map((exp) => (
+                  <tr key={exp.id} className="hover:bg-sage-50/50 transition-colors">
+                    <td className="py-3 px-6">
+                      <p className="font-semibold text-sage-900">{exp.vendor}</p>
+                      <p className="text-xs text-sage-500 font-medium">
+                        {formatDate(exp.expense_date)}
+                        {exp.expense_date > today && <span className="ml-2 text-copper-700 font-bold">Scheduled</span>}
+                      </p>
+                      {exp.notes && <p className="text-xs text-sage-400 mt-0.5">{exp.notes}</p>}
+                    </td>
+                    <td className="py-3 px-4 text-sage-600 font-medium">{exp.category}</td>
+                    <td className="py-3 px-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={exp.recurring}
+                        disabled={busy}
+                        onChange={() => void toggleRecurring(exp)}
+                        aria-label={`Recurring for ${exp.vendor}`}
+                        className="accent-copper-600 cursor-pointer"
+                      />
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="flex flex-wrap items-center gap-x-3 gap-y-1">{receiptControls(exp)}</span>
+                    </td>
+                    <td className="py-3 px-4 font-bold text-sage-900 text-right whitespace-nowrap">{formatMoney(exp.amount_minor, exp.currency)}</td>
+                    <td className="py-3 px-6 text-right whitespace-nowrap">
+                      <span className="inline-flex items-center gap-3">
+                        <button type="button" className={linkBtn} onClick={() => setFormFor(exp)} aria-label={`Edit ${exp.vendor}`}>
+                          Edit
+                        </button>
+                        <button type="button" className={dangerLinkBtn} onClick={() => setDeleting(exp)} aria-label={`Delete ${exp.vendor}`}>
+                          Delete
+                        </button>
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <LoadMore list={expenses} noun="expenses" />
+        </div>
+      )}
 
       <input type="file" ref={fileInputRef} onChange={(e) => void onFileChosen(e)} className="hidden" accept="image/png,image/jpeg,application/pdf" aria-label="Receipt file" />
 

@@ -4,6 +4,7 @@ import {
   currentMonth,
   formatDate,
   formatMoney,
+  formatMoneyWhole,
   formatMonth,
   minorToInput,
   minorToThousands,
@@ -70,5 +71,12 @@ describe('copy helpers', () => {
     expect(clampPercent(150)).toBe(100);
     expect(clampPercent(null)).toBe(0);
     expect(clampPercent(40)).toBe(40);
+  });
+});
+
+describe('formatMoneyWhole', () => {
+  it('rounds to whole naira', () => {
+    expect(formatMoneyWhole(96016667)).toBe('₦960,167');
+    expect(formatMoneyWhole(150000000)).toBe('₦1,500,000');
   });
 });

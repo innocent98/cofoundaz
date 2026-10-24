@@ -17,6 +17,16 @@ export function formatMoney(minor: number, currency = 'NGN'): string {
   }
 }
 
+/** Whole naira for headline tiles (kobo only belong in tables): 96016667 -> "₦960,167". */
+export function formatMoneyWhole(minor: number, currency = 'NGN'): string {
+  const major = Math.round(minor / 100);
+  try {
+    return new Intl.NumberFormat('en-NG', { style: 'currency', currency, maximumFractionDigits: 0 }).format(major);
+  } catch {
+    return `${currency} ${major.toLocaleString('en-NG')}`;
+  }
+}
+
 /** Plain grouped number in major units, for dense statement tables. */
 export function formatMajor(minor: number): string {
   return Math.round(minor / 100).toLocaleString('en-NG');

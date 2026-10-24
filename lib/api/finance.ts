@@ -1,4 +1,4 @@
-import { apiClient, ApiError } from './client';
+import { API_BASE, apiClient, ApiError } from './client';
 
 // Finance Hub (BE module 12). Shapes are copied from the live-captured guides in
 // cofoundaz-api/docs/fe-integration-guide-finance-*.md. Money is ALWAYS integer
@@ -64,7 +64,14 @@ export function toFinanceError(err: unknown, fallback = 'Something went wrong. T
 
 export type TransactionDirection = 'in' | 'out';
 /** Only `manual` rows are user-editable; the rest are owned by their parent record. */
-export type TransactionSource = 'manual' | 'invoice' | 'expense' | 'bank' | 'accounting' | 'stripe';
+export type TransactionSource =
+  | 'manual'
+  | 'invoice'
+  | 'expense'
+  | 'bank'
+  | 'accounting'
+  | 'paystack'
+  | 'flutterwave';
 
 export interface Transaction {
   id: string;
@@ -129,11 +136,49 @@ export async function getCashFlow(): Promise<CashFlow> {
   return unwrap(await apiClient<Envelope<CashFlow>>('/finance/cash-flow'));
 }
 
-export async function listTransactions(filters: TransactionFilters = {}): Promise<Transaction[]> {
+/** One page of a cursor-paginated list. `total` is the exact count for the current filters. */
+export interface Page<T> {
+  items: T[];
+  /** null on the last page. Pass back unchanged, with the same filters. */
+  nextCursor: string | null;
+  total: number | null;
+}
+
+interface PageMeta {
+  next_cursor?: string | null;
+  total_estimate?: number | null;
+}
+
+function toPage<T>(items: T[], meta: unknown): Page<T> {
+  const m = (meta ?? {}) as PageMeta;
+  return { items, nextCursor: m.next_cursor ?? null, total: m.total_estimate ?? null };
+}
+
+export const PAGE_SIZE = 50;
+
+export async function listTransactions(
+  filters: TransactionFilters = {},
+  cursor?: string | null,
+  limit: number = PAGE_SIZE,
+): Promise<Page<Transaction>> {
   const res = await apiClient<Envelope<{ transactions: Transaction[] }>>(
-    `/finance/transactions${query({ ...filters })}`,
+    `/finance/transactions${query({ ...filters, limit: String(limit), cursor: cursor ?? undefined })}`,
   );
-  return unwrap(res).transactions;
+  return toPage(unwrap(res).transactions, res.meta);
+}
+
+// ---------------------------------------------------------------- categories
+
+export interface FinanceCategory {
+  name: string;
+  is_default: boolean;
+  in_use: boolean;
+}
+
+/** Defaults plus every category the workspace has used, one entry per case-folded name. */
+export async function listCategories(): Promise<FinanceCategory[]> {
+  const res = await apiClient<Envelope<{ categories: FinanceCategory[] }>>('/finance/categories');
+  return unwrap(res).categories;
 }
 
 export async function createTransaction(input: TransactionInput): Promise<Transaction> {
@@ -232,6 +277,14 @@ export interface Invoice {
   paid_at: string | null;
   auto_remind: boolean;
   transaction_id: string | null;
+  /** Hosted checkout link; null when none was created (draft, no connection, or creation failed). */
+  pay_url: string | null;
+  pay_provider: PaymentProviderId | null;
+  /** Set only when the provider's webhook paid the invoice. */
+  paid_via: PaymentProviderId | null;
+  last_reminded_at: string | null;
+  reminder_count: number;
+  overdue_notified_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -247,9 +300,56 @@ export interface InvoiceInput {
 
 export type InvoicePatch = Partial<InvoiceInput> & { auto_remind?: boolean };
 
-export async function listInvoices(status?: InvoiceStatus): Promise<Invoice[]> {
-  const res = await apiClient<Envelope<{ invoices: Invoice[] }>>(`/finance/invoices${query({ status })}`);
-  return unwrap(res).invoices;
+export async function listInvoices(
+  status?: InvoiceStatus,
+  cursor?: string | null,
+  limit: number = PAGE_SIZE,
+): Promise<Page<Invoice>> {
+  const res = await apiClient<Envelope<{ invoices: Invoice[] }>>(
+    `/finance/invoices${query({ status, limit: String(limit), cursor: cursor ?? undefined })}`,
+  );
+  return toPage(unwrap(res).invoices, res.meta);
+}
+
+/** Queues a reminder email to the client. 422 unless sent, past due and no reminder in 24 hours. */
+export async function remindInvoice(id: string): Promise<Invoice> {
+  return unwrap(await apiClient<Envelope<Invoice>>(`/finance/invoices/${id}/remind`, { method: 'POST' }));
+}
+
+/** Creates or retries the pay link of a sent NGN invoice while a connection is active. */
+export async function createPayLink(id: string): Promise<Invoice> {
+  return unwrap(await apiClient<Envelope<Invoice>>(`/finance/invoices/${id}/pay-link`, { method: 'POST' }));
+}
+
+/**
+ * Fetches the invoice PDF with the bearer token (a plain link cannot send it) and
+ * hands the browser a blob download. Throws ApiError.
+ */
+export async function downloadInvoicePdf(invoice: Pick<Invoice, 'id' | 'number'>): Promise<void> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
+  const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('cf_workspace_id') : null;
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (workspaceId) headers['X-Workspace-Id'] = workspaceId;
+  const res = await fetch(`${API_BASE}/finance/invoices/${encodeURIComponent(invoice.id)}/pdf`, { headers });
+  if (!res.ok) {
+    let data: unknown = null;
+    try {
+      data = await res.json();
+    } catch {
+      /* not JSON */
+    }
+    throw new ApiError(res.status, res.statusText, data);
+  }
+  const blob = await res.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = objectUrl;
+  a.download = `invoice-${invoice.number}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
 }
 
 export async function createInvoice(input: InvoiceInput): Promise<Invoice> {
@@ -290,6 +390,7 @@ export interface Expense {
   recurring: boolean;
   notes: string | null;
   has_receipt: boolean;
+  /** An API route (never a storage URL). Do not open it directly: call `getReceiptLink`. */
   receipt_url: string | null;
   transaction_id: string | null;
   created_by: string | null;
@@ -334,9 +435,27 @@ export interface ExpenseSummary {
 export const RECEIPT_TYPES = ['image/png', 'image/jpeg', 'application/pdf'] as const;
 export const RECEIPT_MAX_BYTES = 10 * 1024 * 1024;
 
-export async function listExpenses(filters: ExpenseFilters = {}): Promise<Expense[]> {
-  const res = await apiClient<Envelope<{ expenses: Expense[] }>>(`/finance/expenses${query({ ...filters })}`);
-  return unwrap(res).expenses;
+export async function listExpenses(
+  filters: ExpenseFilters = {},
+  cursor?: string | null,
+  limit: number = PAGE_SIZE,
+): Promise<Page<Expense>> {
+  const res = await apiClient<Envelope<{ expenses: Expense[] }>>(
+    `/finance/expenses${query({ ...filters, limit: String(limit), cursor: cursor ?? undefined })}`,
+  );
+  return toPage(unwrap(res).expenses, res.meta);
+}
+
+export interface ReceiptLink {
+  /** Signed, needs no bearer token, expires in about 5 minutes. Never cache or store it. */
+  url: string;
+  expires_at: string;
+  content_type: 'image/png' | 'image/jpeg' | 'application/pdf';
+}
+
+/** Asks for a fresh signed link each time the user opens a receipt. */
+export async function getReceiptLink(expenseId: string): Promise<ReceiptLink> {
+  return unwrap(await apiClient<Envelope<ReceiptLink>>(`/finance/expenses/${expenseId}/receipt`));
 }
 
 export async function getExpenseSummary(month?: string): Promise<ExpenseSummary> {
@@ -373,21 +492,30 @@ export async function removeExpenseReceipt(id: string): Promise<Expense> {
 // ---------------------------------------------------------------- budgets
 
 export interface Budget {
-  id: string;
+  /** null on an unbudgeted row (spend in a category with no budget). */
+  id: string | null;
   category: string;
   period_month: string;
-  limit_minor: number;
+  /** null on an unbudgeted row. */
+  limit_minor: number | null;
   currency: string;
   notes: string | null;
-  /** Derived on every read from that month's expenses. Never sent. */
+  /** Derived on every read: every money-out ledger row of the month in this category. Never sent. */
   spent_minor: number;
-  variance_minor: number;
+  variance_minor: number | null;
+  /** (spent - limit) / limit, one decimal. null when the limit is 0 or missing. */
+  variance_percent: number | null;
   over_budget: boolean;
-  /** null iff limit_minor is 0. Not capped at 100. */
+  /** null when the limit is 0 or missing. Not capped at 100. */
   percent_used: number | null;
-  created_at: string;
-  updated_at: string;
+  /** `under` below 80%, `near` from 80% to 100%, `over` above, `unbudgeted` for spend with no budget. */
+  status: BudgetStatus;
+  unbudgeted: boolean;
+  created_at: string | null;
+  updated_at: string | null;
 }
+
+export type BudgetStatus = 'under' | 'near' | 'over' | 'unbudgeted';
 
 export interface BudgetInput {
   category: string;
@@ -455,6 +583,19 @@ export interface ModelStatement {
   rows: ModelRow[];
 }
 
+export interface HiringPlanItem {
+  role: string;
+  /** YYYY-MM, inside the model's months. */
+  start_month: string;
+  monthly_cost_minor: number;
+}
+export interface DatedCost {
+  label: string;
+  month: string;
+  amount_minor: number;
+}
+
+/** What the engine used: the AI's values with the founder's edits on top. Bind the editor to this. */
 export interface ModelAssumptions {
   monthly_revenue_growth_pct: number;
   cogs_pct_of_revenue: number;
@@ -464,6 +605,22 @@ export interface ModelAssumptions {
   narrative: string;
   /** `business_builder` when revenue starts from the plan sent from Business Builder, `actuals` when real transactions exist. */
   revenue_source?: 'business_builder' | 'actuals';
+  revenue_0_minor?: number;
+  monthly_costs_0_minor?: number;
+  depreciation_months?: number;
+  hiring_plan?: HiringPlanItem[];
+  one_offs?: DatedCost[];
+  capex?: DatedCost[];
+}
+
+/** The founder's edits only; `null` when nothing is edited. */
+export type ModelOverrides = Partial<Omit<ModelAssumptions, 'narrative' | 'revenue_source'>>;
+
+export interface ModelYearly {
+  periods: { label: string; start_month: string; end_month: string }[];
+  pnl: ModelStatement;
+  cash_flow: ModelStatement;
+  balance_sheet: ModelStatement;
 }
 
 export interface FinancialModel {
@@ -471,14 +628,25 @@ export interface FinancialModel {
   status: FinancialModelStatus;
   horizon_months: number;
   currency: string;
+  /** true when saved edits are not in the statements yet: offer Recalculate. */
+  stale: boolean;
+  overrides: ModelOverrides | null;
+  recalculated_at: string | null;
+  /** null on a model generated before the check existed. */
+  balance_check: { balanced: boolean; max_abs_difference_minor: number } | null;
   assumptions: ModelAssumptions | null;
+  /** The AI's baseline, shown as "AI suggested X" next to an edited field. */
+  ai_assumptions: Omit<ModelAssumptions, 'hiring_plan' | 'one_offs' | 'capex'> | null;
   pnl: ModelStatement | null;
   cash_flow: ModelStatement | null;
   balance_sheet: ModelStatement | null;
   months: string[] | null;
+  yearly: ModelYearly | null;
   error: string | null;
   generated_at: string | null;
   created_at: string;
+  /** Recalculate response only: saved edits that fall outside the projection window. */
+  warnings?: string[];
 }
 
 /** `GET /finance/model` returns this when the workspace has never generated one. */
@@ -498,4 +666,131 @@ export async function getLatestFinancialModel(): Promise<FinancialModel | NoFina
 
 export async function getFinancialModel(id: string): Promise<FinancialModel> {
   return unwrap(await apiClient<Envelope<FinancialModel>>(`/finance/model/${id}`));
+}
+
+/** Saves edits. Omit = untouched, `null` = clear that edit, a list replaces the whole list. Statements do not change. */
+export type ModelAssumptionsPatch = {
+  [K in keyof ModelOverrides]?: ModelOverrides[K] | null;
+};
+
+export async function patchModelAssumptions(id: string, patch: ModelAssumptionsPatch): Promise<FinancialModel> {
+  return unwrap(
+    await apiClient<Envelope<FinancialModel>>(`/finance/model/${id}/assumptions`, {
+      method: 'PATCH',
+      body: json(patch),
+    }),
+  );
+}
+
+/** Re-runs the engine with the saved edits. Instant and costs no AI. */
+export async function recalculateModel(id: string, refreshActuals = false): Promise<FinancialModel> {
+  return unwrap(
+    await apiClient<Envelope<FinancialModel>>(`/finance/model/${id}/recalculate`, {
+      method: 'POST',
+      body: json(refreshActuals ? { refresh_actuals: true } : {}),
+    }),
+  );
+}
+
+// ---------------------------------------------------------------- integrations (payments + bank)
+
+export type PaymentProviderId = 'paystack' | 'flutterwave';
+export type IntegrationProviderId = PaymentProviderId | 'mono';
+export type ConnectionStatus = 'active' | 'needs_attention' | 'disconnected';
+
+export interface SyncSummary {
+  imported: number;
+  fees: number;
+  refunds: number;
+  duplicates: number;
+  invoice_matched: number;
+  skipped_currency: number;
+  skipped_oversize: number;
+  fetched: number;
+  credits: number;
+  debits: number;
+  paystack_payouts: number;
+  paystack_unmatched: number;
+}
+
+/** The secret key is never returned: only the last 4 characters. */
+export interface Connection {
+  id: string;
+  provider: IntegrationProviderId;
+  status: ConnectionStatus;
+  mode: 'test' | 'live';
+  key_last4: string;
+  account_name: string | null;
+  last_sync_at: string | null;
+  last_error: string | null;
+  last_sync_summary: Partial<SyncSummary> | null;
+  webhook_url: string;
+  created_at: string;
+}
+
+export interface MonoConnectConfig {
+  /** false: the server has no Mono keys yet, show "Coming soon". */
+  configured: boolean;
+  public_key?: string | null;
+  sandbox?: boolean;
+}
+
+export interface ProviderEntry {
+  provider: IntegrationProviderId;
+  label: string;
+  key_hint: string;
+  kind: 'payments' | 'bank';
+  connection: Connection | null;
+  connect_config: MonoConnectConfig | null;
+}
+
+export interface Integrations {
+  /** false: connect and sync answer 503 until the server has an encryption key. */
+  encryption_configured: boolean;
+  providers: ProviderEntry[];
+}
+
+export async function getIntegrations(): Promise<Integrations> {
+  return unwrap(await apiClient<Envelope<Integrations>>('/finance/integrations'));
+}
+
+/** Founder only. The key lives in this call's arguments only: never store it. */
+export async function connectPaymentProvider(
+  provider: PaymentProviderId,
+  body: { secret_key: string; secret_hash?: string },
+): Promise<Connection> {
+  return unwrap(
+    await apiClient<Envelope<Connection>>(`/finance/integrations/${provider}/connect`, {
+      method: 'POST',
+      body: json(body),
+    }),
+  );
+}
+
+/** Founder only. `code` is the one-time code Mono Connect hands the widget. */
+export async function connectMono(code: string): Promise<Connection> {
+  return unwrap(
+    await apiClient<Envelope<Connection>>('/finance/integrations/mono/connect', {
+      method: 'POST',
+      body: json({ code }),
+    }),
+  );
+}
+
+export async function syncIntegration(
+  provider: IntegrationProviderId,
+): Promise<{ connection: Connection; summary: SyncSummary }> {
+  return unwrap(
+    await apiClient<Envelope<{ connection: Connection; summary: SyncSummary }>>(
+      `/finance/integrations/${provider}/sync`,
+      { method: 'POST' },
+    ),
+  );
+}
+
+/** Founder only. Imported rows stay. */
+export async function disconnectIntegration(provider: IntegrationProviderId): Promise<Connection> {
+  return unwrap(
+    await apiClient<Envelope<Connection>>(`/finance/integrations/${provider}/disconnect`, { method: 'POST' }),
+  );
 }
