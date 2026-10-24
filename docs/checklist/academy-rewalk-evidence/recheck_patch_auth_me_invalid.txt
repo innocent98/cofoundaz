@@ -1,0 +1,6 @@
+PATCH /auth/me {"full_name":""} -> {"error":{"code":"VALIDATION_ERROR","message":"Please check the highlighted fields.","field_errors":[{"field":"full_name","message":"Tell us your name."}]}} HTTP 422 
+PATCH /auth/me {"full_name":"   "} -> {"error":{"code":"VALIDATION_ERROR","message":"Please check the highlighted fields.","field_errors":[{"field":"full_name","message":"Tell us your name."}]}} HTTP 422 
+PATCH /auth/me {"full_name":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -> {"error":{"code":"VALIDATION_ERROR","message":"Please check the highlighted fields.","field_errors":[{"field":"full_name","message":"Keep it to 120 characters."}]}} HTTP 422 
+PATCH /auth/me {} -> {"error":{"code":"VALIDATION_ERROR","message":"Please check the highlighted fields.","field_errors":[{"field":"full_name","message":"Field required"}]}} HTTP 422 
+PATCH /auth/me {"full_name":null} -> {"error":{"code":"VALIDATION_ERROR","message":"Please check the highlighted fields.","field_errors":[{"field":"full_name","message":"Input should be a valid string"}]}} HTTP 422 
+GET /auth/me profile -> {'full_name': None, 'role_title': 'Founder & CEO', 'country': None, 'avatar_url': None}

@@ -1,6 +1,6 @@
 # Learning Academy: click-through re-walk (merged develop)
 
-**Date:** 2026-10-24. **Verdict: not done yet. 3 ❌ (2 FE, 1 API) plus 1 low FE note, everything else passes.** Details and repro steps in "Failures".
+**Date:** 2026-10-24. **Verdict: DONE.** First walk (2026-10-24, develop `fc1a425`): 119 rows, 114 pass, 4 defects. Re-check (same day, develop `8ac8a55` + API `a9fd3a50`): all 4 fixed and verified by hand, see "Re-check" below. The first-walk tables and failure write-ups are kept as the record. Details and repro steps in "Failures".
 
 **What was walked.** Merged `origin/develop` `fc1a425` (includes FE #148 and API #173) on a fresh dev server (`next dev -p 3391`,
 `/api/v1` proxied to the shared API on `:8000`, develop `25fad5a1`, migration 0069, Academy content loaded: 8 courses / 24 lessons /
@@ -18,6 +18,45 @@ Signed out = `anon.localhost` (a host with no cookies or storage; `127.0.0.1` do
 
 **Legend.** ✅ = the UI matches the raw API and the guide. ❌ = a defect (see "Failures"). ⚠ = a note that is not a defect.
 Widths: **1440** and **375**. Roles: F founder, TM team member, M mentor, BC business consultant.
+
+## Re-check of D1 to D4 (2026-10-24, merged develop `8ac8a55`, API develop `a9fd3a50`, alembic 0070)
+
+Fixes: FE #152 (bell clip and error state, profile-name prompt) and API #179 (verify limiter per visitor) + #180 (`PATCH /auth/me`).
+Same method as above (by hand in the browser pane, 1440 and 375, compared with the raw API; own dev server `:3392`).
+Raw captures in `academy-rewalk-evidence/recheck_*`. Test members were created through the API only (signup, verify via the dev email log,
+invite from the founder, accept): `rewalk-nameless-...@example.com` (1440) and `rewalk-nameless-b-...@example.com` (375), password = the shared test password.
+For D4 a pass-through proxy returned 500 for `GET /notifications?limit=50` while a flag file existed (scratch script, not in the repo); the API was never touched.
+
+| # | Defect | Check | Result | Evidence | |
+|---|---|---|---|---|---|
+| R1 | D1 bell clipped at 375 | Founder, 375, open the bell | Panel is now `fixed inset-x-4` (16 px to 359 px, width 343), title "Notifications" and every row fully visible | `getBoundingClientRect` left 16, right 359, viewport 375 (was -64 to 279) | ✅ |
+| R2 | D1 at 1440 | Founder, 1440, open the bell | Panel inside the viewport under the bell | screenshot | ✅ |
+| R3 | D4 error state, 375 | `GET /notifications?limit=50` forced to 500, open the bell | "Could not load notifications." + a Retry button (not "No new notifications.") | network: `/notifications?limit=50` 500, `/unread-count` 200; badge still "9+" | ✅ |
+| R4 | D4 Retry | Failure removed, tap Retry | List loads (Health Score rows) | `GET /notifications?limit=50` 200 | ✅ |
+| R5 | D4 error state, 1440 | Same, 1440 | Same message + Retry | 500 on the list | ✅ |
+| R6 | D3 limiter per visitor | 36 calls to one unknown code, then another unknown code and a real code | 30 x 404, then 429 on all three codes | `{"error":{"code":"RATE_LIMITED","message":"Too many requests. Slow down a moment.","field_errors":[]}}` for `CFZ-D3AA-...`, `CFZ-D3DD-...` and the real `CFZ-C4MB-SWRU-DRXE` (before: other codes 404/200) | ✅ |
+| R7 | D3 header spoof | Limited visitor repeats with `X-Forwarded-For: 203.0.113.9` | still 429 (header not trusted) | `recheck_verify_xff.txt` | ✅ |
+| R8 | D3 in the page | After exhausting the limiter, open `/verify/CFZ-D3QQ-WWWW-EEEE` signed out at 375 | "Too many requests. Slow down a moment." + Try again (a code never requested before) | page text | ✅ |
+| R9 | D2 prompt appears before the last completion | Nameless team member, 1440: Start course, Mark complete on lessons 1 and 2 (no prompt), open lesson 3, Mark complete | Lesson 3 stays open and "Add your name before you finish" shows (full name box, "Save name and finish course", "Not now"); nothing is completed and no certificate exists yet | `GET /learning/courses/validation-talk-to-customers`: `progress 67`, lesson 3 `completed: false`; `GET /learning/certificates`: `[]` | ✅ |
+| R10 | D2 blank name | Save with an empty box | "Tell us your name." | `PATCH /api/v1/auth/me` 422 | ✅ |
+| R11 | D2 whitespace name | Save with 5 spaces | "Tell us your name." | `PATCH /auth/me` 422 | ✅ |
+| R12 | D2 too long | Save with 125 characters (1440) and 131 (375) | "Keep it to 120 characters." | `PATCH /auth/me` 422, `field_errors: [{"field":"full_name","message":"Keep it to 120 characters."}]` | ✅ |
+| R13 | D2 valid name | Type `Recheck Tester Adaeze`, "Save name and finish course" | Course completes: "Course complete" card + View certificate | request `PATCH /auth/me` body `{"full_name":"Recheck Tester Adaeze"}` -> 200, `profile.full_name` set; then `PATCH /learning/lessons/validation-talk-to-customers-3/progress` `{"completed":true}` -> 200, `progress 100`, certificate `holder_name: "Recheck Tester Adaeze"`, `credential_id: CFZ-5NQM-ANJD-5FDV` (`recheck_d2_name_flow.txt`) | ✅ |
+| R14 | D2 `/auth/me` | `GET /auth/me` after the save | `profile.full_name: "Recheck Tester Adaeze"` | 200 | ✅ |
+| R15 | D2 certificate page + PDF | View certificate; PDF | Card says "Recheck Tester Adaeze"; PDF text has "Recheck Tester Adaeze", course "Talk to customers", `CFZ-5NQM-ANJD-5FDV` | `GET /learning/certificates/{id}/pdf` 200, 3861 B | ✅ |
+| R16 | D2 public verify | View verify page (1440), and `GET /verify/CFZ-5NQM-ANJD-5FDV` | "AWARDED TO Recheck Tester Adaeze" | 200 `holder_name: "Recheck Tester Adaeze"` | ✅ |
+| R17 | D2 at 375 | Second nameless member: continue-watching card, sticky Mark complete on lesson 3 | Same prompt; blank -> "Tell us your name." (422); 131 characters -> "Keep it to 120 characters." (422) | `perf` statuses 422 | ✅ |
+| R18 | D2 "Not now" | Tap "Not now", then Mark complete again | Prompt hides; the next Mark complete shows it again; no certificate until a name is saved | `GET /learning/certificates`: `[]` | ✅ ⚠ N10 |
+| R19 | D2 valid name at 375 | Type `Recheck Tester Bola`, save | "Course complete"; certificate card "Recheck Tester Bola"; Download PDF request 200; no overflow | certificate `CFZ-YWQG-B4BJ-GHVR` `holder_name: "Recheck Tester Bola"`, `pdf_ready: true`; `GET /verify/CFZ-YWQG-B4BJ-GHVR` 200 same name | ✅ |
+| R20 | `PATCH /auth/me` validation (API) | `""`, `"   "`, 121 characters, `{}`, `null` | all 422 (`Tell us your name.`, `Keep it to 120 characters.`, `Field required`, `Input should be a valid string`); profile unchanged | `recheck_patch_auth_me_invalid.txt` | ✅ |
+
+**Result: 20 of 20 re-check rows pass, 0 failures. D1, D2, D3 and D4 are fixed. Academy is Done.**
+
+Notes from the re-check (not defects):
+- **N10:** "Not now" only hides the prompt. Pressing Mark complete shows it again, so a learner cannot finish a course without a name. That matches the guide (the name is frozen at issue), but the button label suggests "skip". At 375 the sticky Mark complete bar also covers the "Not now" button until you scroll.
+- The prompt only appears at the final lesson, as designed (R9); the earlier lessons and the course page have no name hint.
+- The first-walk notes N1, N2, N4 to N9 still apply (legacy certificates without a PDF, no video, submit-on-Enter article search, 48 repeated Health Score alerts, `verify_url` host from config).
+- State left behind: two new local test members on NovaPay (`rewalk-nameless-...`, `rewalk-nameless-b-...`) with one certificate each; the earlier TM account now has the name `Rewalk Teammate` (set by someone else's test).
 
 ## 1. Founder (F), 1440
 
