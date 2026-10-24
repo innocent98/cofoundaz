@@ -344,19 +344,37 @@ Defects: **D1 API Medium (known, 🔁), D2 API+FE Low, D3 FE Medium, D4 FE Low, 
 | # | Layer | Severity | Finding |
 |---|---|---|---|
 | D9 | API (LLM) | Medium | The question wording "What levers should I look at first?" (also "...first to extend my runway?") makes the model return nothing: worker log `job ai.cofounder.reply failed: LLM API returned an empty completion.` on every retry; the assistant message stays `generating` and the drawer shows "Thinking..." with no end or error. Neighbouring wordings ("Give me three ways to extend my runway.", "What is my cash on hand...") answer fine. The old FE seed ended with exactly that phrase, which is the C15 symptom of the first walk. FE avoided the phrase, but the API should (a) end a message after its last retry as failed with a visible message and (b) not send a prompt that yields an empty completion. |
-| D10 | API | Low to Medium | A `source: bank` ledger row accepts `PATCH {"amount_minor": 100}` with **200** (amount changed, direction too) and `DELETE` with 200, while the guide says category is the only edit allowed on an imported row. Expense rows are correctly refused (422 "This transaction is managed by an expense"). The FE hides Edit/Delete on imported rows, so only API clients can do it. I used the delete to clean up my 142 sandbox rows. |
+| D10 | API | Low to Medium | A `source: bank` ledger row accepts `PATCH {"amount_minor": 100}` with **200** (amount changed, direction too) and `DELETE` with 200, while the guide says category is the only edit allowed on an imported row. Expense rows (422 "This transaction is managed by an expense") and Paystack rows (422 "Imported transactions are read-only except the category.") are correctly refused, so Mono bank rows are the odd one out. The FE hides Edit/Delete on imported rows, so only API clients can do it. I used the delete to clean up my 142 sandbox rows. |
 | N11 | note | | Runway model rows come from the newest complete model; a model that is still "Edited, not yet recalculated" is read with its edits (the hire moved the runway before I recalculated). |
+
+### Paystack test payment (I21, N21), walked later the same day
+
+Adebayo typed the Paystack **test** secret key (shown as `sk_test_…`, last four `50ac`) in chat; it was entered only in the masked key field on the local Integrations page and is in no file, capture or log.
+
+| Row | Steps and result | Evidence |
+|---|---|---|
+| Connect | Connect Paystack, key in the masked field | `POST /finance/integrations/paystack/connect` 200; connection `active`, `mode: test`, `key_last4: 50ac` ✅ |
+| Pay link | View INV-2026-003 (sent, ₦80,626.61), Create pay link | Toast "Pay link created." with a `checkout.paystack.com` link ✅. On INV-2026-004 (client `funke@kolo.example`) the same call answered **502** `ProviderBadResponse` (worker log "pay link not created ... via paystack"); the working invoice used a `resend.dev` address, so Paystack most likely rejects the `.example` customer email. The founder gets no cause. ⚠ note N12 |
+| Payment | Opened the link, chose Paystack's built-in **Success** test option (the checkout offers it in test mode; no card number was typed), Pay NGN 80,626.61 | Redirect to `localhost:3000/finance/invoices?trxref=...` (the API's configured callback host; my dev server is on :3950, so the page was blank, not a defect of the app) |
+| Sync now | Integrations, Sync now | Card: "Last sync: 1 fee, 1 payment matched to invoices." `POST .../paystack/sync` 200 (1.50 s); `last_sync_summary {fetched 2, fees 1, invoice_matched 1, imported 0, duplicates 0, paystack_payouts 0, paystack_unmatched 0, skipped_currency 0, skipped_oversize 0}` ✅ |
+| I21 "Paid via Paystack" tag | Invoices | INV-2026-003 now **paid**, tag "Paid via Paystack", only View and PDF (no Mark unpaid, as designed); `paid_via: paystack`, `paid_at` 2026-10-24T21:57:45Z. The invoice's ledger row "Invoice INV-2026-003" Revenue ₦80,626.61 | ✅ |
+| N21 imported row, category-only edit | `/finance`: row "Paystack fee for INV-2026-003-…" (₦1,309.40, Payment fees, source paystack) shows a category select and **no Edit or Delete**. API: `PATCH amount_minor` **422** "Imported transactions are read-only except the category.", `DELETE` 422 (same text), `PATCH category` 200 (restored to Payment fees) | ✅ |
+| N21 needs-attention banner | Not shown: `paystack_unmatched` was 0, so there was nothing unmatched to flag | ⏳ not producible with one matched payment; covered by API and `syncSummary` unit tests |
+| N21 skipped non-NGN counts | `skipped_currency` 0 and `skipped_oversize` 0 (an NGN-only test account); the card text for non-zero counts is covered by `lib/finance/syncSummary.test.ts` | ⏳ unit tests only |
+| Payout tagging | Paystack test mode produced **no payout or settlement** (`paystack_payouts: 0`, no payout row), so "Paystack payout, not counted as income" tagging stays covered by tests only | ⏳ tests only |
+
+Old invoice INV-2026-002's pay link comes from the earlier walk's Paystack account (a different test key); paying it did not show up under this key (`fetched 0`), so it was left unpaid.
 
 ### Rows I could not close
 
-| Row | Why | What closes it |
-|---|---|---|
-| **I21, N21** (Paystack test payment: "Paid via Paystack" tag, imported row category-only edit, needs-attention banner, skipped non-NGN counts) | No Paystack connection exists in this workspace (all three providers show "Not connected"), and a Paystack secret test key is typed into the Connect dialog by hand. I do not have a key and must not read or copy env secrets, so I could not connect, open a pay link, or pay with Paystack's test card. | Adebayo (or the lead) connects the Paystack **test** key on Integrations; then: View an invoice, Create pay link, open it, pay with Paystack's published test card, Sync now, and walk the tag, the imported row, the banner and the skipped counts. If Paystack test mode produces no payout/settlement, payout tagging stays covered by API tests only. **Not exercised:** the bank-sourced equivalent below. |
-| Imported row, category-only edit (bank source) | Walked with the bank rows: they show a category select and **no Edit or Delete**; the API lets a client change more (D10) | ✅ for the FE rule; the API rule is D10 |
-| I20 (print window), E11 (file chooser) | The pane cannot drive them | ⏳ unchanged |
+| Row | Why |
+|---|---|
+| Needs-attention banner, skipped non-NGN counts, payout tagging (parts of N21) | Cannot be produced by one NGN test payment in Paystack test mode (see above); unit and API tests cover them |
+| I20 (print window), E11 (file chooser) | The pane cannot drive them |
+| Imported row, category-only edit (bank source) | The FE hides Edit and Delete on bank rows, but the API allows more (D10). Paystack rows are correctly read-only |
 
 ### Cleanup
-Deleted: the 141 remaining sandbox bank rows (and the one I deleted first), the "Slice E Receipt Test" expense, the model hire and one-off rows (model recalculated). Mono disconnected through the UI (confirm: "Historical data stays; new data stops syncing."). Cash on hand is back to ₦2,119,500. Left behind: invoice INV-2026-004 (sent; sent invoices cannot be deleted), several AI conversations from the Advisor checks (founder and team member).
+Paystack disconnected through the UI after the payment (all three providers "Not connected"). Left behind by the Paystack walk: INV-2026-003 is now paid via Paystack with its fee row (neither can be removed through the API). Deleted: the 141 remaining sandbox bank rows (and the one I deleted first), the "Slice E Receipt Test" expense, the model hire and one-off rows (model recalculated). Mono disconnected through the UI (confirm: "Historical data stays; new data stops syncing."). Cash on hand is back to ₦2,119,500. Left behind: invoice INV-2026-004 (sent; sent invoices cannot be deleted), several AI conversations from the Advisor checks (founder and team member).
 
 ### Counts after this re-check
-Original 141 rows: 133 ✅ before; E9, P8, N8, R11 are now ✅ (137 ✅), 4 ⏳ (I20, I21, E11, N21). New defects D9, D10 are API-side.
+Original 141 rows: 133 ✅ before; E9, P8, N8, R11 and I21 are now ✅ (138 ✅). N21 is ✅ for connect, pay link, payment, sync, the invoice match, the Paid via Paystack tag and the category-only imported row, and ⏳ for the banner, non-NGN counts and payout tagging (not producible, unit tested). Also ⏳: I20, E11. New defects D9, D10 are API-side.

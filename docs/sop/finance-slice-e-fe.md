@@ -27,11 +27,11 @@ invoices gained `account_id`, `notes`, `payment_details`, `last_sent_at` and a r
 ## Verification
 - `tsc`, `eslint`, `npm test` (148 files, 1255 tests), `npm run build`, Playwright `CI=1` on a temp config against `next start -p 3951` (283 passed; config deleted): green locally.
 - Live, by hand in the browser pane on `next dev -p 3950` against the shared API, four roles on four hosts: see the re-walk doc for every control, request and response.
-- Not exercised: a Paystack test payment (no Paystack key available to the session; I21, N21 stay open), the print window and file chooser (pane cannot drive them), Cloudinary receipts.
+- Paystack test payment walked with a test key supplied in chat (pay link, Paystack's Success test option, sync, invoice matched, Paid via Paystack tag, fee row category-only); disconnected afterwards.
+- Not exercised: needs-attention banner, non-NGN skipped counts and payout tagging (Paystack test mode gave no payout; unit tests only), the print window and file chooser (pane cannot drive them), Cloudinary receipts.
 
 ## Operate / roll back
 Revert the PR; the API contract is backward compatible for reads. Local test data created and removed: sandbox bank rows, one expense. Left: invoice INV-2026-004 (sent invoices cannot be deleted).
 
 ## Follow-ups
-- Paystack test payment walk (I21, N21) once a test key is connected.
 - API: D9 (AI chat empty completion and the job never ends the message), D10 (bank rows editable and deletable through the API).
