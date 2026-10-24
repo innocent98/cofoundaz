@@ -1,6 +1,6 @@
 # Finance Hub: click-through re-walk (merged develop)
 
-**Date:** 2026-10-24. **Verdict: not done yet.** Everything that could be clicked without a real third-party key passes except the items under "Failures" (0 blocking defects found, 2 API, 4 FE, all Low/Medium). **Still open:** Paystack and Flutterwave connect → sync → ledger rows (waiting for Adebayo's test keys), the Mono sandbox consent step, and the "re-check after Funding fix" rows. Finance should not be marked Done until those close.
+**Date:** 2026-10-24. **Verdict: not done yet.** Everything that could be clicked without a real third-party key passes except the items under "Failures" (no blocking defect; 6 defects: 3 on the API side, 4 on the FE side, all Low or Medium). **Still open:** (1) the "re-check after Funding fix" rows, (2) real imports: the Paystack and Flutterwave test accounts hold no transactions, so ledger import and payout tagging could not be exercised, (3) Mono sandbox sync fails server-side (D7). Finance should not be marked Done until those close.
 
 **What was walked.** Merged `origin/develop` `8ac8a55` (includes FE #153) on the shared dev server `localhost:3000` (proxy to the docker API on `:8000`, develop `a9fd3a50`, migration 0070, worker up). Every row was clicked or typed **by hand in the Claude browser pane** (no Playwright, no scripted UI). Page text, `innerText` and `getBoundingClientRect` were used only to read results. Each result was then compared with the raw API (`curl` with the same account's bearer token and `X-Workspace-Id`, same minute). Widths: **1440** (pane emulation 1440x900) and **375** (375x812). Raw API captures are in `finance-rewalk-evidence/` (no tokens in them).
 
@@ -93,7 +93,7 @@
 | I18 | Send a reminder (confirm: "A reminder with the invoice attached will be emailed to delivered+rewalk@resend.dev. You can send another after 24 hours.") | Sent | `reminder_count` 1, `last_reminded_at` set; worker log shows the reminder body | ✅ |
 | I19 | Second reminder inside 24 h | Rejected | `POST .../remind` 422 "A reminder was already sent in the last 24 hours." | ✅ |
 | I20 | "Print or save as PDF" in the builder | not clicked: opens `window.open` print window, not scriptable in the pane | n/a | ⏳ |
-| I21 | Copy pay link, "Paid via Paystack/Flutterwave" tag | ⏳ need a connected provider and a pay link (see section 8) | | ⏳ |
+| I21 | Copy pay link; "Paid via Paystack/Flutterwave" tag | Pay link and Copy pay link verified with a real Paystack test key (N14, N15). The "Paid via" tag needs a paid Paystack transaction, which the test account does not have | ⏳ (tag only) |
 
 ## 5. Founder (F), 1440: Expenses `/finance/expenses`
 
@@ -141,11 +141,22 @@
 | N3 | Connect with an empty key | Dialog stays (required) | no request | ✅ |
 | N4 | Connect with `pk_test_PLACEHOLDER_NOT_A_KEY` | "Use your Paystack secret key (starts with sk_test_ or sk_live_). Your key was not saved. Paste it again to retry." Box emptied | 422 field error | ✅ |
 | N5 | Connect Flutterwave opens | Two password fields: Secret key (FLWSECK_TEST- / FLWSECK-) and Secret hash | | ✅ |
-| N6 | Connect bank (Mono) | After about 10 s the Mono widget opens in-page ("Sandbox uses Mono to link your account" → "Link account" → "Account linking permissions") | `connect_config` as N1 | ✅ ⚠ N6 |
-| N7 | Mono: tick consent, continue, pick a test bank, exchange | ⏳ stopped at the consent step: it is an agreement click in a third-party widget, which needs Adebayo's OK | | ⏳ |
-| N8 | Paystack: connect a real `sk_test_…`, key never echoed, Sync now, ledger rows tagged, Paystack payouts out of revenue, Replace key, Disconnect | ⏳ waiting for Adebayo's test key | | ⏳ |
-| N9 | Flutterwave: same as N8 with `FLWSECK_TEST…` + secret hash | ⏳ waiting for Adebayo's test key | | ⏳ |
-| N10 | Needs-attention banner, skipped non-NGN counts | ⏳ need a connected provider | | ⏳ |
+| N6 | Connect bank (Mono) | After about 10 s the Mono widget opens in-page ("Sandbox uses Mono to link your account") | `connect_config` as N1 | ✅ |
+| N7 | Mono, with Adebayo's OK for the sandbox consent: Link account → consent tick → Continue → GTBank → Success → data status Available → NGN savings account → Continue | "Your account has been linked successfully!" then the card reads "Connected as GTBank · Samuel Olamide · SANDBOX · Account ending e694" | `POST /finance/integrations/mono/connect` 200: connection `status: active`, `mode: test`, `key_last4: e694`, `account_name: GTBank · Samuel Olamide`; no code or token in any response | ✅ |
+| N8 | Mono: Sync now (and the auto-sync after linking) | Card shows "We could not reach Mono. We will retry automatically." and "Last synced: Never" | `POST .../mono/sync` 200 with `summary: {}`, `last_error: "We could not reach Mono. We will retry automatically."`, `last_sync_at: null` (twice); 0 bank rows in the ledger | ❌ see D7 |
+| N9 | Mono widget after success | Pressing Continue on the widget's success screen returns it to its welcome screen; it closes only with its X (the first X taps in the pane did nothing because the success screen sits on top) | | ✅ ⚠ N6 |
+| N10 | Mono: Disconnect (confirm "Historical data stays; new data stops syncing.") | Toast "Bank (Mono) disconnected. Imported history stays." | `connection: null` | ✅ |
+| N11 | Paystack: Connect with Adebayo's `sk_test_…` key | Dialog closes, toast "Connected to Paystack in test mode. Use Sync now to import your payments." Card: Connected · TEST MODE · "Key ••••90e0", Last synced Never, webhook URL with Copy and the dashboard instructions | `POST .../paystack/connect` 200: `status: active`, `mode: test`, `key_last4: 90e0`, `webhook_url`; **the key is not in the API response** (grep of the full `GET /finance/integrations` body: 0 hits), **not in the page DOM after saving** (0 hits), and not in the database in plaintext (`finance_connections`, 3 rows, 0 hits for the key or the Flutterwave key/hash) | ✅ |
+| N12 | Paystack: Sync now | Toast "Synced. Nothing new to import."; "Last synced: 24 Oct 2026, 18:34 · Last sync: Nothing new to import." Ledger count stays 18 | `last_sync_at` set, `last_sync_summary` all zeros (`fetched: 0`) because the test account has no transactions | ✅ ⚠ N9 |
+| N13 | Paystack: Replace key (same key) | Dialog "Replace key"; toast "Connected to Paystack in test mode..."; still "Key ••••90e0" | 200 | ✅ |
+| N14 | Paystack: Create pay link on invoice 002 (View → Create pay link) | Pay link `https://checkout.paystack.com/s04zrsqkprky9ze` appears, toast "Pay link created.", Copy pay link | `pay_url` the same, `pay_provider: paystack` (a real Paystack test checkout was created) | ✅ |
+| N15 | Copy pay link | Clipboard `writeText` (spied) = the checkout URL | equals `pay_url` | ✅ |
+| N16 | Paystack: Disconnect (confirm) | Toast "Paystack disconnected. Imported history stays."; the invoice keeps its pay link | `connection: null`; invoice `pay_url` unchanged | ✅ |
+| N17 | While Paystack is connected, Connect Flutterwave | Button disabled, text "Disconnect Paystack first. One payment account can be connected at a time." | rule in `page.tsx` (`otherPaymentConnected`) | ✅ |
+| N18 | Flutterwave: Connect with Adebayo's `FLWSECK_TEST-…-X` key plus the value he gave as the secret hash (`FLWSECK_TEST…`, which Flutterwave lets you choose, so I cannot verify it is the one set in the dashboard) | Dialog closes; card Connected · TEST MODE · "Key ••••f2-X", webhook URL | `status: active`, `mode: test`, `key_last4: f2-X`; neither value in the response or the DOM | ✅ ⚠ hash unverified |
+| N19 | Flutterwave: Sync now | The first tap answered 429 `SYNC_TOO_SOON` "Synced a moment ago. Try again shortly." (connect had just synced); a direct call later succeeded | `POST .../flutterwave/sync` 200, `last_sync_at` set, summary all zeros | ✅ ⚠ N9 |
+| N20 | Flutterwave: Disconnect (confirm) | Card Not connected | `connection: null` | ✅ |
+| N21 | Paystack payouts out of revenue (D-FIN-1..10), needs-attention banner, skipped non-NGN counts, imported rows' category-only edit | ⏳ the test accounts have no transactions and no way to make one from here | summaries all zero | ⏳ |
 
 ## 8. Founder (F), 375
 
@@ -226,6 +237,12 @@
 - Dialog inputs are 37 to 38 px tall; the runway scenario chips measure 26 px. (The Academy hub tabs were 44 px.)
 - **Layer: FE.** Severity: Low.
 
+### D7. API: Mono sandbox sync fails after a successful link
+- **Steps:** founder, Integrations, Connect bank, finish the sandbox flow (GTBank, Success, Available, NGN account), then Sync now (and the auto-sync that runs right after linking).
+- **Response:** `connect` 200 (account `GTBank · Samuel Olamide`, `e694`), then `POST /finance/integrations/mono/sync` 200 with `summary: {}`, `last_error: "We could not reach Mono. We will retry automatically."`, `last_sync_at: null`. The API log shows only the INFO lines (no cause). The guide says a Mono 401 on sync means "Mono refused our platform key" and is shown with this same message, and that the real Mono sandbox was never verified against the API.
+- **Expected:** transactions of the sandbox account in the ledger (or a message that says why not).
+- **Layer: API** (platform key, request shape or Mono data status). Severity: Medium for the Mono feature; the bank link, status and disconnect work.
+
 ## Asks from FE #153, confirmed or rejected live
 
 | Ask | Verdict | Evidence |
@@ -245,9 +262,11 @@
 | N3 | Legacy rows: a zero-amount manual transaction "Walk test: zero" (C16) and the "Uncategorized ₦0" budget row it creates (B1). |
 | N4 | Custom categories are kept for the workspace even when unused (D5). |
 | N5 | Runway "Month by month" shows kobo decimals (D4). |
-| N6 | The Mono widget took about 10 s to appear (button says "Linking" meanwhile). The widget's own close (X) did not close it from the pane (two clicks), and the button stayed "Linking" (disabled) until the page was reloaded. I could not tell if this is the pane or the app, so it is **not** logged as a defect; retry in a real browser. |
+| N6 | The Mono widget takes about 10 s to appear (button says "Linking" meanwhile). The success screen's Continue sends the widget back to its welcome screen, and a tap on its X also reached the page below (it opened the Invite dialog, which I cancelled). Mono's own widget behaviour, not logged as a defect. |
 | N7 | Dev environment: the API's email provider is `console`; the sink addresses never got real mail. `verify`/pay URLs use `localhost:3000` (API config). |
 | N8 | The accountant role has no account here and was not walked. |
+| N9 | Right after connecting, the Paystack "Sync now" result did not show until a reload on the first try; the second try updated at once. The same click can also hit `SYNC_TOO_SOON`. Not reproduced reliably, so only a note. |
+| N10 | The Adebayo-supplied test keys were typed into masked fields on `fin.localhost:3000` only, never written to a file, log or this doc, and all three connections were disconnected at the end of the walk. |
 
 ## State this walk left behind (local database)
 Founder / NovaPay: invoice INV-2026-003 "Rewalk Client Ltd" (sent, ₦80,626.61, 1 reminder, cannot be deleted through the API); transaction categories now include `rw cat`; a new financial model (id `3661ef86…`, AI generated by the TM check). Deleted again: the Funding row, expense "Rewalk Vendor", budgets I created, draft INV-2026-004, the 375 transaction. Runway assumptions are growth 5 / ₦200,000 / ₦100,000 as before. Invoice 002 auto-remind is back on.
@@ -263,10 +282,10 @@ Rows are counted from the tables above (a row with ✅ and a ⚠, 🔁 or ❌ ma
 | 4 Invoices | 21 | 18 | 3 | I20, I21 ⏳ (plus I21's pay-link tag) |
 | 5 Expenses | 11 | 9 | 1 | E9 ❌ (D2), E11 ⏳ |
 | 6 Model | 16 | 16 | 0 | |
-| 7 Integrations | 10 | 6 | 4 | N7..N10 ⏳ |
+| 7 Integrations | 21 | 19 | 1 | N8 ❌ (D7), N21 ⏳ |
 | 8 Founder 375 | 13 | 13 | 0 | P8 ❌ D3, P13 ⚠ |
 | 9 Team member | 10 | 10 | 0 | |
 | 10 Mentor + consultant | 7 | 7 | 0 | |
-| **Total** | **130** | **121** | **8** | **2 ❌ rows (E9, P8)**, 1 ⚠ |
+| **Total** | **141** | **134** | **5** | **3 ❌ rows (E9, P8, N8)**, 1 ⚠ |
 
-Defects: **6 listed: D1 API Medium (known, 🔁), D2 API+FE Low, D3 FE Medium, D4 FE Low, D5 (note), D6 FE Low.** Without D5 that is 5 real defects (2 API-side, 4 FE-side, D2 counts in both).
+Defects: **D1 API Medium (known, 🔁), D2 API+FE Low, D3 FE Medium, D4 FE Low, D6 FE Low, D7 API Medium** (D5 is a note). That is 6 real defects: 3 API-side (D1, D2, D7), 4 FE-side (D2, D3, D4, D6).
