@@ -1,6 +1,6 @@
 # Finance Hub: click-through re-walk (merged develop)
 
-**Date:** 2026-10-24. **Verdict: not done yet.** Everything that could be clicked without a real third-party key passes except the items under "Failures" (no blocking defect; 6 defects: 3 on the API side, 4 on the FE side, all Low or Medium). **Still open:** (1) the "re-check after Funding fix" rows, (2) real imports: the Paystack and Flutterwave test accounts hold no transactions, so ledger import and payout tagging could not be exercised, (3) Mono sandbox sync fails server-side (D7). Finance should not be marked Done until those close.
+**Date:** 2026-10-24. **Verdict: not done yet.** API #182 (the Funding fix) was merged during the walk and the six re-check rows were redone on it, see "Funding fix re-check". Everything that could be clicked without a real third-party key passes except the items under "Failures" (no blocking defect; 5 open defects after the Funding fix: 2 on the API side, 5 on the FE side, all Low or Medium). **Still open:** (1) real imports: the Paystack and Flutterwave test accounts hold no transactions, so ledger import and payout tagging could not be exercised, (3) Mono sandbox sync fails server-side (D7). Finance should not be marked Done until those close.
 
 **What was walked.** Merged `origin/develop` `8ac8a55` (includes FE #153) on the shared dev server `localhost:3000` (proxy to the docker API on `:8000`, develop `a9fd3a50`, migration 0070, worker up). Every row was clicked or typed **by hand in the Claude browser pane** (no Playwright, no scripted UI). Page text, `innerText` and `getBoundingClientRect` were used only to read results. Each result was then compared with the raw API (`curl` with the same account's bearer token and `X-Workspace-Id`, same minute). Widths: **1440** (pane emulation 1440x900) and **375** (375x812). Raw API captures are in `finance-rewalk-evidence/` (no tokens in them).
 
@@ -203,9 +203,24 @@
 | X6 | M and BC at 375 | denial fits (`scrollWidth` 375) | | ✅ |
 | X7 | M, BC: `GET /finance/receipts/download?token=x` | n/a | 404 `NOT_FOUND` (token route needs no role, guarded by the signed token) | ✅ |
 
+## Funding fix re-check (after API #182, develop `06b47c5b`)
+
+Same steps as before, on the same founder account. The founder added a Money-in ₦3,000.50 transaction in category Funding by hand, and everything was read back from the raw API.
+
+| Row | Before the fix | After the fix | Verdict |
+|---|---|---|---|
+| C1 tiles (no Funding row) | cash 211950000, burn 96016667, revenue 153583333 | identical | ✅ |
+| C10 add Funding ₦3,000.50 | `monthly_revenue` 153683350, `monthly_burn` 95916650 (the tiles moved) | `cash_on_hand` 211950000 → **212250050** (+300050); `monthly_burn` 96016667 and `monthly_revenue` 153583333 **unchanged**; the Oct bar in `by_month` still shows the inflow (inflow 191050050) | ✅ |
+| R1 runway with the row | avg net burn ₦555,113 and cash now moved with it | avg net burn 55697032 (₦556,970, the same as without the row); `baseline.cash_on_hand` 212250050; base 1.9 months | ✅ |
+| R11 runway footnote | "Money in counts every inflow, including funding rounds..." | text unchanged | ❌ D8 |
+| M4 paid-in capital | 0 (no categorised Funding row) | after Refresh: Paid-in capital 300050 in every month; balance check balanced, max difference 0 | ✅ |
+| M14 Refresh from my latest numbers | `revenue_0_minor` 153583333 → 153716667 | stays **153583333**; opening cash 212250050 (it includes the Funding cash) | ✅ |
+
+Cleanup: the row was deleted, cash is back to 211950000, and the model was refreshed again.
+
 ## Failures
 
-### D1. API (🔁): a Funding inflow counts as revenue and offsets burn
+### D1. API: a Funding inflow counted as revenue and offset burn (FIXED by API #182, re-verified)
 - **Steps:** founder, `/finance`, Add transaction, Money in, ₦3,000.50, category Funding.
 - **Response:** `GET /finance/cash-flow` before: `monthly_revenue` 153583333, `monthly_burn` 96016667; after: 153683350 and 95916650 (+1000.17 and −1000.17 naira, one third of ₦3,000.50, the trailing-3-month average). The model sees it too: `revenue_0_minor` 153583333 → 153716667 after Refresh (M14). The runway page footnote even says so.
 - **Expected after the lead's fix:** Funding stays in cash on hand and paid-in capital only. Every row marked 🔁 must be re-walked after that merge (C1, C10, R1, R11, M4, M14).
@@ -243,6 +258,11 @@
 - **Expected:** transactions of the sandbox account in the ledger (or a message that says why not).
 - **Layer: API** (platform key, request shape or Mono data status). Severity: Medium for the Mono feature; the bank link, status and disconnect work.
 
+### D8. FE: the runway footnote still says funding counts as revenue
+- After API #182 the numbers ignore Funding, but `/finance/runway` still prints "Money in counts every inflow, including funding rounds, so a recent raise makes revenue look higher than it is."
+- **Expected:** drop or reword the sentence (Funding now stays in cash and paid-in capital only).
+- **Layer: FE.** Severity: Low.
+
 ## Asks from FE #153, confirmed or rejected live
 
 | Ask | Verdict | Evidence |
@@ -276,8 +296,8 @@ Rows are counted from the tables above (a row with ✅ and a ⚠, 🔁 or ❌ ma
 
 | Section | Rows | ✅ | ⏳ | note |
 |---|---|---|---|---|
-| 1 Cash flow | 16 | 16 | 0 | 5 are 🔁, C16 is ⚠ N3 |
-| 2 Runway | 11 | 11 | 0 | 3 are 🔁 |
+| 1 Cash flow | 16 | 16 | 0 | C16 is ⚠ N3 |
+| 2 Runway | 11 | 10 | 0 | R11 ❌ (D8) |
 | 3 Budgets | 15 | 15 | 0 | |
 | 4 Invoices | 21 | 18 | 3 | I20, I21 ⏳ (plus I21's pay-link tag) |
 | 5 Expenses | 11 | 9 | 1 | E9 ❌ (D2), E11 ⏳ |
@@ -286,6 +306,6 @@ Rows are counted from the tables above (a row with ✅ and a ⚠, 🔁 or ❌ ma
 | 8 Founder 375 | 13 | 13 | 0 | P8 ❌ D3, P13 ⚠ |
 | 9 Team member | 10 | 10 | 0 | |
 | 10 Mentor + consultant | 7 | 7 | 0 | |
-| **Total** | **141** | **134** | **5** | **3 ❌ rows (E9, P8, N8)**, 1 ⚠ |
+| **Total** | **141** | **133** | **5** | **4 ❌ rows (E9, P8, N8, R11)**, 1 ⚠ |
 
-Defects: **D1 API Medium (known, 🔁), D2 API+FE Low, D3 FE Medium, D4 FE Low, D6 FE Low, D7 API Medium** (D5 is a note). That is 6 real defects: 3 API-side (D1, D2, D7), 4 FE-side (D2, D3, D4, D6).
+Defects: **D1 API Medium (known, 🔁), D2 API+FE Low, D3 FE Medium, D4 FE Low, D6 FE Low, D7 API Medium** (D5 is a note). D1 is fixed. Open: 5 defects, 2 API-side (D2, D7), 5 FE-side (D2, D3, D4, D6, D8).
