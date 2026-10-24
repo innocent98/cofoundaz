@@ -45,15 +45,16 @@ export function EnrollmentsPanel({ sequenceId, stepCount, onChanged }: { sequenc
 
   const act = async (e: Enrollment, kind: 'replied' | 'stop') => {
     setBusyId(e.id);
-    const res = await runAction(
+    await runAction(
       () => (kind === 'replied' ? markEnrollmentReplied(e.id) : stopEnrollment(e.id)),
       kind === 'replied' ? `${whoOf(e)} marked as replied` : `${whoOf(e)} stopped`
     );
     setBusyId(null);
     setToStop(null);
-    // A 409 means someone else already ended it: refresh either way so the row tells the truth.
+    // A 409 means someone else already ended it: refresh the list and the sequence's counts either
+    // way, so neither the row nor the active count is stale.
     await list.reload();
-    if (res.ok) onChanged();
+    onChanged();
   };
 
   const items = list.data?.items ?? [];

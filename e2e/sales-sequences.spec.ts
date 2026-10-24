@@ -73,7 +73,7 @@ const sending = (over: Record<string, unknown> = {}) => ({
 
 async function setup(page: Page, opts: { role?: string; sending?: Record<string, unknown> } = {}) {
   const role = opts.role ?? 'founder'
-  const calls = { created: [] as unknown[], replied: [] as string[], resumed: 0 }
+  const calls = { created: [] as unknown[], replied: [] as string[], resumed: 0, seqLists: 0 }
   let state = { ...sequence }
   let en: Record<string, unknown> = { ...enrollment }
   await page.addInitScript((ws) => {
@@ -97,7 +97,10 @@ async function setup(page: Page, opts: { role?: string; sending?: Record<string,
       calls.resumed += 1
       return route.fulfill(json(sending({ configured: true, paused: false })))
     }
-    if (path === '/sequences' && method === 'GET') return route.fulfill(json({ items: [state], total: 1, limit: 100, offset: 0 }))
+    if (path === '/sequences' && method === 'GET') {
+      calls.seqLists += 1
+      return route.fulfill(json({ items: [state], total: 1, limit: 100, offset: 0 }))
+    }
     if (path === '/sequences' && method === 'POST') {
       calls.created.push(body)
       if (body.steps[0].subject.includes('{{nope}}')) {
@@ -110,6 +113,7 @@ async function setup(page: Page, opts: { role?: string; sending?: Record<string,
       return route.fulfill(json(state))
     }
     if (path === `/sequences/${SEQ}/enrollments`) return route.fulfill(json({ items: [en], total: 1, limit: 20, offset: 0 }))
+    if (path === `/enrollments/${en.id}/stop`) return route.fulfill(err(409, 'ENROLLMENT_NOT_ACTIVE', 'This enrollment has already ended.'))
     if (path === `/enrollments/${en.id}/replied`) {
       if (en.status !== 'active') return route.fulfill(err(409, 'ENROLLMENT_NOT_ACTIVE', 'This enrollment has already ended.'))
       calls.replied.push(String(en.id))
@@ -164,6 +168,37 @@ test.describe('Sales sequences at 1440', () => {
     await expect.poll(() => calls.replied.length).toBe(1)
     await expect(page.getByText('Marked as replied').first()).toBeVisible()
     await expect(page.getByRole('button', { name: 'Mark Ada Test as replied' })).toHaveCount(0)
+  })
+
+  test('a 409 on Stop refreshes the sequence counts too', async ({ page }) => {
+    const calls = await setup(page)
+    await page.goto('/sales/sequences')
+    await page.getByRole('button', { name: 'People (1)' }).click()
+    await page.getByRole('button', { name: 'Stop emailing Ada Test' }).click()
+    const before = calls.seqLists
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Stop emails' }).click()
+    await expect(page.getByText('This enrollment has already ended.').first()).toBeVisible()
+    await expect.poll(() => calls.seqLists).toBeGreaterThan(before)
+  })
+
+  test('inline field errors clear as soon as the field is edited', async ({ page }) => {
+    await setup(page)
+    await page.goto('/sales/sequences')
+    await page.getByRole('button', { name: '+ New sequence' }).first().click()
+    const form = page.locator('main form').first()
+    await form.locator('input[id^=subject-]').first().fill('Hi {{nope}}')
+    await form.locator('input[id^=days-]').first().fill('99')
+    await form.getByRole('button', { name: 'Create sequence' }).click()
+    await expect(form.getByText('Name this sequence.')).toBeVisible()
+    await expect(form.getByText('Unknown merge tag {{nope}}.', { exact: false })).toBeVisible()
+    await expect(form.getByText('Enter a whole number of days, 0 to 60.')).toBeVisible()
+
+    await form.getByPlaceholder('Name this sequence').fill('Fixed')
+    await expect(form.getByText('Name this sequence.')).toHaveCount(0)
+    await form.locator('input[id^=subject-]').first().fill('Hi {{first_name}}')
+    await expect(form.getByText('Unknown merge tag {{nope}}.', { exact: false })).toHaveCount(0)
+    await form.locator('input[id^=days-]').first().fill('2')
+    await expect(form.getByText('Enter a whole number of days, 0 to 60.')).toHaveCount(0)
   })
 
   test('a paused workspace shows the banner with Resume for a founder only', async ({ page }) => {
