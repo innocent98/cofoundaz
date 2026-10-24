@@ -16,7 +16,8 @@ import {
   type FinanceError,
 } from "@/lib/api/finance";
 import { useAiDrawer } from "@/components/ai-drawer-context";
-import { formatDate, formatMoney, formatMoneyWhole, plainText, todayIso, toMinor, minorToInput } from "@/lib/finance/format";
+import { fundingCandidate } from "@/lib/finance/funding";
+import { formatDate, formatMoney, plainText, todayIso, toMinor, minorToInput } from "@/lib/finance/format";
 import { CategorySelect } from "./_components/CategorySelect";
 import { CashFlowChart } from "./_components/charts";
 import { LoadMore } from "./_components/LoadMore";
@@ -60,7 +61,7 @@ function RunwayBanner({ cashFlow, onAsk }: { cashFlow: CashFlow; onAsk: (seed: s
           <p className="text-sm text-red-600 opacity-90 mt-0.5">Let&apos;s look at levers: costs, pricing or funding.</p>
         </div>
       </div>
-      <button type="button" onClick={() => onAsk(advisorSeed(cashFlow))} className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">
+      <button type="button" onClick={() => onAsk(advisorSeed(cashFlow))} className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 max-md:min-h-11 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">
         <MessageSquare className="w-4 h-4" aria-hidden="true" />
         Ask Finance Advisor
       </button>
@@ -69,7 +70,7 @@ function RunwayBanner({ cashFlow, onAsk }: { cashFlow: CashFlow; onAsk: (seed: s
 }
 
 function advisorSeed(cf: CashFlow): string {
-  const burn = formatMoneyWhole(cf.monthly_burn, cf.currency);
+  const burn = formatMoney(cf.monthly_burn, cf.currency);
   return cf.runway_months === null
     ? `I am out of cash and my monthly burn is ${burn}. What levers should I look at first?`
     : `My runway is ${cf.runway_months} months and my monthly burn is ${burn}. What levers should I look at?`;
@@ -206,7 +207,7 @@ function CategoryCell({
           placeholder="New category"
           maxLength={120}
           autoComplete="off"
-          className="text-xs bg-white border border-copper-600 text-copper-700 rounded-input px-2 py-1 w-32 outline-none font-medium"
+          className="text-xs bg-white border border-copper-600 text-copper-700 rounded-input px-2 py-1 max-md:min-h-11 w-32 outline-none font-medium"
         />
         <button type="submit" disabled={busy || !value.trim()} className={linkBtn}>
           Set
@@ -227,7 +228,7 @@ function CategoryCell({
         if (e.target.value === ADD_NEW) setAdding(true);
         else if (e.target.value !== (tx.category ?? "")) onSet(e.target.value);
       }}
-      className={`text-xs rounded-input px-2 py-1 max-w-[10rem] outline-none font-medium bg-white border ${
+      className={`text-xs rounded-input px-2 py-1 max-md:min-h-11 max-w-[10rem] outline-none font-medium bg-white border ${
         tx.category ? "border-sage-200 text-sage-700" : "border-copper-600 text-copper-700"
       }`}
     >
@@ -272,14 +273,14 @@ function RowActions({
   }
   if (tx.source === "invoice") {
     return (
-      <Link href="/finance/invoices" className="text-xs text-sage-500 hover:underline">
+      <Link href="/finance/invoices" className="text-xs text-sage-500 hover:underline max-md:inline-flex max-md:items-center max-md:min-h-11">
         From an invoice. Mark it unpaid to change.
       </Link>
     );
   }
   if (tx.source === "expense") {
     return (
-      <Link href="/finance/expenses" className="text-xs text-sage-500 hover:underline">
+      <Link href="/finance/expenses" className="text-xs text-sage-500 hover:underline max-md:inline-flex max-md:items-center max-md:min-h-11">
         From an expense. Edit it there.
       </Link>
     );
@@ -305,6 +306,7 @@ export default function CashFlowPage() {
   const [formFor, setFormFor] = useState<"new" | Transaction | null>(null);
   const [formError, setFormError] = useState<FinanceError | null>(null);
   const [deleting, setDeleting] = useState<Transaction | null>(null);
+  const [dismissedNudges, setDismissedNudges] = useState<string[]>([]);
 
   const refresh = async () => {
     await Promise.all([cashFlow.reload(), transactions.reload(), uncategorized.reload(), categoryList.reload()]);
@@ -388,6 +390,7 @@ export default function CashFlowPage() {
 
   const cf = cashFlow.data;
   const tile = cf ? runwayTile(cf) : null;
+  const nudge = cf ? fundingCandidate(visible.filter((tx) => CATEGORY_EDITABLE.includes(tx.source)), cf.monthly_revenue, dismissedNudges) : null;
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -404,18 +407,18 @@ export default function CashFlowPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
               <p className="text-xs text-sage-500 font-medium uppercase">Cash on hand</p>
-              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoneyWhole(cf.cash_on_hand, cf.currency)}</p>
+              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoney(cf.cash_on_hand, cf.currency)}</p>
               <span className="text-xs text-sage-500 mt-2 block font-medium">Transactions dated today or earlier</span>
             </div>
             <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
               <p className="text-xs text-sage-500 font-medium uppercase">Monthly burn</p>
-              <p className="text-2xl font-bold text-red-600 mt-1">{formatMoneyWhole(cf.monthly_burn, cf.currency)}</p>
-              <span className="text-xs text-sage-500 mt-2 block font-medium">Net, average of the last 3 months</span>
+              <p className="text-2xl font-bold text-red-600 mt-1">{formatMoney(cf.monthly_burn, cf.currency)}</p>
+              <span className="text-xs text-sage-500 mt-2 block font-medium">Net, average of the last 3 months, funding excluded</span>
             </div>
             <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
-              <p className="text-xs text-sage-500 font-medium uppercase">Monthly money in</p>
-              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoneyWhole(cf.monthly_revenue, cf.currency)}</p>
-              <span className="text-xs text-sage-500 mt-2 block font-medium">All inflows, average of the last 3 months</span>
+              <p className="text-xs text-sage-500 font-medium uppercase">Monthly revenue</p>
+              <p className="text-2xl font-bold text-sage-900 mt-1">{formatMoney(cf.monthly_revenue, cf.currency)}</p>
+              <span className="text-xs text-sage-500 mt-2 block font-medium">Average of the last 3 months, funding excluded</span>
             </div>
             <div className="bg-white p-5 rounded-modal border border-sage-200 shadow-card">
               <p className="text-xs text-sage-500 font-medium uppercase">Runway</p>
@@ -423,6 +426,22 @@ export default function CashFlowPage() {
               <span className="text-xs text-sage-500 mt-2 block font-medium">{tile?.sub}</span>
             </div>
           </div>
+
+          {nudge && (
+            <div role="status" className="bg-copper-100 border border-copper-200 rounded-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <p className="text-sm text-sage-800">
+                <span className="font-semibold">{formatMoney(nudge.amount_minor, nudge.currency)} came in uncategorised</span> ({plainText(nudge.description)}). Is this a raise or investment? Funding adds to your cash but is not counted as revenue.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" className={darkBtn} disabled={busy} onClick={() => void categorizeInline(nudge, "Funding")}>
+                  Categorise as Funding
+                </button>
+                <button type="button" className={secondaryBtn} onClick={() => setDismissedNudges((d) => [...d, nudge.id])}>
+                  It is revenue
+                </button>
+              </div>
+            </div>
+          )}
 
           {transactions.status === "ready" && visible.length === 0 && filter === "all" ? (
             <EmptyBlock
@@ -461,7 +480,7 @@ export default function CashFlowPage() {
                         type="button"
                         onClick={() => setFilter(key)}
                         aria-pressed={filter === key}
-                        className={`px-3 py-1 rounded-pill text-xs font-semibold transition-colors ${
+                        className={`px-3 py-1 max-md:min-h-11 rounded-pill text-xs font-semibold transition-colors ${
                           filter === key ? "bg-green-900 text-white" : "bg-white border border-sage-200 text-sage-600 hover:bg-sage-50"
                         }`}
                       >

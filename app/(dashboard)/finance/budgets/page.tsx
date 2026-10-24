@@ -245,7 +245,7 @@ export default function BudgetsPage() {
               type="month"
               value={month}
               onChange={(e) => e.target.value && setMonth(e.target.value)}
-              className="bg-white border border-sage-200 rounded-card px-3 py-2 text-sm font-medium focus:outline-none focus:border-copper-600"
+              className="bg-white border border-sage-200 rounded-card px-3 py-2 max-md:min-h-11 text-sm font-medium focus:outline-none focus:border-copper-600"
             />
             <button type="button" onClick={() => setFormFor("new")} className={primaryBtn}>
               <Plus className="w-4 h-4" aria-hidden="true" /> New budget
@@ -279,10 +279,10 @@ export default function BudgetsPage() {
                   Spent is every money-out entry of the month in the category: manual transactions, <Link href="/finance/expenses" className="underline font-semibold">expenses</Link> and imported payments. Totals can look higher than before because manual spend now counts.
                 </p>
                 <div className="flex gap-4">
-                  <button type="button" disabled={busy} onClick={() => void seed("draft")} className="text-xs font-bold text-copper-600 hover:underline flex items-center gap-1 disabled:opacity-50">
+                  <button type="button" disabled={busy} onClick={() => void seed("draft")} className="text-xs font-bold text-copper-600 hover:underline flex items-center gap-1 max-md:min-h-11 disabled:opacity-50">
                     <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> Draft missing from actuals
                   </button>
-                  <button type="button" disabled={busy} onClick={() => void seed("copy")} className="text-xs font-bold text-copper-600 hover:underline flex items-center gap-1 disabled:opacity-50">
+                  <button type="button" disabled={busy} onClick={() => void seed("copy")} className="text-xs font-bold text-copper-600 hover:underline flex items-center gap-1 max-md:min-h-11 disabled:opacity-50">
                     <Copy className="w-3.5 h-3.5" aria-hidden="true" /> Copy last month&apos;s budgets
                   </button>
                 </div>

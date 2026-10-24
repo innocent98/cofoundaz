@@ -189,7 +189,7 @@ export default function FinancialModelPage() {
                     role="tab"
                     aria-selected={tab === t.key}
                     onClick={() => setTab(t.key)}
-                    className={`px-4 py-1.5 rounded-input text-sm font-medium transition-all ${tab === t.key ? "bg-white text-sage-900 shadow-card font-semibold" : "text-sage-600 hover:text-sage-900"}`}
+                    className={`px-4 py-1.5 max-md:min-h-11 rounded-input text-sm font-medium transition-all ${tab === t.key ? "bg-white text-sage-900 shadow-card font-semibold" : "text-sage-600 hover:text-sage-900"}`}
                   >
                     {t.label}
                   </button>
@@ -203,7 +203,7 @@ export default function FinancialModelPage() {
                     aria-pressed={view === v}
                     disabled={v === "yearly" && !model.yearly}
                     onClick={() => setView(v)}
-                    className={`px-4 py-1.5 rounded-input text-sm font-medium transition-all disabled:opacity-50 ${view === v ? "bg-white text-sage-900 shadow-card font-semibold" : "text-sage-600 hover:text-sage-900"}`}
+                    className={`px-4 py-1.5 max-md:min-h-11 rounded-input text-sm font-medium transition-all disabled:opacity-50 ${view === v ? "bg-white text-sage-900 shadow-card font-semibold" : "text-sage-600 hover:text-sage-900"}`}
                   >
                     {v === "monthly" ? "Monthly" : "Yearly"}
                   </button>
@@ -315,7 +315,7 @@ export default function FinancialModelPage() {
                       {sensitivity}%
                     </span>
                   </div>
-                  <input id="sens" type="range" min={-20} max={20} step={5} value={sensitivity} onChange={(e) => setSensitivity(Number(e.target.value))} className="w-full accent-copper-600" />
+                  <input id="sens" type="range" min={-20} max={20} step={5} value={sensitivity} onChange={(e) => setSensitivity(Number(e.target.value))} className="w-full accent-copper-600 max-md:min-h-11" />
                   <p className="text-xs text-sage-500">Adjusts revenue and COGS on the P&amp;L view only. Cash flow, the balance sheet and the chart stay as calculated.</p>
                 </div>
               )}

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AlertTriangle, LineChart, Plus } from "lucide-react";
 import { useCashFlow, useRunway } from "@/hooks/useFinanceApi";
 import { saveRunwayAssumptions, type FinanceError, type Runway, type RunwayScenario, type RunwayScenarioKey } from "@/lib/api/finance";
-import { formatMoney, formatMoneyWhole, formatMonth, minorToInput, toMinor } from "@/lib/finance/format";
+import { formatMoney, formatMonth, minorToInput, toMinor } from "@/lib/finance/format";
 import { RunwayChart } from "../_components/charts";
 import {
   EmptyBlock,
@@ -164,14 +164,14 @@ export default function RunwayPage() {
 
               <div className="bg-white p-6 md:p-8 rounded-modal border border-sage-200 shadow-card flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
-                  <div className="flex items-center gap-3 mb-3" role="group" aria-label="Scenario">
+                  <div className="flex flex-wrap items-center gap-3 mb-3" role="group" aria-label="Scenario">
                     {SCENARIOS.map((sc) => (
                       <button
                         key={sc.key}
                         type="button"
                         aria-pressed={scenario === sc.key}
                         onClick={() => setScenario(sc.key)}
-                        className={`px-3 py-1 text-xs font-bold rounded-pill border transition-colors ${
+                        className={`px-3 py-1 max-md:min-h-11 text-xs font-bold rounded-pill border transition-colors ${
                           scenario === sc.key ? "bg-green-900 text-white border-green-900" : "bg-sage-50 text-sage-600 border-sage-200 hover:bg-sage-100"
                         }`}
                       >
@@ -185,11 +185,11 @@ export default function RunwayPage() {
                 <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
                   <div className="p-4 bg-sage-50 border border-sage-200 rounded-card">
                     <p className="text-xs text-sage-500 font-medium uppercase mb-1">Avg net burn (scenario)</p>
-                    <p className="text-xl font-bold text-red-600">{formatMoneyWhole(s.avg_net_burn_minor, b.currency)}</p>
+                    <p className="text-xl font-bold text-red-600">{formatMoney(s.avg_net_burn_minor, b.currency)}</p>
                   </div>
                   <div className="p-4 bg-sage-50 border border-sage-200 rounded-card">
                     <p className="text-xs text-sage-500 font-medium uppercase mb-1">Cash on hand now</p>
-                    <p className="text-xl font-bold text-sage-900">{formatMoneyWhole(b.cash_on_hand, b.currency)}</p>
+                    <p className="text-xl font-bold text-sage-900">{formatMoney(b.cash_on_hand, b.currency)}</p>
                   </div>
                 </div>
               </div>
@@ -246,7 +246,7 @@ export default function RunwayPage() {
                     </div>
                   </details>
                   <p className="text-xs text-sage-500">
-                    Based on the last 3 months of your transactions. Money in counts every inflow, including funding rounds, so a recent raise makes revenue look higher than it is.
+                    Based on the last 3 months of your transactions. Funding (a raise, investment or grant) adds to your cash on hand but is not counted as revenue and does not reduce burn.
                   </p>
                 </div>
               </div>

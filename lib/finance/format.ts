@@ -1,29 +1,23 @@
 // Display helpers for the Finance Hub. The API speaks integer minor units (kobo);
 // everything the user reads or types is major units (naira). Never send a float.
 
-/** Format minor units as a currency string, e.g. 12050000 NGN -> "₦120,500". */
+/**
+ * The one money formatter for the Finance Hub: whole naira when there are no
+ * kobo, exactly two decimals otherwise. 12050000 -> "₦120,500", 4500050 -> "₦45,000.50".
+ */
 export function formatMoney(minor: number, currency = 'NGN'): string {
   const major = minor / 100;
+  const digits = Number.isInteger(minor / 100) ? 0 : 2;
   try {
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
       currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
     }).format(major);
   } catch {
     // `currency` is only length-checked server side, so it may not be ISO 4217.
-    return `${currency} ${major.toLocaleString('en-NG', { maximumFractionDigits: 2 })}`;
-  }
-}
-
-/** Whole naira for headline tiles (kobo only belong in tables): 96016667 -> "₦960,167". */
-export function formatMoneyWhole(minor: number, currency = 'NGN'): string {
-  const major = Math.round(minor / 100);
-  try {
-    return new Intl.NumberFormat('en-NG', { style: 'currency', currency, maximumFractionDigits: 0 }).format(major);
-  } catch {
-    return `${currency} ${major.toLocaleString('en-NG')}`;
+    return `${currency} ${major.toLocaleString('en-NG', { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
   }
 }
 
