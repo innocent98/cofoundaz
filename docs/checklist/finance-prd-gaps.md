@@ -185,3 +185,32 @@ feature missing) > **Med** (PRD feature partial) > **Low** (copy, polish, a11y)
    thumbnails, advisor prefill, cards at 375, polish.
 3. **Re-walk:** every control on merged develop at 1440 and 375 as F, TM, accountant (new account), mentor and consultant, including the
    overdue state and a Paystack test-mode sync.
+
+## FE status (2026-10-24, branch `feature/finance-fe`)
+Walk evidence: `finance-fe-walk.md`. SOP: `docs/sop/finance-fe.md`. D-FIN-1 to D-FIN-10 are applied as written in the guides (TM full access;
+founder only connects, replaces and disconnects; budgets from all outflows; deterministic draft; recurring is a label; NGN only; imported rows
+category-only; 36 months with a yearly rollup; `Paystack payout` bank rows kept out of income).
+
+| Row | Status | Note |
+|---|---|---|
+| 1 | ✅ FE | TM full access; connect, replace, disconnect shown to founders only; the API 403 was checked for the TM |
+| 6 | ✅ FE | Copy and Create pay link, "Paid via Paystack/Flutterwave", Mark unpaid hidden when `paid_via` is set; provider-paid path not live (keys) |
+| 7 | ✅ FE | Integrations rebuilt; QuickBooks and Xero removed (deferred); Mono card added; real connect not live (keys) |
+| 11 | ✅ FE | Assumption editor, Recalculate, stale banner; cell editing is not offered (the API edits assumptions) |
+| 12 | ✅ FE | 36 months, Monthly or Yearly toggle, yearly CSV |
+| 14 | 🟡 | Chart, copy line, disclaimer done; XLSX not built (guide: deferred); sensitivity is P&L only and says so |
+| 16 | ✅ FE | Net bars, month-end cash line, tooltip, hidden table |
+| 17 | 🟡 | Category select from `/finance/categories` with "Add category..."; AI suggest category not built |
+| 18, 19, 20 | ✅ FE | Budget table with variance %, worded status, unbudgeted rows, PRD empty copy |
+| 21 | 🟡 | Inputs in naira, Best and Worst explained; hiring and one-off rows blocked on the API (scalars only) |
+| 22 | ✅ FE | "At base case, cash out: ...", cash-out markers, three row summary |
+| 23 | ⛔ BE | No `account_id`, `notes` or `payment_details` on invoices |
+| 24 | ✅ FE | Download PDF from the API; the old print view stays for the unsaved builder preview |
+| 25 | 🟡 | PAID stamp, auto-remind in the builder, detail dialog with pay link; Resend has no API route |
+| 26 | 🟡 | Donut and a table that fits at 1440; no receipt thumbnails (signed links expire in 5 minutes) |
+| 27 | ✅ | Stays a label (D-FIN-5) |
+| 28 | ✅ FE | Load more on ledger, expenses, invoices with the exact total |
+| 31 | ✅ FE | Card lists under `md` for ledger, budgets, expenses and invoices |
+| 32 | ✅ FE | `ShellTopBar` |
+| 33 | 🟡 | FE seeds the AI drawer; the server adds no finance context yet |
+| 34 | ✅ FE | Whole-naira tiles; the AI dock sits under modal overlays |

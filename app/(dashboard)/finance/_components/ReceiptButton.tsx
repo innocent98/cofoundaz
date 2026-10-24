@@ -22,7 +22,18 @@ export function ReceiptButton({ expenseId, vendor }: { expenseId: string; vendor
     try {
       const link = await getReceiptLink(expenseId);
       if (tab) tab.location.href = link.url;
-      else window.location.assign(link.url);
+      else {
+        // No pre-opened tab (pop-ups blocked or an embedded browser): follow the link in a new tab
+        // the way a user click would, and say so, rather than navigating away from the page.
+        const a = document.createElement("a");
+        a.href = link.url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        triggerToast("If the receipt did not open, allow pop-ups for this site and try again.");
+      }
     } catch (err) {
       tab?.close();
       const fe = toFinanceError(err, "Couldn't open the receipt. Try again.");

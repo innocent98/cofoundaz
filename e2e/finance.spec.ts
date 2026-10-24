@@ -282,6 +282,14 @@ async function setup(page: Page, state: State = freshState()) {
     if (path === '/budgets') return route.fulfill(json({ month: '2026-10', budgets: state.budgets }))
     if (path === '/expenses/summary') return route.fulfill(json({ month: '2026-10', currency: 'NGN', total_minor: 250000, rows: [{ category: 'Infrastructure', total_minor: 250000, percent: 100 }] }))
     if (path === '/expenses' && method === 'GET') return route.fulfill(json({ expenses: state.expenses }, { next_cursor: null, total_estimate: 1 }))
+    if (path === '/expenses/e1/receipt' && method === 'POST') {
+      state.expenses = [expense({ has_receipt: true, receipt_url: '/api/v1/finance/expenses/e1/receipt' })]
+      return route.fulfill(json(state.expenses[0]))
+    }
+    if (path === '/expenses/e1/receipt' && method === 'DELETE') {
+      state.expenses = [expense({ has_receipt: false, receipt_url: null })]
+      return route.fulfill(json(state.expenses[0]))
+    }
     if (path === '/expenses/e1/receipt' && method === 'GET') {
       return route.fulfill(json({ url: 'http://127.0.0.1:9/receipts/download?token=signed', expires_at: '2026-10-24T12:05:00+00:00', content_type: 'image/png' }))
     }
@@ -383,6 +391,16 @@ test.describe('Finance integrations', () => {
     expect(connects).toHaveLength(3)
   })
 
+  test('Flutterwave asks for the secret hash before anything is sent', async ({ page }) => {
+    const s = await setup(page)
+    await page.goto('/finance/integrations')
+    await page.getByRole('button', { name: 'Connect Flutterwave' }).click()
+    await page.getByLabel('Secret key').fill('FLWSECK_TEST-FAKE-X')
+    await page.getByRole('button', { name: 'Connect', exact: true }).click()
+    await expect(page.getByText('Enter your Flutterwave secret hash.')).toBeVisible()
+    expect(s.calls.filter((c) => c.path.includes('flutterwave/connect'))).toHaveLength(0)
+  })
+
   test('sync reports what it did, including skipped non-NGN payments, and disconnect asks first', async ({ page }) => {
     await setup(page, Object.assign(freshState(), { integrations: providers(connection()) }))
     await page.goto('/finance/integrations')
@@ -445,6 +463,21 @@ test.describe('Finance budgets and expenses', () => {
     const html = await page.content()
     expect(html).not.toContain('cloudinary')
     expect(html).not.toContain('token=signed')
+  })
+})
+
+test.describe('Finance expense receipts', () => {
+  test('attach uploads one file part, then the row offers View, Replace and Remove', async ({ page }) => {
+    const s = await setup(page, Object.assign(freshState(), { expenses: [expense({ has_receipt: false, receipt_url: null })] }))
+    await page.goto('/finance/expenses')
+    const chooser = page.waitForEvent('filechooser')
+    await vis(page.getByRole('button', { name: 'Attach receipt for AWS' })).click()
+    await (await chooser).setFiles({ name: 'receipt.png', mimeType: 'image/png', buffer: Buffer.from('placeholder-bytes') })
+    await expect(vis(page.getByRole('button', { name: 'View receipt for AWS' }))).toBeVisible()
+    expect(s.calls.some((c) => c.path === '/expenses/e1/receipt' && c.method === 'POST')).toBe(true)
+    await vis(page.getByRole('button', { name: 'Remove receipt for AWS' })).click()
+    await page.getByRole('button', { name: 'Remove receipt', exact: true }).click()
+    await expect(vis(page.getByRole('button', { name: 'Attach receipt for AWS' }))).toBeVisible()
   })
 })
 
