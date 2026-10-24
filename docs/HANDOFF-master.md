@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §2b. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-7 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead7-handoff:docs/HANDOFF-master.md`
+> If the lead-8 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead8-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-22 15:00 WAT** (lead session 7 handover). This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-24 (lead session 8 handover)**. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -16,21 +16,18 @@ Last updated: **2026-10-22 15:00 WAT** (lead session 7 handover). This file is a
 
 ## 0. FOR ADEBAYO
 
-### 0a. Open PRs (2026-10-22 15:00 WAT) and merge order
-All three API PRs carry a migration chained on 0066, so they **merge one at a time in this order**, and the lead has the
-next one re-chain its `down_revision` onto the previous before you merge it (then CI re-runs).
-
-| # | Repo | PR / branch | What | State |
+### 0a. Open PRs and merge order (lead 8 handover, 2026-10-24 ~15:30 WAT)
+| Order | Repo | PR / branch | What | State |
 |---|---|---|---|---|
-| 1 | API | [#171](https://github.com/innocent98/Cofoundaz-api/pull/171) `feature/finance-ledger-correctness` | Finance slice (c): private receipts (authenticated Cloudinary + signed 5-min links bound to the workspace, CSP sandbox), magic-byte upload check, `GET /finance/categories` + normalising, budgets = all outflows (D-FIN-3) + unbudgeted rows, pagination, NGN only, amount > 0, one model generation at a time (partial unique index). Migration **0067** | **lead reviewed: OK** (Opus review, 4 fixes applied in `783d4859`). Reds: Dependency review (known) and **GitGuardian = false positive** (expired e2e tokens signed with the public CI key, localhost URLs, in commit `7fd0b2fe`; redacted at head): **mark it "test credential" in GitGuardian**. After merge: stack update + run `scripts/privatise_legacy_receipts.py` once per environment |
-| 2 | API | [#172](https://github.com/innocent98/Cofoundaz-api/pull/172) `feature/sales-sequences` | Sales slice B: sequences send through the cPanel mailbox (SMTP), bounces read over IMAP, signed unsubscribe (GET page + POST, RFC 8058), send ledger with locks, global hourly cap. Migration **0068** | **lead reviewed: OK** after fixes in `27f280c7` (Opus review: 2 must-fixes, mailbox-policy rejections suppressing contacts and a possible double send after DATA, plus 7 nits, all verified in the diff). PR CI was running at handover. Re-chain onto 0067 before merge |
-| 3 | API | [#173](https://github.com/innocent98/Cofoundaz-api/pull/173) `feature/academy-be` | Academy BE: 8 courses / 24 lessons / 6 paths / 10 articles in `content/academy/` (all `review_status: draft`) + idempotent loader, YouTube-nocookie embeds, certificate PDF + worker handler, public `GET /verify/{code}` (60-bit `CFZ-XXXX-XXXX-XXXX`, rate-limited), LinkedIn add-to-profile URL, private lesson notes, `position_s`, recommendations by stage + gaps (D-ACA-3), notifications, search. Migration **0069** | **lead reviewed: OK** (Opus review, 5 nits fixed in `a36142bf`; name length capped at 120 chars before PDF fitting in `1516d7f0`); PR CI was running at handover. Re-chain onto 0068 before merge |
-| - | FE | [#146](https://github.com/innocent98/cofoundaz/pull/146) `docs/finance-prd-gaps` | Finance gap list update: Mono sandbox keys are available, Mono adapter scope, D-FIN-10 | lead reviewed: OK. Merge |
-| - | FE | `docs/lead7-handoff` | this handoff | docs |
+| 1 | API | [#180](https://github.com/innocent98/Cofoundaz-api/pull/180) `feature/profile-name-update` | `PATCH /auth/me` `{full_name}`: invited members could never set a name. **FE #152 (merged) already calls it**, so its D2 name prompt errors until this merges | lead-built, local gates green (3945 tests, 96.90%, isolated DBs), live-captured guide `docs/fe-integration-guide-profile.md`; PR CI was running |
+| 2 | FE | [#153](https://github.com/innocent98/cofoundaz/pull/153) `feature/finance-fe` | Whole Finance hub on the real API (7 pages, keys never echoed, signed receipts, model editor, Mono Connect) | lead-checked; conflict resolved at `bbe5f362`; the session saw 1 local Playwright failure after the develop merge, so **check PR CI's E2E before saying "merge"** |
+| 3 | FE | [#151](https://github.com/innocent98/cofoundaz/pull/151) `docs/sales-sequences-rewalk` | Sequences hand re-walk evidence (both live sends recorded) | needs: re-check of the #154 rows + the unsubscribe round trip (§0c item 2), then merge and mark Sales ✅ |
+| - | API | `chore/env-update-2026-10-24` (Adebayo's own) | `cb18ff65 chore(env): update encrypted staging & production environment`, committed locally on the shared API checkout's `develop` (blocks the lead's `pull --ff-only`) | Adebayo: `pull --rebase` + push to a branch + PR (the lead can't push `.enc` files) |
+| - | FE | `docs/lead8-handoff` | this handoff | docs |
 
 "Dependency review (PR only)" is red on every API PR: repo setup, not code. Ignore it.
 
-**Merged in lead session 7 (2026-10-21 23:45 → 2026-10-22 15:00):** API #170 (Finance b); FE #144 (Sales re-walk), #145 (lead-6 handoff).
+**Merged in lead session 8 (2026-10-24):** API #171 (Finance c, 0067), #172 (Sales B sequences, 0068), #174 (re-chain 0068 onto 0067), #173 (Academy BE, 0069), #175 (CD SSH port from `vars`; backfill runnable in the image), #176 (Finance d model + Mono, 0070), #177 (outreach jobs outside the worker SAVEPOINT), #178 (env.sh verify; lesson filename), #179 (public token routes rate-limited per caller). FE #146, #147, #148 (Academy FE), #149 (Sales Sequences FE), #150 (Academy re-walk evidence), #152 (Academy re-walk fixes D1/D2/D4), #154 (Sequences re-walk fixes).
 
 ### 0b. Decisions (all also in memory)
 All are reversible and none blocks merging.
@@ -110,38 +107,41 @@ All are reversible and none blocks merging.
 31. **D-FIN-10 (lead default, FE #146):** once Mono is connected, bank credits that match a Paystack payout are tagged "Paystack
     payout" and kept out of revenue. **Mono sandbox keys are now in the env files**, so the Mono adapter is buildable.
 
+32. **D-SAL-11 outreach abuse gate (Adebayo 2026-10-24): "tied to a paid plan"**, then "can we leave it on for now, for testing pending
+    when billing will be ready" -> outreach stays ON in every environment; the paid-plan gate is built together with Billing.
+33. **Sales isn't blocked on DNS** (Adebayo 2026-10-24: "you do not need to pend, just continue, since its working"): the 13:40 WAT live
+    send (sequence `e5b4701c-...`, ledger `sent`, delivered to his Gmail) counts as verified; DKIM/PTR is an ops follow-up (§0c).
+34. **D-FIN-10 tightened (lead, from the #176 Opus review):** a bank credit is tagged "Paystack payout" (kept out of revenue and cash)
+    only when its narration names Paystack AND Paystack charges in the 10 days before it cover its amount; the tagged count is in
+    `last_sync_summary`. Mono webhooks read `data.account._id`.
+35. **Outreach `.env` fixed by Adebayo** (IMAP trailing slash, `mail.cofoundaz.com`, 587 `starttls`) and DKIM "published" (in cPanel's
+    zone, which isn't authoritative; see §0c item 1).
+
 ### 0c. Waiting on you (not on code)
-**Do now:**
-1. **GitGuardian on #171:** mark the alert a false positive ("test credential"). Then merge #171, and run the stack update + the
-   receipts script (commands in §1).
-2. **Check `SECRET_KEY` on staging and prod is a real random value**, not the CI placeholder `ci-secret-key-not-used-outside-ci`
-   (the #171 reviewer reported the local stack may use it; the lead didn't read secrets to confirm). With that key anyone can forge tokens.
-3. **Outreach `.env` fixes** (lead-checked 2026-10-22): `SALES_OUTREACH_IMAP_HOST` has a trailing `/` (remove it); use
-   `SALES_OUTREACH_SMTP_HOST=mail.cofoundaz.com`, `SALES_OUTREACH_SMTP_PORT=587`, `SALES_OUTREACH_SMTP_SECURITY=starttls`,
-   `SALES_OUTREACH_IMAP_HOST=mail.cofoundaz.com`; add `SALES_OUTREACH_UNSUBSCRIBE_KEY` (random, required in prod after #172).
-4. **Publish DKIM:** copy cPanel → Email Deliverability's DKIM TXT (`default._domainkey`) into the DNS provider. Without it outreach lands in spam.
-5. **Recommended:** a dedicated outreach mailbox (e.g. `outreach@`), not `info@`, and confirm the host's hourly limit (start ~50/h, not 500).
+**Do when convenient:**
+1. **Outreach deliverability (DNS):** the live send landed in Gmail **spam**. `default._domainkey.cofoundaz.com` is **NXDOMAIN on the authoritative nameservers (Cloudoon: ns1.cloudoon.com, ns2.cloudoon.net, ns3.cloudoon.org)**: add the DKIM TXT from cPanel → Email Deliverability in the **Cloudoon** DNS panel (not cPanel's zone editor). Set reverse DNS for 169.58.188.170 to `mail.cofoundaz.com` at Contabo (now `vmi3513172.contaboserver.net`). Then the lead resends one check. Adebayo (2026-10-24): "you do not need to pend, just continue, since its working" -> not a Sales blocker.
+2. **Unsubscribe round trip (last open Sales row):** the live emails' links point at `http://localhost:3000/unsubscribe/{token}`
+   (local `APP_BASE_URL`), so clicking them in Gmail reached nothing (Gmail's own one-click banner shows "unsubscribed" regardless;
+   cofoundaz.com 404s because prod is on `main` and the token is signed with the local key). Paste the link from the `+followup`
+   email to the lead, who opens it on a local FE and checks the suppression row. Also still wanted: Gmail "Show original" SPF/DKIM/DMARC.
+3. ~~Deal follow-up send~~ **done 14:43 WAT** to adevictor98+followup@gmail.com (200 `sent: true`; 429 `SEND_LIMIT_REACHED` on the
+   plain address because it already had the 13:40 step; 409 `DRAFT_ALREADY_SENT` on a repeat). Recorded in #151.
+4. Optional: delete the `VPS_PORT` **secret** from the staging and production GitHub environments (nothing references it since #175).
+5. Still open from lead 7: confirm `SECRET_KEY` on staging/prod is a real random value; set `SALES_OUTREACH_UNSUBSCRIBE_KEY` per environment (generate with `python3 -c "import secrets; print(secrets.token_urlsafe(48))"`, never rotate it); a dedicated `outreach@` mailbox + hourly limit ~50.
 
-**Product calls open:**
-- **Outreach abuse gate (from the #172 review):** sequences send from your domain with the workspace's startup name as display name,
-  so any workspace could pose as "PayPal Security". Before production: enable outreach per workspace by you, or tie it to a paid plan?
-- **LinkedIn company page** for Cofoundaz (certificate issuer org). If it exists, its URL/id goes in `ACADEMY_LINKEDIN_ORG_ID`.
-- **Academy content review:** all 37 files in `cofoundaz-api/content/academy/` are drafts written by the build session; flip
-  `review_status` once you've read them. Record videos and add the YouTube ids when ready.
+**Product calls open:** Academy content review (48 draft files in `cofoundaz-api/content/academy/`, flip `review_status`); LinkedIn company page URL/id for `ACADEMY_LINKEDIN_ORG_ID`.
 
-**Still blocked:**
-- **Victoria (Legal, API #138):** parked until she replies. Her migration must chain after the latest head (0069 once #173 lands).
-- **Paystack/Flutterwave live checks:** a test-mode sync needs you to paste test keys in the UI during the Finance re-walk
-  (sessions never read keys); a live webhook needs a public URL (staging).
-- **Calendar sync:** Google OAuth values in the envs; sync code not built yet. Outlook deferred.
-- **Smoke-test subdomains** parked; inbound mail (feedback by email, reply detection) not available; Billing needs your Paystack.
-- **Marketing external data** (D-MKT-8): real publishing, ad metrics, SEO data, segment sizes wait on accounts.
+**Still blocked:** Victoria (Legal, API #138; her migration must chain after **0070**). Paystack/Flutterwave/Mono live checks need you to paste test keys in the Finance re-walk. Calendar sync not built (Google OAuth values in env). Smoke-test subdomains parked; inbound mail not available; Billing needs Paystack (and the outreach paid-plan gate, D-SAL-11, comes with it).
 
 ## 1. Repos and local stack
 - FE `cofoundaz` (Next 16 App Router, React 19, Tailwind v4, TS strict) and API `cofoundaz-api` (FastAPI): sibling dirs under
   `/Users/adebayovictor/Documents/dev/cofoundaz`. The lead session works from the parent dir (not a git repo).
-- **develop heads (2026-10-22 15:00):** API `02071b7` (#170), FE `29c3c94` (#145). Main API checkout on develop at `02071b7`;
-  dev DB `cofoundaz-api_db` at **`0066_finance_invoice_automation`** (verified; stack up, API health 200). Nothing runs on FE :3000 right now; sessions run their own FE dev server on a free port.
+- **develop heads (2026-10-24, lead 8):** API `02965528` (#179), FE develop after #154. Main API checkout on develop; dev DB
+  `cofoundaz-api_db` at **`0070_finance_model_mono`**, Academy content loaded, receipts backfill done (local moved=1, staging moved=0).
+  Staging CD green at `25fad5a1` with the staging-verified proof minted. Sessions run their own FE dev server on a free port.
+- **Lead 8 had standing OK to run docker commands itself** ("run the docker commands yourself"): pull, `alembic upgrade head`,
+  restart, `docker compose build api worker` when a PR adds Python deps (#173 added reportlab/pyyaml and the API crashed until rebuilt),
+  and `docker compose exec -T api python -m app.services.learning.content` after content changes.
 - **Updating the shared stack needs Adebayo's say-so** (the classifier blocks it otherwise). On 2026-10-22 he said "run the docker
   commands yourself" and the lead ran `up -d` / migrate / restart fine (the api container also migrates on start). Ask per update, or give him
   `git -C cofoundaz-api pull --ff-only && docker compose -f cofoundaz-api/docker-compose.yml exec api alembic upgrade head && docker compose -f cofoundaz-api/docker-compose.yml restart api worker`.
@@ -166,47 +166,40 @@ All are reversible and none blocks merging.
   password. Separate hosts per role: `localhost`, `tm.localhost`, `m.localhost`, `bc.localhost` on the FE port.
 
 ## 2. Status by page
-| Page | Gaps | BE | FE | Live re-walk on develop | State |
-|---|---|---|---|---|---|
-| Dashboard | 20/20 + gaps 11, 12 | #129-#134, #153, #155, #160 | #101, #104, #123, #130 | ✅ all 4 roles (#134) | ✅ **Done** |
-| Today's Mission | 15/15 | #135, #143, #144 | #105, #110 | ✅ 2026-10-19 | ✅ Done |
-| Health Score | 10/10 | #136 | #106, #110 | ✅ 2026-10-19 | ✅ Done |
-| Roadmap | 11/11 | #137, #145 | #107, #110 | ✅ 2026-10-19 | ✅ Done |
-| Business Builder | 21/21 | #139-#141, #146-#148 | #108, #110, #112 | ✅ 2026-10-19 | ✅ Done |
-| Validation | 14/14 | #149-#151 | #114, #115, #117 | ✅ 2026-10-20 | ✅ Done |
-| Assessment | 13/13 + A1-A6 | #152 | #121, #126 | ✅ 2026-10-20/21 | ✅ Done |
-| Marketing | 35/35 + re-walk gaps 1-9 | #156, #157, #161, #162 | #129, #133, #135, #138 | ✅ 15/15 (#137, #141) | ✅ **Done** |
-| Sales | 30 gaps (`sales-prd-gaps.md`); 5/6 sub-pages real | #165 (A), #166 (C), #168, **#172 (B) open, must-fixes in progress** | #142, #143 | ✅ 626/626 on 5 sub-pages (#144) | 🟡 **only Sequences left**: land #172, then FE Sequences, then its re-walk |
-| Finance | 35 gaps (`finance-prd-gaps.md`, + #146) | #167 (a), #170 (b), **#171 (c) open, reviewed OK** | none yet (still old FE) | ⏳ | (d) model rows 11-13 + Mono adapter next, then one FE session, then re-walk |
-| Academy | 24 gaps (`academy-prd-gaps.md`) | **#173 open, reviewed OK** (all BE rows) | old FE | ⏳ | land #173, then one Academy FE session, then re-walk |
+| Page | BE | FE | Live re-walk on develop | State |
+|---|---|---|---|---|
+| Dashboard, Today's Mission, Health Score, Roadmap, Business Builder, Validation, Assessment, Marketing | done | done | ✅ | ✅ **Done** (8 pages) |
+| Sales | #165, #166, #168, #172, #177, #179 | #142, #143, #149, #154 | 5 sub-pages 626/626 (#144); Sequences hand re-walk FE #151 open (both live sends verified) | 🟡 re-check #154 rows + unsubscribe round trip, then ✅ |
+| Academy | #173, #178, #179, #180 (open) | #148, #152 | re-walk #150: 114/119, all 4 defects fixed (D3 #179, D1/D4/D2 #152, D2 needs #180) | 🟡 merge #180, re-check D1-D4, then ✅ |
+| Finance | #167, #170, #171, #176 (all 35 BE gaps) | #153 (open, conflict resolved) | ⏳ | merge #153, then re-walk with Adebayo pasting test keys |
 
 Remaining after these: Documents (API ✅) → Calendar (API ✅, sync not built) → Journal (API ✅) → Notifications (API ✅) → Team
 (partial) → Settings (partial; Billing needs Paystack) → Funding, Investor Readiness, Marketplace, Analytics (no API: design first like
 Sales) → Legal (Victoria).
 
 ## 2b. Incoming (ordered)
-0. **Lead-7 sub-sessions** (all three idle at handover, nothing mid-task; see §0a): Finance (c) `local_6bb87aaa-9f36-4397-a718-9cb70ee397e5` (done, PR #171),
-   Sales B `local_2d6a9b25-a39c-40c5-90e0-d5c08a3c2086` (PR #172, see item 2), Academy BE `local_171a92eb-ac6f-4797-926f-42e2b71e740a` (PR #173).
-   Message the one with context (`SendMessage` to its id) rather than starting fresh; worktrees are `wt/finance-ledger-correctness`,
-   `wt/sales-sequences`, `wt/academy-be`.
-1. **Merge train:** #171 (after Adebayo marks GitGuardian) → stack update + receipts script → have #172's session re-chain 0068 onto
-   `0067_finance_ledger_correctness`, merge develop, re-run gates → merge → have #173 re-chain 0069 onto `0068_sales_sequences` → merge.
-   Check each head's CI, branch name and attribution before saying "merge #N".
-2. **#172 is fixed and lead-verified at `27f280c7`.** Only `SMTPRecipientsRefused` 5xx (not 530/535/554) suppresses a contact; any
-   failure once DATA starts settles as `unknown` and is never resent. Nit for later: `smtplib.data()` raises `SMTPDataError` on a definite
-   5xx, so a policy-refused message also lands as `unknown` (safe direction, the `code != 250` branch in `_data` is dead). Send windows:
-   see its SOP.
-3. **Finance (d) model** (rows 11, 12, 13: editable assumptions + recalculate without AI, 36 months + yearly rollup (D-FIN-8), real balance
-   sheet with a check line) **+ Mono adapter** (FE #146 "Mono adapter" section, D-FIN-10; sandbox keys in env, never read them). BE
-   sub-session, migration after the head at that time. Then **one Finance FE session** (Integrations rebuild for Paystack/Flutterwave/Mono,
-   categories Select, budgets table, model editor, receipts via the signed route, invoices automation UI), then the **Finance re-walk**.
-4. **Sales FE Sequences** (from #172's FE guide) once #172 merges, then re-walk Sequences and mark Sales ✅. A live delivery check needs the
-   corrected `.env` (§0c) and one test send to an address Adebayo owns, with his OK.
-5. **Academy FE** (from #173's FE guide: sanitised markdown rendering, YouTube player, certificate PDF/verify/LinkedIn, notes, search) once
-   #173 merges, then the Academy re-walk.
-6. Then the next pages in §2 order. Keep at most 2-3 sessions running.
+0. **Live sessions at lead-8 handover** (message them by id; don't start fresh):
+   - Finance FE `local_46c51936-1d1c-4047-b02d-20b00ed14851` (`wt/finance-fe`): PR #153 done; API asks in its walk doc (runway hiring/one-off rows, invoice client picker/notes/payment details, Advisor finance context, XLSX export, legacy receipt `cbee3c6d` missing file).
+   - Academy FE `local_11c6290f-96f0-46a6-8e97-edb90763ea10` (`fix/academy-rewalk-fe`): PR #152 done (D2 needs the API profile PR merged first).
+   - Sales Sequences FE `local_8ce6b5db-7771-4a92-8238-1c759749d904` (`fix/sales-sequences-rewalk-fe`, Auto-fix on its PRs): PR #154 done.
+   - Re-walk sessions (idle, keep for re-checks): Sales `local_01609068-f36e-4bd9-a388-ab9a77fd8e03` (PR #151), Academy `local_39d5cd53-7b1d-473e-abb0-24a1b22184d4`.
+   - Done, archivable: Finance (d) BE `local_0b7311d5-2443-4c5c-9744-c1dfd6e7c33e`.
+1. **Merge train (§0a):** API #180 (then live-test #152's D2 name prompt with a nameless member, e.g. a fresh invite) → FE #153 once its
+   E2E is green. Then ask the **Academy re-walk session** (`local_39d5cd53-...`) to re-check D1-D4 on develop and mark Academy ✅, and the
+   **Sales re-walk session** (`local_01609068-...`) to re-check the two #154 rows. The **unsubscribe round trip**: Adebayo pastes the
+   `+followup` email's link; open it on a local FE (`http://localhost:<port>/unsubscribe/<token>`), confirm the page, the
+   `sales_suppressions` row for `adevictor98+followup@gmail.com` and the status endpoint; record it in #151; merge #151; Sales ✅.
+2. **Sales:** merge the FE fix PR, then the re-walk session re-checks its 2 rows; the lead does the **deal follow-up send** to
+   adevictor98@gmail.com (only with Adebayo's OK, §0c item 3) and Adebayo clicks the **unsubscribe** link (§0c item 2). Then merge #151 and mark Sales ✅.
+3. **Finance re-walk** after #153 merges (by hand, all roles, 1440 + 375) with Adebayo pasting Paystack/Flutterwave **test** keys for the
+   live connect rows; Mono Connect sandbox opens locally. Then triage #153's API asks into a Finance BE slice (e).
+4. Then the next pages in §2 order. Keep at most 2-3 sessions running.
 
 ## 2c. Follow-ups (not blocking)
+- **From lead 8:** starting revenue in the model counts all money in over 3 months, including Funding inflows (a fresh raise inflates
+  it; touches runway/dashboard too, product call). Two Paystack payouts inside one 10-day window can both be "covered" by the same
+  charges (accepted: payouts are below charges). The founder's legacy certificates `CFZ-C4MB-SWRU-DRXE` / `CFZ-RVE9-Z2ZX-N7RS`
+  (pre-PDF) never get a PDF (local test data). Send windows (business hours/weekends) aren't enforced for sequences (spec has none).
 - From the lead-7 reviews (not blocking): nginx `client_max_body_size ~11m` for receipt uploads (the app cap limits memory, not
   the temp file); receipt links are bearer tokens in the query string (scrub `token=` from access logs); category filter `lower()` vs
   `casefold()` mismatch for a few characters; ARF spam-complaint reports aren't acted on (`SuppressionReason.complained` unused).
@@ -214,7 +207,6 @@ Sales) → Legal (Victoria).
 - `document.shared` / `document.signature.*` go to every member; should probably go to the share's recipients only.
 - Briefing `mission_done/total` and `tasks_done_week` freeze at generation time.
 - Marketing scheduler: if >500 overdue posts ever stay `scheduled` after failed jobs, newer posts queue behind them (edge case).
-- `scripts/env.sh verify` false-fails when the env file's first line is a comment (it checks line 1 for `=`): one-line fix.
 - pip-audit flags dev-only `pytest` and `virtualenv` advisories (outside the gate's `--only main`): bump when convenient.
 - Consolidate the two comment-thread UIs; Validation editor unsaved-changes guard; 3 minor Validation FE items.
 - The staging-fix session tested Resend with the staging key directly (no value printed). Briefs now say: never call providers
@@ -276,11 +268,23 @@ Sales) → Legal (Victoria).
   numbers up front (done here: 0067/0068/0069). (3) From the dev network SMTP 465 is filtered; use 587 STARTTLS locally.
   (4) GitGuardian flags signed tokens in e2e captures even when expired: redact tokens in captures *before* the first commit.
 
+- **Lead-8 lessons:** (1) **Merge trains: re-chain BEFORE each merge.** #172 merged right after #171 with both on 0066, develop got two
+  alembic heads, staging CD failed at migrate and rolled back (fixed by #174). The CI single-head check can't see across branches.
+  (2) **Worker handlers run inside `db.begin_nested()`**: a handler that commits must be registered with
+  `register_handler(..., manages_transactions=True)` (#177); service-level tests never caught it, so test new handlers through `run_once`.
+  (3) **Never store short non-secret values (ports) as GitHub secrets:** masking blanked an image digest containing `22` (#175).
+  (4) slowapi's default limits are per full URL: public `/{token}` routes need `shared_limit(scope=...)`.
+  (5) In this shell, piping `dig +short` through cut/grep printed nothing: use `/usr/bin/dig +noall +answer` with no pipe.
+  (6) The deployed image ships `app/`, `alembic/`, `content/` only, not `scripts/`: one-off jobs belong under `app/` (`python -m app...`).
+  (7) Scripted Playwright walks don't count as re-walks; the hand re-walks found 4 + 2 defects the scripted walks passed.
+  (8) **Give every test run its own scratch DBs** (`<slug>_db`, `<slug>_test`, created fresh): the named shared ones (`ci_scratch*`) collide
+  with other sessions' migration tests and produce phantom failures (lead 8 saw 29 on a 1-file change). Also export a throwaway
+  `JOURNAL_ENCRYPTION_KEY` (CI generates one per run) or ~74 journal tests fail.
+
 ## 4b. Follow-ups queued
 - **Lessons from 2026-10-19:** parallel FE sub-sessions that both add a shared module (e.g. `lib/api/comments.ts`) collide
   on merge (add/add). When two pages need the same new shared module, build it once first, or tell the second session to
   reuse the first's branch file.
-- **Strip em/en dashes from all LLM output** centrally in `cofoundaz-api/app/platform/llm.py` (a mission "Why" line rendered "value—giving"). Small separate PR.
 - Local AI daily budget was used up by the BB FE session's testing on 2026-10-19 (resets at UTC midnight). Real-model checks wait until then.
 - **Consolidate the two comment-thread UIs** (`components/roadmap/comment-thread.tsx` and `components/business-builder/comment-drawer.tsx`) and the two mention helper sets in `lib/mentions.ts`, after #108 merges. Refactor only, no behaviour change.
 
