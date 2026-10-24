@@ -188,7 +188,7 @@ function Builder({
       <div className="bg-white rounded-modal border border-sage-200 p-6 shadow-card space-y-6">
         <div className="flex items-center justify-between border-b border-sage-100 pb-4">
           <h2 className="text-xl font-display font-bold text-sage-900">{editing ? `Edit ${editing.number}` : "Invoice builder"}</h2>
-          <button type="button" onClick={onClose} className="text-xs font-semibold text-sage-500 hover:text-sage-700 transition-colors">
+          <button type="button" onClick={onClose} className="inline-flex items-center max-md:min-h-11 text-xs font-semibold text-sage-500 hover:text-sage-700 transition-colors">
             Cancel
           </button>
         </div>
@@ -206,7 +206,7 @@ function Builder({
           <div className="space-y-1.5">
             <div className="flex justify-between">
               <span className={labelCls}>Line items (NGN)</span>
-              <button type="button" onClick={() => setLines((ls) => [...ls, { description: "", quantity: "1", price: "" }])} className="text-xs font-bold text-copper-600 hover:underline">
+              <button type="button" onClick={() => setLines((ls) => [...ls, { description: "", quantity: "1", price: "" }])} className="inline-flex items-center max-md:min-h-11 text-xs font-bold text-copper-600 hover:underline">
                 + Add item
               </button>
             </div>
@@ -253,7 +253,7 @@ function Builder({
           </div>
         </div>
 
-        <label className="flex items-start gap-2 text-sm text-sage-700">
+        <label className="flex items-start gap-2 max-md:min-h-11 text-sm text-sage-700">
           <input type="checkbox" checked={autoRemind} onChange={(e) => setAutoRemind(e.target.checked)} className="accent-green-900 mt-0.5" />
           <span>
             Auto-remind the client when overdue
@@ -463,7 +463,7 @@ function InvoiceDetail({
             <p className="text-xs font-bold text-sage-600 uppercase">Reminders</p>
             {rem.hint && <p className="text-xs text-sage-600">{rem.hint}</p>}
             <p className="text-xs text-sage-500">{rem.auto}</p>
-            <label className="flex items-center gap-2 text-xs text-sage-700">
+            <label className="flex items-center gap-2 max-md:min-h-11 text-xs text-sage-700">
               <input type="checkbox" checked={invoice.auto_remind} disabled={busy} onChange={() => onAction({ kind: "autoremind", invoice })} className="accent-green-900" />
               Auto-remind when overdue
             </label>
@@ -659,7 +659,7 @@ export default function InvoicesPage() {
                 type="button"
                 aria-pressed={filter === f.key}
                 onClick={() => setFilter(f.key)}
-                className={`px-4 py-1.5 rounded-pill text-xs font-semibold transition-colors ${
+                className={`px-4 py-1.5 max-md:min-h-11 rounded-pill text-xs font-semibold transition-colors ${
                   filter === f.key ? "bg-green-900 text-white" : "bg-white border border-sage-200 text-sage-600 hover:bg-sage-50"
                 }`}
               >
@@ -700,6 +700,16 @@ export default function InvoicesPage() {
                             </div>
                           </div>
                           {payTag(inv) && <p className="text-xs font-semibold text-green-800">{payTag(inv)}</p>}
+                          <label className="flex items-center gap-3 min-h-11 text-sm font-medium text-sage-700 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={inv.auto_remind}
+                              disabled={busy || inv.status === "paid"}
+                              onChange={() => void handle({ kind: "autoremind", invoice: inv })}
+                              className="accent-green-900 cursor-pointer w-5 h-5"
+                            />
+                            Auto-remind
+                          </label>
                           <RowActions inv={inv} nowMs={nowMs} busy={busy} onAction={(a) => void handle(a)} />
                         </li>
                       ))}

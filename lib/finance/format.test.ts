@@ -4,7 +4,6 @@ import {
   currentMonth,
   formatDate,
   formatMoney,
-  formatMoneyWhole,
   formatMonth,
   minorToInput,
   minorToThousands,
@@ -17,7 +16,9 @@ import {
 describe('money', () => {
   it('formats minor units as naira', () => {
     expect(formatMoney(12050000)).toBe('₦120,500');
-    expect(formatMoney(161250)).toBe('₦1,612.5');
+    expect(formatMoney(161250)).toBe('₦1,612.50');
+    expect(formatMoney(4500050)).toBe('₦45,000.50');
+    expect(formatMoney(96016667)).toBe('₦960,166.67');
     expect(formatMoney(0)).toBe('₦0');
   });
   it('falls back for a non-ISO currency code', () => {
@@ -71,12 +72,5 @@ describe('copy helpers', () => {
     expect(clampPercent(150)).toBe(100);
     expect(clampPercent(null)).toBe(0);
     expect(clampPercent(40)).toBe(40);
-  });
-});
-
-describe('formatMoneyWhole', () => {
-  it('rounds to whole naira', () => {
-    expect(formatMoneyWhole(96016667)).toBe('₦960,167');
-    expect(formatMoneyWhole(150000000)).toBe('₦1,500,000');
   });
 });

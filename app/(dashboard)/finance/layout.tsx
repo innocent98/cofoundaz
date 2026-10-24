@@ -37,7 +37,7 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
                   key={tab.name}
                   href={tab.path}
                   aria-current={isActive ? "page" : undefined}
-                  className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                  className={`px-4 py-2 max-md:min-h-11 inline-flex items-center rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     isActive
                       ? "bg-[#EAD5C6] text-[#1E2923] font-bold shadow-card"
                       : "bg-white border border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]"

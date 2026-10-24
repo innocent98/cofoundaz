@@ -102,13 +102,13 @@ function ExpenseForm({
       <Field label="Notes (optional)" htmlFor="ex-notes">
         <textarea id="ex-notes" className={inputCls} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </Field>
-      <label className="flex items-center gap-2 text-sm text-sage-700">
+      <label className="flex items-center gap-2 max-md:min-h-11 text-sm text-sage-700">
         <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="accent-copper-600" />
         Recurring (a label only; the next one is not created for you)
       </label>
       {!initial && (
         <Field label="Receipt (optional)" htmlFor="ex-receipt" hint="PNG, JPEG or PDF, up to 10 MB.">
-          <input id="ex-receipt" type="file" accept="image/png,image/jpeg,application/pdf" onChange={(e) => setReceipt(e.target.files?.[0] ?? null)} className="text-sm" />
+          <input id="ex-receipt" type="file" accept="image/png,image/jpeg,application/pdf" onChange={(e) => setReceipt(e.target.files?.[0] ?? null)} className="text-sm max-md:min-h-11 max-md:py-2.5" />
         </Field>
       )}
       <p className="text-xs text-sage-500">
@@ -273,7 +273,7 @@ export default function ExpensesPage() {
               type="month"
               value={month}
               onChange={(e) => e.target.value && setMonth(e.target.value)}
-              className="bg-white border border-sage-200 rounded-card px-3 py-2 text-sm font-medium focus:outline-none focus:border-copper-600"
+              className="bg-white border border-sage-200 rounded-card px-3 py-2 max-md:min-h-11 text-sm font-medium focus:outline-none focus:border-copper-600"
             />
             <button type="button" onClick={() => setFormFor("new")} className={primaryBtn}>
               <Plus className="w-4 h-4" aria-hidden="true" /> Add expense
@@ -326,7 +326,7 @@ export default function ExpensesPage() {
                   </div>
                   <p className="font-bold text-sage-900 whitespace-nowrap">{formatMoney(exp.amount_minor, exp.currency)}</p>
                 </div>
-                <label className="flex items-center gap-2 text-xs text-sage-600">
+                <label className="flex items-center gap-2 max-md:min-h-11 text-xs text-sage-600">
                   <input type="checkbox" checked={exp.recurring} disabled={busy} onChange={() => void toggleRecurring(exp)} className="accent-copper-600" />
                   Recurring
                 </label>
