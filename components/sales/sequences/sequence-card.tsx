@@ -95,7 +95,17 @@ export function SequenceCard({
     steps.length !== saved.length ||
     steps.some((s, i) => s.wait_days !== String(saved[i].wait_days) || s.subject !== saved[i].subject || s.body !== saved[i].body);
 
-  const setStep = (key: number, patch: Partial<StepForm>) => setSteps((all) => all.map((s) => (s.key === key ? { ...s, ...patch } : s)));
+  const clearError = (...keys: string[]) =>
+    setErrors((e) => (keys.some((k) => k in e) ? Object.fromEntries(Object.entries(e).filter(([k]) => !keys.includes(k))) : e));
+  /** Step errors are keyed by position, so adding or removing a step makes them point at the wrong step. */
+  const clearStepErrors = () =>
+    setErrors((e) => Object.fromEntries(Object.entries(e).filter(([k]) => k !== 'steps' && !k.startsWith('steps.'))));
+
+  const setStep = (key: number, patch: Partial<StepForm>) => {
+    const i = steps.findIndex((s) => s.key === key);
+    clearError(...Object.keys(patch).map((f) => `steps.${i}.${f}`));
+    setSteps((all) => all.map((s) => (s.key === key ? { ...s, ...patch } : s)));
+  };
 
   const insertTag = (tag: MergeTag) => {
     const target = focus.current ?? { key: steps[0].key, field: 'body' as const };
@@ -146,6 +156,7 @@ export function SequenceCard({
     try {
       const input = { name: name.trim(), steps: v.payload, stop_on_stage_change: stopOnStage };
       const result = isNew ? await createSequence(input) : await updateSequence(sequence.id, input);
+      setErrors({});
       triggerToast(isNew ? 'Sequence created' : 'Sequence saved');
       onSaved(result);
     } catch (err) {
@@ -212,7 +223,10 @@ export function SequenceCard({
             value={name}
             maxLength={120}
             placeholder="Name this sequence"
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              clearError('name');
+            }}
             aria-invalid={!!errors.name}
             className="w-full text-xl md:text-2xl font-display font-bold text-sage-900 bg-transparent border-b border-transparent hover:border-sage-200 focus:border-sage-400 outline-none"
           />
@@ -293,7 +307,10 @@ export function SequenceCard({
                       type="button"
                       className="text-xs text-sage-500 hover:text-red-700 cursor-pointer"
                       aria-label={`Remove step ${i + 1}`}
-                      onClick={() => setSteps((all) => all.filter((s) => s.key !== step.key))}
+                      onClick={() => {
+                        clearStepErrors();
+                        setSteps((all) => all.filter((s) => s.key !== step.key));
+                      }}
                     >
                       Remove step
                     </button>
@@ -418,7 +435,10 @@ export function SequenceCard({
           type="button"
           className={BTN_SECONDARY}
           disabled={steps.length >= MAX_STEPS}
-          onClick={() => setSteps((all) => [...all, toForm({ wait_days: 3, subject: '', body: '' })])}
+          onClick={() => {
+            clearError('steps');
+            setSteps((all) => [...all, toForm({ wait_days: 3, subject: '', body: '' })]);
+          }}
         >
           + Add step
         </button>
