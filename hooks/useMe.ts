@@ -34,5 +34,5 @@ export function useMe() {
     };
   }, []);
 
-  return { me, loading, error };
+  return { me, loading, error, setMe };
 }

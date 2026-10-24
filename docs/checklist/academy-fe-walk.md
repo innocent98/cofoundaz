@@ -224,4 +224,4 @@ mentor and consultant (`/dashboard`, open the bell).
 
 - **D1:** the popover is `fixed inset-x-4` below `md` (16 px gutters whatever else sits in the header) and `md:absolute md:right-0 md:w-96` from `md`. It is the only bell popover in the app (`components/dashboardnavbar.tsx`); `NotificationBell` elsewhere is a plain link.
 - **D4:** the failure was produced by aborting `GET /notifications?...` with a 500 in the browser (the API itself was healthy), then letting it through and pressing Retry.
-- **D2 is not fixed here**: there is no safe API to write the profile name (see the PR).
+- **D2** (name prompt, `PATCH /auth/me`): unit and mocked Playwright (1440 and 375) pass with the captured shapes. **Not yet verified live**: the API route is on branch `feature/profile-name-update` and not merged; live rows to be added once it is.

@@ -14,6 +14,8 @@ interface WorkspaceContextValue {
   /** The caller's role in that workspace; null while loading or if unknown. */
   role: MemberRole | null;
   loading: boolean;
+  /** Replace the cached /auth/me, e.g. with the response of PATCH /auth/me. */
+  setMe: (me: MeResponse) => void;
 }
 
 /**
@@ -32,7 +34,7 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 /** One /auth/me fetch for the whole shell (sidebar, top bar, tab bar). */
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-  const { me, loading } = useMe();
+  const { me, loading, setMe } = useMe();
   const value = useMemo<WorkspaceContextValue>(() => {
     let stored: string | null = null;
     try {
@@ -45,11 +47,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return {
       me,
       loading,
+      setMe,
       workspaceId,
       workspaceName: membership?.name?.trim() || null,
       role: asMemberRole(membership?.role),
     };
-  }, [me, loading]);
+  }, [me, loading, setMe]);
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 }
 
