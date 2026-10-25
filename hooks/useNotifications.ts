@@ -55,7 +55,17 @@ function salesHref(data: Record<string, unknown> | null | undefined): string {
   return '/sales';
 }
 
+/** Document notifications (library guide §10): follow `data.href` when it is a /documents path, else the nearest list. */
+function documentsHref(type: string, data: Record<string, unknown> | null | undefined): string {
+  const href = data?.href;
+  if (typeof href === 'string' && /^\/documents(\/|$)/.test(href) && !href.startsWith('//')) return href;
+  if (type.startsWith('document.signature')) return '/documents/signatures';
+  if (type === 'document.grant.created') return '/documents/shared-with-me';
+  return '/documents';
+}
+
 export function notificationHref(type: string, data: Record<string, unknown> | null | undefined): string | null {
+  if (type.startsWith('document.')) return documentsHref(type, data);
   if (type.startsWith('marketing.')) return marketingHref(type, data);
   if (type.startsWith('sales.')) return salesHref(data);
   if (type === 'dashboard.briefing.ready') return '/dashboard';

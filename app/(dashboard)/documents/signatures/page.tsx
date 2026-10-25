@@ -1,14 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Plus, X, Trash2, Copy } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Plus, Trash2, Copy } from 'lucide-react';
 import { useSignatureRequests } from '@/hooks/useSignatureRequests';
-import { useDocumentFiles } from '@/hooks/useDocumentFiles';
+import { Dialog, btnPrimary, btnSecondary, btnIcon, inputCls, labelCls } from '@/components/documents/ui';
+import { listFiles, type FileSummary } from '@/lib/api/documents';
 import { useToast } from '../ToastContext';
 
 export default function SignaturesPage() {
-  const { requests, loading, createRequest, cancelRequest, remindRequest } = useSignatureRequests();
-  const { files } = useDocumentFiles();
+  const { requests, loading, error: loadError, refetch, createRequest, cancelRequest, remindRequest } = useSignatureRequests();
+  // Only files that passed the scan can be sent for signature.
+  const [files, setFiles] = useState<{ id: string; title: string }[]>([]);
+  useEffect(() => {
+    void (async () => {
+      try {
+        const all: FileSummary[] = await listFiles();
+        setFiles(all.filter((f) => f.scan_status === 'clean').map((f) => ({ id: f.id, title: f.filename })));
+      } catch {
+        setFiles([]);
+      }
+    })();
+  }, []);
   const { triggerToast } = useToast();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,12 +46,12 @@ export default function SignaturesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fileId) {
-      triggerToast('Pick a file to send for signature.');
+      triggerToast('Pick a file to send for signature.', 'error');
       return;
     }
     const cleanSigners = signers.filter((s) => s.email.trim()).map((s) => ({ email: s.email.trim(), name: s.name.trim() || undefined }));
     if (cleanSigners.length === 0) {
-      triggerToast('Add at least one signer.');
+      triggerToast('Add at least one signer.', 'error');
       return;
     }
     setSending(true);
@@ -49,18 +61,20 @@ export default function SignaturesPage() {
       setSignerLinks(res.signerLinks ?? []);
       triggerToast('Signature request sent.');
     } else {
-      triggerToast(res.error || 'Could not send for signature.');
+      triggerToast(res.error || 'Could not send for signature.', 'error');
     }
   };
 
   const handleCancel = async (id: string, reqTitle: string) => {
-    await cancelRequest(id);
-    triggerToast(`Cancelled “${reqTitle}”.`);
+    const res = await cancelRequest(id);
+    if (res.ok) triggerToast(`Cancelled “${reqTitle}”.`);
+    else triggerToast(res.error || 'Could not cancel the request.', 'error');
   };
 
   const handleRemind = async (id: string) => {
-    const ok = await remindRequest(id);
-    triggerToast(ok ? 'Reminder sent to unsigned signers.' : 'Could not send reminder.');
+    const res = await remindRequest(id);
+    if (res.ok) triggerToast('Reminder sent to unsigned signers.');
+    else triggerToast(res.error || 'Could not send the reminder.', 'error');
   };
 
   const getStatusBadgeStyles = (status: string) => {
@@ -79,16 +93,13 @@ export default function SignaturesPage() {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-      <div className="flex items-start justify-between gap-4">
+    <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-8">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-display text-ink-strong tracking-tight mb-1">E-signature requests</h1>
           <p className="text-xs text-neutral-x738279">Track pending and completed document signatures.</p>
         </div>
-        <button
-          onClick={openModal}
-          className="shrink-0 px-4 py-1.5 bg-accent-bronze hover:bg-accent-x906d3a text-white rounded-card text-xs font-semibold flex items-center space-x-1 shadow-card transition-colors h-[34px]"
-        >
+        <button type="button" onClick={openModal} className={`${btnPrimary} shrink-0 self-start`}>
           <Plus size={14} />
           <span>New request</span>
         </button>
@@ -100,14 +111,18 @@ export default function SignaturesPage() {
         legal advice on enforceability in your jurisdiction.
       </p>
 
-      {!loading && requests.length === 0 && (
+      {loadError && (
+        <div role="alert" className="bg-danger-tint border border-danger-xfad7d7 rounded-card p-4 text-sm text-danger-600 flex flex-wrap items-center justify-between gap-3">
+          <span>Could not load signature requests.</span>
+          <button type="button" className={btnSecondary} onClick={() => void refetch()}>Try again</button>
+        </div>
+      )}
+
+      {!loading && !loadError && requests.length === 0 && (
         <div className="bg-white border border-line rounded-modal shadow-card p-12 text-center">
           <p className="text-sm font-semibold text-ink">No signature requests yet</p>
           <p className="text-xs text-ink-subtle mt-1">Send a file to collaborators to collect signatures.</p>
-          <button
-            onClick={openModal}
-            className="mt-4 px-4 py-2 bg-accent-bronze hover:bg-accent-x906d3a text-white rounded-card text-xs font-semibold shadow-card transition-colors"
-          >
+          <button type="button" onClick={openModal} className={`${btnPrimary} mt-4`}>
             New request
           </button>
         </div>
@@ -126,16 +141,16 @@ export default function SignaturesPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 self-end md:self-auto">
+              <div className="flex flex-wrap items-center gap-2 self-end md:self-auto">
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeStyles(req.status)}`}>
                   {req.status}
                 </span>
                 {req.status === 'Awaiting' && (
                   <>
-                    <button onClick={() => handleRemind(req.id)} className="text-xs font-semibold text-brand-strong hover:text-accent-bronze transition-colors">
+                    <button onClick={() => handleRemind(req.id)} className="min-h-11 px-2 text-xs font-semibold text-brand-strong hover:text-accent-bronze transition-colors">
                       Remind
                     </button>
-                    <button onClick={() => handleCancel(req.id, req.title)} className="text-xs font-semibold text-danger-bold hover:opacity-80 transition-opacity">
+                    <button onClick={() => handleCancel(req.id, req.title)} className="min-h-11 px-2 text-xs font-semibold text-danger-bold hover:opacity-80 transition-opacity">
                       Cancel
                     </button>
                   </>
@@ -158,77 +173,81 @@ export default function SignaturesPage() {
 
       {/* New request modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-brand-x061a12/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-modal w-full max-w-md shadow-raised overflow-hidden max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-line flex items-center justify-between bg-surface-faint">
-              <h3 className="font-bold text-ink">Send for signature</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-ink-subtle hover:text-ink transition-colors p-1 rounded-input hover:bg-line">
-                <X size={16} />
-              </button>
-            </div>
-
-            {signerLinks ? (
-              <div className="p-6 space-y-4">
-                <p className="text-sm text-ink font-semibold">Signature request sent</p>
-                <p className="text-xs text-neutral-x738279">Per-signer links (shown once, signers also receive them by email):</p>
-                <div className="space-y-2">
-                  {signerLinks.map((link, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <input readOnly value={link} className="flex-1 border border-line-strong rounded-input px-3 py-2 text-xs text-ink bg-surface-faint truncate" />
-                      <button type="button" onClick={() => { navigator.clipboard?.writeText(link); triggerToast('Link copied.'); }} className="shrink-0 px-3 py-2 bg-brand-strong hover:bg-brand-x122e21 text-white rounded-input text-xs font-bold flex items-center gap-1.5">
-                        <Copy size={13} /> Copy
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <div className="pt-2 flex justify-end">
-                  <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-white border border-neutral-xdcdcd6 hover:bg-surface-muted text-ink rounded-card text-sm font-bold transition-colors">Done</button>
-                </div>
+        <Dialog label="Send for signature" onClose={() => setIsModalOpen(false)}>
+          {signerLinks ? (
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-ink font-semibold">Signature request sent</p>
+              <p className="text-xs text-neutral-x738279">Per-signer links (shown once, signers also receive them by email):</p>
+              <div className="space-y-2">
+                {signerLinks.map((link, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input readOnly aria-label={`Signer link ${i + 1}`} value={link} className={`${inputCls} bg-surface-faint truncate text-xs`} />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void navigator.clipboard?.writeText(link);
+                        triggerToast('Link copied.');
+                      }}
+                      className={`${btnPrimary} shrink-0`}
+                    >
+                      <Copy size={13} /> Copy
+                    </button>
+                  </div>
+                ))}
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-neutral-x55625a uppercase tracking-wider">File</label>
-                  {files.length === 0 ? (
-                    <p className="text-xs text-danger-bold">Upload a file in the Library first, signatures are collected on a file.</p>
-                  ) : (
-                    <select value={fileId} onChange={(e) => setFileId(e.target.value)} className="w-full border border-line-strong rounded-input px-3 py-2 text-sm bg-white focus:outline-none focus:border-line-focus">
-                      {files.map((f) => (
-                        <option key={f.id} value={f.id}>{f.title}</option>
-                      ))}
-                    </select>
-                  )}
-                </div>
+              <div className="pt-2 flex justify-end">
+                <button type="button" onClick={() => setIsModalOpen(false)} className={btnSecondary}>
+                  Done
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              <div className="space-y-1.5">
+                <label htmlFor="sig-file" className={labelCls}>File</label>
+                {files.length === 0 ? (
+                  <p className="text-xs text-danger-bold">Upload a file in the Library first. Signatures are collected on a file that has passed the scan.</p>
+                ) : (
+                  <select id="sig-file" value={fileId} onChange={(e) => setFileId(e.target.value)} className={inputCls}>
+                    {files.map((f) => (
+                      <option key={f.id} value={f.id}>{f.title}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-neutral-x55625a uppercase tracking-wider">Title (optional)</label>
-                  <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Defaults to the file name" className="w-full border border-line-strong rounded-input px-3 py-2 text-sm focus:outline-none focus:border-line-focus" />
-                </div>
+              <div className="space-y-1.5">
+                <label htmlFor="sig-title" className={labelCls}>Title (optional)</label>
+                <input id="sig-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Defaults to the file name" className={inputCls} />
+              </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-neutral-x55625a uppercase tracking-wider">Signers</label>
-                  {signers.map((s, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <input type="email" required value={s.email} onChange={(e) => updateSigner(i, 'email', e.target.value)} placeholder="email@company.com" className="flex-1 border border-line-strong rounded-input px-3 py-2 text-xs focus:outline-none focus:border-line-focus" />
-                      <input value={s.name} onChange={(e) => updateSigner(i, 'name', e.target.value)} placeholder="Name" className="w-28 border border-line-strong rounded-input px-3 py-2 text-xs focus:outline-none focus:border-line-focus" />
-                      <button type="button" onClick={() => removeSigner(i)} className="text-neutral-x9ca8a0 hover:text-danger-bold transition-colors shrink-0" aria-label="Remove signer">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
-                  <button type="button" onClick={addSigner} className="text-xs font-semibold text-brand-strong hover:text-accent-bronze transition-colors">+ Add signer</button>
-                </div>
+              <div className="space-y-2">
+                <span className={labelCls}>Signers</span>
+                {signers.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input type="email" required aria-label={`Signer ${i + 1} email`} value={s.email} onChange={(e) => updateSigner(i, 'email', e.target.value)} placeholder="email@company.com" className={`${inputCls} flex-1 min-w-0 text-xs`} />
+                    <input aria-label={`Signer ${i + 1} name`} value={s.name} onChange={(e) => updateSigner(i, 'name', e.target.value)} placeholder="Name" className={`${inputCls} w-24 md:w-28 text-xs`} />
+                    <button type="button" onClick={() => removeSigner(i)} className={`${btnIcon} shrink-0`} aria-label={`Remove signer ${i + 1}`}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+                <button type="button" onClick={addSigner} className="min-h-11 text-xs font-semibold text-brand-strong hover:text-accent-bronze transition-colors">+ Add signer</button>
+              </div>
 
-                <div className="pt-2 flex gap-3">
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-2 bg-white border border-neutral-xdcdcd6 hover:bg-surface-muted text-ink rounded-card text-sm font-bold transition-colors">Cancel</button>
-                  <button type="submit" disabled={sending || files.length === 0} className="flex-1 px-4 py-2 bg-brand-strong hover:bg-brand-x122e21 text-white rounded-card text-sm font-bold transition-colors shadow-card disabled:opacity-60">
-                    {sending ? 'Sending…' : 'Send request'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
+              <p className="text-[11px] text-ink-subtle">
+                This is a simple electronic signature: each signer types their name and agrees it counts as their signature. It is not certificate-based, and it is not legal advice on enforceability in your jurisdiction.
+              </p>
+
+              <div className="pt-2 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className={`${btnSecondary} flex-1`}>Cancel</button>
+                <button type="submit" disabled={sending || files.length === 0} className={`${btnPrimary} flex-1`}>
+                  {sending ? 'Sending…' : 'Send request'}
+                </button>
+              </div>
+            </form>
+          )}
+        </Dialog>
       )}
     </main>
   );
