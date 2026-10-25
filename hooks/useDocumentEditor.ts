@@ -18,6 +18,7 @@ export interface EditableDoc {
   title: string;
   kind: string;
   status: string;
+  folder?: string | null;
   version: number;
   updated_at: string;
   sections: DocSection[];
@@ -61,7 +62,8 @@ export function useDocumentEditor(id: string) {
       try {
         const res = await apiClient<{ data?: EditableDoc }>(`/documents/${id}`, {
           method: 'PUT',
-          body: JSON.stringify({ title, sections, version: doc.version }),
+          // PUT is a full replace: echo status and folder back or the save wipes them.
+          body: JSON.stringify({ title, sections, status: doc.status, folder: doc.folder ?? null, version: doc.version }),
         });
         if (res?.data) setDoc(res.data); // new version + normalized sections
         return { ok: true };
