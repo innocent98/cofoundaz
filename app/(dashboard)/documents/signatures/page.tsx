@@ -80,9 +80,9 @@ export default function SignaturesPage() {
   const getStatusBadgeStyles = (status: string) => {
     switch (status) {
       case 'Awaiting':
-        return 'bg-accent-xf2ece1 text-accent-x7a6025';
+        return 'bg-warning-100 text-warning-800';
       case 'Complete':
-        return 'bg-neutral-xe5efea text-brand-x1e3e2b';
+        return 'bg-success-100 text-success-800';
       case 'Cancelled':
         return 'bg-neutral-xeceeef text-neutral-x55625a';
       case 'Expired':
@@ -160,7 +160,7 @@ export default function SignaturesPage() {
             <div className="border-t border-line pt-3 flex flex-wrap gap-4 text-xs text-ink-muted">
               {req.signers.map((s, sIdx) => (
                 <div key={sIdx} className="flex items-center space-x-1.5">
-                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${s.signed ? 'bg-neutral-xe5efea text-brand-x1e3e2b' : 'bg-surface-muted text-ink-subtle'}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${s.signed ? 'bg-success-100 text-success-800' : 'bg-surface-muted text-ink-subtle'}`}>
                     {s.signed ? '✓' : '•'}
                   </span>
                   <span>{s.name}</span>

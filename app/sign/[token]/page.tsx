@@ -123,7 +123,7 @@ export default function PublicSignerPage() {
 
         {!loading && !invalid && result && (
           <div className="bg-white rounded-modal shadow-card border border-line p-10 text-center flex flex-col items-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-brand-tint text-brand-mid flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-success-50 text-success flex items-center justify-center">
               <Check className="w-8 h-8" />
             </div>
             <h1 className="text-2xl font-display font-bold">Signed, thank you</h1>
