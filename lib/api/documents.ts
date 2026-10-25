@@ -32,7 +32,7 @@ export interface DocSummary {
 export interface FileSummary {
   id: string;
   type?: 'file';
-  origin?: 'upload' | 'export';
+  origin?: 'upload' | 'export' | 'executed';
   source_document_id?: string | null; // null once the source document is purged
   source_version?: number | null;
   filename: string;
@@ -327,25 +327,49 @@ export const UPLOAD_ACCEPT = '.pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.txt,.csv,.
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 export const MAX_UPLOAD_LABEL = '15 MB';
 
-// Token links ("anyone with the link"): the link is emailed and returned once.
+// Link shares (BE-D): a link emailed to one person, or "anyone with the link" (no email). Documents and files.
+// Editors get the link back on every list ("copy again"), except shares made before BE-D (`link: null`).
 export interface ShareLink {
   id: string;
-  email: string;
+  kind?: 'document' | 'file';
+  email: string | null;
+  anyone_with_link?: boolean;
   access_level: 'view' | 'comment';
   expires_at: string | null;
   revoked_at: string | null;
   last_viewed_at: string | null;
   created_at: string;
   status: string; // active | revoked | expired
+  link?: string | null;
   document_id?: string; // only on the workspace overview
+  file_id?: string;
 }
+export type ShareTarget = { kind: 'document' | 'file'; id: string };
+const sharesPath = (t: ShareTarget) => (t.kind === 'file' ? `/documents/files/${enc(t.id)}/shares` : `/documents/${enc(t.id)}/shares`);
+
 export async function listShareLinks(documentId: string): Promise<ShareLink[]> {
-  const res = await apiClient<Env<{ shares: ShareLink[] }>>(`/documents/${enc(documentId)}/shares`);
+  return listLinkShares({ kind: 'document', id: documentId });
+}
+export async function listLinkShares(t: ShareTarget): Promise<ShareLink[]> {
+  const res = await apiClient<Env<{ shares: ShareLink[] }>>(sharesPath(t));
   return res?.data?.shares ?? [];
 }
 export async function listAllShareLinks(): Promise<ShareLink[]> {
   const res = await apiClient<Env<{ shares: ShareLink[] }>>('/documents/shares');
   return res?.data?.shares ?? [];
+}
+export interface LinkShareBody {
+  /** Omit for "anyone with the link": nothing is emailed. */
+  email?: string;
+  access_level?: GrantPermission;
+  /** ISO date-time in the future, at most 365 days ahead. Wins over expires_in_days. */
+  expires_at?: string;
+  /** 1 to 365; null never expires; omitted means 30. */
+  expires_in_days?: number | null;
+}
+export async function createLinkShare(t: ShareTarget, body: LinkShareBody): Promise<ShareLink> {
+  const res = await apiClient<Env<ShareLink>>(sharesPath(t), json('POST', body));
+  return res.data as ShareLink;
 }
 export async function createShareLink(
   documentId: string,
@@ -353,14 +377,18 @@ export async function createShareLink(
   accessLevel: GrantPermission,
   expiresInDays: number | null,
 ): Promise<string | undefined> {
-  const res = await apiClient<Env<{ link?: string }>>(
-    `/documents/${enc(documentId)}/shares`,
-    json('POST', { email, access_level: accessLevel, expires_in_days: expiresInDays }),
-  );
-  return res?.data?.link;
+  const s = await createLinkShare({ kind: 'document', id: documentId }, { email, access_level: accessLevel, expires_in_days: expiresInDays });
+  return s?.link ?? undefined;
+}
+export async function setShareExpiry(t: ShareTarget, shareId: string, expiresAt: string | null): Promise<ShareLink> {
+  const res = await apiClient<Env<ShareLink>>(`${sharesPath(t)}/${enc(shareId)}`, json('PATCH', { expires_at: expiresAt }));
+  return res.data as ShareLink;
+}
+export async function revokeLinkShare(t: ShareTarget, shareId: string): Promise<void> {
+  await apiClient(`${sharesPath(t)}/${enc(shareId)}`, { method: 'DELETE' });
 }
 export async function revokeShareLink(documentId: string, shareId: string): Promise<void> {
-  await apiClient(`/documents/${enc(documentId)}/shares/${enc(shareId)}`, { method: 'DELETE' });
+  await revokeLinkShare({ kind: 'document', id: documentId }, shareId);
 }
 
 export interface DocFull extends DocSummary {

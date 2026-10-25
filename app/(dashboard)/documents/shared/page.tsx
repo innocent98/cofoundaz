@@ -2,16 +2,18 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FileText, Trash2 } from 'lucide-react';
+import { Copy, FileText, Trash2 } from 'lucide-react';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import {
   listAllGrants,
   listAllShareLinks,
   listDocuments,
+  listFiles,
   revokeGrant,
-  revokeShareLink,
+  revokeLinkShare,
   type GrantPermission,
 } from '@/lib/api/documents';
+import { copyText } from '@/lib/clipboard';
 import { formatDate } from '@/lib/documents-format';
 import { btnIcon, btnSecondary } from '@/components/documents/ui';
 import { useToast } from '../ToastContext';
@@ -20,7 +22,10 @@ interface Row {
   key: string;
   kind: 'person' | 'link';
   id: string;
+  /** Document or file id, with which of the two it is (links on files have no grants). */
   documentId: string;
+  target: 'document' | 'file';
+  link?: string | null;
   document: string;
   who: string;
   access: GrantPermission;
@@ -34,8 +39,8 @@ export default function SharedWithOthersPage() {
 
   const load = useCallback(async () => {
     try {
-      const [grants, links, docs] = await Promise.all([listAllGrants(), listAllShareLinks(), listDocuments()]);
-      const title = new Map(docs.map((d) => [d.id, d.title || 'Untitled document']));
+      const [grants, links, docs, files] = await Promise.all([listAllGrants(), listAllShareLinks(), listDocuments(), listFiles().catch(() => [])]);
+      const title = new Map<string, string>([...docs.map((d) => [d.id, d.title || 'Untitled document'] as [string, string]), ...files.map((f) => [f.id, f.filename] as [string, string])]);
       const list: Row[] = [
         ...grants
           .filter((g) => g.status !== 'revoked' && !g.revoked_at)
@@ -44,6 +49,7 @@ export default function SharedWithOthersPage() {
             kind: 'person',
             id: g.id,
             documentId: g.document_id,
+            target: 'document',
             document: title.get(g.document_id) ?? 'Untitled document',
             who: g.grantee.name || g.grantee.email,
             access: g.permission,
@@ -55,11 +61,13 @@ export default function SharedWithOthersPage() {
             key: `l-${l.id}`,
             kind: 'link',
             id: l.id,
-            documentId: l.document_id ?? '',
-            document: (l.document_id && title.get(l.document_id)) || 'Untitled document',
-            who: l.email,
+            documentId: l.file_id ?? l.document_id ?? '',
+            target: l.file_id || l.kind === 'file' ? 'file' : 'document',
+            link: l.link,
+            document: title.get(l.file_id ?? l.document_id ?? '') || 'Untitled document',
+            who: l.anyone_with_link || !l.email ? 'Anyone with the link' : l.email,
             access: l.access_level,
-            detail: l.last_viewed_at ? `Last viewed ${formatDate(l.last_viewed_at)}` : 'Never viewed',
+            detail: `${l.expires_at ? `Expires ${formatDate(l.expires_at)}` : 'No expiry'}, ${l.last_viewed_at ? `last viewed ${formatDate(l.last_viewed_at)}` : 'never viewed'}`,
           })),
       ];
       setRows(list);
@@ -77,7 +85,7 @@ export default function SharedWithOthersPage() {
 
   const revoke = async (r: Row) => {
     try {
-      await (r.kind === 'person' ? revokeGrant(r.documentId, r.id) : revokeShareLink(r.documentId, r.id));
+      await (r.kind === 'person' ? revokeGrant(r.documentId, r.id) : revokeLinkShare({ kind: r.target, id: r.documentId }, r.id));
       triggerToast(`Access removed for ${r.who}.`);
     } catch (err) {
       triggerToast(apiErrorInfo(err, 'Could not remove access.').message, 'error');
@@ -115,7 +123,7 @@ export default function SharedWithOthersPage() {
             <li key={r.key} className="flex items-center gap-3 px-4 py-1.5">
               <FileText className="w-4 h-4 text-ink-subtle shrink-0" />
               <div className="min-w-0 flex-1">
-                <Link href={`/documents/${r.documentId}`} className="text-sm font-semibold text-ink hover:underline truncate flex items-center min-h-11">
+                <Link href={r.target === 'file' ? '/documents' : `/documents/${r.documentId}`} className="text-sm font-semibold text-ink hover:underline truncate flex items-center min-h-11">
                   {r.document}
                 </Link>
                 <p className="text-[11px] text-ink-subtle truncate">
@@ -125,6 +133,11 @@ export default function SharedWithOthersPage() {
               <span className="px-2 py-0.5 rounded font-medium text-[10px] bg-neutral-xe5efea text-brand-x1e3e2b shrink-0">
                 {r.access === 'comment' ? 'Can comment' : 'Can view'}
               </span>
+              {r.link && (
+                <button type="button" aria-label={`Copy link for ${r.document}`} onClick={() => { void copyText(r.link ?? '').then((ok) => triggerToast(ok ? 'Link copied.' : 'Your browser blocked copying. Open the document to copy the link.', ok ? undefined : 'error')); }} className={btnIcon}>
+                  <Copy size={14} />
+                </button>
+              )}
               <button type="button" aria-label={`Revoke access for ${r.who}`} onClick={() => void revoke(r)} className={btnIcon}>
                 <Trash2 size={14} />
               </button>

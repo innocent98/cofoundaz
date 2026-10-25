@@ -10,6 +10,17 @@ export class ApiError extends Error {
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
 
+/** With a relative API base (the dev proxy) an absolute API link is read same-origin, which sidesteps CORS. */
+export function resolveApiUrl(url: string): string {
+  if (!API_BASE.startsWith('/')) return url;
+  try {
+    const u = new URL(url);
+    return u.pathname.startsWith('/api/v1') ? `${u.pathname}${u.search}` : url;
+  } catch {
+    return url;
+  }
+}
+
 // Guard so parallel 401s (the dashboard fires many calls at once) trigger a
 // single redirect, not a storm of them.
 let sessionRedirectInFlight = false;

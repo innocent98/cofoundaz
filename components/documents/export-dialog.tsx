@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { AlertTriangle, Download, FileText, Loader2 } from 'lucide-react';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import {
@@ -232,7 +233,15 @@ export function ExportDialog({
                 <Download className="w-3.5 h-3.5" /> {downloading ? 'Opening…' : 'Download'}
               </button>
             </div>
-            <p className="text-[11px] text-ink-subtle">To get this file signed, open Signatures and send the exported PDF.</p>
+            {done.file.mime === 'application/pdf' ? (
+              done.file.scan_status === 'clean' && (
+                <Link href={`/documents/signatures?file=${encodeURIComponent(done.file.id)}`} className="inline-flex items-center min-h-11 text-xs font-semibold text-brand-strong hover:text-accent-bronze">
+                  Send this PDF for signature →
+                </Link>
+              )
+            ) : (
+              <p className="text-[11px] text-ink-subtle">Word files can’t be signed. To get this document signed, export it as PDF and send that.</p>
+            )}
           </div>
         )}
 

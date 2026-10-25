@@ -82,6 +82,7 @@ export default function DocumentsLibraryPage() {
   // Dialog state
   const [shareDoc, setShareDoc] = useState<LibraryItem | null>(null);
   const [exportDoc, setExportDoc] = useState<LibraryItem | null>(null);
+  const [shareFile, setShareFile] = useState<LibraryItem | null>(null);
   const [viewFile, setViewFile] = useState<LibraryItem | null>(null);
   const [rename, setRename] = useState<LibraryItem | null>(null);
   const [move, setMove] = useState<LibraryItem | null>(null);
@@ -242,6 +243,10 @@ export default function DocumentsLibraryPage() {
       a.push({ label: 'Share', onSelect: () => setShareDoc(item) }, { label: 'Export as PDF or Word', onSelect: () => setExportDoc(item) });
     } else {
       a.push({ label: 'Download', onSelect: () => void download(item) });
+      if (item.scanStatus === 'clean') a.push({ label: 'Share by link', onSelect: () => setShareFile(item) });
+      if (item.scanStatus === 'clean' && item.typeLabel === 'PDF') {
+        a.push({ label: 'Send for signature', onSelect: () => router.push(`/documents/signatures?file=${encodeURIComponent(item.id)}`) });
+      }
       if (item.origin === 'export' && item.sourceDocumentId) {
         const src = item.sourceDocumentId;
         a.push({ label: 'Open source document', onSelect: () => router.push(`/documents/${src}`) });
@@ -292,7 +297,7 @@ export default function DocumentsLibraryPage() {
   const metaLine = (item: LibraryItem) =>
     isTrash
       ? `Deleted · ${daysLeft(item.purgesAt) ?? 0} days left before it is removed for good`
-      : `${item.ownerName} · ${formatDate(item.modified)} · ${item.origin === 'export' ? `Exported${item.sourceVersion ? ` from version ${item.sourceVersion}` : ''}` : shareChip(item.shareCount)}`;
+      : `${item.ownerName} · ${formatDate(item.modified)} · ${item.origin === 'executed' ? 'Signed copy' : item.origin === 'export' ? `Exported${item.sourceVersion ? ` from version ${item.sourceVersion}` : ''}` : shareChip(item.shareCount)}`;
 
   return (
     <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-6">
@@ -588,6 +593,7 @@ export default function DocumentsLibraryPage() {
       </div>
 
       {shareDoc && <ShareDialog doc={{ id: shareDoc.id, title: shareDoc.title }} onClose={() => setShareDoc(null)} onChanged={() => void reload()} />}
+      {shareFile && <ShareDialog kind="file" doc={{ id: shareFile.id, title: shareFile.title }} onClose={() => setShareFile(null)} onChanged={() => void reload()} />}
       {exportDoc && <ExportDialog documentId={exportDoc.id} onClose={() => setExportDoc(null)} onExported={() => void reload()} />}
       {viewFile && <FileViewer file={{ id: viewFile.id, title: viewFile.title }} onClose={() => setViewFile(null)} />}
 
@@ -676,7 +682,9 @@ export default function DocumentsLibraryPage() {
               await reload();
             } catch (err) {
               setToTrash(null);
-              fail(err, 'Could not move to the Trash.');
+              if (apiErrorInfo(err, '').code === 'FILE_HAS_SIGNATURE_REQUESTS') {
+                triggerToast('This file is part of a signature record, so it can’t be moved to the Trash or deleted.', 'error');
+              } else fail(err, 'Could not move to the Trash.');
             }
           }}
         />
