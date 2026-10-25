@@ -136,7 +136,7 @@ export default function DocumentEditorPage() {
             {saving ? (
               <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Saving…</span>
             ) : savedAt ? (
-              <span className="flex items-center gap-1 text-brand-mid"><Check className="w-3 h-3" /> Saved</span>
+              <span className="flex items-center gap-1 text-success"><Check className="w-3 h-3" /> Saved</span>
             ) : dirty ? (
               'Unsaved changes'
             ) : null}
@@ -182,7 +182,7 @@ export default function DocumentEditorPage() {
               <AlertTriangle className="w-5 h-5 text-danger-600 shrink-0 mt-0.5" />
               <div className="flex flex-col gap-2">
                 <p className="text-sm font-semibold text-danger-600">This document was changed somewhere else since you opened it.</p>
-                <p className="text-xs text-accent-700">Reload to get the latest version. Your unsaved edits here will be lost.</p>
+                <p className="text-xs text-warning">Reload to get the latest version. Your unsaved edits here will be lost.</p>
                 <button onClick={reloadLatest} className="w-fit min-h-11 bg-white border border-danger-xf0d5d5 text-danger-600 text-xs font-bold px-3 rounded-card hover:bg-danger-wash transition-colors">
                   Reload latest
                 </button>
