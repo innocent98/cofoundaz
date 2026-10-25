@@ -82,6 +82,9 @@ export function ShareDialog({
   const [sendingLink, setSendingLink] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
+  // Links the browser would not copy for us: shown in a read-only field so they can be copied by hand.
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
+  const reveal = (id: string) => setRevealed((prev) => new Set(prev).add(id));
   const [editDate, setEditDate] = useState('');
   const bounds = shareExpiryBounds();
 
@@ -172,7 +175,8 @@ export function ShareDialog({
         setLinkEmail('');
       } else {
         const copied = made.link ? await copyText(made.link) : false;
-        triggerToast(copied ? 'Link created and copied.' : 'Link created. Use Copy in the list below.');
+        if (!copied && made.link) reveal(made.id);
+        triggerToast(copied ? 'Link created and copied.' : 'Link created. Copy it from the field below.');
       }
       changed();
     } catch (err) {
@@ -211,7 +215,10 @@ export function ShareDialog({
   const copyLink = async (l: ShareLink) => {
     if (!l.link) return;
     if (await copyText(l.link)) triggerToast('Link copied.');
-    else triggerToast('Your browser blocked copying. Select the link and copy it by hand.', 'error');
+    else {
+      reveal(l.id);
+      triggerToast('Your browser blocked copying. The link is shown below: select it and copy it.', 'error');
+    }
   };
 
   const activeLinks = links.filter((l) => l.status === 'active' && !l.revoked_at);
@@ -265,9 +272,9 @@ export function ShareDialog({
             <ul className="divide-y divide-line border border-line rounded-card">
               {grants.map((g) => (
                 <li key={g.id} className="flex flex-wrap items-center gap-2 px-3 py-1.5">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-ink truncate">{g.grantee.name || g.grantee.email}</p>
-                    {g.grantee.name && <p className="text-[11px] text-ink-subtle truncate">{g.grantee.email}</p>}
+                  <div className="min-w-0 flex-1 basis-44">
+                    <p className="text-xs font-semibold text-ink break-words">{g.grantee.name || g.grantee.email}</p>
+                    {g.grantee.name && <p className="text-[11px] text-ink-subtle break-words">{g.grantee.email}</p>}
                   </div>
                   {g.status === 'pending' && (
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent-100 text-accent-800">Invited</span>
@@ -347,8 +354,8 @@ export function ShareDialog({
               {activeLinks.map((l) => (
                 <li key={l.id} className="px-3 py-1.5 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold text-ink truncate">{l.anyone_with_link || !l.email ? 'Anyone with the link' : l.email}</p>
+                    <div className="min-w-0 flex-1 basis-44">
+                      <p className="text-xs font-semibold text-ink break-words">{l.anyone_with_link || !l.email ? 'Anyone with the link' : l.email}</p>
                       <p className="text-[11px] text-ink-subtle">
                         {PERMISSION_LABEL[l.access_level] ?? 'Can view'} · {l.expires_at ? `expires ${formatDate(l.expires_at)}` : 'no expiry'}
                         {l.last_viewed_at ? ` · last opened ${formatDate(l.last_viewed_at)}` : ' · not opened yet'}
@@ -368,6 +375,15 @@ export function ShareDialog({
                       <Trash2 size={15} />
                     </button>
                   </div>
+                  {l.link && revealed.has(l.id) && (
+                    <input
+                      readOnly
+                      aria-label={`Link for ${l.email ?? 'anyone'}`}
+                      value={l.link}
+                      onFocus={(e) => e.currentTarget.select()}
+                      className={`${inputCls} bg-surface-faint text-xs mb-1`}
+                    />
+                  )}
                   {editing === l.id && (
                     <div className="flex flex-wrap items-end gap-2 pb-1">
                       <label className="flex flex-col gap-1 text-xs font-semibold text-neutral-600">

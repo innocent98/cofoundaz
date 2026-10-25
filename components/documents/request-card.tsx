@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp, Download, Link2, Loader2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Clock, Download, Link2, Loader2 } from 'lucide-react';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import { copySignerLink, executedLink, type SignatureRequest, type Signer } from '@/lib/api/signatures';
 import { copyText } from '@/lib/clipboard';
@@ -49,7 +49,9 @@ export function RequestCard({
   const [copyFor, setCopyFor] = useState<Signer | null>(null);
   const [slow, setSlow] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const exec = executedUi(req.executed);
+  // Time is read once per render of this card, on mount: a request completed long ago never shows a spinner.
+  const [mountedAt] = useState(() => Date.now());
+  const exec = executedUi(req.executed, req.completed_at, mountedAt);
   const refresh = useRef(onRefresh);
   useEffect(() => {
     refresh.current = onRefresh;
@@ -219,12 +221,27 @@ export function RequestCard({
               </button>
             </div>
           )}
-          {exec.kind === 'preparing' && (
+          {exec.kind === 'preparing' && !slow && (
             <p role="status" className="flex items-start gap-2 text-xs text-ink-muted">
-              <Loader2 className={`w-4 h-4 shrink-0 ${slow ? '' : 'animate-spin'}`} aria-hidden />
-              {slow
-                ? 'Taking longer than usual. We will email the executed copy to everyone when it is ready.'
-                : 'Signed. Preparing the executed copy…'}
+              <Loader2 className="w-4 h-4 shrink-0 animate-spin" aria-hidden />
+              Signed. Preparing the executed copy…
+            </p>
+          )}
+          {((exec.kind === 'preparing' && slow) || exec.kind === 'delayed') && (
+            <div role="status" className="flex flex-wrap items-center gap-3 text-xs text-ink-muted">
+              <p className="flex items-start gap-2 min-w-0 flex-1">
+                <Clock className="w-4 h-4 shrink-0" aria-hidden />
+                The executed copy is taking longer than usual. Check back later.
+              </p>
+              <button type="button" className="min-h-11 px-3 text-xs font-semibold text-brand-strong hover:text-accent-bronze" onClick={() => void refresh.current()}>
+                Check again
+              </button>
+            </div>
+          )}
+          {exec.kind === 'failed' && (
+            <p role="status" className="flex items-start gap-2 text-xs text-ink-muted">
+              <Clock className="w-4 h-4 shrink-0" aria-hidden />
+              The executed copy could not be made. The signatures above are still on record; ask the sender to contact support if you need the signed PDF.
             </p>
           )}
           {exec.kind === 'legacy' && (

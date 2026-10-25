@@ -92,7 +92,7 @@ test.describe('Documents e-sign v2: request list and detail', () => {
   })
 
   test('executed copy: ready downloads, pending shows preparing, legacy says there is none', async ({ page }) => {
-    const done = (executed: unknown, id: string, title: string) => request({ id, title, status: 'complete', signed_count: 2, completed_at: '2026-10-25T17:30:00+00:00', executed })
+    const done = (executed: unknown, id: string, title: string) => request({ id, title, status: 'complete', signed_count: 2, completed_at: new Date().toISOString(), executed })
     await setup(page, async (p) => {
       await p.route('**/api/v1/documents/signature-requests', (route) =>
         route.fulfill(json({
@@ -300,8 +300,10 @@ test.describe('Documents e-sign v2: walk fixes', () => {
     await page.getByRole('button', { name: 'Actions for founders-agreement.pdf' }).click()
     await page.getByRole('menuitem', { name: 'Share by link' }).click()
     await page.getByRole('button', { name: 'Create link for anyone' }).click()
-    await expect(page.getByText('Link created. Use Copy in the list below.')).toBeVisible()
+    await expect(page.getByText('Link created. Copy it from the field below.')).toBeVisible()
     await expect(page.getByRole('list', { name: 'Active links' })).toContainText('Anyone with the link')
+    // D1: the link itself is shown in a read-only field to copy by hand
+    await expect(page.locator('input[aria-label="Link for anyone"]')).toHaveValue('http://localhost:3000/shared/REDACTED_TOKEN')
   })
 
   test('the public document page shows the legal notice; a public file page offers Download', async ({ page }) => {
@@ -316,5 +318,66 @@ test.describe('Documents e-sign v2: walk fixes', () => {
     await page.goto('/shared/FILETOKEN')
     await expect(page.getByRole('heading', { name: 'founders-agreement.pdf' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Download' })).toHaveAttribute('href', /\/shared\/FILETOKEN\/file$/)
+  })
+})
+
+test.describe('Documents re-walk fixes', () => {
+  test('D2: an old completed request still pending shows plain copy, no spinner, and Check again', async ({ page }) => {
+    await setup(page, async (p) => {
+      await p.route('**/api/v1/documents/signature-requests', (route) =>
+        route.fulfill(json({
+          requests: [request({
+            status: 'complete', signed_count: 2, completed_at: '2026-10-20T10:00:00+00:00',
+            executed: { state: 'pending', file_id: null, filename: null, size_bytes: null },
+          })],
+        })),
+      )
+    })
+    await page.goto('/documents/signatures')
+    const note = page.getByRole('status').filter({ hasText: 'taking longer than usual' })
+    await expect(note).toContainText('Check back later.')
+    await expect(page.getByText('Preparing the executed copy')).toHaveCount(0)
+    await expect(page.locator('.animate-spin')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Check again' })).toBeVisible()
+  })
+
+  test('D2: an executed copy the API reports as failed says it could not be made', async ({ page }) => {
+    await setup(page, async (p) => {
+      await p.route('**/api/v1/documents/signature-requests', (route) =>
+        route.fulfill(json({
+          requests: [request({
+            status: 'complete', signed_count: 2, completed_at: '2026-10-25T17:30:00+00:00',
+            executed: { state: 'failed', file_id: null, filename: null, size_bytes: null },
+          })],
+        })),
+      )
+    })
+    await page.goto('/documents/signatures')
+    await expect(page.getByText(/The executed copy could not be made/)).toBeVisible()
+  })
+
+  test('D3: Add section moves focus to the new section heading', async ({ page }) => {
+    const docId = 'cec804f2-8862-4a3b-b7f0-8f3b576615aa'
+    await setup(page, async (p) => {
+      await p.route(`**/api/v1/documents/${docId}`, (route) =>
+        route.fulfill(json({
+          id: docId, type: 'document', kind: 'custom', mime: 'application/vnd.cofoundaz.document+json', title: 'Blank doc', status: 'draft', ai_generated: false,
+          folder: null, tags: [], template_key: null, disclaimer: null, version: 1, owner, share_count: 0, updated_at: '2026-10-25T15:03:54+00:00',
+          trashed_at: null, purges_at: null, sections: [{ id: 's1', heading: 'First', body: '' }],
+        })),
+      )
+    })
+    await page.goto(`/documents/${docId}`)
+    await page.getByRole('button', { name: 'Add section' }).click()
+    await page.keyboard.type('Risks')
+    await expect(page.getByLabel('Document title')).toHaveValue('Blank doc')
+    await expect(page.getByLabel('Section heading').nth(1)).toHaveValue('Risks')
+  })
+
+  test('D4: the signup email is prefilled from an invite link and the terms box takes a click', async ({ page }) => {
+    await page.goto('/signup?next=%2Finvite%2Fabc&email=invitee%40example.com')
+    await expect(page.getByLabel(/work email/i)).toHaveValue('invitee@example.com')
+    await page.getByRole('checkbox').click()
+    await expect(page.getByRole('checkbox')).toBeChecked()
   })
 })

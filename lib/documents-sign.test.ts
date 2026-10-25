@@ -29,6 +29,12 @@ describe('documents-sign', () => {
     expect(executedUi(null)).toEqual({ kind: 'none' });
     expect(executedUi({ state: 'pending', file_id: null, filename: null, size_bytes: null })).toEqual({ kind: 'preparing' });
     expect(executedUi({ state: 'legacy', file_id: null, filename: null, size_bytes: null })).toEqual({ kind: 'legacy' });
+    const pending = { state: 'pending', file_id: null, filename: null, size_bytes: null } as const;
+    const done = '2026-10-25T17:30:00+00:00';
+    const at = (ms: number) => new Date(done).getTime() + ms;
+    expect(executedUi(pending, done, at(30_000))).toEqual({ kind: 'preparing' });
+    expect(executedUi(pending, done, at(10 * 60_000))).toEqual({ kind: 'delayed' });
+    expect(executedUi({ state: 'failed', file_id: null, filename: null, size_bytes: null }, done, at(1000))).toEqual({ kind: 'failed' });
     expect(executedUi({ state: 'ready', file_id: 'f', filename: 'a - signed.pdf', size_bytes: 9, sha256: 'x' }).kind).toBe('ready');
   });
   it('only a clean PDF can be signed', () => {

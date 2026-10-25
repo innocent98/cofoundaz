@@ -32,7 +32,8 @@ export function titleCase(s: string): string {
 }
 
 export function personName(p: { name: string | null } | null | undefined): string {
-  return p?.name?.trim() || 'Unknown';
+  // The API has no email for a member without a profile name, so say who they are in general terms.
+  return p?.name?.trim() || 'A member';
 }
 
 /** "Private" or "Shared · 2" (grants plus active token links). */
