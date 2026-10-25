@@ -59,7 +59,7 @@ function RunwayBanner({ cashFlow, onAsk }: { cashFlow: CashFlow; onAsk: (seed: s
         </div>
         <div>
           <h2 className="text-sm font-bold text-danger-600">{headline}</h2>
-          <p className="text-sm text-danger-600 opacity-90 mt-0.5">Let&apos;s look at levers: costs, pricing or funding.</p>
+          <p className="text-sm text-danger-700 mt-0.5">Let&apos;s look at levers: costs, pricing or funding.</p>
         </div>
       </div>
       <button type="button" onClick={() => onAsk(advisorSeed(cashFlow))} className="bg-white border border-danger-200 text-danger-600 hover:bg-danger-50 px-4 py-2 max-md:min-h-11 rounded-card text-sm font-semibold shadow-card transition-colors flex items-center gap-2">
@@ -210,7 +210,7 @@ function CategoryCell({
           placeholder="New category"
           maxLength={120}
           autoComplete="off"
-          className="text-xs bg-white border border-accent-600 text-accent-700 rounded-input px-2 py-1 max-md:min-h-11 w-32 outline-none font-medium"
+          className="text-xs bg-white border border-warning-500 text-warning rounded-input px-2 py-1 max-md:min-h-11 w-32 outline-none font-medium"
         />
         <button type="submit" disabled={busy || !value.trim()} className={linkBtn}>
           Set
@@ -232,7 +232,7 @@ function CategoryCell({
         else if (e.target.value !== (tx.category ?? "")) onSet(e.target.value);
       }}
       className={`text-xs rounded-input px-2 py-1 max-md:min-h-11 max-w-[10rem] outline-none font-medium bg-white border ${
-        tx.category ? "border-neutral-200 text-neutral-700" : "border-accent-600 text-accent-700"
+        tx.category ? "border-neutral-200 text-neutral-700" : "border-warning-500 text-warning"
       }`}
     >
       {!tx.category && <option value="">Add category</option>}
@@ -431,7 +431,7 @@ export default function CashFlowPage() {
           </div>
 
           {nudge && (
-            <div role="status" className="bg-accent-100 border border-accent-200 rounded-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div role="status" className="bg-warning-50 border border-warning-500/40 rounded-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
               <p className="text-sm text-neutral-800">
                 <span className="font-semibold">{formatMoney(nudge.amount_minor, nudge.currency)} came in uncategorised</span> ({plainText(nudge.description)}). Is this a raise or investment? Funding adds to your cash but is not counted as revenue.
               </p>

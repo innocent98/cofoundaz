@@ -174,8 +174,8 @@ export default function FinancialModelPage() {
       {phase === "complete" && model && model.months && (
         <>
           {model.stale && (
-            <div role="status" className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-accent-100/70 border border-accent-200 rounded-card p-4">
-              <p className="text-sm font-semibold text-accent-700">Edited, not yet recalculated. The tables and chart below do not include your latest edits.</p>
+            <div role="status" className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-warning-50 border border-warning-500/40 rounded-card p-4">
+              <p className="text-sm font-semibold text-warning">Edited, not yet recalculated. The tables and chart below do not include your latest edits.</p>
               <button type="button" className={darkBtn} disabled={recalcBusy} onClick={() => void recalcStale()}>
                 <RefreshCw className={`w-4 h-4 ${recalcBusy ? "animate-spin" : ""}`} aria-hidden="true" /> {recalcBusy ? "Recalculating" : "Recalculate"}
               </button>
@@ -283,7 +283,7 @@ export default function FinancialModelPage() {
                                 <td
                                   key={i}
                                   className={`py-3 px-3 text-right whitespace-nowrap ${
-                                    isCheck ? (v === 0 ? "text-brand-800 font-semibold" : "text-danger-600 font-bold") : v < 0 ? "text-danger-600 font-semibold" : "text-neutral-600"
+                                    isCheck ? (v === 0 ? "text-success font-semibold" : "text-danger-600 font-bold") : v < 0 ? "text-danger-600 font-semibold" : "text-neutral-600"
                                   } ${TOTAL_ROWS.has(r.label) ? "font-bold" : ""}`}
                                 >
                                   {formatMajor(v)}

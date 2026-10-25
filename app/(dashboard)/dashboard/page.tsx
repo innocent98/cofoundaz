@@ -82,7 +82,7 @@ export default function DashboardPage() {
           role="status"
           className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-neutral-x0f1e16 text-white px-5 py-3 rounded-modal shadow-accent shadow-black/25 inline-flex items-center gap-2.5 border border-brand-x1e3a29"
         >
-          {toast.kind === 'ok' && <Check className="w-4 h-4 text-accent-xd4a359 stroke-[3] shrink-0" />}
+          {toast.kind === 'ok' && <Check className="w-4 h-4 text-success-500 stroke-[3] shrink-0" />}
           <p className="text-sm font-medium text-white">{toast.text}</p>
         </div>
       )}

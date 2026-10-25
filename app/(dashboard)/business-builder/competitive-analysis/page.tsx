@@ -43,8 +43,8 @@ function buildFields(fields: RecordField[], axes: PositioningAxes): FormField[] 
 function threatBadge(threat: unknown): string {
   switch (String(threat)) {
     case 'high': return 'bg-danger-wash text-danger-xb83e3e';
-    case 'medium': return 'bg-accent-xf7efe0 text-accent-600';
-    case 'low': return 'bg-neutral-xebf5f0 text-brand-x2e7a56';
+    case 'medium': return 'bg-warning-100 text-warning-800';
+    case 'low': return 'bg-success-100 text-success-800';
     default: return 'bg-line-faint text-ink-soft';
   }
 }

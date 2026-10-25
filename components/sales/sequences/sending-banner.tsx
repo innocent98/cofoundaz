@@ -24,7 +24,7 @@ export function SendingBanner({ status, onChanged }: { status: SendingStatus; on
 
   if (!status.configured) {
     return (
-      <div role="status" className={`${CARD} p-4 border-accent-200 bg-accent-50/40`}>
+      <div role="status" className={`${CARD} p-4 border-warning-500/40 bg-warning-50`}>
         <p className="text-sm font-semibold text-neutral-900">Sending isn&apos;t set up yet</p>
         <p className="text-sm text-neutral-600">
           You can build sequences and enrol people now. Nothing is sent until outreach email is connected for this workspace.

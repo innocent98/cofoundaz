@@ -51,8 +51,8 @@ const OBJECTIVES: { value: CampaignObjective; label: string }[] = [
 
 const STATUS_STYLE: Record<CampaignStatus, string> = {
   draft: 'bg-neutral-100 text-neutral-700',
-  active: 'bg-brand-100 text-brand-800',
-  paused: 'bg-accent-100 text-accent-800',
+  active: 'bg-success-100 text-success-800',
+  paused: 'bg-warning-100 text-warning-800',
   completed: 'bg-neutral-200 text-neutral-700',
 };
 

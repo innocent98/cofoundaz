@@ -12,8 +12,8 @@ export const OPPORTUNITIES_EMPTY_COPY = 'Opportunities I spot (grants, quick win
 
 const SEVERITY_DOT: Record<RiskItem['severity'], string> = {
   high: 'bg-danger-xb84335',
-  medium: 'bg-accent-600',
-  low: 'bg-accent-xc9a54b',
+  medium: 'bg-warning-500',
+  low: 'bg-warning-100 ring-1 ring-warning-500',
 };
 
 function Shell({ title, status, busyLabel, children }: { title: string; status: AIContentStatus; busyLabel: string; children: React.ReactNode }) {
@@ -112,7 +112,7 @@ export function OpportunitiesCard({
       ) : (
         <ul className="divide-y divide-neutral-100">
           {items.map((opp) => (
-            <Row key={opp.id} dot="bg-brand-x266b4e" text={opp.description} href={opp.moduleLink} cta="See fit" />
+            <Row key={opp.id} dot="bg-success-500" text={opp.description} href={opp.moduleLink} cta="See fit" />
           ))}
         </ul>
       )}

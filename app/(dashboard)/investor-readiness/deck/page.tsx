@@ -59,28 +59,28 @@ export default function PitchDeckReviewPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-modal border border-neutral-200 shadow-card p-5 flex flex-col items-center justify-center text-center space-y-2">
           <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Narrative</span>
-          <div className="text-4xl font-display font-bold text-brand-hover">{deckReview.narrativeScore}<span className="text-neutral-300 text-2xl">/10</span></div>
+          <div className="text-4xl font-display font-bold text-brand-hover">{deckReview.narrativeScore}<span className="text-neutral-500 text-2xl">/10</span></div>
         </div>
         <div className="bg-white rounded-modal border border-neutral-200 shadow-card p-5 flex flex-col items-center justify-center text-center space-y-2">
           <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Design</span>
-          <div className="text-4xl font-display font-bold text-brand-hover">{deckReview.designScore}<span className="text-neutral-300 text-2xl">/10</span></div>
+          <div className="text-4xl font-display font-bold text-brand-hover">{deckReview.designScore}<span className="text-neutral-500 text-2xl">/10</span></div>
         </div>
         <div className="bg-white rounded-modal border border-neutral-200 shadow-card p-5 flex flex-col items-center justify-center text-center space-y-2">
           <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Data Clarity</span>
-          <div className="text-4xl font-display font-bold text-accent-700">{deckReview.dataScore}<span className="text-neutral-300 text-2xl">/10</span></div>
+          <div className="text-4xl font-display font-bold text-warning">{deckReview.dataScore}<span className="text-neutral-500 text-2xl">/10</span></div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-4 bg-white rounded-modal border border-neutral-200 shadow-card p-6 space-y-4">
           <h3 className="font-semibold text-sm text-neutral-900 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-accent-700" />
+            <AlertTriangle className="w-4 h-4 text-warning" />
             Top fixes
           </h3>
           <ul className="space-y-3">
             {deckReview.topFixes.map((fix, idx) => (
               <li key={idx} className="text-sm text-neutral-700 flex items-start gap-2">
-                <span className="text-neutral-300 font-bold mt-0.5">{idx + 1}.</span>
+                <span className="text-neutral-500 font-bold mt-0.5">{idx + 1}.</span>
                 <span>{fix}</span>
               </li>
             ))}
@@ -89,7 +89,7 @@ export default function PitchDeckReviewPage() {
 
         <div className="lg:col-span-8 bg-white rounded-modal border border-neutral-200 shadow-card p-6 space-y-4">
           <h3 className="font-semibold text-sm text-neutral-900 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-brand-hover" />
+            <CheckCircle2 className="w-4 h-4 text-success" />
             Slide-by-slide breakdown
           </h3>
           <div className="space-y-4 divide-y divide-neutral-100">

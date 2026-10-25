@@ -41,7 +41,7 @@ export function ProgressRing({ pct, completed, size = 40 }: { pct: number; compl
         />
       </svg>
       <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-neutral-800">
-        {completed ? <Check className="h-4 w-4 text-brand-700" aria-hidden="true" /> : pct}
+        {completed ? <Check className="h-4 w-4 text-success" aria-hidden="true" /> : pct}
       </span>
     </div>
   );

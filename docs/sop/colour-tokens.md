@@ -155,7 +155,7 @@ Most-used pairs (full data: `contrast-after.json` in the review folder):
 | `neutral-400` | `white` | 4.92 | 4.5 | 170 | pass |
 | `brand-400` | `brand-900` | 4.78 | 4.5 | 140 | pass |
 
-**Still failing (20 pairs, 299 text nodes): all need a component change, not a token.** Listed so none is silent:
+**Still failing (20 pairs, 299 text nodes): all need a component change, not a token. Fixed in the follow-up below.** Listed so none is silent:
 | Pair | Where | Cause |
 |---|---|---|
 | `neutral-300` on white / `neutral-100`, 1.5 to 1.65 | `/sales/leads` pagination "/", `/investor-readiness/deck` "/10", `/product` step "3" | decorative separators and a step number in too light a grey: use `neutral-500` |
@@ -173,7 +173,7 @@ Most-used pairs (full data: `contrast-after.json` in the review folder):
   decision first. Not committed (the repo does not keep screenshots). Dynamic routes (`[id]`, `[token]`) and the role subdomains were not shot.
 * `ui/tokens.test.ts` asserts the new literal values and that `accent-600` aliases `brand-600`.
 
-### Known visual trade-offs (not fixed here, need component work)
+### Known visual trade-offs (fixed in the colour follow-up below)
 * Components that used the brand green to mean **success or "healthy"** now show blue (Health "Healthy" label, done ticks). Only the semantic `success` token
   and the status-green tail tokens stay green. A later pass should point status UI at `success`.
 * Components that used copper to mean **caution** (Risks dots on the dashboard, "Needs work" sparklines) now use the blue accent. Same fix: point them at `warning`.
@@ -185,6 +185,84 @@ No runtime config. Revert the PR. To change the palette again edit only `styles/
 ### Follow-ups
 * Component pass for the 20 failing pairs above, and for success/warning semantics.
 * Re-walk with Adebayo's feedback after sign-off; role subdomain hosts (`tm.`, `m.`, `bc.`) look the same by construction but were not shot.
+
+## Colour follow-up: semantic status colours and AA fixes (2026-10-25, branch `fix/colour-semantics`)
+
+### What shipped
+Components that mean a **state** now draw it from semantic tokens instead of the brand ramp, and every failing text/background pair
+from the phase 2 audit is fixed in the component, not in a token value. This PR is **for visual sign-off by Adebayo** before merge.
+Documents routes and the public sign/shared pages were not touched (owned by the Documents session, see Hand-over).
+
+### Why
+Phase 2 aliased the accent ramp to blue, so every "healthy / done / success" that used brand greens, and every "caution" that used
+copper, rendered blue. Blue is right for neutral emphasis, not for a state.
+
+### How
+* **New scales in `styles/colour-tokens.css`** (additions only, no existing value changed): `success-50/100/500/700/800`, `warning-50/100/500/700/800`,
+  `info-50/700`. `-50/-100` tinted surfaces, `-500` graphic fills (dots, bars, rings: 3:1 on white and on navy), `-700/-800` text. Plain `success` and
+  `warning` stay the text shade, so `text-success` / `text-warning` work.
+* **Rule used, case by case:** success = healthy, on track, done, active, validated, paid, strengths, low risk; warning = caution, needs work, near budget,
+  paused, stale, medium risk, unsubscribed, stalled; danger = unchanged red; brand blue kept for neutral emphasis (links, selected pills, AI sparkles,
+  progress bars that only show progress, chart series).
+* **AA fixes** by changing the component: separators and step numbers `neutral-300` to `neutral-500`, `opacity-80/90` text made solid,
+  light-on-light `brand-x627d72` to `ink-muted`, blue on navy chips to `brand-300` or white, dark-surface greys to a lighter step.
+
+### What changed (status colours)
+| Area | Before | After |
+|---|---|---|
+| Dashboard Risks dots (`components/dashboard/risks-opportunities.tsx`) | medium = blue, low = gold | medium `warning-500`, low `warning-100` with ring, opportunities `success-500` |
+| Dashboard Startup Health ring + `/health` ring and dimension tiles | 40-69 blue, 70+ blue | 70+ `success-500`, 40-69 `warning-500`, under 40 `danger-600`; tile captions Healthy `success`, Needs work `warning`, At risk `danger` |
+| KPI strip deltas, health pill arrow | up = blue | up = `success` |
+| Validation (verdict banner, Validated column, smoke test Live, survey Open, assumption Med risk) | blue / copper | success / warning |
+| Finance (budget chip + bar: near = warning, under = success, over = danger; uncategorised nudge, stale model banner, model and invoice warnings, integration errors, ledger checks) | blue / copper | success / warning / danger |
+| Sales (converted lead, stall badge, unsubscribed, active/replied enrollments, coach alerts, sending banner, deal drawer note, toast tick) | blue / copper | success / warning |
+| Marketing (campaign active/paused, channel high/medium, active/testing) | blue / copper | success / warning |
+| Investor Readiness (score bands, dimension bars, narrative and deck warnings, passed checks), Competitive threat badges, SWOT strengths/weaknesses | blue / copper | success / warning |
+| Roadmap done/success ticks and "on track", Academy completed ticks, mission "Carried over", calibration banner, invite modal alerts, AI status banner, public smoke/share pages (`/s`, `/p`), MFA setup tick, credential verify badge | blue / copper | success / warning |
+
+### Contrast: all pass
+Same method as phase 2 (Playwright as the local founder, computed colour and effective background per visible text node, 4.5:1 or 3:1 for
+large text, disabled controls exempt, gradient backgrounds skipped), 106 routes x 1440 and 375. Documents routes excluded (not mine to change).
+| | Distinct pairs | Failing pairs | Failing text nodes |
+|---|---|---|---|
+| develop (before) | 225 | 16 | 148 |
+| this branch (after) | 223 | **0** | **0** |
+
+The 16 failing pairs on develop were: `neutral-300` separators/step numbers on white (1.65), `opacity-80` counts on `/validation/mvp` (3.94), admin-portal
+dark-sidebar labels and gold on near-black (2.8 to 3.5) and a grey chip (3.38), blue and navy chips on `/home` (1.9 to 2.9), the `/home` card greys (2.65, 2.89),
+the `/journal` separator and footer (3.21), the shield chip on `/` (2.32) and the `/finance` Advisor note (4.13). The SOP list above also named some pairs
+this audit does not reach (disabled buttons, other pages); they were checked in code and use solid text now. Re-run: `docs/sop/colour-tokens.md` method, script was
+`audit_all.mjs` in the session scratchpad (not committed).
+
+New state pairs, all pass:
+| Text | Background | Ratio | Needs |
+|---|---|---|---|
+| `success` `#137333` | white / `success-50` / `brand-100` | 5.95 / 5.36 / 5.23 | 4.5 |
+| `success-800` `#0E5A28` | `success-100` | 6.75 | 4.5 |
+| `warning` `#9C5B34` | white / `warning-50` | 5.30 / 4.77 | 4.5 |
+| `warning-800` `#7A4526` | `warning-100` | 6.32 | 4.5 |
+| `success-500` `#1E9E50`, `warning-500` `#C27A3E` (fills) | white | 3.46 / 3.42 | 3 |
+
+Full top-30 pair table from the run: kept in the PR description. `ui/tokens.test.ts` now asserts the new token values and these ratios.
+
+### Verification
+* `tsc`, ESLint (incl. the colour rule), 1,276 unit tests on **Node 20** (kpi-strip test updated to the new chip class), all 283 Playwright e2e tests with `CI=1` (incl. axe contrast).
+* `next build --webpack` passes locally; the default Turbopack build cannot run on this Mac (native swc binary missing from `node_modules`), CI builds it on Linux.
+* Before/after screenshots at 1440 and 375, logged in as the local founder: 212 shots each side, 31 pages differ (pixel diff), contact sheet:
+  `/private/tmp/claude-501/-Users-adebayovictor-Documents-dev-cofoundaz/a5cfaec0-f039-4096-90eb-3615b4181064/scratchpad/contact-sheet/index.html`. Not committed.
+
+### Hand-over to the Documents session (not changed here)
+* `app/(dashboard)/documents/signatures/page.tsx:69,71,148`: signature status chips and the signed tick use copper/blue tails; pending should be `warning`, signed `success`.
+* `app/sign/[token]/page.tsx:126`: completion tick uses `brand-mid`, should be `success`.
+* `app/(dashboard)/documents/[id]/page.tsx:109`: "Saved" uses `brand-mid`, should be `success`.
+* Documents routes were not in the contrast audit; run it once the Documents FE lands.
+
+### Operate / roll back
+No runtime config. Revert the PR. The state tokens are in `styles/colour-tokens.css`; change a value there to re-tune all states at once.
+
+### Follow-ups
+* Marketing and admin mock pages (`/admin-portal`, `/super-admin`, `/home`) use legacy tail tokens for demo data; they were only contrast-fixed, not remapped.
+* Leftover `accent-700` uses are links and AI sparkles (neutral emphasis) and stay blue on purpose.
 
 ## Phase 1 verification
 * `ui/tokens.test.ts` (incl. the new "no hard-coded colours" scan), `tsc`, ESLint, 1,250 unit tests, `next build` and all 283 Playwright e2e tests green locally.

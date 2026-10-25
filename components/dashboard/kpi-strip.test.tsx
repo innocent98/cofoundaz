@@ -130,7 +130,7 @@ describe('KPIStrip', () => {
       },
     });
     expect(screen.getByText('-2.5 mo vs last week').className).toContain('text-danger-deep');
-    expect(screen.getByText('+1 vs last week').className).toContain('text-brand-900');
+    expect(screen.getByText('+1 vs last week').className).toContain('text-success-800');
     expect(screen.getAllByRole('img', { name: /Trend over the last 2 days/ })).toHaveLength(2);
   });
 

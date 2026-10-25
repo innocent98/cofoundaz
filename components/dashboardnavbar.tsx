@@ -64,7 +64,7 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
 
       {/* Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="hidden md:block text-sm text-neutral-500 font-normal shrink-0">
-        Workspace <span className="text-neutral-300 mx-0.5">/</span> <span className="text-neutral-900 font-semibold">{title}</span>
+        Workspace <span className="text-neutral-500 mx-0.5">/</span> <span className="text-neutral-900 font-semibold">{title}</span>
       </nav>
 
       {/* Global search (⌘K) */}

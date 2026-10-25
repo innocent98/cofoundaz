@@ -80,7 +80,7 @@ function MarketingHomePage() {
               </a>
             </div>
 
-            <p className="text-xs text-brand-x627d72 italic pt-1">
+            <p className="text-xs text-ink-muted italic pt-1">
               No credit card required.
             </p>
           </div>
@@ -101,7 +101,7 @@ function MarketingHomePage() {
 
               <div className="flex min-h-[460px]">
                 <div className="w-16 bg-brand-x0c241d p-3 flex flex-col items-center space-y-3 border-r border-brand-x183b30">
-                  <div className="w-9 h-9 rounded-input bg-brand-x1b4b38 flex items-center justify-center font-display text-accent-600 font-bold text-sm">
+                  <div className="w-9 h-9 rounded-input bg-brand-x1b4b38 flex items-center justify-center font-display text-brand-300 font-bold text-sm">
                     C
                   </div>
                   <div className="w-9 h-9 rounded-input bg-brand-x183b30/60" />
@@ -160,7 +160,7 @@ function MarketingHomePage() {
                         <div className="space-y-2 text-xs text-brand-x2c4a3e">
                           <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded bg-brand-x1b4b38 text-white flex items-center justify-center text-[10px]">✓</div>
-                            <span className="line-through text-brand-x7a9c90">Interview 3 gig workers</span>
+                            <span className="line-through text-ink-subtle">Interview 3 gig workers</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded border border-brand-xa8c2b7" />
@@ -188,7 +188,7 @@ function MarketingHomePage() {
 
                   <div className="bg-brand-900 text-white p-3.5 rounded-card flex items-center gap-3 border border-brand-x1f4235 shadow-card">
                     <div className="w-6 h-6 rounded-input bg-accent-600 flex items-center justify-center shrink-0">
-                      <span className="text-xs text-brand-900">✦</span>
+                      <span className="text-xs text-white">✦</span>
                     </div>
                     <p className="text-xs text-neutral-xd8e5df font-normal leading-tight">
                       Your riskiest untested assumption is pricing. Want an experiment for it?
@@ -260,7 +260,7 @@ function MarketingHomePage() {
       {/* 3. HOW IT WORKS SECTION */}
       <section id="how-it-works" className="bg-brand-900 text-white py-20 px-2 md:px-4 lg:px-6">
         <div className="max-w-[1440px] mx-auto text-center">
-          <span className="text-xs font-semibold tracking-widest text-accent-600 uppercase block mb-2.5">
+          <span className="text-xs font-semibold tracking-widest text-brand-300 uppercase block mb-2.5">
             How It Works
           </span>
 
@@ -453,7 +453,7 @@ function MarketingHomePage() {
           </blockquote>
 
           <div className="flex items-center justify-center gap-3 pt-2">
-            <div className="w-10 h-10 rounded-full bg-brand-x2a5242 text-accent-600 font-semibold text-sm flex items-center justify-center border border-brand-x3d6b57">
+            <div className="w-10 h-10 rounded-full bg-brand-x2a5242 text-brand-300 font-semibold text-sm flex items-center justify-center border border-brand-x3d6b57">
               {currentTestimonial.initials}
             </div>
             <div className="text-left">
@@ -472,7 +472,7 @@ function MarketingHomePage() {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                  index === currentIndex ? 'bg-accent-600' : 'bg-brand-x2a5242'
+                  index === currentIndex ? 'bg-brand-400' : 'bg-brand-x2a5242'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
@@ -488,7 +488,7 @@ function MarketingHomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               
               <div className="lg:col-span-5 space-y-4">
-                <div className="w-10 h-10 rounded-card bg-brand-x1b4b38 flex items-center justify-center text-accent-600">
+                <div className="w-10 h-10 rounded-card bg-brand-x1b4b38 flex items-center justify-center text-brand-300">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
@@ -576,7 +576,7 @@ function MarketingHomePage() {
             {/* Brand column */}
             <div className="md:col-span-5 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-input bg-brand-x1b4b38 flex items-center justify-center font-display text-accent-600 font-bold text-sm">
+                <div className="w-8 h-8 rounded-input bg-brand-x1b4b38 flex items-center justify-center font-display text-brand-300 font-bold text-sm">
                   C
                 </div>
                 <span className="font-display text-xl font-semibold text-white tracking-tight">

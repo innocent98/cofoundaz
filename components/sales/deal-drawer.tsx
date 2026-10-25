@@ -399,7 +399,7 @@ function DealBody({
       </div>
       {deal.closed_note && <p className="text-sm text-neutral-600 -mt-3">{deal.closed_note}</p>}
       {deal.is_stalled && (
-        <p className="text-sm text-accent-800 bg-accent-100 rounded-card px-4 py-3">
+        <p className="text-sm text-warning-800 bg-warning-100 rounded-card px-4 py-3">
           No activity for {deal.days_inactive} days. Log a call, email or note below to restart the clock.
         </p>
       )}

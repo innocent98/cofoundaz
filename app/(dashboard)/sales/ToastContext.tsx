@@ -73,7 +73,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             }`}
           >
             <span
-              className={`font-bold text-sm ${toast.kind === "error" ? "text-danger-600" : "text-brand-400"}`}
+              className={`font-bold text-sm ${toast.kind === "error" ? "text-danger-600" : "text-success-500"}`}
               aria-hidden="true"
             >
               {toast.kind === "error" ? "!" : "✓"}

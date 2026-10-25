@@ -193,7 +193,7 @@ function SmokeTestsView() {
                         {test.slug && <div className="text-xs font-medium text-ink-muted mt-0.5">/p/{test.slug}</div>}
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${isLive ? 'bg-neutral-xe6efea text-brand-strong' : test.status === 'ended' ? 'bg-line-faint text-ink-muted' : 'bg-accent-xfdf4e3 text-accent-700'}`}>
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${isLive ? 'bg-success-100 text-success-800' : test.status === 'ended' ? 'bg-line-faint text-ink-muted' : 'bg-warning-100 text-warning-800'}`}>
                           {isLive && <span className="w-1.5 h-1.5 rounded-full bg-brand-x2e7a56 mr-1.5 animate-pulse" />}
                           {STATUS_LABEL[test.status] ?? test.status}
                         </span>

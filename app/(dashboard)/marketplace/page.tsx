@@ -86,7 +86,7 @@ export default function MarketplaceDirectoryPage() {
                   className="bg-neutral-xf0f3f0 text-neutral-600 px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shrink-0"
                   title="Verified credentials and past client checks by Cofoundaz."
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 text-brand-hover" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-success" />
                   <span>VETTED</span>
                 </div>
               )}

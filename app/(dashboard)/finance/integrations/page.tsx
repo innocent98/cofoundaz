@@ -79,7 +79,7 @@ function ConnectionDetails({ entry, c }: { entry: ProviderEntry; c: Connection }
           {c.account_name ? `Connected as ${c.account_name}` : "Connected"}
         </span>
         {c.mode === "test" && (
-          <span className="bg-accent-100 text-accent-700 border border-accent-200 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">
+          <span className="bg-warning-100 text-warning-800 border border-warning-500/40 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">
             {bank ? "Sandbox" : "Test mode"}
           </span>
         )}
@@ -94,7 +94,7 @@ function ConnectionDetails({ entry, c }: { entry: ProviderEntry; c: Connection }
         <p className="text-xs text-neutral-500">Last sync: {describeSync(c.last_sync_summary)}</p>
       )}
       {c.status === "active" && c.last_error && (
-        <p className="text-xs font-medium text-accent-700 bg-accent-100/60 border border-accent-200 rounded-input px-3 py-2">{c.last_error}</p>
+        <p className="text-xs font-medium text-danger-700 bg-danger-50 border border-danger-200 rounded-input px-3 py-2">{c.last_error}</p>
       )}
       {!bank && meta.webhookIn && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-input p-3 space-y-1.5">

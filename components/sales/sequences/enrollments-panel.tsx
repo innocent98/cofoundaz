@@ -17,10 +17,10 @@ import { BTN_SECONDARY, ConfirmDialog, EmptyState, ErrorState, INPUT, LoadingSta
 const PAGE = 20;
 
 const STATUS_STYLE: Record<EnrollmentStatus, string> = {
-  active: 'bg-brand-50 text-brand-700',
+  active: 'bg-success-50 text-success-800',
   completed: 'bg-neutral-100 text-neutral-700',
-  replied: 'bg-brand-100/70 text-brand-800',
-  unsubscribed: 'bg-accent-100 text-accent-800',
+  replied: 'bg-success-100 text-success-800',
+  unsubscribed: 'bg-warning-100 text-warning-800',
   bounced: 'bg-danger-50 text-danger-700',
   stopped: 'bg-neutral-100 text-neutral-700',
 };

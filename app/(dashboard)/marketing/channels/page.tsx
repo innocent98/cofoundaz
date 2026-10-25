@@ -21,15 +21,15 @@ import { useToast } from '../ToastContext';
 const STATUS_LABEL = CHANNEL_STATUS_LABELS;
 
 const FIT_BADGE: Record<FitLevel, string> = {
-  high: 'bg-brand-100 text-brand-800',
-  medium: 'bg-accent-100 text-accent-800',
+  high: 'bg-success-100 text-success-800',
+  medium: 'bg-warning-100 text-warning-800',
   low: 'bg-neutral-200 text-neutral-700',
 };
 const FIT_MARK: Record<FitLevel, string> = { high: '▲', medium: '●', low: '▼' };
 
 const STATUS_BADGE: Record<ChannelStatus, string> = {
-  active: 'bg-brand-100 text-brand-800',
-  testing: 'bg-accent-100 text-accent-800',
+  active: 'bg-success-100 text-success-800',
+  testing: 'bg-warning-100 text-warning-800',
   paused: 'bg-neutral-200 text-neutral-700',
   not_started: 'bg-neutral-100 text-neutral-700',
 };

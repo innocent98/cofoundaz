@@ -68,7 +68,7 @@ export default function CoursePage() {
                     <ul className="space-y-2">
                       {course.outcomes.map((o) => (
                         <li key={o} className="flex items-start gap-2 text-sm text-neutral-700">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" aria-hidden="true" />
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
                           <span>{o}</span>
                         </li>
                       ))}
@@ -104,7 +104,7 @@ export default function CoursePage() {
                     <li key={l.id}>
                       <Link href={`/academy/courses/${course.id}/lessons/${l.id}`} className="flex min-h-11 items-start gap-3 p-4 hover:bg-neutral-50">
                         {l.completed ? (
-                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" aria-label="Done" />
+                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-label="Done" />
                         ) : (
                           <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full border-2 border-neutral-300" aria-label="Not done" />
                         )}

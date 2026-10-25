@@ -103,7 +103,7 @@ export default function PublicSmokePage() {
         {(phase === 'unavailable' || phase === 'failed') && (
           <div className="bg-white rounded-modal p-8 border border-neutral-200/70 shadow-card text-center my-auto">
             <div className="w-14 h-14 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-6 h-6 text-accent-700" />
+              <AlertTriangle className="w-6 h-6 text-warning" />
             </div>
             <h1 className="text-lg font-bold text-ink-deep">
               {phase === 'unavailable' ? "This page isn't available" : 'Something went wrong'}
@@ -124,7 +124,7 @@ export default function PublicSmokePage() {
             {message ? (
               <div role="status" className="bg-neutral-xe6efea rounded-card p-5 flex flex-col items-center gap-2">
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                  <Check className="w-5 h-5 text-brand-700" />
+                  <Check className="w-5 h-5 text-success" />
                 </div>
                 <p className="text-sm font-semibold text-ink-deep break-words">{message}</p>
               </div>

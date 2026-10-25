@@ -168,7 +168,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
       type: 'Playbook',
       stage: 'Idea',
       status: 'Draft',
-      statusBg: 'bg-neutral-xefefea text-neutral-x7a8580'
+      statusBg: 'bg-neutral-xefefea text-ink-muted'
     },
     {
       id: 'cnt-5',
@@ -229,7 +229,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
     { name: 'Fatima Adeyemi', email: 'fatima@payflow.io', initial: 'FA', initialBg: 'bg-brand-strong', workspace: 'Payflow', plan: 'Scale', planBg: 'bg-neutral-xf2efe9 text-accent-x594b30', status: 'Active', statusBg: 'bg-neutral-xebf5ed text-success-text' },
     { name: 'Samuel Mwangi', email: 'sam@shamba.co.ke', initial: 'SM', initialBg: 'bg-accent-gold', workspace: 'Shamba', plan: 'Starter', planBg: 'bg-neutral-xeaece9 text-neutral-x2c3530', status: 'Trialing', statusBg: 'bg-neutral-xf9f6ee text-accent-x8c6d28' },
     { name: 'Ngozi Balogun', email: 'ngozi@tradeline.ng', initial: 'NB', initialBg: 'bg-brand-strong', workspace: 'Tradeline', plan: 'Growth', planBg: 'bg-neutral-xeaece9 text-neutral-x2c3530', status: 'Active', statusBg: 'bg-neutral-xebf5ed text-success-text' },
-    { name: 'Kofi Owusu', email: 'kofi@sendly.gh', initial: 'KO', initialBg: 'bg-accent-x594b30', workspace: 'Sendly', plan: 'Starter', planBg: 'bg-neutral-xeaece9 text-neutral-x2c3530', status: 'Dormant', statusBg: 'bg-neutral-xefefea text-neutral-x7a8580' },
+    { name: 'Kofi Owusu', email: 'kofi@sendly.gh', initial: 'KO', initialBg: 'bg-accent-x594b30', workspace: 'Sendly', plan: 'Starter', planBg: 'bg-neutral-xeaece9 text-neutral-x2c3530', status: 'Dormant', statusBg: 'bg-neutral-xefefea text-ink-muted' },
   ];
 
   // Support tickets data matching screenshot exactly
@@ -316,7 +316,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
             <BrandLogo variant="mark" tone="light" height={32} />
             <div>
               <h1 className="text-white font-display font-medium text-base tracking-tight leading-none">Cofoundaz</h1>
-              <span className="text-[10px] font-bold tracking-widest text-accent-gold uppercase">ADMIN</span>
+              <span className="text-[10px] font-bold tracking-widest text-accent-xd4a359 uppercase">ADMIN</span>
             </div>
           </div>
 
@@ -325,7 +325,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
             
             {/* MONITOR SECTION */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-x686d6a px-3">Monitor</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-x7b9382 px-3">Monitor</span>
               
               <button
                 type="button"
@@ -356,7 +356,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
 
             {/* PEOPLE SECTION */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-x686d6a px-3">People</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-x7b9382 px-3">People</span>
               
               <button
                 type="button"
@@ -390,7 +390,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
 
             {/* CURATION SECTION */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-x686d6a px-3">Curation</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-x7b9382 px-3">Curation</span>
               
               <button
                 type="button"
@@ -428,7 +428,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
         {/* User Profile Footer */}
         <div className="p-4 border-t border-neutral-x1e2220 flex items-center justify-between bg-neutral-x101211">
           <div className="flex items-center space-x-3 overflow-hidden">
-            <div className="w-8 h-8 rounded-full bg-neutral-x2a332e text-accent-gold font-bold text-xs flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-full bg-neutral-x2a332e text-accent-xd4a359 font-bold text-xs flex items-center justify-center shrink-0">
               MR
             </div>
             <div className="overflow-hidden">

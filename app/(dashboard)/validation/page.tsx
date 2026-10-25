@@ -10,7 +10,7 @@ export default function ValidationOverview() {
 
   const stats = overview
     ? [
-        { label: 'Validated', value: overview.assumptions.validated, color: 'text-brand-hover' },
+        { label: 'Validated', value: overview.assumptions.validated, color: 'text-success' },
         { label: 'Invalidated', value: overview.assumptions.invalidated, color: 'text-danger-x9d362b' },
         { label: 'Untested', value: overview.assumptions.untested, color: 'text-accent-600' },
         { label: 'Live experiments', value: overview.live_experiments, color: 'text-neutral-x2d3732' },

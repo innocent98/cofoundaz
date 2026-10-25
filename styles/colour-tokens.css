@@ -135,6 +135,23 @@
   --color-accent: var(--color-brand-600);
   --color-info: #0E7490;
 
+  /* Semantic state scales (colour follow-up). Use these, never the brand ramp, for a STATE:
+     success = healthy / on track / done, warning = caution / needs work / at risk, info = neutral notice.
+     -50/-100 are tinted surfaces, -500 is a graphic fill (dots, bars, rings, 3:1 on white), -700/-800 are text
+     (4.5:1 on white and on their own -50/-100). `success` and `warning` alone are the text shade. */
+  --color-success-50: #EAF6EE;
+  --color-success-100: #D4EDDC;
+  --color-success-500: #1E9E50;
+  --color-success-700: #137333;
+  --color-success-800: #0E5A28;
+  --color-warning-50: #FBF1EA;
+  --color-warning-100: #F6E5D8;
+  --color-warning-500: #C27A3E;
+  --color-warning-700: #9C5B34;
+  --color-warning-800: #7A4526;
+  --color-info-50: #E3F4F8;
+  --color-info-700: #0E7490;
+
   /* Chart series — in the order the charts use them */
   --color-chart-1: var(--color-brand-600);
   --color-chart-2: #9C5B34;

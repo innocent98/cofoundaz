@@ -78,7 +78,7 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
       : status === "overdue"
         ? "bg-danger-50 text-danger-600 border-danger-200"
         : status === "sent"
-          ? "bg-accent-100 text-accent-700 border-accent-200"
+          ? "bg-warning-100 text-warning-800 border-warning-500/40"
           : "bg-neutral-100 text-neutral-600 border-neutral-200";
   return <span className={`text-[10px] font-bold px-2.5 py-1 rounded-pill border uppercase tracking-wider ${cls}`}>{status}</span>;
 }
@@ -298,7 +298,7 @@ function Builder({
           </div>
 
           {(hasNonLatin1(clientName) || lines.some((l) => hasNonLatin1(l.description))) && (
-            <p className="text-xs font-medium text-accent-700 bg-accent-100/60 border border-accent-200 rounded-input px-3 py-2">
+            <p className="text-xs font-medium text-warning bg-warning-50 border border-warning-500/40 rounded-input px-3 py-2">
               The invoice PDF can only print basic Latin letters. Other characters, such as dotted Yoruba letters, will show as ? in the PDF. The email and this screen are unaffected.
             </p>
           )}

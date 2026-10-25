@@ -96,7 +96,7 @@ export default function PublicSurveyPage() {
         ) : notAvailable ? (
           <div className="bg-white rounded-modal p-8 border border-neutral-200/70 shadow-card text-center">
             <div className="w-14 h-14 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-6 h-6 text-accent-700" />
+              <AlertTriangle className="w-6 h-6 text-warning" />
             </div>
             <h1 className="text-lg font-bold text-ink-deep">This survey isn’t available</h1>
             <p className="text-sm text-neutral-500 mt-1.5">The link may be wrong, or the survey isn’t open for responses right now.</p>
@@ -104,7 +104,7 @@ export default function PublicSurveyPage() {
         ) : done ? (
           <div className="bg-white rounded-modal p-8 border border-neutral-200/70 shadow-card text-center">
             <div className="w-14 h-14 bg-neutral-xe6efea rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-7 h-7 text-brand-700" />
+              <Check className="w-7 h-7 text-success" />
             </div>
             <h1 className="text-xl font-display font-bold text-ink-deep">Thank you</h1>
             <p className="text-sm text-neutral-500 mt-1.5">Your answers have been recorded.</p>

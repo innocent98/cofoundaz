@@ -163,7 +163,7 @@ export function InviteModal({
               ))}
             </ul>
             {result.undelivered.length > 0 && (
-              <ul role="alert" className="space-y-1 rounded-card border border-accent-xeadbca bg-neutral-xf9f7f2 px-3 py-2 text-xs font-semibold text-accent-700">
+              <ul role="alert" className="space-y-1 rounded-card border border-warning-500/40 bg-warning-50 px-3 py-2 text-xs font-semibold text-warning">
                 {result.undelivered.map((email) => (
                   <li key={`u-${email}`}>We couldn’t email {email}. Check the address.</li>
                 ))}
@@ -247,7 +247,7 @@ export function InviteModal({
             )}
 
             {formError && (
-              <p role="alert" className="text-xs font-semibold text-accent-700 bg-neutral-xf9f7f2 border border-accent-xeadbca rounded-card px-3 py-2">
+              <p role="alert" className="text-xs font-semibold text-warning bg-warning-50 border border-warning-500/40 rounded-card px-3 py-2">
                 {formError}
               </p>
             )}

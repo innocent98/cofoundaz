@@ -35,9 +35,9 @@ function RadialGauge({ targetScore }: { targetScore: number }) {
   }, [targetScore]);
 
   // Determine stroke color strictly based on target score (decoupled from animation)
-  let strokeColor = 'var(--color-danger-600)'; // --red-600
-  if (targetScore >= 70) strokeColor = 'var(--color-brand-500)'; // --green-500
-  else if (targetScore >= 40) strokeColor = 'var(--color-accent-600)'; // copper-600
+  let strokeColor = 'var(--color-danger-600)'; 
+  if (targetScore >= 70) strokeColor = 'var(--color-success-500)';
+  else if (targetScore >= 40) strokeColor = 'var(--color-warning-500)';
 
   // Circumference calculation for 100 max
   const radius = 42;
@@ -95,9 +95,9 @@ function MetricCard({
   trend: number[];
 }) {
   const ui = band ? BAND_UI[band] : { label: 'Not scored', tone: 'warn' as const };
-  const strokeColor = ui.tone === 'good' ? 'var(--color-brand-mid)' : 'var(--color-accent-600)';
+  const strokeColor = ui.tone === 'good' ? 'var(--color-success-500)' : ui.tone === 'bad' ? 'var(--color-danger-600)' : 'var(--color-warning-500)';
   const captionColor =
-    ui.tone === 'good' ? 'text-brand-mid' : ui.tone === 'bad' ? 'text-danger-xb04c4c' : 'text-ink-soft';
+    ui.tone === 'good' ? 'text-success' : ui.tone === 'bad' ? 'text-danger-700' : 'text-warning';
 
   return (
     <Link href={`/health/dimensions/${dimKey}`} className="block group">

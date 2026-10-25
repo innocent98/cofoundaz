@@ -111,7 +111,7 @@ export default function JournalPage(): React.JSX.Element {
             </button>
             <div className="flex items-center space-x-2 text-sm md:text-base font-semibold tracking-tight">
               <span className="text-neutral-xa3b2a8">Workspace</span>
-              <span className="text-brand-x556f60">/</span>
+              <span className="text-brand-x8fb5a0">/</span>
               <span className="text-white flex items-center space-x-1.5">
                 <span>Journal</span>
                 <span className="text-accent-500 text-xs">🔒</span>
@@ -165,7 +165,7 @@ export default function JournalPage(): React.JSX.Element {
           </button>
         </div>
 
-        <div className="pb-6 text-center text-xs text-brand-x556f60">Workspace secure protocol v2.4</div>
+        <div className="pb-6 text-center text-xs text-brand-x8fb5a0">Workspace secure protocol v2.4</div>
       </div>
     );
   }

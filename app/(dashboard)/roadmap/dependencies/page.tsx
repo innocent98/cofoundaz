@@ -69,8 +69,8 @@ function DependencyGraph({ tasks }: { tasks: ReturnType<ReturnType<typeof useRoa
                 width={NODE_W}
                 height={NODE_H}
                 rx="8"
-                fill={done ? 'var(--color-brand-tint)' : overdue ? 'var(--color-danger-tint)' : 'var(--color-white)'}
-                stroke={done ? 'var(--color-brand-mid)' : overdue ? 'var(--color-danger-600)' : 'var(--color-neutral-xc5cfc7)'}
+                fill={done ? 'var(--color-success-50)' : overdue ? 'var(--color-danger-tint)' : 'var(--color-white)'}
+                stroke={done ? 'var(--color-success-500)' : overdue ? 'var(--color-danger-600)' : 'var(--color-neutral-xc5cfc7)'}
               />
               <text x="12" y={NODE_H / 2 + 4} fontSize="12" fontWeight="600" fill="var(--color-ink)">
                 {clip(n.title)}
@@ -212,8 +212,8 @@ export default function DependenciesPage() {
 
             {successMsg && (
               <div className="bg-brand-tint border border-brand-xcde1d3 rounded-input p-3 flex items-start gap-2 mt-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-mid shrink-0 mt-0.5" />
-                <span className="text-xs font-semibold text-brand-mid leading-snug">{successMsg}</span>
+                <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
+                <span className="text-xs font-semibold text-success leading-snug">{successMsg}</span>
               </div>
             )}
           </form>

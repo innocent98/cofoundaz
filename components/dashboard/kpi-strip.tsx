@@ -98,7 +98,7 @@ function StatCard({ kpi, onRetry, role }: { kpi: KPISnapshot; onRetry?: () => vo
         {kpi.series && kpi.series.length >= 2 ? (
           <Sparkline
             values={kpi.series}
-            className={`mb-1 ${kpi.deltaDirection === 'down' ? 'text-danger-600' : 'text-brand-x266b4e'}`}
+            className={`mb-1 ${kpi.deltaDirection === 'down' ? 'text-danger-600' : 'text-success-500'}`}
           />
         ) : null}
       </div>
@@ -115,7 +115,7 @@ function StatCard({ kpi, onRetry, role }: { kpi: KPISnapshot; onRetry?: () => vo
           <span
             className={`text-[10px] font-bold px-1.5 py-0.5 rounded-pill ${
               kpi.deltaDirection === 'up'
-                ? 'bg-brand-100 text-brand-900'
+                ? 'bg-success-100 text-success-800'
                 : kpi.deltaDirection === 'down'
                   ? 'bg-danger-xf6e3df text-danger-deep'
                   : 'bg-neutral-100 text-neutral-700'

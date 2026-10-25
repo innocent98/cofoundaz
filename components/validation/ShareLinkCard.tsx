@@ -47,7 +47,7 @@ export function ShareLinkCard({ url, onCopied }: { url: string; onCopied?: () =>
           onClick={copy}
           className="flex items-center gap-1 bg-white border border-neutral-200 text-neutral-700 px-2.5 py-1.5 rounded-input text-xs shrink-0 cursor-pointer"
         >
-          {copied ? <Check className="w-3 h-3 text-brand-700" /> : <Copy className="w-3 h-3" />} {copied ? 'Copied' : 'Copy'}
+          {copied ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />} {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
       {qr && (

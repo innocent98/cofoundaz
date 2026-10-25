@@ -70,7 +70,7 @@ export default function AssumptionsPage() {
     if (risk === 'high')
       return <span className="bg-danger-100 text-danger-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">High risk</span>;
     if (risk === 'medium')
-      return <span className="bg-accent-100 text-accent-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">Med risk</span>;
+      return <span className="bg-warning-100 text-warning-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">Med risk</span>;
     return <span className="bg-brand-100 text-brand-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">Low risk</span>;
   };
 
@@ -117,7 +117,7 @@ export default function AssumptionsPage() {
   const columns: Array<{ status: AssumptionStatus; items: Assumption[]; titleClass: string; quickAdd?: boolean }> = [
     { status: 'untested', items: untested, titleClass: 'text-neutral-900', quickAdd: true },
     { status: 'testing', items: testing, titleClass: 'text-neutral-900' },
-    { status: 'validated', items: validated, titleClass: 'text-brand-800' },
+    { status: 'validated', items: validated, titleClass: 'text-success-800' },
     { status: 'invalidated', items: invalidated, titleClass: 'text-danger-800' },
   ];
 

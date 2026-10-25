@@ -41,7 +41,7 @@ const STATUS_STYLE: Record<LeadStatus, string> = {
   working: "bg-brand-50 text-brand-700",
   qualified: "bg-brand-100/70 text-brand-800",
   disqualified: "bg-danger-50 text-danger-700",
-  converted: "bg-accent-100 text-accent-800",
+  converted: "bg-success-100 text-success-800",
 };
 
 function formatDate(iso: string): string {

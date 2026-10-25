@@ -151,7 +151,7 @@ function LessonView({ course, lesson, reload }: { course: CourseDetail; lesson: 
                   aria-current={l.id === lesson.id ? "page" : undefined}
                   className={`flex min-h-11 items-start gap-3 p-4 ${l.id === lesson.id ? "bg-neutral-50" : "hover:bg-neutral-50"}`}
                 >
-                  {l.completed ? <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" aria-label="Done" /> : <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full border-2 border-neutral-300" aria-label="Not done" />}
+                  {l.completed ? <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-label="Done" /> : <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full border-2 border-neutral-300" aria-label="Not done" />}
                   <span className={`text-sm font-medium ${l.id === lesson.id ? "text-brand-700" : "text-neutral-900"}`}>{l.order}. {l.title}</span>
                 </Link>
               </li>

@@ -104,7 +104,7 @@ export default function ContractReviewPage() {
 
           <div className="bg-white rounded-modal border border-neutral-200/90 p-5 shadow-card space-y-2">
             <div className="flex items-center justify-between">
-              <span className="bg-accent-100 text-accent-800 text-xs font-semibold px-2.5 py-0.5 rounded-[6px]">Caution</span>
+              <span className="bg-warning-100 text-warning-800 text-xs font-semibold px-2.5 py-0.5 rounded-[6px]">Caution</span>
               <span className="text-xs text-neutral-400 font-medium">Clause 4.1</span>
             </div>
             <p className="text-sm text-neutral-800 leading-relaxed">

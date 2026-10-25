@@ -40,7 +40,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           {toast.kind === 'error' ? (
             <AlertTriangle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
           ) : (
-            <Check className="w-4 h-4 text-brand-300 flex-shrink-0" aria-hidden="true" />
+            <Check className="w-4 h-4 text-success-500 flex-shrink-0" aria-hidden="true" />
           )}
           <p className="text-sm font-medium">{toast.message}</p>
         </div>
