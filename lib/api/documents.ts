@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, apiClientWithStatus } from './client';
 
 // Documents library (BE-A + BE-B). Shapes are copied from the live captures in
 // cofoundaz-api docs/fe-integration-guide-documents-library.md. Every /documents
@@ -11,6 +11,8 @@ export interface Person {
 
 export interface DocSummary {
   id: string;
+  type?: 'document';
+  disclaimer?: string | null; // legal drafts only (D-DOC-4)
   kind: string;
   mime: string;
   title: string;
@@ -29,6 +31,10 @@ export interface DocSummary {
 
 export interface FileSummary {
   id: string;
+  type?: 'file';
+  origin?: 'upload' | 'export';
+  source_document_id?: string | null; // null once the source document is purged
+  source_version?: number | null;
   filename: string;
   content_type: string;
   mime: string;
@@ -385,3 +391,133 @@ export function uploadProblem(file: { name: string; size: number }): string | nu
   if (file.size === 0) return `${file.name} is empty.`;
   return null;
 }
+
+
+// ---------------------------------------------------------------------------
+// Templates, AI drafts and export (BE-C). Shapes copied from
+// cofoundaz-api docs/fe-integration-guide-documents-templates-export.md.
+// ---------------------------------------------------------------------------
+
+export type TemplateCategory = 'Legal' | 'Financial' | 'Pitch' | 'Operational';
+export const TEMPLATE_CATEGORIES: TemplateCategory[] = ['Legal', 'Financial', 'Pitch', 'Operational'];
+
+export interface TemplateInfo {
+  key: string;
+  name: string;
+  description: string;
+  kind: string;
+  category: TemplateCategory;
+  sections: string[]; // heading strings (form.sections are objects)
+  disclaimer: string | null;
+}
+
+export type FormSource = 'profile' | 'business_builder' | 'account' | 'system' | 'template' | 'you' | null;
+
+export interface FormField {
+  key: string;
+  label: string;
+  type: 'text' | 'longtext' | 'date';
+  required: boolean;
+  value: string;
+  state: 'filled' | 'empty';
+  source: FormSource;
+  ai_draftable: boolean;
+}
+export interface FormSection {
+  key: string;
+  heading: string;
+  value: string;
+  state: 'filled' | 'empty';
+  source: FormSource;
+  ai_draftable: boolean;
+}
+export interface TemplateForm {
+  template_key: string;
+  fields: FormField[];
+  sections: FormSection[];
+  unfilled_required: string[];
+  disclaimer: string | null;
+  ai_available: boolean;
+}
+export interface TemplateDetail extends TemplateInfo {
+  form: TemplateForm;
+}
+
+export type AiStatus = 'not_requested' | 'queued' | 'nothing_to_draft' | 'over_budget';
+export interface AiRequest {
+  status: AiStatus;
+  job_id: string | null;
+  sections: string[];
+}
+export interface InstantiateBody {
+  title?: string;
+  folder?: string | null;
+  values?: Record<string, string>;
+  ai_draft?: boolean;
+  ai_sections?: string[];
+}
+export interface InstantiateResult {
+  document: DocFull;
+  form: TemplateForm;
+  ai: AiRequest;
+}
+
+export async function listTemplates(): Promise<TemplateInfo[]> {
+  const res = await apiClient<Env<{ templates: TemplateInfo[] }>>('/document-templates');
+  return res?.data?.templates ?? [];
+}
+export async function getTemplate(key: string): Promise<TemplateDetail> {
+  const res = await apiClient<Env<TemplateDetail>>(`/document-templates/${enc(key)}`);
+  return res.data as TemplateDetail;
+}
+export async function instantiateTemplate(key: string, body: InstantiateBody): Promise<InstantiateResult> {
+  const res = await apiClient<Env<InstantiateResult>>(`/documents/templates/${enc(key)}/instantiate`, json('POST', body));
+  return res.data as InstantiateResult;
+}
+export async function requestAiDraft(documentId: string, sections?: string[]): Promise<AiRequest> {
+  const res = await apiClient<Env<AiRequest>>(`/documents/${enc(documentId)}/ai-draft`, json('POST', sections ? { sections } : {}));
+  return res.data as AiRequest;
+}
+
+export type DraftResultStatus = 'ready' | 'partial' | 'failed' | 'over_budget' | 'gone';
+export interface DraftResult {
+  status: DraftResultStatus;
+  reason: string | null;
+  drafted: string[];
+  skipped: string[];
+  failed: string[];
+  document_version: number | null;
+}
+export interface JobView {
+  id: string;
+  type: string;
+  status: string; // queued | running | succeeded | failed | cancelled
+  result: DraftResult | null;
+  error: string | null;
+}
+export async function getJob(id: string): Promise<JobView> {
+  const res = await apiClient<Env<JobView>>(`/jobs/${enc(id)}`);
+  return res.data as JobView;
+}
+
+export type ExportFormat = 'pdf' | 'docx';
+export interface ExportResult {
+  file: FileSummary;
+  /** true when the API returned the file it already had (HTTP 200), false for a new export (201). */
+  existing: boolean;
+}
+export async function exportDocument(documentId: string, format: ExportFormat): Promise<ExportResult> {
+  const res = await apiClientWithStatus<Env<FileSummary>>(`/documents/${enc(documentId)}/export`, json('POST', { format }));
+  return { file: res.data.data as FileSummary, existing: res.status === 200 };
+}
+export async function listExports(documentId: string): Promise<FileSummary[]> {
+  const files = await listFiles();
+  return files.filter((f) => f.origin === 'export' && f.source_document_id === documentId);
+}
+
+/** Human labels for where a prefilled value came from (guide section 2). */
+export const SOURCE_LABEL: Record<string, string> = {
+  profile: 'From your profile',
+  business_builder: 'From Business Builder',
+  account: 'From your account',
+};

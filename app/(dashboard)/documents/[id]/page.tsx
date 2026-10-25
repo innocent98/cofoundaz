@@ -4,13 +4,18 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Check, AlertTriangle, Plus, Trash2, ChevronUp, ChevronDown, GripVertical, History, Share2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Loader2, Check, AlertTriangle, Plus, Trash2, ChevronUp, ChevronDown, GripVertical, History, Share2, Sparkles, Download } from 'lucide-react';
 import { useAiDrawer } from '@/components/ai-drawer-context';
 import { ConfirmDialog, btnIcon, btnPrimary, btnSecondary } from '@/components/documents/ui';
+import { DisclaimerBanner } from '@/components/documents/disclaimer-banner';
+import { ExportDialog } from '@/components/documents/export-dialog';
+import { AiDraftStatus } from '@/components/documents/ai-draft-status';
 import { ShareDialog } from '@/components/documents/share-dialog';
 import { VersionDrawer } from '@/components/documents/version-drawer';
 import { apiErrorInfo } from '@/lib/api/api-error';
-import { getFolders, trashDocument } from '@/lib/api/documents';
+import { getFolders, getTemplate, requestAiDraft, trashDocument, type AiRequest, type DraftResult } from '@/lib/api/documents';
+import { clearAiHandoff, readAiHandoff, stashAiHandoff } from '@/lib/documents-ai-handoff';
+import { headingKey } from '@/lib/documents-ai';
 import { sectionsToText } from '@/lib/documents-format';
 import { useDocumentEditor, DocSection } from '@/hooks/useDocumentEditor';
 import { useToast } from '../ToastContext';
@@ -19,7 +24,7 @@ import { useChipReorder } from '@/components/business-builder/use-chip-reorder';
 export default function DocumentEditorPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id as string;
-  const { doc, loading, notFound, refetch, save } = useDocumentEditor(id);
+  const { doc, loading, notFound, refetch, refreshQuietly, save } = useDocumentEditor(id);
   const router = useRouter();
   const { triggerToast } = useToast();
   const { openAiDrawer } = useAiDrawer();
@@ -29,6 +34,11 @@ export default function DocumentEditorPage() {
   const [shareOpen, setShareOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [trashOpen, setTrashOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [aiReq, setAiReq] = useState<AiRequest | null>(() => readAiHandoff(id));
+  const [aiRetrying, setAiRetrying] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [draftable, setDraftable] = useState<string[]>([]);
 
   useEffect(() => {
     void (async () => {
@@ -40,6 +50,19 @@ export default function DocumentEditorPage() {
     })();
   }, []);
 
+  const templateKey = doc?.template_key ?? null;
+  useEffect(() => {
+    if (!templateKey) return;
+    void (async () => {
+      try {
+        const form = (await getTemplate(templateKey)).form;
+        setDraftable(form.ai_available ? form.sections.filter((x) => x.ai_draftable).map((x) => x.key) : []);
+      } catch {
+        setDraftable([]);
+      }
+    })();
+  }, [templateKey]);
+
   const [title, setTitle] = useState('');
   const [sections, setSections] = useState<DocSection[]>([]);
   const [dirty, setDirty] = useState(false);
@@ -47,6 +70,7 @@ export default function DocumentEditorPage() {
   const [savedAt, setSavedAt] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [conflict, setConflict] = useState(false);
+  const [conflictByAi, setConflictByAi] = useState(false);
 
   // Sync local editable state from the loaded document (and after each save).
   useEffect(() => {
@@ -120,8 +144,37 @@ export default function DocumentEditorPage() {
     }
   };
 
+  // The AI draft bumped the version. Reload for the person, unless they have typed since:
+  // then the existing "changed somewhere else" banner protects their edits.
+  const onDraftFinished = (result: DraftResult | null) => {
+    if (result?.document_version == null) return;
+    if (dirty) {
+      setConflictByAi(true);
+      setConflict(true);
+    } else void refreshQuietly();
+  };
+
+  const startDraft = async () => {
+    setAiRetrying(true);
+    setAiError(null);
+    try {
+      const ai = await requestAiDraft(id);
+      stashAiHandoff(id, ai);
+      setAiReq(ai);
+    } catch (err) {
+      const info = apiErrorInfo(err, 'Could not start the AI draft.');
+      setAiError(info.status === 429 && !info.code ? 'You asked for a lot of drafts this hour. Try again a little later.' : info.message);
+    } finally {
+      setAiRetrying(false);
+    }
+  };
+
+  const hasEmptyDraftable = sections.some((s) => !s.body.trim() && draftable.includes(headingKey(s.heading)));
+  const disclaimer = doc?.disclaimer ?? null;
+
   const reloadLatest = async () => {
     setConflict(false);
+    setConflictByAi(false);
     await refetch();
   };
 
@@ -156,6 +209,14 @@ export default function DocumentEditorPage() {
               >
                 <Sparkles className="w-3.5 h-3.5" /> Ask AI
               </button>
+              <button type="button" onClick={() => setExportOpen(true)} className={btnSecondary}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </button>
+              {hasEmptyDraftable && !(aiReq?.status === 'queued') && (
+                <button type="button" onClick={() => void startDraft()} disabled={aiRetrying} className={btnSecondary}>
+                  <Sparkles className="w-3.5 h-3.5" /> {aiRetrying ? 'Starting…' : 'Draft empty sections with AI'}
+                </button>
+              )}
               <button type="button" aria-label="Move to Trash" onClick={() => setTrashOpen(true)} className={btnIcon}>
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -177,11 +238,31 @@ export default function DocumentEditorPage() {
 
       {!loading && doc && (
         <>
+          <DisclaimerBanner text={disclaimer} />
+          {aiReq?.status === 'queued' && aiReq.job_id && (
+            <AiDraftStatus
+              jobId={aiReq.job_id}
+              sections={aiReq.sections}
+              retrying={aiRetrying}
+              onRetry={() => void startDraft()}
+              onFinished={(r) => {
+                clearAiHandoff(id);
+                onDraftFinished(r);
+              }}
+            />
+          )}
+          {aiReq?.status === 'over_budget' && (
+            <div role="status" className="bg-warning-50 border border-warning-100 rounded-card p-4 text-xs text-warning-800 leading-relaxed">
+              <p className="font-bold">AI drafting is not available right now.</p>
+              <p>Your workspace has used up today’s AI allowance, so this document was created without AI text. Try again tomorrow, or write the sections yourself.</p>
+            </div>
+          )}
+          {aiError && <div role="alert" className="bg-danger-tint border border-danger-xfad7d7 rounded-card p-3 text-xs font-semibold text-danger-600">{aiError}</div>}
           {conflict && (
             <div className="bg-danger-tint border border-danger-xfad7d7 rounded-card p-4 flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-danger-600 shrink-0 mt-0.5" />
               <div className="flex flex-col gap-2">
-                <p className="text-sm font-semibold text-danger-600">This document was changed somewhere else since you opened it.</p>
+                <p className="text-sm font-semibold text-danger-600">{conflictByAi ? 'AI added a new version of this document while you were editing.' : 'This document was changed somewhere else since you opened it.'}</p>
                 <p className="text-xs text-warning">Reload to get the latest version. Your unsaved edits here will be lost.</p>
                 <button onClick={reloadLatest} className="w-fit min-h-11 bg-white border border-danger-xf0d5d5 text-danger-600 text-xs font-bold px-3 rounded-card hover:bg-danger-wash transition-colors">
                   Reload latest
@@ -307,6 +388,7 @@ export default function DocumentEditorPage() {
       )}
 
       {doc && shareOpen && <ShareDialog doc={{ id: doc.id, title: title || doc.title }} onClose={() => setShareOpen(false)} />}
+      {doc && exportOpen && <ExportDialog documentId={doc.id} dirty={dirty} onClose={() => setExportOpen(false)} />}
       {doc && historyOpen && (
         <VersionDrawer
           documentId={doc.id}
@@ -314,6 +396,7 @@ export default function DocumentEditorPage() {
           canRestore
           onClose={() => setHistoryOpen(false)}
           onRestored={() => void refetch()}
+          onExport={() => { setHistoryOpen(false); setExportOpen(true); }}
         />
       )}
       {doc && trashOpen && (

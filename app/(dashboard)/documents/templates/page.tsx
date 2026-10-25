@@ -1,86 +1,83 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import { FileText } from 'lucide-react';
-import { useToast } from '../ToastContext';
-import { useDocumentTemplates, TemplateCategory } from '@/hooks/useDocumentTemplates';
-
-const CATEGORY_ORDER: TemplateCategory[] = ['BUSINESS', 'FUNDRAISING', 'FINANCE', 'OPERATIONS'];
+import Link from 'next/link';
+import { FileText, Scale } from 'lucide-react';
+import { useDocumentTemplates } from '@/hooks/useDocumentTemplates';
+import { TEMPLATE_CATEGORIES } from '@/lib/api/documents';
+import { btnSecondary } from '@/components/documents/ui';
 
 export default function TemplatesPage() {
-  const { triggerToast } = useToast();
-  const router = useRouter();
-  const { templates, loading, creatingKey, createFromTemplate } = useDocumentTemplates();
-
-  const handleUse = async (key: string, name: string) => {
-    const res = await createFromTemplate(key);
-    if (res.ok) {
-      triggerToast(`Created “${res.title || name}”.`);
-      router.push('/documents');
-    } else {
-      triggerToast(res.error || 'Could not create the document.', 'error');
-    }
-  };
+  const { templates, loading, error, refetch } = useDocumentTemplates();
 
   return (
     <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-10">
       <div>
         <h1 className="text-3xl font-display text-ink-strong tracking-tight mb-1">Templates</h1>
-        <p className="text-xs text-neutral-x738279">Start from a structure that works, create a document, then fill it in.</p>
+        <p className="text-xs text-neutral-x738279">Pick a template, check what we filled in for you, and let AI draft the rest.</p>
       </div>
 
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse" aria-label="Loading templates">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="bg-white border border-line rounded-modal h-44" />
           ))}
         </div>
       )}
 
-      {!loading && templates.length === 0 && (
+      {!loading && error && (
+        <div role="alert" className="bg-white border border-line rounded-modal shadow-card p-12 text-center">
+          <p className="text-sm font-semibold text-ink">Could not load the templates</p>
+          <p className="text-xs text-ink-subtle mt-1">Check your connection and try again.</p>
+          <button type="button" onClick={() => void refetch()} className={`${btnSecondary} mt-4`}>
+            Try again
+          </button>
+        </div>
+      )}
+
+      {!loading && !error && templates.length === 0 && (
         <div className="bg-white border border-line rounded-modal shadow-card p-12 text-center">
           <p className="text-sm font-semibold text-ink">No templates available</p>
-          <p className="text-xs text-ink-subtle mt-1">Check back soon.</p>
+          <p className="text-xs text-ink-subtle mt-1">There are no templates for your workspace yet.</p>
         </div>
       )}
 
       {!loading &&
-        CATEGORY_ORDER.map((cat) => {
+        TEMPLATE_CATEGORIES.map((cat) => {
           const catTemplates = templates.filter((t) => t.category === cat);
           if (catTemplates.length === 0) return null;
           return (
-            <div key={cat} className="space-y-4">
+            <section key={cat} className="space-y-4" aria-label={`${cat} templates`}>
               <h2 className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">{cat}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {catTemplates.map((tmpl) => (
                   <div
                     key={tmpl.key}
-                    className="bg-white border border-line rounded-modal p-6 shadow-card flex flex-col justify-between h-44 hover:border-line-strong transition-all"
+                    className="bg-white border border-line rounded-modal p-6 shadow-card flex flex-col justify-between min-h-44 gap-3 hover:border-line-strong transition-all"
                   >
                     <div className="space-y-3">
                       <div className="w-7 h-7 rounded-full bg-neutral-xe5efea flex items-center justify-center">
-                        <FileText size={16} className="text-brand-strong" />
+                        {tmpl.disclaimer ? <Scale size={16} className="text-brand-strong" /> : <FileText size={16} className="text-brand-strong" />}
                       </div>
                       <div>
                         <h3 className="font-semibold text-xs text-ink">{tmpl.name}</h3>
                         <p className="text-xs text-ink-muted mt-1 leading-relaxed">{tmpl.description}</p>
-                        {tmpl.sections.length > 0 && (
-                          <p className="text-[10px] text-neutral-x9ca8a0 mt-1.5">{tmpl.sections.length} sections</p>
-                        )}
+                        <p className="text-[10px] text-neutral-x9ca8a0 mt-1.5">
+                          {tmpl.sections.length} sections{tmpl.disclaimer ? ' · Draft, not legal advice' : ''}
+                        </p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleUse(tmpl.key, tmpl.name)}
-                      disabled={creatingKey === tmpl.key}
-                      className="text-xs font-semibold text-brand-strong hover:text-accent-bronze transition-colors self-start mt-2 min-h-11 disabled:opacity-60"
+                    <Link
+                      href={`/documents/templates/${encodeURIComponent(tmpl.key)}`}
+                      aria-label={`Use the ${tmpl.name} template`}
+                      className="text-xs font-semibold text-brand-strong hover:text-accent-bronze transition-colors self-start inline-flex items-center min-h-11"
                     >
-                      {creatingKey === tmpl.key ? 'Creating…' : 'Use template →'}
-                    </button>
+                      Use template →
+                    </Link>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           );
         })}
     </main>

@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { apiClient } from './client';
+import { apiClient, apiClientWithStatus } from './client';
 import {
   createGrant,
+  exportDocument,
+  instantiateTemplate,
+  listExports,
   getFolders,
   getSharedWithMe,
   isUuid,
@@ -14,10 +17,13 @@ import {
 
 vi.mock('./client', async () => {
   const actual = await vi.importActual<typeof import('./client')>('./client');
-  return { ...actual, apiClient: vi.fn() };
+  return { ...actual, apiClient: vi.fn(), apiClientWithStatus: vi.fn() };
 });
 
-beforeEach(() => vi.mocked(apiClient).mockReset());
+beforeEach(() => {
+  vi.mocked(apiClient).mockReset();
+  vi.mocked(apiClientWithStatus).mockReset();
+});
 
 describe('documents api', () => {
   it('sends search, tag and folder as query params and skips blanks', async () => {
@@ -71,5 +77,38 @@ describe('documents api', () => {
     for (const r of ['mentor', 'investor', 'legal_advisor', 'accountant', 'business_consultant', null, undefined]) {
       expect(hasFullLibrary(r)).toBe(false);
     }
+  });
+
+  it('instantiates a template with only the values and AI choice given', async () => {
+    vi.mocked(apiClient).mockResolvedValue({ data: { document: { id: 'd1' }, form: {}, ai: { status: 'queued', job_id: 'j1', sections: ['go_to_market'] } } });
+    const res = await instantiateTemplate('business_plan', { ai_draft: true, ai_sections: ['go_to_market'] });
+    const [path, init] = vi.mocked(apiClient).mock.calls[0] as [string, { method: string; body: string }];
+    expect(path).toBe('/documents/templates/business_plan/instantiate');
+    expect(JSON.parse(init.body)).toEqual({ ai_draft: true, ai_sections: ['go_to_market'] });
+    expect(res.ai.job_id).toBe('j1');
+  });
+
+  it('tells a new export (201) from an existing one (200)', async () => {
+    vi.mocked(apiClientWithStatus).mockResolvedValueOnce({ status: 201, data: { data: { id: 'f1' } } });
+    vi.mocked(apiClientWithStatus).mockResolvedValueOnce({ status: 200, data: { data: { id: 'f1' } } });
+    expect((await exportDocument('d1', 'pdf')).existing).toBe(false);
+    const again = await exportDocument('d1', 'pdf');
+    expect(again.existing).toBe(true);
+    const [path, init] = vi.mocked(apiClientWithStatus).mock.calls[0] as [string, { body: string }];
+    expect(path).toBe('/documents/d1/export');
+    expect(JSON.parse(init.body)).toEqual({ format: 'pdf' });
+  });
+
+  it('lists only the exports made from one document', async () => {
+    vi.mocked(apiClient).mockResolvedValue({
+      data: {
+        files: [
+          { id: 'a', origin: 'export', source_document_id: 'd1' },
+          { id: 'b', origin: 'upload', source_document_id: null },
+          { id: 'c', origin: 'export', source_document_id: 'd2' },
+        ],
+      },
+    });
+    expect((await listExports('d1')).map((f) => f.id)).toEqual(['a']);
   });
 });

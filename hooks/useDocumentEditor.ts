@@ -19,6 +19,8 @@ export interface EditableDoc {
   kind: string;
   status: string;
   folder?: string | null;
+  template_key?: string | null;
+  disclaimer?: string | null;
   version: number;
   updated_at: string;
   sections: DocSection[];
@@ -35,17 +37,18 @@ export function useDocumentEditor(id: string) {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setNotFound(false);
       const res = await apiClient<{ data?: EditableDoc }>(`/documents/${encodeURIComponent(id)}`);
       setDoc(res?.data ?? null);
     } catch (err) {
+      if (silent) return; // a failed background refresh keeps what is on screen
       if (err instanceof ApiError && err.status === 404) setNotFound(true);
       setDoc(null);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [id]);
 
@@ -86,5 +89,9 @@ export function useDocumentEditor(id: string) {
     [id, doc]
   );
 
-  return { doc, loading, notFound, refetch: load, save };
+  const refetch = useCallback(() => load(), [load]);
+  /** Reload without the page skeleton, so banners on screen (the AI draft result) stay put. */
+  const refreshQuietly = useCallback(() => load(true), [load]);
+
+  return { doc, loading, notFound, refetch, refreshQuietly, save };
 }
