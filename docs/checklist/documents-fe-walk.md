@@ -187,3 +187,82 @@ Browser (host per role, so localStorage is separate; 375 x 812 emulation):
 - **Send an export for signature** from the UI: untouched here (the signature modal lists files, and exports are files); the API did it live in the guide.
 - **Version-specific export:** the API exports the current version only, so the UI says so; there is nothing to walk for an older version.
 - **Test data left behind** (local only): documents "Non-Disclosure Agreement", "Pitch Deck", "Financial Model" and the PDF and DOCX exports, plus a TM-made NDA, in NovaPay.
+
+## BE-D walk: e-sign v2 and link shares (2026-10-25)
+
+Branch `feature/documents-esign-v2-ui`. FE dev server on port 3107 against the shared API on develop `88800bc3` (migration
+`0076_documents_signer_link_audit`). Founder `throwaway-founder@example.com`, team member `rewalk-tm`, mentor `bb-mentor-1`. The signer pages were opened
+on a separate host (`sg.localhost:3107`, no session). Signer links came from the send dialog and from the API console log (`docker compose logs api`).
+Emails used are `@example.com` sinks.
+
+### Founder, send flow and request cards (1440)
+
+| Area | Control or behaviour | Result |
+|---|---|---|
+| send | New request dialog lists PDFs; DOCX and TXT are shown disabled with "(export to PDF first)" | pass |
+| send | `/documents/signatures?file={id}` opens the dialog with that file selected (a BE-C PDF export, "Walk NDA BE-D.pdf") | pass (after fix: the list loads after the dialog opens) |
+| send | two signers, "Signers sign one after another" shows 1 and 2 plus move up/down arrows, message typed, 14 days | pass |
+| send | result dialog: signer 1 has a link and Copy, signer 2 reads "Waits for Walk Alpha to sign. Their link is emailed then." | pass |
+| card | status Awaiting, "in order", sent and expiry date and time, signers "Awaiting" and "Waiting for Walk Alpha to sign", no Copy link on the waiting signer | pass |
+| audit | Copy link on Walk Alpha asks "Anyone with this link can sign as Walk Alpha. The copy is recorded..."; after confirming, Details shows "Link shown to Victor Founder when sent" and "Link copied by Victor Founder" with times | pass |
+| details | Details shows the message, SHA-256 of the sent PDF, per-signer audit and the legal caveat | pass |
+| sign | Walk Alpha opens the link: founder card shows Awaiting then, after opening, Viewed with the time (signer 2 checked: "Viewed, Opened 18:50") | pass |
+| sign | Walk Alpha signs: "1 of 2 signed". Signer 2's link arrived by email (console log) only then | pass |
+| sign | Walk Beta opens (Viewed), signs: "All 2 signatures are in" | pass |
+| card | request Complete, both signers Signed with times, executed copy "Signed. Preparing the executed copy…" | pass |
+| sign | the first signer's used link now shows "This link is no longer valid" (uniform 404) | pass |
+| legal | the legal caveat is shown on the sign page next to consent and in the card details | pass |
+
+### Public sign page
+
+| Control | 1440 | 375 |
+|---|---|---|
+| sender message, "Sent by", expiry line | pass | pass |
+| PDF preview (a blob copy; the API's sandbox policy blanks a direct frame) | pass (after fix) | pass |
+| name field, consent checkbox, Sign button all at least 44 px high | pass | pass (after fix: were 42, 14 and 40 px) |
+| no horizontal scroll | pass | pass |
+| single-signer sign at 375 ends on "Signed, thank you", then "Preparing the signed copy…" | pass | pass |
+
+### Link shares (1440 unless noted)
+
+| Control | Result |
+|---|---|
+| document: Share dialog, "Link works for 7 days", "Create link for anyone": the link is listed with "Anyone with the link, Can view, expires Nov 1, 2026" (7 days) | pass |
+| document: the link opens `/shared/{token}` for an anonymous viewer with the legal notice banner (the BE-C public disclaimer, previously not live) | pass |
+| file: Library menu "Share by link", "Until a date" 2026-12-01: listed "expires Dec 1, 2026"; the public page shows the file, a PDF preview and Download | pass (after fix: preview is a blob) |
+| file: Change expiry to 2026-11-20 shows "expires Nov 20, 2026" and "last opened" | pass |
+| file: Revoke: "No active links"; the public link then shows "This link is no longer valid" | pass |
+| document: revoke from Shared with others (lists file and document link shares, Copy and Revoke) | pass |
+| clipboard blocked by the browser: the link is still created and the toast says "Use Copy in the list below" (found when the pane refused the clipboard) | pass (after fix) |
+| 375: both share dialogs inside the viewport, no horizontal scroll, every control at least 44 px | pass |
+
+### Roles
+
+| Account | Check | Result |
+|---|---|---|
+| team member `rewalk-tm` | API: list requests 200, create link share 201, send request 201 | pass |
+| team member (375) | Signatures page, send dialog (file picked, one signer), links dialog, Cancel confirm and cancelled card, request card Details, no horizontal scroll, dialogs 16 px from each edge | pass |
+| mentor `bb-mentor-1` | `/documents/signatures` redirects to Shared with me, only `/documents/shared-with-me` requested; API 403 on list requests, file share and send | pass |
+| consultant, accountant | API 403 on the same three calls | pass |
+
+### Fixed because of the walk
+
+- Send dialog: "Never expires" was sent as 14 days; the `?file=` deep link lost its file when the list loaded late.
+- Public sign and shared pages: the PDF preview was blank (sandbox policy); now a blob copy via the API base.
+- Share dialog: a refused clipboard turned a created link into an error.
+- Cancelled or expired request: unsigned signers were still labelled Awaiting, with a Copy link button; now "Not signed".
+- Public sign page controls under 44 px; "All 1 signature are in".
+- Public shared document page did not show the legal notice.
+
+### Not verified live
+
+- **Executed copy pending to ready, and its download.** On this stack the worker job `documents.signature_finalize` fails with "the signed file's content is missing":
+  the api and worker containers do not share file storage, so the worker cannot read the signed PDF. Both requests I completed stay "Preparing the executed copy…".
+  The pending state is verified live; ready, the editor download and the signer's `/sign/{token}/executed` download are covered only by mocked Playwright
+  (`e2e/documents-esign.spec.ts`) with the guide's shapes. Needs a shared uploads volume for api and worker, then one more signing.
+- The "taking longer than usual" message after 60 s (needs a visible tab for 60 s; the pane was throttled).
+- `LINK_NOT_RECOVERABLE` (needs a pre-BE-D signer link; mocked only), `legacy` executed state (mocked only), rate limits (429) on the new routes.
+- Remind rotating a link (the API call is covered by the guide; I did not send a reminder on the walk requests).
+- DOCX refusal: the UI cannot select a DOCX (disabled option); the API answer was checked directly: `422 PDF_REQUIRED` "Only PDF files can be sent for signature. Export the document to PDF first."
+- Real email delivery (console mail backend only).
+- Test data left behind (local): requests "Walk NDA BE-D.pdf" (2 signed, 1 signed, 1 cancelled), the documents and exports "Walk NDA BE-D".

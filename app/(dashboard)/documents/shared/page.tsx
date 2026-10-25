@@ -13,6 +13,7 @@ import {
   revokeLinkShare,
   type GrantPermission,
 } from '@/lib/api/documents';
+import { copyText } from '@/lib/clipboard';
 import { formatDate } from '@/lib/documents-format';
 import { btnIcon, btnSecondary } from '@/components/documents/ui';
 import { useToast } from '../ToastContext';
@@ -133,7 +134,7 @@ export default function SharedWithOthersPage() {
                 {r.access === 'comment' ? 'Can comment' : 'Can view'}
               </span>
               {r.link && (
-                <button type="button" aria-label={`Copy link for ${r.document}`} onClick={() => { void navigator.clipboard?.writeText(r.link ?? ''); triggerToast('Link copied.'); }} className={btnIcon}>
+                <button type="button" aria-label={`Copy link for ${r.document}`} onClick={() => { void copyText(r.link ?? '').then((ok) => triggerToast(ok ? 'Link copied.' : 'Your browser blocked copying. Open the document to copy the link.', ok ? undefined : 'error')); }} className={btnIcon}>
                   <Copy size={14} />
                 </button>
               )}

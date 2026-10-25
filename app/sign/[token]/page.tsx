@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Check, Download, FileText, Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
+import { useBlobPreview } from '@/hooks/useBlobPreview';
 import { fetchSignerExecuted, getSignView, sign as signRequest, type SignResult, type SignView } from '@/lib/api/signatures';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import BrandLogo from '@/components/brand/BrandLogo';
@@ -115,6 +116,8 @@ export default function PublicSignerPage() {
     })();
   }, [token, load]);
 
+  const previewSrc = useBlobPreview(view?.file.download_url ?? null, view?.file.content_type ?? '');
+
   const sign = async (e: React.FormEvent) => {
     e.preventDefault();
     const name = typedName.trim();
@@ -176,7 +179,9 @@ export default function PublicSignerPage() {
             <h1 className="text-2xl font-display font-bold">Signed, thank you</h1>
             <p className="text-sm text-ink-muted">
               {result.status === 'complete'
-                ? `All ${result.total} signature${result.total === 1 ? '' : 's'} are in, this document is complete.`
+                ? result.total === 1
+                  ? 'The signature is in, this document is complete.'
+                  : `All ${result.total} signatures are in, this document is complete.`
                 : `${result.signed_count} of ${result.total} signed. The remaining signers have their own links.`}
             </p>
             {result.status === 'complete' && result.executed_url && <ExecutedCopy token={token} />}
@@ -212,7 +217,7 @@ export default function PublicSignerPage() {
                     href={view.file.download_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs font-semibold text-brand-strong hover:text-brand-rail"
+                    className="flex items-center gap-1 min-h-11 px-2 text-xs font-semibold text-brand-strong hover:text-brand-rail"
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> Open
                   </a>
@@ -222,21 +227,13 @@ export default function PublicSignerPage() {
               {/* Inline preview so the signer can read the document without leaving
                   the page. Only for previewable types over an absolute URL; other
                   files fall back to the "Open" link above. */}
-              {/^https?:\/\//.test(view.file.download_url) &&
+              {previewSrc &&
                 (view.file.content_type?.includes('pdf') ? (
-                  <iframe
-                    src={view.file.download_url}
-                    title={view.file.filename}
-                    className="w-full h-80 rounded-card border border-line bg-surface-subtle"
-                  />
-                ) : view.file.content_type?.startsWith('image/') ? (
+                  <iframe src={previewSrc} title={view.file.filename} className="w-full h-80 rounded-card border border-line bg-surface-subtle" />
+                ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={view.file.download_url}
-                    alt={view.file.filename}
-                    className="w-full max-h-80 object-contain rounded-card border border-line bg-surface-subtle"
-                  />
-                ) : null)}
+                  <img src={previewSrc} alt={view.file.filename} className="w-full max-h-80 object-contain rounded-card border border-line bg-surface-subtle" />
+                ))}
 
               <form onSubmit={sign} className="flex flex-col gap-4">
                 <label className="text-xs font-bold text-neutral-x55625a uppercase tracking-wider" htmlFor="typed-name">
@@ -248,7 +245,7 @@ export default function PublicSignerPage() {
                   value={typedName}
                   onChange={(e) => setTypedName(e.target.value)}
                   placeholder="Your full name"
-                  className="w-full border border-line-strong rounded-input px-3 py-2.5 text-sm focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus"
+                  className="w-full min-h-11 border border-line-strong rounded-input px-3 py-2.5 text-sm focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus"
                 />
 
                 {/* Adopt-your-signature: render the typed name in a script face so
@@ -266,12 +263,12 @@ export default function PublicSignerPage() {
                   </span>
                 </div>
 
-                <label className="flex items-start gap-2 text-[11px] text-ink-muted leading-relaxed cursor-pointer">
+                <label className="flex items-start gap-2 min-h-11 text-[11px] text-ink-muted leading-relaxed cursor-pointer">
                   <input
                     type="checkbox"
                     checked={consented}
                     onChange={(e) => setConsented(e.target.checked)}
-                    className="mt-0.5 accent-brand-strong w-3.5 h-3.5 shrink-0"
+                    className="mt-0.5 accent-brand-strong w-5 h-5 shrink-0"
                   />
                   <span>
                     I agree that typing my name above is my electronic signature, and I consent to sign this
@@ -284,7 +281,7 @@ export default function PublicSignerPage() {
                 <button
                   type="submit"
                   disabled={submitting || !consented || !typedName.trim()}
-                  className="mt-1 bg-brand-strong hover:bg-brand-rail disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card"
+                  className="mt-1 min-h-11 bg-brand-strong hover:bg-brand-rail disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card"
                 >
                   {submitting ? 'Signing…' : 'Sign document'}
                 </button>

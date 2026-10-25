@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, Copy, Trash2 } from 'lucide-react';
 import type { FileSummary } from '@/lib/api/documents';
 import type { SignatureRequest } from '@/lib/api/signatures';
+import { copyText } from '@/lib/clipboard';
 import { DEFAULT_SEND_EXPIRY, SEND_EXPIRY_CHOICES, signability } from '@/lib/documents-sign';
 import { useSignatureRequests } from '@/hooks/useSignatureRequests';
 import { useToast } from '@/app/(dashboard)/documents/ToastContext';
@@ -118,8 +119,7 @@ export function SendDialog({
                         type="button"
                         className={`${btnPrimary} shrink-0`}
                         onClick={() => {
-                          void navigator.clipboard?.writeText(link);
-                          triggerToast('Link copied.');
+                          void copyText(link).then((ok) => triggerToast(ok ? 'Link copied.' : 'Your browser blocked copying. Select the link and copy it by hand.', ok ? undefined : 'error'));
                         }}
                       >
                         <Copy size={13} /> Copy

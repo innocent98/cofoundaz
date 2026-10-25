@@ -16,6 +16,11 @@ describe('documents-sign', () => {
     expect(waiting.label).toBe('Waiting');
     expect(waiting.detail).toBe('Waiting for Bello to sign');
   });
+  it('does not call a signer on a dead request Awaiting', () => {
+    expect(signerState(base, null, 'cancelled')).toMatchObject({ label: 'Not signed', detail: 'The request was cancelled' });
+    expect(signerState(base, null, 'expired').detail).toBe('The request expired');
+    expect(signerState({ ...base, status: 'signed', signed_at: '2026-10-25T17:30:00+00:00' }, null, 'cancelled').label).toBe('Signed');
+  });
   it('phrases the link audit', () => {
     expect(linkAuditLine({ at: '2026-10-25T17:42:00+00:00', via: 'copied', name: 'Ada', email: 'x@example.com', user_id: 'u' })).toMatch(/^Link copied by Ada, /);
     expect(linkAuditLine({ at: '2026-10-25T17:42:00+00:00', via: 'created', name: null, email: 'x@example.com', user_id: 'u' })).toMatch(/^Link shown to x@example.com when sent/);

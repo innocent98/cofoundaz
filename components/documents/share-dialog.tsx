@@ -18,6 +18,7 @@ import {
   type ShareTarget,
 } from '@/lib/api/documents';
 import { formatDate } from '@/lib/documents-format';
+import { copyText } from '@/lib/clipboard';
 import { endOfDayIso, shareExpiryBounds } from '@/lib/documents-sign';
 import { useToast } from '@/app/(dashboard)/documents/ToastContext';
 import { Dialog, btnIcon, btnPrimary, btnSecondary, inputCls, labelCls } from './ui';
@@ -170,8 +171,8 @@ export function ShareDialog({
         triggerToast(`Link sent to ${linkEmail.trim()}.`);
         setLinkEmail('');
       } else {
-        if (made.link) await navigator.clipboard?.writeText(made.link);
-        triggerToast(made.link ? 'Link created and copied.' : 'Link created.');
+        const copied = made.link ? await copyText(made.link) : false;
+        triggerToast(copied ? 'Link created and copied.' : 'Link created. Use Copy in the list below.');
       }
       changed();
     } catch (err) {
@@ -209,8 +210,8 @@ export function ShareDialog({
 
   const copyLink = async (l: ShareLink) => {
     if (!l.link) return;
-    await navigator.clipboard?.writeText(l.link);
-    triggerToast('Link copied.');
+    if (await copyText(l.link)) triggerToast('Link copied.');
+    else triggerToast('Your browser blocked copying. Select the link and copy it by hand.', 'error');
   };
 
   const activeLinks = links.filter((l) => l.status === 'active' && !l.revoked_at);

@@ -263,3 +263,58 @@ test.describe('Documents e-sign v2: link shares for files', () => {
     await expect(page.getByText('No active links.')).toBeVisible()
   })
 })
+
+test.describe('Documents e-sign v2: walk fixes', () => {
+  test('a cancelled request does not call its unsigned signer Awaiting, and offers no Copy link', async ({ page }) => {
+    await setup(page, async (p) => {
+      await p.route('**/api/v1/documents/signature-requests', (route) =>
+        route.fulfill(json({ requests: [request({ status: 'cancelled', signers: [signer({ status: 'pending' })], total: 1 })] })),
+      )
+    })
+    await page.goto('/documents/signatures')
+    const list = page.getByRole('list', { name: 'Signers for Founders agreement' })
+    await expect(list).toContainText('Not signed')
+    await expect(list).toContainText('The request was cancelled')
+    await expect(page.getByRole('button', { name: /Copy signing link/ })).toHaveCount(0)
+  })
+
+  test('a blocked clipboard does not turn a created link into an error', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText: () => Promise.reject(new Error('Document is not focused')) } })
+    })
+    const made = { id: 'n1', kind: 'file', email: null, anyone_with_link: true, access_level: 'view', expires_at: '2026-11-04T17:18:02+00:00', revoked_at: null, last_viewed_at: null, created_at: '2026-10-25T17:18:02+00:00', status: 'active', link: 'http://localhost:3000/shared/REDACTED_TOKEN' }
+    let created = false
+    await setup(page, async (p) => {
+      await p.route(/\/api\/v1\/documents(\?.*)?$/, (route) => route.fulfill(json({ documents: [] })))
+      await p.route(/\/api\/v1\/documents\/files(\?.*)?$/, (route) => route.fulfill(json({ files: [pdf(FILE_ID, 'founders-agreement.pdf')] })))
+      await p.route('**/api/v1/documents/trash', (route) => route.fulfill(json({ documents: [], files: [] })))
+      await p.route(`**/api/v1/documents/files/${FILE_ID}/shares`, (route) => {
+        if (route.request().method() === 'POST') {
+          created = true
+          return route.fulfill(json(made, 201))
+        }
+        return route.fulfill(json({ shares: created ? [made] : [] }))
+      })
+    })
+    await page.goto('/documents')
+    await page.getByRole('button', { name: 'Actions for founders-agreement.pdf' }).click()
+    await page.getByRole('menuitem', { name: 'Share by link' }).click()
+    await page.getByRole('button', { name: 'Create link for anyone' }).click()
+    await expect(page.getByText('Link created. Use Copy in the list below.')).toBeVisible()
+    await expect(page.getByRole('list', { name: 'Active links' })).toContainText('Anyone with the link')
+  })
+
+  test('the public document page shows the legal notice; a public file page offers Download', async ({ page }) => {
+    await page.route('**/api/v1/shared/DOCTOKEN', (route) =>
+      route.fulfill(json({ kind: 'document', document: { title: 'NDA', status: 'draft', version: 1, updated_at: '2026-10-25T17:00:00+00:00', disclaimer: 'Not legal advice.', sections: [{ id: 's', heading: 'Parties', body: 'Text' }] }, access_level: 'view', expires_at: null })),
+    )
+    await page.goto('/shared/DOCTOKEN')
+    await expect(page.getByRole('note', { name: 'Not legal advice' })).toContainText('Not legal advice.')
+    await page.route('**/api/v1/shared/FILETOKEN', (route) =>
+      route.fulfill(json({ kind: 'file', file: { filename: 'founders-agreement.pdf', content_type: 'application/pdf', size_bytes: 1371, viewer: 'pdf', download_url: 'http://127.0.0.1:8610/api/v1/shared/FILETOKEN/file' }, access_level: 'view', expires_at: '2026-11-04T17:18:02+00:00' })),
+    )
+    await page.goto('/shared/FILETOKEN')
+    await expect(page.getByRole('heading', { name: 'founders-agreement.pdf' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Download' })).toHaveAttribute('href', /\/shared\/FILETOKEN\/file$/)
+  })
+})

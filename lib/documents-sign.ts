@@ -18,9 +18,12 @@ export function formatDateTime(iso: string | null | undefined): string {
 }
 
 /** What to show for one signer: label, the time that goes with it, and whether a link can exist. */
-export function signerState(s: Signer, previous: Signer | null): { label: string; detail: string; tone: 'success' | 'info' | 'warning' | 'muted' } {
+export function signerState(s: Signer, previous: Signer | null, requestStatus: RequestStatus = 'awaiting'): { label: string; detail: string; tone: 'success' | 'info' | 'warning' | 'muted' } {
   const status: SignerStatus = s.status;
   if (status === 'signed') return { label: 'Signed', detail: formatDateTime(s.signed_at), tone: 'success' };
+  // A dead request has no one to wait for: say what happened instead of "Awaiting".
+  if (requestStatus === 'cancelled') return { label: 'Not signed', detail: 'The request was cancelled', tone: 'muted' };
+  if (requestStatus === 'expired') return { label: 'Not signed', detail: 'The request expired', tone: 'muted' };
   if (status === 'viewed') return { label: 'Viewed', detail: `Opened ${formatDateTime(s.viewed_at)}`, tone: 'info' };
   if (status === 'waiting') {
     const who = previous ? previous.name || previous.email : 'the signer before them';

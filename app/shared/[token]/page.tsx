@@ -5,6 +5,8 @@ import { useParams } from 'next/navigation';
 import { Loader2, AlertTriangle, Eye, Download, FileText } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api/client';
 import BrandLogo from '@/components/brand/BrandLogo';
+import { useBlobPreview } from '@/hooks/useBlobPreview';
+import { DisclaimerBanner } from '@/components/documents/disclaimer-banner';
 
 // Public shared-document view — GET /shared/{token} (no auth). See
 // cofoundaz-api/docs/fe-integration-guide-documents-sharing.md §5. `document` is
@@ -27,6 +29,8 @@ interface SharedDoc {
     status: string;
     version: number;
     updated_at: string;
+    /** Legal drafts only: the "not legal advice" notice (D-DOC-4). */
+    disclaimer?: string | null;
     sections: { id: string; heading: string; body: string }[];
   };
   access_level: string;
@@ -68,6 +72,8 @@ export default function PublicSharedPage() {
     })();
   }, [token, load]);
 
+  const fileUrl = data?.kind === 'file' && data.file ? `${data.file.download_url}?inline=true` : null;
+  const previewSrc = useBlobPreview(fileUrl, data?.file?.content_type ?? '');
   const expires = fmtDate(data?.expires_at ?? null);
 
   return (
@@ -110,12 +116,12 @@ export default function PublicSharedPage() {
               </p>
             </div>
             <div className="px-8 py-6 flex flex-col gap-5">
-              {/^https?:\/\//.test(data.file.download_url) && data.file.viewer === 'pdf' && (
-                <iframe src={`${data.file.download_url}?inline=true`} title={data.file.filename} className="w-full h-96 rounded-card border border-line bg-surface-subtle" />
+              {previewSrc && data.file.viewer === 'pdf' && (
+                <iframe src={previewSrc} title={data.file.filename} className="w-full h-96 rounded-card border border-line bg-surface-subtle" />
               )}
-              {/^https?:\/\//.test(data.file.download_url) && data.file.viewer === 'image' && (
+              {previewSrc && data.file.viewer === 'image' && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={`${data.file.download_url}?inline=true`} alt={data.file.filename} className="w-full max-h-96 object-contain rounded-card border border-line bg-surface-subtle" />
+                <img src={previewSrc} alt={data.file.filename} className="w-full max-h-96 object-contain rounded-card border border-line bg-surface-subtle" />
               )}
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-ink-muted shrink-0" aria-hidden />
@@ -148,6 +154,7 @@ export default function PublicSharedPage() {
             </div>
 
             <div className="px-8 py-6 flex flex-col gap-6">
+              <DisclaimerBanner text={data.document.disclaimer} />
               {data.document.sections.length === 0 ? (
                 <p className="text-sm text-ink-subtle italic">This document has no content yet.</p>
               ) : (

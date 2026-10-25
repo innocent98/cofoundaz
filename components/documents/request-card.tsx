@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Download, Link2, Loader2 } from 'lucide-react';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import { copySignerLink, executedLink, type SignatureRequest, type Signer } from '@/lib/api/signatures';
+import { copyText } from '@/lib/clipboard';
 import { REQUEST_STATUS_LABEL, executedUi, formatDateTime, linkAuditLine, signerState } from '@/lib/documents-sign';
 import { formatSize } from '@/lib/documents-format';
 import { useToast } from '@/app/(dashboard)/documents/ToastContext';
@@ -89,8 +90,9 @@ export function RequestCard({
     const who = copyFor.name || copyFor.email;
     try {
       const link = await copySignerLink(req.id, copyFor.id);
-      await navigator.clipboard?.writeText(link);
-      triggerToast(`Link for ${who} copied. The copy is recorded.`);
+      // The copy is recorded by the API call itself, so say so even when the browser blocks the clipboard.
+      if (await copyText(link)) triggerToast(`Link for ${who} copied. The copy is recorded.`);
+      else window.prompt(`Copy the link for ${who}. The copy is recorded.`, link);
     } catch (err) {
       triggerToast(copyError(err), 'error');
     }
@@ -145,7 +147,7 @@ export function RequestCard({
 
       <ul className="border-t border-line pt-3 space-y-2" aria-label={`Signers for ${req.title}`}>
         {req.signers.map((s, i) => {
-          const st = signerState(s, i > 0 ? req.signers[i - 1] : null);
+          const st = signerState(s, i > 0 ? req.signers[i - 1] : null, req.status);
           const canCopy = req.status === 'awaiting' && (s.status === 'pending' || s.status === 'viewed');
           return (
             <li key={s.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-muted">
