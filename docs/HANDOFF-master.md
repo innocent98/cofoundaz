@@ -212,7 +212,7 @@ comes with it).
 | Dashboard, Today's Mission, Health Score, Roadmap, Business Builder, Validation, Assessment, Marketing | done | done | ✅ | ✅ **Done** (8 pages) |
 | Sales | #165, #166, #168, #172, #177, #179 | #142, #143, #149, #154 | 626/626 (#144) + Sequences hand re-walk #151 incl. live sends + unsubscribe round trip | ✅ **Done 2026-10-24** |
 | Academy | #173, #178, #179, #180, #183 | #148, #152 | #150 (114/119) then re-check #156: D1-D4 20/20 | ✅ **Done 2026-10-24** (content still `draft` until Adebayo reviews it) |
-| Finance | #167, #170, #171, #176, #182, #184 | #153, #160, #163 | #157 then slice (e) re-check in #163: **138/141 ✅** incl. a real Paystack test payment and Mono sandbox sync (142 rows). Accepted as unit-tested only (not producible in test mode / the pane): needs-attention banner, non-NGN skip counts, payout tagging, I20 print window, E11 file chooser | 🟡 one PR left: D9 + D10 (`fix/finance-d9-d10`), then verify live → **✅** |
+| Finance | #167, #170, #171, #176, #182, #184, #186 | #153, #160, #163 | #157 then slice (e) re-check in #163: **138/141 ✅** incl. a real Paystack test payment and Mono sandbox sync (142 rows). Accepted as unit-tested only (not producible in test mode / the pane): needs-attention banner, non-NGN skip counts, payout tagging, I20 print window, E11 file chooser | ✅ **Done 2026-10-25** (D9 + D10: API #186, verified live; see `finance-rewalk.md`) |
 | Documents | API ✅ (old); BE-A #185 in review | calls real API | walk #161: 38 gaps (Sec 4, High 11, Med 17, Low 6), D-DOC-1..4 answered | 🟡 BE-A → BE-B → BE-C → BE-D → FE → re-walk |
 
 Remaining after these: Calendar (API ✅, sync not built) → Journal (API ✅) → Notifications (API ✅) → Team
