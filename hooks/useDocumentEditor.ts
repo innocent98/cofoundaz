@@ -39,7 +39,7 @@ export function useDocumentEditor(id: string) {
     try {
       setLoading(true);
       setNotFound(false);
-      const res = await apiClient<{ data?: EditableDoc }>(`/documents/${id}`);
+      const res = await apiClient<{ data?: EditableDoc }>(`/documents/${encodeURIComponent(id)}`);
       setDoc(res?.data ?? null);
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) setNotFound(true);
@@ -64,7 +64,7 @@ export function useDocumentEditor(id: string) {
     ): Promise<SaveResult> => {
       if (!doc) return { ok: false, error: 'Not loaded.' };
       try {
-        const res = await apiClient<{ data?: EditableDoc }>(`/documents/${id}`, {
+        const res = await apiClient<{ data?: EditableDoc }>(`/documents/${encodeURIComponent(id)}`, {
           method: 'PUT',
           // PUT is a full replace: echo status and folder back or the save wipes them.
           body: JSON.stringify({ title, sections, status: meta?.status ?? doc.status, folder: meta && 'folder' in meta ? meta.folder : (doc.folder ?? null), version: doc.version }),

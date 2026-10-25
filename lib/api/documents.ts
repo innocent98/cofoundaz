@@ -135,6 +135,12 @@ export interface ContentLink {
 
 type Env<T> = { data?: T };
 
+/** Path segments come from the URL, so encode them: an id can never climb out of its route. */
+const enc = encodeURIComponent;
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const isUuid = (v: string | null | undefined): v is string => !!v && UUID.test(v);
+
 function qs(params: Record<string, string | undefined>): string {
   const p = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) if (v && v.trim()) p.set(k, v.trim());
@@ -180,11 +186,11 @@ export async function createFolder(name: string, parentId?: string): Promise<Fol
   return res.data as FolderTree;
 }
 export async function renameFolder(id: string, name: string): Promise<FolderTree> {
-  const res = await apiClient<Env<FolderTree>>(`/documents/folders/${id}`, json('PATCH', { name }));
+  const res = await apiClient<Env<FolderTree>>(`/documents/folders/${enc(id)}`, json('PATCH', { name }));
   return res.data as FolderTree;
 }
 export async function deleteFolder(id: string): Promise<FolderTree> {
-  const res = await apiClient<Env<FolderTree>>(`/documents/folders/${id}`, { method: 'DELETE' });
+  const res = await apiClient<Env<FolderTree>>(`/documents/folders/${enc(id)}`, { method: 'DELETE' });
   return res.data as FolderTree;
 }
 export async function createStandardFolders(): Promise<FolderTree> {
@@ -204,7 +210,7 @@ export interface DocPatch {
   status?: string;
 }
 export async function patchDocument(id: string, patch: DocPatch): Promise<DocSummary> {
-  const res = await apiClient<Env<DocSummary>>(`/documents/${id}`, json('PATCH', patch));
+  const res = await apiClient<Env<DocSummary>>(`/documents/${enc(id)}`, json('PATCH', patch));
   return res.data as DocSummary;
 }
 export interface FilePatch {
@@ -213,56 +219,56 @@ export interface FilePatch {
   tags?: string[];
 }
 export async function patchFile(id: string, patch: FilePatch): Promise<FileSummary> {
-  const res = await apiClient<Env<FileSummary>>(`/documents/files/${id}`, json('PATCH', patch));
+  const res = await apiClient<Env<FileSummary>>(`/documents/files/${enc(id)}`, json('PATCH', patch));
   return res.data as FileSummary;
 }
 
 export async function trashDocument(id: string): Promise<void> {
-  await apiClient(`/documents/${id}`, { method: 'DELETE' });
+  await apiClient(`/documents/${enc(id)}`, { method: 'DELETE' });
 }
 export async function trashFile(id: string): Promise<void> {
-  await apiClient(`/documents/files/${id}`, { method: 'DELETE' });
+  await apiClient(`/documents/files/${enc(id)}`, { method: 'DELETE' });
 }
 export async function getTrash(): Promise<{ documents: DocSummary[]; files: FileSummary[] }> {
   const res = await apiClient<Env<{ documents: DocSummary[]; files: FileSummary[] }>>('/documents/trash');
   return { documents: res?.data?.documents ?? [], files: res?.data?.files ?? [] };
 }
 export async function restoreDocument(id: string): Promise<void> {
-  await apiClient(`/documents/${id}/restore`, json('POST'));
+  await apiClient(`/documents/${enc(id)}/restore`, json('POST'));
 }
 export async function restoreFile(id: string): Promise<void> {
-  await apiClient(`/documents/files/${id}/restore`, json('POST'));
+  await apiClient(`/documents/files/${enc(id)}/restore`, json('POST'));
 }
 export async function deleteDocumentPermanently(id: string): Promise<void> {
-  await apiClient(`/documents/${id}/permanent`, { method: 'DELETE' });
+  await apiClient(`/documents/${enc(id)}/permanent`, { method: 'DELETE' });
 }
 export async function deleteFilePermanently(id: string): Promise<void> {
-  await apiClient(`/documents/files/${id}/permanent`, { method: 'DELETE' });
+  await apiClient(`/documents/files/${enc(id)}/permanent`, { method: 'DELETE' });
 }
 
 export async function listVersions(id: string): Promise<{ versions: VersionRow[]; current: number }> {
-  const res = await apiClient<Env<{ versions: VersionRow[]; current: number }>>(`/documents/${id}/versions`);
+  const res = await apiClient<Env<{ versions: VersionRow[]; current: number }>>(`/documents/${enc(id)}/versions`);
   return { versions: res?.data?.versions ?? [], current: res?.data?.current ?? 0 };
 }
 export async function getVersion(id: string, n: number): Promise<VersionDetail> {
-  const res = await apiClient<Env<VersionDetail>>(`/documents/${id}/versions/${n}`);
+  const res = await apiClient<Env<VersionDetail>>(`/documents/${enc(id)}/versions/${n}`);
   return res.data as VersionDetail;
 }
 export async function restoreVersion(id: string, n: number): Promise<void> {
-  await apiClient(`/documents/${id}/versions/${n}/restore`, json('POST'));
+  await apiClient(`/documents/${enc(id)}/versions/${n}/restore`, json('POST'));
 }
 
 export async function fileContentLink(id: string): Promise<ContentLink> {
-  const res = await apiClient<Env<ContentLink>>(`/documents/files/${id}/content`);
+  const res = await apiClient<Env<ContentLink>>(`/documents/files/${enc(id)}/content`);
   return res.data as ContentLink;
 }
 export async function fileDownloadLink(id: string): Promise<{ url: string }> {
-  const res = await apiClient<Env<{ url: string }>>(`/documents/files/${id}/download`);
+  const res = await apiClient<Env<{ url: string }>>(`/documents/files/${enc(id)}/download`);
   return res.data as { url: string };
 }
 
 export async function listGrants(documentId: string): Promise<Grant[]> {
-  const res = await apiClient<Env<{ grants: Grant[] }>>(`/documents/${documentId}/grants`);
+  const res = await apiClient<Env<{ grants: Grant[] }>>(`/documents/${enc(documentId)}/grants`);
   return res?.data?.grants ?? [];
 }
 export async function listAllGrants(): Promise<Grant[]> {
@@ -270,23 +276,23 @@ export async function listAllGrants(): Promise<Grant[]> {
   return res?.data?.grants ?? [];
 }
 export async function createGrant(documentId: string, email: string, permission: GrantPermission): Promise<Grant> {
-  const res = await apiClient<Env<Grant>>(`/documents/${documentId}/grants`, json('POST', { email, permission }));
+  const res = await apiClient<Env<Grant>>(`/documents/${enc(documentId)}/grants`, json('POST', { email, permission }));
   return res.data as Grant;
 }
 export async function updateGrant(documentId: string, grantId: string, permission: GrantPermission): Promise<Grant> {
-  const res = await apiClient<Env<Grant>>(`/documents/${documentId}/grants/${grantId}`, json('PATCH', { permission }));
+  const res = await apiClient<Env<Grant>>(`/documents/${enc(documentId)}/grants/${enc(grantId)}`, json('PATCH', { permission }));
   return res.data as Grant;
 }
 export async function revokeGrant(documentId: string, grantId: string): Promise<void> {
-  await apiClient(`/documents/${documentId}/grants/${grantId}`, { method: 'DELETE' });
+  await apiClient(`/documents/${enc(documentId)}/grants/${enc(grantId)}`, { method: 'DELETE' });
 }
 
 export async function listOwnerComments(documentId: string): Promise<OwnerComment[]> {
-  const res = await apiClient<Env<{ comments: OwnerComment[] }>>(`/documents/${documentId}/comments`);
+  const res = await apiClient<Env<{ comments: OwnerComment[] }>>(`/documents/${enc(documentId)}/comments`);
   return res?.data?.comments ?? [];
 }
 export async function addOwnerComment(documentId: string, body: string): Promise<void> {
-  await apiClient(`/documents/${documentId}/comments`, json('POST', { body }));
+  await apiClient(`/documents/${enc(documentId)}/comments`, json('POST', { body }));
 }
 
 export async function listSharedWithMe(): Promise<SharedDoc[]> {
@@ -294,15 +300,15 @@ export async function listSharedWithMe(): Promise<SharedDoc[]> {
   return res?.data?.documents ?? [];
 }
 export async function getSharedWithMe(id: string): Promise<SharedDocFull> {
-  const res = await apiClient<Env<SharedDocFull>>(`/documents/shared-with-me/${id}`);
+  const res = await apiClient<Env<SharedDocFull>>(`/documents/shared-with-me/${enc(id)}`);
   return res.data as SharedDocFull;
 }
 export async function listSharedComments(id: string): Promise<SharedComment[]> {
-  const res = await apiClient<Env<{ comments: SharedComment[] }>>(`/documents/shared-with-me/${id}/comments`);
+  const res = await apiClient<Env<{ comments: SharedComment[] }>>(`/documents/shared-with-me/${enc(id)}/comments`);
   return res?.data?.comments ?? [];
 }
 export async function addSharedComment(id: string, body: string): Promise<void> {
-  await apiClient(`/documents/shared-with-me/${id}/comments`, json('POST', { body }));
+  await apiClient(`/documents/shared-with-me/${enc(id)}/comments`, json('POST', { body }));
 }
 
 /** Roles that get the full library; everyone else lands on Shared with me. */
@@ -328,7 +334,7 @@ export interface ShareLink {
   document_id?: string; // only on the workspace overview
 }
 export async function listShareLinks(documentId: string): Promise<ShareLink[]> {
-  const res = await apiClient<Env<{ shares: ShareLink[] }>>(`/documents/${documentId}/shares`);
+  const res = await apiClient<Env<{ shares: ShareLink[] }>>(`/documents/${enc(documentId)}/shares`);
   return res?.data?.shares ?? [];
 }
 export async function listAllShareLinks(): Promise<ShareLink[]> {
@@ -342,20 +348,20 @@ export async function createShareLink(
   expiresInDays: number | null,
 ): Promise<string | undefined> {
   const res = await apiClient<Env<{ link?: string }>>(
-    `/documents/${documentId}/shares`,
+    `/documents/${enc(documentId)}/shares`,
     json('POST', { email, access_level: accessLevel, expires_in_days: expiresInDays }),
   );
   return res?.data?.link;
 }
 export async function revokeShareLink(documentId: string, shareId: string): Promise<void> {
-  await apiClient(`/documents/${documentId}/shares/${shareId}`, { method: 'DELETE' });
+  await apiClient(`/documents/${enc(documentId)}/shares/${enc(shareId)}`, { method: 'DELETE' });
 }
 
 export interface DocFull extends DocSummary {
   sections: DocSection[];
 }
 export async function getDocument(id: string): Promise<DocFull> {
-  const res = await apiClient<Env<DocFull>>(`/documents/${id}`);
+  const res = await apiClient<Env<DocFull>>(`/documents/${enc(id)}`);
   return res.data as DocFull;
 }
 

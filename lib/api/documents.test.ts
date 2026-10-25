@@ -3,6 +3,8 @@ import { apiClient } from './client';
 import {
   createGrant,
   getFolders,
+  getSharedWithMe,
+  isUuid,
   hasFullLibrary,
   listDocuments,
   listFiles,
@@ -53,6 +55,14 @@ describe('documents api', () => {
     expect(uploadProblem({ name: 'deck.pdf', size: 15 * 1024 * 1024 + 1 })).toMatch(/15 MB limit/);
     expect(uploadProblem({ name: 'empty.pdf', size: 0 })).toMatch(/empty/);
     expect(uploadProblem({ name: 'notes.MD', size: 100 })).toBeNull();
+  });
+
+  it('encodes ids taken from the URL so they cannot climb out of their route', async () => {
+    vi.mocked(apiClient).mockResolvedValue({ data: {} });
+    await getSharedWithMe('../../auth/me');
+    expect(vi.mocked(apiClient).mock.calls[0][0]).toBe('/documents/shared-with-me/..%2F..%2Fauth%2Fme');
+    expect(isUuid('c1f3192a-aca9-4bcf-88ff-27e8ca511ed6')).toBe(true);
+    expect(isUuid('../x')).toBe(false);
   });
 
   it('only founders and team members get the full library', () => {

@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import {
   addSharedComment,
+  isUuid,
   getSharedWithMe,
   listSharedComments,
   type SharedComment,
@@ -44,7 +45,10 @@ export default function SharedDocumentPage() {
   }, [id]);
 
   useEffect(() => {
-    if (!id) return;
+    if (!isUuid(id)) {
+      void Promise.resolve().then(() => setState('gone'));
+      return;
+    }
     void (async () => {
       await load();
     })();
