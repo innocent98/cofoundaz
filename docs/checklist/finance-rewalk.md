@@ -378,3 +378,13 @@ Paystack disconnected through the UI after the payment (all three providers "Not
 
 ### Counts after this re-check
 Original 141 rows: 133 ✅ before; E9, P8, N8, R11 and I21 are now ✅ (138 ✅). N21 is ✅ for connect, pay link, payment, sync, the invoice match, the Paid via Paystack tag and the category-only imported row, and ⏳ for the banner, non-NGN counts and payout tagging (not producible, unit tested). Also ⏳: I20, E11. New defects D9, D10 are API-side.
+
+## D9 + D10 verified, 2026-10-25 (API #186, develop `4513f845`, shared stack restarted)
+| Row | Check | Result | API | Pass |
+|---|---|---|---|---|
+| D9 | Advisor, real model, founder NovaPay: "What levers should I look at first?" | Reply `ready` after 16 s, 3,283 characters, quotes the workspace's own cash (NGN 2.20m), burn (NGN 933.7k) and runway (about 2.4 months) | `POST /ai/conversations` 201, polled `GET /ai/conversations/{id}`; worker log shows no empty-completion warning, so it answered on the first call with `LLM_CHAT_MAX_TOKENS=3000` | ✅ |
+| D9 | A reply that cannot be produced ends visibly | Not producible with the real model on demand. Covered by the merged e2e `e2e/test_finance_d9_d10.py` against the running app with a stubbed empty model: turn ends `failed` with "Sorry, I couldn't put a reply together. Please try asking again.", the founder can ask again (202), a turn stuck `generating` past 15 minutes is failed on the next read (captures `cofoundaz-api/e2e/_captures/finance_d9_d10/chat_*.json`) | e2e only | ✅ (e2e) |
+| D10 | Paystack-imported row, live: `PATCH amount_minor` / `DELETE` / `PATCH category` (same value) | 422 "Imported transactions are read-only except the category." twice, then 200; amount unchanged | `field_errors[0].field: source` | ✅ |
+| D10 | Bank (Mono) row: same three calls | The NovaPay ledger has no `source: bank` rows today (the 142 sandbox rows from the slice (e) re-check are gone; local test data, cause not traced). Verified in the merged e2e against the running app: 422, 422, 200 (captures `bank_patch_amount_422.json`, `bank_delete_422.json`, `bank_patch_category_200.json`) | e2e only | ✅ (e2e) |
+
+**Finance is Done.** Rows accepted as unit-tested only: needs-attention banner, non-NGN skipped counts, payout tagging, I20 print window, E11 file chooser.
