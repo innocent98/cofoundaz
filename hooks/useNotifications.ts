@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { createContext, createElement, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import { useRealtimeEvent } from '@/components/realtime-context';
 
-export type NotificationCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team';
+export type NotificationCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team' | 'Marketing' | 'Sales';
 
 export interface NotificationItem {
   id: string;
@@ -11,12 +12,14 @@ export interface NotificationItem {
   description: string;
   time: string;
   actionText?: string;
+  /** Where the notification leads, when its type has a destination. */
+  href: string | null;
   isUnread: boolean;
   iconBg: string;
   iconText: string;
 }
 
-interface RawNotification {
+export interface RawNotification {
   id: string;
   type: string;
   title: string;
@@ -29,21 +32,109 @@ interface RawNotification {
 // --- type → presentation --------------------------------------------------
 // `title` is generic per type and `body` is always "" in v1 (guide §1/§5); we
 // derive the icon and a filter category from the dotted `type`.
+/** Deep link for a notification, from its type and `data` (BE guides: KPIs 7b, briefing v2 section 5). */
+/** Only in-app Marketing paths are followed; anything else in `data.href` is ignored. */
+function marketingHref(type: string, data: Record<string, unknown> | null | undefined): string | null {
+  const href = data?.href;
+  if (typeof href === 'string' && /^\/marketing(\/|\?|$)/.test(href) && !href.startsWith('//')) return href;
+  // Older rows carry ids but no href.
+  if (type === 'marketing.post.published' && typeof data?.entry_id === 'string') {
+    return `/marketing/calendar?entry=${encodeURIComponent(data.entry_id)}`;
+  }
+  if (type.startsWith('marketing.campaign') && typeof data?.campaign_id === 'string') {
+    return `/marketing/campaigns/${encodeURIComponent(data.campaign_id)}`;
+  }
+  return '/marketing';
+}
+
+/** Sales notifications (BE guide fe-integration-guide-sales-crm.md §8.2): follow `data.href` when it is a /sales path, else open the deal. */
+function salesHref(data: Record<string, unknown> | null | undefined): string {
+  const href = data?.href;
+  if (typeof href === 'string' && /^\/sales(\/|\?|$)/.test(href) && !href.startsWith('//')) return href;
+  if (typeof data?.deal_id === 'string') return `/sales?deal=${encodeURIComponent(data.deal_id)}`;
+  return '/sales';
+}
+
+/** Document notifications (library guide §10): follow `data.href` when it is a /documents path, else the nearest list. */
+function documentsHref(type: string, data: Record<string, unknown> | null | undefined): string {
+  const href = data?.href;
+  if (typeof href === 'string' && /^\/documents(\/|$)/.test(href) && !href.startsWith('//')) return href;
+  if (type.startsWith('document.signature')) return '/documents/signatures';
+  if (type === 'document.grant.created') return '/documents/shared-with-me';
+  return '/documents';
+}
+
+export function notificationHref(type: string, data: Record<string, unknown> | null | undefined): string | null {
+  if (type.startsWith('document.')) return documentsHref(type, data);
+  if (type.startsWith('marketing.')) return marketingHref(type, data);
+  if (type.startsWith('sales.')) return salesHref(data);
+  if (type === 'dashboard.briefing.ready') return '/dashboard';
+  if (type === 'learning.course.completed') return '/academy/certificates';
+  if (type === 'learning.course.recommended') {
+    return typeof data?.course_id === 'string' ? `/academy/courses/${encodeURIComponent(data.course_id)}` : '/academy';
+  }
+  if (type === 'workspace.member.joined') return '/team';
+  if (type === 'finance.runway.low') return '/finance/runway';
+  if (type === 'assessment.completed') return '/assessment/results';
+  if (type === 'assessment.quarterly.due') return '/assessment';
+  if (type === 'healthscore.dropped' || type === 'healthscore.record') return '/health';
+  if (type === 'validation.smoke_test.milestone') {
+    return typeof data?.experiment_id === 'string'
+      ? `/validation/smoke-tests?test=${encodeURIComponent(data.experiment_id)}`
+      : '/validation/smoke-tests';
+  }
+  if (type === 'validation.insight.detected') {
+    return typeof data?.insight_id === 'string'
+      ? `/validation/interviews?insight=${encodeURIComponent(data.insight_id)}`
+      : '/validation/interviews';
+  }
+  if (type === 'roadmap.milestone.overdue') return '/roadmap/replan';
+  if (type === 'roadmap.milestone.due_soon') {
+    return typeof data?.milestone_id === 'string' ? `/roadmap?milestone=${encodeURIComponent(data.milestone_id)}` : '/roadmap';
+  }
+  if (type === 'team.comment.mentioned') {
+    const id = typeof data?.entity_id === 'string' ? encodeURIComponent(data.entity_id) : null;
+    if (id && data?.entity_type === 'roadmap_milestone') return `/roadmap?milestone=${id}`;
+    if (id && data?.entity_type === 'roadmap_task') return `/roadmap?task=${id}`;
+    return '/roadmap';
+  }
+  if (type === 'kpi.threshold.crossed') {
+    switch (data?.metric) {
+      case 'runway':
+        return '/finance/runway';
+      case 'revenue':
+        return '/finance';
+      case 'campaign_ctr':
+        return '/marketing/analytics';
+      default:
+        return '/dashboard';
+    }
+  }
+  return null;
+}
+
 function categoryFor(type: string): NotificationCategory {
+  if (type.startsWith('marketing')) return 'Marketing';
+  if (type.startsWith('sales')) return 'Sales';
   if (type.startsWith('mission') || type.startsWith('roadmap') || type.startsWith('business') || type.startsWith('assessment')) return 'Missions';
-  if (type.startsWith('healthscore') || type.startsWith('finance')) return 'Finance';
-  if (type.startsWith('workspace') || type.startsWith('document')) return 'Team';
+  if (type.startsWith('healthscore') || type.startsWith('finance') || type.startsWith('kpi')) return 'Finance';
+  if (type.startsWith('workspace') || type.startsWith('document') || type.startsWith('team')) return 'Team';
   return 'Missions';
 }
 
 function iconFor(type: string): { iconText: string; iconBg: string } {
-  if (type.startsWith('document')) return { iconText: '📄', iconBg: 'bg-[#EAF2ED]' };
-  if (type.startsWith('business')) return { iconText: '🧩', iconBg: 'bg-[#F7EEDC]' };
-  if (type.startsWith('assessment') || type.startsWith('healthscore')) return { iconText: '✓', iconBg: 'bg-[#EAF2ED]' };
-  if (type.startsWith('mission')) return { iconText: '◎', iconBg: 'bg-[#EAF2ED]' };
-  if (type.startsWith('roadmap')) return { iconText: '🗺', iconBg: 'bg-[#F7EEDC]' };
-  if (type.startsWith('workspace')) return { iconText: '👤', iconBg: 'bg-[#EAF2ED]' };
-  return { iconText: '•', iconBg: 'bg-[#F5F5F0]' };
+  if (type.startsWith('marketing')) return { iconText: '📣', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('sales')) return { iconText: '💼', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('learning')) return { iconText: '🎓', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('document')) return { iconText: '📄', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('business')) return { iconText: '🧩', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('assessment') || type.startsWith('healthscore')) return { iconText: '✓', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('mission')) return { iconText: '◎', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('dashboard')) return { iconText: '✦', iconBg: 'bg-brand-tint' };
+  if (type.startsWith('kpi')) return { iconText: '↗', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('roadmap')) return { iconText: '🗺', iconBg: 'bg-accent-xf7eedc' };
+  if (type.startsWith('workspace') || type.startsWith('team')) return { iconText: '👤', iconBg: 'bg-brand-tint' };
+  return { iconText: '•', iconBg: 'bg-surface-muted' };
 }
 
 function relativeTime(iso: string): string {
@@ -62,7 +153,7 @@ function sectionFor(iso: string): NotificationItem['section'] {
   return sameDay ? 'TODAY' : 'EARLIER THIS WEEK';
 }
 
-function mapNotification(n: RawNotification): NotificationItem {
+export function mapNotification(n: RawNotification): NotificationItem {
   const { iconText, iconBg } = iconFor(n.type);
   return {
     id: n.id,
@@ -71,17 +162,24 @@ function mapNotification(n: RawNotification): NotificationItem {
     title: n.title,
     description: '', // body is always "" in v1, don't fabricate a subtitle
     time: relativeTime(n.created_at),
+    // `body` is "" in v1 except where a type sends a CTA label (the insight notification: "See insight").
+    actionText: (n.type === 'validation.insight.detected' || n.type.startsWith('marketing.') || n.type.startsWith('sales.')) && n.body ? n.body : undefined,
+    href: notificationHref(n.type, n.data),
     isUnread: !n.read,
     iconBg,
     iconText,
   };
 }
 
-export function useNotifications() {
+function useNotificationsState() {
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const itemsRef = useRef<NotificationItem[]>([]);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   const refetch = useCallback(async () => {
     try {
@@ -135,5 +233,37 @@ export function useNotifications() {
     }
   }, [refetch]);
 
+  // Live stream (same connection as Team activity): `unread` is authoritative,
+  // `notification.created` is a feed row; a reconnect or refocus refetches.
+  useRealtimeEvent('unread', (data) => {
+    const n = (data as { unread?: number } | null)?.unread;
+    if (typeof n === 'number') setUnreadCount(n);
+  });
+  useRealtimeEvent('notification.created', (data) => {
+    const raw = data as RawNotification | null;
+    if (!raw || typeof raw.id !== 'string' || itemsRef.current.some((x) => x.id === raw.id)) return;
+    setItems((prev) => [mapNotification(raw), ...prev]);
+    setUnreadCount((c) => c + 1);
+  });
+  useRealtimeEvent('resync', () => {
+    void refetch();
+  });
+
   return { items, setItems, unreadCount, loading, error, refetch, markRead, markAllRead };
+}
+
+type NotificationsState = ReturnType<typeof useNotificationsState>;
+
+const NotificationsContext = createContext<NotificationsState | null>(null);
+
+/** One feed + unread count for the whole shell (sidebar badge, bell, tab bar, inbox page). */
+export function NotificationsProvider({ children }: { children: React.ReactNode }) {
+  const state = useNotificationsState();
+  return createElement(NotificationsContext.Provider, { value: state }, children);
+}
+
+export function useNotifications(): NotificationsState {
+  const ctx = useContext(NotificationsContext);
+  if (!ctx) throw new Error('useNotifications must be used within a NotificationsProvider');
+  return ctx;
 }

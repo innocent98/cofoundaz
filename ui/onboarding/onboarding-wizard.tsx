@@ -50,17 +50,17 @@ export function OnboardingAiPanel({ aiPanel }: { aiPanel?: string | null }) {
       data-testid="onboarding-ai-panel"
       role="region"
       aria-label="AI Co-Founder Calibration"
-      className="rounded-card border border-[#1E4D3B]/20 bg-[#12291F] text-white p-5 shadow-card space-y-2.5 transition-all"
+      className="rounded-card border border-brand-700/20 bg-brand-900 text-white p-5 shadow-card space-y-2.5 transition-all"
     >
       <div className="flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1E4D3B] text-copper-500">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-700 text-accent-500">
           <Sparkles className="h-3.5 w-3.5 fill-current" />
         </div>
-        <span className="text-xs font-bold uppercase tracking-wider text-sage-200">
+        <span className="text-xs font-bold uppercase tracking-wider text-neutral-200">
           AI Co-Founder Calibration
         </span>
       </div>
-      <div className="text-xs md:text-sm leading-relaxed text-[#B3D0C3] whitespace-pre-wrap font-normal">
+      <div className="text-xs md:text-sm leading-relaxed text-brand-200 whitespace-pre-wrap font-normal">
         {aiPanel}
       </div>
     </div>
@@ -234,23 +234,23 @@ export function OnboardingWizard({
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
       {/* Progress Stepper */}
       <div className="mb-8">
-        <div className="flex items-center justify-between text-xs font-medium text-sage-500">
+        <div className="flex items-center justify-between text-xs font-medium text-neutral-500">
           <span>Step {currentStep} of {TOTAL_STEPS}</span>
           <span>{Math.round((currentStep / TOTAL_STEPS) * 100)}% completed</span>
         </div>
-        <div className="mt-2 h-2 w-full overflow-hidden rounded-pill bg-sage-200">
+        <div className="mt-2 h-2 w-full overflow-hidden rounded-pill bg-neutral-200">
           <div
-            className="h-full bg-green-700 transition-all duration-300"
+            className="h-full bg-brand-700 transition-all duration-300"
             style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
           />
         </div>
       </div>
 
-      <div className="rounded-card border border-sage-200 bg-white p-6 md:p-8 shadow-card">
+      <div className="rounded-card border border-neutral-200 bg-white p-6 md:p-8 shadow-card">
         {activeError && (
           <div
             role="alert"
-            className="mb-6 rounded-input border border-red-200 bg-red-50 p-3 text-[13px] text-red-700"
+            className="mb-6 rounded-input border border-danger-200 bg-danger-50 p-3 text-[13px] text-danger-700"
           >
             {activeError}
           </div>
@@ -260,11 +260,11 @@ export function OnboardingWizard({
           {/* Step 1: Founder Profile */}
           {currentStep === 1 && (
             <div className="space-y-4">
-              <h1 className="font-display text-2xl font-bold text-green-900">
+              <h1 className="font-display text-2xl font-bold text-brand-900">
                 Tell us about yourself
               </h1>
-              <p className="text-sm text-sage-500">
-                let&apos;s set up your profile credentials and role in the startup.
+              <p className="text-sm text-neutral-500">
+                Let&apos;s set up your profile and your role in the startup.
               </p>
 
               <Field label="Full Name" htmlFor="onboard-name" help={null}>
@@ -346,10 +346,10 @@ export function OnboardingWizard({
           {/* Step 2: Startup Core */}
           {currentStep === 2 && (
             <div className="space-y-4">
-              <h1 className="font-display text-2xl font-bold text-green-900">
+              <h1 className="font-display text-2xl font-bold text-brand-900">
                 Your Startup Details
               </h1>
-              <p className="text-sm text-sage-500">
+              <p className="text-sm text-neutral-500">
                 What is your company or venture called, and what does it do?
               </p>
 
@@ -397,10 +397,10 @@ export function OnboardingWizard({
           {/* Step 3: Model & Stage */}
           {currentStep === 3 && (
             <div className="space-y-5">
-              <h1 className="font-display text-2xl font-bold text-green-900">
+              <h1 className="font-display text-2xl font-bold text-brand-900">
                 Business Model & Stage
               </h1>
-              <p className="text-sm text-sage-500">
+              <p className="text-sm text-neutral-500">
                 Help us customize your workspace tools to your operating model.
               </p>
 
@@ -418,7 +418,7 @@ export function OnboardingWizard({
               </Field>
 
               <div>
-                <label className="mb-2 block text-xs font-semibold text-sage-700">
+                <label className="mb-2 block text-xs font-semibold text-neutral-700">
                   Business Model
                 </label>
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
@@ -431,8 +431,8 @@ export function OnboardingWizard({
                         onClick={() => updateField('business_model', model.id)}
                         className={`rounded-input border p-2.5 text-center text-xs font-medium transition ${
                           isSelected
-                            ? 'border-green-700 bg-green-50 text-green-900 ring-2 ring-green-700/20'
-                            : 'border-sage-200 bg-white text-sage-700 hover:bg-sage-100'
+                            ? 'border-brand-700 bg-brand-50 text-brand-900 ring-2 ring-brand-700/20'
+                            : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100'
                         }`}
                       >
                         {model.label}
@@ -443,7 +443,7 @@ export function OnboardingWizard({
               </div>
 
               <div>
-                <label className="mb-2 block text-xs font-semibold text-sage-700">
+                <label className="mb-2 block text-xs font-semibold text-neutral-700">
                   Current Stage
                 </label>
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
@@ -456,8 +456,8 @@ export function OnboardingWizard({
                         onClick={() => updateField('stage', stg.id)}
                         className={`rounded-input border p-2.5 text-center text-xs font-medium transition ${
                           isSelected
-                            ? 'border-green-700 bg-green-50 text-green-900 ring-2 ring-green-700/20'
-                            : 'border-sage-200 bg-white text-sage-700 hover:bg-sage-100'
+                            ? 'border-brand-700 bg-brand-50 text-brand-900 ring-2 ring-brand-700/20'
+                            : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100'
                         }`}
                       >
                         {stg.label}
@@ -472,10 +472,10 @@ export function OnboardingWizard({
           {/* Step 4: Goals */}
           {currentStep === 4 && (
             <div className="space-y-4">
-              <h1 className="font-display text-2xl font-bold text-green-900">
+              <h1 className="font-display text-2xl font-bold text-brand-900">
                 Select Your Key Goals
               </h1>
-              <p className="text-sm text-sage-500">
+              <p className="text-sm text-neutral-500">
                 Choose up to 3 focus areas you want to tackle first in Cofoundaz.
               </p>
 
@@ -488,8 +488,8 @@ export function OnboardingWizard({
                       onClick={() => toggleGoal(g)}
                       className={`flex cursor-pointer items-center justify-between rounded-input border p-3 text-sm transition ${
                         isChecked
-                          ? 'border-green-700 bg-green-50 text-green-900 font-medium'
-                          : 'border-sage-200 bg-white text-sage-700 hover:bg-sage-100'
+                          ? 'border-brand-700 bg-brand-50 text-brand-900 font-medium'
+                          : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100'
                       }`}
                     >
                       <span>{g}</span>
@@ -497,7 +497,7 @@ export function OnboardingWizard({
                         type="checkbox"
                         checked={isChecked}
                         readOnly
-                        className="h-4 w-4 accent-green-600"
+                        className="h-4 w-4 accent-brand-600"
                       />
                     </div>
                   )
@@ -521,14 +521,14 @@ export function OnboardingWizard({
           {/* Step 5: Logo & Branding */}
           {currentStep === 5 && (
             <div className="space-y-4">
-              <h1 className="font-display text-2xl font-bold text-green-900">
+              <h1 className="font-display text-2xl font-bold text-brand-900">
                 Upload Startup Logo
               </h1>
-              <p className="text-sm text-sage-500">
+              <p className="text-sm text-neutral-500">
                 Add an avatar or logo for your workspace dashboard.
               </p>
 
-              <div className="flex flex-col items-center justify-center rounded-input border-2 border-dashed border-sage-300 p-8 text-center hover:bg-sage-50">
+              <div className="flex flex-col items-center justify-center rounded-input border-2 border-dashed border-neutral-300 p-8 text-center hover:bg-neutral-50">
                 <input
                   type="file"
                   id="logo-upload"
@@ -542,11 +542,11 @@ export function OnboardingWizard({
                 />
                 <label
                   htmlFor="logo-upload"
-                  className="cursor-pointer font-semibold text-green-700 hover:underline"
+                  className="cursor-pointer font-semibold text-brand-700 hover:underline"
                 >
                   {selectedFile ? selectedFile.name : 'Choose a file to upload'}
                 </label>
-                <p className="mt-1 text-xs text-sage-500">PNG, JPG, or SVG up to 5MB</p>
+                <p className="mt-1 text-xs text-neutral-500">PNG, JPG, or SVG up to 5MB</p>
               </div>
             </div>
           )}
@@ -554,10 +554,10 @@ export function OnboardingWizard({
           {/* Step 6: Team Invites */}
           {currentStep === 6 && (
             <div className="space-y-4">
-              <h1 className="font-display text-2xl font-bold text-green-900">
+              <h1 className="font-display text-2xl font-bold text-brand-900">
                 Invite Your Team
               </h1>
-              <p className="text-sm text-sage-500">
+              <p className="text-sm text-neutral-500">
                 Add co-founders, early advisors, or team members (optional).
               </p>
 
@@ -599,7 +599,7 @@ export function OnboardingWizard({
                 <button
                   type="button"
                   onClick={() => setInvites([...invites, { email: '', role: 'team_member' }])}
-                  className="text-xs font-semibold text-green-700 hover:underline"
+                  className="text-xs font-semibold text-brand-700 hover:underline"
                 >
                   + Add another invite
                 </button>
@@ -608,7 +608,7 @@ export function OnboardingWizard({
           )}
 
           {/* Wizard Action Controls */}
-          <div className="mt-8 flex items-center justify-between border-t border-sage-200 pt-5">
+          <div className="mt-8 flex items-center justify-between border-t border-neutral-200 pt-5">
             {currentStep > 1 ? (
               <Button
                 type="button"

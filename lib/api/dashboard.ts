@@ -1,6 +1,6 @@
 import { apiClient } from './client';
 
-export type AIContentStatus = 'empty' | 'generating' | 'ready';
+export type AIContentStatus = 'empty' | 'generating' | 'ready' | 'restricted';
 
 export interface DashboardSectionError {
   error: true;
@@ -39,10 +39,14 @@ export interface RawMissionTask {
   [key: string]: unknown;
 }
 
+export type MissionEmptyReason = 'weekend_off' | 'all_caught_up' | null;
+
 export interface DashboardMissionData {
   streak?: number;
   status?: string;
   tasks?: RawMissionTask[];
+  /** Why the task list is empty (null when there are tasks). */
+  empty_reason?: MissionEmptyReason | string | null;
   [key: string]: unknown;
 }
 export type DashboardMissionSection = DashboardMissionData | DashboardSectionError | null;
@@ -50,6 +54,9 @@ export type DashboardMissionSection = DashboardMissionData | DashboardSectionErr
 export interface DashboardUpcomingItem {
   id?: string;
   title: string;
+  /** ISO date (YYYY-MM-DD) the milestone is due. */
+  due_on?: string | null;
+  milestone_id?: string;
   type?: string;
   date?: string;
   time?: string;
@@ -58,12 +65,74 @@ export interface DashboardUpcomingItem {
 }
 export type DashboardUpcomingSection = DashboardUpcomingItem[] | { items: DashboardUpcomingItem[] } | DashboardSectionError;
 
+export type KpiMetricStatus = 'ok' | 'no_data' | 'restricted' | 'not_built' | 'not_burning' | 'out_of_cash';
+
+/** Week-over-week change plus the last 14 daily snapshots (BE guide section 7a). */
+export interface DashboardTrend {
+  /** Current minus the snapshot exactly 7 days ago; null during a workspace's first week. */
+  delta: number | null;
+  series: Array<{ period: string; value: number }>;
+}
+
+export interface DashboardRevenueMetric {
+  trend?: DashboardTrend;
+  status: KpiMetricStatus;
+  /** Minor units (kobo). Average monthly inflow over the trailing 3 months. */
+  value_minor: number | null;
+  currency: string | null;
+  basis?: string;
+}
+
+export interface DashboardRunwayMetric {
+  trend?: DashboardTrend;
+  status: KpiMetricStatus;
+  months: number | null;
+  /** Always a boolean; drives the alert styling. */
+  is_low: boolean;
+  monthly_burn_minor: number | null;
+  /** Minor units; can be negative when out of cash. */
+  cash_on_hand_minor: number | null;
+  currency: string | null;
+}
+
+export interface DashboardPipelineMetric {
+  trend?: DashboardTrend;
+  status: KpiMetricStatus;
+  value_minor: number | null;
+  currency: string | null;
+}
+
+export interface DashboardCtrMetric {
+  trend?: DashboardTrend;
+  status: KpiMetricStatus;
+  /** Already a percentage: 2.5 means 2.5%. */
+  ctr_percent: number | null;
+  impressions: number | null;
+  clicks: number | null;
+  range?: string;
+}
+
+/** A single tile whose source query failed; the other tiles are unaffected. */
+export interface DashboardMetricError {
+  error: true;
+}
+
+export interface DashboardKpiMetrics {
+  revenue?: DashboardRevenueMetric | DashboardMetricError;
+  runway?: DashboardRunwayMetric | DashboardMetricError;
+  pipeline?: DashboardPipelineMetric | DashboardMetricError;
+  campaign_ctr?: DashboardCtrMetric | DashboardMetricError;
+}
+
 export interface DashboardKpisData {
+  metrics?: DashboardKpiMetrics;
+  tasks_done_this_week?: number | null;
+  tasks_trend?: DashboardTrend;
+  /** Legacy scalar keys: still sent, always null. Read `metrics` instead. */
   revenue?: number | null;
   runway?: number | null;
   pipeline_value?: number | null;
   campaign_performance?: number | string | null;
-  tasks_done_this_week?: number | null;
   [key: string]: unknown;
 }
 export type DashboardKpisSection = DashboardKpisData | DashboardSectionError;
@@ -75,52 +144,63 @@ export interface DashboardCalibrationData {
 }
 export type DashboardCalibrationSection = DashboardCalibrationData | DashboardSectionError;
 
+export interface BriefingActionData {
+  index: number;
+  label: string;
+  /** `task` adds the label to today's mission; `navigate` goes to `href`. */
+  kind: 'task' | 'navigate' | string;
+  href: string | null;
+  accepted: boolean;
+  mission_task_id: string | null;
+}
+
 export interface DashboardBriefingData {
-  id?: string;
+  id?: string | null;
   date?: string;
   status?: AIContentStatus;
   message?: string | null;
   content?: string | null;
-  actions?: Array<{ index: number; label: string; [key: string]: unknown }>;
+  actions?: BriefingActionData[];
   [key: string]: unknown;
 }
 export type DashboardBriefingSection = DashboardBriefingData | DashboardSectionError;
 
 export interface RawRiskItem {
-  id: string;
-  severity?: 'high' | 'medium' | 'low' | 'red' | 'amber' | string;
-  description: string;
-  moduleLink?: string;
+  index: number;
+  severity: 'high' | 'medium' | 'low' | string;
+  text: string;
+  /** Server-mapped module route; can be null (render the row without a CTA). */
+  href: string | null;
   [key: string]: unknown;
 }
 export interface DashboardRisksData {
   status?: AIContentStatus;
-  message?: string;
+  message?: string | null;
   items?: RawRiskItem[];
   [key: string]: unknown;
 }
-export type DashboardRisksSection = DashboardRisksData | RawRiskItem[] | DashboardSectionError;
+export type DashboardRisksSection = DashboardRisksData | DashboardSectionError;
 
 export interface RawOpportunityItem {
-  id: string;
-  type?: string;
-  description: string;
-  ctaText?: string;
-  moduleLink?: string;
+  index: number;
+  text: string;
+  href: string | null;
   [key: string]: unknown;
 }
 export interface DashboardOpportunitiesData {
   status?: AIContentStatus;
-  message?: string;
+  message?: string | null;
   items?: RawOpportunityItem[];
   [key: string]: unknown;
 }
-export type DashboardOpportunitiesSection = DashboardOpportunitiesData | RawOpportunityItem[] | DashboardSectionError;
+export type DashboardOpportunitiesSection = DashboardOpportunitiesData | DashboardSectionError;
 
 export interface DashboardSummaryData {
   greeting?: DashboardGreeting | null;
   health?: DashboardHealthSection | null;
   mission?: DashboardMissionSection;
+  /** `restricted` for roles that cannot open Today's Mission (`mission` is then null). Absent on older APIs. */
+  mission_status?: 'ok' | 'restricted' | string;
   upcoming?: DashboardUpcomingSection | null;
   kpis?: DashboardKpisSection | null;
   calibration?: DashboardCalibrationSection | null;
@@ -245,7 +325,28 @@ export async function getDashboardActivity(
   };
 }
 
+export interface BriefingAcceptResult {
+  action_index: number;
+  kind: 'task' | 'navigate' | string;
+  href: string | null;
+  mission_task: { id: string; title: string } | null;
+}
+
+/**
+ * POST /dashboard/briefing/{id}/actions/{index}/accept. Idempotent: a repeat call
+ * returns the same mission task. 409 BRIEFING_STALE means the briefing is from an
+ * earlier day; refetch the summary rather than retrying.
+ */
+export async function acceptBriefingAction(briefingId: string, index: number): Promise<BriefingAcceptResult> {
+  const res = await apiClient<{ data: BriefingAcceptResult }>(
+    `/dashboard/briefing/${encodeURIComponent(briefingId)}/actions/${index}/accept`,
+    { method: 'POST' },
+  );
+  return res.data;
+}
+
 export const dashboardApi = {
   getSummary: getDashboardSummary,
   getActivity: getDashboardActivity,
+  acceptBriefingAction,
 };

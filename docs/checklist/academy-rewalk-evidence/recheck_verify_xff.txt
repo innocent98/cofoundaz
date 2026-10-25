@@ -1,0 +1,3 @@
+--- spoof test: X-Forwarded-For on a limited visitor
+plain -> {"error":{"code":"RATE_LIMITED","message":"Too many requests. Slow down a moment.","field_errors":[]}} HTTP 429
+XFF 203.0.113.9 -> {"error":{"code":"RATE_LIMITED","message":"Too many requests. Slow down a moment.","field_errors":[]}} HTTP 429

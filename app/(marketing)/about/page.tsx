@@ -27,7 +27,7 @@ export default function AboutPage() {
 
       <WhySection />
 
-      <section className="bg-green-950">
+      <section className="bg-brand-950">
         <Container width="prose" className="max-w-[820px] py-16 text-center">
           <p className="font-display text-xl italic leading-[1.45] text-balance text-white md:text-[28px]">
             {about.missionQuote}
@@ -40,12 +40,12 @@ export default function AboutPage() {
       <TeamGrid />
 
       <Container className="pt-16 text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.08em] text-sage-500">
+        <p className="text-xs font-bold uppercase tracking-[0.08em] text-neutral-500">
           {about.backers.title}
         </p>
         <div className="mt-5 flex flex-wrap justify-center gap-10 opacity-72">
           {about.backers.names.map((name) => (
-            <span key={name} className="font-display text-xl font-semibold text-sage-700">
+            <span key={name} className="font-display text-xl font-semibold text-neutral-700">
               {name}
             </span>
           ))}
@@ -53,7 +53,7 @@ export default function AboutPage() {
       </Container>
 
       <Container className="py-18 text-center">
-        <h2 className="font-display text-[28px] font-semibold text-balance text-green-900 md:text-4xl">
+        <h2 className="font-display text-[28px] font-semibold text-balance text-brand-900 md:text-4xl">
           {about.finalCta.title}
         </h2>
         <div className="mt-6 flex flex-col justify-center gap-3.5 md:flex-row">

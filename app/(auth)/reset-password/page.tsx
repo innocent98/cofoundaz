@@ -14,7 +14,7 @@ function ResetPasswordQuery() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="text-center text-sm text-sage-400">Loading…</div>}>
+    <Suspense fallback={<div className="text-center text-sm text-neutral-400">Loading…</div>}>
       <ResetPasswordQuery />
     </Suspense>
   );

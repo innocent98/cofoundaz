@@ -1,0 +1,8 @@
+GET /auth/me
+{"user": {"id": "bc68150b-cbdb-4b39-a158-0e369bf20832", "email": "rewalk-nameless-1792853893@example.com", "status": "active"}, "profile": {"full_name": "Recheck Tester Adaeze", "role_title": "Founder & CEO", "country": null, "avatar_url": null}, "memberships": [{"startup_id": "11ba2aa0-8c8d-4035-adb8-62530988ed44", "name": "NovaPay", "role": "team_member"}], "active_workspace_id": "11ba2aa0-8c8d-4035-adb8-62530988ed44"}
+
+GET /learning/certificates
+{"data":{"certificates":[{"id":"1ed29206-477f-4d70-93f8-81693f0d1cd4","course_id":"validation-talk-to-customers","course_title":"Talk to customers","holder_name":"Recheck Tester Adaeze","credential_id":"CFZ-5NQM-ANJD-5FDV","issuer":"Cofoundaz","issued_at":"2026-10-24T15:02:52.485676+00:00","verify_url":"http://localhost:3000/verify/CFZ-5NQM-ANJD-5FDV","pdf_ready":true,"pdf_url":"/api/v1/learning/certificates/1ed29206-477f-4d70-93f8-81693f0d1cd4/pdf","linkedin_url":"https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=Talk%20to%20customers&organizationName=Cofoundaz&issueYear=2026&issueMonth=10&certId=CFZ-5NQM-ANJD-5FDV&certUrl=http%3A%2F%2Flocalhost%3A3000%2Fverify%2FCFZ-5NQM-ANJD-5FDV"}]},"meta":null}
+HTTP 200
+GET /verify/CFZ-5NQM-ANJD-5FDV
+{"data":{"valid":true,"holder_name":"Recheck Tester Adaeze","course_title":"Talk to customers","issued_on":"2026-10-24","issuer":"Cofoundaz"},"meta":null} HTTP 200

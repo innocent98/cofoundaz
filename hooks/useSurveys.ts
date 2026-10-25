@@ -4,6 +4,7 @@ import {
   listSurveys,
   createSurvey,
   updateSurvey,
+  deleteValidationItem,
   getSurveyAnalytics,
   type RawSurvey,
   type SurveyQuestion,
@@ -64,7 +65,12 @@ export function useSurveys() {
     return public_token;
   }, []);
 
-  return { surveys, loading, error, refetch: load, create, setStatus, getAnalytics: getSurveyAnalytics, errMsg };
+  const remove = useCallback(async (id: string) => {
+    await deleteValidationItem('surveys', id);
+    setSurveys((prev) => prev.filter((s) => s.id !== id));
+  }, []);
+
+  return { surveys, loading, error, refetch: load, create, setStatus, remove, getAnalytics: getSurveyAnalytics, errMsg };
 }
 
 export type { RawSurveyAnalytics as SurveyAnalytics };

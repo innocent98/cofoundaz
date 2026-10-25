@@ -3,10 +3,16 @@
 import React, { useState } from 'react';
 import { Plus, Pencil, Trash2, TrendingUp } from 'lucide-react';
 import { useToast } from '../layout';
-import { useBusinessRecords, errMessage } from '@/hooks/useBusinessRecords';
+import { useBusinessRecords, errMessage, writeMessage, recordFormFailure } from '@/hooks/useBusinessRecords';
 import { RecordFormModal, FormField } from '@/components/business-builder/record-form-modal';
 import { AiDraftButton } from '@/components/business-builder/ai-draft-button';
 import { BusinessRecord } from '@/lib/api/business-builder';
+import { ArtifactHeader } from '@/components/business-builder/artifact-header';
+import { ExportButton } from '@/components/business-builder/export-button';
+import { RevenueProjectionCard } from '@/components/business-builder/revenue-projection';
+import { RecordEdited } from '@/components/business-builder/record-edited';
+import { useRecordThreads } from '@/hooks/useRecordThreads';
+import { latestEdit } from '@/lib/bb-records';
 
 const KIND = 'revenue-streams';
 
@@ -25,31 +31,36 @@ function fmtMoney(n: unknown): string {
 
 export default function RevenueModelPage() {
   const { triggerToast } = useToast();
-  const { records, loading, error, create, update, remove, refetch } = useBusinessRecords(KIND);
+  const { records, loading, error, access, create, update, remove, refetch } = useBusinessRecords(KIND);
+  const { canWrite, suggestMode } = access;
+  const threads = useRecordThreads(records.map((r) => r.id));
+  const edit = latestEdit(records);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<BusinessRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [openAssumptions, setOpenAssumptions] = useState<string | null>(null);
 
-  const openCreate = () => { setEditing(null); setFormError(null); setModalOpen(true); };
-  const openEdit = (rec: BusinessRecord) => { setEditing(rec); setFormError(null); setModalOpen(true); };
+  const openCreate = () => { setEditing(null); setFormError(null); setFieldErrors({}); setModalOpen(true); };
+  const openEdit = (rec: BusinessRecord) => { setEditing(rec); setFormError(null); setFieldErrors({}); setModalOpen(true); };
 
   const handleSubmit = async (data: Record<string, unknown>) => {
-    setSubmitting(true); setFormError(null);
+    setSubmitting(true); setFormError(null); setFieldErrors({});
     try {
-      if (editing) { await update(editing.id, data); triggerToast('Revenue stream updated'); }
-      else { await create(data); triggerToast('Revenue stream added'); }
+      if (editing) triggerToast(writeMessage(await update(editing.id, data), 'Revenue stream updated'));
+      else triggerToast(writeMessage(await create(data), 'Revenue stream added'));
       setModalOpen(false);
     } catch (err) {
-      setFormError(errMessage(err) || 'Could not save revenue stream');
+      { const f = recordFormFailure(err, 'Could not save revenue stream'); setFormError(f.message); setFieldErrors(f.fields); }
     } finally { setSubmitting(false); }
   };
 
   const handleDelete = async (rec: BusinessRecord) => {
     const name = (rec.data.name as string) || 'this stream';
-    if (!window.confirm(`Delete ${name}? This cannot be undone.`)) return;
-    try { await remove(rec.id); triggerToast('Revenue stream deleted'); }
+    if (!window.confirm(suggestMode ? `Suggest deleting ${name}?` : `Delete ${name}? This cannot be undone.`)) return;
+    try { triggerToast(writeMessage(await remove(rec.id), 'Revenue stream deleted')); }
     catch (err) { triggerToast(errMessage(err) || 'Could not delete revenue stream'); }
   };
 
@@ -60,76 +71,115 @@ export default function RevenueModelPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">Revenue model</h2>
-        <div className="flex items-center gap-2">
-          <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
-          <button
-            onClick={openCreate}
-            className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add stream</span>
-          </button>
-        </div>
-      </div>
+      <ArtifactHeader
+        title="Revenue model"
+        updatedAt={edit.updatedAt}
+        updatedBy={edit.updatedBy}
+        actions={
+          <>
+            <AiDraftButton kind={KIND} label="Draft with AI" onFilled={refetch} />
+            <ExportButton target={{ kind: KIND }} />
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{suggestMode ? 'Suggest a stream' : 'Add stream'}</span>
+              </button>
+            )}
+          </>
+        }
+      />
 
       {loading && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card h-56 animate-pulse" />
+        <div className="bg-white rounded-modal border border-line-soft shadow-card h-56 animate-pulse" />
       )}
 
       {!loading && error && (
-        <div className="bg-[#FBEBEB] border border-[#F0D5D5] rounded-modal p-4 text-sm text-[#A34B4B]">{error}</div>
+        <div className="bg-danger-wash border border-danger-xf0d5d5 rounded-modal p-4 text-sm text-danger-text">{error}</div>
       )}
 
       {!loading && !error && records.length === 0 && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-12 text-center flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#F0F4F1] text-[#183B28] flex items-center justify-center">
+        <div className="bg-white rounded-modal border border-line-soft shadow-card p-12 text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-neutral-xf0f4f1 text-brand-strong flex items-center justify-center">
             <TrendingUp className="w-6 h-6" />
           </div>
-          <p className="text-sm font-bold text-[#1E2923]">No revenue streams yet</p>
-          <p className="text-xs text-[#768478] max-w-xs">Map out how the business makes money, each stream, its basis, and an estimate.</p>
-          <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
-            <Plus className="w-3.5 h-3.5" /><span>Add your first stream</span>
-          </button>
+          <p className="text-sm font-bold text-ink">No revenue streams yet</p>
+          <p className="text-xs text-ink-soft max-w-xs">Map out how the business makes money, each stream, its basis, and an estimate.</p>
+          {canWrite && (
+            <button onClick={openCreate} className="mt-1 flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
+              <Plus className="w-3.5 h-3.5" /><span>{suggestMode ? 'Suggest the first stream' : 'Add your first stream'}</span>
+            </button>
+          )}
         </div>
       )}
 
       {!loading && records.length > 0 && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
+        <div className="bg-white rounded-modal border border-line-soft shadow-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[560px]">
               <thead>
-                <tr className="bg-[#FAFAFA] border-b border-[#EBEBE6]">
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Stream</th>
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Basis</th>
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase">Est. monthly</th>
-                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-[#768478] uppercase text-right">Actions</th>
+                <tr className="bg-surface-ghost border-b border-line-soft">
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Stream</th>
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Basis</th>
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase">Est. monthly</th>
+                  <th className="py-3.5 px-6 text-[11px] font-bold tracking-wider text-ink-soft uppercase text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F0F0EC]">
+              <tbody className="divide-y divide-line-faint">
                 {records.map((rec) => (
-                  <tr key={rec.id} className="hover:bg-[#FAF9F5] transition-colors group">
-                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#1E2923]">{(rec.data.name as string) || '-'}</td>
-                    <td className="py-4 px-6 text-xs md:text-sm text-[#556358]">{(rec.data.pricing_basis as string) || '-'}</td>
-                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-[#183B28]">{fmtMoney(rec.data.est_monthly)}</td>
+                  <React.Fragment key={rec.id}>
+                  <tr className="hover:bg-neutral-xfaf9f5 transition-colors group">
+                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-ink">
+                      {(rec.data.name as string) || '-'}
+                      <RecordEdited record={rec} className="font-normal" />
+                      <button
+                        type="button"
+                        onClick={() => setOpenAssumptions((o) => (o === rec.id ? null : rec.id))}
+                        aria-expanded={openAssumptions === rec.id}
+                        className="mt-1 text-[11px] font-semibold text-brand-strong hover:underline"
+                      >
+                        Assumptions
+                      </button>
+                    </td>
+                    <td className="py-4 px-6 text-xs md:text-sm text-ink-body">{(rec.data.pricing_basis as string) || '-'}</td>
+                    <td className="py-4 px-6 text-xs md:text-sm font-bold text-brand-strong">{fmtMoney(rec.data.est_monthly)}</td>
                     <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors" aria-label="Edit stream">
+                      <div className="flex items-center justify-end gap-1">
+                        {threads.button(rec.id, (rec.data.name as string) || 'this stream')}
+                        {canWrite && (<>
+                        <button onClick={() => openEdit(rec)} className="p-1.5 rounded-input text-ink-soft hover:text-brand-strong hover:bg-neutral-xf0f4f1 transition-colors" aria-label={`Edit stream: ${(rec.data.name as string) || 'untitled'}`}>
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
-                        <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label="Delete stream">
+                        <button onClick={() => handleDelete(rec)} className="p-1.5 rounded-input text-ink-soft hover:text-danger-text hover:bg-danger-wash transition-colors" aria-label={`Delete stream: ${(rec.data.name as string) || 'untitled'}`}>
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
+                        </>)}
                       </div>
                     </td>
                   </tr>
+                  {openAssumptions === rec.id && (
+                    <tr className="bg-surface-ghost">
+                      <td colSpan={4} className="px-6 py-3 text-xs text-ink-body whitespace-pre-wrap">
+                        {typeof rec.data.assumptions === 'string' && rec.data.assumptions.trim()
+                          ? rec.data.assumptions
+                          : 'No assumptions written for this stream yet.'}
+                        {canWrite && (
+                          <button type="button" onClick={() => openEdit(rec)} className="ml-3 font-semibold text-brand-strong hover:underline">
+                            {suggestMode ? 'Suggest an edit' : 'Edit'}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  </React.Fragment>
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t border-[#EBEBE6] bg-[#FAFAFA]">
-                  <td className="py-3 px-6 text-xs font-bold text-[#768478] uppercase tracking-wider" colSpan={2}>Total est. monthly</td>
-                  <td className="py-3 px-6 text-sm font-bold text-[#183B28]">{fmtMoney(totalMonthly)}</td>
+                <tr className="border-t border-line-soft bg-surface-ghost">
+                  <td className="py-3 px-6 text-xs font-bold text-ink-soft uppercase tracking-wider" colSpan={2}>Total est. monthly</td>
+                  <td className="py-3 px-6 text-sm font-bold text-brand-strong">{fmtMoney(totalMonthly)}</td>
                   <td />
                 </tr>
               </tfoot>
@@ -138,13 +188,19 @@ export default function RevenueModelPage() {
         </div>
       )}
 
+      <RevenueProjectionCard refreshKey={records.map((r) => `${r.id}:${r.updated_at ?? ''}`).join(',')} hasStreams={records.length > 0} />
+
+      {threads.drawer}
+
       {modalOpen && (
         <RecordFormModal
-          title={editing ? 'Edit revenue stream' : 'Add revenue stream'}
+          title={editing ? 'Edit revenue stream' : suggestMode ? 'Suggest a revenue stream' : 'Add revenue stream'}
+          suggestMode={suggestMode}
           fields={FIELDS}
           initial={editing?.data}
           submitting={submitting}
           error={formError}
+          fieldErrors={fieldErrors}
           onSubmit={handleSubmit}
           onClose={() => setModalOpen(false)}
         />

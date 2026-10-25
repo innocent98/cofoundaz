@@ -73,3 +73,20 @@ export async function completePostLogin(opts: {
     }
   }
 }
+
+// After onboarding completes, the workspace has JUST been created — the session
+// minted at signup/login predates it, so cf_workspace_id is still unset and every
+// tenant-scoped call (dashboard, health, notifications, …) 422s on the missing
+// X-Workspace-Id header. Re-read /auth/me and persist the now-active workspace id
+// before entering the app. Returns the id (or null if it still couldn't resolve).
+export async function syncActiveWorkspace(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  try {
+    const me = await apiClient<UserMeResponse>('/auth/me');
+    const wid = me?.data?.active_workspace_id ?? null;
+    if (wid) localStorage.setItem('cf_workspace_id', wid);
+    return wid;
+  } catch {
+    return null;
+  }
+}

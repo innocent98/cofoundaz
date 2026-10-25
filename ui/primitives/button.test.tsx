@@ -30,7 +30,7 @@ describe('Button', () => {
   it('applies copper background and white text for the accent variant', () => {
     render(<Button variant="accent">Start free</Button>)
     const el = screen.getByRole('button', { name: 'Start free' })
-    expect(el.className).toContain('bg-copper-600')
+    expect(el.className).toContain('bg-accent-600')
     expect(el.className).toContain('text-white')
   })
 
@@ -47,16 +47,16 @@ describe('Button', () => {
   })
 
   it('lets a caller className win a genuine conflict with a variant class', () => {
-    // Unlike a non-conflicting class (e.g. w-full), bg-green-700 conflicts with
-    // the accent variant's own bg-copper-600 — this exercises cn()'s twMerge
+    // Unlike a non-conflicting class (e.g. w-full), bg-brand-700 conflicts with
+    // the accent variant's own bg-accent-600 — this exercises cn()'s twMerge
     // precedence, not just presence of the caller's class.
     render(
-      <Button variant="accent" className="bg-green-700">
+      <Button variant="accent" className="bg-brand-700">
         Create account
       </Button>
     )
     const el = screen.getByRole('button')
-    expect(el.className).toContain('bg-green-700')
-    expect(el.className).not.toContain('bg-copper-600')
+    expect(el.className).toContain('bg-brand-700')
+    expect(el.className).not.toContain('bg-accent-600')
   })
 })

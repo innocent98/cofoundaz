@@ -87,14 +87,14 @@ export default function MfaChallengePage() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="bg-white rounded-modal shadow-card border border-[#E8E8E2] p-8">
+      <div className="bg-white rounded-modal shadow-card border border-line p-8">
         <div className="flex flex-col items-center text-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-card bg-[#EAF2ED] text-[#2D5A3F] flex items-center justify-center">
+          <div className="w-12 h-12 rounded-card bg-brand-tint text-brand-mid flex items-center justify-center">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-display font-bold text-[#1E2923]">Two-step verification</h1>
-            <p className="text-sm text-[#617065] mt-1">
+            <h1 className="text-xl font-display font-bold text-ink">Two-step verification</h1>
+            <p className="text-sm text-ink-muted mt-1">
               {useBackup
                 ? 'Enter one of the backup codes you saved.'
                 : 'Enter the 6-digit code from your authenticator app.'}
@@ -112,13 +112,13 @@ export default function MfaChallengePage() {
             inputMode={useBackup ? 'text' : 'numeric'}
             autoComplete="one-time-code"
             placeholder={useBackup ? 'XXXX-XXXX' : '123456'}
-            className="w-full border border-[#D5DDD6] rounded-input px-3 py-2.5 text-center text-lg tracking-[0.3em] focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58]"
+            className="w-full border border-line-strong rounded-input px-3 py-2.5 text-center text-lg tracking-[0.3em] focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus"
           />
-          {error && <p className="text-xs font-semibold text-[#B0483B]">{error}</p>}
+          {error && <p className="text-xs font-semibold text-danger-600">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="mt-1 bg-[#183B28] hover:bg-[#11291C] disabled:opacity-60 text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card flex items-center justify-center gap-2"
+            className="mt-1 bg-brand-strong hover:bg-brand-rail disabled:opacity-60 text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card flex items-center justify-center gap-2"
           >
             {submitting ? (
               <>
@@ -138,11 +138,11 @@ export default function MfaChallengePage() {
               setCode('');
               setError(null);
             }}
-            className="font-semibold text-[#183B28] hover:underline"
+            className="font-semibold text-brand-strong hover:underline"
           >
             {useBackup ? 'Use your authenticator app' : 'Use a backup code'}
           </button>
-          <Link href="/login" className="text-[#8E9B90] hover:text-[#617065]">
+          <Link href="/login" className="text-ink-subtle hover:text-ink-muted">
             Back to login
           </Link>
         </div>

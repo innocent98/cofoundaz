@@ -1,0 +1,542 @@
+/*
+ * Colour tokens — the ONLY place a hard-coded colour may live.
+ *
+ * Every colour in the app is a Tailwind v4 theme token (`bg-brand-700`, `text-ink`,
+ * `border-line` …) or `var(--color-…)`. To re-skin the brand, edit the values in this
+ * file; no component changes. A lint rule (scripts/precommit-checks.mjs + ui/tokens.test.ts)
+ * rejects hex / rgb() / hsl() anywhere else. See docs/sop/colour-tokens.md.
+ *
+ * The app has no dark mode (see ui/tokens.test.ts), so there is a single value per token.
+ * Phase 2 (brand swap): logo navy #051736 and blue #0F6AFC. See docs/sop/colour-tokens.md.
+ *
+ * Layout of this file
+ *   1. Ramps        brand · accent · neutral · danger   (50–950 steps)
+ *   2. Roles        named one-offs that are used a lot  (ink-*, line-*, surface-*, …)
+ *   3. Semantic     primary · success · warning · info · text · border · surface · chart-1…
+ *   4. Legacy tail  every remaining exact value the app used, grouped by hue family and
+ *                   named <family>-x<hex>. They exist so the refactor is pixel-identical;
+ *                   phase 2 may alias or merge them (change the value here, never the call sites).
+ *   5. Shadows      colour-bearing shadow tokens
+ */
+
+@theme {
+  /* Clears Tailwind's default palette and shadows, so only these tokens compile
+     (bg-blue-500 / shadow-md render nothing — see ui/tokens.test.ts). */
+  --color-*: initial;
+  --shadow-*: initial;
+
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+
+  /* 1. Ramp — Brand. 950 is the logo navy #051736 and 500 the exact logo blue #0F6AFC. 600 (primary, CTAs, text) is the logo blue nudged darker so
+   blue text clears 4.5:1 on the tinted surfaces (brand-100, neutral-100) and white-on-blue stays 5.1:1. The rest is interpolated. */
+  --color-brand-950: #051736;
+  --color-brand-900: #072454;
+  --color-brand-800: #0A367F;
+  --color-brand-700: #0D4FBC;
+  --color-brand-600: #0263F4;
+  --color-brand-500: #0F6AFC;
+  --color-brand-400: #4F8FFA;
+  --color-brand-300: #9CC2FF;
+  --color-brand-200: #C8DEFF;
+  --color-brand-100: #E8F1FF;
+  --color-brand-50: #F6FAFF;
+
+  /* 1. Ramp — Accent (was `copper-*`). Phase 2: the accent ramp is an ALIAS of the brand ramp, so CTAs, active pills and focus are brand blue.
+   Copper survives only as `warning` and chart series 2 (literals below), and as the gold/cream legacy tail. */
+  --color-accent-900: var(--color-brand-900);
+  --color-accent-800: var(--color-brand-800);
+  --color-accent-700: var(--color-brand-700);
+  --color-accent-600: var(--color-brand-600);
+  --color-accent-500: var(--color-brand-400);
+  --color-accent-200: var(--color-brand-200);
+  --color-accent-100: var(--color-brand-100);
+
+  /* 1. Ramp — Neutral — navy-tinted grey (was `sage-*`). Text, borders and surfaces. */
+  --color-neutral-900: #181B20;
+  --color-neutral-800: #292D33;
+  --color-neutral-700: #3B4048;
+  --color-neutral-600: #525861;
+  --color-neutral-500: #686F79;
+  --color-neutral-400: #6A717C;
+  --color-neutral-300: #C4CAD4;
+  --color-neutral-200: #E6E8EC;
+  --color-neutral-100: #F4F6F8;
+  --color-neutral-50: #F8FAFC;
+
+  /* 1. Ramp — Danger — functional red (was `red-*`). Errors and destructive actions. */
+  --color-danger-800: #6E2B23;
+  --color-danger-700: #8F382E;
+  --color-danger-600: #B0483B;
+  --color-danger-200: #EFC4BD;
+  --color-danger-100: #F6E5E2;
+  --color-danger-50: #FBF0EE;
+
+  /* 2a. Roles — text */
+  --color-ink: #051736;
+  --color-ink-strong: var(--color-ink);
+  --color-ink-deep: var(--color-ink);
+  --color-ink-body: #4A566B;
+  --color-ink-muted: #566176;
+  --color-ink-soft: #5E697E;
+  --color-ink-subtle: #626B7A;
+
+  /* 2b. Roles — borders and dividers */
+  --color-line: #E4E8EF;
+  --color-line-soft: #E8EBF0;
+  --color-line-strong: #D5DBE5;
+  --color-line-focus: var(--color-brand-600);
+  --color-line-faint: #EDF0F4;
+  --color-line-mist: #E4E9F1;
+  --color-line-stone: #DCE0E7;
+
+  /* 2c. Roles — surfaces */
+  --color-surface-muted: #F2F5FA;
+  --color-surface-subtle: #F6F7F9;
+  --color-surface-faint: #FBFBFA;
+  --color-surface-ghost: #FAFAFA;
+
+  /* 2d. Roles — brand shades outside the ramp */
+  --color-brand-strong: var(--color-brand-900);
+  --color-brand-hover: var(--color-brand-800);
+  --color-brand-mid: var(--color-brand-700);
+  --color-brand-tint: var(--color-brand-100);
+  --color-brand-rail: var(--color-brand-950);
+  --color-brand-rail-deep: var(--color-brand-950);
+  --color-brand-rail-ink: var(--color-brand-950);
+
+  /* 2e. Roles — accent (brass / gold) */
+  --color-accent-gold: #8A6B2A;
+  --color-accent-bronze: #947038;
+
+  /* 2f. Roles — status */
+  --color-danger-text: #A34B4B;
+  --color-danger-ink: #A63326;
+  --color-danger-bold: #B93838;
+  --color-danger-deep: #8A2E22;
+  --color-danger-wash: #FBEBEB;
+  --color-danger-tint: #FDF2F2;
+  --color-success-text: #137333;
+
+  /* 3. Semantic aliases — product code should prefer these (meaning, not ramp position).
+   success = green, danger = red, warning = copper, info = teal: all distinct from the brand blue. */
+  --color-primary: var(--color-brand-600);
+  --color-success: var(--color-success-text);
+  --color-warning: #9C5B34;
+  --color-danger: var(--color-danger-600);
+  --color-text: var(--color-ink);
+  --color-text-muted: var(--color-ink-muted);
+  --color-border: var(--color-line);
+  --color-surface: var(--color-white);
+  --color-focus: var(--color-brand-600);
+  --color-accent: var(--color-brand-600);
+  --color-info: #0E7490;
+
+  /* Semantic state scales (colour follow-up). Use these, never the brand ramp, for a STATE:
+     success = healthy / on track / done, warning = caution / needs work / at risk, info = neutral notice.
+     -50/-100 are tinted surfaces, -500 is a graphic fill (dots, bars, rings, 3:1 on white), -700/-800 are text
+     (4.5:1 on white and on their own -50/-100). `success` and `warning` alone are the text shade. */
+  --color-success-50: #EAF6EE;
+  --color-success-100: #D4EDDC;
+  --color-success-500: #1E9E50;
+  --color-success-700: #137333;
+  --color-success-800: #0E5A28;
+  --color-warning-50: #FBF1EA;
+  --color-warning-100: #F6E5D8;
+  --color-warning-500: #C27A3E;
+  --color-warning-700: #9C5B34;
+  --color-warning-800: #7A4526;
+  --color-info-50: #E3F4F8;
+  --color-info-700: #0E7490;
+
+  /* Chart series — in the order the charts use them */
+  --color-chart-1: var(--color-brand-600);
+  --color-chart-2: #9C5B34;
+  --color-chart-3: #0E7490;
+  --color-chart-4: var(--color-ink-soft);
+  --color-chart-5: #D4A27F;
+  --color-chart-6: #7C5CD6;
+  --color-chart-7: #A65243;
+
+  /* Translucent tints used by chart hover cursors and card shadows */
+  --color-shadow-soft: rgba(5, 23, 54, 0.08);
+  --color-tint-brand-06: rgba(15, 106, 252, 0.06);
+  --color-tint-accent-06: rgba(15, 106, 252, 0.06);
+
+  /* 4. Legacy tail — brand (112 exact values, dark → light) */
+  --color-brand-x061a12: var(--color-brand-950);
+  --color-brand-x0a2217: var(--color-brand-950);
+  --color-brand-x0b241a: var(--color-brand-950);
+  --color-brand-x0d221a: var(--color-brand-950);
+  --color-brand-x0c2419: var(--color-brand-950);
+  --color-brand-x0c241d: var(--color-brand-950);
+  --color-brand-x0f2218: var(--color-brand-950);
+  --color-brand-x0e231b: var(--color-brand-950);
+  --color-brand-x12231b: var(--color-neutral-900);
+  --color-brand-x0e281c: var(--color-brand-900);
+  --color-brand-x0f291e: var(--color-brand-900);
+  --color-brand-x0e2c1e: var(--color-brand-900);
+  --color-brand-x11291e: var(--color-brand-900);
+  --color-brand-x0f2d24: var(--color-brand-900);
+  --color-brand-x122b1d: var(--color-brand-900);
+  --color-brand-x122b21: var(--color-brand-900);
+  --color-brand-x152a22: #17253D;
+  --color-brand-x122e21: var(--color-brand-900);
+  --color-brand-x153427: var(--color-brand-900);
+  --color-brand-x163326: var(--color-brand-900);
+  --color-brand-x0e3e29: #143266;
+  --color-brand-x14382a: var(--color-brand-x0e3e29);
+  --color-brand-x15382a: var(--color-brand-x0e3e29);
+  --color-brand-x16382c: #1B3054;
+  --color-brand-x18382b: var(--color-brand-x16382c);
+  --color-brand-x1a382a: var(--color-brand-x16382c);
+  --color-brand-x1a382c: var(--color-brand-x16382c);
+  --color-brand-x173b28: var(--color-brand-x0e3e29);
+  --color-brand-x183b2b: var(--color-brand-x16382c);
+  --color-brand-x183b30: var(--color-brand-x16382c);
+  --color-brand-x1b382b: var(--color-brand-x16382c);
+  --color-brand-x1b382c: var(--color-brand-x16382c);
+  --color-brand-x193b28: var(--color-brand-x16382c);
+  --color-brand-x193c28: var(--color-brand-x0e3e29);
+  --color-brand-x1e382c: var(--color-brand-x16382c);
+  --color-brand-x1c3b2b: var(--color-brand-x16382c);
+  --color-brand-x1e3a29: var(--color-brand-x16382c);
+  --color-brand-x1e3b30: var(--color-brand-x16382c);
+  --color-brand-x114b32: var(--color-brand-800);
+  --color-brand-x1e3e2b: var(--color-brand-x0e3e29);
+  --color-brand-x1a422d: var(--color-brand-x0e3e29);
+  --color-brand-x1b4332: var(--color-brand-x0e3e29);
+  --color-brand-x1c4230: var(--color-brand-x0e3e29);
+  --color-brand-x1e4231: var(--color-brand-x0e3e29);
+  --color-brand-x1e4233: var(--color-brand-x0e3e29);
+  --color-brand-x1f4235: #233960;
+  --color-brand-x1f4236: var(--color-brand-x1f4235);
+  --color-brand-x1f4332: var(--color-brand-x1f4235);
+  --color-brand-x1b4b38: #213F73;
+  --color-brand-x234738: var(--color-brand-x1f4235);
+  --color-brand-x23483b: var(--color-brand-x1b4b38);
+  --color-brand-x1f4d3a: var(--color-brand-x1b4b38);
+  --color-brand-x214d38: var(--color-brand-x1b4b38);
+  --color-brand-x234d3a: var(--color-brand-x1b4b38);
+  --color-brand-x234f3a: var(--color-brand-x1b4b38);
+  --color-brand-x235342: var(--color-brand-x1b4b38);
+  --color-brand-x2c4a3e: #2F4365;
+  --color-brand-x25523d: var(--color-brand-x1b4b38);
+  --color-brand-x2b4c38: var(--color-brand-x2c4a3e);
+  --color-brand-x26533d: var(--color-brand-x1b4b38);
+  --color-brand-x2e4d43: var(--color-brand-x2c4a3e);
+  --color-brand-x047857: #047857;
+  --color-brand-x2a523c: var(--color-brand-x1b4b38);
+  --color-brand-x2a5242: var(--color-brand-x2c4a3e);
+  --color-brand-x2d5a47: #314F82;
+  --color-brand-x2e5a45: var(--color-brand-x2d5a47);
+  --color-brand-x2e5e43: var(--color-brand-x2d5a47);
+  --color-brand-x3a5247: var(--color-ink-body);
+  --color-brand-x266b4e: #2E59A5;
+  --color-brand-x2d6a4f: var(--color-brand-x266b4e);
+  --color-brand-x2e6b52: var(--color-brand-x266b4e);
+  --color-brand-x3d6357: #425A84;
+  --color-brand-x386f51: var(--color-brand-x266b4e);
+  --color-brand-x2e7a56: #3466BD;
+  --color-brand-x3d6b57: var(--color-brand-x3d6357);
+  --color-brand-x4a6357: var(--color-ink-muted);
+  --color-brand-x3b7a57: var(--color-brand-x2e7a56);
+  --color-brand-x46735e: #48689D;
+  --color-brand-x526e63: var(--color-ink-soft);
+  --color-brand-x556f60: var(--color-ink-soft);
+  --color-brand-x4a7a60: var(--color-brand-x46735e);
+  --color-brand-x4e7a6b: var(--color-brand-x46735e);
+  --color-brand-x4c8260: #4973BB;
+  --color-brand-x627d72: #8499BC;
+  --color-brand-x529e77: #529E77;
+  --color-brand-x7a9c90: var(--color-brand-x627d72);
+  --color-brand-x65ba90: #65BA90;
+  --color-brand-x7da890: #7C9DD5;
+  --color-brand-x75b29b: #7BA3E9;
+  --color-brand-x4ade80: #4ADE80;
+  --color-brand-x84a98c: var(--color-brand-x7da890);
+  --color-brand-x8ba89b: var(--color-brand-x627d72);
+  --color-brand-x8fb5a0: #8EACDD;
+  --color-brand-x85c29a: #85C29A;
+  --color-brand-xa3b899: var(--color-brand-x8fb5a0);
+  --color-brand-xa1b8ad: #A8B2C4;
+  --color-brand-x9fbbaa: #9DB4DA;
+  --color-brand-xa2c2b0: var(--color-brand-300);
+  --color-brand-xa5c3b3: var(--color-brand-300);
+  --color-brand-xa8c2b7: var(--color-brand-x9fbbaa);
+  --color-brand-xb5d4c0: #B3CCF7;
+  --color-brand-xc2d7cb: var(--color-neutral-300);
+  --color-brand-xc8d9d1: var(--color-line-strong);
+  --color-brand-xcde1d3: var(--color-line-strong);
+  --color-brand-xcde2d6: var(--color-line-strong);
+  --color-brand-xcfe0d6: var(--color-line-strong);
+  --color-brand-xd2e2d8: var(--color-line-strong);
+  --color-brand-xd5e6dc: var(--color-line-stone);
+  --color-brand-xd5e7df: var(--color-line-stone);
+  --color-brand-xd3eed8: #D3EED8;
+  --color-brand-xddeee4: var(--color-line-mist);
+  --color-brand-xecfdf5: #ECFDF5;
+
+  /* 4. Legacy tail — neutral (132 exact values, dark → light) */
+  --color-neutral-x101211: #101214;
+  --color-neutral-x121413: var(--color-neutral-900);
+  --color-neutral-x0f1e16: var(--color-neutral-900);
+  --color-neutral-x181c1a: var(--color-neutral-900);
+  --color-neutral-x1c201d: var(--color-neutral-900);
+  --color-neutral-x1c211f: var(--color-neutral-900);
+  --color-neutral-x1e2220: var(--color-neutral-900);
+  --color-neutral-x2a2e2c: var(--color-neutral-800);
+  --color-neutral-x2a332e: var(--color-neutral-800);
+  --color-neutral-x2c3530: var(--color-neutral-800);
+  --color-neutral-x2c3531: var(--color-neutral-800);
+  --color-neutral-x2d3732: var(--color-neutral-800);
+  --color-neutral-x2d3830: var(--color-neutral-800);
+  --color-neutral-x334138: var(--color-neutral-700);
+  --color-neutral-x334139: var(--color-neutral-700);
+  --color-neutral-x33413b: var(--color-neutral-700);
+  --color-neutral-x4a5550: var(--color-neutral-600);
+  --color-neutral-x55625a: var(--color-ink-muted);
+  --color-neutral-x55635c: var(--color-ink-muted);
+  --color-neutral-x52685d: var(--color-ink-muted);
+  --color-neutral-x686d6a: var(--color-neutral-500);
+  --color-neutral-x66756f: var(--color-neutral-400);
+  --color-neutral-x688277: var(--color-ink-soft);
+  --color-neutral-x6b7280: var(--color-neutral-400);
+  --color-neutral-x6f7d72: var(--color-neutral-400);
+  --color-neutral-x738279: var(--color-ink-soft);
+  --color-neutral-x7a8580: #7C828E;
+  --color-neutral-x7a8a80: var(--color-neutral-x7a8580);
+  --color-neutral-x7b9382: #788DB0;
+  --color-neutral-x8ba193: var(--color-brand-x627d72);
+  --color-neutral-x8ea094: var(--color-brand-x627d72);
+  --color-neutral-x9ca8a0: var(--color-neutral-400);
+  --color-neutral-xa0a8a2: #A0A6B0;
+  --color-neutral-xa3a8a4: var(--color-neutral-xa0a8a2);
+  --color-neutral-xa3ada5: var(--color-neutral-xa0a8a2);
+  --color-neutral-xa3b0a6: var(--color-brand-xa1b8ad);
+  --color-neutral-xa3b1a6: var(--color-brand-xa1b8ad);
+  --color-neutral-xa3b2a8: var(--color-brand-xa1b8ad);
+  --color-neutral-xa3b3a6: var(--color-brand-xa1b8ad);
+  --color-neutral-xb7c0b8: var(--color-neutral-300);
+  --color-neutral-xc4c9c5: var(--color-neutral-300);
+  --color-neutral-xc3cbc4: var(--color-neutral-300);
+  --color-neutral-xc5cfc7: var(--color-neutral-300);
+  --color-neutral-xd0d0c8: var(--color-neutral-300);
+  --color-neutral-xd0d0ca: var(--color-neutral-300);
+  --color-neutral-xd1d1cb: var(--color-neutral-300);
+  --color-neutral-xd5d5cf: var(--color-line-strong);
+  --color-neutral-xd6d6d0: var(--color-line-strong);
+  --color-neutral-xd1d5db: var(--color-line-strong);
+  --color-neutral-xd1e0d4: var(--color-line-strong);
+  --color-neutral-xdcdcd6: var(--color-line-strong);
+  --color-neutral-xd5e0da: var(--color-line-strong);
+  --color-neutral-xd5e3db: var(--color-line-stone);
+  --color-neutral-xe0e0db: var(--color-line-stone);
+  --color-neutral-xd8e5df: var(--color-line-stone);
+  --color-neutral-xd8e6de: var(--color-line-stone);
+  --color-neutral-xe2e2dc: var(--color-line-stone);
+  --color-neutral-xdce6e1: var(--color-line-stone);
+  --color-neutral-xe5e5df: var(--color-line);
+  --color-neutral-xe0e6df: var(--color-line);
+  --color-neutral-xdcebe2: var(--color-line-mist);
+  --color-neutral-xe2ebe6: var(--color-line-mist);
+  --color-neutral-xe2ede6: var(--color-line-mist);
+  --color-neutral-xe5e7eb: var(--color-neutral-200);
+  --color-neutral-xe4ece7: var(--color-line-mist);
+  --color-neutral-xe3efe8: var(--color-line-mist);
+  --color-neutral-xe4efea: var(--color-line-soft);
+  --color-neutral-xeaeaea: var(--color-line-soft);
+  --color-neutral-xe5efea: var(--color-line-soft);
+  --color-neutral-xe6efea: var(--color-line-soft);
+  --color-neutral-xe7eee9: var(--color-line-soft);
+  --color-neutral-xeaece9: var(--color-line-soft);
+  --color-neutral-xeaeee9: var(--color-line-soft);
+  --color-neutral-xe9f0ec: var(--color-line-faint);
+  --color-neutral-xeaefea: var(--color-line-faint);
+  --color-neutral-xefefea: var(--color-line-faint);
+  --color-neutral-xe6f4ea: #E6F4EA;
+  --color-neutral-xeaf0ec: var(--color-line-faint);
+  --color-neutral-xf4efe6: var(--color-brand-100);
+  --color-neutral-xeceeef: var(--color-line-faint);
+  --color-neutral-xf0efeb: var(--color-line-faint);
+  --color-neutral-xf2efe9: var(--color-line-faint);
+  --color-neutral-xf5efe6: var(--color-brand-100);
+  --color-neutral-xefefed: var(--color-line-faint);
+  --color-neutral-xebf2ee: var(--color-line-faint);
+  --color-neutral-xefefee: var(--color-line-faint);
+  --color-neutral-xf2f2ec: var(--color-line-faint);
+  --color-neutral-xf5f2e9: var(--color-brand-100);
+  --color-neutral-xf5efea: var(--color-line-faint);
+  --color-neutral-xebf5ed: var(--color-brand-100);
+  --color-neutral-xebf5f0: var(--color-brand-100);
+  --color-neutral-xf2f2ee: var(--color-line-faint);
+  --color-neutral-xf0f3f0: var(--color-line-faint);
+  --color-neutral-xf0f4f1: var(--color-surface-muted);
+  --color-neutral-xf0f5f2: var(--color-surface-muted);
+  --color-neutral-xf4f4f1: var(--color-surface-muted);
+  --color-neutral-xf2f4f2: var(--color-surface-muted);
+  --color-neutral-xfaf3ec: var(--color-surface-muted);
+  --color-neutral-xfaf5ec: var(--color-surface-muted);
+  --color-neutral-xf9f6ee: var(--color-surface-muted);
+  --color-neutral-xf2f6f3: var(--color-surface-muted);
+  --color-neutral-xf2f6f4: var(--color-surface-muted);
+  --color-neutral-xfaf6ee: var(--color-surface-muted);
+  --color-neutral-xfbf6ed: var(--color-surface-muted);
+  --color-neutral-xf3f7f4: var(--color-surface-muted);
+  --color-neutral-xfaf4f0: var(--color-surface-muted);
+  --color-neutral-xfcf8ee: var(--color-brand-50);
+  --color-neutral-xf9f7f2: var(--color-surface-subtle);
+  --color-neutral-xf4f7f5: var(--color-neutral-100);
+  --color-neutral-xf6f7f4: var(--color-surface-subtle);
+  --color-neutral-xfdf8ee: var(--color-brand-50);
+  --color-neutral-xf5f7f5: var(--color-neutral-100);
+  --color-neutral-xf8f8f4: var(--color-surface-subtle);
+  --color-neutral-xf5f8f6: var(--color-surface-subtle);
+  --color-neutral-xf7f8f6: var(--color-surface-subtle);
+  --color-neutral-xf4f6fb: var(--color-surface-muted);
+  --color-neutral-xf9f9f6: var(--color-neutral-50);
+  --color-neutral-xfaf8f5: var(--color-surface-subtle);
+  --color-neutral-xfaf9f5: var(--color-brand-50);
+  --color-neutral-xfff0f0: var(--color-surface-muted);
+  --color-neutral-xf7f9f8: var(--color-neutral-50);
+  --color-neutral-xf9f9f7: var(--color-neutral-50);
+  --color-neutral-xfaf9f6: var(--color-brand-50);
+  --color-neutral-xf9f9f8: var(--color-surface-ghost);
+  --color-neutral-xfaf9f7: var(--color-neutral-50);
+  --color-neutral-xfafaf7: var(--color-neutral-50);
+  --color-neutral-xf9faf8: var(--color-neutral-50);
+  --color-neutral-xfafaf8: var(--color-neutral-50);
+  --color-neutral-xfdf8f7: var(--color-brand-50);
+  --color-neutral-xfdfbf7: var(--color-neutral-50);
+  --color-neutral-xfff5f5: var(--color-brand-50);
+  --color-neutral-xfcfcfb: var(--color-surface-faint);
+
+  /* 4. Legacy tail — accent (63 exact values, dark → light) */
+  --color-accent-x2c220b: #2C220B;
+  --color-accent-x42392a: #42392A;
+  --color-accent-x4a3e26: var(--color-accent-x42392a);
+  --color-accent-x5b3b17: #5B3B17;
+  --color-accent-x4f3c28: var(--color-accent-x42392a);
+  --color-accent-x5c3a22: var(--color-accent-x5b3b17);
+  --color-accent-x594b30: #594B30;
+  --color-accent-x5a4d35: var(--color-accent-x594b30);
+  --color-accent-x6b4a2e: #6B4A2E;
+  --color-accent-x7a6124: #7A6124;
+  --color-accent-x61543e: #61543E;
+  --color-accent-x7a6025: var(--color-accent-x7a6124);
+  --color-accent-x6b5a35: #6B5A35;
+  --color-accent-x7a5b30: var(--color-accent-x7a6124);
+  --color-accent-x8c6d28: var(--color-accent-gold);
+  --color-accent-x8a6e33: var(--color-accent-gold);
+  --color-accent-x8f6b38: var(--color-accent-bronze);
+  --color-accent-x7a5c4f: #7A5C4F;
+  --color-accent-x906d3a: var(--color-accent-bronze);
+  --color-accent-xc2410c: #C2410C;
+  --color-accent-x9e7b38: var(--color-accent-bronze);
+  --color-accent-x9e7c3e: var(--color-accent-bronze);
+  --color-accent-x9e8043: #9E8043;
+  --color-accent-xc05621: #C05621;
+  --color-accent-xa38346: var(--color-accent-x9e8043);
+  --color-accent-xa68a48: #C0A055;
+  --color-accent-xa8894b: #A8894B;
+  --color-accent-xc9a54b: var(--color-accent-xa68a48);
+  --color-accent-xc08457: #C08457;
+  --color-accent-xd4a359: #D4A359;
+  --color-accent-xd4a27f: #D4A27F;
+  --color-accent-xe4ae87: #E4AE87;
+  --color-accent-xdfc4b2: #DFC4B2;
+  --color-accent-xe6d3b3: #E6D3B3;
+  --color-accent-xe2d4bc: var(--color-accent-xe6d3b3);
+  --color-accent-xe7d3bc: var(--color-accent-xe6d3b3);
+  --color-accent-xebd9b8: var(--color-accent-xe6d3b3);
+  --color-accent-xeedfb8: #EEDFB8;
+  --color-accent-xe9ddbe: var(--color-accent-xeedfb8);
+  --color-accent-xe8d5c4: var(--color-accent-xe6d3b3);
+  --color-accent-xebdcc2: var(--color-accent-xeedfb8);
+  --color-accent-xefe3be: var(--color-accent-xeedfb8);
+  --color-accent-xeadbca: var(--color-accent-xeedfb8);
+  --color-accent-xeadccb: var(--color-accent-xeedfb8);
+  --color-accent-xeae3d2: #EAE3D2;
+  --color-accent-xebe3d3: var(--color-accent-xeae3d2);
+  --color-accent-xefe3d3: var(--color-accent-xeae3d2);
+  --color-accent-xf2e5d0: var(--color-accent-xeae3d2);
+  --color-accent-xf2e5d5: var(--color-accent-xeae3d2);
+  --color-accent-xf2e8d5: var(--color-accent-xeae3d2);
+  --color-accent-xf5ecdc: var(--color-accent-xeae3d2);
+  --color-accent-xf5eedc: #F9F4E8;
+  --color-accent-xf4eede: var(--color-accent-xf5eedc);
+  --color-accent-xf2ece1: var(--color-accent-xf5eedc);
+  --color-accent-xf7eedc: var(--color-accent-xf5eedc);
+  --color-accent-xf3eee2: var(--color-accent-xf5eedc);
+  --color-accent-xf6efe0: var(--color-accent-xf5eedc);
+  --color-accent-xf7efe0: var(--color-accent-xf5eedc);
+  --color-accent-xfdf4e3: var(--color-accent-xf5eedc);
+  --color-accent-xfdf2e6: var(--color-accent-xf5eedc);
+  --color-accent-xfbf3e9: var(--color-accent-xf5eedc);
+  --color-accent-xfdf4e7: var(--color-accent-xf5eedc);
+  --color-accent-xfff7ed: var(--color-accent-xf5eedc);
+
+  /* 4. Legacy tail — danger (44 exact values, dark → light) */
+  --color-danger-x3a1a16: #3A1A16;
+  --color-danger-x80251a: var(--color-danger-deep);
+  --color-danger-x8a1a12: var(--color-danger-deep);
+  --color-danger-x7f1d1d: var(--color-danger-800);
+  --color-danger-x8d2a20: var(--color-danger-deep);
+  --color-danger-x991b1b: var(--color-danger-deep);
+  --color-danger-x8a3a30: var(--color-danger-700);
+  --color-danger-x9e351c: var(--color-danger-ink);
+  --color-danger-x8d4037: var(--color-danger-700);
+  --color-danger-x993a2e: var(--color-danger-700);
+  --color-danger-x9d362b: var(--color-danger-ink);
+  --color-danger-xb42318: var(--color-danger-ink);
+  --color-danger-xb34024: var(--color-danger-600);
+  --color-danger-x9e3b3b: var(--color-danger-ink);
+  --color-danger-xa65243: var(--color-danger-text);
+  --color-danger-xb84233: var(--color-danger-600);
+  --color-danger-xb84335: var(--color-danger-600);
+  --color-danger-xc53030: var(--color-danger-bold);
+  --color-danger-xb83e3e: var(--color-danger-bold);
+  --color-danger-xb04c4c: var(--color-danger-600);
+  --color-danger-xb26b6b: #B26B6B;
+  --color-danger-xe5573b: #D24529;
+  --color-danger-xd97762: #D97762;
+  --color-danger-xc98a7d: #C98A7D;
+  --color-danger-xd59a8d: #D59A8D;
+  --color-danger-xe88b7d: #E88B7D;
+  --color-danger-xe8b5ac: #E8B5AC;
+  --color-danger-xf2b8ae: var(--color-danger-200);
+  --color-danger-xebc9c4: var(--color-danger-200);
+  --color-danger-xf0c9c2: var(--color-danger-200);
+  --color-danger-xf4c7c7: var(--color-danger-200);
+  --color-danger-xf3d5ce: #F3D5CE;
+  --color-danger-xf2d6d0: var(--color-danger-100);
+  --color-danger-xf0d5d5: var(--color-danger-xf3d5ce);
+  --color-danger-xf6d0d0: var(--color-danger-200);
+  --color-danger-xffcccc: var(--color-danger-200);
+  --color-danger-xfad7d7: var(--color-danger-100);
+  --color-danger-xf6e3df: var(--color-danger-100);
+  --color-danger-xfbe8e4: var(--color-danger-wash);
+  --color-danger-xfbeae7: var(--color-danger-wash);
+  --color-danger-xfce8e6: var(--color-danger-wash);
+  --color-danger-xfbebe8: var(--color-danger-wash);
+  --color-danger-xfceaea: var(--color-danger-wash);
+  --color-danger-xfdf0ed: var(--color-danger-50);
+
+  /* 4. Legacy tail — info (8 exact values, dark → light) */
+  --color-info-x004182: #004182;
+  --color-info-x354f52: #3A4A65;
+  --color-info-x3d527d: #3D527D;
+  --color-info-x0a66c2: #0A66C2;
+  --color-info-x1d4ed8: var(--color-brand-700);
+  --color-info-xa0aaba: #9FAABB;
+  --color-info-xd5dbe8: #D2DCEB;
+  --color-info-xeff6ff: #F0F6FF;
+
+  /* 5. Shadows */
+  --shadow-card: 0 1px 3px rgba(5, 23, 54, 0.08);
+  --shadow-raised: 0 8px 24px rgba(5, 23, 54, 0.12);
+  --shadow-accent: 0 8px 24px rgba(15, 106, 252, 0.28);
+}

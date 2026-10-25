@@ -1,16 +1,21 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, AlertTriangle, Plus, X, Copy, Check, Link2 } from 'lucide-react';
+import { Loader2, AlertTriangle, Plus, X, Link2, RefreshCw, Trash2 } from 'lucide-react';
 import { useSurveys, Survey, SurveyQuestion, SurveyAnalytics } from '@/hooks/useSurveys';
-import type { QuestionType } from '@/lib/api/validation';
+import { getSurveyAnswers, rotateSurveyShareLink, type QuestionType, type SurveyAnswers } from '@/lib/api/validation';
+import { apiErrorInfo } from '@/lib/api/api-error';
+import { ShareLinkCard } from '@/components/validation/ShareLinkCard';
+import { SurveyAnswersPanel } from '@/components/validation/SurveyAnswersPanel';
 import { useToast } from '../layout';
 import { InsightSynthesizer } from '../components/InsightSynthesizer';
+import { ConfirmDelete } from '@/components/validation/ConfirmDelete';
+import { SHARE_LINK_ROTATE_WARNING, deleteWarning, surveyShareUrl } from '@/lib/validation-format';
 
 const STATUS_BADGE: Record<string, string> = {
-  open: 'bg-green-100 text-green-800',
-  draft: 'bg-sage-100 text-sage-700',
-  closed: 'bg-copper-100 text-copper-800',
+  open: 'bg-success-100 text-success-800',
+  draft: 'bg-neutral-100 text-neutral-700',
+  closed: 'bg-accent-100 text-accent-800',
 };
 
 interface DraftQuestion {
@@ -23,7 +28,8 @@ interface DraftQuestion {
 const blankQuestion = (): DraftQuestion => ({ type: 'choice', prompt: '', required: true, options: ['', ''] });
 
 export default function SurveysPage() {
-  const { surveys, loading, error, refetch, create, setStatus, getAnalytics, errMsg } = useSurveys();
+  const { surveys, loading, error, refetch, create, setStatus, remove, getAnalytics, errMsg } = useSurveys();
+  const [toDelete, setToDelete] = useState<Survey | null>(null);
   const { triggerToast } = useToast();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -34,7 +40,13 @@ export default function SurveysPage() {
 
   // One-time share link captured when a survey is first opened.
   const [linkFor, setLinkFor] = useState<{ id: string; url: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [toRotate, setToRotate] = useState<Survey | null>(null);
+
+  // Results vs open-text answers for the selected survey.
+  const [tab, setTab] = useState<'results' | 'answers'>('results');
+  const [answers, setAnswers] = useState<SurveyAnswers | null>(null);
+  const [answersLoading, setAnswersLoading] = useState(false);
+  const [answersError, setAnswersError] = useState<string | null>(null);
 
   // Builder state
   const [title, setTitle] = useState('');
@@ -73,6 +85,25 @@ export default function SurveysPage() {
     });
   }, [selectedId, loadAnalytics]);
 
+  const loadAnswers = useCallback(async (id: string) => {
+    setAnswersLoading(true);
+    setAnswersError(null);
+    try {
+      setAnswers(await getSurveyAnswers(id));
+    } catch (e) {
+      setAnswers(null);
+      setAnswersError(apiErrorInfo(e, 'Could not load the answers. Try again.').message);
+    } finally {
+      setAnswersLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      if (selectedId && tab === 'answers') void loadAnswers(selectedId);
+    });
+  }, [selectedId, tab, loadAnswers]);
+
   const handleCreate = () => {
     setBuilderError(null);
     const t = title.trim();
@@ -110,7 +141,7 @@ export default function SurveysPage() {
         if (token) {
           const url = `${window.location.origin}/s/${token}`;
           setLinkFor({ id: s.id, url });
-          triggerToast('Survey opened — share link is ready.');
+          triggerToast('Survey opened. Share link is ready.');
         } else {
           triggerToast('Survey re-opened. (The share link is only shown once, at first open.)');
         }
@@ -127,17 +158,6 @@ export default function SurveysPage() {
       .finally(() => setBusyId(null));
   };
 
-  const copyLink = (url: string) => {
-    navigator.clipboard?.writeText(url).then(
-      () => {
-        setCopied(true);
-        triggerToast('Share link copied.');
-        setTimeout(() => setCopied(false), 2500);
-      },
-      () => triggerToast('Could not copy. Select and copy it manually.')
-    );
-  };
-
   const addQuestion = () => setQuestions((q) => [...q, blankQuestion()]);
   const removeQuestion = (i: number) => setQuestions((q) => q.filter((_, idx) => idx !== i));
   const patchQuestion = (i: number, patch: Partial<DraftQuestion>) =>
@@ -146,36 +166,36 @@ export default function SurveysPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-2xl md:text-3xl font-display font-semibold text-sage-900 tracking-tight">Surveys</h1>
-        <div className="flex items-center gap-3">
+        <h1 className="text-2xl md:text-3xl font-display font-semibold text-neutral-900 tracking-tight">Surveys</h1>
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1.5 bg-[#183B28] hover:bg-[#11291C] text-white font-semibold px-4 py-2.5 rounded-card text-xs md:text-sm transition-all shadow-card cursor-pointer"
+            className="flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail text-white font-semibold px-4 py-2.5 rounded-card text-xs md:text-sm transition-all shadow-card cursor-pointer"
           >
             <Plus className="w-4 h-4" /> New survey
           </button>
-          <InsightSynthesizer />
+          <InsightSynthesizer source="surveys" />
         </div>
       </div>
 
       {error && (
-        <div className="flex items-center justify-between gap-3 bg-[#FBEAE7] border border-[#F0C9C2] rounded-card px-4 py-3">
-          <span className="flex items-center gap-2 text-sm text-[#8A2E22]">
+        <div className="flex items-center justify-between gap-3 bg-danger-xfbeae7 border border-danger-xf0c9c2 rounded-card px-4 py-3">
+          <span className="flex items-center gap-2 text-sm text-danger-deep">
             <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
           </span>
-          <button onClick={() => refetch()} className="text-xs font-semibold text-[#8A2E22] underline cursor-pointer">
+          <button onClick={() => refetch()} className="text-xs font-semibold text-danger-deep underline cursor-pointer">
             Retry
           </button>
         </div>
       )}
 
       {loading && surveys.length === 0 ? (
-        <div className="flex items-center justify-center gap-2 text-sage-500 py-16">
+        <div className="flex items-center justify-center gap-2 text-neutral-500 py-16">
           <Loader2 className="w-5 h-5 animate-spin" /> <span className="text-sm">Loading surveys…</span>
         </div>
       ) : surveys.length === 0 ? (
-        <div className="bg-white rounded-modal p-10 border border-dashed border-sage-200 text-center">
-          <p className="text-sm text-sage-500">No surveys yet. Create one, open it to get a shareable link, then watch the results here.</p>
+        <div className="bg-white rounded-modal p-10 border border-dashed border-neutral-200 text-center">
+          <p className="text-sm text-neutral-500">No surveys yet. Create one, open it to get a shareable link, then watch the results here.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -194,16 +214,16 @@ export default function SurveysPage() {
                   }
                 }}
                 className={`w-full text-left bg-white rounded-modal p-5 border shadow-card transition-all cursor-pointer ${
-                  s.id === selectedId ? 'border-[#1e4836]' : 'border-sage-200/80 hover:border-sage-300'
+                  s.id === selectedId ? 'border-brand-hover' : 'border-neutral-200/80 hover:border-neutral-300'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-bold text-sage-900 text-base truncate">{s.title}</h3>
+                  <h3 className="font-bold text-neutral-900 text-base truncate">{s.title}</h3>
                   <span className={`shrink-0 text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${STATUS_BADGE[s.status] ?? STATUS_BADGE.draft}`}>
                     {s.status[0].toUpperCase() + s.status.slice(1)}
                   </span>
                 </div>
-                <p className="text-xs text-sage-500 mt-1">
+                <p className="text-xs text-neutral-500 mt-1">
                   {s.questions.length} question{s.questions.length === 1 ? '' : 's'} · {s.response_count} response
                   {s.response_count === 1 ? '' : 's'}
                 </p>
@@ -213,7 +233,7 @@ export default function SurveysPage() {
                   {s.status === 'draft' && (
                     <span
                       onClick={(e) => { e.stopPropagation(); if (busyId !== s.id) handleOpen(s); }}
-                      className="inline-flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold px-3 py-1.5 rounded-input text-xs cursor-pointer"
+                      className="inline-flex items-center gap-1.5 bg-accent-600 hover:bg-accent-700 text-white font-semibold px-3 py-1.5 rounded-input text-xs cursor-pointer"
                     >
                       {busyId === s.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link2 className="w-3 h-3" />} Open &amp; get link
                     </span>
@@ -221,7 +241,7 @@ export default function SurveysPage() {
                   {s.status === 'open' && (
                     <span
                       onClick={(e) => { e.stopPropagation(); if (busyId !== s.id) handleStop(s); }}
-                      className="inline-flex items-center gap-1.5 bg-white border border-sage-300 text-sage-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-sage-50 cursor-pointer"
+                      className="inline-flex items-center gap-1.5 bg-white border border-neutral-300 text-neutral-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-neutral-50 cursor-pointer"
                     >
                       {busyId === s.id ? <Loader2 className="w-3 h-3 animate-spin" /> : null} Stop collecting
                     </span>
@@ -229,52 +249,81 @@ export default function SurveysPage() {
                   {s.status === 'closed' && (
                     <span
                       onClick={(e) => { e.stopPropagation(); if (busyId !== s.id) handleOpen(s); }}
-                      className="inline-flex items-center gap-1.5 bg-white border border-sage-300 text-sage-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-sage-50 cursor-pointer"
+                      className="inline-flex items-center gap-1.5 bg-white border border-neutral-300 text-neutral-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-neutral-50 cursor-pointer"
                     >
                       Resume collecting
                     </span>
                   )}
+                  {s.status === 'open' && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setToRotate(s); }}
+                      className="inline-flex items-center gap-1.5 bg-white border border-neutral-300 text-neutral-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-neutral-50 cursor-pointer"
+                    >
+                      <RefreshCw className="w-3 h-3" aria-hidden="true" /> New share link
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setToDelete(s); }}
+                    aria-label={`Delete survey ${s.title}`}
+                    className="ml-auto p-1.5 rounded-input text-neutral-400 hover:text-danger-600 hover:bg-neutral-100 cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
 
-                {linkFor?.id === s.id && (
-                  <div className="mt-3 bg-[#f5f7f5] rounded-card p-3 border border-sage-200/60" onClick={(e) => e.stopPropagation()}>
-                    <span className="block text-[11px] font-semibold text-sage-400 uppercase tracking-wider mb-1">Share link (shown once)</span>
-                    <div className="flex items-center gap-2">
-                      <span className="block text-xs font-semibold text-[#1e4836] truncate flex-1">{linkFor.url}</span>
-                      <button onClick={() => copyLink(linkFor.url)} className="flex items-center gap-1 bg-white border border-sage-200 text-sage-700 px-2.5 py-1.5 rounded-input text-xs shrink-0 cursor-pointer">
-                        {copied ? <Check className="w-3 h-3 text-green-700" /> : <Copy className="w-3 h-3" />} {copied ? 'Copied' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {linkFor?.id === s.id && <ShareLinkCard url={linkFor.url} onCopied={() => triggerToast('Share link copied.')} />}
               </div>
             ))}
           </div>
 
           {/* Analytics */}
-          <div className="lg:col-span-7 bg-white rounded-modal p-6 md:p-8 border border-sage-200/80 shadow-card min-h-[200px]">
+          <div className="lg:col-span-7 bg-white rounded-modal p-6 md:p-8 border border-neutral-200/80 shadow-card min-h-[200px]">
             {!selected ? (
-              <p className="text-sm text-sage-500">Select a survey to see its results.</p>
+              <p className="text-sm text-neutral-500">Select a survey to see its results.</p>
             ) : analyticsLoading && !analytics ? (
-              <div className="flex items-center justify-center gap-2 text-sage-500 py-10">
+              <div className="flex items-center justify-center gap-2 text-neutral-500 py-10">
                 <Loader2 className="w-5 h-5 animate-spin" /> <span className="text-sm">Loading results…</span>
               </div>
             ) : analytics ? (
               <div className="space-y-6">
+                <div role="tablist" aria-label="Survey view" className="flex gap-2">
+                  {(['results', 'answers'] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      role="tab"
+                      aria-selected={tab === t}
+                      onClick={() => setTab(t)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold cursor-pointer border ${
+                        tab === t ? 'bg-brand-strong border-brand-strong text-white' : 'bg-white border-line-soft text-ink-muted hover:border-neutral-xc5cfc7'
+                      }`}
+                    >
+                      {t === 'results' ? 'Results' : 'Answers'}
+                    </button>
+                  ))}
+                </div>
+                {tab === 'answers' ? (
+                  <SurveyAnswersPanel answers={answers?.survey_id === selectedId ? answers : null} loading={answersLoading} error={answersError} />
+                ) : (
+                <>
                 <div>
-                  <h3 className="font-bold text-sage-900 text-base">{analytics.title}</h3>
-                  <p className="text-xs text-sage-500 mt-0.5">
+                  <h3 className="font-bold text-neutral-900 text-base">{analytics.title}</h3>
+                  <p className="text-xs text-neutral-500 mt-0.5">
                     {analytics.responses} response{analytics.responses === 1 ? '' : 's'} · {analytics.completion_rate}% completion
                   </p>
                 </div>
                 {analytics.responses === 0 ? (
-                  <p className="text-sm text-sage-500">No responses yet. Share the link to start collecting.</p>
+                  <p className="text-sm text-neutral-500">No responses yet. Share the link to start collecting.</p>
                 ) : (
                   analytics.questions.map((q) => <AnalyticsQuestion key={q.id} q={q} total={analytics.responses} />)
                 )}
+                </>
+                )}
               </div>
             ) : (
-              <p className="text-sm text-sage-500">Couldn’t load results.</p>
+              <p className="text-sm text-neutral-500">Couldn’t load results.</p>
             )}
           </div>
         </div>
@@ -284,9 +333,9 @@ export default function SurveysPage() {
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-xs p-4 md:p-8">
           <div className="bg-white rounded-modal w-full max-w-2xl shadow-raised my-4">
-            <div className="flex items-center justify-between p-5 border-b border-sage-100">
-              <h3 className="font-bold text-sage-900">New survey</h3>
-              <button onClick={() => setShowCreate(false)} className="p-1.5 rounded-input text-sage-400 hover:bg-sage-100 cursor-pointer">
+            <div className="flex items-center justify-between p-5 border-b border-neutral-100">
+              <h3 className="font-bold text-neutral-900">New survey</h3>
+              <button onClick={() => setShowCreate(false)} className="p-1.5 rounded-input text-neutral-400 hover:bg-neutral-100 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -296,14 +345,14 @@ export default function SurveysPage() {
                 placeholder="Survey title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full bg-white border border-sage-200 rounded-card px-4 py-2.5 text-sm focus:outline-none focus:border-[#1e4836]"
+                className="w-full bg-white border border-neutral-200 rounded-card px-4 py-2.5 text-sm focus:outline-none focus:border-brand-hover"
               />
               {questions.map((q, i) => (
-                <div key={i} className="border border-sage-200 rounded-card p-4 space-y-3">
+                <div key={i} className="border border-neutral-200 rounded-card p-4 space-y-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-bold text-sage-500">Question {i + 1}</span>
+                    <span className="text-xs font-bold text-neutral-500">Question {i + 1}</span>
                     {questions.length > 1 && (
-                      <button onClick={() => removeQuestion(i)} className="text-xs text-[#B0483B] hover:underline cursor-pointer">Remove</button>
+                      <button onClick={() => removeQuestion(i)} className="text-xs text-danger-600 hover:underline cursor-pointer">Remove</button>
                     )}
                   </div>
                   <input
@@ -311,20 +360,20 @@ export default function SurveysPage() {
                     placeholder="Question prompt"
                     value={q.prompt}
                     onChange={(e) => patchQuestion(i, { prompt: e.target.value })}
-                    className="w-full bg-white border border-sage-200 rounded-card px-3 py-2 text-sm focus:outline-none focus:border-[#1e4836]"
+                    className="w-full bg-white border border-neutral-200 rounded-card px-3 py-2 text-sm focus:outline-none focus:border-brand-hover"
                   />
                   <div className="flex flex-wrap items-center gap-3">
                     <select
                       value={q.type}
                       onChange={(e) => patchQuestion(i, { type: e.target.value as QuestionType })}
-                      className="bg-white border border-sage-200 rounded-input px-3 py-1.5 text-xs cursor-pointer"
+                      className="bg-white border border-neutral-200 rounded-input px-3 py-1.5 text-xs cursor-pointer"
                     >
                       <option value="choice">Multiple choice</option>
-                      <option value="scale">Scale (1–5)</option>
-                      <option value="nps">NPS (0–10)</option>
+                      <option value="scale">Scale (1 to 5)</option>
+                      <option value="nps">NPS (0 to 10)</option>
                       <option value="open">Open text</option>
                     </select>
-                    <label className="flex items-center gap-1.5 text-xs text-sage-700 cursor-pointer">
+                    <label className="flex items-center gap-1.5 text-xs text-neutral-700 cursor-pointer">
                       <input type="checkbox" checked={q.required} onChange={(e) => patchQuestion(i, { required: e.target.checked })} />
                       Required
                     </label>
@@ -338,43 +387,69 @@ export default function SurveysPage() {
                             placeholder={`Option ${oi + 1}`}
                             value={opt}
                             onChange={(e) => patchQuestion(i, { options: q.options.map((o, idx) => (idx === oi ? e.target.value : o)) })}
-                            className="flex-1 bg-white border border-sage-200 rounded-input px-3 py-1.5 text-xs focus:outline-none focus:border-[#1e4836]"
+                            className="flex-1 bg-white border border-neutral-200 rounded-input px-3 py-1.5 text-xs focus:outline-none focus:border-brand-hover"
                           />
                           {q.options.length > 2 && (
-                            <button onClick={() => patchQuestion(i, { options: q.options.filter((_, idx) => idx !== oi) })} className="text-sage-400 hover:text-[#B0483B] cursor-pointer">
+                            <button onClick={() => patchQuestion(i, { options: q.options.filter((_, idx) => idx !== oi) })} className="text-neutral-400 hover:text-danger-600 cursor-pointer">
                               <X className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>
                       ))}
-                      <button onClick={() => patchQuestion(i, { options: [...q.options, ''] })} className="text-xs font-semibold text-[#1e4836] hover:underline cursor-pointer">
+                      <button onClick={() => patchQuestion(i, { options: [...q.options, ''] })} className="text-xs font-semibold text-brand-hover hover:underline cursor-pointer">
                         + Add option
                       </button>
                     </div>
                   )}
                 </div>
               ))}
-              <button onClick={addQuestion} className="flex items-center gap-1.5 text-sm font-semibold text-[#1e4836] hover:underline cursor-pointer">
+              <button onClick={addQuestion} className="flex items-center gap-1.5 text-sm font-semibold text-brand-hover hover:underline cursor-pointer">
                 <Plus className="w-4 h-4" /> Add question
               </button>
               {builderError && (
-                <p className="flex items-center gap-1.5 text-xs font-semibold text-[#B0483B]">
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-danger-600">
                   <AlertTriangle className="w-3.5 h-3.5" /> {builderError}
                 </p>
               )}
             </div>
-            <div className="flex items-center justify-end gap-3 p-5 border-t border-sage-100">
-              <button onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-card text-sm font-semibold text-sage-600 hover:bg-sage-50 cursor-pointer">Cancel</button>
+            <div className="flex items-center justify-end gap-3 p-5 border-t border-neutral-100">
+              <button onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-card text-sm font-semibold text-neutral-600 hover:bg-neutral-50 cursor-pointer">Cancel</button>
               <button
                 onClick={handleCreate}
                 disabled={creating}
-                className="flex items-center gap-2 bg-[#183B28] hover:bg-[#11291C] text-white font-semibold px-5 py-2 rounded-card text-sm shadow-card disabled:opacity-60 cursor-pointer"
+                className="flex items-center gap-2 bg-brand-strong hover:bg-brand-rail text-white font-semibold px-5 py-2 rounded-card text-sm shadow-card disabled:opacity-60 cursor-pointer"
               >
                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Create survey
               </button>
             </div>
           </div>
         </div>
+      )}
+      {toRotate && (
+        <ConfirmDelete
+          title="Get a new share link?"
+          warning={SHARE_LINK_ROTATE_WARNING}
+          confirmLabel="Get new link"
+          failureMessage={(e) => apiErrorInfo(e, 'Could not make a new link. Try again.').message}
+          onConfirm={async () => {
+            const token = await rotateSurveyShareLink(toRotate.id);
+            setLinkFor({ id: toRotate.id, url: surveyShareUrl(window.location.origin, token) });
+            triggerToast('New share link ready. The old one no longer works.');
+          }}
+          onClose={() => setToRotate(null)}
+        />
+      )}
+      {toDelete && (
+        <ConfirmDelete
+          title={`Delete "${toDelete.title}"?`}
+          warning={deleteWarning('survey')}
+          onConfirm={async () => {
+            await remove(toDelete.id);
+            if (selectedId === toDelete.id) setSelectedId(null);
+            triggerToast('Survey deleted');
+          }}
+          onClose={() => setToDelete(null)}
+        />
       )}
     </div>
   );
@@ -385,29 +460,29 @@ function AnalyticsQuestion({ q, total }: { q: SurveyAnalytics['questions'][numbe
   return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-between gap-2">
-        <h4 className="text-sm font-bold text-sage-900">{q.prompt}</h4>
-        <span className="text-[11px] text-sage-400 shrink-0">{q.answered} answered</span>
+        <h4 className="text-sm font-bold text-neutral-900">{q.prompt}</h4>
+        <span className="text-[11px] text-neutral-400 shrink-0">{q.answered} answered</span>
       </div>
       {q.type === 'choice' && q.counts ? (
         <div className="space-y-2">
           {Object.entries(q.counts).map(([opt, n]) => (
             <div key={opt} className="space-y-1">
               <div className="flex justify-between text-xs font-medium">
-                <span className="text-sage-800">{opt}</span>
-                <span className="font-bold text-sage-900">{pct(n)}%</span>
+                <span className="text-neutral-800">{opt}</span>
+                <span className="font-bold text-neutral-900">{pct(n)}%</span>
               </div>
-              <div className="w-full bg-sage-100 rounded-full h-3 overflow-hidden">
-                <div className="bg-[#1e4836] h-full rounded-full" style={{ width: `${pct(n)}%` }} />
+              <div className="w-full bg-neutral-100 rounded-full h-3 overflow-hidden">
+                <div className="bg-brand-hover h-full rounded-full" style={{ width: `${pct(n)}%` }} />
               </div>
             </div>
           ))}
         </div>
       ) : q.type === 'open' ? (
-        <p className="text-xs text-sage-500 italic">Open-text answers aren’t shown here (not returned by the API in v1).</p>
+        <p className="text-xs text-neutral-500 italic">Open-text answers are on the Answers tab.</p>
       ) : (
         <div className="flex items-center gap-4">
-          <div className="text-2xl font-bold text-[#1e4836]">{q.average?.toFixed(1) ?? '—'}</div>
-          <span className="text-xs text-sage-500">average ({q.type === 'nps' ? '0–10' : '1–5'})</span>
+          <div className="text-2xl font-bold text-brand-hover">{q.average?.toFixed(1) ?? '-'}</div>
+          <span className="text-xs text-neutral-500">average ({q.type === 'nps' ? '0 to 10' : '1 to 5'})</span>
         </div>
       )}
     </div>

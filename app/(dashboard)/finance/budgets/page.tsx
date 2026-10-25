@@ -1,133 +1,380 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
-import { Plus, Copy, FileText } from "lucide-react";
+import Link from "next/link";
+import { Copy, FileText, Plus, Sparkles } from "lucide-react";
+import { useBudgets, useCategories } from "@/hooks/useFinanceApi";
+import {
+  copyLastMonthBudgets,
+  createBudget,
+  deleteBudget,
+  draftBudgetsFromActuals,
+  updateBudget,
+  type Budget,
+  type BudgetStatus,
+  type FinanceError,
+} from "@/lib/api/finance";
+import { clampPercent, currentMonth, formatMoney, formatMonth, minorToInput, toMinor } from "@/lib/finance/format";
+import { CategorySelect } from "../_components/CategorySelect";
+import {
+  ConfirmDialog,
+  EmptyBlock,
+  Field,
+  FormError,
+  ForbiddenBlock,
+  Modal,
+  PageHeader,
+  ResourceGate,
+  dangerLinkBtn,
+  darkBtn,
+  inputCls,
+  linkBtn,
+  primaryBtn,
+  secondaryBtn,
+} from "../_components/ui";
+import { useFinanceAction } from "../_components/useFinanceAction";
 import { useToast } from "../ToastContext";
-import { formatCurrency } from "@/hooks/useFinanceApi";
+
+function BudgetForm({
+  initial,
+  month,
+  categories,
+  busy,
+  error,
+  onSubmit,
+  onCancel,
+}: {
+  initial?: Budget;
+  month: string;
+  categories: string[];
+  busy: boolean;
+  error: FinanceError | null;
+  onSubmit: (v: { category: string; limitMinor: number; notes: string }) => void;
+  onCancel: () => void;
+}) {
+  const [category, setCategory] = useState(initial?.category ?? "");
+  const [limit, setLimit] = useState(initial?.limit_minor != null ? minorToInput(initial.limit_minor) : "");
+  const [notes, setNotes] = useState(initial?.notes ?? "");
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const minor = toMinor(limit);
+    if (!category.trim()) return setLocalError("Pick or type a category.");
+    if (minor === null) return setLocalError("Enter a limit like 250000 or 250000.50.");
+    setLocalError(null);
+    onSubmit({ category: category.trim(), limitMinor: minor, notes: notes.trim() });
+  };
+
+  return (
+    <form onSubmit={submit} className="space-y-4">
+      <p className="text-xs text-neutral-500">Budget for {formatMonth(month)}. Spent is every money-out entry in the same category this month.</p>
+      {initial ? (
+        <p className="text-sm font-semibold text-neutral-900">Category: {initial.category}</p>
+      ) : (
+        <Field label="Category" htmlFor="bd-cat" error={error?.fieldErrors.category} hint="Spend in this category is matched to the budget automatically.">
+          <CategorySelect id="bd-cat" value={category} onChange={setCategory} options={categories} />
+        </Field>
+      )}
+      <Field label="Monthly limit (NGN)" htmlFor="bd-limit" error={error?.fieldErrors.limit_minor}>
+        <input id="bd-limit" inputMode="decimal" className={inputCls} value={limit} onChange={(e) => setLimit(e.target.value)} placeholder="0.00" />
+      </Field>
+      <Field label="Notes (optional)" htmlFor="bd-notes">
+        <textarea id="bd-notes" className={inputCls} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+      </Field>
+      <FormError message={localError ?? (error && !Object.keys(error.fieldErrors).length ? error.message : null)} />
+      <div className="flex gap-3 justify-end pt-1">
+        <button type="button" onClick={onCancel} className={secondaryBtn} disabled={busy}>
+          Cancel
+        </button>
+        <button type="submit" className={primaryBtn} disabled={busy}>
+          {busy ? "Saving" : initial?.id ? "Save changes" : "Create budget"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+const STATUS_LABEL: Record<BudgetStatus, string> = {
+  under: "Under budget",
+  near: "Near the limit",
+  over: "Over budget",
+  unbudgeted: "No budget set",
+};
+
+function StatusChip({ status }: { status: BudgetStatus }) {
+  const tone =
+    status === "over"
+      ? "bg-danger-50 text-danger-600 border-danger-200"
+      : status === "near"
+        ? "bg-warning-100 text-warning-800 border-warning-500/40"
+        : status === "unbudgeted"
+          ? "bg-neutral-100 text-neutral-600 border-neutral-200"
+          : "bg-success-50 text-success-800 border-success-500/40";
+  return <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-input border uppercase tracking-wider ${tone}`}>{STATUS_LABEL[status]}</span>;
+}
+
+function VarianceBar({ b }: { b: Budget }) {
+  const over = b.over_budget;
+  return (
+    <div className="space-y-1">
+      <div className="w-full bg-neutral-100 rounded-pill h-2 overflow-hidden" role="img" aria-label={b.percent_used === null ? "No limit" : `${b.percent_used}% of the budget used`}>
+        <div className={`${over ? "bg-danger-600" : b.status === "near" ? "bg-warning-500" : "bg-success-500"} h-full rounded-pill`} style={{ width: `${clampPercent(b.percent_used)}%` }}></div>
+      </div>
+      <p className="text-[11px] text-neutral-500">{b.percent_used === null ? "No limit set" : `${b.percent_used}% used`}</p>
+    </div>
+  );
+}
+
+function RowButtons({ b, onEdit, onDelete }: { b: Budget; onEdit: () => void; onDelete: () => void }) {
+  if (b.unbudgeted || !b.id) {
+    return (
+      <button type="button" className={linkBtn} onClick={onEdit} aria-label={`Set a budget for ${b.category}`}>
+        Set budget
+      </button>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-3">
+      <button type="button" className={linkBtn} onClick={onEdit} aria-label={`Edit ${b.category} budget`}>
+        Edit
+      </button>
+      <button type="button" className={dangerLinkBtn} onClick={onDelete} aria-label={`Delete ${b.category} budget`}>
+        Delete
+      </button>
+    </span>
+  );
+}
 
 export default function BudgetsPage() {
+  const [month, setMonth] = useState(currentMonth());
+  const budgets = useBudgets(month);
+  const categoryList = useCategories();
+  const categories = (categoryList.data ?? []).map((c) => c.name);
+  const { run, busy } = useFinanceAction();
   const { triggerToast } = useToast();
-  const [selectedMonth, setSelectedMonth] = useState("March 2026");
-  const [budgetsCreated, setBudgetsCreated] = useState(true);
 
-  const mockBudgets = [
-    { dept: "Engineering", spent: 45000000, limit: 250000000 },
-    { dept: "Marketing", spent: 180000000, limit: 150000000 }, // Over budget
-    { dept: "Operations", spent: 135000000, limit: 250000000 },
-    { dept: "Sales", spent: 180000000, limit: 250000000 },
-    { dept: "General & Admin", spent: 225000000, limit: 250000000 },
-  ];
+  const [formFor, setFormFor] = useState<"new" | Budget | null>(null);
+  const [formError, setFormError] = useState<FinanceError | null>(null);
+  const [deleting, setDeleting] = useState<Budget | null>(null);
+
+  const refreshAll = async () => {
+    await Promise.all([budgets.reload(), categoryList.reload()]);
+  };
+
+  const closeForm = () => {
+    setFormFor(null);
+    setFormError(null);
+  };
+
+  if (budgets.status === "forbidden") {
+    return (
+      <div className="space-y-6 animate-fadeIn">
+        <PageHeader title="Budgets" subtitle="Set monthly spending limits by category and watch what is spent." />
+        <ForbiddenBlock />
+      </div>
+    );
+  }
+
+  // Both seeders skip categories that already have a budget and return only what
+  // they created, so refetch the month rather than appending the response.
+  const seed = async (kind: "draft" | "copy") => {
+    const res = await run(() => (kind === "draft" ? draftBudgetsFromActuals(month) : copyLastMonthBudgets(month)));
+    if (!res.ok) return;
+    const n = res.data.length;
+    if (n === 0) {
+      triggerToast(
+        kind === "draft"
+          ? "Nothing to add. Last month had no spending, or every category already has a budget."
+          : "Nothing to add. Last month had no budgets, or every category already has one.",
+      );
+    } else {
+      triggerToast(
+        kind === "draft"
+          ? `Added ${n} budget${n === 1 ? "" : "s"} from last month's spending.`
+          : `Copied ${n} budget${n === 1 ? "" : "s"} from last month.`,
+      );
+    }
+    await budgets.reload();
+  };
+
+  const submitForm = async (v: { category: string; limitMinor: number; notes: string }) => {
+    setFormError(null);
+    const editing = formFor && formFor !== "new" && formFor.id ? formFor : null;
+    const res = editing && editing.id
+      ? await run(() => updateBudget(editing.id as string, { limit_minor: v.limitMinor, notes: v.notes || null }), { success: "Budget updated.", quiet: true })
+      : await run(
+          () =>
+            createBudget({
+              category: v.category,
+              period_month: month,
+              limit_minor: v.limitMinor,
+              ...(v.notes ? { notes: v.notes } : {}),
+            }),
+          { success: "Budget created.", quiet: true },
+        );
+    if (res.ok) {
+      closeForm();
+      await refreshAll();
+    } else {
+      setFormError(res.error);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleting) return;
+    if (!deleting.id) return;
+    const deletingId = deleting.id;
+    const res = await run(() => deleteBudget(deletingId), { success: "Budget deleted. Your expenses are untouched." });
+    setDeleting(null);
+    if (res.ok) await refreshAll();
+  };
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-display font-semibold text-sage-900 mb-1">Department Budgets</h1>
-          <p className="text-sm text-sage-600">Allocate and monitor spending limits across teams.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <select 
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            className="bg-white border border-sage-200 rounded-card px-3 py-2 text-sm font-medium focus:outline-none focus:border-[#9c5b34]"
-          >
-            <option>March 2026</option>
-            <option>February 2026</option>
-            <option>January 2026</option>
-          </select>
-          <button className="bg-[#9C5B34] text-white px-4 py-2 rounded-card text-sm font-medium flex items-center gap-1.5 hover:bg-[#8A5330] shadow-card transition-colors">
-            <Plus className="w-4 h-4" /> New Budget
-          </button>
-        </div>
-      </div>
-
-      {!budgetsCreated ? (
-        <div className="bg-white rounded-modal border border-sage-200 shadow-card p-12 flex flex-col items-center justify-center text-center">
-          <div className="w-12 h-12 bg-sage-100 rounded-full flex items-center justify-center mb-4">
-            <FileText className="w-6 h-6 text-sage-500" />
-          </div>
-          <h3 className="text-xl font-display font-bold text-sage-900 mb-2">No budget set for {selectedMonth}</h3>
-          <p className="text-sm text-sage-500 mb-6 max-w-sm">
-            You haven&apos;t defined category limits for this period. Draft a new one or carry over from last month.
-          </p>
-          <div className="flex gap-3">
-            <button 
-              onClick={() => {
-                setBudgetsCreated(true);
-                triggerToast("Budget drafted from actuals.");
-              }}
-              className="bg-[#1e3b30] text-white px-5 py-2.5 rounded-card text-sm font-semibold hover:bg-[#152a22] transition-colors shadow-card"
-            >
-              Draft budget from actuals
-            </button>
-            <button 
-              onClick={() => {
-                setBudgetsCreated(true);
-                triggerToast(`Copied budget from previous month into ${selectedMonth}.`);
-              }}
-              className="bg-white text-sage-700 border border-sage-200 px-5 py-2.5 rounded-card text-sm font-semibold hover:bg-sage-50 transition-colors flex items-center gap-2 shadow-card"
-            >
-              <Copy className="w-4 h-4" /> Copy last month
+      <PageHeader
+        title="Budgets"
+        subtitle="Set monthly spending limits by category and watch what is spent."
+        action={
+          <div className="flex items-center gap-3">
+            <label className="sr-only" htmlFor="bd-month">
+              Month
+            </label>
+            <input
+              id="bd-month"
+              type="month"
+              value={month}
+              onChange={(e) => e.target.value && setMonth(e.target.value)}
+              className="bg-white border border-neutral-200 rounded-card px-3 py-2 max-md:min-h-11 text-sm font-medium focus:outline-none focus:border-accent-600"
+            />
+            <button type="button" onClick={() => setFormFor("new")} className={primaryBtn}>
+              <Plus className="w-4 h-4" aria-hidden="true" /> New budget
             </button>
           </div>
-        </div>
-      ) : (
-        <>
-          <div className="flex justify-end mb-4">
-            <button 
-              onClick={() => triggerToast(`Copied budget from previous month into ${selectedMonth}.`)}
-              className="text-xs font-bold text-[#9c5b34] hover:underline flex items-center gap-1"
+        }
+      />
+
+      <ResourceGate resource={budgets} loadingLabel="Loading budgets">
+        {(rows) =>
+          rows.length === 0 ? (
+            <EmptyBlock
+              icon={<FileText className="w-6 h-6" aria-hidden="true" />}
+              title={`No budget set for ${formatMonth(month)}`}
+              body="A budget is a plan for your money. Start with last month's actuals."
             >
-              <Copy className="w-3.5 h-3.5" /> Copy last month&apos;s budget
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mockBudgets.map((b, i) => {
-              const variance = b.spent - b.limit;
-              const isOver = variance > 0;
-              const percent = Math.min(100, (b.spent / b.limit) * 100);
-              
-              return (
-                <div key={i} className={`bg-white p-5 rounded-modal border ${isOver ? 'border-[#ffcccc]' : 'border-sage-200'} space-y-4 shadow-card transition-colors`}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-sage-900">{b.dept}</h3>
-                      <span className="text-xs text-sage-500 font-medium">{selectedMonth} Allocation</span>
-                    </div>
-                    {isOver && (
-                      <span className="bg-[#fff0f0] text-[#B0483B] text-[10px] font-bold px-2 py-0.5 rounded border border-[#ffcccc] uppercase tracking-wider">
-                        Over Budget
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between items-center text-xs font-bold">
-                      <span className={isOver ? "text-[#B0483B]" : "text-[#1e3b30]"}>{percent.toFixed(0)}% used</span>
-                      <span className="text-sage-400">Limit: {formatCurrency(b.limit)}</span>
-                    </div>
-                    <div className="w-full bg-sage-100 rounded-full h-2 overflow-hidden">
-                      <div className={`${isOver ? 'bg-[#B0483B]' : 'bg-[#1e3b30]'} h-full rounded-full transition-all`} style={{ width: `${percent}%` }}></div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center pt-2 border-t border-sage-100 text-sm">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] text-sage-400 font-bold uppercase tracking-wider">Spent</span>
-                      <span className="font-semibold text-sage-900">{formatCurrency(b.spent)}</span>
-                    </div>
-                    <div className="flex flex-col text-right">
-                      <span className="text-[10px] text-sage-400 font-bold uppercase tracking-wider">Variance</span>
-                      <span className={`font-semibold ${isOver ? 'text-[#B0483B]' : 'text-green-600'}`}>
-                        {isOver ? '+' : ''}{formatCurrency(variance)}
-                      </span>
-                    </div>
-                  </div>
+              <button type="button" disabled={busy} onClick={() => void seed("draft")} className={darkBtn}>
+                <Sparkles className="w-4 h-4" aria-hidden="true" /> Draft budget from actuals
+              </button>
+              <button type="button" disabled={busy} onClick={() => void seed("copy")} className={secondaryBtn}>
+                <Copy className="w-4 h-4" aria-hidden="true" /> Copy last month
+              </button>
+              <button type="button" onClick={() => setFormFor("new")} className={secondaryBtn}>
+                <Plus className="w-4 h-4" aria-hidden="true" /> Add one budget
+              </button>
+            </EmptyBlock>
+          ) : (
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs text-neutral-500 max-w-xl">
+                  Spent is every money-out entry of the month in the category: manual transactions, <Link href="/finance/expenses" className="underline font-semibold">expenses</Link> and imported payments. Totals can look higher than before because manual spend now counts.
+                </p>
+                <div className="flex gap-4">
+                  <button type="button" disabled={busy} onClick={() => void seed("draft")} className="text-xs font-bold text-accent-600 hover:underline flex items-center gap-1 max-md:min-h-11 disabled:opacity-50">
+                    <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> Draft missing from actuals
+                  </button>
+                  <button type="button" disabled={busy} onClick={() => void seed("copy")} className="text-xs font-bold text-accent-600 hover:underline flex items-center gap-1 max-md:min-h-11 disabled:opacity-50">
+                    <Copy className="w-3.5 h-3.5" aria-hidden="true" /> Copy last month&apos;s budgets
+                  </button>
                 </div>
-              );
-            })}
-          </div>
-        </>
+              </div>
+
+              <div className="bg-white rounded-modal border border-neutral-200 overflow-hidden shadow-card">
+                <ul className="md:hidden divide-y divide-neutral-100" aria-label="Budgets">
+                  {rows.map((b) => (
+                    <li key={b.id ?? `u-${b.category}`} className="p-4 space-y-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <h2 className="font-bold text-neutral-900">{b.category}</h2>
+                        <StatusChip status={b.status} />
+                      </div>
+                      <p className="text-xs text-neutral-500">
+                        Spent {formatMoney(b.spent_minor, b.currency)}
+                        {b.limit_minor === null ? "" : ` of ${formatMoney(b.limit_minor, b.currency)}`}
+                      </p>
+                      {b.limit_minor !== null && <VarianceBar b={b} />}
+                      <RowButtons b={b} onEdit={() => setFormFor(b)} onDelete={() => setDeleting(b)} />
+                    </li>
+                  ))}
+                </ul>
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-neutral-50/50 border-b border-neutral-100 text-[11px] text-neutral-600 font-bold uppercase tracking-wider">
+                        <th className="py-4 px-6">Category</th>
+                        <th className="py-4 px-4 text-right">Budget</th>
+                        <th className="py-4 px-4 text-right">Spent</th>
+                        <th className="py-4 px-4 text-right">Variance</th>
+                        <th className="py-4 px-4">Status</th>
+                        <th className="py-4 px-6 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100 text-sm">
+                      {rows.map((b) => (
+                        <tr key={b.id ?? `u-${b.category}`} className="hover:bg-neutral-50/50 transition-colors align-top">
+                          <td className="py-4 px-6">
+                            <p className="font-semibold text-neutral-900">{b.category}</p>
+                            {b.notes && <p className="text-xs text-neutral-500 mt-0.5">{b.notes}</p>}
+                          </td>
+                          <td className="py-4 px-4 text-right whitespace-nowrap text-neutral-700">
+                            {b.limit_minor === null ? <span className="text-neutral-600">None</span> : formatMoney(b.limit_minor, b.currency)}
+                          </td>
+                          <td className="py-4 px-4 text-right whitespace-nowrap font-semibold text-neutral-900">{formatMoney(b.spent_minor, b.currency)}</td>
+                          <td className="py-4 px-4 text-right whitespace-nowrap">
+                            {b.variance_minor === null ? (
+                              <span className="text-neutral-600">Not applicable</span>
+                            ) : (
+                              <span className={b.variance_minor > 0 ? "text-danger-600 font-semibold" : "text-success font-semibold"}>
+                                {b.variance_minor > 0 ? "Over by " : "Left "}
+                                {formatMoney(Math.abs(b.variance_minor), b.currency)}
+                                {b.variance_percent !== null && (
+                                  <span className="block text-xs font-medium">{b.variance_percent > 0 ? "+" : ""}{b.variance_percent}%</span>
+                                )}
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 w-48">
+                            <StatusChip status={b.status} />
+                            {b.limit_minor !== null && <div className="mt-2"><VarianceBar b={b} /></div>}
+                          </td>
+                          <td className="py-4 px-6 text-right whitespace-nowrap">
+                            <RowButtons b={b} onEdit={() => setFormFor(b)} onDelete={() => setDeleting(b)} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )
+        }
+      </ResourceGate>
+
+      {formFor && (
+        <Modal title={formFor === "new" ? "New budget" : formFor.id ? `Edit ${formFor.category} budget` : `Set ${formFor.category} budget`} onClose={closeForm}>
+          <BudgetForm initial={formFor === "new" ? undefined : formFor} month={month} categories={categories} busy={busy} error={formError} onSubmit={(v) => void submitForm(v)} onCancel={closeForm} />
+        </Modal>
+      )}
+
+      {deleting && (
+        <ConfirmDialog
+          title="Delete this budget?"
+          body={`The ${deleting.category} budget for ${formatMonth(deleting.period_month)} will be removed. Your expenses are not affected. This cannot be undone.`}
+          confirmLabel="Delete"
+          danger
+          busy={busy}
+          onConfirm={() => void confirmDelete()}
+          onCancel={() => setDeleting(null)}
+        />
       )}
     </div>
   );

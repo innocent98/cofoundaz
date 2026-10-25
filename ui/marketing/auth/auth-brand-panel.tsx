@@ -1,16 +1,12 @@
 import Link from "next/link";
+import BrandLogo from "@/components/brand/BrandLogo";
 
 export function AuthBrandPanel() {
   return (
-    <div className="bg-[#0b241a] text-white p-8 lg:p-12 flex flex-col justify-between min-h-screen">
+    <div className="bg-brand-x0b241a text-white p-8 lg:p-12 flex flex-col justify-between min-h-screen">
       {/* Top Header / Logo */}
       <Link href="/" className="flex items-center gap-3 w-fit">
-        <div className="w-9 h-9 bg-white text-[#0b241a] font-bold text-xl rounded-card flex items-center justify-center shadow-card">
-          C
-        </div>
-        <span className="font-display text-2xl tracking-tight font-medium text-white">
-          Cofoundaz
-        </span>
+        <BrandLogo tone="light" height={32} eager />
       </Link>
 
       {/* Main Content */}
@@ -27,7 +23,7 @@ export function AuthBrandPanel() {
         <div className="space-y-4 pt-2">
           {/* Feature Item 1 */}
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-input bg-[#14382a] flex items-center justify-center text-[#4ade80] shrink-0">
+            <div className="w-7 h-7 rounded-input bg-brand-x14382a flex items-center justify-center text-brand-x4ade80 shrink-0">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -42,14 +38,14 @@ export function AuthBrandPanel() {
                 />
               </svg>
             </div>
-            <span className="text-sm font-medium text-green-100/90">
+            <span className="text-sm font-medium text-brand-100/90">
               Set up in under 10 minutes
             </span>
           </div>
 
           {/* Feature Item 2 */}
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-input bg-[#14382a] flex items-center justify-center text-[#4ade80] shrink-0">
+            <div className="w-7 h-7 rounded-input bg-brand-x14382a flex items-center justify-center text-brand-x4ade80 shrink-0">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -64,14 +60,14 @@ export function AuthBrandPanel() {
                 />
               </svg>
             </div>
-            <span className="text-sm font-medium text-green-100/90">
+            <span className="text-sm font-medium text-brand-100/90">
               No credit card required
             </span>
           </div>
 
           {/* Feature Item 3 */}
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-input bg-[#14382a] flex items-center justify-center text-[#4ade80] shrink-0">
+            <div className="w-7 h-7 rounded-input bg-brand-x14382a flex items-center justify-center text-brand-x4ade80 shrink-0">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -86,7 +82,7 @@ export function AuthBrandPanel() {
                 />
               </svg>
             </div>
-            <span className="text-sm font-medium text-green-100/90">
+            <span className="text-sm font-medium text-brand-100/90">
               Your data is never used to train AI
             </span>
           </div>
@@ -94,7 +90,7 @@ export function AuthBrandPanel() {
       </div>
 
       {/* Footer */}
-      <div className="text-xs text-green-200/70">
+      <div className="text-xs text-brand-200/70">
         © 2026 Cofoundaz
       </div>
     </div>

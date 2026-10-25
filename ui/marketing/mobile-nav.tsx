@@ -87,7 +87,7 @@ export function MobileNav() {
         aria-expanded={open}
         aria-label={open ? 'Close menu' : 'Open menu'}
         onClick={() => setOpen((value) => !value)}
-        className="flex h-11 w-11 items-center justify-center rounded-input text-green-700 hover:bg-green-50 lg:hidden"
+        className="flex h-11 w-11 items-center justify-center rounded-input text-brand-700 hover:bg-brand-50 lg:hidden"
       >
         <span aria-hidden="true" className="relative block h-4 w-5">
           <span className={cn('absolute left-0 block h-0.5 w-5 bg-current transition-all', open ? 'top-2 rotate-45' : 'top-0')} />
@@ -108,18 +108,18 @@ export function MobileNav() {
           // rendered inside the header would size against the 72px header box,
           // not the viewport, collapsing `bottom-0` to a sliver. Rendering into
           // <body> restores viewport-relative fixed positioning.
-          className="fixed inset-x-0 top-[72px] bottom-0 z-40 flex flex-col gap-2 border-t border-green-100 bg-white p-4 lg:hidden"
+          className="fixed inset-x-0 top-[72px] bottom-0 z-40 flex flex-col gap-2 border-t border-brand-100 bg-white p-4 lg:hidden"
         >
           {headerLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-input px-4 py-3 text-base font-medium text-sage-700 hover:bg-green-50"
+              className="rounded-input px-4 py-3 text-base font-medium text-neutral-700 hover:bg-brand-50"
             >
               {link.label}
             </Link>
           ))}
-          <div className="mt-2 flex flex-col gap-2 border-t border-green-100 pt-4">
+          <div className="mt-2 flex flex-col gap-2 border-t border-brand-100 pt-4">
             {/*
               On mobile, SiteHeader hides its "Start free" accent CTA
               (`hidden lg:inline-flex`), so this menu hosts the single

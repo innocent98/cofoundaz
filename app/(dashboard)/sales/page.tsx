@@ -1,206 +1,306 @@
-﻿"use client";
+"use client";
 
-import React, { useState } from "react";
-import { useSalesApi, DealStage, LostReason } from "@/hooks/useSalesApi";
+import React, { Suspense, useCallback, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useSalesBoard } from "@/hooks/useSalesCrm";
+import {
+  dueLabel,
+  formatMoney,
+  isOverdue,
+  isUuid,
+  salesErrorMessage,
+  type ClosedReason,
+  type Deal,
+} from "@/lib/api/sales";
+import { celebrate } from "@/lib/confetti";
 import { useToast } from "./ToastContext";
-// To be safe, I'll use a simple CSS animation burst for "ConfettiBurst" instead of relying on external lib, or just skip the actual particles and just show the toast if I can&apos;t. Wait, I'll just write a basic one.
+import { AddDealDrawer, DealDrawer, LostReasonModal } from "@/components/sales/deal-drawer";
+import { StageEditor } from "@/components/sales/stage-editor";
+import { BTN_ACCENT, BTN_SECONDARY, SalesGate, StallBadge } from "@/components/sales/shared";
 
-const STAGES: { id: DealStage; label: string }[] = [
-  { id: 'new', label: 'New' },
-  { id: 'contacted', label: 'Contacted' },
-  { id: 'qualified', label: 'Qualified' },
-  { id: 'proposal', label: 'Proposal' },
-  { id: 'negotiation', label: 'Negotiation' },
-  { id: 'closed_won', label: 'Closed Won' },
-  { id: 'closed_lost', label: 'Closed Lost' }
-];
-
-export default function PipelinePage() {
-  const { deals, moveDealStage } = useSalesApi();
+function PipelineInner() {
+  const board = useSalesBoard();
   const { triggerToast } = useToast();
-  
-  const [lostModalDealId, setLostModalDealId] = useState<string | null>(null);
+  const params = useSearchParams();
+  const dealParam = params.get("deal");
+  const openDealId = isUuid(dealParam) ? dealParam : null;
 
-  const formatCurrency = (val: number) => `₦${(val / 1000000).toFixed(1)}M`;
+  const [lostFor, setLostFor] = useState<{ dealId: string; stageId: string } | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null);
+  const [editingStages, setEditingStages] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [announce, setAnnounce] = useState("");
+  const [drawerKey, setDrawerKey] = useState(0);
 
-  const totalValue = deals.filter(d => d.stage !== 'closed_lost').reduce((acc, d) => acc + d.value, 0);
-  const weightedForecast = deals.reduce((acc, d) => {
-    if (d.stage === 'closed_lost') return acc;
-    const weights: Record<DealStage, number> = {
-      new: 0.1, contacted: 0.2, qualified: 0.4, proposal: 0.6, negotiation: 0.8, closed_won: 1, closed_lost: 0
-    };
-    return acc + (d.value * weights[d.stage]);
-  }, 0);
-  
-  const wonDeals = deals.filter(d => d.stage === 'closed_won').length;
-  const closedDeals = deals.filter(d => d.stage === 'closed_won' || d.stage === 'closed_lost').length;
-  const winRate = closedDeals > 0 ? Math.round((wonDeals / closedDeals) * 100) : 0;
+  const stages = board.data?.stages ?? [];
+  const deals = board.data?.deals ?? [];
+  const overview = board.data?.overview;
 
-  const handleDragStart = (e: React.DragEvent, dealId: string) => {
-    e.dataTransfer.setData("dealId", dealId);
-  };
+  // Native history calls keep useSearchParams in step (Next docs: single-page-applications). router.replace
+  // back to the same path left ?deal= in place in a production build, so the drawer never closed.
+  const openDeal = useCallback((id: string) => window.history.pushState(null, "", `/sales?deal=${encodeURIComponent(id)}`), []);
+  const closeDeal = useCallback(() => window.history.replaceState(null, "", "/sales"), []);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e: React.DragEvent, targetStage: DealStage) => {
-    e.preventDefault();
-    const dealId = e.dataTransfer.getData("dealId");
-    if (!dealId) return;
-
-    const deal = deals.find(d => d.id === dealId);
-    if (!deal || deal.stage === targetStage) return;
-
-    if (targetStage === 'closed_won') {
-      moveDealStage(dealId, targetStage);
-      triggerToast(`Closed won! 🎉 ${deal.company} · ${formatCurrency(deal.value)}`);
-      triggerConfetti();
-    } else if (targetStage === 'closed_lost') {
-      setLostModalDealId(dealId);
-    } else {
-      moveDealStage(dealId, targetStage);
+  const performMove = async (
+    dealId: string,
+    stageId: string,
+    lost?: { closed_reason: ClosedReason; closed_note?: string | null }
+  ) => {
+    const stage = stages.find((s) => s.id === stageId);
+    const deal = deals.find((d) => d.id === dealId);
+    try {
+      await board.moveDeal(dealId, stageId, lost);
+      setDrawerKey((k) => k + 1);
+      if (stage?.kind === "won") {
+        celebrate();
+        setAnnounce(`Closed won: ${deal?.name ?? "deal"}${deal ? `, ${formatMoney(deal.value_minor)}` : ""}`);
+      } else if (stage?.kind === "lost") {
+        triggerToast("Deal marked as closed lost.");
+      } else {
+        setAnnounce(`Moved ${deal?.name ?? "deal"} to ${stage?.name ?? "stage"}`);
+      }
+    } catch (err) {
+      triggerToast(salesErrorMessage(err), "error");
     }
   };
 
-  const triggerConfetti = () => {
-    // Basic screen flash / burst effect using a quick DOM element
-    const el = document.createElement('div');
-    el.className = 'fixed inset-0 z-50 pointer-events-none flex items-center justify-center';
-    el.innerHTML = '<div class="text-9xl animate-bounce">🎉💰🚀</div>';
-    document.body.appendChild(el);
-    setTimeout(() => {
-      if (document.body.contains(el)) document.body.removeChild(el);
-    }, 2000);
+  const requestMove = (dealId: string, stageId: string) => {
+    const stage = stages.find((s) => s.id === stageId);
+    const deal = deals.find((d) => d.id === dealId);
+    if (!stage || (deal && deal.stage_id === stageId)) return;
+    if (stage.kind === "lost") {
+      setLostFor({ dealId, stageId });
+      return;
+    }
+    void performMove(dealId, stageId);
   };
 
-  const handleCloseLost = (reason: LostReason) => {
-    if (lostModalDealId) {
-      moveDealStage(lostModalDealId, 'closed_lost', reason);
-      triggerToast("Deal marked as closed lost.");
-      setLostModalDealId(null);
-    }
+  const handleDrop = (e: React.DragEvent, stageId: string) => {
+    e.preventDefault();
+    setDragOver(null);
+    const dealId = e.dataTransfer.getData("text/plain");
+    if (dealId) requestMove(dealId, stageId);
   };
+
+  const lostDeal = lostFor ? deals.find((d) => d.id === lostFor.dealId) : undefined;
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      <div className="flex flex-wrap items-center gap-12 bg-white px-6 py-5 rounded-modal border border-sage-200/80 shadow-card">
-        <div>
-          <span className="text-[11px] font-bold text-sage-400 uppercase tracking-wider block mb-1">
-            PIPELINE VALUE
-          </span>
-          <span className="text-3xl font-display font-bold text-sage-900">
-            {formatCurrency(totalValue)}
-          </span>
-        </div>
-        <div>
-          <span className="text-[11px] font-bold text-sage-400 uppercase tracking-wider block mb-1">
-            WEIGHTED FORECAST
-          </span>
-          <span className="text-3xl font-display font-bold text-sage-900">
-            {formatCurrency(weightedForecast)}
-          </span>
-        </div>
-        <div>
-          <span className="text-[11px] font-bold text-sage-400 uppercase tracking-wider block mb-1">
-            WIN RATE
-          </span>
-          <span className="text-3xl font-display font-bold text-[#1e4836]">
-            {winRate}%
-          </span>
-        </div>
+      <div role="status" aria-live="polite" className="sr-only">
+        {announce}
       </div>
 
-      <div className="overflow-x-auto pb-4 scrollbar-thin">
-        <div className="flex items-start gap-4 min-w-[1500px]">
-          {STAGES.map((stageInfo) => {
-            const stageDeals = deals.filter(d => d.stage === stageInfo.id);
-            const stageTotal = stageDeals.reduce((acc, d) => acc + d.value, 0);
-
-            return (
-              <div 
-                key={stageInfo.id} 
-                className="w-64 bg-[#f2f6f4]/60 rounded-modal p-3 border border-sage-200/80 space-y-3 flex-shrink-0 min-h-[400px]"
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, stageInfo.id)}
-              >
-                <div className="px-2 pt-1 flex items-center justify-between text-xs font-semibold text-sage-600">
-                  <span>{stageInfo.label}</span>
-                  <span className="text-sage-400 font-medium">
-                    {stageDeals.length} · {formatCurrency(stageTotal)}
-                  </span>
-                </div>
-
-                <div className="space-y-2.5">
-                  {stageDeals.map((deal) => (
-                    <div
-                      key={deal.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, deal.id)}
-                      onClick={() => triggerToast(`Opened deal: ${deal.company}`)}
-                      className="bg-white rounded-card p-4 border border-sage-200/90 shadow-card space-y-2 hover:border-sage-300 transition-all cursor-grab active:cursor-grabbing"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-sage-200 text-sage-700 flex items-center justify-center text-xs font-bold shrink-0">
-                          {deal.contactName.charAt(0)}
-                        </div>
-                        <div className="font-display font-bold text-sage-900 text-base truncate">
-                          {deal.company}
-                        </div>
-                      </div>
-                      <div className="font-bold text-green-900 text-sm">
-                        {formatCurrency(deal.value)}
-                      </div>
-                      <div className="flex items-center justify-between pt-1">
-                        <span className={`text-xs font-medium truncate ${deal.isOverdue ? 'text-red-600' : 'text-sage-500'}`}>
-                          {deal.nextStep} · {deal.nextStepDue}
-                        </span>
-                        {(deal.isStalled || deal.daysInactive > 14) && (
-                          <span className="bg-copper-100 text-copper-800 text-[10px] font-bold px-2 py-0.5 rounded-[6px] flex items-center gap-1 shrink-0">
-                            <span>⚠</span> Stalled
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-
-                  {stageDeals.length === 0 && (
-                    <div className="h-20 flex items-center justify-center text-xs text-sage-400 italic border-2 border-dashed border-sage-200 rounded-card bg-transparent">
-                      Drop here
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* LOST REASON MODAL */}
-      {lostModalDealId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-modal p-6 md:p-8 w-full max-w-sm shadow-accent space-y-6">
-            <h2 className="text-xl font-display font-bold text-sage-900">Why was this deal lost?</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {(['Price', 'Timing', 'Competitor', 'No budget', 'Ghosted', 'Other'] as LostReason[]).map(reason => (
-                <button
-                  key={reason}
-                  onClick={() => handleCloseLost(reason)}
-                  className="px-4 py-2 border border-sage-200 rounded-card text-sm font-medium hover:bg-sage-50 hover:border-sage-300 text-sage-700 transition-colors"
-                >
-                  {reason}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => setLostModalDealId(null)}
-              className="w-full text-center text-sm font-medium text-sage-500 hover:text-sage-700"
-            >
-              Cancel
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">Pipeline</h1>
+        {board.status === "ready" && (
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" onClick={() => setEditingStages(true)} className={BTN_SECONDARY}>
+              Edit stages
+            </button>
+            <button type="button" onClick={() => setAdding(true)} className={BTN_ACCENT}>
+              + Add deal
             </button>
           </div>
+        )}
+      </div>
+
+      <SalesGate status={board.status} error={board.error} onRetry={() => void board.reload()} loadingLabel="Loading pipeline">
+        {overview && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white px-6 py-5 rounded-modal border border-neutral-200/80 shadow-card">
+            <Stat label="Pipeline value" value={formatMoney(overview.total_pipeline_minor)} />
+            <Stat label="Weighted forecast" value={formatMoney(overview.weighted_forecast_minor)} />
+            <Stat
+              label="Win rate"
+              value={overview.win_rate === null ? "No closed deals yet" : `${overview.win_rate}%`}
+              muted={overview.win_rate === null}
+              accent
+            />
+          </div>
+        )}
+
+        {deals.length === 0 && (
+          <p className="text-sm text-neutral-600 bg-white border border-neutral-200/80 rounded-card px-4 py-3">
+            No deals yet. Add your first deal, or open Leads and choose &ldquo;Make it a deal&rdquo;.
+          </p>
+        )}
+
+        <div className="overflow-x-auto pb-4 scrollbar-thin">
+          <div className="flex items-start gap-4" style={{ minWidth: `${stages.length * 272}px` }}>
+            {stages.map((stage) => {
+              const stageDeals = deals.filter((d) => d.stage_id === stage.id);
+              const stageTotal = stageDeals.reduce((acc, d) => acc + d.value_minor, 0);
+              return (
+                <section
+                  key={stage.id}
+                  aria-label={`${stage.name} stage`}
+                  className={`w-64 rounded-modal p-3 border space-y-3 flex-shrink-0 min-h-[300px] transition-colors ${
+                    dragOver === stage.id ? "bg-brand-100 border-brand-400" : "bg-neutral-xf2f6f4/60 border-neutral-200/80"
+                  }`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(stage.id);
+                  }}
+                  onDragLeave={() => setDragOver((s) => (s === stage.id ? null : s))}
+                  onDrop={(e) => handleDrop(e, stage.id)}
+                >
+                  <div className="px-2 pt-1 flex items-center justify-between gap-2 text-xs font-semibold text-neutral-600">
+                    <h2 className="truncate">{stage.name}</h2>
+                    <span className="text-neutral-500 font-medium whitespace-nowrap">
+                      {stageDeals.length} · {formatMoney(stageTotal)}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {stageDeals.map((deal) => (
+                      <DealCard
+                        key={deal.id}
+                        deal={deal}
+                        open={stage.kind === "open"}
+                        stages={stages}
+                        onOpen={() => openDeal(deal.id)}
+                        onMove={(stageId) => requestMove(deal.id, stageId)}
+                      />
+                    ))}
+                    {stageDeals.length === 0 && (
+                      <div className="h-20 flex items-center justify-center text-xs text-neutral-500 italic border-2 border-dashed border-neutral-200 rounded-card">
+                        Drop here
+                      </div>
+                    )}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
         </div>
+      </SalesGate>
+
+      {lostFor && (
+        <LostReasonModal
+          dealName={lostDeal?.name ?? "this deal"}
+          onCancel={() => setLostFor(null)}
+          onConfirm={async (reason, note) => {
+            const target = lostFor;
+            setLostFor(null);
+            await performMove(target.dealId, target.stageId, { closed_reason: reason, closed_note: note });
+          }}
+        />
+      )}
+
+      {editingStages && board.data && (
+        <StageEditor
+          stages={board.data.stages}
+          counts={board.data.overview.stages}
+          onClose={() => setEditingStages(false)}
+          onSaved={() => void board.reload()}
+        />
+      )}
+
+      {adding && board.data && (
+        <AddDealDrawer
+          stages={board.data.stages}
+          onClose={() => setAdding(false)}
+          onCreated={() => {
+            setAdding(false);
+            void board.reload();
+          }}
+        />
+      )}
+
+      {openDealId && board.data && (
+        <DealDrawer
+          dealId={openDealId}
+          stages={board.data.stages}
+          refreshKey={drawerKey}
+          onClose={closeDeal}
+          onChanged={() => void board.reload()}
+          onMoveRequest={requestMove}
+        />
       )}
     </div>
+  );
+}
+
+function Stat({ label, value, muted = false, accent = false }: { label: string; value: string; muted?: boolean; accent?: boolean }) {
+  return (
+    <div>
+      <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider block mb-1">{label}</span>
+      <span
+        className={`font-display font-bold ${muted ? "text-base text-neutral-500" : "text-3xl"} ${
+          accent && !muted ? "text-brand-hover" : muted ? "" : "text-neutral-900"
+        }`}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function DealCard({
+  deal,
+  open,
+  stages,
+  onOpen,
+  onMove,
+}: {
+  deal: Deal;
+  open: boolean;
+  stages: { id: string; name: string }[];
+  onOpen: () => void;
+  onMove: (stageId: string) => void;
+}) {
+  const overdue = open && isOverdue(deal.next_step_due);
+  const person = deal.contact_name ?? deal.account_name ?? deal.name;
+  return (
+    <div
+      draggable
+      onDragStart={(e) => e.dataTransfer.setData("text/plain", deal.id)}
+      className="bg-white rounded-card p-4 border border-neutral-200/90 shadow-card space-y-2 hover:border-neutral-300 transition-all cursor-grab active:cursor-grabbing"
+    >
+      <button type="button" onClick={onOpen} className="block w-full text-left space-y-2 cursor-pointer" aria-label={`Open deal ${deal.name}`}>
+        <div className="flex items-center gap-2">
+          <div
+            className="w-6 h-6 rounded-full bg-neutral-200 text-neutral-700 flex items-center justify-center text-xs font-bold shrink-0"
+            aria-hidden="true"
+          >
+            {person.charAt(0).toUpperCase()}
+          </div>
+          <div className="font-display font-bold text-neutral-900 text-base truncate">{deal.name}</div>
+        </div>
+        {(deal.account_name || deal.contact_name) && (
+          <div className="text-xs text-neutral-500 truncate">
+            {[deal.account_name, deal.contact_name].filter(Boolean).join(" · ")}
+          </div>
+        )}
+        <div className="font-bold text-brand-900 text-sm">{formatMoney(deal.value_minor)}</div>
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <span className={`text-xs font-medium truncate ${overdue ? "text-danger-600" : "text-neutral-500"}`}>
+            {deal.next_step || deal.next_step_due
+              ? `${deal.next_step ?? "Next step"}${deal.next_step_due ? ` · ${dueLabel(deal.next_step_due)}` : ""}`
+              : "No next step"}
+          </span>
+          <StallBadge deal={deal} />
+        </div>
+      </button>
+      <select
+        aria-label={`Move ${deal.name} to stage`}
+        value={deal.stage_id}
+        onChange={(e) => onMove(e.target.value)}
+        className="md:hidden w-full bg-neutral-50 border border-neutral-200 rounded-input px-2 py-1.5 text-xs text-neutral-700"
+      >
+        {stages.map((s) => (
+          <option key={s.id} value={s.id}>
+            {s.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export default function PipelinePage() {
+  return (
+    <Suspense fallback={null}>
+      <PipelineInner />
+    </Suspense>
   );
 }

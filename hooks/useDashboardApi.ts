@@ -4,118 +4,163 @@ import { ApiError } from "@/lib/api/client";
 import {
   getDashboardSummary,
   getDashboardActivity,
+  acceptBriefingAction,
   isSectionError,
 } from "@/lib/api/dashboard";
+import { useRealtimeEvent } from "@/components/realtime-context";
 import type {
   DashboardSummaryResponse,
   AIBriefing,
   ActivityLogEntry,
+  BriefingAction,
   KPISnapshot,
   RiskItem,
   OpportunityItem,
+  UpcomingItem,
   AIContentStatus,
+  MissionEmptyState,
 } from "../types/dashboard";
 
-function getAuthToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("cf_token");
-}
-
-function getActiveWorkspaceId(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("cf_workspace_id");
-}
-
-export const DEFAULT_SUMMARY: DashboardSummaryResponse = {
-  health: {
-    score: 0,
-    deltaWeekly: 0,
-    status: "pending_assessment",
-    summary: "Complete your kickoff assessment to see what’s driving your score.",
-  },
-  mission: null,
-  briefing: {
-    id: "b-1",
-    date: new Date().toISOString(),
-    agentBadge: "Co-Founder",
-    status: "empty",
-    content: "I’ll have your first briefing ready tomorrow morning once I’ve seen a full day of your workspace.",
-    actions: [],
-  },
-  kpis: [
-    {
-      id: "revenue",
-      metric: "revenue",
-      label: "Monthly Revenue",
-      value: "Coming Soon",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/finance",
-      hasData: false,
-    },
-    {
-      id: "runway",
-      metric: "runway",
-      label: "Cash Runway",
-      value: "Coming Soon",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/finance",
-      hasData: false,
-    },
-    {
-      id: "pipeline",
-      metric: "pipeline",
-      label: "Pipeline Value",
-      value: "Coming Soon",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/sales",
-      hasData: false,
-    },
-    {
-      id: "ctr",
-      metric: "ctr",
-      label: "Campaign CTR",
-      value: "Coming Soon",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/marketing",
-      hasData: false,
-    },
-    {
-      id: "tasks",
-      metric: "tasks_completed",
-      label: "Tasks Done",
-      value: "0",
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/dashboard",
-      hasData: true,
-    },
-  ],
-  risks: [],
-  opportunities: [],
-  risksStatus: "empty",
-  opportunitiesStatus: "empty",
-};
-
 export function formatCurrency(v: number): string {
+  if (v < 0) return `-${formatCurrency(-v)}`;
   if (v >= 1_000_000) return `₦${(v / 1_000_000).toFixed(1)}M`;
   if (v >= 1_000) return `₦${(v / 1_000).toFixed(1)}K`;
   return `₦${v}`;
 }
 
+/** Backend money is minor units (kobo); convert to naira before formatting. */
+export function formatMinor(minor: number): string {
+  return formatCurrency(minor / 100);
+}
+
+const COMING_SOON = "Coming Soon";
+
+type TrendKind = "money" | "months" | "points" | "count";
+
+interface RawTrend {
+  delta?: number | null;
+  series?: Array<{ period?: string; value?: number }>;
+}
+
+function signed(n: number, body: string): string {
+  return `${n > 0 ? "+" : "-"}${body}`;
+}
+
 /**
- * Maps the raw KPIs payload into the 5 cards rendered on the dashboard.
- * Null-Safety & Honesty:
- * Financial KPIs (revenue, runway, pipeline_value, campaign_performance)
- * are rendered as "Coming Soon" when null/undefined, NEVER as "$0" or fabricated numbers.
+ * Week-over-week chip and sparkline values from a tile's `trend` (BE guide 7a).
+ * `delta` is null during a workspace's first week: no chip then, never "+0".
+ * Units follow the tile: revenue is minor units; runway months and CTR percent
+ * are floats; tasks an int. Higher is better for every tile.
+ */
+export function trendFields(
+  kind: TrendKind,
+  trend: RawTrend | undefined | null,
+): Pick<KPISnapshot, "deltaLabel" | "deltaDirection" | "series"> {
+  const values = (trend?.series ?? []).map((p) => p.value).filter((v): v is number => typeof v === "number");
+  const series = values.length >= 2 ? values : [];
+  const d = trend?.delta;
+  if (typeof d !== "number") return { deltaLabel: null, deltaDirection: "flat", series };
+
+  let body: string;
+  let magnitude = Math.abs(d);
+  switch (kind) {
+    case "money":
+      body = formatMinor(magnitude);
+      break;
+    case "months":
+      magnitude = Math.round(magnitude * 10) / 10;
+      body = `${magnitude} mo`;
+      break;
+    case "points":
+      magnitude = Math.round(magnitude * 10) / 10;
+      body = `${magnitude} pts`;
+      break;
+    default:
+      body = String(magnitude);
+  }
+  if (magnitude === 0) return { deltaLabel: "No change vs last week", deltaDirection: "flat", series };
+  return {
+    deltaLabel: `${signed(d, body)} vs last week`,
+    deltaDirection: d > 0 ? "up" : "down",
+    series,
+  };
+}
+
+type MetricTile = Pick<KPISnapshot, "value" | "hasData" | "status" | "hidden" | "cta" | "hint" | "isAlert" | "error">;
+
+function comingSoon(): MetricTile {
+  return { value: COMING_SOON, hasData: false };
+}
+
+/**
+ * Shared handling for every non-"ok" status. Returns null when the status is
+ * "ok" (or a status the caller formats itself), so the caller renders the value.
+ */
+function baseState(m: any, cta: KPISnapshot["cta"]): MetricTile | null {
+  if (m === null || typeof m !== "object") return comingSoon();
+  if (isSectionError(m)) return { value: "Unavailable", hasData: false, error: true };
+  switch (m.status) {
+    case "restricted":
+      return { value: "", hasData: false, status: "restricted", hidden: true };
+    case "no_data":
+      return { value: "No data yet", hasData: false, status: "no_data", cta };
+    case "not_built":
+      return { ...comingSoon(), status: "not_built" };
+    case "ok":
+    case "not_burning":
+    case "out_of_cash":
+      return null;
+    default:
+      return comingSoon();
+  }
+}
+
+function revenueTile(m: any): MetricTile {
+  const base = baseState(m, { label: "Open Finance", href: "/finance" });
+  if (base) return base;
+  if (m.status !== "ok" || typeof m.value_minor !== "number") return comingSoon();
+  return {
+    value: formatMinor(m.value_minor),
+    hasData: true,
+    status: "ok",
+    hint: "Avg. monthly money in, last 3 months",
+  };
+}
+
+function runwayTile(m: any): MetricTile {
+  const base = baseState(m, { label: "Open Finance", href: "/finance" });
+  if (base) return base;
+  if (m.status === "out_of_cash") {
+    return { value: "Out of cash", hasData: true, status: "out_of_cash", isAlert: true };
+  }
+  if (m.status === "not_burning") {
+    return { value: "Not burning", hasData: true, status: "not_burning", hint: "Break-even or profitable" };
+  }
+  if (typeof m.months !== "number") return comingSoon();
+  return { value: `${m.months} mo`, hasData: true, status: "ok", isAlert: m.is_low === true };
+}
+
+function pipelineTile(m: any): MetricTile {
+  const base = baseState(m, { label: "Open Sales", href: "/sales" });
+  if (base) return base;
+  if (typeof m.value_minor !== "number") return comingSoon();
+  return { value: formatMinor(m.value_minor), hasData: true, status: "ok" };
+}
+
+function ctrTile(m: any): MetricTile {
+  const base = baseState(m, { label: "Open Marketing", href: "/marketing" });
+  if (base) return base;
+  if (typeof m.ctr_percent !== "number") return comingSoon();
+  return { value: `${m.ctr_percent}%`, hasData: true, status: "ok", hint: "Last 30 days" };
+}
+
+/**
+ * Maps the raw KPIs payload into the cards rendered on the dashboard.
+ * Reads `kpis.metrics.*` (the legacy scalar keys are always null) and renders
+ * an honest state for every backend status:
+ * ok -> value, no_data -> empty state + CTA, restricted -> tile hidden,
+ * not_built -> "Coming Soon", per-tile { error: true } -> Unavailable + Retry.
+ * Never renders "₦0" for missing data.
  */
 export function mapKpis(k: any): KPISnapshot[] {
   if (isSectionError(k)) {
@@ -128,78 +173,97 @@ export function mapKpis(k: any): KPISnapshot[] {
     ];
   }
 
-  const formatMoney = (v: any) => (v === null || v === undefined ? "Coming Soon" : formatCurrency(Number(v)));
-  const formatRunway = (v: any) => (v === null || v === undefined ? "Coming Soon" : `${v} mo`);
-  const formatPlain = (v: any) => (v === null || v === undefined ? "Coming Soon" : String(v));
+  const metrics = k?.metrics ?? {};
+  const tile = (
+    id: string,
+    metric: KPISnapshot["metric"],
+    label: string,
+    href: string,
+    t: MetricTile,
+    trend?: Pick<KPISnapshot, "deltaLabel" | "deltaDirection" | "series">,
+  ): KPISnapshot => ({ id, metric, label, delta: "", trend: "flat", sparklineData: [], href, ...t, ...trend });
 
-  const hasRevenue = k?.revenue !== null && k?.revenue !== undefined;
-  const hasRunway = k?.runway !== null && k?.runway !== undefined;
-  const hasPipeline = k?.pipeline_value !== null && k?.pipeline_value !== undefined;
-  const hasCtr = k?.campaign_performance !== null && k?.campaign_performance !== undefined;
+  // Restricted / not_built / error tiles carry no `trend` key (history would leak the value).
+  const withTrend = (m: any, kind: TrendKind) =>
+    m && typeof m === "object" && !isSectionError(m) && m.trend ? trendFields(kind, m.trend) : undefined;
 
-  let runwayAlert = false;
-  if (hasRunway && typeof k?.runway === "number" && k.runway < 6) {
-    runwayAlert = true;
-  }
-
-  return [
-    {
-      id: "revenue",
-      metric: "revenue",
-      label: "Monthly Revenue",
-      value: formatMoney(k?.revenue),
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/finance",
-      hasData: hasRevenue,
-    },
-    {
-      id: "runway",
-      metric: "runway",
-      label: "Runway",
-      value: formatRunway(k?.runway),
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/finance",
-      hasData: hasRunway,
-      isAlert: runwayAlert,
-    },
-    {
-      id: "pipeline",
-      metric: "pipeline",
-      label: "Pipeline Value",
-      value: formatMoney(k?.pipeline_value),
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/sales",
-      hasData: hasPipeline,
-    },
-    {
-      id: "ctr",
-      metric: "ctr",
-      label: "Campaign CTR",
-      value: formatPlain(k?.campaign_performance),
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/marketing",
-      hasData: hasCtr,
-    },
-    {
-      id: "tasks",
-      metric: "tasks_completed",
-      label: "Tasks This Week",
-      value: String(k?.tasks_done_this_week ?? 0),
-      delta: "",
-      trend: "flat",
-      sparklineData: [],
-      href: "/mission",
-      hasData: true,
-    },
+  const tiles = [
+    tile("revenue", "revenue", "Monthly Revenue", "/finance", revenueTile(metrics.revenue), withTrend(metrics.revenue, "money")),
+    tile("runway", "runway", "Runway", "/finance", runwayTile(metrics.runway), withTrend(metrics.runway, "months")),
+    tile("pipeline", "pipeline", "Pipeline Value", "/sales", pipelineTile(metrics.pipeline), withTrend(metrics.pipeline, "money")),
+    tile("ctr", "ctr", "Campaign CTR", "/marketing", ctrTile(metrics.campaign_ctr), withTrend(metrics.campaign_ctr, "points")),
+    tile(
+      "tasks",
+      "tasks_completed",
+      "Tasks This Week",
+      "/mission",
+      { value: String(k?.tasks_done_this_week ?? 0), hasData: true },
+      k?.tasks_trend ? trendFields("count", k.tasks_trend) : undefined,
+    ),
   ];
+  return tiles;
+}
+
+const AI_STATUSES: AIContentStatus[] = ["empty", "generating", "ready", "restricted"];
+
+function coerceStatus(raw: unknown, hasContent: boolean): AIContentStatus {
+  if (typeof raw === "string" && (AI_STATUSES as string[]).includes(raw)) return raw as AIContentStatus;
+  return hasContent ? "ready" : "empty";
+}
+
+function coerceSeverity(raw: unknown): RiskItem["severity"] {
+  return raw === "high" || raw === "medium" || raw === "low" ? raw : "medium";
+}
+
+function mapActions(raw: unknown): BriefingAction[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((a: any, i: number) => ({
+    index: typeof a.index === "number" ? a.index : i,
+    label: String(a.label ?? ""),
+    kind: a.kind === "navigate" ? "navigate" : "task",
+    href: typeof a.href === "string" ? a.href : null,
+    accepted: a.accepted === true,
+    missionTaskId: typeof a.mission_task_id === "string" ? a.mission_task_id : null,
+  }));
+}
+
+function mapRisks(raw: any): { items: RiskItem[]; status: AIContentStatus } {
+  if (!raw || typeof raw !== "object" || isSectionError(raw)) return { items: [], status: "empty" };
+  const items: RiskItem[] = (Array.isArray(raw.items) ? raw.items : []).map((r: any, i: number) => ({
+    id: String(r.index ?? i),
+    severity: coerceSeverity(r.severity),
+    description: String(r.text ?? ""),
+    moduleLink: typeof r.href === "string" ? r.href : null,
+  }));
+  return { items, status: coerceStatus(raw.status, items.length > 0) };
+}
+
+function mapOpportunities(raw: any): { items: OpportunityItem[]; status: AIContentStatus } {
+  if (!raw || typeof raw !== "object" || isSectionError(raw)) return { items: [], status: "empty" };
+  const items: OpportunityItem[] = (Array.isArray(raw.items) ? raw.items : []).map((o: any, i: number) => ({
+    id: String(o.index ?? i),
+    description: String(o.text ?? ""),
+    moduleLink: typeof o.href === "string" ? o.href : null,
+  }));
+  return { items, status: coerceStatus(raw.status, items.length > 0) };
+}
+
+/** The upcoming section is a list (live) or `{ items }`; a section error or anything else is "no items". */
+function mapUpcoming(raw: any): { items: UpcomingItem[]; error: boolean } {
+  if (isSectionError(raw)) return { items: [], error: true };
+  const list: any[] = Array.isArray(raw) ? raw : Array.isArray(raw?.items) ? raw.items : [];
+  return {
+    error: false,
+    items: list.map((u, i) => ({
+      id: String(u.id ?? u.milestone_id ?? i),
+      title: String(u.title ?? ""),
+      dueOn: typeof u.due_on === "string" ? u.due_on : null,
+    })),
+  };
+}
+
+function mapEmptyReason(raw: unknown): MissionEmptyState {
+  return raw === "weekend_off" || raw === "all_caught_up" ? raw : null;
 }
 
 /**
@@ -241,6 +305,7 @@ export function mapSummary(payload: any): DashboardSummaryResponse {
       streakDays: 0,
       status: "error",
       tasks: [],
+      emptyReason: null,
       error: true,
       errorMessage: payload.mission.message || "Unable to load today's mission",
     };
@@ -249,9 +314,11 @@ export function mapSummary(payload: any): DashboardSummaryResponse {
     missionState = {
       streakDays: m.streak ?? 0,
       status: m.status,
+      emptyReason: mapEmptyReason(m.empty_reason),
       error: false,
+      // Snoozed / rejected tasks have left today's mission; only open and done ones are shown.
       tasks: Array.isArray(m.tasks)
-        ? m.tasks.map((t: any) => ({
+        ? m.tasks.filter((t: any) => !t.status || t.status === "todo" || t.status === "done").map((t: any) => ({
             id: String(t.id),
             title: t.title,
             reason: t.reason ?? "",
@@ -276,7 +343,7 @@ export function mapSummary(payload: any): DashboardSummaryResponse {
   let briefingState: AIBriefing;
   if (isSectionError(payload.briefing)) {
     briefingState = {
-      id: "briefing",
+      id: null,
       date: new Date().toISOString(),
       agentBadge: "Co-Founder",
       content: "",
@@ -287,56 +354,26 @@ export function mapSummary(payload: any): DashboardSummaryResponse {
     };
   } else {
     const b = payload.briefing || {};
-    let status: AIContentStatus = b.status || (b.message || b.content ? "ready" : "empty");
-    if (!["empty", "generating", "ready"].includes(status)) {
-      status = b.message || b.content ? "ready" : "empty";
-    }
     const content = b.message || b.content || "";
-    // If not generating and no message, it's empty
-    if (!content && status !== "generating") {
-      status = "empty";
-    }
+    let status = coerceStatus(b.status, Boolean(content));
+    // If not generating or restricted and there is no message, it's empty
+    if (!content && status !== "generating" && status !== "restricted") status = "empty";
 
     briefingState = {
-      id: b.id || "briefing",
+      id: typeof b.id === "string" ? b.id : null,
       date: b.date || new Date().toISOString(),
       agentBadge: "Co-Founder",
       content,
       status,
-      actions: Array.isArray(b.actions) ? b.actions : [],
+      actions: mapActions(b.actions),
       error: false,
     };
   }
 
-  // 5. Risks Section Guard & AI Content Status
-  let risksItems: RiskItem[] = [];
-  let risksStatus: AIContentStatus = "empty";
-  if (!isSectionError(payload.risks)) {
-    if (Array.isArray(payload.risks)) {
-      risksItems = payload.risks;
-      risksStatus = payload.risks.length > 0 ? "ready" : "empty";
-    } else if (payload.risks && typeof payload.risks === "object") {
-      risksStatus = payload.risks.status || "empty";
-      if (Array.isArray(payload.risks.items)) {
-        risksItems = payload.risks.items;
-      }
-    }
-  }
-
-  // 6. Opportunities Section Guard & AI Content Status
-  let opportunitiesItems: OpportunityItem[] = [];
-  let opportunitiesStatus: AIContentStatus = "empty";
-  if (!isSectionError(payload.opportunities)) {
-    if (Array.isArray(payload.opportunities)) {
-      opportunitiesItems = payload.opportunities;
-      opportunitiesStatus = payload.opportunities.length > 0 ? "ready" : "empty";
-    } else if (payload.opportunities && typeof payload.opportunities === "object") {
-      opportunitiesStatus = payload.opportunities.status || "empty";
-      if (Array.isArray(payload.opportunities.items)) {
-        opportunitiesItems = payload.opportunities.items;
-      }
-    }
-  }
+  // 5 + 6. Risks and Opportunities (rows: severity + text + href)
+  const risks = mapRisks(payload.risks);
+  const opportunities = mapOpportunities(payload.opportunities);
+  const upcoming = mapUpcoming(payload.upcoming);
 
   return {
     greeting: g,
@@ -344,23 +381,31 @@ export function mapSummary(payload: any): DashboardSummaryResponse {
     startup: { name: g.startup_name },
     health: healthState,
     mission: missionState,
+    missionStatus: payload.mission_status === "restricted" ? "restricted" : "ok",
     briefing: briefingState,
     kpis: mapKpis(payload.kpis),
     calibration: calibrationState,
-    risks: risksItems,
-    opportunities: opportunitiesItems,
-    risksStatus,
-    opportunitiesStatus,
+    risks: risks.items,
+    opportunities: opportunities.items,
+    risksStatus: risks.status,
+    opportunitiesStatus: opportunities.status,
+    upcoming: upcoming.items,
+    upcomingError: upcoming.error,
+    briefingRestricted: briefingState.status === "restricted",
     raw: payload,
   };
 }
+
+/** Re-poll cadence while the AI blocks are still being written (they finish in seconds to a minute). */
+export const GENERATING_POLL_MS = 3500;
+export const GENERATING_POLL_MAX = 8;
 
 export function useDashboardSummary() {
   const [data, setData] = useState<DashboardSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const delayedRefetchTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const hasTriggeredDelayedRefetchRef = useRef(false);
+  const generatingPollsRef = useRef(0);
   const refetchRef = useRef<() => Promise<void>>(async () => {});
 
   const refetch = useCallback(async () => {
@@ -376,22 +421,24 @@ export function useDashboardSummary() {
         const mapped = mapSummary(payload);
         setData(mapped);
 
-        // AI Daily Briefing Status States:
-        // If briefing, risks, or opportunities are in "generating" state,
-        // trigger a single delayed re-fetch shortly after load to catch the transition to "ready".
+        // While the briefing, risks or opportunities are "generating", re-fetch on a
+        // short timer (bounded) to catch the transition to "ready".
         const isGenerating =
           mapped.briefing?.status === "generating" ||
           mapped.risksStatus === "generating" ||
           mapped.opportunitiesStatus === "generating";
 
-        if (isGenerating && !hasTriggeredDelayedRefetchRef.current) {
-          hasTriggeredDelayedRefetchRef.current = true;
-          if (delayedRefetchTimerRef.current) {
-            clearTimeout(delayedRefetchTimerRef.current);
-          }
+        if (delayedRefetchTimerRef.current) {
+          clearTimeout(delayedRefetchTimerRef.current);
+          delayedRefetchTimerRef.current = null;
+        }
+        if (isGenerating && generatingPollsRef.current < GENERATING_POLL_MAX) {
+          generatingPollsRef.current += 1;
           delayedRefetchTimerRef.current = setTimeout(() => {
             void refetchRef.current();
-          }, 3500);
+          }, GENERATING_POLL_MS);
+        } else if (!isGenerating) {
+          generatingPollsRef.current = 0;
         }
       } else {
         setData(null);
@@ -424,87 +471,106 @@ export function useDashboardSummary() {
     };
   }, [refetch]);
 
+  // Briefing-ready / threshold notifications and reconnects mean the summary may have changed.
+  useRealtimeEvent("resync", () => {
+    void refetchRef.current();
+  });
+
   return { data, loading, error, refetch, setData };
 }
 
-export function useAIBriefing() {
-  const [data] = useState<AIBriefing | null>(null);
-  const [loading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  const fallbackText =
-    "I’ll have your first briefing ready tomorrow morning once I’ve seen a full day of your workspace.";
-
-  const acceptAction = async (briefingId: string, index: number) => {
-    try {
-      const { apiClient } = await import("@/lib/api/client");
-      return await apiClient(`/dashboard/briefing/${briefingId}/actions/${index}/accept`, {
-        method: "POST",
-      });
-    } catch (err) {
-      console.error("Failed to accept action:", err);
-      throw err;
-    }
-  };
-
-  return { data, loading, error, refetch: () => Promise.resolve(), acceptAction, fallbackText, setError };
+/** Why a Do it click failed, in the PRD's honest-and-actionable voice. */
+export function briefingActionErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    const code = (err.data as { error?: { code?: string } } | null)?.error?.code;
+    if (code === "BRIEFING_STALE") return "That briefing is from an earlier day. Showing today's briefing.";
+    if (code === "BRIEFING_NOT_READY") return "Your briefing is still being written. Try again in a moment.";
+    if (err.status === 403) return "Only founders and team members can act on the briefing.";
+  }
+  return "Couldn't do that. Try again.";
 }
 
-export function useActivityFeed(workspaceId?: string) {
+export function useAIBriefing() {
+  return { acceptAction: acceptBriefingAction };
+}
+
+function relativeFrom(iso: string, now = Date.now()): string {
+  const diffSec = Math.max(0, Math.floor((now - new Date(iso).getTime()) / 1000));
+  if (diffSec < 60) return "just now";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+  if (diffSec < 7 * 86400) return `${Math.floor(diffSec / 86400)}d ago`;
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(iso));
+}
+
+/**
+ * One activity item, as returned by GET /dashboard/activity and pushed as
+ * `activity.created`, into the row the card renders. `actor` can be null
+ * (system action) and `actor.name` can be null (member without a profile name).
+ */
+export function toActivityEntry(e: any, now = Date.now()): ActivityLogEntry {
+  // The API field is `created_at` (not `timestamp`); falling back to the
+  // wrong field made every row read "just now".
+  const iso = e.created_at || e.timestamp || new Date(now).toISOString();
+  const actorName =
+    e.actor?.name || (typeof e.actor === "string" && e.actor.trim() ? e.actor : null) || null;
+  const relative = relativeFrom(iso, now);
+  return {
+    id: String(e.id),
+    actor: actorName ?? (e.actor ? "A teammate" : "System"),
+    summary: e.summary || "",
+    action: e.action || "",
+    verb: e.verb || "",
+    entity: e.entity || "",
+    timestamp: iso,
+    relativeTime: relative,
+    time: relative,
+    actorDetails: typeof e.actor === "object" && e.actor !== null ? e.actor : null,
+  } as ActivityLogEntry;
+}
+
+/** Prepends a pushed row, ignoring one we already have (our own actions echo back). */
+export function prependActivity(prev: ActivityLogEntry[], entry: ActivityLogEntry): ActivityLogEntry[] {
+  return prev.some((x) => x.id === entry.id) ? prev : [entry, ...prev];
+}
+
+/** Appends an older page, skipping rows already shown (live prepends can overlap the page boundary). */
+export function appendActivity(prev: ActivityLogEntry[], older: ActivityLogEntry[]): ActivityLogEntry[] {
+  const seen = new Set(prev.map((x) => x.id));
+  const fresh: ActivityLogEntry[] = [];
+  for (const e of older) {
+    if (seen.has(e.id)) continue;
+    seen.add(e.id);
+    fresh.push(e);
+  }
+  return fresh.length ? [...prev, ...fresh] : prev;
+}
+
+export function useActivityFeed() {
   const [data, setData] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [moreError, setMoreError] = useState(false);
   const fetchActivityRef = useRef<(cursor?: string) => Promise<void>>(async () => {});
-
-  const activeWorkspace = workspaceId || getActiveWorkspaceId() || "default";
 
   const fetchActivity = useCallback(
     async (cursor?: string) => {
       try {
-        if (!cursor) setLoading(true);
-        setError(null);
+        if (cursor) {
+          setLoadingMore(true);
+          setMoreError(false);
+        } else {
+          setLoading(true);
+          setError(null);
+        }
 
         const res = await getDashboardActivity(cursor);
-        const newItems = res.data?.items ?? [];
-
         const now = Date.now();
-        const enriched: ActivityLogEntry[] = newItems.map((e: any) => {
-          // The API field is `created_at` (not `timestamp`); falling back to the
-          // wrong field made every row read "just now".
-          const iso = e.created_at || e.timestamp || new Date().toISOString();
-          const ts = new Date(iso).getTime();
-          const diffSec = Math.floor((now - ts) / 1000);
-          let relative = "";
-          if (diffSec < 60) relative = "just now";
-          else if (diffSec < 3600) relative = `${Math.floor(diffSec / 60)}m ago`;
-          else if (diffSec < 86400) relative = `${Math.floor(diffSec / 3600)}h ago`;
-          else relative = `${Math.floor(diffSec / 86400)}d ago`;
+        const enriched = (res.data?.items ?? []).map((e: any) => toActivityEntry(e, now));
 
-          // Actor null-safety: Fallback to "System" if actor or actor.name is missing
-          const actorName =
-            e.actor?.name ||
-            (typeof e.actor === "string" && e.actor.trim() ? e.actor : null) ||
-            "System";
-
-          return {
-            id: String(e.id),
-            actor: actorName,
-            // The API hands us a ready sentence; prefer it over verb/entity
-            // (which the API doesn't emit).
-            summary: e.summary || "",
-            action: e.action || "",
-            verb: e.verb || "",
-            entity: e.entity || "",
-            timestamp: iso,
-            relativeTime: relative,
-            time: relative,
-            actorDetails: typeof e.actor === "object" && e.actor !== null ? e.actor : null,
-          } as ActivityLogEntry;
-        });
-
-        setData((prev) => (cursor ? [...prev, ...enriched] : enriched));
+        setData((prev) => (cursor ? appendActivity(prev, enriched) : enriched));
         setNextCursor(res.data?.next_cursor ?? null);
       } catch (err) {
         // Keyset pagination 422 recovery:
@@ -516,9 +582,12 @@ export function useActivityFeed(workspaceId?: string) {
           return;
         }
 
-        setError(err instanceof Error ? err : new Error(String(err)));
+        // A failed load-more keeps the rows already shown and offers an inline retry.
+        if (cursor) setMoreError(true);
+        else setError(err instanceof Error ? err : new Error(String(err)));
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     },
     []
@@ -534,95 +603,28 @@ export function useActivityFeed(workspaceId?: string) {
     });
   }, [fetchActivity]);
 
-  // WebSocket Subscription (disabled in dev / when hitting proxy)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const token = getAuthToken();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-    if (!apiUrl || apiUrl.includes("localhost") || process.env.NODE_ENV === "development") {
-      return;
-    }
-    const wsBaseUrl = apiUrl.replace(/^http/, "ws");
-
-    const wsUrl = `${wsBaseUrl}/ws?workspace_id=${encodeURIComponent(
-      activeWorkspace
-    )}${token ? `&token=${encodeURIComponent(token)}` : ""}`;
-
-    let ws: WebSocket;
-    try {
-      ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
-    } catch (e) {
-      console.warn("WebSocket initialization failed:", e);
-      return;
-    }
-
-    ws.onopen = () => {
-      ws.send(
-        JSON.stringify({
-          type: "subscribe",
-          channel: `workspace.${activeWorkspace}.activity`,
-        })
-      );
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data);
-        if (payload.type === "activity_event" && payload.data) {
-          const incoming = payload.data;
-          const now = Date.now();
-          const iso = incoming.created_at || incoming.timestamp || new Date().toISOString();
-          const ts = new Date(iso).getTime();
-          const diffSec = Math.floor((now - ts) / 1000);
-          let relative = "";
-          if (diffSec < 60) relative = "just now";
-          else if (diffSec < 3600) relative = `${Math.floor(diffSec / 60)}m ago`;
-          else if (diffSec < 86400) relative = `${Math.floor(diffSec / 3600)}h ago`;
-          else relative = `${Math.floor(diffSec / 86400)}d ago`;
-
-          const actorName =
-            incoming.actor?.name ||
-            (typeof incoming.actor === "string" && incoming.actor.trim() ? incoming.actor : null) ||
-            "System";
-
-          const entry: ActivityLogEntry = {
-            ...incoming,
-            id: String(incoming.id),
-            actor: actorName,
-            summary: incoming.summary || "",
-            timestamp: iso,
-            relativeTime: relative,
-            time: relative,
-          };
-          setData((prev) => {
-            if (prev.find((item) => item.id === entry.id)) return prev;
-            return [entry, ...prev];
-          });
-        }
-      } catch (err) {
-        console.error("WebSocket message parsing error:", err);
-      }
-    };
-
-    ws.onerror = (err) => {
-      console.warn("WebSocket error:", err);
-    };
-
-    return () => {
-      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-        ws.close();
-      }
-    };
-  }, [activeWorkspace]);
+  // Live: `activity.created` on the notifications stream (D-DASH-2). Events are
+  // best-effort, so a reconnect or the tab regaining focus refetches page 1.
+  useRealtimeEvent("activity.created", (payload) => {
+    if (!payload || typeof payload !== "object" || !("id" in payload)) return;
+    const entry = toActivityEntry(payload);
+    setData((prev) => prependActivity(prev, entry));
+  });
+  useRealtimeEvent("resync", () => {
+    void fetchActivityRef.current(undefined);
+  });
 
   return {
     data,
     setData,
     loading,
     error,
-    fetchMore: () => fetchActivity(nextCursor ?? undefined),
+    fetchMore: () => {
+      if (!nextCursor || loadingMore) return Promise.resolve();
+      return fetchActivity(nextCursor);
+    },
+    loadingMore,
+    moreError,
     hasMore: Boolean(nextCursor),
     nextCursor,
     refetch: () => fetchActivity(undefined),

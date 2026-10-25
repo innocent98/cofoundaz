@@ -1,0 +1,39 @@
+# TM on founder-only routes
+rewalk-tm POST /finance/integrations/paystack/connect -> "code":"FORBIDDEN" HTTP 403
+rewalk-tm POST /finance/integrations/paystack/sync -> "code":"NOT_FOUND" HTTP 404
+rewalk-tm POST /finance/integrations/paystack/disconnect -> "code":"FORBIDDEN" HTTP 403
+rewalk-tm POST /finance/integrations/mono/connect -> "code":"FORBIDDEN" HTTP 403
+rewalk-tm POST /finance/model/generate ->  HTTP 202
+# mentor / consultant
+bb-mentor-1 GET /finance/cash-flow -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/transactions -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/categories -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/runway -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/invoices -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/expenses -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/expenses/summary -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/budgets?month=2026-10 -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/model -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/integrations -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 GET /finance/receipts/download?token=x -> "code":"NOT_FOUND" HTTP 404
+bb-mentor-1 POST /finance/transactions -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 POST /finance/invoices -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 POST /finance/expenses -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 PUT /finance/runway/assumptions -> "code":"FORBIDDEN" HTTP 403
+bb-mentor-1 POST /finance/integrations/paystack/sync -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/cash-flow -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/transactions -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/categories -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/runway -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/invoices -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/expenses -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/expenses/summary -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/budgets?month=2026-10 -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/model -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/integrations -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 GET /finance/receipts/download?token=x -> "code":"NOT_FOUND" HTTP 404
+bb-consultant-1 POST /finance/transactions -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 POST /finance/invoices -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 POST /finance/expenses -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 PUT /finance/runway/assumptions -> "code":"FORBIDDEN" HTTP 403
+bb-consultant-1 POST /finance/integrations/paystack/sync -> "code":"FORBIDDEN" HTTP 403

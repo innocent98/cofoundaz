@@ -4,8 +4,10 @@ import {
   listAssumptions,
   createAssumption,
   updateAssumption,
+  deleteValidationItem,
   type AssumptionStatus,
   type AssumptionRisk,
+  type LinkedExperiment,
   type RawAssumption,
 } from '@/lib/api/validation';
 
@@ -18,6 +20,7 @@ export interface Assumption {
   risk: AssumptionRisk;
   status: AssumptionStatus;
   evidenceCount: number;
+  linkedExperiments: LinkedExperiment[];
 }
 
 function toAssumption(r: RawAssumption): Assumption {
@@ -27,6 +30,7 @@ function toAssumption(r: RawAssumption): Assumption {
     risk: r.risk,
     status: r.status,
     evidenceCount: r.evidence_count ?? 0,
+    linkedExperiments: r.linked_experiments ?? [],
   };
 }
 
@@ -88,5 +92,10 @@ export function useAssumptions() {
     [load]
   );
 
-  return { assumptions, loading, error, addAssumption, updateStatus, refetch: load };
+  const remove = useCallback(async (id: string) => {
+    await deleteValidationItem('assumptions', id);
+    setAssumptions((prev) => prev.filter((a) => a.id !== id));
+  }, []);
+
+  return { assumptions, loading, error, addAssumption, updateStatus, remove, refetch: load };
 }

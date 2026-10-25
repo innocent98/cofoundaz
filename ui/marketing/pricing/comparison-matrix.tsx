@@ -6,7 +6,7 @@ function Cell({ cell }: { cell: MatrixCell }) {
   if (cell.kind === 'yes') {
     return (
       <>
-        <span aria-hidden="true" className="text-[15px] font-bold text-green-600">✓</span>
+        <span aria-hidden="true" className="text-[15px] font-bold text-brand-600">✓</span>
         <span className="sr-only">Included</span>
       </>
     )
@@ -17,12 +17,12 @@ function Cell({ cell }: { cell: MatrixCell }) {
     // cell — on the table whose entire purpose is plan comparison.
     return (
       <>
-        <span aria-hidden="true" className="text-[13px] font-semibold text-sage-500">·</span>
+        <span aria-hidden="true" className="text-[13px] font-semibold text-neutral-500">·</span>
         <span className="sr-only">Not included</span>
       </>
     )
   }
-  return <span className="text-[13px] font-semibold text-sage-500">{cell.value}</span>
+  return <span className="text-[13px] font-semibold text-neutral-500">{cell.value}</span>
 }
 
 export function ComparisonMatrix() {
@@ -41,12 +41,12 @@ export function ComparisonMatrix() {
       // (confirmed with window.scrollTo actually moving the viewport).
       // contain-layout establishes a real containment boundary and stops
       // that leak without affecting this element's own internal scroll.
-      className="overflow-x-auto rounded-[14px] border border-green-100 bg-white shadow-card contain-layout"
+      className="overflow-x-auto rounded-[14px] border border-brand-100 bg-white shadow-card contain-layout"
     >
       <table className="w-full min-w-[560px] border-collapse text-left">
         <caption className="sr-only">{pricing.matrixTitle}</caption>
         <thead>
-          <tr className="bg-green-900 text-white">
+          <tr className="bg-brand-900 text-white">
             <th scope="col" className="px-5 py-4 text-[13px] font-bold">Features</th>
             {/* Column headers are derived from pricing.plans so a rename can't desync
                 the table from the cards; the copper highlight follows plan.popular
@@ -55,7 +55,7 @@ export function ComparisonMatrix() {
               <th
                 key={plan.name}
                 scope="col"
-                className={cn('px-4 py-4 text-center text-[13px] font-bold', plan.popular && 'text-copper-500')}
+                className={cn('px-4 py-4 text-center text-[13px] font-bold', plan.popular && 'text-accent-500')}
               >
                 {plan.name}
               </th>
@@ -68,18 +68,18 @@ export function ComparisonMatrix() {
               <th
                 colSpan={4}
                 scope="colgroup"
-                className="border-t border-green-100 bg-sage-100 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.06em] text-sage-500"
+                className="border-t border-brand-100 bg-neutral-100 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.06em] text-neutral-500"
               >
                 {section.section}
               </th>
             </tr>
             {section.rows.map((row) => (
-              <tr key={row.feature} className="border-t border-green-50">
-                <th scope="row" className="px-5 py-3.5 text-sm font-normal text-sage-900">
+              <tr key={row.feature} className="border-t border-brand-50">
+                <th scope="row" className="px-5 py-3.5 text-sm font-normal text-neutral-900">
                   {row.feature}
                 </th>
                 <td className="px-3 py-3.5 text-center"><Cell cell={row.starter} /></td>
-                <td className="bg-green-50 px-3 py-3.5 text-center"><Cell cell={row.growth} /></td>
+                <td className="bg-brand-50 px-3 py-3.5 text-center"><Cell cell={row.growth} /></td>
                 <td className="px-3 py-3.5 text-center"><Cell cell={row.scale} /></td>
               </tr>
             ))}

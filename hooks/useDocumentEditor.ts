@@ -18,6 +18,7 @@ export interface EditableDoc {
   title: string;
   kind: string;
   status: string;
+  folder?: string | null;
   version: number;
   updated_at: string;
   sections: DocSection[];
@@ -38,7 +39,7 @@ export function useDocumentEditor(id: string) {
     try {
       setLoading(true);
       setNotFound(false);
-      const res = await apiClient<{ data?: EditableDoc }>(`/documents/${id}`);
+      const res = await apiClient<{ data?: EditableDoc }>(`/documents/${encodeURIComponent(id)}`);
       setDoc(res?.data ?? null);
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) setNotFound(true);
@@ -56,12 +57,17 @@ export function useDocumentEditor(id: string) {
   }, [id, load]);
 
   const save = useCallback(
-    async (title: string, sections: DocSection[]): Promise<SaveResult> => {
+    async (
+      title: string,
+      sections: DocSection[],
+      meta?: { status?: string; folder?: string | null }
+    ): Promise<SaveResult> => {
       if (!doc) return { ok: false, error: 'Not loaded.' };
       try {
-        const res = await apiClient<{ data?: EditableDoc }>(`/documents/${id}`, {
+        const res = await apiClient<{ data?: EditableDoc }>(`/documents/${encodeURIComponent(id)}`, {
           method: 'PUT',
-          body: JSON.stringify({ title, sections, version: doc.version }),
+          // PUT is a full replace: echo status and folder back or the save wipes them.
+          body: JSON.stringify({ title, sections, status: meta?.status ?? doc.status, folder: meta && 'folder' in meta ? meta.folder : (doc.folder ?? null), version: doc.version }),
         });
         if (res?.data) setDoc(res.data); // new version + normalized sections
         return { ok: true };

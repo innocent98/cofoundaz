@@ -1,0 +1,48 @@
+# Re-walk fixes: Mission + shell
+
+**What shipped:** six FE fixes found by the click-through re-walk of Today's Mission on `develop` (PR `fix/rewalk-mission-shell`). Health rows 7-10 are below; Roadmap rows 11-13 follow; Business Builder rows 14-19 follow.
+
+| # | Fix | Where |
+|---|---|---|
+| 1 | Authenticated `/auth/*` calls (`/auth/me`, sessions, MFA setup) now refresh and retry on 401. Only credential endpoints (login, signup, refresh, verify, password forgot/reset, MFA challenge, `/shared/`, `/sign/`) are exempt. Root cause: `isAuthEndpoint` exempted every `/auth/` path, so an expired token at load left `me=null` and role-gated UI (+ Invite) missing until reload. | `lib/api/client.ts` (`isCredentialEndpoint`), `lib/api/client.test.ts` |
+| 2 | Mission toggle/snooze/reject/reorder return `Promise<boolean>`; success toasts only after the server confirms, "Couldn’t save that. Try again." otherwise (the optimistic update still reverts via refetch). | `hooks/useMissionApi.ts`, `app/(dashboard)/mission/page.tsx` |
+| 3 | Invite modal validates each row client-side, ignores fully empty extra rows, and maps any server 422 to "Enter a valid email address." (raw validator text is never rendered). | `components/team/invite-modal.tsx` |
+| 4 | Weekends switch and Delivery time select carry explicit `aria-label`s. | `app/(dashboard)/mission/settings/page.tsx` |
+| 5 | "Assigned to you" rows have a `Complete task: {title}` checkbox for founder and team member: `PATCH /roadmap/tasks/{id}` `{"status":"done"}` (live response: `data.status = "done"`), then refetch `/missions/today`. | `hooks/useMissionApi.ts` (`completeAssigned`), mission page |
+| 6 | One guard at the dashboard shell: a role the sidebar hides a section from sees "You don't have access to this page." with a Back to dashboard link. Gated sections render nothing while the profile loads; an unknown role after load shows everything (as `canSee`). | `components/route-guard.tsx`, `lib/nav-access.ts` (`canOpenPath`), `app/(dashboard)/layout.tsx` |
+
+## Health (rows 7-10)
+
+| # | Fix | Where |
+|---|---|---|
+| 7 | Over-time charts no longer repeat "Oct 19": one tick per calendar day (de-duplicated, max 6); readings from a single day are labelled by time. | `components/health/health-charts.tsx` (`timeAxisProps`) |
+| 8 | Recommendation cards say "Financial" not the API key `money`; "est. +1 pt" singular everywhere (overview, drill-down, recommendations, contribution column). | `lib/health-format.ts` (`formatLift`, `dimensionLabel`) |
+| 9 | Accept/dismiss are founder-only (API 403 otherwise): other roles see no Start/Dismiss, only an "Open" link. | `app/(dashboard)/health/recommendations/page.tsx` |
+| 10 | "Do it" / "Open" links render only when `canOpenPath(href, role)` allows the route. | health overview, drill-down, recommendations |
+
+## Roadmap (rows 11-13)
+
+| # | Fix | Where |
+|---|---|---|
+| 11 | Timeline phase labels are 1-based (`order + 1`); the API order starts at 0. | `app/(dashboard)/roadmap/page.tsx` |
+| 12 | Template preview and apply-confirm are real dialogs: focus moves in, Escape closes, Tab is trapped, focus returns to the card button (also when the confirm was opened from the preview). New reusable `ModalDialog`. | `components/modal-dialog.tsx`, `app/(dashboard)/roadmap/templates/page.tsx` |
+| 13 | Re-plan history entries carry `aria-expanded` and `aria-controls`. | `app/(dashboard)/roadmap/replan/page.tsx` |
+
+## Business Builder (rows 14-19)
+
+| # | Fix | Where |
+|---|---|---|
+| 14 | Comment drawer mention list: Enter/Tab pick the highlighted person (arrows move, Escape dismisses the list only); options and the textarea are a named combobox/listbox. Posts now carry the mention ids. | `components/business-builder/comment-drawer.tsx` |
+| 15 | A save already in flight can no longer write an older editor into the header after a reload (the reload after an AI job stays authoritative: "Last edited by AI"). Could not reproduce live (local AI budget used up); covered by hook tests. | `hooks/useCanvasEditor.ts` |
+| 16 | Record forms show API `field_errors` under each field (`recordFormFailure`), omit a select left on "Select…", and tie labels to inputs (`htmlFor`/`aria-describedby`). | `components/business-builder/record-form-modal.tsx`, `hooks/useBusinessRecords.ts`, personas / competitive-analysis / revenue-model pages |
+| 17 | Item-specific labels: `Remove note: {text}`, `Move note to another block: {text}`, `Edit/Delete persona|stream|competitor: {name}`, `X axis ... label`, `Y axis ... label`. | `lib/note-label.ts`, canvas pages, `move-note.tsx`, `axes-edit-modal.tsx` |
+| 18 | Plan "Regenerate a section" shows "AI is at its daily limit, try again tomorrow." when disabled by the budget. | `components/business-builder/plan-regenerate.tsx` |
+| 19 | Suggestion card says "Update the SWOT" / "Business Model Canvas" (artifact label), not the raw type. | `components/business-builder/suggestions-panel.tsx` |
+
+**Why not touch `handleSessionExpired`:** its redirect-to-login still skips every `/auth/` path, so public pages calling `/auth/*` without a token are unaffected.
+
+**Verification:** unit tests per row (826 unit tests pass), typecheck, lint, build and the 153 e2e tests green on a clean checkout; each row exercised live on the local stack (expired token reload shows + Invite; forced 500 on the PATCH gives the error toast and no success toast; invalid invite email sends no request; TM ticks an assigned task and the row drops; mentor on `/mission` and `/finance` blocked at 1440 and 375 with no page scroll).
+
+**Roll back:** revert the PR; no API or migration changes.
+
+**Follow-ups:** the API is separately tightening Mission reads to 403 for mentors/consultants.

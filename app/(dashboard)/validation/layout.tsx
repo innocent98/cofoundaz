@@ -1,133 +1,96 @@
 'use client';
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import Sidebar from '@/components/sidebar';
-import { HealthPill } from '@/components/health-pill';
-import { NotificationBell } from '@/components/notification-bell';
+import { Check } from 'lucide-react';
+import { ShellTopBar } from '@/components/shell-top-bar';
+import type { ExperimentDraft } from '@/lib/api/validation';
 
-type ToastContextType = {
+type ValidationShell = {
   triggerToast: (msg: string) => void;
+  /** An AI experiment draft waiting for the smoke-test builder to pick it up. */
+  pendingDraft: ExperimentDraft | null;
+  setPendingDraft: (draft: ExperimentDraft | null) => void;
 };
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
+const ShellContext = createContext<ValidationShell | undefined>(undefined);
 
-export function useToast() {
-  const context = useContext(ToastContext);
-  if (!context) throw new Error('useToast must be used within ToastProvider');
+export function useValidationShell() {
+  const context = useContext(ShellContext);
+  if (!context) throw new Error('useValidationShell must be used within the Validation layout');
   return context;
 }
 
-export default function ValidationLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+export function useToast() {
+  const { triggerToast } = useValidationShell();
+  return { triggerToast };
+}
+
+const TABS = [
+  { label: 'Overview', path: '/validation' },
+  { label: 'Smoke tests', path: '/validation/smoke-tests' },
+  { label: 'Interview scripts', path: '/validation/scripts' },
+  { label: 'Interviews', path: '/validation/interviews' },
+  { label: 'Surveys', path: '/validation/surveys' },
+  { label: 'Assumptions', path: '/validation/assumptions' },
+  { label: 'MVP feedback', path: '/validation/mvp' },
+];
+
+export default function ValidationLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [toast, setToast] = useState({ show: false, message: '' });
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [pendingDraft, setPendingDraft] = useState<ExperimentDraft | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const triggerToast = (msg: string) => {
-    setToast({ show: true, message: msg });
-    setTimeout(() => setToast({ show: false, message: '' }), 4000);
-  };
+  const triggerToast = useCallback((msg: string) => {
+    setToastMessage(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMessage(null), 4000);
+  }, []);
 
-  const tabs = [
-    { label: 'Overview', path: '/validation' },
-    { label: 'Smoke tests', path: '/validation/smoke-tests' },
-    { label: 'Interview scripts', path: '/validation/scripts' },
-    { label: 'Interviews', path: '/validation/interviews' },
-    { label: 'Surveys', path: '/validation/surveys' },
-    { label: 'Assumptions', path: '/validation/assumptions' },
-    { label: 'MVP feedback', path: '/validation/mvp' },
-  ];
+  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
+
+  const value = useMemo(() => ({ triggerToast, pendingDraft, setPendingDraft }), [triggerToast, pendingDraft]);
 
   return (
-    <ToastContext.Provider value={{ triggerToast }}>
-      <div className="relative flex min-h-screen w-full min-w-0 flex-col bg-[#f5f7f5] text-[#2c3531] font-body">
-        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-
-        {isSidebarOpen && (
-          <button
-            type="button"
-            aria-label="Close sidebar overlay"
-            onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 z-40 block bg-black/40 backdrop-blur-[1px] lg:hidden"
-          />
+    <ShellContext.Provider value={value}>
+      <div className="flex-1 flex flex-col min-w-0 bg-surface-subtle text-ink min-h-screen">
+        {toastMessage && (
+          <div role="status" className="fixed top-3 left-1/2 -translate-x-1/2 z-50 max-w-[92vw] bg-brand-rail-ink text-white px-5 py-2.5 rounded-card shadow-raised flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-200">
+            <Check className="w-4 h-4 text-accent-500 shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
         )}
 
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* GLOBAL TOAST NOTIFICATION */}
-          {toast.show && (
-            <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-              <div className="bg-[#0e271f] text-white px-5 py-2.5 rounded-card shadow-raised flex items-center gap-3 border border-[#1f4236]">
-                <div className="flex items-center justify-center text-green-400 font-bold text-sm">
-                  ✓
-                </div>
-                <span className="font-medium text-sm tracking-wide text-sage-100">
-                  {toast.message}
-                </span>
-              </div>
+        <div className="sticky top-0 z-40 bg-surface-subtle">
+          <ShellTopBar title="Validation Hub" />
+
+          <nav aria-label="Validation sections" className="border-b border-line-soft px-4 md:px-8 py-3 bg-surface-subtle">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              {TABS.map((tab) => {
+                const isActive = pathname === tab.path;
+                return (
+                  <Link
+                    key={tab.path}
+                    href={tab.path}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all block ${
+                      isActive
+                        ? 'bg-accent-200 text-ink font-bold shadow-card'
+                        : 'bg-white border border-line-soft text-ink-muted hover:border-neutral-xc5cfc7'
+                    }`}
+                  >
+                    {tab.label}
+                  </Link>
+                );
+              })}
             </div>
-          )}
-
-          <div className="sticky top-0 z-40 bg-[#F7F7F5] border-b border-[#EBEBE6]">
-            <header className="bg-white border-b border-[#EBEBE6] px-4 md:px-8 py-3.5 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-                  onClick={() => setIsSidebarOpen((open) => !open)}
-                  className="lg:hidden h-10 w-10 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-base shadow-card hover:opacity-90 transition-opacity shrink-0"
-                >
-                  C
-                </button>
-                <div className="flex items-center gap-2 text-sm md:text-base font-semibold">
-                  <span className="text-[#8E9B90]">Workspace</span>
-                  <span className="text-[#8E9B90]">/</span>
-                  <h1 className="text-[#1E2923] font-bold">Validation Hub</h1>
-                </div>
-              </div>
-
-              <div className="flex shrink-0 items-center gap-2 md:gap-3">
-                <HealthPill className="hidden md:flex items-center gap-2 bg-[#E6EFEA] text-[#183B28] px-3.5 py-1.5 rounded-full text-xs font-medium" />
-
-                <NotificationBell className="relative shrink-0 p-2.5 bg-[#F5F5F0] hover:bg-[#EBEBE6] rounded-full transition-colors text-[#1E2923] flex items-center justify-center" />
-
-                <button className="shrink-0 flex items-center gap-1.5 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-bold px-3 py-1.5 rounded-card text-xs md:text-sm transition-colors shadow-card">
-                  <span>+ Invite</span>
-                </button>
-              </div>
-            </header>
-
-            <div className="px-4 md:px-8 py-3 bg-[#F7F7F5]">
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                {tabs.map((tab) => {
-                  const isActive = pathname === tab.path;
-                  return (
-                    <Link
-                      key={tab.path}
-                      href={tab.path}
-                      className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all block ${
-                        isActive
-                          ? "bg-[#EAD5C6] text-[#1E2923] font-bold shadow-card"
-                          : "bg-white border border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]"
-                      }`}
-                    >
-                      {tab.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          <main className="p-4 md:p-8 max-w-6xl w-full mx-auto flex-1 flex flex-col gap-8">
-            {children}
-          </main>
+          </nav>
         </div>
+
+        <main className="p-4 md:p-8 max-w-6xl w-full mx-auto flex-1 flex flex-col gap-8">{children}</main>
       </div>
-    </ToastContext.Provider>
+    </ShellContext.Provider>
   );
 }

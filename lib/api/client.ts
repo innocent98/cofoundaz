@@ -8,7 +8,7 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
 
 // Guard so parallel 401s (the dashboard fires many calls at once) trigger a
 // single redirect, not a storm of them.
@@ -18,6 +18,19 @@ function isAuthEndpoint(endpoint: string): boolean {
   // A 401 on the auth endpoints themselves means "bad credentials", handled by
   // the login/verify pages — not an expired session, so never redirect there.
   return /\/auth\//.test(endpoint) || endpoint.includes('/shared/') || endpoint.includes('/sign/');
+}
+
+// Credential endpoints take no bearer token: a 401 there means bad credentials
+// or a dead one-time token, never an expired session, so they must not trigger
+// a refresh. Authenticated /auth/* calls (/auth/me, /auth/sessions, MFA setup)
+// are NOT in this list; they refresh and retry like any other call.
+const CREDENTIAL_AUTH_PATH =
+  /\/auth\/(login|signup|register|refresh|verify|verify-email|resend-verification|password\/(forgot|reset)|forgot-password|reset-password|mfa\/(challenge|verify-login))(\/|\?|$)/;
+
+export function isCredentialEndpoint(endpoint: string): boolean {
+  return (
+    CREDENTIAL_AUTH_PATH.test(endpoint) || endpoint.includes('/shared/') || endpoint.includes('/sign/')
+  );
 }
 
 // A short-lived access token that has expired can be silently renewed with the
@@ -123,9 +136,9 @@ export async function apiClient<T>(
   });
 
   // Access token expired mid-session → try a silent refresh + one retry before
-  // giving up. Auth endpoints are exempt (a 401 there is bad credentials, not an
-  // expired session), and we only attempt this when a token was actually sent.
-  if (res.status === 401 && token && !isAuthEndpoint(endpoint) && typeof window !== 'undefined') {
+  // giving up. Credential endpoints are exempt (a 401 there is bad credentials,
+  // not an expired session), and we only attempt this when a token was sent.
+  if (res.status === 401 && token && !isCredentialEndpoint(endpoint) && typeof window !== 'undefined') {
     const newToken = await tryRefreshToken();
     if (newToken) {
       headers.set('Authorization', `Bearer ${newToken}`);

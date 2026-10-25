@@ -1,26 +1,46 @@
-﻿'use client';
+'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 
-function getGreeting(): string {
-  if (typeof window === 'undefined') return 'Good day';
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
+export function greetingFor(hour: number): string {
+  return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 }
 
-export function GreetingHeader({ firstName, startupName }: { firstName: string; startupName: string }) {
-  const [greeting] = useState<string>(getGreeting);
+/** "Good evening, Victor." or, when the member has no profile name yet, "Good evening." (never "Good evening, ."). */
+export function greetingLine(salutation: string, firstName?: string | null): string {
+  const name = firstName?.trim();
+  return name ? `${salutation}, ${name}.` : `${salutation}.`;
+}
 
+export function GreetingHeader({
+  firstName,
+  startupName,
+  now = new Date(),
+}: {
+  firstName?: string | null;
+  startupName?: string | null;
+  now?: Date;
+}) {
+  const formattedDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(now);
+  const startup = startupName?.trim();
   return (
-    <section className="mb-6 w-full col-span-1 md:col-span-12">
-      <h1 className="text-[28px] md:text-[32px] font-bold text-[#1C201D] font-display tracking-tight leading-tight mb-1.5 flex items-center gap-3">
-        {greeting}, {firstName}.
+    <section className="mb-6 w-full">
+      <h1 className="text-3xl font-display font-bold text-neutral-900 mb-1">
+        {greetingLine(greetingFor(now.getHours()), firstName)}
       </h1>
-      <p className="text-base text-sage-500 font-medium tracking-wide">
-        Here&apos;s where {startupName} stands today.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-neutral-500">
+        <p>Here&apos;s where {startup || 'your startup'} stands today.</p>
+        <span className="text-neutral-500">{formattedDate}</span>
+      </div>
+    </section>
+  );
+}
+
+export function GreetingSkeleton() {
+  return (
+    <section className="mb-6 w-full" role="status" aria-label="Loading your dashboard">
+      <div className="h-9 w-72 max-w-full rounded-pill bg-neutral-100 animate-pulse mb-3" />
+      <div className="h-4 w-56 max-w-full rounded-pill bg-neutral-100 animate-pulse" />
     </section>
   );
 }

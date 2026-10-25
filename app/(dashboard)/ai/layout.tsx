@@ -3,18 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSidebar } from '@/components/sidebar-context';
-import {  } from 'lucide-react';
-import { HealthPill } from '@/components/health-pill';
+import { ShellTopBar } from '@/components/shell-top-bar';
 import { AiStatusBanner } from '@/components/ai/ai-status-banner';
-import { NotificationBell } from '@/components/notification-bell';
 
 export default function AICoFounderLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { openSidebar } = useSidebar();
   const pathname = usePathname();
 
   const tabs = [
@@ -26,43 +22,14 @@ export default function AICoFounderLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-[#1E2923]">
+    <div className="min-h-screen bg-surface-faint text-ink">
       <div className="flex flex-col min-w-0">
-        <header className="sticky top-0 z-40 bg-white border-b border-[#EBEBE6] px-4 md:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 shadow-card">
-          <div className="flex items-center gap-3">
-            {/* Mobile-Only Standalone Logo Button (triggers sidebar) */}
-            <button
-              onClick={openSidebar}
-              className="lg:hidden w-10 h-10 rounded-modal bg-[#173B28] text-[#D89A6E] flex items-center justify-center font-bold text-base shadow-card hover:opacity-90 transition-opacity shrink-0"
-              aria-label="Open sidebar"
-            >
-              C
-            </button>
-
-            {/* Responsive Breadcrumbs */}
-            <div className="flex items-center gap-2 md:gap-2.5 text-xs md:text-sm md:text-lg font-semibold">
-              <span className="text-[#8E9B90]">Workspace</span>
-              <span className="text-[#8E9B90]">/</span>
-              <h1 className="text-[#1E2923] font-bold truncate">AI Co-Founder</h1>
-            </div>
-          </div>
-
-          {/* Header Right Actions */}
-          <div className="flex items-center gap-4">
-            <HealthPill className="bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]" />
-
-            <NotificationBell />
-
-            <button className="bg-copper-600 text-white font-semibold text-xs px-4 h-[36px] rounded-[8px] hover:bg-copper-700 transition-colors">
-              + Invite
-            </button>
-          </div>
-        </header>
+        <ShellTopBar title="AI Co-Founder" />
 
         {/* Main Page Body */}
         <main className="p-4 md:p-6 lg:p-8 flex-1 flex flex-col">
           {/* Top Navigation Tabs */}
-          <div className="flex items-center gap-2 border-b border-[#EBEBE6] pb-2 mb-6 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2 border-b border-line-soft pb-2 mb-6 overflow-x-auto no-scrollbar">
             {tabs.map((tab) => {
               const isActive = pathname === tab.href;
               return (
@@ -71,8 +38,8 @@ export default function AICoFounderLayout({
                   href={tab.href}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-[#E9DDBE] text-[#12291F] shadow-card'
-                      : 'text-[#67716C] hover:bg-[#F5EEDC] hover:text-[#12291F]'
+                      ? 'bg-accent-xe9ddbe text-brand-900 shadow-card'
+                      : 'text-neutral-500 hover:bg-accent-xf5eedc hover:text-brand-900'
                   }`}
                 >
                   {tab.label}

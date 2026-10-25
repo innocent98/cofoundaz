@@ -16,12 +16,12 @@ export function CtaBand({
 }) {
   const isDark = tone === 'dark'
   return (
-    <section className={isDark ? 'bg-green-900' : 'bg-green-50'}>
+    <section className={isDark ? 'bg-brand-900' : 'bg-brand-50'}>
       <Container className="py-20 text-center md:py-24">
         <h2
           className={cn(
             'font-display text-[32px] font-semibold tracking-[-0.02em] text-balance md:text-[42px] lg:text-[46px]',
-            isDark ? 'text-white' : 'text-green-900'
+            isDark ? 'text-white' : 'text-brand-900'
           )}
         >
           {title}
@@ -32,7 +32,7 @@ export function CtaBand({
           </Button>
         </div>
         {subtitle ? (
-          <p className={cn('mt-4.5 text-sm italic', isDark ? 'text-green-300' : 'text-sage-500')}>
+          <p className={cn('mt-4.5 text-sm italic', isDark ? 'text-brand-300' : 'text-neutral-500')}>
             {subtitle}
           </p>
         ) : null}

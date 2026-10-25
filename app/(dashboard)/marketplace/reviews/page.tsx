@@ -34,18 +34,18 @@ export default function ReviewsPage() {
   return (
     <div className="space-y-6 animate-fadeIn pb-12 max-w-4xl mx-auto pt-4">
       <div className="space-y-1">
-        <h1 className="text-3xl font-display font-semibold text-sage-900">Reviews</h1>
-        <p className="text-sm text-sage-500">Share your experience to help the Cofoundaz community.</p>
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">Reviews</h1>
+        <p className="text-sm text-neutral-500">Share your experience to help the Cofoundaz community.</p>
       </div>
 
       <div className="space-y-8">
         <div className="space-y-4">
-          <h3 className="font-semibold text-sm text-sage-900">Pending reviews</h3>
+          <h3 className="font-semibold text-sm text-neutral-900">Pending reviews</h3>
           {pendingReviews.map((review) => (
-            <div key={review.id} className="bg-white rounded-modal border border-sage-200 shadow-card p-6 md:p-8 space-y-6">
+            <div key={review.id} className="bg-white rounded-modal border border-neutral-200 shadow-card p-6 md:p-8 space-y-6">
               <div>
-                <h4 className="font-semibold text-lg text-sage-900">How was your engagement with {review.providerName}?</h4>
-                <p className="text-sm text-sage-500">Service: {review.service}</p>
+                <h4 className="font-semibold text-lg text-neutral-900">How was your engagement with {review.providerName}?</h4>
+                <p className="text-sm text-neutral-500">Service: {review.service}</p>
               </div>
 
               <form onSubmit={(e) => handleSubmitReview(review.id, e)} className="space-y-6">
@@ -61,27 +61,27 @@ export default function ReviewsPage() {
                     >
                       <Star className={`w-8 h-8 ${
                         star <= (hoverRating || rating)
-                          ? "fill-copper-500 text-copper-500"
-                          : "text-sage-300"
+                          ? "fill-accent-500 text-accent-500"
+                          : "text-neutral-300"
                       }`} />
                     </button>
                   ))}
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-sage-500">Feedback</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">Feedback</label>
                   <textarea
                     required
                     value={reviewText}
                     onChange={(e) => setReviewText(e.target.value)}
                     placeholder="Tell us what went well, what could be improved, and if you'd work with them again..."
-                    className="w-full h-32 bg-sage-50 border border-sage-200 rounded-input px-4 py-3 text-sm text-sage-900 focus:outline-none focus:border-[#1e4836] resize-none"
+                    className="w-full h-32 bg-neutral-50 border border-neutral-200 rounded-input px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:border-brand-hover resize-none"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold py-2.5 px-6 rounded-card text-sm transition-colors shadow-card"
+                  className="bg-accent-600 hover:bg-accent-700 text-white font-semibold py-2.5 px-6 rounded-card text-sm transition-colors shadow-card"
                 >
                   Submit review
                 </button>
@@ -89,31 +89,31 @@ export default function ReviewsPage() {
             </div>
           ))}
           {pendingReviews.length === 0 && (
-            <div className="bg-sage-50 rounded-modal border border-sage-200/50 p-6 text-center text-sage-500 text-sm font-medium">
+            <div className="bg-neutral-50 rounded-modal border border-neutral-200/50 p-6 text-center text-neutral-500 text-sm font-medium">
               You have no pending reviews.
             </div>
           )}
         </div>
 
         <div className="space-y-4">
-          <h3 className="font-semibold text-sm text-sage-900">Submitted reviews</h3>
+          <h3 className="font-semibold text-sm text-neutral-900">Submitted reviews</h3>
           {submittedReviews.map((review) => (
-            <div key={review.id} className="bg-white rounded-modal border border-sage-200 shadow-card p-6 space-y-3">
+            <div key={review.id} className="bg-white rounded-modal border border-neutral-200 shadow-card p-6 space-y-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <h4 className="font-semibold text-sage-900">{review.providerName}</h4>
-                  <p className="text-xs text-sage-500">{review.service}</p>
+                  <h4 className="font-semibold text-neutral-900">{review.providerName}</h4>
+                  <p className="text-xs text-neutral-500">{review.service}</p>
                 </div>
-                <span className="text-xs text-sage-400 font-medium">{review.date}</span>
+                <span className="text-xs text-neutral-400 font-medium">{review.date}</span>
               </div>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star key={star} className={`w-3.5 h-3.5 ${
-                    star <= review.rating ? "fill-copper-500 text-copper-500" : "text-sage-200"
+                    star <= review.rating ? "fill-accent-500 text-accent-500" : "text-neutral-200"
                   }`} />
                 ))}
               </div>
-              <p className="text-sm text-sage-700 italic border-l-2 border-sage-200 pl-3">
+              <p className="text-sm text-neutral-700 italic border-l-2 border-neutral-200 pl-3">
                 &quot;{review.comment}&quot;
               </p>
             </div>

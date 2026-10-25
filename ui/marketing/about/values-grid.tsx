@@ -11,12 +11,12 @@ export function ValuesGrid() {
             <Card key={value.title} className="p-7">
               <span
                 aria-hidden="true"
-                className="flex h-10 w-10 items-center justify-center rounded-card bg-green-100 font-display text-sm font-bold text-green-700"
+                className="flex h-10 w-10 items-center justify-center rounded-card bg-brand-100 font-display text-sm font-bold text-brand-700"
               >
                 {value.number}
               </span>
-              <h3 className="mt-4 text-[19px] font-bold text-green-900">{value.title}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-sage-700">{value.body}</p>
+              <h3 className="mt-4 text-[19px] font-bold text-brand-900">{value.title}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-neutral-700">{value.body}</p>
             </Card>
           ))}
         </div>

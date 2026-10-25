@@ -44,7 +44,7 @@ describe('AiUsageDisplay', () => {
     // Verify progress bar is NOT rendered
     expect(screen.queryByText(/% of daily budget/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Usage progress/i)).not.toBeInTheDocument();
-    expect(container!.querySelector('.h-2.bg-\\[\\#EBEBE6\\]')).toBeNull();
+    expect(container!.querySelector('.h-2.bg-line-soft')).toBeNull();
   });
 
   it('displays quota progress and division when daily_budget is provided', async () => {

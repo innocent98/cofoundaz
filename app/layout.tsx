@@ -2,8 +2,12 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Kolo',
-  description: 'Startup Dashboard',
+  title: {
+    default: 'Cofoundaz',
+    template: '%s · Cofoundaz',
+  },
+  description:
+    'The AI operating system for founders: one connected workspace, a bench of AI advisors, and a clear next step every day.',
 };
 
 import { Toaster } from 'sonner';

@@ -33,6 +33,25 @@ export async function getMe(): Promise<MeResponse> {
 }
 
 /**
+ * PATCH /auth/me `{full_name}` — set the member's display name (printed on
+ * certificates, comments, invitations). Returns the full /auth/me shape with the
+ * name normalised (trimmed, inner spaces collapsed); 422 carries
+ * `field_errors[0].field === 'full_name'`.
+ */
+export async function updateProfileName(fullName: string): Promise<MeResponse> {
+  const res = await apiClient<{ data?: MeResponse } | MeResponse>('/auth/me', {
+    method: 'PATCH',
+    body: JSON.stringify({ full_name: fullName }),
+  });
+  return (res as { data?: MeResponse }).data ?? (res as MeResponse);
+}
+
+/** A member with no profile (legacy rows) or no name has to be asked for one. */
+export function hasProfileName(me: MeResponse | null): boolean {
+  return Boolean(me?.profile?.full_name?.trim());
+}
+
+/**
  * Sign the user out: best-effort server-side `POST /auth/logout`, then clear the
  * local session tokens regardless of the server's response. The caller handles
  * the redirect to /login.

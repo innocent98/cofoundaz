@@ -9,8 +9,8 @@ export function PricingCard({ plan }: { plan: Plan }) {
       className={cn(
         'relative rounded-modal p-8',
         dark
-          ? 'border border-green-900 bg-green-900 shadow-raised'
-          : 'border border-green-100 bg-white shadow-card'
+          ? 'border border-brand-900 bg-brand-900 shadow-raised'
+          : 'border border-brand-100 bg-white shadow-card'
       )}
     >
       {plan.popular ? (
@@ -19,10 +19,10 @@ export function PricingCard({ plan }: { plan: Plan }) {
         </Badge>
       ) : null}
 
-      <h3 className={cn('font-display text-2xl font-semibold', dark ? 'text-white' : 'text-green-900')}>
+      <h3 className={cn('font-display text-2xl font-semibold', dark ? 'text-white' : 'text-brand-900')}>
         {plan.name}
       </h3>
-      <p className={cn('mt-1.5 text-sm', dark ? 'text-green-300' : 'text-sage-500')}>
+      <p className={cn('mt-1.5 text-sm', dark ? 'text-brand-300' : 'text-neutral-500')}>
         {plan.tagline}
       </p>
 
@@ -30,11 +30,11 @@ export function PricingCard({ plan }: { plan: Plan }) {
           and the comp ships an empty price slot. Do not invent a number. */}
       {plan.price ? (
         <div data-price className="mt-5 mb-1 flex items-baseline gap-1">
-          <span className={cn('font-display text-[40px] font-bold', dark ? 'text-white' : 'text-green-900')}>
+          <span className={cn('font-display text-[40px] font-bold', dark ? 'text-white' : 'text-brand-900')}>
             {plan.price}
           </span>
           {plan.per ? (
-            <span className={cn('text-sm', dark ? 'text-green-300' : 'text-sage-500')}>{plan.per}</span>
+            <span className={cn('text-sm', dark ? 'text-brand-300' : 'text-neutral-500')}>{plan.per}</span>
           ) : null}
         </div>
       ) : (
@@ -54,9 +54,9 @@ export function PricingCard({ plan }: { plan: Plan }) {
         {plan.features.map((feature) => (
           <li
             key={feature}
-            className={cn('flex gap-2.5 text-sm leading-[1.45]', dark ? 'text-green-100' : 'text-sage-700')}
+            className={cn('flex gap-2.5 text-sm leading-[1.45]', dark ? 'text-brand-100' : 'text-neutral-700')}
           >
-            <span aria-hidden="true" className={cn('flex-none font-bold', dark ? 'text-copper-500' : 'text-green-600')}>
+            <span aria-hidden="true" className={cn('flex-none font-bold', dark ? 'text-accent-500' : 'text-brand-600')}>
               ✓
             </span>
             {feature}

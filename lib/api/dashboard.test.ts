@@ -31,8 +31,8 @@ describe('Dashboard API Client (lib/api/dashboard.ts)', () => {
           briefing: { status: 'ready', message: 'Briefing content' },
           kpis: { revenue: null, runway: 12 },
           calibration: { assessment_complete: true },
-          risks: [],
-          opportunities: [],
+          risks: { status: 'ready', items: [] },
+          opportunities: { status: 'ready', items: [] },
         },
       };
 

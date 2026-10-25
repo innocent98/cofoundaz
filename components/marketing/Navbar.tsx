@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 export default function MarketingNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -18,7 +19,7 @@ export default function MarketingNavbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 bg-white border-b border-sage-100 transition-all duration-200 ${
+      className={`sticky top-0 z-50 bg-white border-b border-neutral-100 transition-all duration-200 ${
         isScrolled ? 'shadow-card' : ''
       }`}
     >
@@ -30,25 +31,20 @@ export default function MarketingNavbar() {
           <div className="flex items-center gap-8 md:gap-12">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-card bg-[#1B4B38] flex items-center justify-center shadow-card">
-                <span className="font-display text-[#A68A48] font-bold text-lg leading-none">C</span>
-              </div>
-              <span className="font-display text-2xl font-bold text-[#12291F] tracking-tight">
-                Cofoundaz
-              </span>
+              <BrandLogo height={32} eager />
             </Link>
 
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center gap-8">
               <a
                 href="#product"
-                className="text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal"
+                className="text-neutral-x33413b hover:text-neutral-500 transition-colors text-[15px] font-normal"
               >
                 Product
               </a>
               <a
                 href="#pricing"
-                className="text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal"
+                className="text-neutral-x33413b hover:text-neutral-500 transition-colors text-[15px] font-normal"
               >
                 Pricing
               </a>
@@ -58,12 +54,12 @@ export default function MarketingNavbar() {
                 <button
                   onClick={() => setResourcesOpen(!resourcesOpen)}
                   onBlur={() => setTimeout(() => setResourcesOpen(false), 200)}
-                  className="flex items-center gap-1.5 text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal focus:outline-none cursor-pointer"
+                  className="flex items-center gap-1.5 text-neutral-x33413b hover:text-neutral-500 transition-colors text-[15px] font-normal focus:outline-none cursor-pointer"
                   aria-expanded={resourcesOpen}
                 >
                   <span>Resources</span>
                   <svg
-                    className={`w-3 h-3 text-[#33413B] transition-transform duration-200 ${
+                    className={`w-3 h-3 text-neutral-x33413b transition-transform duration-200 ${
                       resourcesOpen ? 'rotate-180' : ''
                     }`}
                     fill="none"
@@ -75,16 +71,16 @@ export default function MarketingNavbar() {
                 </button>
 
                 {resourcesOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-48 rounded-input bg-white shadow-raised border border-sage-100 py-2 z-50">
+                  <div className="absolute top-full left-0 mt-2 w-48 rounded-input bg-white shadow-raised border border-neutral-100 py-2 z-50">
                     <a
                       href="#blog"
-                      className="block px-4 py-2 text-[15px] text-[#33413B] hover:bg-slate-50 hover:text-slate-600"
+                      className="block px-4 py-2 text-[15px] text-neutral-x33413b hover:bg-neutral-50 hover:text-neutral-600"
                     >
                       Blog
                     </a>
                     <a
                       href="#guides"
-                      className="block px-4 py-2 text-[15px] text-[#33413B] hover:bg-slate-50 hover:text-slate-600"
+                      className="block px-4 py-2 text-[15px] text-neutral-x33413b hover:bg-neutral-50 hover:text-neutral-600"
                     >
                       Guides & Tools
                     </a>
@@ -94,7 +90,7 @@ export default function MarketingNavbar() {
 
               <a
                 href="#about"
-                className="text-[#33413B] hover:text-slate-500 transition-colors text-[15px] font-normal"
+                className="text-neutral-x33413b hover:text-neutral-500 transition-colors text-[15px] font-normal"
               >
                 About
               </a>
@@ -105,14 +101,14 @@ export default function MarketingNavbar() {
           <div className="hidden md:flex items-center space-x-6">
             <Link
               href="/login"
-              className="text-[#1B4B38] hover:text-[#12291F] text-[15px] font-medium transition-colors"
+              className="text-brand-x1b4b38 hover:text-brand-900 text-[15px] font-medium transition-colors"
             >
               Log in
             </Link>
 
             <Link
               href="/signup"
-              className="bg-[#A68A48] hover:bg-[#9E8043] text-[#1B382B] font-semibold text-[15px] px-5 py-2.5 rounded-card shadow-card transition-all active:scale-[0.98]"
+              className="bg-accent-xa68a48 hover:bg-accent-x9e8043 text-brand-x1b382b font-semibold text-[15px] px-5 py-2.5 rounded-card shadow-card transition-all active:scale-[0.98]"
             >
               Start free
             </Link>
@@ -123,7 +119,7 @@ export default function MarketingNavbar() {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               type="button"
-              className="text-[#12291F] focus:outline-none p-2"
+              className="text-brand-900 focus:outline-none p-2"
               aria-label="Toggle menu"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -141,30 +137,30 @@ export default function MarketingNavbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <nav className="md:hidden bg-white border-b border-sage-100 px-4 pt-2 pb-6 flex flex-col gap-3">
+        <nav className="md:hidden bg-white border-b border-neutral-100 px-4 pt-2 pb-6 flex flex-col gap-3">
           <a
             href="#product"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal"
+            className="block text-neutral-x33413b hover:text-neutral-500 py-2 text-[15px] font-normal"
           >
             Product
           </a>
           <a
             href="#pricing"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal"
+            className="block text-neutral-x33413b hover:text-neutral-500 py-2 text-[15px] font-normal"
           >
             Pricing
           </a>
           <div className="flex flex-col">
             <button
               onClick={() => setResourcesOpen(!resourcesOpen)}
-              className="flex items-center justify-between text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal w-full text-left focus:outline-none"
+              className="flex items-center justify-between text-neutral-x33413b hover:text-neutral-500 py-2 text-[15px] font-normal w-full text-left focus:outline-none"
               aria-expanded={resourcesOpen}
             >
               <span>Resources</span>
               <svg
-                className={`w-4 h-4 text-[#33413B] transition-transform duration-200 ${
+                className={`w-4 h-4 text-neutral-x33413b transition-transform duration-200 ${
                   resourcesOpen ? 'rotate-180' : ''
                 }`}
                 fill="none"
@@ -179,14 +175,14 @@ export default function MarketingNavbar() {
                 <a
                   href="#blog"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-[#33413B] hover:text-slate-500 py-1.5 text-[15px] font-normal"
+                  className="block text-neutral-x33413b hover:text-neutral-500 py-1.5 text-[15px] font-normal"
                 >
                   Blog
                 </a>
                 <a
                   href="#guides"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-[#33413B] hover:text-slate-500 py-1.5 text-[15px] font-normal"
+                  className="block text-neutral-x33413b hover:text-neutral-500 py-1.5 text-[15px] font-normal"
                 >
                   Guides & Tools
                 </a>
@@ -196,22 +192,22 @@ export default function MarketingNavbar() {
           <a
             href="#about"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#33413B] hover:text-slate-500 py-2 text-[15px] font-normal"
+            className="block text-neutral-x33413b hover:text-neutral-500 py-2 text-[15px] font-normal"
           >
             About
           </a>
-          <div className="pt-4 border-t border-sage-100 flex flex-col gap-3">
+          <div className="pt-4 border-t border-neutral-100 flex flex-col gap-3">
             <Link
               href="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center text-[#1B4B38] py-2 text-[15px] font-medium"
+              className="block w-full text-center text-brand-x1b4b38 py-2 text-[15px] font-medium"
             >
               Log in
             </Link>
             <Link
               href="/signup"
               onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center bg-[#A68A48] text-[#1B382B] font-semibold py-2.5 rounded-card shadow-card"
+              className="block w-full text-center bg-accent-xa68a48 text-brand-x1b382b font-semibold py-2.5 rounded-card shadow-card"
             >
               Start free
             </Link>

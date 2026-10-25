@@ -7,14 +7,14 @@ describe('Card', () => {
     render(<Card>Scattered everywhere</Card>)
     const el = screen.getByText('Scattered everywhere')
     expect(el.className).toContain('rounded-card')
-    expect(el.className).toContain('border-green-100')
+    expect(el.className).toContain('border-brand-100')
   })
 })
 
 describe('Badge', () => {
   it('renders the accent tone on copper', () => {
     render(<Badge tone="accent">Most popular</Badge>)
-    expect(screen.getByText('Most popular').className).toContain('bg-copper-600')
+    expect(screen.getByText('Most popular').className).toContain('bg-accent-600')
   })
 })
 
@@ -43,13 +43,13 @@ describe('SectionHeading', () => {
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
   })
 
-  it('uses AA-safe copper-700 for the eyebrow on light surfaces (deviation D-1)', () => {
+  it('uses AA-safe accent-700 for the eyebrow on light surfaces (deviation D-1)', () => {
     render(<SectionHeading eyebrow="Pricing" title="Simple plans that grow with you." />)
-    expect(screen.getByText('Pricing').className).toContain('text-copper-700')
+    expect(screen.getByText('Pricing').className).toContain('text-accent-700')
   })
 
-  it('uses copper-500 for the eyebrow on dark surfaces', () => {
+  it('uses accent-500 for the eyebrow on dark surfaces', () => {
     render(<SectionHeading tone="dark" eyebrow="How it works" title="One workspace." />)
-    expect(screen.getByText('How it works').className).toContain('text-copper-500')
+    expect(screen.getByText('How it works').className).toContain('text-accent-500')
   })
 })

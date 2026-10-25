@@ -27,8 +27,8 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center p-6 h-full min-h-[200px] text-center bg-white rounded-card border border-green-100 shadow-card">
-          <p className="text-sm text-sage-500 mb-3">Couldn&apos;t load this.</p>
+        <div className="flex flex-col items-center justify-center p-6 h-full min-h-[200px] text-center bg-white rounded-card border border-brand-100 shadow-card">
+          <p className="text-sm text-neutral-500 mb-3">Couldn&apos;t load this.</p>
           <button 
             onClick={() => {
               this.setState({ hasError: false });

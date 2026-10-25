@@ -13,8 +13,17 @@ export interface RawAssumption {
   risk: AssumptionRisk;
   status: AssumptionStatus;
   evidence_count: number;
+  /** Experiments linked to this assumption; `[]` when none (slice c, guide §6). */
+  linked_experiments?: LinkedExperiment[];
   created_at?: string;
   updated_at?: string;
+}
+
+export interface LinkedExperiment {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
 }
 
 export async function listAssumptions(params?: {
@@ -129,17 +138,112 @@ export interface RawExperiment {
   config: Record<string, unknown>;
   metrics: Record<string, unknown>;
   assumption_ids: string[];
+  /** Top-level: the live address. `config.slug` is only what we send. */
+  slug?: string | null;
+  published_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }
 
+export type SmokeVerdict = 'validated' | 'weak';
+
+/** `GET /validation/smoke-tests/{id}/stats`. The verdict is the server's. */
 export interface SmokeTestStats {
   experiment_id: string;
   name: string;
   status: string;
+  slug: string | null;
   visits: number;
   signups: number;
+  cta_clicks: number;
+  preorder_clicks: number;
+  metric_type: string;
   conversion: number;
+  target_conversion: number;
+  sample_needed: number;
+  /** null until `visits >= sample_needed`. */
+  verdict: SmokeVerdict | null;
+}
+
+export interface WaitlistSignup {
+  email: string;
+  signed_up_at: string;
+}
+
+export async function listSmokeSignups(id: string): Promise<WaitlistSignup[]> {
+  const res = await apiClient<{ data?: { signups?: WaitlistSignup[] } }>(
+    `/validation/smoke-tests/${id}/signups`
+  );
+  return res?.data?.signups ?? [];
+}
+
+// --- Overview + "Design experiment" (PRD 09.1 / 09.6) -------------------------
+
+export interface RiskiestAssumption {
+  id: string;
+  statement: string;
+  risk: AssumptionRisk;
+}
+
+export interface ValidationOverview {
+  assumptions: Record<AssumptionStatus, number>;
+  live_experiments: number;
+  responses_collected: number;
+  /** null when nothing is untested: hide the nudge. */
+  riskiest_untested: RiskiestAssumption | null;
+}
+
+export async function getValidationOverview(): Promise<ValidationOverview> {
+  const res = await apiClient<{ data?: ValidationOverview }>('/validation/overview');
+  const d = res?.data;
+  return {
+    assumptions: {
+      untested: d?.assumptions?.untested ?? 0,
+      testing: d?.assumptions?.testing ?? 0,
+      validated: d?.assumptions?.validated ?? 0,
+      invalidated: d?.assumptions?.invalidated ?? 0,
+    },
+    live_experiments: d?.live_experiments ?? 0,
+    responses_collected: d?.responses_collected ?? 0,
+    riskiest_untested: d?.riskiest_untested ?? null,
+  };
+}
+
+/** What the experiment-draft job returns in `result.draft`. */
+export interface ExperimentDraft {
+  name: string;
+  headline: string;
+  subheadline: string;
+  cta_text: string;
+  metric_type: string;
+  target_conversion: number;
+  slug_suggestion: string;
+  rationale: string;
+  assumption_ids: string[];
+}
+
+export interface ExperimentDraftResult {
+  status?: 'ready' | 'gone' | 'over_budget' | string;
+  draft?: ExperimentDraft;
+  assumption_id?: string;
+}
+
+export async function requestExperimentDraft(assumptionId: string): Promise<string> {
+  const res = await apiClient<{ data?: { job_id?: string } }>(
+    `/validation/assumptions/${assumptionId}/experiment-draft`,
+    { method: 'POST' }
+  );
+  const id = res?.data?.job_id;
+  if (!id) throw new Error('No job id returned.');
+  return id;
+}
+
+// --- Deletes (200 {deleted: true}; 404 for unknown / other workspace) --------
+
+export type DeletableKind = 'assumptions' | 'experiments' | 'interviews' | 'surveys';
+
+export async function deleteValidationItem(kind: DeletableKind, id: string): Promise<void> {
+  await apiClient(`/validation/${kind}/${id}`, { method: 'DELETE' });
 }
 
 export interface CreateExperimentBody {
@@ -296,4 +400,326 @@ export async function submitSurveyResponse(
     { method: 'POST', body: JSON.stringify({ answers }) }
   );
   return { received: Boolean(res?.data?.received) };
+}
+
+// --- Interview scripts (slice b, guide §1) -----------------------------------
+
+export interface ScriptQuestion {
+  /** 12-char hex, server-assigned. Absent on a question that was just added. */
+  id?: string;
+  question: string;
+  tip: string;
+}
+
+export interface RawScript {
+  id: string;
+  title: string;
+  assumption_ids: string[];
+  questions: Array<ScriptQuestion & { id: string }>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ScriptJobResult {
+  status?: 'ready' | 'over_budget' | 'gone' | 'empty' | string;
+  script_id?: string;
+}
+
+export async function listScripts(): Promise<RawScript[]> {
+  const res = await apiClient<{ data?: { scripts?: RawScript[] } }>('/validation/scripts');
+  return res?.data?.scripts ?? [];
+}
+
+export async function getScript(id: string): Promise<RawScript> {
+  const res = await apiClient<{ data?: RawScript }>(`/validation/scripts/${id}`);
+  return res?.data as RawScript;
+}
+
+export async function requestScriptGeneration(assumptionIds: string[]): Promise<string> {
+  const res = await apiClient<{ data?: { job_id?: string } }>('/validation/scripts/generate', {
+    method: 'POST',
+    body: JSON.stringify({ assumption_ids: assumptionIds }),
+  });
+  const id = res?.data?.job_id;
+  if (!id) throw new Error('No job id returned.');
+  return id;
+}
+
+/** PATCH sends the whole question list in order; existing ids are kept so the server can match them. */
+export async function updateScript(
+  id: string,
+  body: { title?: string; questions?: ScriptQuestion[]; assumption_ids?: string[] }
+): Promise<RawScript> {
+  const res = await apiClient<{ data?: RawScript }>(`/validation/scripts/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+  return res?.data as RawScript;
+}
+
+export async function deleteScript(id: string): Promise<void> {
+  await apiClient(`/validation/scripts/${id}`, { method: 'DELETE' });
+}
+
+// --- Insight Synthesizer (slice b, guide §2) ---------------------------------
+
+export type InsightSource = 'interviews' | 'surveys' | 'feedback' | 'all';
+
+export interface InsightPattern {
+  id: string;
+  theme: string;
+  summary: string;
+  /** Can be `[]`: quotes the model paraphrased are dropped server-side. */
+  quotes: string[];
+}
+
+export interface InsightContradiction {
+  id: string;
+  summary: string;
+}
+
+export interface InsightSuggestion {
+  id: string;
+  assumption_id: string;
+  /** Snapshot from report time, not a lookup. */
+  assumption_statement: string;
+  from_status: AssumptionStatus;
+  to_status: AssumptionStatus;
+  reason: string;
+  applied_at: string | null;
+}
+
+export interface RawInsight {
+  id: string;
+  source: InsightSource;
+  inputs: { interviews?: number; open_answers?: number; feedback?: number };
+  patterns: InsightPattern[];
+  contradictions: InsightContradiction[];
+  suggestions: InsightSuggestion[];
+  created_at: string;
+}
+
+export interface InsightJobResult {
+  status?: 'ready' | 'over_budget' | 'empty' | string;
+  insight_id?: string;
+}
+
+export async function requestSynthesis(source: InsightSource): Promise<string> {
+  const res = await apiClient<{ data?: { job_id?: string } }>('/validation/synthesize', {
+    method: 'POST',
+    body: JSON.stringify({ source }),
+  });
+  const id = res?.data?.job_id;
+  if (!id) throw new Error('No job id returned.');
+  return id;
+}
+
+export async function listInsights(): Promise<RawInsight[]> {
+  const res = await apiClient<{ data?: { insights?: RawInsight[] } }>('/validation/insights');
+  return res?.data?.insights ?? [];
+}
+
+export async function getInsight(id: string): Promise<RawInsight> {
+  const res = await apiClient<{ data?: RawInsight }>(`/validation/insights/${id}`);
+  return res?.data as RawInsight;
+}
+
+/** Apply returns two objects: the refreshed report and the moved assumption. */
+export async function applySuggestion(
+  insightId: string,
+  suggestionId: string
+): Promise<{ insight: RawInsight; assumption: RawAssumption }> {
+  const res = await apiClient<{ data?: { insight: RawInsight; assumption: RawAssumption } }>(
+    `/validation/insights/${insightId}/suggestions/${suggestionId}/apply`,
+    { method: 'POST' }
+  );
+  return res?.data as { insight: RawInsight; assumption: RawAssumption };
+}
+
+export async function deleteInsight(id: string): Promise<void> {
+  await apiClient(`/validation/insights/${id}`, { method: 'DELETE' });
+}
+
+// --- MVP feedback inbox (slice c, guide §1 to §3) -----------------------------
+
+export type FeedbackSource = 'interview' | 'survey' | 'in_app' | 'email';
+/** Sources a founder may type in by hand; `survey` is import-only. */
+export type ManualFeedbackSource = Exclude<FeedbackSource, 'survey'>;
+
+export interface FeedbackItem {
+  id: string;
+  source: FeedbackSource;
+  text: string;
+  origin: { type: 'interview' | 'survey' | 'manual'; id: string | null; label: string };
+  imported: boolean;
+  dismissed: boolean;
+  received_on: string;
+  created_at: string;
+}
+
+export type FeedbackCounts = Record<FeedbackSource, number>;
+
+export async function listFeedback(params?: {
+  source?: FeedbackSource;
+  includeDismissed?: boolean;
+}): Promise<{ items: FeedbackItem[]; counts: FeedbackCounts }> {
+  const qs = new URLSearchParams();
+  if (params?.source) qs.set('source', params.source);
+  if (params?.includeDismissed) qs.set('include_dismissed', 'true');
+  const q = qs.toString();
+  const res = await apiClient<{ data?: { items?: FeedbackItem[]; counts?: Partial<FeedbackCounts> } }>(
+    `/validation/feedback${q ? `?${q}` : ''}`
+  );
+  const c = res?.data?.counts ?? {};
+  return {
+    items: res?.data?.items ?? [],
+    counts: { interview: c.interview ?? 0, survey: c.survey ?? 0, in_app: c.in_app ?? 0, email: c.email ?? 0 },
+  };
+}
+
+export async function createFeedback(body: {
+  text: string;
+  source: ManualFeedbackSource;
+  received_on?: string;
+}): Promise<FeedbackItem> {
+  const res = await apiClient<{ data?: FeedbackItem }>('/validation/feedback', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  return res?.data as FeedbackItem;
+}
+
+export async function updateFeedback(
+  id: string,
+  body: { text?: string; source?: ManualFeedbackSource; received_on?: string }
+): Promise<FeedbackItem> {
+  const res = await apiClient<{ data?: FeedbackItem }>(`/validation/feedback/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+  return res?.data as FeedbackItem;
+}
+
+/** Manual items are deleted for good; imported ones are only dismissed. Branch on the key (guide §7). */
+export async function deleteFeedback(id: string): Promise<'deleted' | 'dismissed'> {
+  const res = await apiClient<{ data?: { deleted?: boolean; dismissed?: boolean } }>(`/validation/feedback/${id}`, {
+    method: 'DELETE',
+  });
+  return res?.data?.dismissed ? 'dismissed' : 'deleted';
+}
+
+export async function restoreFeedback(id: string): Promise<FeedbackItem> {
+  const res = await apiClient<{ data?: FeedbackItem }>(`/validation/feedback/${id}/restore`, { method: 'POST' });
+  return res?.data as FeedbackItem;
+}
+
+export interface FeedbackTheme {
+  id: string;
+  theme: string;
+  /** PRD copy, counts included: "{theme} mentioned {n}× across {m} sources". */
+  label: string;
+  summary: string;
+  mention_count: number;
+  source_count: number;
+  sources: FeedbackSource[];
+  items: FeedbackItem[];
+  roadmap_task_id: string | null;
+  sent_at: string | null;
+}
+
+export interface FeedbackThemes {
+  run: { id: string; item_count: number; created_at: string } | null;
+  themes: FeedbackTheme[];
+}
+
+export interface ClusterJobResult {
+  status?: 'ready' | 'over_budget' | 'empty' | string;
+  run_id?: string;
+}
+
+export async function requestFeedbackClustering(): Promise<string> {
+  const res = await apiClient<{ data?: { job_id?: string } }>('/validation/feedback/cluster', { method: 'POST' });
+  const id = res?.data?.job_id;
+  if (!id) throw new Error('No job id returned.');
+  return id;
+}
+
+export async function getFeedbackThemes(): Promise<FeedbackThemes> {
+  const res = await apiClient<{ data?: Partial<FeedbackThemes> }>('/validation/feedback/themes');
+  return { run: res?.data?.run ?? null, themes: res?.data?.themes ?? [] };
+}
+
+export interface SentTask {
+  id: string;
+  milestone_id: string;
+  milestone_title: string;
+  title: string;
+  description: string;
+  status: string;
+}
+
+export async function sendThemeToRoadmap(
+  themeId: string,
+  milestoneId?: string
+): Promise<{ theme: FeedbackTheme; task: SentTask }> {
+  const res = await apiClient<{ data?: { theme: FeedbackTheme; task: SentTask } }>(
+    `/validation/feedback/themes/${themeId}/send-to-roadmap`,
+    { method: 'POST', body: JSON.stringify(milestoneId ? { milestone_id: milestoneId } : {}) }
+  );
+  return res?.data as { theme: FeedbackTheme; task: SentTask };
+}
+
+export interface RoadmapMilestoneOption {
+  id: string;
+  title: string;
+  done: boolean;
+  /** Ids of the tasks already inside it, to name the milestone a sent theme landed in. */
+  taskIds: string[];
+}
+
+/** Milestones in roadmap order (phase order, then milestone order), for the Send-to-roadmap picker. */
+export async function listRoadmapMilestones(): Promise<RoadmapMilestoneOption[]> {
+  type Tree = {
+    phases?: Array<{
+      order?: number;
+      milestones?: Array<{ id: string; title: string; status: string; order?: number; tasks?: Array<{ id: string }> }>;
+    }>;
+  };
+  const res = await apiClient<{ data?: Tree }>('/roadmap');
+  const phases = [...(res?.data?.phases ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  return phases.flatMap((p) =>
+    [...(p.milestones ?? [])]
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((m) => ({ id: m.id, title: m.title, done: m.status === 'done', taskIds: (m.tasks ?? []).map((t) => t.id) }))
+  );
+}
+
+// --- Survey open answers + share-link rotation (slice c, guide §5) --------------
+
+export interface SurveyAnswersQuestion {
+  id: string;
+  prompt: string;
+  answer_count: number;
+  answers: Array<{ text: string; submitted_at: string }>;
+}
+
+export interface SurveyAnswers {
+  survey_id: string;
+  title: string;
+  questions: SurveyAnswersQuestion[];
+}
+
+export async function getSurveyAnswers(id: string): Promise<SurveyAnswers> {
+  const res = await apiClient<{ data?: SurveyAnswers }>(`/validation/surveys/${id}/answers`);
+  return res?.data as SurveyAnswers;
+}
+
+/** Issues a new token and kills the old link. The token is shown once. */
+export async function rotateSurveyShareLink(id: string): Promise<string> {
+  const res = await apiClient<{ data?: { public_token?: string } }>(`/validation/surveys/${id}/share-link`, {
+    method: 'POST',
+  });
+  const t = res?.data?.public_token;
+  if (!t) throw new Error('No share link returned.');
+  return t;
 }

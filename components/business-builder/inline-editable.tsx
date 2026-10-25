@@ -12,10 +12,13 @@ export function InlineEditable({
   value,
   onSave,
   className = '',
+  readOnly = false,
 }: {
   value: string;
   onSave: (next: string) => void;
   className?: string;
+  /** Render plain text with no click-to-edit (read-only roles). */
+  readOnly?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -39,6 +42,8 @@ export function InlineEditable({
     setEditing(false);
     if (draft.trim() !== value) onSave(draft);
   };
+
+  if (readOnly) return <span className={`whitespace-pre-wrap ${className}`}>{value}</span>;
 
   if (editing) {
     return (

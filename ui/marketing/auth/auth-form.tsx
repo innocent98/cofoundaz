@@ -55,10 +55,10 @@ export function AuthForm({
 
   return (
     <div className="w-full max-w-[420px]">
-      <h1 className="font-display text-[28px] font-semibold text-green-900 md:text-[32px]">
+      <h1 className="font-display text-[28px] font-semibold text-brand-900 md:text-[32px]">
         {copy.title}
       </h1>
-      <p className="mt-2 text-[15px] text-sage-500">{copy.subtitle}</p>
+      <p className="mt-2 text-[15px] text-neutral-500">{copy.subtitle}</p>
 
       <div className="mt-7 flex flex-col gap-2.5">
         <Button variant="secondary" size="md" className="w-full" disabled>
@@ -69,17 +69,17 @@ export function AuthForm({
         </Button>
       </div>
 
-      <div className="my-5 flex items-center gap-3 text-[13px] text-sage-500">
-        <span className="h-px flex-1 bg-sage-300" />
+      <div className="my-5 flex items-center gap-3 text-[13px] text-neutral-500">
+        <span className="h-px flex-1 bg-neutral-300" />
         {authShared.divider}
-        <span className="h-px flex-1 bg-sage-300" />
+        <span className="h-px flex-1 bg-neutral-300" />
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         {activeError && (
           <div
             role="alert"
-            className="rounded-input border border-red-200 bg-red-50 p-3 text-[13px] text-red-700"
+            className="rounded-input border border-danger-200 bg-danger-50 p-3 text-[13px] text-danger-700"
           >
             {activeError}
           </div>
@@ -88,7 +88,7 @@ export function AuthForm({
         {successMessage && (
           <div
             role="status"
-            className="rounded-input border border-green-200 bg-green-50 p-3 text-[13px] text-green-800"
+            className="rounded-input border border-brand-200 bg-brand-50 p-3 text-[13px] text-brand-800"
           >
             {successMessage}
           </div>
@@ -133,22 +133,22 @@ export function AuthForm({
               type="checkbox"
               checked={agreedTerms}
               onChange={(e) => setAgreedTerms(e.target.checked)}
-              className="mt-0.5 h-4 w-4 accent-green-600"
+              className="mt-0.5 h-4 w-4 accent-brand-600"
             />
-            <label htmlFor="auth-terms" className="text-[13px] leading-[1.4] text-sage-700">
+            <label htmlFor="auth-terms" className="text-[13px] leading-[1.4] text-neutral-700">
               {authShared.termsPrefix}{' '}
-              <Link href={authShared.termsLink.href} className="text-green-700 underline">
+              <Link href={authShared.termsLink.href} className="text-brand-700 underline">
                 {authShared.termsLink.label}
               </Link>{' '}
               {authShared.termsJoin}{' '}
-              <Link href={authShared.privacyLink.href} className="text-green-700 underline">
+              <Link href={authShared.privacyLink.href} className="text-brand-700 underline">
                 {authShared.privacyLink.label}
               </Link>
             </label>
           </div>
         ) : (
           <div className="-mt-1.5 text-right">
-            <Link href="/forgot-password" className="text-[13px] font-semibold text-green-700 hover:text-green-800 hover:underline transition-colors">{authShared.forgotPassword}</Link>
+            <Link href="/forgot-password" className="text-[13px] font-semibold text-brand-700 hover:text-brand-800 hover:underline transition-colors">{authShared.forgotPassword}</Link>
           </div>
         )}
 
@@ -163,9 +163,9 @@ export function AuthForm({
         </Button>
       </form>
 
-      <p className="mt-5 text-center text-sm text-sage-500">
+      <p className="mt-5 text-center text-sm text-neutral-500">
         {copy.footerText}{' '}
-        <Link href={copy.footerLink.href} className="font-semibold text-green-700">
+        <Link href={copy.footerLink.href} className="font-semibold text-brand-700">
           {copy.footerLink.label}
         </Link>
       </p>
