@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §2b. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-10 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead10-handoff:docs/HANDOFF-master.md`
+> If the lead-11 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead11-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-24 ~23:30 WAT (lead session 10 handover)**. Lead 10 was session `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-25 ~17:00 WAT (lead session 11 handover)**. Lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -16,27 +16,24 @@ Last updated: **2026-10-24 ~23:30 WAT (lead session 10 handover)**. Lead 10 was 
 
 ## 0. FOR ADEBAYO
 
-### 0a. Open PRs and in-flight sessions (lead 10 handover, 2026-10-24 ~23:30 WAT)
-Three sub-sessions were still working when lead 10 paused. They run on their own, push to their PRs and **never merge**. Their
-turn-end notes go to lead 10's session, so the next lead reads them with `list_events` on each id below and messages them by id.
-
-| Order | Repo | PR / branch | Session | What | State at handover |
-|---|---|---|---|---|---|
-| 1 | API | [#185](https://github.com/innocent98/Cofoundaz-api/pull/185) `fix/documents-access` | `local_ed94e26c-74f4-41b4-bb94-8e7a227a8c5b` | Documents BE-A: every Documents route F+TM only (403 others), notification audience, magic-byte sniffing + `scan_status`, no cascade of signature requests, **private file storage** + 5-min download links, public token rate limits, migration `0072_documents_scan_status` (after `0071`) | Two Opus reviews done: all 6 first-round findings fixed (High: public Cloudinary URLs). Session is folding in CodeQL test fixes (assert side-effects in `test_documents_private_files.py`) + 4 small re-review Lows. When green: **squash-merge** (see 0b-10). Then shared-stack update incl. `python -m app.services.documents.files_backfill` (§1). |
-| 2 | FE | [#162](https://github.com/innocent98/cofoundaz/pull/162) `refactor/colour-tokens` | `local_b2a19629-b508-402c-bd6b-c137f8c8eede` | Colour tokens phase 1 (D38): ~5,500 colours → `styles/colour-tokens.css`, zero visual change (199/252 shots identical, 53 explained), lint rule rejecting hex/rgb/hsl outside the token file | Merging develop in after #163 and tokenising #163's new Finance colours, re-shooting Finance. When CI green: merge. Then propose **phase 2** (brand swap). |
-| 3 | API | `fix/finance-d9-d10` (PR not open yet) | `local_d2d1bc97-c334-41a0-b046-b4579ffde876` | Finance D9 (Advisor reply never ends on one wording: fail visibly after last retry + find the empty-completion cause) and D10 (bank-imported ledger rows editable/deletable via API: make every imported source category-only) | Building. After merge, the lead verifies D9 live with the real model and D10 via API; then **Finance ✅**. |
-| 4 | FE | `docs/lead10-handoff` | lead | this handoff + checklist | docs, merge any time |
+### 0a. Open PRs and in-flight sessions (lead 11 handover, 2026-10-25 ~17:00 WAT)
+**Nothing is in flight.** No open PRs in either repo, no sub-session working. The last one, Documents BE-C
+(`local_f658d252-166f-46d7-b572-5d648d303db1`), was asked to remove its scratch containers and its worktree after #189 merged; check
+`ls /Users/adebayovictor/Documents/dev/cofoundaz/wt` and `docker ps` and remove any leftover `wt/documents-be-c` once it's clean.
 
 Before telling Adebayo any PR is ready: CI, head branch (no `claude/`), no attribution in commits or body. "Dependency review (PR only)"
 is red on every API PR: repo setup, not code. Ignore it.
 
+**Merged in lead session 11 (2026-10-25):**
+- API #185 Documents BE-A (squash, `22f90ee2`, migration `0072`), #186 Finance D9 + D10 (`4513f845`), #187 Documents BE-B (`8630d2ad`,
+  `0073`), #188 Academy content reviewed (`9a00de50`), #189 Documents BE-C (`064daaba`, `0074`, new dep `python-docx`).
+- FE #162 colour tokens phase 1, #165 Finance done (docs), #166 colour phase 2 (navy/blue, Option B), #167 Documents FE (library,
+  trash, versions, sharing, Shared with me), #168 semantic status colours + AA fixes, #169 Documents status colours.
+- **Finance ✅ and Academy content reviewed.** Disk: every merged worktree removed (Cofoundaz 44 GB → ~4 GB).
+
 **Merged in lead session 10 (2026-10-24):** FE #157 (Finance re-walk), #158 (brand logo), #159 (lead-9 handoff), #160 (Finance FE
 fixes D2-D4, D6, D8, Funding labels), #161 (Documents PRD gap list, 38 gaps), #163 (Finance FE slice (e) + final re-check 138/141).
-API #184 (Finance slice (e), squash-merged `4143bbc0`, migration `0071_finance_slice_e`; the shared stack is on it).
-
-**Merged in lead session 9 (2026-10-24):** API #180 (`PATCH /auth/me`), #181 (Adebayo's env update), #182 (D-FIN-11 Funding is not
-revenue), #183 (LinkedIn company id default). FE #151 (Sales sequences re-walk: **Sales ✅**), #153 (Finance hub FE), #155 (lead-8
-handoff), #156 (Academy re-check D1-D4 20/20: **Academy ✅**).
+API #184 (Finance slice (e), squash-merged `4143bbc0`, migration `0071_finance_slice_e`).
 
 ### 0b. Decisions (all also in memory)
 All are reversible and none blocks merging.
@@ -145,6 +142,14 @@ All are reversible and none blocks merging.
     hex values in 223 FE files with semantic tokens (zero visual change, screenshot-diffed); phase 2 swap the token values to the
     navy/blue palette in one file. Today colours are NOT centrally configurable.
 
+39. **Colour phase 2 = Option B (Adebayo 2026-10-25):** copper retired from UI chrome; buttons, links and focus rings are blue (`#0263F4`,
+    visually ~the logo blue and AA-safe; the exact logo blue `#0F6AFC` is `brand-500`); copper kept for warnings, one chart colour and
+    gold badges. State UI uses `success` / `warning` / `danger` / `info` tokens, never the brand ramp (#168, #169).
+40. **Academy content approved as it stands (Adebayo 2026-10-25, "flip all"):** all 48 files `review_status: reviewed` (API #188).
+    New content files still start as `draft`.
+41. **Documents BE-B limits accepted (lead, in the BE-B SOP):** a grant outlives the grantee's workspace membership (member removal
+    doesn't exist yet: fix it with the Team page); a provider-signed file URL already issued stays valid up to 5 minutes after trash.
+
 ### 0c. Waiting on you (not on code)
 **Do when convenient:**
 1. **Outreach deliverability (DNS):** `default._domainkey.cofoundaz.com` is NXDOMAIN on the authoritative nameservers (Cloudoon:
@@ -154,32 +159,35 @@ All are reversible and none blocks merging.
    value. Optional: rotate the Paystack **test** secret key you pasted in chat on 2026-10-24 (it's connected on the local NovaPay
    workspace; test mode only).
 3. Optional: delete the `VPS_PORT` **secret** from the staging and production GitHub environments (nothing references it since #175).
-4. Still open from lead 7: confirm `SECRET_KEY` on staging/prod is a real random value; set `SALES_OUTREACH_UNSUBSCRIBE_KEY` per
-   environment (`python3 -c "import secrets; print(secrets.token_urlsafe(48))"`, never rotate it); a dedicated `outreach@` mailbox +
+4. Still open from lead 7: confirm `SECRET_KEY` on staging/prod is a real random value (`SALES_OUTREACH_UNSUBSCRIBE_KEY` is set,
+   Adebayo 2026-10-25: never rotate it); a dedicated `outreach@` mailbox +
    hourly limit ~50; journal encryption key on staging (journal writes 500 there until set); Mono production approval.
 5. Optional: SVG versions of the logo and wordmark from the designer (they'd replace the PNGs in `public/brand/`).
 
 Done in lead 9: unsubscribe round trip (passed live, recorded in #151), Funding product call (D-FIN-11), LinkedIn id (D37).
 Done in lead 10: Paystack test payment (your test key), runway rows call (D-FIN-12), Documents Q1-Q4 (D-DOC-1..4), squash-merge call.
+Done in lead 11: Academy content review (all approved), colour sign-offs (#166, #168, #169), unsubscribe key set.
 
-**Product calls open:** Academy content review (48 draft files in `cofoundaz-api/content/academy/`, flip `review_status: reviewed`;
-live on staging with a Draft badge, not on production). Colour phase 2 sign-off (screenshots of the navy/blue swap, once #162 merges).
+**Product calls open:** none. Academy content was reviewed and every colour PR signed off on 2026-10-25.
+Legal templates (NDA, contractor, founder agreement, SAFE) are structured drafts with a disclaimer: a lawyer should replace the text
+before production use (D-DOC-4).
 
-**Still blocked:** Victoria (Legal, API #138; her migration must now chain after **0072** once #185 merges). Calendar sync not built (Google OAuth values in
+**Still blocked:** Victoria (Legal, API #138; her migration must now chain after **0074**). Calendar sync not built (Google OAuth values in
 env). Smoke-test subdomains parked; inbound mail not available; Billing needs Paystack (and the outreach paid-plan gate, D-SAL-11,
 comes with it).
 
 ## 1. Repos and local stack
 - FE `cofoundaz` (Next 16 App Router, React 19, Tailwind v4, TS strict) and API `cofoundaz-api` (FastAPI): sibling dirs under
   `/Users/adebayovictor/Documents/dev/cofoundaz`. The lead session works from the parent dir (not a git repo).
-- **develop heads (2026-10-24 ~23:30, lead 10):** API `4143bbc0` (#184, squash), FE `e809ca4` (#163). The shared API checkout is on
-  `4143bbc0`, migrated to **`0071_finance_slice_e`** and restarted (Adebayo ran the commands; the classifier blocked the lead this time
-  despite the earlier OK, so expect to hand him commands). Academy content loaded, receipts backfill done (local moved=1, staging moved=0).
-  **After #185 merges** give Adebayo: `git -C cofoundaz-api pull --ff-only`, `docker compose -f cofoundaz-api/docker-compose.yml exec -T api alembic upgrade head`,
-  `docker compose -f cofoundaz-api/docker-compose.yml exec -T api python -m app.services.documents.files_backfill`, then
-  `docker compose -f cofoundaz-api/docker-compose.yml restart api worker` (once per environment for the backfill; it is idempotent).
-  The local NovaPay workspace now has a Paystack test connection, a paid test invoice INV-2026-003 and its fee row.
-  Staging CD green at `25fad5a1` with the staging-verified proof minted. Sessions run their own FE dev server on a free port.
+- **develop heads (2026-10-25 ~17:00, lead 11):** API `064daaba` (#189), FE `6c7d989` (#169).
+  The shared API checkout is on `064daaba`, migrated to **`0074_documents_templates_export`**, image rebuilt (has `python-docx`),
+  api + worker recreated, Academy content re-synced (all `reviewed`). Verified live: `/health` 200; BE-C templates list (9, Legal /
+  Financial / Pitch / Operational) and PDF + DOCX export 201 `scan_status: clean` (two test exports left in NovaPay).
+  **The shared FE checkout `cofoundaz/` is far behind develop** (on `cbfe88a`, #156) with two untracked logo PNGs in `public/`: sessions
+  use their own worktrees, so it only matters if someone runs the FE from it; Adebayo can `git -C cofoundaz pull --ff-only` after
+  deleting those two untracked PNGs (they're in develop now).
+  The local NovaPay workspace has a Paystack test connection, a paid test invoice INV-2026-003 and its fee row; its 142 Mono sandbox
+  bank rows from the slice (e) re-check are gone (cause not traced, local data). Sessions run their own FE dev server on a free port.
 - **Lead 8 had standing OK to run docker commands itself** ("run the docker commands yourself"): pull, `alembic upgrade head`,
   restart, `docker compose build api worker` when a PR adds Python deps (#173 added reportlab/pyyaml and the API crashed until rebuilt),
   and `docker compose exec -T api python -m app.services.learning.content` after content changes.
@@ -211,41 +219,44 @@ comes with it).
 |---|---|---|---|---|
 | Dashboard, Today's Mission, Health Score, Roadmap, Business Builder, Validation, Assessment, Marketing | done | done | ✅ | ✅ **Done** (8 pages) |
 | Sales | #165, #166, #168, #172, #177, #179 | #142, #143, #149, #154 | 626/626 (#144) + Sequences hand re-walk #151 incl. live sends + unsubscribe round trip | ✅ **Done 2026-10-24** |
-| Academy | #173, #178, #179, #180, #183 | #148, #152 | #150 (114/119) then re-check #156: D1-D4 20/20 | ✅ **Done 2026-10-24** (content still `draft` until Adebayo reviews it) |
+| Academy | #173, #178, #179, #180, #183 | #148, #152 | #150 (114/119) then re-check #156: D1-D4 20/20 | ✅ **Done 2026-10-24**; content **reviewed** 2026-10-25 (#188) |
 | Finance | #167, #170, #171, #176, #182, #184, #186 | #153, #160, #163 | #157 then slice (e) re-check in #163: **138/141 ✅** incl. a real Paystack test payment and Mono sandbox sync (142 rows). Accepted as unit-tested only (not producible in test mode / the pane): needs-attention banner, non-NGN skip counts, payout tagging, I20 print window, E11 file chooser | ✅ **Done 2026-10-25** (D9 + D10: API #186, verified live; see `finance-rewalk.md`) |
-| Documents | API ✅ (old); BE-A #185 in review | calls real API | walk #161: 38 gaps (Sec 4, High 11, Med 17, Low 6), D-DOC-1..4 answered | 🟡 BE-A → BE-B → BE-C → BE-D → FE → re-walk |
+| Documents | BE-A #185, BE-B #187, BE-C #189 ✅; **BE-D not built** | #167 (library, trash, versions, grants, Shared with me), #169 colours | FE walk 95/95 + 93/93 (F, TM, mentor; `documents-fe-walk.md`); BE-C verified live (templates, PDF + DOCX export) | 🟡 BE-D → FE for BE-C/BE-D → hand re-walk |
 
 Remaining after these: Calendar (API ✅, sync not built) → Journal (API ✅) → Notifications (API ✅) → Team
 (invitations only in the API) → Settings (partial; Billing needs Paystack) → Funding, Investor Readiness, Marketplace, Analytics
 (no API: design first like Sales) → Legal (Victoria). FE for Documents/Calendar/Journal/Notifications already calls the real API
 hooks; they need the PRD walk → gap list → fixes → re-walk treatment. Team's FE page still looks mock-driven.
 
-Cross-cutting: **brand** logo + favicon merged (#158); **colour tokens** phase 1 in #162, phase 2 (navy/blue swap) next (D38).
+Cross-cutting: **brand** logo + favicon (#158); **colour tokens** phase 1 (#162), phase 2 navy/blue Option B (#166), semantic status
+colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169). All merged; SOP `docs/sop/colour-tokens.md`.
 
 ## 2b. Incoming (ordered)
-0. **Live sessions at lead-10 handover** (§0a): read each with `list_events`, check its PR (CI, branch, attribution), tell Adebayo.
-   - #185 Documents BE-A: when green, Adebayo **squash-merges**; then give him the shared-stack commands in §1 (incl. the files backfill).
-   - #162 colour tokens: when green after merging develop, Adebayo merges.
-   - `fix/finance-d9-d10`: when its PR is green, review D10 (money integrity) yourself or with one Opus reviewer; after merge + stack
-     update, verify D9 live (Advisor drawer, the wording "What levers should I look at first?", real model; a failed reply must end
-     visibly) and D10 via API (`PATCH amount_minor` on a `source: bank` row → 422). Then mark **Finance ✅** in `buildout-status.md`
-     and `finance-rewalk.md`, with the accepted unit-tested-only rows listed (§2 table).
-1. **Colour tokens phase 2** (own FE session, Sonnet, branch `feature/brand-colours`), after #162 merges: swap token values in
-   `styles/colour-tokens.css` to navy `#051736` / blue `#0F6AFC` (brand ramp from the blue, dark surfaces from the navy; decide copper
-   accent and fold the ~359 "legacy tail" tokens), WCAG AA contrast check, screenshots of every page at 1440 + 375 for Adebayo to sign
-   off before merge (this time things are meant to change). SOP: `docs/sop/colour-tokens.md`.
-2. **Documents**, per `docs/checklist/documents-prd-gaps.md` "Build order" and D-DOC-1..4 (one slice at a time; assign migration
-   numbers up front, next free is **0073** after #185's 0072):
-   - **BE-B library core:** versions (`document_versions`, list + restore, `document.version.created`), trash (soft delete, 30-day purge
-     job, restore), rename/move/tag/download, content route, search, folders, summary fields, notification payloads, and **grants +
-     "Shared with me"** per D-DOC-1 (security path: Opus review). Then BE-C (document → PDF/DOCX export so any document can be signed,
-     template instantiate with auto-fill, legal drafts per D-DOC-4), BE-D (e-sign v2 per D-DOC-2: executed PDF + certificate, order,
-     message, viewed, link expiry).
-   - **FE** (one sub-session after BE-A + BE-B; row 10 "editor save wipes folder/status" can ship first as a tiny fix), then the hand
-     re-walk on merged develop, all roles incl. new accountant/investor accounts and a real signing round trip.
-3. Then the next pages in §2 order (Calendar → Journal → Notifications → Team → Settings …). Keep at most 2-3 sessions running.
+1. **Documents BE-D, e-sign v2** (own API session, Sonnet, branch e.g. `feature/documents-esign-v2`, next migration **`0075`** chained
+   from `0074_documents_templates_export`). Gap rows **15** (executed PDF stamped with each signature + an audit certificate page,
+   emailed to every party), **16** (signing order, a message to signers, a "viewed" state), **17** (anyone-with-link share with an expiry
+   date; also make uploaded files shareable, a BE-C follow-up), **31** (request detail fields), **37** (return `signed_ip` /
+   `signed_user_agent` to editors and print them on the certificate). D-DOC-2: simple typed-name signatures + legal caveat, no
+   certificate provider. Exports from BE-C (`source_document_id`, `source_version`) must be signable; decide DOCX signing (sign the PDF
+   export, or convert). **Security path:** public signer tokens, emails, rate limits, executed-file storage: one Opus review, and the lead
+   re-reads the token and storage code itself.
+2. **Documents FE for BE-C + BE-D** (one FE session after BE-D merges, or start the BE-C half earlier): template generator form with ✨
+   AI-draft chips and the disclaimer banner on legal templates, Export PDF/DOCX, sign any document, the BE-D signing flow (order, message,
+   viewed, certificate download, link expiry), and the 4 items #167 couldn't verify (PDF preview pixels, cross-origin preview on staging,
+   consultant/accountant/advisor/investor roles). Guides: `cofoundaz-api/docs/fe-integration-guide-documents-templates-export.md` and
+   BE-D's guide.
+3. **Documents hand re-walk** on merged develop: every control, 1440 + 375, F, TM, mentor, consultant and new accountant + investor
+   accounts, a real signing round trip to an inbox the lead controls, a file served from the real storage backend. Then **Documents ✅**.
+4. Then the next pages in §2 order: **Calendar** (API ✅, Google sync not built; redirect URLs agreed in 0b-18) → Journal → Notifications →
+   Team (FE mock-driven; also fix grant/membership removal, 0b-41) → Settings (Billing needs Paystack) → Funding, Investor Readiness,
+   Marketplace, Analytics (no API, design first like Sales) → Legal (Victoria). Keep at most 2-3 sessions running.
 
 ## 2c. Follow-ups (not blocking)
+- **From lead 11:** BE-C: uploaded files still can't be shared by link; non-Latin text in PDFs needs a TrueType font; legal template text
+  needs a lawyer; AI template draft tested with a fake client only (budget exhaustion / provider failure not seen live). BE-B: 30-day
+  purge, Cloudinary inline URLs and the grant rate limit unit-tested only. #167: PDF preview pixels and staging CORS for previews
+  unverified. The worker image also copies `content/`; harmless (it reads the DB). D9's failed-reply path and D10 on bank rows verified by
+  e2e only (no live bank rows locally now).
 - **From lead 10:** the Health Score "Agreements signed" signal shows the count of completed signature requests to every role
   (`app/services/health_score/live_signals.py:235-246`); a member downgraded from F/TM can still open old Advisor chats whose replies
   quoted finance figures (history is replayed); an accountant (Finance role, not Sales) sees a linked Sales `account_name` on invoices; a
@@ -364,6 +375,16 @@ Cross-cutting: **brand** logo + favicon merged (#158); **colour tokens** phase 1
   review per security PR plus a short **re-verification** pass after fixes paid off again: #185's first review found public Cloudinary
   URLs for documents (High) that the slice's own tests passed. (7) The classifier blocked the shared-stack pull/migrate/restart this
   time even though lead 8/9 had an OK: ask per update and hand Adebayo the commands.
+
+- **Lead-11 lessons:** (1) **`content/` is baked into the API image** (only `app/` and `alembic/` are mounted): after a content PR,
+  `python -m app.services.learning.content` alone re-syncs the OLD files; `docker compose build api` + `up -d api` first. (2) **Verify a
+  dependency rebuild, don't trust it:** after #189 Adebayo's `build` left the old image (python-docx missing) while `up -d` looked fine;
+  check `docker compose images` age and `exec api python -c "import <pkg>"`. (3) **Adebayo may merge before a session's follow-up push
+  lands** (#168 merged at its first head): briefs for follow-ups should say "if the PR is already merged, open a new PR from develop".
+  (4) **Remove worktrees when their PR merges:** 48 merged worktrees had grown to ~30 GB (each FE copy has its own `node_modules` and
+  `.next`, screenshot builds up to 5 GB). `git worktree remove` refuses dirty trees; a leftover folder after "Directory not empty" is a
+  deregistered copy, safe to `rm -rf` once checked with `lsof`. (5) zsh doesn't word-split `$var` in `for x in $list`: use arrays or
+  explicit loops in shell snippets.
 
 ## 4b. Follow-ups queued
 - **Lessons from 2026-10-19:** parallel FE sub-sessions that both add a shared module (e.g. `lib/api/comments.ts`) collide
