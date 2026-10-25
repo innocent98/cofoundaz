@@ -76,13 +76,13 @@ function KanbanView() {
     <>
       <div className="flex flex-col gap-6 h-full min-h-[calc(100vh-160px)]">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">
+          <h2 className="text-3xl font-display font-medium text-ink tracking-tight">
             Kanban Board
           </h2>
           
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[#768478]">Group by:</span>
-            <div className="flex items-center gap-1 bg-[#F5F5F0] p-1 rounded-card border border-[#EBEBE6]">
+            <span className="text-xs font-semibold text-ink-soft">Group by:</span>
+            <div className="flex items-center gap-1 bg-surface-muted p-1 rounded-card border border-line-soft">
               {(['Status', 'Phase'] as const).map((g) => (
                 <button
                   type="button"
@@ -91,8 +91,8 @@ function KanbanView() {
                   onClick={() => setGroupBy(g)}
                   className={`px-3 py-1.5 rounded-[6px] text-xs font-medium transition-all ${
                     groupBy === g
-                      ? 'bg-white text-[#1E2923] font-bold shadow-card'
-                      : 'bg-transparent text-[#768478] hover:text-[#1E2923]'
+                      ? 'bg-white text-ink font-bold shadow-card'
+                      : 'bg-transparent text-ink-soft hover:text-ink'
                   }`}
                 >
                   {g}
@@ -103,20 +103,20 @@ function KanbanView() {
         </div>
 
         {groupBy === 'Status' && canEdit && (
-          <p className="text-xs text-[#8E9B90] -mt-2">Drag a task card between columns, or use the Move to menu on a card.</p>
+          <p className="text-xs text-ink-subtle -mt-2">Drag a task card between columns, or use the Move to menu on a card.</p>
         )}
-        {loading && <p className="text-xs text-[#8E9B90]" aria-busy="true">Loading your tasks…</p>}
+        {loading && <p className="text-xs text-ink-subtle" aria-busy="true">Loading your tasks…</p>}
         {!loading && error && (
-          <p role="alert" className="text-xs font-semibold text-[#B0483B]">
+          <p role="alert" className="text-xs font-semibold text-danger-600">
             Couldn&apos;t load your tasks.{' '}
             <button type="button" onClick={() => void refetch()} className="underline">Retry</button>
           </p>
         )}
         {!loading && !error && allTasks.length === 0 && groupBy === 'Status' && (
-          <p className="text-xs text-[#8E9B90]">No tasks yet. Open a milestone from the Timeline to add some.</p>
+          <p className="text-xs text-ink-subtle">No tasks yet. Open a milestone from the Timeline to add some.</p>
         )}
         {dndError && (
-          <div className="bg-[#FBEBEB] border border-[#EBC9C4] text-[#B0483B] text-xs font-semibold rounded-card px-3 py-2 -mt-2">
+          <div className="bg-danger-wash border border-danger-xebc9c4 text-danger-600 text-xs font-semibold rounded-card px-3 py-2 -mt-2">
             {dndError}
           </div>
         )}
@@ -137,8 +137,8 @@ function KanbanView() {
               return (
                 <div key={col.id} className="flex-shrink-0 w-[320px] flex flex-col gap-3">
                   <div className="flex items-center justify-between px-1">
-                    <h3 className="font-bold text-sm text-[#1E2923]">{col.label}</h3>
-                    <span className="text-xs font-bold text-[#8E9B90] bg-[#EBEBE6] px-2 py-0.5 rounded-full">
+                    <h3 className="font-bold text-sm text-ink">{col.label}</h3>
+                    <span className="text-xs font-bold text-ink-subtle bg-line-soft px-2 py-0.5 rounded-full">
                       {colTasks.length}
                     </span>
                   </div>
@@ -154,45 +154,45 @@ function KanbanView() {
                       if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverCol(null);
                     }}
                     onDrop={(e) => handleDrop(e, col.id)}
-                    className={`flex-1 bg-[#F0F0EC] rounded-modal p-3 flex flex-col gap-3 min-h-[200px] transition-colors ${
-                      dragOverCol === col.id ? 'ring-2 ring-[#2D5A3F] ring-inset bg-[#E7EEE9]' : ''
+                    className={`flex-1 bg-line-faint rounded-modal p-3 flex flex-col gap-3 min-h-[200px] transition-colors ${
+                      dragOverCol === col.id ? 'ring-2 ring-brand-mid ring-inset bg-neutral-xe7eee9' : ''
                     }`}
                   >
-                    {colTasks.length === 0 && <p className="text-xs text-[#8E9B90] px-1">Nothing here.</p>}
+                    {colTasks.length === 0 && <p className="text-xs text-ink-subtle px-1">Nothing here.</p>}
                     {colTasks.map(({ task, parentMilestone }) => (
                       <div
                         key={task.id}
                         draggable={canEdit}
                         onDragStart={(e) => handleDragStart(e, task.id)}
-                        className="bg-white border border-[#EBEBE6] rounded-card p-4 shadow-card hover:shadow-raised hover:border-[#C5CFC7] transition-all flex flex-col gap-3 group active:cursor-grabbing"
+                        className="bg-white border border-line-soft rounded-card p-4 shadow-card hover:shadow-raised hover:border-neutral-xc5cfc7 transition-all flex flex-col gap-3 group active:cursor-grabbing"
                       >
                         <div className="flex items-start gap-2">
-                          {canEdit && <GripVertical className="w-4 h-4 text-[#C5CFC7] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab shrink-0" aria-hidden="true" />}
+                          {canEdit && <GripVertical className="w-4 h-4 text-neutral-xc5cfc7 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab shrink-0" aria-hidden="true" />}
                           <button
                             type="button"
                             onClick={() => board.open(parentMilestone)}
-                            className="text-left text-sm font-bold text-[#1E2923] leading-snug flex-1 hover:underline"
+                            className="text-left text-sm font-bold text-ink leading-snug flex-1 hover:underline"
                           >
                             {task.title}
                           </button>
                           {task.status === 'overdue' && <OverdueChip />}
                         </div>
-                        <div className="flex items-center justify-between gap-2 text-[11px] font-medium text-[#768478]">
+                        <div className="flex items-center justify-between gap-2 text-[11px] font-medium text-ink-soft">
                           <span className="truncate max-w-[150px]">MS: {parentMilestone.title}</span>
-                          <span className="bg-[#F7F7F5] px-2 py-1 rounded border border-[#EBEBE6]">{task.effort}</span>
+                          <span className="bg-surface-subtle px-2 py-1 rounded border border-line-soft">{task.effort}</span>
                         </div>
-                        <div className="flex items-center justify-between gap-2 text-[11px] font-medium text-[#768478]">
+                        <div className="flex items-center justify-between gap-2 text-[11px] font-medium text-ink-soft">
                           <span className="truncate">{personLabel(task.assignee, board.members.emailById)}</span>
                           <span>{formatDue(task.dueOn)}</span>
                         </div>
                         {canEdit && (
-                          <label className="flex items-center gap-2 text-[11px] font-semibold text-[#617065]">
+                          <label className="flex items-center gap-2 text-[11px] font-semibold text-ink-muted">
                             Move to
                             <select
                               aria-label={`Move "${task.title}" to`}
                               value={col.id}
                               onChange={(e) => void moveTask(task.id, e.target.value)}
-                              className="flex-1 bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-2 py-1 text-xs font-semibold outline-none focus:border-[#2D5A3F]"
+                              className="flex-1 bg-surface-subtle border border-line-soft rounded-input px-2 py-1 text-xs font-semibold outline-none focus:border-brand-mid"
                             >
                               {statusColumns.map((c) => (
                                 <option key={c.id} value={c.id}>{c.label}</option>
@@ -210,24 +210,24 @@ function KanbanView() {
             phases.map(phase => (
               <div key={phase.id} className="flex-shrink-0 w-[320px] flex flex-col gap-3">
                 <div className="flex items-center justify-between px-1">
-                  <h3 className="font-bold text-sm text-[#1E2923]">{phase.name}</h3>
-                  <span className="text-xs font-bold text-[#8E9B90] bg-[#EBEBE6] px-2 py-0.5 rounded-full">
+                  <h3 className="font-bold text-sm text-ink">{phase.name}</h3>
+                  <span className="text-xs font-bold text-ink-subtle bg-line-soft px-2 py-0.5 rounded-full">
                     {phase.milestones.length}
                   </span>
                 </div>
                 
-                <div className="flex-1 bg-[#F0F0EC] rounded-modal p-3 flex flex-col gap-3 min-h-[200px]">
-                  {phase.milestones.length === 0 && <p className="text-xs text-[#8E9B90] px-1">No milestones in this phase.</p>}
+                <div className="flex-1 bg-line-faint rounded-modal p-3 flex flex-col gap-3 min-h-[200px]">
+                  {phase.milestones.length === 0 && <p className="text-xs text-ink-subtle px-1">No milestones in this phase.</p>}
                   {phase.milestones.map((ms) => (
                     <div
                       key={ms.id}
-                      className="bg-white border border-[#EBEBE6] rounded-card p-4 shadow-card hover:shadow-raised hover:border-[#C5CFC7] transition-all flex flex-col gap-3"
+                      className="bg-white border border-line-soft rounded-card p-4 shadow-card hover:shadow-raised hover:border-neutral-xc5cfc7 transition-all flex flex-col gap-3"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <button
                           type="button"
                           onClick={() => board.open(ms)}
-                          className="text-left text-sm font-bold text-[#1E2923] leading-snug flex-1 hover:underline"
+                          className="text-left text-sm font-bold text-ink leading-snug flex-1 hover:underline"
                         >
                           {ms.title}
                         </button>
@@ -237,14 +237,14 @@ function KanbanView() {
                         </div>
                       </div>
 
-                      <div className="w-full h-1.5 bg-[#EBEBE6] rounded-full overflow-hidden">
+                      <div className="w-full h-1.5 bg-line-soft rounded-full overflow-hidden">
                         <div
-                          className={`h-full transition-all ${ms.status === 'overdue' ? 'bg-[#B0483B]' : 'bg-[#2D5A3F]'}`}
+                          className={`h-full transition-all ${ms.status === 'overdue' ? 'bg-danger-600' : 'bg-brand-mid'}`}
                           style={{ width: `${ms.progress}%` }}
                         />
                       </div>
 
-                      <div className="flex items-center justify-between text-[11px] font-medium text-[#768478]">
+                      <div className="flex items-center justify-between text-[11px] font-medium text-ink-soft">
                         <span>{formatDue(ms.dueOn)}</span>
                         <span>{ms.tasks.length === 1 ? '1 task' : `${ms.tasks.length} tasks`}</span>
                       </div>

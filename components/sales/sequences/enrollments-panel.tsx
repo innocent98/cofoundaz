@@ -17,12 +17,12 @@ import { BTN_SECONDARY, ConfirmDialog, EmptyState, ErrorState, INPUT, LoadingSta
 const PAGE = 20;
 
 const STATUS_STYLE: Record<EnrollmentStatus, string> = {
-  active: 'bg-green-50 text-green-700',
-  completed: 'bg-sage-100 text-sage-700',
-  replied: 'bg-green-100/70 text-green-800',
-  unsubscribed: 'bg-copper-100 text-copper-800',
-  bounced: 'bg-red-50 text-red-700',
-  stopped: 'bg-sage-100 text-sage-700',
+  active: 'bg-brand-50 text-brand-700',
+  completed: 'bg-neutral-100 text-neutral-700',
+  replied: 'bg-brand-100/70 text-brand-800',
+  unsubscribed: 'bg-accent-100 text-accent-800',
+  bounced: 'bg-danger-50 text-danger-700',
+  stopped: 'bg-neutral-100 text-neutral-700',
 };
 
 function when(iso: string | null): string {
@@ -63,9 +63,9 @@ export function EnrollmentsPanel({ sequenceId, stepCount, onChanged }: { sequenc
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-xs font-bold text-sage-500 uppercase tracking-wider">People in this sequence</h3>
+        <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">People in this sequence</h3>
         <div className="flex items-center gap-2">
-          <label htmlFor={filterId} className="text-xs text-sage-600">
+          <label htmlFor={filterId} className="text-xs text-neutral-600">
             Show
           </label>
           <select
@@ -103,15 +103,15 @@ export function EnrollmentsPanel({ sequenceId, stepCount, onChanged }: { sequenc
       )}
       {list.status === 'ready' && items.length > 0 && (
         <>
-          <ul className="divide-y divide-sage-100 border border-sage-200 rounded-card bg-white">
+          <ul className="divide-y divide-neutral-100 border border-neutral-200 rounded-card bg-white">
             {items.map((e) => (
               <li key={e.id} className="p-3 md:p-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-sage-900 truncate">{whoOf(e)}</p>
-                  <p className="text-xs text-sage-500 truncate">
+                  <p className="text-sm font-semibold text-neutral-900 truncate">{whoOf(e)}</p>
+                  <p className="text-xs text-neutral-500 truncate">
                     {[e.email, e.company].filter(Boolean).join(' · ')}
                   </p>
-                  <p className="text-xs text-sage-500">
+                  <p className="text-xs text-neutral-500">
                     Sender: {e.sender_name} · {e.current_step} of {stepCount} sent
                     {e.status === 'active' && e.next_send_at ? ` · next step ${when(e.next_send_at)}` : ''}
                     {e.stopped_reason ? ` · ${STOPPED_REASON_LABELS[e.stopped_reason] ?? e.stopped_reason}` : ''}
@@ -125,7 +125,7 @@ export function EnrollmentsPanel({ sequenceId, stepCount, onChanged }: { sequenc
                     <>
                       <button
                         type="button"
-                        className="text-xs font-bold text-[#1e4836] hover:underline cursor-pointer disabled:opacity-50"
+                        className="text-xs font-bold text-brand-hover hover:underline cursor-pointer disabled:opacity-50"
                         disabled={busyId === e.id}
                         aria-label={`Mark ${whoOf(e)} as replied`}
                         onClick={() => void act(e, 'replied')}
@@ -134,7 +134,7 @@ export function EnrollmentsPanel({ sequenceId, stepCount, onChanged }: { sequenc
                       </button>
                       <button
                         type="button"
-                        className="text-xs text-sage-500 hover:text-red-700 cursor-pointer disabled:opacity-50"
+                        className="text-xs text-neutral-500 hover:text-danger-700 cursor-pointer disabled:opacity-50"
                         disabled={busyId === e.id}
                         aria-label={`Stop emailing ${whoOf(e)}`}
                         onClick={() => setToStop(e)}
@@ -148,7 +148,7 @@ export function EnrollmentsPanel({ sequenceId, stepCount, onChanged }: { sequenc
             ))}
           </ul>
           {total > PAGE && (
-            <div className="flex items-center justify-between text-sm text-sage-600">
+            <div className="flex items-center justify-between text-sm text-neutral-600">
               <span>
                 {offset + 1} to {Math.min(offset + items.length, total)} of {total}
               </span>

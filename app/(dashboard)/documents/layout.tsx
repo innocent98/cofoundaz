@@ -18,7 +18,7 @@ function DocumentsNav() {
   ];
 
   return (
-    <nav className="w-full bg-sage-50 border-b border-sage-200 px-4 md:px-6 py-2 flex items-center overflow-x-auto no-scrollbar">
+    <nav className="w-full bg-neutral-50 border-b border-neutral-200 px-4 md:px-6 py-2 flex items-center overflow-x-auto no-scrollbar">
       <div className="flex items-center space-x-1.5 whitespace-nowrap">
         {tabs.map((tab) => {
           const isActive = pathname === tab.path;
@@ -33,8 +33,8 @@ function DocumentsNav() {
               }}
               className={
                 isActive 
-                  ? "px-3.5 py-1 rounded-full text-xs font-semibold bg-copper-200 text-[#1E2923] shadow-card transition-colors"
-                  : "px-3.5 py-1 rounded-full text-xs font-medium text-sage-600 hover:bg-sage-100 transition-colors"
+                  ? "px-3.5 py-1 rounded-full text-xs font-semibold bg-accent-200 text-ink shadow-card transition-colors"
+                  : "px-3.5 py-1 rounded-full text-xs font-medium text-neutral-600 hover:bg-neutral-100 transition-colors"
               }
             >
               {tab.name}
@@ -49,7 +49,7 @@ function DocumentsNav() {
 export default function DocumentsLayout({ children }: { children: React.ReactNode }) {
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-sage-50 text-[#1E2923] font-body antialiased relative selection:bg-copper-200">
+      <div className="min-h-screen bg-neutral-50 text-ink font-body antialiased relative selection:bg-accent-200">
         <ShellTopBar title="Documents" />
         <DocumentsNav />
         {children}

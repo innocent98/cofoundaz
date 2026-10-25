@@ -90,7 +90,7 @@ function Chips({ items }: { items: string[] }) {
   return (
     <ul aria-label="Segment definition" className="flex flex-wrap gap-1.5">
       {items.map((c, i) => (
-        <li key={`${c}-${i}`} className="rounded-full bg-sage-100 px-2.5 py-1 text-xs font-medium text-sage-800">
+        <li key={`${c}-${i}`} className="rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-800">
           {c}
         </li>
       ))}
@@ -123,9 +123,9 @@ function RuleBuilder({
   };
   const atLimit = form.tags.length >= maxTags;
   return (
-    <fieldset className="space-y-4 rounded-card border border-sage-200 p-4">
-      <legend className="px-1 text-xs font-semibold text-sage-700 uppercase tracking-wider">Who is in this segment</legend>
-      <p className="text-xs text-sage-500">
+    <fieldset className="space-y-4 rounded-card border border-neutral-200 p-4">
+      <legend className="px-1 text-xs font-semibold text-neutral-700 uppercase tracking-wider">Who is in this segment</legend>
+      <p className="text-xs text-neutral-500">
         Describe the audience with any of these. They show as tags on the segment and give the AI context. They do not count users.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -176,13 +176,13 @@ function RuleBuilder({
       {form.tags.length > 0 && (
         <ul aria-label="Behaviour tags" className="flex flex-wrap gap-1.5">
           {form.tags.map((t) => (
-            <li key={t} className="inline-flex items-center gap-1 rounded-full bg-sage-100 pl-2.5 pr-1 py-1 text-xs font-medium text-sage-800">
+            <li key={t} className="inline-flex items-center gap-1 rounded-full bg-neutral-100 pl-2.5 pr-1 py-1 text-xs font-medium text-neutral-800">
               {t}
               <button
                 type="button"
                 aria-label={`Remove tag ${t}`}
                 onClick={() => setForm({ ...form, tags: form.tags.filter((x) => x !== t) })}
-                className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-sage-200 cursor-pointer"
+                className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-neutral-200 cursor-pointer"
               >
                 ×
               </button>
@@ -191,7 +191,7 @@ function RuleBuilder({
         </ul>
       )}
       {form.legacy.length > 0 && (
-        <p className="text-xs text-sage-600 rounded-card bg-sage-50 border border-sage-200 p-3">
+        <p className="text-xs text-neutral-600 rounded-card bg-neutral-50 border border-neutral-200 p-3">
           This segment has older fields ({form.legacy.join(', ')}) that the rule builder no longer keeps. They are removed when you save.
         </p>
       )}
@@ -275,7 +275,7 @@ export default function MarketingSegmentsPage() {
   return (
     <div className="space-y-6 animate-fadeIn relative">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">Audience segments</h1>
+        <h1 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 tracking-tight">Audience segments</h1>
         <button type="button" onClick={() => open()} className={`${BTN_ACCENT} self-start md:self-auto`}>
           + New segment
         </button>
@@ -293,19 +293,19 @@ export default function MarketingSegmentsPage() {
             {segments.map((seg) => {
               const campaigns = usedBy[seg.id];
               return (
-                <div key={seg.id} className={`${CARD} p-6 flex flex-col justify-between space-y-5 hover:border-sage-300 transition-all`}>
+                <div key={seg.id} className={`${CARD} p-6 flex flex-col justify-between space-y-5 hover:border-neutral-300 transition-all`}>
                   <div className="space-y-3">
-                    <h3 className="font-display font-semibold text-lg text-sage-900">{seg.name}</h3>
+                    <h3 className="font-display font-semibold text-lg text-neutral-900">{seg.name}</h3>
                     <Chips items={definitionChips(seg.definition)} />
-                    <p className="text-xs text-sage-500 font-medium">
+                    <p className="text-xs text-neutral-500 font-medium">
                       Estimated size{' '}
-                      <span className="text-sage-900 font-semibold">
+                      <span className="text-neutral-900 font-semibold">
                         {seg.est_size === null ? 'not set' : `~${seg.est_size.toLocaleString()}`}
                       </span>{' '}
-                      (your estimate) · Persona <span className="text-sage-900 font-semibold">{personaLabel(seg.persona_id)}</span>
+                      (your estimate) · Persona <span className="text-neutral-900 font-semibold">{personaLabel(seg.persona_id)}</span>
                     </p>
                     {campaigns && (
-                      <p className="text-xs text-sage-600">
+                      <p className="text-xs text-neutral-600">
                         {campaigns.length === 0
                           ? 'Not used in any campaign.'
                           : `Used in ${campaigns.length} ${campaigns.length === 1 ? 'campaign' : 'campaigns'}: ${campaigns.map((c) => c.name).join(', ')}`}
@@ -315,7 +315,7 @@ export default function MarketingSegmentsPage() {
 
                   {confirmId === seg.id ? (
                     <div className="space-y-2">
-                      <p className="text-xs text-sage-700">
+                      <p className="text-xs text-neutral-700">
                         {(usedBy[seg.id]?.length ?? 0) > 0
                           ? `This segment is used by ${usedBy[seg.id].length} campaign(s). Deleting it removes it from them.`
                           : 'Delete this segment permanently?'}

@@ -28,8 +28,8 @@ function AICoachContent() {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div>
-        <h1 className="text-3xl font-display font-semibold text-sage-900">AI sales coach</h1>
-        <p className="text-sm text-sage-600 font-medium mt-0.5">Rehearse here, win out there.</p>
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">AI sales coach</h1>
+        <p className="text-sm text-neutral-600 font-medium mt-0.5">Rehearse here, win out there.</p>
       </div>
 
       <div role="tablist" aria-label="AI coach" className="flex items-center gap-2">
@@ -43,8 +43,8 @@ function AICoachContent() {
               onClick={() => pickTab(subTab)}
               className={`px-4 py-2 rounded-card text-sm font-semibold transition-all cursor-pointer ${
                 isActive
-                  ? "bg-[#EAD5C6] text-[#2c220b] shadow-card"
-                  : "bg-white text-sage-700 hover:bg-sage-50 border border-sage-200/80"
+                  ? "bg-accent-200 text-accent-x2c220b shadow-card"
+                  : "bg-white text-neutral-700 hover:bg-neutral-50 border border-neutral-200/80"
               }`}
             >
               {subTab}

@@ -16,17 +16,17 @@ export function HealthError({
   return (
     <div
       role="alert"
-      className="bg-white rounded-modal border border-[#F0D5D5] shadow-card p-8 md:p-10 flex flex-col items-center text-center gap-3"
+      className="bg-white rounded-modal border border-danger-xf0d5d5 shadow-card p-8 md:p-10 flex flex-col items-center text-center gap-3"
     >
-      <div className="w-12 h-12 rounded-full bg-[#FBEBEB] text-[#B0483B] flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full bg-danger-wash text-danger-600 flex items-center justify-center">
         <AlertTriangle className="w-6 h-6" aria-hidden="true" />
       </div>
-      <h2 className="text-base font-bold text-[#1E2923]">{title}</h2>
-      {message && <p className="text-sm text-[#617065] max-w-md">{message}</p>}
+      <h2 className="text-base font-bold text-ink">{title}</h2>
+      {message && <p className="text-sm text-ink-muted max-w-md">{message}</p>}
       <button
         type="button"
         onClick={onRetry}
-        className="mt-1 inline-flex items-center gap-1.5 bg-[#183B28] hover:bg-[#11291C] text-white text-xs font-bold px-4 py-2 rounded-card transition-colors cursor-pointer"
+        className="mt-1 inline-flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail text-white text-xs font-bold px-4 py-2 rounded-card transition-colors cursor-pointer"
       >
         <RotateCw className="w-3.5 h-3.5" aria-hidden="true" /> Retry
       </button>

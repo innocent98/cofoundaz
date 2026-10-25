@@ -35,17 +35,17 @@ export function DateDiff({ oldDue, newDue }: { oldDue: string; newDue: string })
   const later = (delta ?? 0) > 0;
   return (
     <div className="flex items-center gap-2.5">
-      <span className="bg-[#F5F5F0] border border-[#EBEBE6] px-2.5 py-1 rounded text-xs font-bold text-[#768478] line-through">
+      <span className="bg-surface-muted border border-line-soft px-2.5 py-1 rounded text-xs font-bold text-ink-soft line-through">
         {fmtDay(oldDue)}
       </span>
-      <ArrowRight className="w-4 h-4 text-[#C5CFC7] shrink-0" />
-      <span className="bg-[#EAF2ED] border border-[#CDE1D3] px-2.5 py-1 rounded text-xs font-bold text-[#2D5A3F]">
+      <ArrowRight className="w-4 h-4 text-neutral-xc5cfc7 shrink-0" />
+      <span className="bg-brand-tint border border-brand-xcde1d3 px-2.5 py-1 rounded text-xs font-bold text-brand-mid">
         {fmtDay(newDue)}
       </span>
       {delta !== null && delta !== 0 && (
         <span
           className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-            later ? 'bg-[#FBEBEB] text-[#B0483B]' : 'bg-[#EAF2ED] text-[#2D5A3F]'
+            later ? 'bg-danger-wash text-danger-600' : 'bg-brand-tint text-brand-mid'
           }`}
         >
           {deltaLabel(delta)}

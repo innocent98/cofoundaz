@@ -69,11 +69,11 @@ interface AuditLogItem {
 
 // --- MOCK DATA ---
 const INITIAL_TEAM_MEMBERS: TeamMemberItem[] = [
-  { name: 'Amara Okafor', email: 'amara@kolo.africa', role: 'Owner', badgeClass: 'bg-[#F5EFEA] text-[#7A6025]', lastActive: 'Active now', isYou: true },
-  { name: 'Daniel Kariuki', email: 'daniel@kolo.africa', role: 'Co-Founder', badgeClass: 'bg-[#E5EFEA] text-[#183B28]', lastActive: '12 min ago' },
-  { name: 'Grace Adeyemi', email: 'grace@ledgerworks.ng', role: 'Accountant', badgeClass: 'bg-[#F2ECE1] text-[#7A6025]', lastActive: '2 days ago' },
-  { name: 'Tayo Nwachukwu', email: 'tayo@lawfirm.ng', role: 'Legal advisor', badgeClass: 'bg-[#F2ECE1] text-[#7A6025]', lastActive: 'Yesterday' },
-  { name: 'Sara Bello', email: 'sara@kolo.africa', role: 'Team Member', badgeClass: 'bg-[#F5F5F0] text-[#617065]', lastActive: 'Not yet joined', status: 'invite pending' },
+  { name: 'Amara Okafor', email: 'amara@kolo.africa', role: 'Owner', badgeClass: 'bg-neutral-xf5efea text-accent-x7a6025', lastActive: 'Active now', isYou: true },
+  { name: 'Daniel Kariuki', email: 'daniel@kolo.africa', role: 'Co-Founder', badgeClass: 'bg-neutral-xe5efea text-brand-strong', lastActive: '12 min ago' },
+  { name: 'Grace Adeyemi', email: 'grace@ledgerworks.ng', role: 'Accountant', badgeClass: 'bg-accent-xf2ece1 text-accent-x7a6025', lastActive: '2 days ago' },
+  { name: 'Tayo Nwachukwu', email: 'tayo@lawfirm.ng', role: 'Legal advisor', badgeClass: 'bg-accent-xf2ece1 text-accent-x7a6025', lastActive: 'Yesterday' },
+  { name: 'Sara Bello', email: 'sara@kolo.africa', role: 'Team Member', badgeClass: 'bg-surface-muted text-ink-muted', lastActive: 'Not yet joined', status: 'invite pending' },
 ];
 
 const CAPABILITIES_DATA: CapabilityRow[] = [
@@ -98,7 +98,7 @@ const ACTIVITIES_DATA: ActivityItem[] = [
     category: 'Comments',
     day: 'TODAY',
     iconType: 'comment',
-    bgColor: 'bg-[#183B28] text-white'
+    bgColor: 'bg-brand-strong text-white'
   },
   {
     id: '2',
@@ -110,7 +110,7 @@ const ACTIVITIES_DATA: ActivityItem[] = [
     category: 'Edits',
     day: 'TODAY',
     iconType: 'check',
-    bgColor: 'bg-[#183B28] text-white'
+    bgColor: 'bg-brand-strong text-white'
   },
   {
     id: '3',
@@ -122,7 +122,7 @@ const ACTIVITIES_DATA: ActivityItem[] = [
     category: 'Edits',
     day: 'TODAY',
     iconType: 'edit',
-    bgColor: 'bg-[#183B28] text-white'
+    bgColor: 'bg-brand-strong text-white'
   },
   {
     id: '4',
@@ -134,7 +134,7 @@ const ACTIVITIES_DATA: ActivityItem[] = [
     category: 'Documents',
     day: 'TODAY',
     iconType: 'doc',
-    bgColor: 'bg-[#183B28] text-white'
+    bgColor: 'bg-brand-strong text-white'
   },
   {
     id: '5',
@@ -146,7 +146,7 @@ const ACTIVITIES_DATA: ActivityItem[] = [
     category: 'Comments',
     day: 'YESTERDAY',
     iconType: 'comment',
-    bgColor: 'bg-[#8F6B38] text-white'
+    bgColor: 'bg-accent-x8f6b38 text-white'
   },
   {
     id: '6',
@@ -158,7 +158,7 @@ const ACTIVITIES_DATA: ActivityItem[] = [
     category: 'Edits',
     day: 'YESTERDAY',
     iconType: 'edit',
-    bgColor: 'bg-[#183B28] text-white'
+    bgColor: 'bg-brand-strong text-white'
   },
   {
     id: '7',
@@ -170,7 +170,7 @@ const ACTIVITIES_DATA: ActivityItem[] = [
     category: 'Documents',
     day: 'YESTERDAY',
     iconType: 'doc',
-    bgColor: 'bg-[#183B28] text-white'
+    bgColor: 'bg-brand-strong text-white'
   },
 ];
 
@@ -220,7 +220,7 @@ const AUDIT_LOGS_DATA: AuditLogItem[] = [
     id: 'a1',
     actor: 'Amara Okafor',
     action: 'Data room shared',
-    actionBadgeClass: 'bg-[#F5EFEA] text-[#7A6025]',
+    actionBadgeClass: 'bg-neutral-xf5efea text-accent-x7a6025',
     target: 'Sahel Fund · Financials',
     when: 'Today 10:04'
   },
@@ -228,7 +228,7 @@ const AUDIT_LOGS_DATA: AuditLogItem[] = [
     id: 'a2',
     actor: 'Daniel Kariuki',
     action: 'Login',
-    actionBadgeClass: 'bg-[#E5EFEA] text-[#183B28]',
+    actionBadgeClass: 'bg-neutral-xe5efea text-brand-strong',
     target: 'Chrome · Nairobi',
     when: 'Today 09:12'
   },
@@ -236,7 +236,7 @@ const AUDIT_LOGS_DATA: AuditLogItem[] = [
     id: 'a3',
     actor: 'Amara Okafor',
     action: 'Permission change',
-    actionBadgeClass: 'bg-[#FCEAEA] text-[#9E3B3B]',
+    actionBadgeClass: 'bg-danger-xfceaea text-danger-x9e3b3b',
     target: 'Grace Adeyemi → Accountant',
     when: 'Yesterday 16:40'
   },
@@ -244,7 +244,7 @@ const AUDIT_LOGS_DATA: AuditLogItem[] = [
     id: 'a4',
     actor: 'Thrive SACCO',
     action: 'Document signed',
-    actionBadgeClass: 'bg-[#F5EFEA] text-[#7A6025]',
+    actionBadgeClass: 'bg-neutral-xf5efea text-accent-x7a6025',
     target: 'Mutual NDA',
     when: 'Jul 18 14:22'
   },
@@ -252,7 +252,7 @@ const AUDIT_LOGS_DATA: AuditLogItem[] = [
     id: 'a5',
     actor: 'Amara Okafor',
     action: 'Invite sent',
-    actionBadgeClass: 'bg-[#E5EFEA] text-[#183B28]',
+    actionBadgeClass: 'bg-neutral-xe5efea text-brand-strong',
     target: 'sara@kolo.africa',
     when: 'Jul 17 11:05'
   },
@@ -260,7 +260,7 @@ const AUDIT_LOGS_DATA: AuditLogItem[] = [
     id: 'a6',
     actor: 'Grace Adeyemi',
     action: 'Export',
-    actionBadgeClass: 'bg-[#E5EFEA] text-[#183B28]',
+    actionBadgeClass: 'bg-neutral-xe5efea text-brand-strong',
     target: 'Financial data · XLSX',
     when: 'Jul 15 09:33'
   },
@@ -268,7 +268,7 @@ const AUDIT_LOGS_DATA: AuditLogItem[] = [
     id: 'a7',
     actor: 'Amara Okafor',
     action: 'Member removed',
-    actionBadgeClass: 'bg-[#FCEAEA] text-[#9E3B3B]',
+    actionBadgeClass: 'bg-danger-xfceaea text-danger-x9e3b3b',
     target: 'contractor@temp.ng',
     when: 'Jul 2 15:18'
   }
@@ -304,7 +304,7 @@ export default function TeamSectionPage(): React.JSX.Element {
       name: inviteEmail.split('@')[0],
       email: inviteEmail,
       role: inviteRole,
-      badgeClass: inviteRole === 'Owner' ? 'bg-[#F5EFEA] text-[#7A6025]' : inviteRole === 'Co-Founder' ? 'bg-[#E5EFEA] text-[#183B28]' : inviteRole === 'Accountant or Legal advisor' ? 'bg-[#F2ECE1] text-[#7A6025]' : 'bg-[#F5F5F0] text-[#617065]',
+      badgeClass: inviteRole === 'Owner' ? 'bg-neutral-xf5efea text-accent-x7a6025' : inviteRole === 'Co-Founder' ? 'bg-neutral-xe5efea text-brand-strong' : inviteRole === 'Accountant or Legal advisor' ? 'bg-accent-xf2ece1 text-accent-x7a6025' : 'bg-surface-muted text-ink-muted',
       lastActive: 'Not yet joined',
       status: 'invite pending'
     };
@@ -360,38 +360,38 @@ export default function TeamSectionPage(): React.JSX.Element {
 
   const renderPermissionIcon = (type: 'full' | 'view' | 'none') => {
     if (type === 'full') {
-      return <span className="text-[#183B28] font-bold text-sm">✓</span>;
+      return <span className="text-brand-strong font-bold text-sm">✓</span>;
     }
     if (type === 'view') {
-      return <span className="text-[#A07C44] font-bold text-sm">◐</span>;
+      return <span className="text-accent-bronze font-bold text-sm">◐</span>;
     }
-    return <span className="text-[#A3ADA5] font-light text-xs">·</span>;
+    return <span className="text-neutral-xa3ada5 font-light text-xs">·</span>;
   };
 
   const renderActivityIcon = (iconType: string) => {
     if (iconType === 'comment') {
       return (
-        <svg className="w-3.5 h-3.5 text-[#9E7B38]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-3.5 h-3.5 text-accent-x9e7b38" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
       );
     }
     if (iconType === 'check') {
       return (
-        <svg className="w-3.5 h-3.5 text-[#183B28]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-3.5 h-3.5 text-brand-strong" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
         </svg>
       );
     }
     if (iconType === 'edit') {
       return (
-        <svg className="w-3.5 h-3.5 text-[#183B28]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-3.5 h-3.5 text-brand-strong" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
       );
     }
     return (
-      <svg className="w-3.5 h-3.5 text-[#183B28]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-3.5 h-3.5 text-brand-strong" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
     );
@@ -408,32 +408,32 @@ export default function TeamSectionPage(): React.JSX.Element {
   const openThreadsCount = threads.filter(t => t.status === 'open').length;
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-[#1E2923] font-body antialiased relative selection:bg-[#EAD5C6]">
+    <div className="min-h-screen bg-surface-faint text-ink font-body antialiased relative selection:bg-accent-200">
       
       {/* Top Notification Toast */}
       {toastMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#12291F] text-white px-5 py-2.5 rounded-modal shadow-accent flex items-center space-x-2.5 text-sm font-medium transition-all duration-300">
-          <span className="bg-[#183B28] text-white rounded-full p-0.5 text-xs">✓</span>
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-brand-900 text-white px-5 py-2.5 rounded-modal shadow-accent flex items-center space-x-2.5 text-sm font-medium transition-all duration-300">
+          <span className="bg-brand-strong text-white rounded-full p-0.5 text-xs">✓</span>
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Main Header */}
-      <header className="sticky top-0 z-40 border-b border-[#E8E8E2] px-4 md:px-6 py-3 flex items-center justify-between bg-white w-full">
+      <header className="sticky top-0 z-40 border-b border-line px-4 md:px-6 py-3 flex items-center justify-between bg-white w-full">
         {/* Left Breadcrumb */}
         <div className="flex items-center space-x-2.5">
           <button 
             onClick={openSidebar}
-            className="md:hidden w-8 h-8 rounded-card border border-[#E0E0DA] bg-white text-[#183B28] hover:bg-sage-50 flex items-center justify-center transition-colors shrink-0 shadow-card"
+            className="md:hidden w-8 h-8 rounded-card border border-line-stone bg-white text-brand-strong hover:bg-neutral-50 flex items-center justify-center transition-colors shrink-0 shadow-card"
             aria-label="Toggle Sidebar"
           >
             <Menu size={16} />
           </button>
 
           <div className="flex items-center space-x-2 text-xs md:text-sm font-medium tracking-tight">
-            <span className="text-[#1E2923] font-semibold">Workspace</span>
-            <span className="text-[#8E9B90]">/</span>
-            <span className="text-[#1E2923] font-semibold">Team</span>
+            <span className="text-ink font-semibold">Workspace</span>
+            <span className="text-ink-subtle">/</span>
+            <span className="text-ink font-semibold">Team</span>
           </div>
         </div>
 
@@ -441,18 +441,18 @@ export default function TeamSectionPage(): React.JSX.Element {
         <div className="flex items-center space-x-2.5 md:space-x-3">
           <button 
             onClick={() => showToast('Notifications opened.')}
-            className="relative w-8 h-8 rounded-full border border-[#E0E0DA] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors shadow-card shrink-0"
+            className="relative w-8 h-8 rounded-full border border-line-stone bg-white flex items-center justify-center cursor-pointer hover:bg-neutral-50 transition-colors shadow-card shrink-0"
             aria-label="Notifications"
           >
-            <Bell className="w-3.5 h-3.5 text-[#66756F]" />
-            <span className="absolute -top-1 -right-1 bg-[#12291F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+            <Bell className="w-3.5 h-3.5 text-neutral-x66756f" />
+            <span className="absolute -top-1 -right-1 bg-brand-900 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
               5
             </span>
           </button>
 
           <div className="flex items-center -space-x-1.5">
-            <div className="w-6 h-6 rounded-full bg-[#183B28] text-white flex items-center justify-center text-[10px] font-bold border border-white">AO</div>
-            <div className="w-6 h-6 rounded-full bg-[#183B28] text-white flex items-center justify-center text-[10px] font-bold border border-white">DK</div>
+            <div className="w-6 h-6 rounded-full bg-brand-strong text-white flex items-center justify-center text-[10px] font-bold border border-white">AO</div>
+            <div className="w-6 h-6 rounded-full bg-brand-strong text-white flex items-center justify-center text-[10px] font-bold border border-white">DK</div>
           </div>
 
           <button 
@@ -460,7 +460,7 @@ export default function TeamSectionPage(): React.JSX.Element {
               setTeamSubTab('Roles'); 
               setIsInviteModalOpen(true); 
             }}
-            className="bg-[#B39353] hover:bg-[#A38346] text-white px-2.5 md:px-4 py-1.5 rounded-[8px] text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[34px] shrink-0"
+            className="bg-accent-gold hover:bg-accent-xa38346 text-white px-2.5 md:px-4 py-1.5 rounded-[8px] text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[34px] shrink-0"
           >
             <Plus size={15} />
             <span className="font-medium"> Invite</span>
@@ -469,7 +469,7 @@ export default function TeamSectionPage(): React.JSX.Element {
       </header>
 
       {/* Team Navigation Bar */}
-      <nav className="w-full bg-[#F7F7F5] border-b border-[#E8E8E2] px-4 md:px-6 py-2.5 flex items-center space-x-2 overflow-x-auto no-scrollbar">
+      <nav className="w-full bg-surface-subtle border-b border-line px-4 md:px-6 py-2.5 flex items-center space-x-2 overflow-x-auto no-scrollbar">
         {(['Members', 'Roles', 'Activity', 'Comments', 'Audit log'] as TeamSubTab[]).map((tab) => {
           const isActive = teamSubTab === tab;
           return (
@@ -481,8 +481,8 @@ export default function TeamSectionPage(): React.JSX.Element {
               }}
               className={
                 isActive
-                  ? "px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#EAD5C6] text-[#1E2923] shadow-card transition-colors"
-                  : "px-3.5 py-1.5 rounded-full text-xs font-medium text-[#617065] hover:bg-[#EFEFEE] transition-colors"
+                  ? "px-3.5 py-1.5 rounded-full text-xs font-semibold bg-accent-200 text-ink shadow-card transition-colors"
+                  : "px-3.5 py-1.5 rounded-full text-xs font-medium text-ink-muted hover:bg-neutral-xefefee transition-colors"
               }
             >
               {tab}
@@ -498,36 +498,36 @@ export default function TeamSectionPage(): React.JSX.Element {
           <div className="space-y-6 animate-in fade-in duration-200">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
               <div className="space-y-1">
-                <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Audit log</h1>
-                <p className="text-xs text-[#617065]">Every sensitive action, immutable and timestamped.</p>
+                <h1 className="text-3xl font-display text-ink-strong tracking-tight">Audit log</h1>
+                <p className="text-xs text-ink-muted">Every sensitive action, immutable and timestamped.</p>
               </div>
               <button
                 onClick={() => showToast('Audit log exported.')}
-                className="px-4 py-2 bg-white border border-[#E8E8E2] hover:bg-[#F5F5F0] text-[#1E2923] rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px] w-fit"
+                className="px-4 py-2 bg-white border border-line hover:bg-surface-muted text-ink rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px] w-fit"
               >
                 Export log
               </button>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
-              <div className="grid grid-cols-12 border-b border-[#E8E8E2] bg-[#F9F9F6] text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider px-6 py-3.5">
+            <div className="bg-white border border-line rounded-[24px] shadow-card overflow-hidden">
+              <div className="grid grid-cols-12 border-b border-line bg-neutral-xf9f9f6 text-[10px] font-bold text-ink-subtle uppercase tracking-wider px-6 py-3.5">
                 <div className="col-span-3">Actor</div>
                 <div className="col-span-3">Action</div>
                 <div className="col-span-4">Target</div>
                 <div className="col-span-2 text-right">When</div>
               </div>
 
-              <div className="divide-y divide-[#E8E8E2]">
+              <div className="divide-y divide-line">
                 {AUDIT_LOGS_DATA.map((log) => (
-                  <div key={log.id} className="grid grid-cols-12 px-6 py-4 items-center hover:bg-[#FAF9F5] transition-colors text-xs">
-                    <div className="col-span-3 font-semibold text-[#1E2923]">{log.actor}</div>
+                  <div key={log.id} className="grid grid-cols-12 px-6 py-4 items-center hover:bg-neutral-xfaf9f5 transition-colors text-xs">
+                    <div className="col-span-3 font-semibold text-ink">{log.actor}</div>
                     <div className="col-span-3">
                       <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold ${log.actionBadgeClass}`}>
                         {log.action}
                       </span>
                     </div>
-                    <div className="col-span-4 text-[#617065]">{log.target}</div>
-                    <div className="col-span-2 text-right text-[#8E9B90]">{log.when}</div>
+                    <div className="col-span-4 text-ink-muted">{log.target}</div>
+                    <div className="col-span-2 text-right text-ink-subtle">{log.when}</div>
                   </div>
                 ))}
               </div>
@@ -537,77 +537,77 @@ export default function TeamSectionPage(): React.JSX.Element {
           /* --- COMMENTS AND MENTIONS PAGE --- */
           <div className="space-y-6 animate-in fade-in duration-200">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pt-2">
-              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Comments and mentions</h1>
-              <span className="text-xs text-[#617065] font-medium">{openThreadsCount} threads open</span>
+              <h1 className="text-3xl font-display text-ink-strong tracking-tight">Comments and mentions</h1>
+              <span className="text-xs text-ink-muted font-medium">{openThreadsCount} threads open</span>
             </div>
 
             <div className="space-y-4">
               {threads.map((thread) => {
                 const isResolved = thread.status === 'resolved';
                 return (
-                  <div key={thread.id} className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
-                    <div className="px-6 py-3 bg-[#F9F9F6] border-b border-[#E8E8E2] flex items-center justify-between text-xs">
+                  <div key={thread.id} className="bg-white border border-line rounded-[24px] shadow-card overflow-hidden">
+                    <div className="px-6 py-3 bg-neutral-xf9f9f6 border-b border-line flex items-center justify-between text-xs">
                       <div className="flex items-center space-x-2">
-                        <span className="bg-[#EAEFEA] text-[#183B28] font-semibold px-2.5 py-0.5 rounded-input text-[11px]">{thread.tag}</span>
-                        <span className="text-[#8E9B90]">·</span>
-                        <span className="text-[#617065] font-medium">{thread.location}</span>
+                        <span className="bg-neutral-xeaefea text-brand-strong font-semibold px-2.5 py-0.5 rounded-input text-[11px]">{thread.tag}</span>
+                        <span className="text-ink-subtle">·</span>
+                        <span className="text-ink-muted font-medium">{thread.location}</span>
                       </div>
                       <div>
                         {isResolved ? (
-                          <span className="bg-[#EAEFEA] text-[#183B28] font-semibold px-2.5 py-0.5 rounded-input text-[11px]">Resolved</span>
+                          <span className="bg-neutral-xeaefea text-brand-strong font-semibold px-2.5 py-0.5 rounded-input text-[11px]">Resolved</span>
                         ) : null}
                       </div>
                     </div>
 
                     <div className="p-6 space-y-4">
                       <div className="flex items-start space-x-3.5">
-                        <div className="w-8 h-8 rounded-full bg-[#183B28] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-brand-strong text-white flex items-center justify-center font-bold text-xs shrink-0">
                           {thread.authorInitials}
                         </div>
                         <div className="space-y-1">
                           <div className="flex items-center space-x-2">
-                            <span className="font-semibold text-xs text-[#1E2923]">{thread.author}</span>
-                            <span className="text-[11px] text-[#8E9B90]">{thread.timeAgo}</span>
+                            <span className="font-semibold text-xs text-ink">{thread.author}</span>
+                            <span className="text-[11px] text-ink-subtle">{thread.timeAgo}</span>
                           </div>
-                          <p className="text-xs text-[#334138] leading-relaxed">{thread.message}</p>
+                          <p className="text-xs text-neutral-x334138 leading-relaxed">{thread.message}</p>
                         </div>
                       </div>
 
                       {thread.replies && thread.replies.map((reply, rIdx) => (
-                        <div key={rIdx} className="pl-11 pt-3 border-t border-[#F2F2EC] flex items-start space-x-3.5">
-                          <div className="w-8 h-8 rounded-full bg-[#183B28] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        <div key={rIdx} className="pl-11 pt-3 border-t border-neutral-xf2f2ec flex items-start space-x-3.5">
+                          <div className="w-8 h-8 rounded-full bg-brand-strong text-white flex items-center justify-center font-bold text-xs shrink-0">
                             {reply.initials}
                           </div>
                           <div className="space-y-1">
                             <div className="flex items-center space-x-2">
-                              <span className="font-semibold text-xs text-[#1E2923]">{reply.author}</span>
-                              <span className="text-[11px] text-[#8E9B90]">{reply.timeAgo}</span>
+                              <span className="font-semibold text-xs text-ink">{reply.author}</span>
+                              <span className="text-[11px] text-ink-subtle">{reply.timeAgo}</span>
                             </div>
-                            <p className="text-xs text-[#334138] leading-relaxed">{reply.message}</p>
+                            <p className="text-xs text-neutral-x334138 leading-relaxed">{reply.message}</p>
                           </div>
                         </div>
                       ))}
 
                       {!isResolved && (
-                        <div className="pt-3 border-t border-[#E8E8E2] flex flex-col md:flex-row items-center gap-3">
+                        <div className="pt-3 border-t border-line flex flex-col md:flex-row items-center gap-3">
                           <input 
                             type="text"
                             placeholder="Reply..."
                             value={replyInputs[thread.id] || ''}
                             onChange={(e) => handleReplyChange(thread.id, e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') handleReplySubmit(thread.id); }}
-                            className="w-full bg-white border border-[#E8E8E2] rounded-card px-3.5 py-2 text-xs text-[#1E2923] placeholder-[#9CA8A0] focus:outline-none focus:ring-1 focus:ring-[#183B28]"
+                            className="w-full bg-white border border-line rounded-card px-3.5 py-2 text-xs text-ink placeholder-neutral-x9ca8a0 focus:outline-none focus:ring-1 focus:ring-brand-strong"
                           />
                           <div className="flex items-center space-x-2 w-full md:w-auto shrink-0 justify-end">
                             <button
                               onClick={() => handleReplySubmit(thread.id)}
-                              className="px-4 py-2 bg-[#183B28] hover:bg-[#12291F] text-white rounded-card text-xs font-semibold shadow-card transition-colors"
+                              className="px-4 py-2 bg-brand-strong hover:bg-brand-900 text-white rounded-card text-xs font-semibold shadow-card transition-colors"
                             >
                               Reply
                             </button>
                             <button
                               onClick={() => handleResolveThread(thread.id)}
-                              className="px-4 py-2 bg-white border border-[#E8E8E2] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-xs font-semibold shadow-card transition-colors"
+                              className="px-4 py-2 bg-white border border-line hover:bg-surface-muted text-ink rounded-card text-xs font-semibold shadow-card transition-colors"
                             >
                               Resolve
                             </button>
@@ -624,9 +624,9 @@ export default function TeamSectionPage(): React.JSX.Element {
           /* --- ACTIVITY SECTION --- */
           <div className="space-y-6 animate-in fade-in duration-200">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
-              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Activity</h1>
+              <h1 className="text-3xl font-display text-ink-strong tracking-tight">Activity</h1>
               
-              <div className="flex items-center space-x-1.5 bg-[#F4F4F1] p-1 rounded-modal w-fit border border-[#E8E8E2]">
+              <div className="flex items-center space-x-1.5 bg-neutral-xf4f4f1 p-1 rounded-modal w-fit border border-line">
                 {(['All', 'Edits', 'Comments', 'Documents'] as ActivityFilter[]).map((filter) => {
                   const isFilterActive = activityFilter === filter;
                   return (
@@ -635,8 +635,8 @@ export default function TeamSectionPage(): React.JSX.Element {
                       onClick={() => setActivityFilter(filter)}
                       className={
                         isFilterActive
-                          ? "px-3 py-1 rounded-card text-xs font-semibold bg-[#183B28] text-white shadow-card transition-colors"
-                          : "px-3 py-1 rounded-card text-xs font-medium text-[#617065] hover:text-[#1E2923] transition-colors"
+                          ? "px-3 py-1 rounded-card text-xs font-semibold bg-brand-strong text-white shadow-card transition-colors"
+                          : "px-3 py-1 rounded-card text-xs font-medium text-ink-muted hover:text-ink transition-colors"
                       }
                     >
                       {filter}
@@ -648,21 +648,21 @@ export default function TeamSectionPage(): React.JSX.Element {
 
             {todayActivities.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Today</h3>
+                <h3 className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Today</h3>
                 <div className="space-y-2.5">
                   {todayActivities.map((act) => (
-                    <div key={act.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-4 flex items-center justify-between shadow-card hover:border-[#D0D0CA] transition-all">
+                    <div key={act.id} className="bg-white border border-line rounded-[24px] p-4 flex items-center justify-between shadow-card hover:border-neutral-xd0d0ca transition-all">
                       <div className="flex items-center space-x-3.5">
                         <div className={`w-8 h-8 rounded-full ${act.bgColor} flex items-center justify-center font-bold text-xs shrink-0`}>
                           {act.initials}
                         </div>
                         <div className="text-xs">
-                          <span className="font-semibold text-[#1E2923]">{act.user}</span>{' '}
-                          <span className="text-[#617065]">{act.action}</span>
-                          <p className="text-[11px] text-[#8E9B90] mt-0.5">{act.target}</p>
+                          <span className="font-semibold text-ink">{act.user}</span>{' '}
+                          <span className="text-ink-muted">{act.action}</span>
+                          <p className="text-[11px] text-ink-subtle mt-0.5">{act.target}</p>
                         </div>
                       </div>
-                      <div className="w-7 h-7 rounded-full bg-[#F7F7F5] border border-[#E8E8E2] flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-surface-subtle border border-line flex items-center justify-center shrink-0">
                         {renderActivityIcon(act.iconType)}
                       </div>
                     </div>
@@ -673,21 +673,21 @@ export default function TeamSectionPage(): React.JSX.Element {
 
             {yesterdayActivities.length > 0 && (
               <div className="space-y-3 pt-3">
-                <h3 className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Yesterday</h3>
+                <h3 className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Yesterday</h3>
                 <div className="space-y-2.5">
                   {yesterdayActivities.map((act) => (
-                    <div key={act.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-4 flex items-center justify-between shadow-card hover:border-[#D0D0CA] transition-all">
+                    <div key={act.id} className="bg-white border border-line rounded-[24px] p-4 flex items-center justify-between shadow-card hover:border-neutral-xd0d0ca transition-all">
                       <div className="flex items-center space-x-3.5">
                         <div className={`w-8 h-8 rounded-full ${act.bgColor} flex items-center justify-center font-bold text-xs shrink-0`}>
                           {act.initials}
                         </div>
                         <div className="text-xs">
-                          <span className="font-semibold text-[#1E2923]">{act.user}</span>{' '}
-                          <span className="text-[#617065]">{act.action}</span>
-                          <p className="text-[11px] text-[#8E9B90] mt-0.5">{act.target}</p>
+                          <span className="font-semibold text-ink">{act.user}</span>{' '}
+                          <span className="text-ink-muted">{act.action}</span>
+                          <p className="text-[11px] text-ink-subtle mt-0.5">{act.target}</p>
                         </div>
                       </div>
-                      <div className="w-7 h-7 rounded-full bg-[#F7F7F5] border border-[#E8E8E2] flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-surface-subtle border border-line flex items-center justify-center shrink-0">
                         {renderActivityIcon(act.iconType)}
                       </div>
                     </div>
@@ -700,12 +700,12 @@ export default function TeamSectionPage(): React.JSX.Element {
           /* --- ROLES MATRIX PAGE --- */
           <div className="space-y-6 animate-in fade-in duration-200">
             <div className="space-y-1 pt-2">
-              <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Roles and permissions</h1>
-              <p className="text-xs text-[#617065]">Everyone sees only what their work needs. Your journal is invisible to all of them.</p>
+              <h1 className="text-3xl font-display text-ink-strong tracking-tight">Roles and permissions</h1>
+              <p className="text-xs text-ink-muted">Everyone sees only what their work needs. Your journal is invisible to all of them.</p>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
-              <div className="grid grid-cols-12 border-b border-[#E8E8E2] bg-[#F9F9F6] text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider px-6 py-3.5">
+            <div className="bg-white border border-line rounded-[24px] shadow-card overflow-hidden">
+              <div className="grid grid-cols-12 border-b border-line bg-neutral-xf9f9f6 text-[10px] font-bold text-ink-subtle uppercase tracking-wider px-6 py-3.5">
                 <div className="col-span-4">Capability</div>
                 <div className="col-span-2 text-center">Owner</div>
                 <div className="col-span-2 text-center">Co-Fdr</div>
@@ -714,10 +714,10 @@ export default function TeamSectionPage(): React.JSX.Element {
                 <div className="col-span-1 text-center">Pro</div>
               </div>
 
-              <div className="divide-y divide-[#E8E8E2]">
+              <div className="divide-y divide-line">
                 {CAPABILITIES_DATA.map((row, idx) => (
-                  <div key={idx} className="grid grid-cols-12 px-6 py-3.5 items-center hover:bg-[#FAF9F5] transition-colors text-xs">
-                    <div className="col-span-4 font-medium text-[#1E2923]">{row.capability}</div>
+                  <div key={idx} className="grid grid-cols-12 px-6 py-3.5 items-center hover:bg-neutral-xfaf9f5 transition-colors text-xs">
+                    <div className="col-span-4 font-medium text-ink">{row.capability}</div>
                     <div className="col-span-2 text-center">{renderPermissionIcon(row.owner)}</div>
                     <div className="col-span-2 text-center">{renderPermissionIcon(row.coFdr)}</div>
                     <div className="col-span-2 text-center">{renderPermissionIcon(row.member)}</div>
@@ -728,17 +728,17 @@ export default function TeamSectionPage(): React.JSX.Element {
               </div>
             </div>
 
-            <div className="flex items-center space-x-6 text-xs text-[#617065] px-2">
+            <div className="flex items-center space-x-6 text-xs text-ink-muted px-2">
               <div className="flex items-center space-x-1.5">
-                <span className="text-[#183B28] font-bold">✓</span>
+                <span className="text-brand-strong font-bold">✓</span>
                 <span>Full access</span>
               </div>
               <div className="flex items-center space-x-1.5">
-                <span className="text-[#A07C44] font-bold">◐</span>
+                <span className="text-accent-bronze font-bold">◐</span>
                 <span>View only</span>
               </div>
               <div className="flex items-center space-x-1.5">
-                <span className="text-[#A3ADA5]">·</span>
+                <span className="text-neutral-xa3ada5">·</span>
                 <span>No access</span>
               </div>
             </div>
@@ -748,13 +748,13 @@ export default function TeamSectionPage(): React.JSX.Element {
           <div className="space-y-6 animate-in fade-in duration-200">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
               <div>
-                <h1 className="text-3xl font-display text-[#1C2621] tracking-tight">Your team</h1>
-                <p className="text-xs text-[#617065] mt-1">3 of 5 seats used · 2 professional collaborators (free)</p>
+                <h1 className="text-3xl font-display text-ink-strong tracking-tight">Your team</h1>
+                <p className="text-xs text-ink-muted mt-1">3 of 5 seats used · 2 professional collaborators (free)</p>
               </div>
               <div className="flex items-center space-x-3">
                 <button 
                   onClick={() => { setTeamSubTab('Roles'); showToast('Switched to Roles view.'); }}
-                  className="px-4 py-2 bg-white border border-[#E8E8E2] hover:bg-[#F5F5F0] text-[#1E2923] rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px]"
+                  className="px-4 py-2 bg-white border border-line hover:bg-surface-muted text-ink rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px]"
                 >
                   Manage roles
                 </button>
@@ -763,33 +763,33 @@ export default function TeamSectionPage(): React.JSX.Element {
                     setTeamSubTab('Roles'); 
                     setIsInviteModalOpen(true); 
                   }}
-                  className="px-4 py-2 bg-[#B39353] hover:bg-[#A38346] text-white rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px]"
+                  className="px-4 py-2 bg-accent-gold hover:bg-accent-xa38346 text-white rounded-modal text-xs font-semibold shadow-card transition-colors h-[36px]"
                 >
                   + Invite someone
                 </button>
               </div>
             </div>
 
-            <div className="bg-white border border-[#E8E8E2] rounded-[24px] shadow-card overflow-hidden">
-              <div className="grid grid-cols-12 border-b border-[#E8E8E2] bg-[#F9F9F6] text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider px-6 py-3">
+            <div className="bg-white border border-line rounded-[24px] shadow-card overflow-hidden">
+              <div className="grid grid-cols-12 border-b border-line bg-neutral-xf9f9f6 text-[10px] font-bold text-ink-subtle uppercase tracking-wider px-6 py-3">
                 <div className="col-span-5">Member</div>
                 <div className="col-span-4">Role</div>
                 <div className="col-span-3 text-right">Last active</div>
               </div>
 
-              <div className="divide-y divide-[#E8E8E2]">
+              <div className="divide-y divide-line">
                 {teamMembersList.map((member, idx) => (
-                  <div key={idx} className="grid grid-cols-12 px-6 py-4 items-center hover:bg-[#FAF9F5] transition-colors">
+                  <div key={idx} className="grid grid-cols-12 px-6 py-4 items-center hover:bg-neutral-xfaf9f5 transition-colors">
                     <div className="col-span-5 flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-[#183B28] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-brand-strong text-white flex items-center justify-center font-bold text-xs shrink-0">
                         {member.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </div>
                       <div>
                         <div className="flex items-center space-x-1.5">
-                          <span className="font-semibold text-xs text-[#1E2923]">{member.name}</span>
-                          {member.isYou && <span className="text-[10px] text-[#8E9B90] font-normal">you</span>}
+                          <span className="font-semibold text-xs text-ink">{member.name}</span>
+                          {member.isYou && <span className="text-[10px] text-ink-subtle font-normal">you</span>}
                         </div>
-                        <p className="text-xs text-[#617065]">{member.email}</p>
+                        <p className="text-xs text-ink-muted">{member.email}</p>
                       </div>
                     </div>
 
@@ -798,14 +798,14 @@ export default function TeamSectionPage(): React.JSX.Element {
                         {member.role}
                       </span>
                       {member.status && (
-                        <span className="text-[10px] text-[#B93838] italic font-medium">{member.status}</span>
+                        <span className="text-[10px] text-danger-bold italic font-medium">{member.status}</span>
                       )}
                     </div>
 
                     <div className="col-span-3 flex items-center justify-end space-x-3">
-                      <span className="text-xs text-[#617065]">{member.lastActive}</span>
+                      <span className="text-xs text-ink-muted">{member.lastActive}</span>
                       {!member.isYou && (
-                        <button onClick={() => showToast(`Manage member: ${member.name}`)} className="text-xs font-semibold text-[#B39353] hover:underline">
+                        <button onClick={() => showToast(`Manage member: ${member.name}`)} className="text-xs font-semibold text-accent-gold hover:underline">
                           Manage
                         </button>
                       )}
@@ -815,9 +815,9 @@ export default function TeamSectionPage(): React.JSX.Element {
               </div>
             </div>
 
-            <div className="bg-[#FBF6ED] border border-[#EBDCC2] rounded-[24px] p-4 flex items-center space-x-3">
-              <span className="w-6 h-6 rounded-full bg-[#B39353] text-white flex items-center justify-center text-xs font-bold shrink-0">i</span>
-              <p className="text-xs text-[#7A6025]">Professional collaborators, your lawyer and accountant, are free on every plan and do not use a seat.</p>
+            <div className="bg-neutral-xfbf6ed border border-accent-xebdcc2 rounded-[24px] p-4 flex items-center space-x-3">
+              <span className="w-6 h-6 rounded-full bg-accent-gold text-white flex items-center justify-center text-xs font-bold shrink-0">i</span>
+              <p className="text-xs text-accent-x7a6025">Professional collaborators, your lawyer and accountant, are free on every plan and do not use a seat.</p>
             </div>
           </div>
         )}
@@ -826,32 +826,32 @@ export default function TeamSectionPage(): React.JSX.Element {
       {/* MODAL: INVITE SOMEONE IN */}
       {isInviteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-8 shadow-accent max-w-lg w-full space-y-6 relative animate-in zoom-in-95 duration-200">
+          <div className="bg-white border border-line rounded-[24px] p-6 md:p-8 shadow-accent max-w-lg w-full space-y-6 relative animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-display text-[#1E2923]">Invite someone in</h2>
-                <p className="text-xs text-[#617065] mt-1">They will get an email with a secure link. You can change or revoke their access any time.</p>
+                <h2 className="text-lg font-display text-ink">Invite someone in</h2>
+                <p className="text-xs text-ink-muted mt-1">They will get an email with a secure link. You can change or revoke their access any time.</p>
               </div>
-              <button onClick={() => setIsInviteModalOpen(false)} className="p-1 rounded-card text-[#617065] hover:bg-[#F5F5F0]">
+              <button onClick={() => setIsInviteModalOpen(false)} className="p-1 rounded-card text-ink-muted hover:bg-surface-muted">
                 <X size={16} />
               </button>
             </div>
 
             <form onSubmit={handleSendInvite} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Email</label>
+                <label className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Email</label>
                 <input 
                   type="email"
                   required
                   placeholder="name@company.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full bg-white border border-[#E8E8E2] rounded-card px-3 py-2.5 text-xs text-[#1E2923] placeholder-[#9CA8A0] focus:outline-none focus:ring-1 focus:ring-[#B39353]"
+                  className="w-full bg-white border border-line rounded-card px-3 py-2.5 text-xs text-ink placeholder-neutral-x9ca8a0 focus:outline-none focus:ring-1 focus:ring-accent-gold"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Role</label>
+                <label className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Role</label>
                 
                 <div className="space-y-2">
                   {[
@@ -865,7 +865,7 @@ export default function TeamSectionPage(): React.JSX.Element {
                       <div 
                         key={item.role}
                         onClick={() => setInviteRole(item.role)}
-                        className={`p-3.5 rounded-modal border cursor-pointer flex items-start justify-between transition-all ${isSelected ? 'border-[#183B28] bg-[#F4F7F5]' : 'border-[#E8E8E2] bg-white hover:bg-[#FAF9F5]'}`}
+                        className={`p-3.5 rounded-modal border cursor-pointer flex items-start justify-between transition-all ${isSelected ? 'border-brand-strong bg-neutral-xf4f7f5' : 'border-line bg-white hover:bg-neutral-xfaf9f5'}`}
                       >
                         <div className="flex items-start space-x-3">
                           <input 
@@ -873,15 +873,15 @@ export default function TeamSectionPage(): React.JSX.Element {
                             name="inviteRole" 
                             checked={isSelected} 
                             onChange={() => setInviteRole(item.role)}
-                            className="mt-0.5 accent-[#183B28]" 
+                            className="mt-0.5 accent-brand-strong" 
                           />
                           <div>
-                            <p className="font-semibold text-xs text-[#1E2923]">{item.title}</p>
-                            <p className="text-[11px] text-[#617065] mt-0.5">{item.desc}</p>
+                            <p className="font-semibold text-xs text-ink">{item.title}</p>
+                            <p className="text-[11px] text-ink-muted mt-0.5">{item.desc}</p>
                           </div>
                         </div>
                         {item.noSeat && (
-                          <span className="bg-[#EAF2ED] text-[#183B28] text-[10px] font-semibold px-2 py-0.5 rounded-input h-fit">No seat</span>
+                          <span className="bg-brand-tint text-brand-strong text-[10px] font-semibold px-2 py-0.5 rounded-input h-fit">No seat</span>
                         )}
                       </div>
                     );
@@ -893,13 +893,13 @@ export default function TeamSectionPage(): React.JSX.Element {
                 <button
                   type="button"
                   onClick={() => setIsInviteModalOpen(false)}
-                  className="flex-1 px-4 py-2.5 bg-white border border-[#E8E8E2] rounded-modal text-xs font-semibold text-[#1E2923] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-white border border-line rounded-modal text-xs font-semibold text-ink hover:bg-surface-muted transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-[#B39353] hover:bg-[#A38346] text-white rounded-modal text-xs font-semibold shadow-card transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-accent-gold hover:bg-accent-xa38346 text-white rounded-modal text-xs font-semibold shadow-card transition-colors"
                 >
                   Send invite
                 </button>

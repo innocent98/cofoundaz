@@ -50,14 +50,14 @@ describe('KPIStrip', () => {
       metrics: { ...emptyMetrics, runway: { status: 'out_of_cash', months: 0, is_low: true } },
     });
     expect(screen.getByText('Out of cash')).toBeTruthy();
-    expect(container.querySelectorAll('a.border-\\[\\#B0483B\\]')).toHaveLength(1);
+    expect(container.querySelectorAll('a.border-danger-600')).toHaveLength(1);
     unmount();
 
     const low = renderStrip({
       ...base,
       metrics: { ...emptyMetrics, runway: { status: 'ok', months: 4.2, is_low: true } },
     });
-    expect(low.container.querySelectorAll('a.border-\\[\\#B0483B\\]')).toHaveLength(1);
+    expect(low.container.querySelectorAll('a.border-danger-600')).toHaveLength(1);
     low.unmount();
 
     const fine = renderStrip({
@@ -65,7 +65,7 @@ describe('KPIStrip', () => {
       metrics: { ...emptyMetrics, runway: { status: 'not_burning', months: null, is_low: false } },
     });
     expect(screen.getByText('Not burning')).toBeTruthy();
-    expect(fine.container.querySelectorAll('a.border-\\[\\#B0483B\\]')).toHaveLength(0);
+    expect(fine.container.querySelectorAll('a.border-danger-600')).toHaveLength(0);
   });
 
   it('restricted tiles are hidden and the grid reflows', () => {
@@ -129,8 +129,8 @@ describe('KPIStrip', () => {
         },
       },
     });
-    expect(screen.getByText('-2.5 mo vs last week').className).toContain('text-[#8A2E22]');
-    expect(screen.getByText('+1 vs last week').className).toContain('text-[#12291F]');
+    expect(screen.getByText('-2.5 mo vs last week').className).toContain('text-danger-deep');
+    expect(screen.getByText('+1 vs last week').className).toContain('text-brand-900');
     expect(screen.getAllByRole('img', { name: /Trend over the last 2 days/ })).toHaveLength(2);
   });
 

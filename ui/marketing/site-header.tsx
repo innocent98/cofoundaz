@@ -6,7 +6,7 @@ import { MobileNav } from './mobile-nav'
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-green-100 bg-white/90 backdrop-blur-[14px]">
+    <header className="sticky top-0 z-50 border-b border-brand-100 bg-white/90 backdrop-blur-[14px]">
       <div className="mx-auto flex h-[72px] max-w-[1280px] items-center gap-8 px-4 md:px-6">
         <Logo />
 
@@ -19,10 +19,10 @@ export function SiteHeader() {
                     type="button"
                     aria-expanded="false"
                     aria-haspopup="menu"
-                    className="flex items-center gap-1.5 px-3 py-2 text-[15px] font-normal text-[#33413B] hover:text-sage-500 transition-colors cursor-pointer focus:outline-none"
+                    className="flex items-center gap-1.5 px-3 py-2 text-[15px] font-normal text-neutral-x33413b hover:text-neutral-500 transition-colors cursor-pointer focus:outline-none"
                   >
                     Resources
-                    <svg className="h-3 w-3 text-[#33413B] transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-3 w-3 text-neutral-x33413b transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
@@ -31,10 +31,10 @@ export function SiteHeader() {
                     aria-label="Resources"
                     className="invisible absolute top-full left-0 mt-1 flex w-48 flex-col rounded-input bg-white p-2 shadow-raised opacity-0 transition-all group-hover:visible group-hover:opacity-100"
                   >
-                    <Link role="menuitem" href="#blog" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-input">
+                    <Link role="menuitem" href="#blog" className="px-3 py-2 text-[15px] text-neutral-x33413b hover:bg-neutral-50 hover:text-neutral-600 rounded-input">
                       Blog
                     </Link>
-                    <Link role="menuitem" href="#guides" className="px-3 py-2 text-[15px] text-[#33413B] hover:bg-sage-50 hover:text-sage-600 rounded-input">
+                    <Link role="menuitem" href="#guides" className="px-3 py-2 text-[15px] text-neutral-x33413b hover:bg-neutral-50 hover:text-neutral-600 rounded-input">
                       Guides & Tools
                     </Link>
                   </div>
@@ -45,7 +45,7 @@ export function SiteHeader() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3 py-2 text-[15px] font-normal text-[#33413B] hover:text-sage-500 transition-colors"
+                className="px-3 py-2 text-[15px] font-normal text-neutral-x33413b hover:text-neutral-500 transition-colors"
               >
                 {link.label}
               </Link>
@@ -54,7 +54,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2.5">
-          <Button href={headerCtas.login.href} variant="ghost" size="sm" className="hidden lg:inline-flex text-[#1B4B38] hover:text-[#12291F]">
+          <Button href={headerCtas.login.href} variant="ghost" size="sm" className="hidden lg:inline-flex text-brand-x1b4b38 hover:text-brand-900">
             {headerCtas.login.label}
           </Button>
           <Button href={headerCtas.signup.href} variant="accent" size="sm" className="hidden lg:inline-flex">

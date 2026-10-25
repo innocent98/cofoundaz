@@ -46,14 +46,14 @@ export function ConfirmDelete({
       overlayClassName="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
       className="bg-white rounded-modal shadow-raised w-full max-w-md p-6 space-y-4 outline-none"
     >
-      <h2 className="text-lg font-display font-bold text-[#1E2923] break-words">{title}</h2>
-      <p className="text-sm text-[#617065]">{warning}</p>
-      {error && <p role="alert" className="text-sm font-semibold text-[#B0483B]">{error}</p>}
+      <h2 className="text-lg font-display font-bold text-ink break-words">{title}</h2>
+      <p className="text-sm text-ink-muted">{warning}</p>
+      {error && <p role="alert" className="text-sm font-semibold text-danger-600">{error}</p>}
       <div className="flex justify-end gap-2 pt-2">
-        <button type="button" onClick={onClose} disabled={busy} className="px-4 py-2 rounded-card text-sm font-semibold text-[#617065] hover:bg-[#F0F0EC] cursor-pointer disabled:opacity-60">
+        <button type="button" onClick={onClose} disabled={busy} className="px-4 py-2 rounded-card text-sm font-semibold text-ink-muted hover:bg-line-faint cursor-pointer disabled:opacity-60">
           Cancel
         </button>
-        <button type="button" onClick={run} disabled={busy} className="px-4 py-2 rounded-card text-sm font-bold bg-[#B0483B] hover:bg-[#8A2E22] text-white inline-flex items-center gap-2 cursor-pointer disabled:opacity-60">
+        <button type="button" onClick={run} disabled={busy} className="px-4 py-2 rounded-card text-sm font-bold bg-danger-600 hover:bg-danger-deep text-white inline-flex items-center gap-2 cursor-pointer disabled:opacity-60">
           {busy && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
           {confirmLabel}
         </button>

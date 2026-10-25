@@ -25,32 +25,32 @@ const PRESETS: { value: Preset; label: string }[] = [
 function Tile({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
     <div className={`${CARD} p-5 space-y-1`}>
-      <span className="text-[11px] font-bold text-sage-600 uppercase tracking-wider block">{label}</span>
-      <div className="text-xl md:text-3xl font-display font-bold text-sage-900 whitespace-nowrap">{value}</div>
-      {note && <p className="text-xs text-sage-600">{note}</p>}
+      <span className="text-[11px] font-bold text-neutral-600 uppercase tracking-wider block">{label}</span>
+      <div className="text-xl md:text-3xl font-display font-bold text-neutral-900 whitespace-nowrap">{value}</div>
+      {note && <p className="text-xs text-neutral-600">{note}</p>}
     </div>
   );
 }
 
 function Funnel({ funnel }: { funnel: SalesAnalytics["funnel"] }) {
   if (funnel.deals_created === 0) {
-    return <p className="text-sm text-sage-600">No deals were created in this period, so there is no funnel to show. Try a longer range.</p>;
+    return <p className="text-sm text-neutral-600">No deals were created in this period, so there is no funnel to show. Try a longer range.</p>;
   }
   return (
     <ol className="space-y-5">
       {funnel.stages.map((s) => (
         <li key={s.stage_id} className="space-y-1.5">
-          <div className="flex items-center justify-between gap-3 text-xs font-medium text-sage-700">
+          <div className="flex items-center justify-between gap-3 text-xs font-medium text-neutral-700">
             <span className="truncate">{s.name}</span>
             <span className="shrink-0">
-              <span className="font-bold text-sage-900 tabular-nums">{s.reached}</span>
+              <span className="font-bold text-neutral-900 tabular-nums">{s.reached}</span>
               {s.conversion_from_previous_pct !== null && (
-                <span className="text-sage-600"> · {s.conversion_from_previous_pct}% of the stage before</span>
+                <span className="text-neutral-600"> · {s.conversion_from_previous_pct}% of the stage before</span>
               )}
             </span>
           </div>
-          <div className="w-full bg-green-900/10 rounded-full h-3 overflow-hidden" aria-hidden="true">
-            <div className="bg-[#1e4836] h-full rounded-full" style={{ width: `${Math.round((s.reached / funnel.deals_created) * 100)}%` }} />
+          <div className="w-full bg-brand-900/10 rounded-full h-3 overflow-hidden" aria-hidden="true">
+            <div className="bg-brand-hover h-full rounded-full" style={{ width: `${Math.round((s.reached / funnel.deals_created) * 100)}%` }} />
           </div>
         </li>
       ))}
@@ -62,15 +62,15 @@ function Leaderboard({ rows }: { rows: SalesAnalytics["leaderboard"] }) {
   const anyActivity = rows.some((r) => r.total > 0);
   return (
     <section aria-label="Activity leaderboard" className={`${CARD} overflow-hidden`}>
-      <div className="px-6 py-4 border-b border-sage-200 bg-sage-50/50">
-        <h3 className="text-sm font-bold text-sage-900">Activity leaderboard</h3>
-        <p className="text-xs text-sage-600">Calls, emails, meetings and notes logged by each founder and team member in this period.</p>
+      <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50/50">
+        <h3 className="text-sm font-bold text-neutral-900">Activity leaderboard</h3>
+        <p className="text-xs text-neutral-600">Calls, emails, meetings and notes logged by each founder and team member in this period.</p>
       </div>
-      {!anyActivity && <p className="px-6 py-4 text-sm text-sage-600">No activity was logged in this period.</p>}
+      {!anyActivity && <p className="px-6 py-4 text-sm text-neutral-600">No activity was logged in this period.</p>}
       <div className="relative overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-sage-200 text-[11px] font-bold text-sage-600 uppercase tracking-wider">
+            <tr className="border-b border-neutral-200 text-[11px] font-bold text-neutral-600 uppercase tracking-wider">
               <th scope="col" className="py-3 px-6">Member</th>
               <th scope="col" className="py-3 px-4 text-right">Calls</th>
               <th scope="col" className="py-3 px-4 text-right">Emails</th>
@@ -79,15 +79,15 @@ function Leaderboard({ rows }: { rows: SalesAnalytics["leaderboard"] }) {
               <th scope="col" className="py-3 px-6 text-right">Total</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-sage-100 text-sm">
+          <tbody className="divide-y divide-neutral-100 text-sm">
             {rows.map((r) => (
               <tr key={r.user_id}>
-                <td className="py-3 px-6 font-medium text-sage-900 max-w-[16rem] truncate">{r.name}</td>
-                <td className="py-3 px-4 text-right tabular-nums text-sage-700">{r.calls}</td>
-                <td className="py-3 px-4 text-right tabular-nums text-sage-700">{r.emails}</td>
-                <td className="py-3 px-4 text-right tabular-nums text-sage-700">{r.meetings}</td>
-                <td className="py-3 px-4 text-right tabular-nums text-sage-700">{r.notes}</td>
-                <td className="py-3 px-6 text-right tabular-nums font-bold text-sage-900">{r.total}</td>
+                <td className="py-3 px-6 font-medium text-neutral-900 max-w-[16rem] truncate">{r.name}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-neutral-700">{r.calls}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-neutral-700">{r.emails}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-neutral-700">{r.meetings}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-neutral-700">{r.notes}</td>
+                <td className="py-3 px-6 text-right tabular-nums font-bold text-neutral-900">{r.total}</td>
               </tr>
             ))}
           </tbody>
@@ -122,9 +122,9 @@ export default function AnalyticsPage() {
     <div className="space-y-6 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-semibold text-sage-900">Sales analytics</h1>
+          <h1 className="text-3xl font-display font-semibold text-neutral-900">Sales analytics</h1>
           {data && (
-            <p className="text-sm text-sage-600 mt-0.5">
+            <p className="text-sm text-neutral-600 mt-0.5">
               {data.from} to {data.to}, in UTC days, both included.
             </p>
           )}
@@ -136,7 +136,7 @@ export default function AnalyticsPage() {
               id={`${ids}-range`}
               value={preset}
               onChange={(e) => pickPreset(e.target.value as Preset)}
-              className="bg-white border border-sage-300 rounded-card px-4 py-2.5 text-sm font-semibold text-sage-900 outline-none focus:border-sage-400 shadow-card"
+              className="bg-white border border-neutral-300 rounded-card px-4 py-2.5 text-sm font-semibold text-neutral-900 outline-none focus:border-neutral-400 shadow-card"
             >
               {PRESETS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
             </select>
@@ -144,11 +144,11 @@ export default function AnalyticsPage() {
           {preset === "custom" && (
             <>
               <div className="space-y-1">
-                <label htmlFor={`${ids}-from`} className="text-[11px] font-bold text-sage-600 uppercase tracking-wider block">From</label>
+                <label htmlFor={`${ids}-from`} className="text-[11px] font-bold text-neutral-600 uppercase tracking-wider block">From</label>
                 <input id={`${ids}-from`} type="date" className={INPUT} value={draft.from} max={draft.to} onChange={(e) => setDraft({ ...draft, from: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label htmlFor={`${ids}-to`} className="text-[11px] font-bold text-sage-600 uppercase tracking-wider block">To</label>
+                <label htmlFor={`${ids}-to`} className="text-[11px] font-bold text-neutral-600 uppercase tracking-wider block">To</label>
                 <input id={`${ids}-to`} type="date" className={INPUT} value={draft.to} min={draft.from} onChange={(e) => setDraft({ ...draft, to: e.target.value })} />
               </div>
               <button type="button" onClick={applyCustom} className={BTN_SECONDARY}>Apply range</button>
@@ -156,7 +156,7 @@ export default function AnalyticsPage() {
           )}
         </div>
       </div>
-      {customError && <p role="alert" className="text-sm text-red-700">{customError}</p>}
+      {customError && <p role="alert" className="text-sm text-danger-700">{customError}</p>}
 
       <SalesGate status={status} error={error} onRetry={() => void reload()} loadingLabel="Loading your analytics">
         {data && (
@@ -179,8 +179,8 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               <section aria-label="Funnel by stage" className={`lg:col-span-7 ${CARD} p-6 md:p-8 space-y-6`}>
                 <div>
-                  <h3 className="text-sm font-bold text-sage-900">Funnel by stage</h3>
-                  <p className="text-xs text-sage-600 mt-0.5">
+                  <h3 className="text-sm font-bold text-neutral-900">Funnel by stage</h3>
+                  <p className="text-xs text-neutral-600 mt-0.5">
                     Deals created in this period, and how many reached each stage or any stage after it.
                   </p>
                 </div>
@@ -189,8 +189,8 @@ export default function AnalyticsPage() {
 
               <section aria-label="Win and loss reasons" className={`lg:col-span-5 ${CARD} p-6 md:p-8 space-y-6`}>
                 <div>
-                  <h3 className="text-sm font-bold text-sage-900">Win / loss reasons</h3>
-                  <p className="text-xs text-sage-600 mt-0.5">Deals closed in this period.</p>
+                  <h3 className="text-sm font-bold text-neutral-900">Win / loss reasons</h3>
+                  <p className="text-xs text-neutral-600 mt-0.5">Deals closed in this period.</p>
                 </div>
                 <WinLossDonut winLoss={data.win_loss} />
               </section>
@@ -200,8 +200,8 @@ export default function AnalyticsPage() {
 
             <section aria-label="Closed-won revenue by month" className={`${CARD} p-6 md:p-8 space-y-4`}>
               <div>
-                <h3 className="text-sm font-bold text-sage-900">Closed-won revenue, last 12 months</h3>
-                <p className="text-xs text-sage-600 mt-0.5">By month the deal closed. This chart does not follow the date range above.</p>
+                <h3 className="text-sm font-bold text-neutral-900">Closed-won revenue, last 12 months</h3>
+                <p className="text-xs text-neutral-600 mt-0.5">By month the deal closed. This chart does not follow the date range above.</p>
               </div>
               {revenueEmpty ? (
                 <EmptyState title="No closed-won revenue yet" body="Move a deal to Closed Won on the Pipeline and it appears here, in the month it closed." />

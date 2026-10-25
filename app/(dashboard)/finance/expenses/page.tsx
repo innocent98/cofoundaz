@@ -102,8 +102,8 @@ function ExpenseForm({
       <Field label="Notes (optional)" htmlFor="ex-notes">
         <textarea id="ex-notes" className={inputCls} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </Field>
-      <label className="flex items-center gap-2 max-md:min-h-11 text-sm text-sage-700">
-        <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="accent-copper-600" />
+      <label className="flex items-center gap-2 max-md:min-h-11 text-sm text-neutral-700">
+        <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="accent-accent-600" />
         Recurring (a label only; the next one is not created for you)
       </label>
       {!initial && (
@@ -111,7 +111,7 @@ function ExpenseForm({
           <input id="ex-receipt" type="file" accept="image/png,image/jpeg,application/pdf" onChange={(e) => setReceipt(e.target.files?.[0] ?? null)} className="text-sm max-md:min-h-11 max-md:py-2.5" />
         </Field>
       )}
-      <p className="text-xs text-sage-500">
+      <p className="text-xs text-neutral-500">
         Saving this deducts the amount from your cash on hand on the expense date{initial ? " (editing changes it in place)" : ""}. Do not also add it as a transaction.
       </p>
       <FormError message={localError ?? (error && !Object.keys(error.fieldErrors).length ? error.message : null)} />
@@ -241,7 +241,7 @@ export default function ExpensesPage() {
   const receiptControls = (exp: Expense) =>
     exp.has_receipt ? (
       <>
-        <span className="inline-flex items-center gap-1 text-xs font-bold text-green-800">
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-800">
           <FileText className="w-4 h-4" aria-hidden="true" /> On file
         </span>
         <ReceiptButton expenseId={exp.id} vendor={exp.vendor} onMissing={() => void refresh()} />
@@ -253,7 +253,7 @@ export default function ExpensesPage() {
         </button>
       </>
     ) : (
-      <button type="button" className={`${linkBtn} inline-flex items-center gap-1 text-copper-600`} disabled={busy} onClick={() => pickReceipt(exp)} aria-label={`Attach receipt for ${exp.vendor}`}>
+      <button type="button" className={`${linkBtn} inline-flex items-center gap-1 text-accent-600`} disabled={busy} onClick={() => pickReceipt(exp)} aria-label={`Attach receipt for ${exp.vendor}`}>
         <UploadCloud className="w-4 h-4" aria-hidden="true" /> Attach
       </button>
     );
@@ -273,7 +273,7 @@ export default function ExpensesPage() {
               type="month"
               value={month}
               onChange={(e) => e.target.value && setMonth(e.target.value)}
-              className="bg-white border border-sage-200 rounded-card px-3 py-2 max-md:min-h-11 text-sm font-medium focus:outline-none focus:border-copper-600"
+              className="bg-white border border-neutral-200 rounded-card px-3 py-2 max-md:min-h-11 text-sm font-medium focus:outline-none focus:border-accent-600"
             />
             <button type="button" onClick={() => setFormFor("new")} className={primaryBtn}>
               <Plus className="w-4 h-4" aria-hidden="true" /> Add expense
@@ -282,21 +282,21 @@ export default function ExpensesPage() {
         }
       />
 
-      <div className="bg-white p-6 rounded-modal border border-sage-200 shadow-card space-y-4">
-        <h2 className="font-bold text-sage-900 border-b border-sage-100 pb-2">Category breakdown ({formatMonth(month)})</h2>
+      <div className="bg-white p-6 rounded-modal border border-neutral-200 shadow-card space-y-4">
+        <h2 className="font-bold text-neutral-900 border-b border-neutral-100 pb-2">Category breakdown ({formatMonth(month)})</h2>
         {summary.status === "loading" ? (
           <LoadingBlock label="Loading breakdown" />
         ) : summary.status === "ready" && summary.data && summary.data.rows.length > 0 ? (
           <>
             <ExpenseDonut rows={summary.data.rows} total={summary.data.total_minor} currency={summary.data.currency} />
-            <p className="text-[11px] text-sage-600">Includes expenses dated later in the month.</p>
+            <p className="text-[11px] text-neutral-600">Includes expenses dated later in the month.</p>
           </>
         ) : summary.status === "error" ? (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-danger-600">
             {summary.error}
           </p>
         ) : (
-          <p className="text-sm text-sage-500">No expenses in {formatMonth(month)} yet.</p>
+          <p className="text-sm text-neutral-500">No expenses in {formatMonth(month)} yet.</p>
         )}
       </div>
 
@@ -311,23 +311,23 @@ export default function ExpensesPage() {
           </button>
         </EmptyBlock>
       ) : (
-        <div className="bg-white rounded-modal border border-sage-200 overflow-hidden shadow-card">
-          <ul className="md:hidden divide-y divide-sage-100" aria-label="Expenses">
+        <div className="bg-white rounded-modal border border-neutral-200 overflow-hidden shadow-card">
+          <ul className="md:hidden divide-y divide-neutral-100" aria-label="Expenses">
             {expenses.items.map((exp) => (
               <li key={exp.id} className="p-4 space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="font-semibold text-sage-900 break-words">{exp.vendor}</p>
-                    <p className="text-xs text-sage-500">
+                    <p className="font-semibold text-neutral-900 break-words">{exp.vendor}</p>
+                    <p className="text-xs text-neutral-500">
                       {formatDate(exp.expense_date)} · {exp.category}
                       {exp.expense_date > today ? " · Scheduled" : ""}
                     </p>
-                    {exp.notes && <p className="text-xs text-sage-600 mt-0.5">{exp.notes}</p>}
+                    {exp.notes && <p className="text-xs text-neutral-600 mt-0.5">{exp.notes}</p>}
                   </div>
-                  <p className="font-bold text-sage-900 whitespace-nowrap">{formatMoney(exp.amount_minor, exp.currency)}</p>
+                  <p className="font-bold text-neutral-900 whitespace-nowrap">{formatMoney(exp.amount_minor, exp.currency)}</p>
                 </div>
-                <label className="flex items-center gap-2 max-md:min-h-11 text-xs text-sage-600">
-                  <input type="checkbox" checked={exp.recurring} disabled={busy} onChange={() => void toggleRecurring(exp)} className="accent-copper-600" />
+                <label className="flex items-center gap-2 max-md:min-h-11 text-xs text-neutral-600">
+                  <input type="checkbox" checked={exp.recurring} disabled={busy} onChange={() => void toggleRecurring(exp)} className="accent-accent-600" />
                   Recurring
                 </label>
                 <div className="flex flex-wrap items-center gap-3">{receiptControls(exp)}</div>
@@ -345,7 +345,7 @@ export default function ExpensesPage() {
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-sage-50/50 border-b border-sage-100 text-[11px] text-sage-600 font-bold uppercase tracking-wider">
+                <tr className="bg-neutral-50/50 border-b border-neutral-100 text-[11px] text-neutral-600 font-bold uppercase tracking-wider">
                   <th className="py-4 px-6">Vendor / date</th>
                   <th className="py-4 px-4">Category</th>
                   <th className="py-4 px-4 text-center">Recurring</th>
@@ -354,18 +354,18 @@ export default function ExpensesPage() {
                   <th className="py-4 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-sage-100 text-sm">
+              <tbody className="divide-y divide-neutral-100 text-sm">
                 {expenses.items.map((exp) => (
-                  <tr key={exp.id} className="hover:bg-sage-50/50 transition-colors">
+                  <tr key={exp.id} className="hover:bg-neutral-50/50 transition-colors">
                     <td className="py-3 px-6">
-                      <p className="font-semibold text-sage-900">{exp.vendor}</p>
-                      <p className="text-xs text-sage-500 font-medium">
+                      <p className="font-semibold text-neutral-900">{exp.vendor}</p>
+                      <p className="text-xs text-neutral-500 font-medium">
                         {formatDate(exp.expense_date)}
-                        {exp.expense_date > today && <span className="ml-2 text-copper-700 font-bold">Scheduled</span>}
+                        {exp.expense_date > today && <span className="ml-2 text-accent-700 font-bold">Scheduled</span>}
                       </p>
-                      {exp.notes && <p className="text-xs text-sage-600 mt-0.5">{exp.notes}</p>}
+                      {exp.notes && <p className="text-xs text-neutral-600 mt-0.5">{exp.notes}</p>}
                     </td>
-                    <td className="py-3 px-4 text-sage-600 font-medium">{exp.category}</td>
+                    <td className="py-3 px-4 text-neutral-600 font-medium">{exp.category}</td>
                     <td className="py-3 px-4 text-center">
                       <input
                         type="checkbox"
@@ -373,13 +373,13 @@ export default function ExpensesPage() {
                         disabled={busy}
                         onChange={() => void toggleRecurring(exp)}
                         aria-label={`Recurring for ${exp.vendor}`}
-                        className="accent-copper-600 cursor-pointer"
+                        className="accent-accent-600 cursor-pointer"
                       />
                     </td>
                     <td className="py-3 px-4">
                       <span className="flex flex-wrap items-center gap-x-3 gap-y-1">{receiptControls(exp)}</span>
                     </td>
-                    <td className="py-3 px-4 font-bold text-sage-900 text-right whitespace-nowrap">{formatMoney(exp.amount_minor, exp.currency)}</td>
+                    <td className="py-3 px-4 font-bold text-neutral-900 text-right whitespace-nowrap">{formatMoney(exp.amount_minor, exp.currency)}</td>
                     <td className="py-3 px-6 text-right whitespace-nowrap">
                       <span className="inline-flex items-center gap-3">
                         <button type="button" className={linkBtn} onClick={() => setFormFor(exp)} aria-label={`Edit ${exp.vendor}`}>

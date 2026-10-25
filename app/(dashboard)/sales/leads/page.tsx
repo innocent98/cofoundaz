@@ -37,11 +37,11 @@ import {
 } from "@/components/sales/shared";
 
 const STATUS_STYLE: Record<LeadStatus, string> = {
-  new: "bg-sage-100 text-sage-700",
-  working: "bg-green-50 text-green-700",
-  qualified: "bg-green-100/70 text-green-800",
-  disqualified: "bg-red-50 text-red-700",
-  converted: "bg-copper-100 text-copper-800",
+  new: "bg-neutral-100 text-neutral-700",
+  working: "bg-brand-50 text-brand-700",
+  qualified: "bg-brand-100/70 text-brand-800",
+  disqualified: "bg-danger-50 text-danger-700",
+  converted: "bg-accent-100 text-accent-800",
 };
 
 function formatDate(iso: string): string {
@@ -159,7 +159,7 @@ function LeadsInner() {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-3xl font-display font-semibold text-sage-900">Leads</h1>
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">Leads</h1>
         <button type="button" onClick={() => setImporting(true)} className={BTN_SECONDARY}>
           Import CSV
         </button>
@@ -188,7 +188,7 @@ function LeadsInner() {
       </form>
 
       {converted && (
-        <p role="status" className="text-sm text-green-900 bg-green-100 border border-green-200 rounded-card px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+        <p role="status" className="text-sm text-brand-900 bg-brand-100 border border-brand-200 rounded-card px-4 py-3 flex flex-wrap items-center justify-between gap-2">
           <span>Created the deal &ldquo;{converted.label}&rdquo; in your first stage.</span>
           <Link href={`/sales?deal=${converted.dealId}`} className="font-bold underline">
             Open the deal
@@ -198,10 +198,10 @@ function LeadsInner() {
 
       {/* DEEP LINK: /sales/leads?lead=<id> (a search hit) */}
       {focusId && focused.status === "ready" && focused.data && (
-        <div className={`${CARD} p-4 flex flex-wrap items-center justify-between gap-3 border-copper-200`}>
+        <div className={`${CARD} p-4 flex flex-wrap items-center justify-between gap-3 border-accent-200`}>
           <div className="text-sm">
-            <p className="font-semibold text-sage-900">{leadTitle(focused.data)}</p>
-            <p className="text-sage-500">
+            <p className="font-semibold text-neutral-900">{leadTitle(focused.data)}</p>
+            <p className="text-neutral-500">
               {[focused.data.company, focused.data.email, LEAD_STATUS_LABELS[focused.data.status]].filter(Boolean).join(" · ")}
             </p>
           </div>
@@ -223,7 +223,7 @@ function LeadsInner() {
         </div>
       )}
       {focusId && focused.status === "error" && (
-        <p role="alert" className="text-sm text-sage-700 bg-white border border-sage-200 rounded-card px-4 py-3">
+        <p role="alert" className="text-sm text-neutral-700 bg-white border border-neutral-200 rounded-card px-4 py-3">
           That lead was not found. It may have been deleted.
         </p>
       )}
@@ -270,7 +270,7 @@ function LeadsInner() {
             <div className="relative overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[860px]">
                 <thead>
-                  <tr className="bg-sage-50/70 border-b border-sage-200 text-xs font-bold text-sage-500 uppercase tracking-wider">
+                  <tr className="bg-neutral-50/70 border-b border-neutral-200 text-xs font-bold text-neutral-500 uppercase tracking-wider">
                     <th scope="col" className="py-4 px-6">Name</th>
                     <th scope="col" className="py-4 px-6">Company</th>
                     <th scope="col" className="py-4 px-6">Source</th>
@@ -280,15 +280,15 @@ function LeadsInner() {
                     <th scope="col" className="py-4 px-6 text-right"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-sage-100 text-sm">
+                <tbody className="divide-y divide-neutral-100 text-sm">
                   {items.map((lead) => (
-                    <tr key={lead.id} className={`transition-colors ${lead.id === focusId ? "bg-copper-100/50" : "hover:bg-sage-50/50"}`}>
-                      <td className="py-4 px-6 font-semibold text-sage-900">
+                    <tr key={lead.id} className={`transition-colors ${lead.id === focusId ? "bg-accent-100/50" : "hover:bg-neutral-50/50"}`}>
+                      <td className="py-4 px-6 font-semibold text-neutral-900">
                         {leadTitle(lead)}
-                        {lead.email && <span className="block text-xs font-normal text-sage-500">{lead.email}</span>}
+                        {lead.email && <span className="block text-xs font-normal text-neutral-500">{lead.email}</span>}
                       </td>
-                      <td className="py-4 px-6 text-sage-600">{lead.company ?? "-"}</td>
-                      <td className="py-4 px-6 text-sage-600">{LEAD_SOURCE_LABELS[lead.source as LeadSource] ?? lead.source}</td>
+                      <td className="py-4 px-6 text-neutral-600">{lead.company ?? "-"}</td>
+                      <td className="py-4 px-6 text-neutral-600">{LEAD_SOURCE_LABELS[lead.source as LeadSource] ?? lead.source}</td>
                       <td className="py-4 px-6">
                         {lead.status === "converted" ? (
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${STATUS_STYLE.converted}`}>
@@ -310,12 +310,12 @@ function LeadsInner() {
                           </select>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-sage-600">{nameOf(lead.owner_id)}</td>
-                      <td className="py-4 px-6 text-sage-600 whitespace-nowrap">{formatDate(lead.created_at)}</td>
+                      <td className="py-4 px-6 text-neutral-600">{nameOf(lead.owner_id)}</td>
+                      <td className="py-4 px-6 text-neutral-600 whitespace-nowrap">{formatDate(lead.created_at)}</td>
                       <td className="py-4 px-6 text-right whitespace-nowrap">
                         {lead.status === "converted" ? (
                           lead.converted_deal_id && (
-                            <Link href={`/sales?deal=${lead.converted_deal_id}`} className="text-xs font-bold text-[#1e4836] hover:underline">
+                            <Link href={`/sales?deal=${lead.converted_deal_id}`} className="text-xs font-bold text-brand-hover hover:underline">
                               View deal
                             </Link>
                           )
@@ -325,7 +325,7 @@ function LeadsInner() {
                               type="button"
                               onClick={() => setToEnroll(lead)}
                               aria-label={`Enrol ${leadTitle(lead)} in a sequence`}
-                              className="mr-4 text-xs font-bold text-[#1e4836] hover:underline cursor-pointer"
+                              className="mr-4 text-xs font-bold text-brand-hover hover:underline cursor-pointer"
                             >
                               Enrol
                             </button>
@@ -334,7 +334,7 @@ function LeadsInner() {
                               disabled={busyId === lead.id}
                               onClick={() => void handleConvert(lead)}
                               aria-label={`Make ${leadTitle(lead)} a deal`}
-                              className="text-xs font-bold text-[#1e4836] hover:underline cursor-pointer disabled:opacity-50"
+                              className="text-xs font-bold text-brand-hover hover:underline cursor-pointer disabled:opacity-50"
                             >
                               Make it a deal
                             </button>
@@ -342,7 +342,7 @@ function LeadsInner() {
                               type="button"
                               onClick={() => setToDelete(lead)}
                               aria-label={`Delete lead ${leadTitle(lead)}`}
-                              className="ml-4 text-xs text-sage-500 hover:text-red-700 cursor-pointer"
+                              className="ml-4 text-xs text-neutral-500 hover:text-danger-700 cursor-pointer"
                             >
                               Delete
                             </button>
@@ -354,7 +354,7 @@ function LeadsInner() {
                 </tbody>
               </table>
             </div>
-            <div className="flex items-center justify-between gap-3 px-6 py-3 border-t border-sage-100 text-xs text-sage-500">
+            <div className="flex items-center justify-between gap-3 px-6 py-3 border-t border-neutral-100 text-xs text-neutral-500">
               <span>
                 {offset + 1} to {offset + items.length} of {total}
               </span>

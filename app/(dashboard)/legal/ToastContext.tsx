@@ -31,8 +31,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ triggerToast }}>
       {children}
       {showNotification && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#0e271f] text-white px-5 py-3 rounded-modal shadow-raised flex items-center gap-3 border border-[#23483b] animate-bounce">
-          <div className="w-5 h-5 rounded-full bg-[#1e4836] flex items-center justify-center text-white">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-brand-rail-deep text-white px-5 py-3 rounded-modal shadow-raised flex items-center gap-3 border border-brand-x23483b animate-bounce">
+          <div className="w-5 h-5 rounded-full bg-brand-hover flex items-center justify-center text-white">
             <Check className="w-3 h-3 stroke-[3]" />
           </div>
           <span className="text-sm font-medium">{notificationMessage}</span>

@@ -111,9 +111,9 @@ function TimelineView() {
     <>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">Roadmap</h2>
-          <p className="text-xs text-[#617065]">
-            Your path from <span className="font-bold text-[#2D5A3F]">{currentLabel}</span> to profitability, I re-plan it when reality changes.
+          <h2 className="text-3xl font-display font-medium text-ink tracking-tight">Roadmap</h2>
+          <p className="text-xs text-ink-muted">
+            Your path from <span className="font-bold text-brand-mid">{currentLabel}</span> to profitability, I re-plan it when reality changes.
           </p>
         </div>
 
@@ -125,35 +125,35 @@ function TimelineView() {
                   aria-current={s.key === currentStage ? 'step' : undefined}
                   className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap border transition-colors ${
                     s.key === currentStage
-                      ? 'bg-[#183B28] text-white border-[#183B28]'
+                      ? 'bg-brand-strong text-white border-brand-strong'
                       : idx < currentIdx
-                        ? 'bg-[#EAF2ED] text-[#2D5A3F] border-[#CDE1D3]'
-                        : 'bg-white text-[#768478] border-[#EBEBE6]'
+                        ? 'bg-brand-tint text-brand-mid border-brand-xcde1d3'
+                        : 'bg-white text-ink-soft border-line-soft'
                   }`}
                 >
                   {idx + 1}. {s.label}
                 </div>
-                {idx < ROADMAP_STAGES.length - 1 && <div className="w-4 h-px bg-[#DCE6E1]" aria-hidden="true" />}
+                {idx < ROADMAP_STAGES.length - 1 && <div className="w-4 h-px bg-neutral-xdce6e1" aria-hidden="true" />}
               </li>
             ))}
           </ol>
         </nav>
 
         <div className="flex flex-wrap items-center justify-between gap-3 mt-2">
-          <h3 className="font-bold text-[#1E2923] text-sm">Timeline Canvas</h3>
+          <h3 className="font-bold text-ink text-sm">Timeline Canvas</h3>
           <div className="flex items-center gap-2">
             {canEdit && (
               <button
                 type="button"
                 onClick={() => setAddingPhase((v) => !v)}
                 aria-expanded={addingPhase}
-                className="flex items-center gap-1.5 bg-[#183B28] hover:bg-[#11291C] text-white font-bold px-3 py-1.5 rounded-card text-xs transition-colors shadow-card"
+                className="flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail text-white font-bold px-3 py-1.5 rounded-card text-xs transition-colors shadow-card"
               >
                 <Plus className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Add phase</span>
               </button>
             )}
-            <div role="group" aria-label="Zoom" className="flex items-center gap-1 bg-[#F5F5F0] p-1 rounded-card border border-[#EBEBE6]">
+            <div role="group" aria-label="Zoom" className="flex items-center gap-1 bg-surface-muted p-1 rounded-card border border-line-soft">
               {(['Week', 'Month', 'Quarter'] as const).map((z) => (
                 <button
                   type="button"
@@ -161,7 +161,7 @@ function TimelineView() {
                   onClick={() => setZoom(z)}
                   aria-pressed={zoom === z}
                   className={`px-3 py-1.5 rounded-[6px] text-xs font-medium transition-all ${
-                    zoom === z ? 'bg-white text-[#1E2923] font-bold shadow-card' : 'bg-transparent text-[#768478] hover:text-[#1E2923]'
+                    zoom === z ? 'bg-white text-ink font-bold shadow-card' : 'bg-transparent text-ink-soft hover:text-ink'
                   }`}
                 >
                   {z}
@@ -180,36 +180,36 @@ function TimelineView() {
               placeholder="New phase name"
               aria-label="New phase name"
               maxLength={120}
-              className="flex-1 max-w-sm border border-[#D5DDD6] rounded-input px-3 py-2 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58]"
+              className="flex-1 max-w-sm border border-line-strong rounded-input px-3 py-2 text-sm focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus"
             />
-            <button type="submit" disabled={!phaseName.trim()} className="px-3 py-2 rounded-input bg-[#183B28] text-white text-xs font-bold disabled:opacity-40">
+            <button type="submit" disabled={!phaseName.trim()} className="px-3 py-2 rounded-input bg-brand-strong text-white text-xs font-bold disabled:opacity-40">
               Add
             </button>
-            <button type="button" onClick={() => setAddingPhase(false)} className="px-3 py-2 rounded-input text-xs font-semibold text-[#617065] hover:bg-[#EBEBE6]">
+            <button type="button" onClick={() => setAddingPhase(false)} className="px-3 py-2 rounded-input text-xs font-semibold text-ink-muted hover:bg-line-soft">
               Cancel
             </button>
           </form>
         )}
 
         {actionError && (
-          <p role="alert" className="bg-[#FBEBEB] border border-[#EBC9C4] text-[#B0483B] text-xs font-semibold rounded-card px-3 py-2">
+          <p role="alert" className="bg-danger-wash border border-danger-xebc9c4 text-danger-600 text-xs font-semibold rounded-card px-3 py-2">
             {actionError}
           </p>
         )}
 
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card min-h-[500px] relative overflow-hidden">
+        <div className="bg-white rounded-modal border border-line-soft shadow-card min-h-[500px] relative overflow-hidden">
           {loading && (
             <div className="flex flex-col gap-4 animate-pulse p-6 pt-12" aria-busy="true" aria-label="Loading your roadmap">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-[72px] w-[300px] bg-[#F0F0EC] rounded-card" style={{ marginLeft: `${i * 20 + 10}%` }} />
+                <div key={i} className="h-[72px] w-[300px] bg-line-faint rounded-card" style={{ marginLeft: `${i * 20 + 10}%` }} />
               ))}
             </div>
           )}
 
           {!loading && error && (
             <div role="alert" className="flex flex-col items-center justify-center py-24 text-center gap-3">
-              <p className="text-base font-semibold text-[#1E2923]">Couldn&apos;t load your roadmap</p>
-              <button type="button" onClick={() => void refetch()} className="px-4 py-2 rounded-card bg-[#183B28] text-white text-xs font-bold">
+              <p className="text-base font-semibold text-ink">Couldn&apos;t load your roadmap</p>
+              <button type="button" onClick={() => void refetch()} className="px-4 py-2 rounded-card bg-brand-strong text-white text-xs font-bold">
                 Retry
               </button>
             </div>
@@ -217,11 +217,11 @@ function TimelineView() {
 
           {!loading && !error && phases.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center gap-2">
-              <p className="text-base font-semibold text-[#1E2923]">No roadmap yet</p>
-              <p className="text-sm text-[#768478] max-w-sm">
+              <p className="text-base font-semibold text-ink">No roadmap yet</p>
+              <p className="text-sm text-ink-soft max-w-sm">
                 Add your first phase, or start from a template built for your stage.
               </p>
-              <Link href="/roadmap/templates" className="mt-2 px-4 py-2 rounded-card bg-[#183B28] text-white text-xs font-bold">
+              <Link href="/roadmap/templates" className="mt-2 px-4 py-2 rounded-card bg-brand-strong text-white text-xs font-bold">
                 Browse templates
               </Link>
             </div>
@@ -231,11 +231,11 @@ function TimelineView() {
             <div ref={scroller} className="overflow-x-auto" tabIndex={0} aria-label="Roadmap timeline, scroll sideways">
               <div className="relative pb-8" style={{ width: scale.width + CARD_W + 48 }}>
                 {/* Month / week axis */}
-                <div className="relative h-8 border-b border-[#EBEBE6] bg-[#FAFAFA]" aria-hidden="true">
+                <div className="relative h-8 border-b border-line-soft bg-surface-ghost" aria-hidden="true">
                   {scale.ticks.map((t) => (
                     <span
                       key={t.day}
-                      className="absolute top-0 bottom-0 flex items-center pl-2 border-l border-[#EBEBE6] text-[10px] font-bold uppercase tracking-wider text-[#8E9B90]"
+                      className="absolute top-0 bottom-0 flex items-center pl-2 border-l border-line-soft text-[10px] font-bold uppercase tracking-wider text-ink-subtle"
                       style={{ left: scale.x(t.day) }}
                     >
                       {t.label}
@@ -245,18 +245,18 @@ function TimelineView() {
 
                 {/* Today line, at its real date */}
                 <div
-                  className="absolute top-0 bottom-0 w-[2px] bg-[#B0483B] z-10 pointer-events-none"
+                  className="absolute top-0 bottom-0 w-[2px] bg-danger-600 z-10 pointer-events-none"
                   style={{ left: scale.x(today) }}
                   aria-hidden="true"
                 >
-                  <div className="absolute top-0 -left-6 bg-[#B0483B] text-white text-[10px] font-bold px-2 py-0.5 rounded-b-md">TODAY</div>
+                  <div className="absolute top-0 -left-6 bg-danger-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-b-md">TODAY</div>
                 </div>
 
                 <div className="p-6 pt-8 flex flex-col gap-8">
                   {phases.map((phase) => (
                     <div key={phase.id} className="flex flex-col gap-4">
                       <div className="sticky left-6 z-20 flex flex-wrap items-center gap-3 w-fit max-w-[calc(100vw-96px)]">
-                        <h4 className="text-xs font-bold text-[#617065] uppercase tracking-wider">
+                        <h4 className="text-xs font-bold text-ink-muted uppercase tracking-wider">
                           Phase {phase.order + 1}: {phase.name}
                         </h4>
                         {canEdit && (
@@ -268,14 +268,14 @@ function TimelineView() {
                                 setAddingIn(addingIn === phase.id ? null : phase.id);
                               }}
                               aria-expanded={addingIn === phase.id}
-                              className="flex items-center gap-1 text-[11px] font-semibold text-[#183B28] hover:text-[#11291C]"
+                              className="flex items-center gap-1 text-[11px] font-semibold text-brand-strong hover:text-brand-rail"
                             >
                               <Plus className="w-3 h-3" aria-hidden="true" /> Milestone
                             </button>
                             <button
                               type="button"
                               onClick={() => removePhase(phase.id, phase.name)}
-                              className="p-1 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors"
+                              className="p-1 rounded-input text-ink-soft hover:text-danger-text hover:bg-danger-wash transition-colors"
                               aria-label={`Delete phase ${phase.name}`}
                             >
                               <Trash2 className="w-3 h-3" aria-hidden="true" />
@@ -293,19 +293,19 @@ function TimelineView() {
                             placeholder="New milestone title"
                             aria-label="New milestone title"
                             maxLength={200}
-                            className="w-64 border border-[#D5DDD6] rounded-input px-3 py-2 text-sm focus:outline-none focus:border-[#4D6D58] focus:ring-1 focus:ring-[#4D6D58]"
+                            className="w-64 border border-line-strong rounded-input px-3 py-2 text-sm focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus"
                           />
-                          <button type="submit" disabled={!msTitle.trim()} className="px-3 py-2 rounded-input bg-[#183B28] text-white text-xs font-bold disabled:opacity-40">
+                          <button type="submit" disabled={!msTitle.trim()} className="px-3 py-2 rounded-input bg-brand-strong text-white text-xs font-bold disabled:opacity-40">
                             Add
                           </button>
-                          <button type="button" onClick={() => setAddingIn(null)} className="px-3 py-2 rounded-input text-xs font-semibold text-[#617065] hover:bg-[#EBEBE6]">
+                          <button type="button" onClick={() => setAddingIn(null)} className="px-3 py-2 rounded-input text-xs font-semibold text-ink-muted hover:bg-line-soft">
                             Cancel
                           </button>
                         </form>
                       )}
 
                       {phase.milestones.length === 0 && (
-                        <p className="sticky left-6 w-fit text-xs text-[#8E9B90]">
+                        <p className="sticky left-6 w-fit text-xs text-ink-subtle">
                           No milestones in this phase yet.{canEdit ? ' Use + Milestone to add one.' : ''}
                         </p>
                       )}
@@ -316,14 +316,14 @@ function TimelineView() {
                           return (
                             <li
                               key={ms.id}
-                              className="relative z-20 bg-white border border-[#EBEBE6] rounded-card p-3 shadow-card hover:shadow-raised hover:border-[#C5CFC7] transition-all flex flex-col gap-2"
+                              className="relative z-20 bg-white border border-line-soft rounded-card p-3 shadow-card hover:shadow-raised hover:border-neutral-xc5cfc7 transition-all flex flex-col gap-2"
                               style={{ marginLeft: cardLeft(ms, phase.startsOn), width: CARD_W }}
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <button
                                   type="button"
                                   onClick={() => board.open(ms)}
-                                  className="text-left text-sm font-bold text-[#1E2923] leading-snug hover:underline"
+                                  className="text-left text-sm font-bold text-ink leading-snug hover:underline"
                                 >
                                   {ms.title}
                                 </button>
@@ -333,24 +333,24 @@ function TimelineView() {
                                 </div>
                               </div>
 
-                              <div className="flex items-center justify-between text-xs text-[#768478] font-medium">
+                              <div className="flex items-center justify-between text-xs text-ink-soft font-medium">
                                 <span>{formatDue(ms.dueOn)}</span>
                                 <span>{ms.progress}%</span>
                               </div>
 
-                              <div className="w-full h-1.5 bg-[#EBEBE6] rounded-full overflow-hidden">
+                              <div className="w-full h-1.5 bg-line-soft rounded-full overflow-hidden">
                                 <div
-                                  className={`h-full transition-all ${ms.status === 'overdue' ? 'bg-[#B0483B]' : 'bg-[#2D5A3F]'}`}
+                                  className={`h-full transition-all ${ms.status === 'overdue' ? 'bg-danger-600' : 'bg-brand-mid'}`}
                                   style={{ width: `${ms.progress}%` }}
                                 />
                               </div>
 
-                              <div className="flex items-center justify-between text-[11px] text-[#768478] font-medium">
+                              <div className="flex items-center justify-between text-[11px] text-ink-soft font-medium">
                                 <button
                                   type="button"
                                   onClick={() => toggleExpanded(ms.id)}
                                   aria-expanded={open}
-                                  className="flex items-center gap-1 hover:text-[#1E2923]"
+                                  className="flex items-center gap-1 hover:text-ink"
                                   disabled={ms.tasks.length === 0}
                                 >
                                   {open ? <ChevronDown className="w-3 h-3" aria-hidden="true" /> : <ChevronRight className="w-3 h-3" aria-hidden="true" />}
@@ -360,11 +360,11 @@ function TimelineView() {
                               </div>
 
                               {open && (
-                                <ul className="flex flex-col gap-1.5 border-t border-[#F0F0EC] pt-2">
+                                <ul className="flex flex-col gap-1.5 border-t border-line-faint pt-2">
                                   {ms.tasks.map((t) => (
                                     <li key={t.id} className="flex items-center justify-between gap-2 text-[11px]">
-                                      <span className={`truncate ${t.status === 'done' ? 'line-through text-[#8E9B90]' : 'text-[#1E2923]'}`}>{t.title}</span>
-                                      <span className={`shrink-0 font-semibold ${t.status === 'overdue' ? 'text-[#B0483B]' : 'text-[#768478]'}`}>
+                                      <span className={`truncate ${t.status === 'done' ? 'line-through text-ink-subtle' : 'text-ink'}`}>{t.title}</span>
+                                      <span className={`shrink-0 font-semibold ${t.status === 'overdue' ? 'text-danger-600' : 'text-ink-soft'}`}>
                                         {t.status === 'overdue' ? 'Overdue' : t.status === 'done' ? 'Done' : t.status === 'in_progress' ? 'In progress' : 'To do'}
                                       </span>
                                     </li>

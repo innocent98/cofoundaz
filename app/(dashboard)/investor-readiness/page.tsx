@@ -31,18 +31,18 @@ export default function ReadinessScorePage() {
     <div className="space-y-8 animate-fadeIn pb-12">
       <div className="text-center space-y-4">
         <div className="inline-flex flex-col items-center justify-center space-y-2 py-4">
-          <span className="text-sm font-bold uppercase tracking-widest text-sage-500">Readiness Score</span>
+          <span className="text-sm font-bold uppercase tracking-widest text-neutral-500">Readiness Score</span>
           <div className="relative w-40 h-40 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
               <path
-                className="text-sage-200"
+                className="text-neutral-200"
                 strokeWidth="3"
                 stroke="currentColor"
                 fill="none"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               />
               <path
-                className={`${score.overall >= 70 ? 'text-[#1e4836]' : score.overall >= 40 ? 'text-[#8A5330]' : 'text-red-600'}`}
+                className={`${score.overall >= 70 ? 'text-brand-hover' : score.overall >= 40 ? 'text-accent-700' : 'text-danger-600'}`}
                 strokeWidth="3"
                 strokeDasharray={`${score.overall}, 100`}
                 stroke="currentColor"
@@ -51,17 +51,17 @@ export default function ReadinessScorePage() {
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center flex-col">
-              <span className="font-display font-bold text-5xl text-sage-900 tracking-tight">{score.overall}</span>
+              <span className="font-display font-bold text-5xl text-neutral-900 tracking-tight">{score.overall}</span>
             </div>
           </div>
         </div>
 
-        <h2 className="text-2xl font-display font-semibold text-sage-900">{verdictCopy}</h2>
+        <h2 className="text-2xl font-display font-semibold text-neutral-900">{verdictCopy}</h2>
         
         {score.overall >= 70 && (
           <button
             onClick={() => router.push("/funding")}
-            className="mt-4 bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold py-3 px-6 rounded-card transition-colors shadow-card inline-flex items-center gap-2"
+            className="mt-4 bg-accent-600 hover:bg-accent-700 text-white font-semibold py-3 px-6 rounded-card transition-colors shadow-card inline-flex items-center gap-2"
           >
             <span>Open Funding Hub</span>
             <ArrowRight className="w-4 h-4" />
@@ -71,18 +71,18 @@ export default function ReadinessScorePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         {/* Dimensions */}
-        <div className="bg-white rounded-modal border border-sage-200/95 shadow-card p-6 space-y-6">
-          <h3 className="font-semibold text-sm text-sage-900">Dimensions</h3>
+        <div className="bg-white rounded-modal border border-neutral-200/95 shadow-card p-6 space-y-6">
+          <h3 className="font-semibold text-sm text-neutral-900">Dimensions</h3>
           <div className="space-y-5">
             {dimensionsList.map(dim => (
               <div key={dim.name} className="space-y-2">
-                <div className="flex justify-between items-center text-xs font-medium text-sage-700">
+                <div className="flex justify-between items-center text-xs font-medium text-neutral-700">
                   <span>{dim.name}</span>
-                  <span className="font-bold text-sage-900">{dim.value}/100</span>
+                  <span className="font-bold text-neutral-900">{dim.value}/100</span>
                 </div>
-                <div className="w-full bg-sage-100 h-2.5 rounded-full overflow-hidden">
+                <div className="w-full bg-neutral-100 h-2.5 rounded-full overflow-hidden">
                   <div 
-                    className={`h-full rounded-full ${dim.value >= 70 ? 'bg-[#1e4836]' : dim.value >= 40 ? 'bg-[#8A5330]' : 'bg-red-600'}`}
+                    className={`h-full rounded-full ${dim.value >= 70 ? 'bg-brand-hover' : dim.value >= 40 ? 'bg-accent-700' : 'bg-danger-600'}`}
                     style={{ width: `${dim.value}%` }}
                   ></div>
                 </div>
@@ -93,22 +93,22 @@ export default function ReadinessScorePage() {
 
         {/* Priority Gaps */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-sm text-sage-900 px-1">Priority gaps to close</h3>
+          <h3 className="font-semibold text-sm text-neutral-900 px-1">Priority gaps to close</h3>
           {score.gaps.map((gap, idx) => (
-            <div key={idx} className="bg-white rounded-modal border border-sage-200/95 shadow-card p-5 space-y-4">
+            <div key={idx} className="bg-white rounded-modal border border-neutral-200/95 shadow-card p-5 space-y-4">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 text-[#8A5330]">
+                <div className="mt-0.5 text-accent-700">
                   <AlertCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm text-sage-900">{gap.dimension}</h4>
-                  <p className="text-sm text-sage-600 mt-1">{gap.note}</p>
+                  <h4 className="font-semibold text-sm text-neutral-900">{gap.dimension}</h4>
+                  <p className="text-sm text-neutral-600 mt-1">{gap.note}</p>
                 </div>
               </div>
               <div className="flex justify-end">
                 <button
                   onClick={() => router.push(gap.actionRoute)}
-                  className="bg-sage-100 hover:bg-sage-200 text-sage-800 font-semibold py-2 px-4 text-xs rounded-card transition-colors inline-flex items-center gap-1.5"
+                  className="bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-semibold py-2 px-4 text-xs rounded-card transition-colors inline-flex items-center gap-1.5"
                 >
                   <span>Fix this</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -117,7 +117,7 @@ export default function ReadinessScorePage() {
             </div>
           ))}
           {score.gaps.length === 0 && (
-            <div className="bg-sage-50 rounded-modal border border-sage-200/50 p-6 text-center text-sage-500 text-sm">
+            <div className="bg-neutral-50 rounded-modal border border-neutral-200/50 p-6 text-center text-neutral-500 text-sm">
               No critical gaps detected.
             </div>
           )}

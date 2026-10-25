@@ -149,7 +149,7 @@ export default function OnboardingPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-sm font-medium text-sage-500">Loading your onboarding session...</p>
+        <p className="text-sm font-medium text-neutral-500">Loading your onboarding session...</p>
       </div>
     )
   }

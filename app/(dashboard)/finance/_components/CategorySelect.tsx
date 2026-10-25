@@ -33,7 +33,7 @@ export function CategorySelect({
   const known = value && !options.some((o) => o.toLowerCase() === value.toLowerCase());
   const [adding, setAdding] = useState(false);
   const cls = compact
-    ? "text-xs bg-white border border-copper-600 text-copper-700 rounded-input px-2 py-1 max-w-[9rem] outline-none font-medium"
+    ? "text-xs bg-white border border-accent-600 text-accent-700 rounded-input px-2 py-1 max-w-[9rem] outline-none font-medium"
     : inputCls;
 
   if (adding) {
@@ -51,7 +51,7 @@ export function CategorySelect({
         />
         <button
           type="button"
-          className="text-xs font-bold text-sage-600 hover:underline shrink-0"
+          className="text-xs font-bold text-neutral-600 hover:underline shrink-0"
           onClick={() => {
             setAdding(false);
             onChange("");

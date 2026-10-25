@@ -97,9 +97,9 @@ export function useLegalApi() {
   ];
 
   const [advisorRequests, setAdvisorRequests] = useState<AdvisorRequest[]>([
-    { id: "req-1", title: "Review contractor non-compete", subtitle: "Contractor agreement · Tayo N.", status: "In review", statusBg: "bg-[#f5efe6] text-[#8A5330]" },
-    { id: "req-2", title: "SAFE terms sanity check", subtitle: "SAFE draft · Tayo N.", status: "Returned", statusBg: "bg-[#e2ede6] text-[#1e4836]" },
-    { id: "req-3", title: "Trademark filing question", subtitle: "TM application · Tayo N.", status: "Requested", statusBg: "bg-sage-100 text-sage-600" },
+    { id: "req-1", title: "Review contractor non-compete", subtitle: "Contractor agreement · Tayo N.", status: "In review", statusBg: "bg-neutral-xf5efe6 text-accent-700" },
+    { id: "req-2", title: "SAFE terms sanity check", subtitle: "SAFE draft · Tayo N.", status: "Returned", statusBg: "bg-neutral-xe2ede6 text-brand-hover" },
+    { id: "req-3", title: "Trademark filing question", subtitle: "TM application · Tayo N.", status: "Requested", statusBg: "bg-neutral-100 text-neutral-600" },
   ]);
 
   const addAdvisorRequest = (title: string, subtitle: string) => {
@@ -108,23 +108,23 @@ export function useLegalApi() {
       title,
       subtitle,
       status: "Requested",
-      statusBg: "bg-sage-100 text-sage-600",
+      statusBg: "bg-neutral-100 text-neutral-600",
     };
     setAdvisorRequests(prev => [newReq, ...prev]);
   };
 
   const [ipAssets] = useState<IPAsset[]>([
-    { id: "ip-1", type: "Trademark", name: "Kolo (wordmark)", jurisdiction: "Nigeria", status: "Filed", statusBg: "bg-[#f5efe6] text-[#8A5330]", renewal: "Renews 2034" },
-    { id: "ip-2", type: "Domain", name: "kolo.africa", jurisdiction: "Global", status: "Registered", statusBg: "bg-[#e2ede6] text-[#1e4836]", renewal: "Renews Feb 2027" },
-    { id: "ip-3", type: "Copyright", name: "App source code", jurisdiction: "Nigeria", status: "Registered", statusBg: "bg-[#e2ede6] text-[#1e4836]", renewal: "No renewal" },
-    { id: "ip-4", type: "Trademark", name: "Logo mark", jurisdiction: "Nigeria", status: "Expired", statusBg: "bg-red-100 text-red-700", renewal: "Renew now" },
+    { id: "ip-1", type: "Trademark", name: "Kolo (wordmark)", jurisdiction: "Nigeria", status: "Filed", statusBg: "bg-neutral-xf5efe6 text-accent-700", renewal: "Renews 2034" },
+    { id: "ip-2", type: "Domain", name: "kolo.africa", jurisdiction: "Global", status: "Registered", statusBg: "bg-neutral-xe2ede6 text-brand-hover", renewal: "Renews Feb 2027" },
+    { id: "ip-3", type: "Copyright", name: "App source code", jurisdiction: "Nigeria", status: "Registered", statusBg: "bg-neutral-xe2ede6 text-brand-hover", renewal: "No renewal" },
+    { id: "ip-4", type: "Trademark", name: "Logo mark", jurisdiction: "Nigeria", status: "Expired", statusBg: "bg-danger-100 text-danger-700", renewal: "Renew now" },
   ]);
 
   const [complianceItems] = useState<ComplianceItem[]>([
-    { id: "comp-1", filing: "VAT filing", authority: "FIRS", due: "Was due Jul 10", dueColor: "text-red-700", status: "Overdue", statusBg: "bg-red-100 text-red-700" },
-    { id: "comp-2", filing: "Annual return", authority: "CAC", due: "in 9 days", dueColor: "text-copper-700", status: "Due soon", statusBg: "bg-copper-100 text-copper-800" },
-    { id: "comp-3", filing: "PAYE remittance", authority: "State IRS", due: "Aug 10", dueColor: "text-sage-600", status: "Upcoming", statusBg: "bg-copper-100/60 text-copper-900" },
-    { id: "comp-4", filing: "Pension remittance", authority: "PenCom", due: "Jun 30", dueColor: "text-sage-600", status: "Done", statusBg: "bg-green-100 text-green-800" },
+    { id: "comp-1", filing: "VAT filing", authority: "FIRS", due: "Was due Jul 10", dueColor: "text-danger-700", status: "Overdue", statusBg: "bg-danger-100 text-danger-700" },
+    { id: "comp-2", filing: "Annual return", authority: "CAC", due: "in 9 days", dueColor: "text-accent-700", status: "Due soon", statusBg: "bg-accent-100 text-accent-800" },
+    { id: "comp-3", filing: "PAYE remittance", authority: "State IRS", due: "Aug 10", dueColor: "text-neutral-600", status: "Upcoming", statusBg: "bg-accent-100/60 text-accent-900" },
+    { id: "comp-4", filing: "Pension remittance", authority: "PenCom", due: "Jun 30", dueColor: "text-neutral-600", status: "Done", statusBg: "bg-brand-100 text-brand-800" },
   ]);
 
   return {

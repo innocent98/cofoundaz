@@ -101,7 +101,7 @@ export default function PersonasPage() {
             {canWrite && (
               <button
                 onClick={openCreate}
-                className="flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors shadow-card"
+                className="flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors shadow-card"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{suggestMode ? 'Suggest a persona' : 'Add persona'}</span>
@@ -114,30 +114,30 @@ export default function PersonasPage() {
       {loading && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card h-64 animate-pulse" />
+            <div key={i} className="bg-white rounded-modal p-6 border border-line-soft shadow-card h-64 animate-pulse" />
           ))}
         </div>
       )}
 
       {!loading && error && (
-        <div className="bg-[#FBEBEB] border border-[#F0D5D5] rounded-modal p-4 text-sm text-[#A34B4B]">
+        <div className="bg-danger-wash border border-danger-xf0d5d5 rounded-modal p-4 text-sm text-danger-text">
           {error}
         </div>
       )}
 
       {!loading && !error && records.length === 0 && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-12 text-center flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#F0F4F1] text-[#183B28] flex items-center justify-center">
+        <div className="bg-white rounded-modal border border-line-soft shadow-card p-12 text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-neutral-xf0f4f1 text-brand-strong flex items-center justify-center">
             <Users className="w-6 h-6" />
           </div>
-          <p className="text-sm font-bold text-[#1E2923]">No personas yet</p>
-          <p className="text-xs text-[#768478] max-w-xs">
+          <p className="text-sm font-bold text-ink">No personas yet</p>
+          <p className="text-xs text-ink-soft max-w-xs">
             Capture who you&apos;re building for, their goals, frustrations, and where to reach them.
           </p>
           {canWrite && (
             <button
               onClick={openCreate}
-              className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors"
+              className="mt-1 flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2 rounded-card text-xs transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{suggestMode ? 'Suggest the first persona' : 'Add your first persona'}</span>
@@ -157,17 +157,17 @@ export default function PersonasPage() {
             return (
               <div
                 key={rec.id}
-                className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col justify-between gap-6 group"
+                className="bg-white rounded-modal p-6 border border-line-soft shadow-card flex flex-col justify-between gap-6 group"
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#183B28] text-[#EAD5C6] font-bold text-base flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-brand-strong text-accent-200 font-bold text-base flex items-center justify-center shrink-0">
                       {initials(name)}
                     </div>
                     <div className="flex flex-col min-w-0 flex-1">
-                      <h3 className="text-sm font-bold text-[#1E2923] truncate">{name}</h3>
+                      <h3 className="text-sm font-bold text-ink truncate">{name}</h3>
                       {typeof d.demographics === 'string' && d.demographics && (
-                        <p className="text-[11px] text-[#768478]">{d.demographics}</p>
+                        <p className="text-[11px] text-ink-soft">{d.demographics}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-1">
@@ -175,14 +175,14 @@ export default function PersonasPage() {
                       {canWrite && (<>
                       <button
                         onClick={() => openEdit(rec)}
-                        className="p-1.5 rounded-input text-[#768478] hover:text-[#183B28] hover:bg-[#F0F4F1] transition-colors"
+                        className="p-1.5 rounded-input text-ink-soft hover:text-brand-strong hover:bg-neutral-xf0f4f1 transition-colors"
                         aria-label={`Edit persona: ${name}`}
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDelete(rec)}
-                        className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors"
+                        className="p-1.5 rounded-input text-ink-soft hover:text-danger-text hover:bg-danger-wash transition-colors"
                         aria-label={`Delete persona: ${name}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -192,13 +192,13 @@ export default function PersonasPage() {
                   </div>
 
                   {typeof d.quote === 'string' && d.quote && (
-                    <p className="text-xs text-[#556358] italic leading-relaxed">&ldquo;{d.quote}&rdquo;</p>
+                    <p className="text-xs text-ink-body italic leading-relaxed">&ldquo;{d.quote}&rdquo;</p>
                   )}
 
                   {goals.length > 0 && (
                     <div className="flex flex-col gap-1 pt-1">
-                      <span className="text-[10px] font-bold tracking-wider text-[#8A5330] uppercase">Goals</span>
-                      <ul className="text-xs text-[#1E2923] leading-normal list-disc list-inside space-y-0.5">
+                      <span className="text-[10px] font-bold tracking-wider text-accent-700 uppercase">Goals</span>
+                      <ul className="text-xs text-ink leading-normal list-disc list-inside space-y-0.5">
                         {goals.map((g, i) => <li key={i}>{g}</li>)}
                       </ul>
                     </div>
@@ -206,8 +206,8 @@ export default function PersonasPage() {
 
                   {frustrations.length > 0 && (
                     <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold tracking-wider text-[#A34B4B] uppercase">Frustrations</span>
-                      <ul className="text-xs text-[#1E2923] leading-normal list-disc list-inside space-y-0.5">
+                      <span className="text-[10px] font-bold tracking-wider text-danger-text uppercase">Frustrations</span>
+                      <ul className="text-xs text-ink leading-normal list-disc list-inside space-y-0.5">
                         {frustrations.map((f, i) => <li key={i}>{f}</li>)}
                       </ul>
                     </div>
@@ -215,8 +215,8 @@ export default function PersonasPage() {
 
                   {wateringHoles.length > 0 && (
                     <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold tracking-wider text-[#556358] uppercase">Where to reach them</span>
-                      <p className="text-xs text-[#556358] leading-normal">{wateringHoles.join(' · ')}</p>
+                      <span className="text-[10px] font-bold tracking-wider text-ink-body uppercase">Where to reach them</span>
+                      <p className="text-xs text-ink-body leading-normal">{wateringHoles.join(' · ')}</p>
                     </div>
                   )}
                 </div>

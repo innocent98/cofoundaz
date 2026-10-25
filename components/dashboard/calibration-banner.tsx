@@ -14,12 +14,12 @@ export function CalibrationBanner({ assessmentComplete }: { assessmentComplete: 
     <div
       role="region"
       aria-label="Finish setting up your workspace"
-      className="mb-6 flex flex-col gap-3 rounded-card border border-[#EADBCA] bg-[#F9F7F2] px-5 py-4 md:flex-row md:items-center md:justify-between"
+      className="mb-6 flex flex-col gap-3 rounded-card border border-accent-xeadbca bg-neutral-xf9f7f2 px-5 py-4 md:flex-row md:items-center md:justify-between"
     >
-      <p className="text-sm font-medium text-[#8A5330] leading-relaxed">{CALIBRATION_COPY}</p>
+      <p className="text-sm font-medium text-accent-700 leading-relaxed">{CALIBRATION_COPY}</p>
       <Link
         href="/assessment"
-        className="shrink-0 self-start rounded-input bg-copper-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-copper-700 md:self-auto"
+        className="shrink-0 self-start rounded-input bg-accent-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-700 md:self-auto"
       >
         Complete assessment
       </Link>

@@ -24,7 +24,7 @@ function OptionGroup<T extends string>({
 }) {
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-[11px] font-bold tracking-wider text-[#768478] uppercase mb-1">{legend}</legend>
+      <legend className="text-[11px] font-bold tracking-wider text-ink-soft uppercase mb-1">{legend}</legend>
       <div role="radiogroup" aria-label={legend} className="flex flex-wrap gap-2">
         {options.map((o) => (
           <button
@@ -34,7 +34,7 @@ function OptionGroup<T extends string>({
             aria-checked={value === o.value}
             onClick={() => onChange(o.value)}
             className={`px-4 py-2 rounded-full text-xs font-semibold border transition-colors ${
-              value === o.value ? 'bg-[#183B28] text-white border-[#183B28]' : 'bg-white text-[#556358] border-[#EBEBE6] hover:border-[#C5CFC7]'
+              value === o.value ? 'bg-brand-strong text-white border-brand-strong' : 'bg-white text-ink-body border-line-soft hover:border-neutral-xc5cfc7'
             }`}
           >
             {o.label}
@@ -61,16 +61,16 @@ export default function BusinessPlanPage() {
   return (
     <div className="flex flex-col gap-6 max-w-4xl">
       <div>
-        <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">
+        <h2 className="text-3xl font-display font-bold text-ink tracking-tight">
           AI business plan generator
         </h2>
-        <p className="text-xs text-[#768478] mt-1.5">
+        <p className="text-xs text-ink-soft mt-1.5">
           I&apos;ll compile your canvases, personas, pricing, and financials into a 10-section plan. You edit it in Documents, nothing is final until you say so.
         </p>
       </div>
 
       {status === 'checking' && (
-        <div className="bg-white rounded-modal p-12 border border-[#EBEBE6] shadow-card flex items-center justify-center gap-3 text-[#617065]">
+        <div className="bg-white rounded-modal p-12 border border-line-soft shadow-card flex items-center justify-center gap-3 text-ink-muted">
           <Loader2 className="w-5 h-5 animate-spin" />
           <span className="text-sm">Checking for an existing plan…</span>
         </div>
@@ -79,10 +79,10 @@ export default function BusinessPlanPage() {
       {status === 'setup' && (
         <div className="flex flex-col gap-6">
           {failure && (
-            <div role="alert" className="bg-[#FBEBEB] border border-[#F0D5D5] rounded-modal p-5 flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#B0483B] shrink-0 mt-0.5" />
+            <div role="alert" className="bg-danger-wash border border-danger-xf0d5d5 rounded-modal p-5 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-danger-600 shrink-0 mt-0.5" />
               <div className="flex flex-col gap-3">
-                <p className="text-sm text-[#A34B4B] font-semibold">{failureMessage(failure)}</p>
+                <p className="text-sm text-danger-text font-semibold">{failureMessage(failure)}</p>
                 {canEdit && (
                   <button
                     type="button"
@@ -90,7 +90,7 @@ export default function BusinessPlanPage() {
                       setOptions(lastOptions ?? options);
                       setConfirming(true);
                     }}
-                    className="self-start bg-[#183B28] hover:bg-[#11291C] text-white font-bold px-5 py-2.5 rounded-card text-xs transition-colors"
+                    className="self-start bg-brand-strong hover:bg-brand-rail text-white font-bold px-5 py-2.5 rounded-card text-xs transition-colors"
                   >
                     Try again
                   </button>
@@ -102,23 +102,23 @@ export default function BusinessPlanPage() {
           <PlanReadinessCard />
 
           {canEdit ? (
-            <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-5">
+            <div className="bg-white rounded-modal p-6 border border-line-soft shadow-card flex flex-col gap-5">
               <OptionGroup legend="Who is it for" value={options.audience} options={AUDIENCES} onChange={(audience) => setOptions((o) => ({ ...o, audience }))} />
               <OptionGroup legend="How long" value={options.length} options={LENGTHS} onChange={(length) => setOptions((o) => ({ ...o, length }))} />
-              <p className="text-xs text-[#768478] leading-relaxed">
+              <p className="text-xs text-ink-soft leading-relaxed">
                 It usually takes about a minute. You can leave this page, it keeps working.
               </p>
               <button
                 type="button"
                 onClick={() => setConfirming(true)}
-                className="w-full bg-[#183B28] hover:bg-[#11291C] text-white font-bold py-3.5 rounded-card flex items-center justify-center gap-2 transition-all shadow-card"
+                className="w-full bg-brand-strong hover:bg-brand-rail text-white font-bold py-3.5 rounded-card flex items-center justify-center gap-2 transition-all shadow-card"
               >
                 <Sparkles className="w-4 h-4 fill-white" />
                 <span>Generate my business plan</span>
               </button>
             </div>
           ) : (
-            <p className="text-sm text-[#52685D] bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card">
+            <p className="text-sm text-neutral-x52685d bg-white rounded-modal p-6 border border-line-soft shadow-card">
               No plan has been generated yet. A founder or team member can generate it.
             </p>
           )}
@@ -126,53 +126,53 @@ export default function BusinessPlanPage() {
       )}
 
       {status === 'generating' && (
-        <div className="bg-white rounded-modal p-10 border border-[#EBEBE6] shadow-card flex flex-col items-center justify-center gap-5" aria-live="polite">
+        <div className="bg-white rounded-modal p-10 border border-line-soft shadow-card flex flex-col items-center justify-center gap-5" aria-live="polite">
           <div className="relative">
-            <div className="w-16 h-16 rounded-full border-4 border-[#E6EFEA] border-t-[#183B28] animate-spin" />
+            <div className="w-16 h-16 rounded-full border-4 border-neutral-xe6efea border-t-[var(--color-brand-strong)] animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-[#8A5330] fill-[#8A5330] animate-pulse" />
+              <Sparkles className="w-5 h-5 text-accent-700 fill-accent-700 animate-pulse" />
             </div>
           </div>
           <div className="text-center w-full max-w-sm">
-            <h3 className="text-lg font-bold text-[#1E2923]">{stageCaption(progress)}</h3>
+            <h3 className="text-lg font-bold text-ink">{stageCaption(progress)}</h3>
             <div
               role="progressbar"
               aria-label="Plan progress"
               aria-valuemin={0}
               aria-valuemax={progress?.total ?? 10}
               aria-valuenow={progress?.done ?? 0}
-              className="mt-4 h-2 rounded-full bg-[#E6EFEA] overflow-hidden"
+              className="mt-4 h-2 rounded-full bg-neutral-xe6efea overflow-hidden"
             >
-              <div className="h-full bg-[#183B28] transition-all duration-500" style={{ width: `${pct}%` }} />
+              <div className="h-full bg-brand-strong transition-all duration-500" style={{ width: `${pct}%` }} />
             </div>
-            <p className="text-xs text-[#617065] mt-2">
+            <p className="text-xs text-ink-muted mt-2">
               {progress ? `${progress.done} of ${progress.total} sections` : 'Getting started'}
             </p>
-            <p className="text-xs text-[#768478] mt-3">You can leave this page, it keeps working, and the plan will be here when it&apos;s done.</p>
+            <p className="text-xs text-ink-soft mt-3">You can leave this page, it keeps working, and the plan will be here when it&apos;s done.</p>
           </div>
         </div>
       )}
 
       {status === 'ready' && doc && (
-        <div className="bg-white rounded-modal p-8 border border-[#EBEBE6] shadow-card flex flex-col gap-6">
+        <div className="bg-white rounded-modal p-8 border border-line-soft shadow-card flex flex-col gap-6">
           <div className="flex flex-col items-center text-center gap-3">
-            <div className="w-16 h-16 bg-[#E6EFEA] rounded-full flex items-center justify-center shadow-card relative">
-              <BookOpen className="w-7 h-7 text-[#183B28]" />
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#D89A6E] rounded-full flex items-center justify-center border-2 border-white">
+            <div className="w-16 h-16 bg-neutral-xe6efea rounded-full flex items-center justify-center shadow-card relative">
+              <BookOpen className="w-7 h-7 text-brand-strong" />
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-accent-500 rounded-full flex items-center justify-center border-2 border-white">
                 <Check className="w-3 h-3 text-white stroke-[3]" />
               </div>
             </div>
-            <h3 className="text-2xl font-display font-bold text-[#1E2923]">Your business plan is ready.</h3>
-            <p className="text-sm text-[#617065] max-w-md leading-relaxed">
+            <h3 className="text-2xl font-display font-bold text-ink">Your business plan is ready.</h3>
+            <p className="text-sm text-ink-muted max-w-md leading-relaxed">
               {doc.title}: {doc.sections.length} section{doc.sections.length === 1 ? '' : 's'}, saved to Documents as an editable draft.
             </p>
           </div>
 
-          <div className="border border-[#EBEBE6] rounded-card divide-y divide-[#F5F5F0] max-h-80 overflow-y-auto">
+          <div className="border border-line-soft rounded-card divide-y divide-surface-muted max-h-80 overflow-y-auto">
             {doc.sections.map((sec) => (
               <div key={sec.id} className="p-4">
-                <h4 className="text-sm font-bold text-[#1E2923] mb-1">{sec.heading}</h4>
-                <p className="text-xs text-[#617065] leading-relaxed whitespace-pre-wrap line-clamp-3">{sec.body}</p>
+                <h4 className="text-sm font-bold text-ink mb-1">{sec.heading}</h4>
+                <p className="text-xs text-ink-muted leading-relaxed whitespace-pre-wrap line-clamp-3">{sec.body}</p>
               </div>
             ))}
           </div>
@@ -182,12 +182,12 @@ export default function BusinessPlanPage() {
             <div className="flex flex-col gap-2 md:items-end">
               <Link
                 href={`/documents/${doc.id}`}
-                className="bg-[#183B28] hover:bg-[#11291C] text-white font-bold px-6 py-3 rounded-card transition-all shadow-card flex items-center justify-center gap-2"
+                className="bg-brand-strong hover:bg-brand-rail text-white font-bold px-6 py-3 rounded-card transition-all shadow-card flex items-center justify-center gap-2"
               >
                 Open document <ArrowRight className="w-4 h-4" />
               </Link>
               {canEdit && (
-                <button type="button" onClick={reset} className="text-xs font-semibold text-[#183B28] hover:underline">
+                <button type="button" onClick={reset} className="text-xs font-semibold text-brand-strong hover:underline">
                   Generate a new plan
                 </button>
               )}
@@ -197,24 +197,24 @@ export default function BusinessPlanPage() {
       )}
 
       {status === 'forbidden' && (
-        <div className="bg-white rounded-modal p-8 border border-[#EBEBE6] shadow-card flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-[#B0483B] shrink-0 mt-0.5" />
-          <p className="text-sm text-[#52685D] leading-relaxed">
+        <div className="bg-white rounded-modal p-8 border border-line-soft shadow-card flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-danger-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-neutral-x52685d leading-relaxed">
             Only a founder or an editor can generate the business plan. Ask a workspace owner if you need access.
           </p>
         </div>
       )}
 
       {status === 'error' && (
-        <div className="bg-white rounded-modal p-8 border border-[#EBEBE6] shadow-card flex flex-col items-center text-center gap-4">
-          <div className="w-14 h-14 bg-[#FBEAE7] rounded-full flex items-center justify-center border border-[#F0C9C2]">
-            <AlertTriangle className="w-6 h-6 text-[#B0483B]" />
+        <div className="bg-white rounded-modal p-8 border border-line-soft shadow-card flex flex-col items-center text-center gap-4">
+          <div className="w-14 h-14 bg-danger-xfbeae7 rounded-full flex items-center justify-center border border-danger-xf0c9c2">
+            <AlertTriangle className="w-6 h-6 text-danger-600" />
           </div>
-          <p role="alert" className="text-sm text-[#617065] max-w-md">{error || 'Something went wrong.'}</p>
+          <p role="alert" className="text-sm text-ink-muted max-w-md">{error || 'Something went wrong.'}</p>
           <button
             type="button"
             onClick={reset}
-            className="bg-[#183B28] hover:bg-[#11291C] text-white font-bold px-6 py-3 rounded-card transition-all shadow-card"
+            className="bg-brand-strong hover:bg-brand-rail text-white font-bold px-6 py-3 rounded-card transition-all shadow-card"
           >
             Back
           </button>

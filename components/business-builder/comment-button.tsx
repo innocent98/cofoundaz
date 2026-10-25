@@ -23,7 +23,7 @@ export function CommentButton({
       aria-label={text}
       title={text}
       className={`flex items-center gap-1 text-xs font-semibold transition-colors ${
-        open > 0 ? 'text-[#9C5B34] hover:text-[#522F1A]' : 'text-[#8E9B90] hover:text-[#183B28]'
+        open > 0 ? 'text-accent-600 hover:text-accent-900' : 'text-ink-subtle hover:text-brand-strong'
       }`}
     >
       <MessageSquare className="w-3 h-3" />

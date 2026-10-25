@@ -5,7 +5,7 @@ import { coordOf, nudge, pointToCoords, type Point } from '@/lib/map-geometry';
 import type { PositioningAxes } from '@/hooks/useBusinessPositioningMap';
 import type { BusinessRecord } from '@/lib/api/business-builder';
 
-const DOT_COLORS = ['#1A422D', '#3B7A57', '#9C5B34', '#75B29B', '#C08457', '#4D6D58'];
+const DOT_COLORS = ['var(--color-brand-x1a422d)', 'var(--color-brand-x3b7a57)', 'var(--color-accent-600)', 'var(--color-brand-x75b29b)', 'var(--color-accent-xc08457)', 'var(--color-line-focus)'];
 
 interface Props {
   records: BusinessRecord[];
@@ -85,13 +85,13 @@ export function PositioningMap({ records, axes, canMove, onMove }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div ref={areaRef} className="relative w-full h-64 border-l border-b border-[#A0AABA] mt-2 mb-6">
-        <span className="absolute top-0 left-2 text-[10px] font-medium text-[#556358]">{axes.y.high} {axes.y.label}</span>
-        <span className="absolute bottom-1 left-2 text-[10px] font-medium text-[#6F7D72]">{axes.y.low}</span>
-        <span className="absolute -bottom-5 right-0 text-[10px] font-medium text-[#556358]">{axes.x.high} {axes.x.label} →</span>
-        <span className="absolute -bottom-5 left-0 text-[10px] font-medium text-[#6F7D72]">{axes.x.low}</span>
+      <div ref={areaRef} className="relative w-full h-64 border-l border-b border-info-xa0aaba mt-2 mb-6">
+        <span className="absolute top-0 left-2 text-[10px] font-medium text-ink-body">{axes.y.high} {axes.y.label}</span>
+        <span className="absolute bottom-1 left-2 text-[10px] font-medium text-neutral-x6f7d72">{axes.y.low}</span>
+        <span className="absolute -bottom-5 right-0 text-[10px] font-medium text-ink-body">{axes.x.high} {axes.x.label} →</span>
+        <span className="absolute -bottom-5 left-0 text-[10px] font-medium text-neutral-x6f7d72">{axes.x.low}</span>
         {placed.length === 0 && (
-          <span className="absolute inset-0 flex items-center justify-center text-[11px] text-[#6F7D72] px-4 text-center pointer-events-none">
+          <span className="absolute inset-0 flex items-center justify-center text-[11px] text-neutral-x6f7d72 px-4 text-center pointer-events-none">
             {canMove ? 'Place a competitor below, then drag it into position.' : 'No competitor has been placed on the map yet.'}
           </span>
         )}
@@ -117,11 +117,11 @@ export function PositioningMap({ records, axes, canMove, onMove }: Props) {
                 onPointerCancel={() => { setDragging(null); setLive((prev) => { const n = { ...prev }; delete n[rec.id]; return n; }); }}
                 onKeyDown={(e) => onKeyDown(e, rec, { x, y })}
                 style={{ backgroundColor: color, touchAction: 'none' }}
-                className={`w-4 h-4 rounded-full border-2 border-white shadow-card focus:outline-none focus-visible:ring-2 focus-visible:ring-[#183B28] ${
+                className={`w-4 h-4 rounded-full border-2 border-white shadow-card focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-strong ${
                   canMove ? (dragging === rec.id ? 'cursor-grabbing scale-125' : 'cursor-grab') : ''
                 }`}
               />
-              <span className="text-[10px] font-bold text-[#1E2923] mt-1 whitespace-nowrap select-none">{name}</span>
+              <span className="text-[10px] font-bold text-ink mt-1 whitespace-nowrap select-none">{name}</span>
             </div>
           );
         })}
@@ -129,14 +129,14 @@ export function PositioningMap({ records, axes, canMove, onMove }: Props) {
 
       {canMove && unplaced.length > 0 && (
         <div className="flex flex-col gap-1.5">
-          <p className="text-[11px] font-semibold text-[#556358]">Not on the map yet</p>
+          <p className="text-[11px] font-semibold text-ink-body">Not on the map yet</p>
           <div className="flex flex-wrap gap-2">
             {unplaced.map((rec) => (
               <button
                 key={rec.id}
                 type="button"
                 onClick={() => void commit(rec, { x: 0.5, y: 0.5 })}
-                className="text-[11px] font-semibold bg-[#F0F4F1] hover:bg-[#E6EFEA] text-[#183B28] rounded-full px-3 py-1 transition-colors"
+                className="text-[11px] font-semibold bg-neutral-xf0f4f1 hover:bg-neutral-xe6efea text-brand-strong rounded-full px-3 py-1 transition-colors"
               >
                 Place {(rec.data.name as string) || 'competitor'}
               </button>
@@ -144,7 +144,7 @@ export function PositioningMap({ records, axes, canMove, onMove }: Props) {
           </div>
         </div>
       )}
-      {error && <p role="alert" className="text-[11px] font-semibold text-[#B0483B]">{error}</p>}
+      {error && <p role="alert" className="text-[11px] font-semibold text-danger-600">{error}</p>}
     </div>
   );
 }

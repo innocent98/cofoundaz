@@ -53,10 +53,10 @@ export function MissionTaskCard({
     };
   }, [menuOpen]);
 
-  const item = 'w-full text-left px-4 py-2 text-sm text-[#1E2923] hover:bg-[#F5F5F0] focus-visible:bg-[#F5F5F0] disabled:opacity-50 flex items-center justify-between';
+  const item = 'w-full text-left px-4 py-2 text-sm text-ink hover:bg-surface-muted focus-visible:bg-surface-muted disabled:opacity-50 flex items-center justify-between';
 
   return (
-    <li className="relative bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card hover:border-[#D5DDD6] transition-all flex items-start gap-4 list-none">
+    <li className="relative bg-white rounded-modal p-6 border border-line-soft shadow-card hover:border-line-strong transition-all flex items-start gap-4 list-none">
       <button
         type="button"
         role="checkbox"
@@ -65,7 +65,7 @@ export function MissionTaskCard({
         disabled={done}
         onClick={onToggle}
         className={`w-6 h-6 rounded-input border-2 transition-all duration-300 flex items-center justify-center shrink-0 mt-0.5 ${
-          done ? 'bg-[#183B28] border-[#183B28] text-white' : 'border-[#C5CFC7] hover:border-[#183B28] bg-white cursor-pointer'
+          done ? 'bg-brand-strong border-brand-strong text-white' : 'border-neutral-xc5cfc7 hover:border-brand-strong bg-white cursor-pointer'
         }`}
       >
         {done && <span className="text-xs font-bold" aria-hidden="true">✓</span>}
@@ -74,7 +74,7 @@ export function MissionTaskCard({
       <div className="flex-1 min-w-0">
         {rejecting ? (
           <div className="py-2">
-            <p className="text-sm font-semibold text-[#1E2923] mb-3">Why is this not relevant?</p>
+            <p className="text-sm font-semibold text-ink mb-3">Why is this not relevant?</p>
             <div className="flex gap-2 flex-wrap">
               {REJECT_REASONS.map((reason) => (
                 <button
@@ -84,7 +84,7 @@ export function MissionTaskCard({
                     setRejecting(false);
                     onReject(reason);
                   }}
-                  className="px-3 py-1.5 rounded-full border border-[#D5DDD6] text-xs font-medium text-[#617065] hover:bg-[#F5F5F0] hover:text-[#1E2923] transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-full border border-line-strong text-xs font-medium text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors cursor-pointer"
                 >
                   {reason}
                 </button>
@@ -92,7 +92,7 @@ export function MissionTaskCard({
               <button
                 type="button"
                 onClick={() => setRejecting(false)}
-                className="px-3 py-1.5 rounded-full text-xs font-medium text-[#8E9B90] hover:text-[#1E2923] cursor-pointer"
+                className="px-3 py-1.5 rounded-full text-xs font-medium text-ink-subtle hover:text-ink cursor-pointer"
               >
                 Cancel
               </button>
@@ -101,7 +101,7 @@ export function MissionTaskCard({
         ) : (
           <>
             <div className="flex items-start justify-between gap-2">
-              <h3 className={`font-semibold text-base leading-snug transition-all duration-300 ${done ? 'line-through text-[#8E9B90]' : 'text-[#1E2923]'}`}>
+              <h3 className={`font-semibold text-base leading-snug transition-all duration-300 ${done ? 'line-through text-ink-subtle' : 'text-ink'}`}>
                 {task.title}
               </h3>
               {!done && (
@@ -113,13 +113,13 @@ export function MissionTaskCard({
                     aria-haspopup="menu"
                     aria-expanded={menuOpen}
                     onClick={() => setMenuOpen((v) => !v)}
-                    className="text-[#8E9B90] hover:text-[#1E2923] p-1 rounded-input transition-colors shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-[#183B28]"
+                    className="text-ink-subtle hover:text-ink p-1 rounded-input transition-colors shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-brand-strong"
                   >
                     <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
                   </button>
 
                   {menuOpen && (
-                    <div role="menu" className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#EBEBE6] shadow-accent rounded-modal z-10 py-1 overflow-hidden">
+                    <div role="menu" className="absolute right-0 top-full mt-1 w-48 bg-white border border-line-soft shadow-accent rounded-modal z-10 py-1 overflow-hidden">
                       <button
                         type="button"
                         role="menuitem"
@@ -135,7 +135,7 @@ export function MissionTaskCard({
                         role="menuitem"
                         onClick={() => { setMenuOpen(false); onDown(); }}
                         disabled={last}
-                        className={`${item} border-b border-[#EBEBE6]`}
+                        className={`${item} border-b border-line-soft`}
                       >
                         Reprioritize Down <ArrowDown className="w-3 h-3" aria-hidden="true" />
                       </button>
@@ -146,7 +146,7 @@ export function MissionTaskCard({
                         type="button"
                         role="menuitem"
                         onClick={() => { setMenuOpen(false); setRejecting(true); }}
-                        className="w-full text-left px-4 py-2 text-sm text-[#9C5B34] hover:bg-[#F7EEDC] focus-visible:bg-[#F7EEDC]"
+                        className="w-full text-left px-4 py-2 text-sm text-accent-600 hover:bg-accent-xf7eedc focus-visible:bg-accent-xf7eedc"
                       >
                         Not relevant
                       </button>
@@ -156,15 +156,15 @@ export function MissionTaskCard({
               )}
             </div>
 
-            {task.reason && <p className="text-xs text-[#617065] leading-relaxed mt-1 mb-3">Why: {task.reason}</p>}
+            {task.reason && <p className="text-xs text-ink-muted leading-relaxed mt-1 mb-3">Why: {task.reason}</p>}
 
             <div className="flex items-center gap-2 flex-wrap">
               {task.milestone ? (
                 <MilestoneChip milestone={task.milestone} />
               ) : (
-                <span className="inline-flex items-center bg-[#F5F5F0] text-[#617065] text-xs font-medium px-3 py-1 rounded-full">{task.tag}</span>
+                <span className="inline-flex items-center bg-surface-muted text-ink-muted text-xs font-medium px-3 py-1 rounded-full">{task.tag}</span>
               )}
-              <span className="inline-flex items-center gap-1.5 bg-[#F5F5F0] text-[#617065] text-xs font-medium px-3 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-surface-muted text-ink-muted text-xs font-medium px-3 py-1 rounded-full">
                 <Clock className="w-3 h-3" aria-hidden="true" />
                 {task.effort}
               </span>

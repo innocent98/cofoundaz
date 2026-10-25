@@ -38,21 +38,21 @@ function MilestonesView() {
   return (
     <div className="flex flex-col gap-6 h-full">
       <div>
-        <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">Milestones</h2>
-        <p className="text-xs text-[#617065] mt-1.5">List view of all key deliverables across your roadmap.</p>
+        <h2 className="text-3xl font-display font-medium text-ink tracking-tight">Milestones</h2>
+        <p className="text-xs text-ink-muted mt-1.5">List view of all key deliverables across your roadmap.</p>
       </div>
 
       {rowError && (
-        <p role="alert" className="bg-[#FBEBEB] border border-[#EBC9C4] text-[#B0483B] text-xs font-semibold rounded-card px-3 py-2">
+        <p role="alert" className="bg-danger-wash border border-danger-xebc9c4 text-danger-600 text-xs font-semibold rounded-card px-3 py-2">
           {rowError}
         </p>
       )}
 
-      <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card overflow-hidden">
+      <div className="bg-white rounded-modal border border-line-soft shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
-              <tr className="bg-[#F7F7F5] border-b border-[#EBEBE6] text-[11px] font-bold tracking-wider text-[#768478] uppercase">
+              <tr className="bg-surface-subtle border-b border-line-soft text-[11px] font-bold tracking-wider text-ink-soft uppercase">
                 <th scope="col" className="py-3.5 px-6 font-bold">Milestone Title</th>
                 <th scope="col" className="py-3.5 px-6 font-bold">Phase</th>
                 <th scope="col" className="py-3.5 px-6 font-bold">Owner</th>
@@ -63,15 +63,15 @@ function MilestonesView() {
                 <th scope="col" className="py-3.5 px-6 font-bold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F0F0EC] text-xs font-medium text-[#1E2923]">
+            <tbody className="divide-y divide-line-faint text-xs font-medium text-ink">
               {loading && (
                 <tr>
-                  <td colSpan={8} className="py-10 px-6 text-center text-[#8E9B90]" aria-busy="true">Loading milestones…</td>
+                  <td colSpan={8} className="py-10 px-6 text-center text-ink-subtle" aria-busy="true">Loading milestones…</td>
                 </tr>
               )}
               {!loading && error && (
                 <tr>
-                  <td colSpan={8} role="alert" className="py-10 px-6 text-center text-[#B0483B] font-semibold">
+                  <td colSpan={8} role="alert" className="py-10 px-6 text-center text-danger-600 font-semibold">
                     Couldn&apos;t load your milestones.{' '}
                     <button type="button" onClick={() => void refetch()} className="underline">Retry</button>
                   </td>
@@ -79,34 +79,34 @@ function MilestonesView() {
               )}
               {!loading && !error && allMilestones.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-10 px-6 text-center text-[#768478]">
+                  <td colSpan={8} className="py-10 px-6 text-center text-ink-soft">
                     No milestones yet. Add one from the{' '}
                     <Link href="/roadmap" className="underline font-semibold">Timeline</Link>.
                   </td>
                 </tr>
               )}
               {allMilestones.map((ms) => (
-                <tr key={ms.id} className="hover:bg-[#FAF9F6] transition-colors align-top">
-                  <td className="py-4 px-6 font-bold text-[#1E2923]">
+                <tr key={ms.id} className="hover:bg-neutral-xfaf9f6 transition-colors align-top">
+                  <td className="py-4 px-6 font-bold text-ink">
                     <button type="button" onClick={() => board.open(ms)} className="text-left hover:underline">
                       {ms.title}
                     </button>
                   </td>
-                  <td className="py-4 px-6 text-[#556358]">{ms.phaseName}</td>
-                  <td className="py-4 px-6 text-[#556358]">{personLabel(ms.owner, board.members.emailById)}</td>
-                  <td className="py-4 px-6 text-[#556358]">{formatDue(ms.dueOn)}</td>
+                  <td className="py-4 px-6 text-ink-body">{ms.phaseName}</td>
+                  <td className="py-4 px-6 text-ink-body">{personLabel(ms.owner, board.members.emailById)}</td>
+                  <td className="py-4 px-6 text-ink-body">{formatDue(ms.dueOn)}</td>
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-24 h-1.5 bg-[#EBEBE6] rounded-full overflow-hidden">
+                      <div className="w-24 h-1.5 bg-line-soft rounded-full overflow-hidden">
                         <div
-                          className={`h-full transition-all ${ms.status === 'overdue' ? 'bg-[#B0483B]' : 'bg-[#2D5A3F]'}`}
+                          className={`h-full transition-all ${ms.status === 'overdue' ? 'bg-danger-600' : 'bg-brand-mid'}`}
                           style={{ width: `${ms.progress}%` }}
                         />
                       </div>
-                      <span className="text-[11px] text-[#768478] font-bold w-8">{ms.progress}%</span>
+                      <span className="text-[11px] text-ink-soft font-bold w-8">{ms.progress}%</span>
                     </div>
                   </td>
-                  <td className="py-4 px-6 text-[#556358]">
+                  <td className="py-4 px-6 text-ink-body">
                     {ms.dependencyCount > 0 ? (
                       <Link href="/roadmap/dependencies" className="underline">
                         {ms.dependencyCount === 1 ? '1 dependency' : `${ms.dependencyCount} dependencies`}
@@ -120,9 +120,9 @@ function MilestonesView() {
                       {ms.status === 'overdue' ? (
                         <OverdueChip />
                       ) : ms.status === 'completed' ? (
-                        <span className="flex w-fit items-center gap-1 bg-[#EAF2ED] text-[#2D5A3F] px-2 py-0.5 rounded text-[10px] font-bold border border-[#CDE1D3]">Completed</span>
+                        <span className="flex w-fit items-center gap-1 bg-brand-tint text-brand-mid px-2 py-0.5 rounded text-[10px] font-bold border border-brand-xcde1d3">Completed</span>
                       ) : (
-                        <span className="flex w-fit items-center gap-1 bg-[#F5F5F0] text-[#617065] px-2 py-0.5 rounded text-[10px] font-bold border border-[#EBEBE6]">Pending</span>
+                        <span className="flex w-fit items-center gap-1 bg-surface-muted text-ink-muted px-2 py-0.5 rounded text-[10px] font-bold border border-line-soft">Pending</span>
                       )}
                       {ms.replanned && <ReplannedChip replanned={ms.replanned} />}
                     </div>

@@ -41,7 +41,7 @@ export function AiConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 bg-[#061A12]/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+      className="fixed inset-0 bg-brand-x061a12/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onCancel();
       }}
@@ -54,19 +54,19 @@ export function AiConfirmModal({
       >
         <div className="p-6 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-[#F5ECDC] flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-[#8A5330]" />
+            <span className="w-8 h-8 rounded-full bg-accent-xf5ecdc flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-accent-700" />
             </span>
-            <h3 id="ai-confirm-title" className="font-bold text-[#1E2923]">{title}</h3>
+            <h3 id="ai-confirm-title" className="font-bold text-ink">{title}</h3>
           </div>
-          <p className="text-sm text-[#556358] leading-relaxed">{AI_CONFIRM_COPY}</p>
-          {detail && <p className="text-xs text-[#768478]">{detail}</p>}
+          <p className="text-sm text-ink-body leading-relaxed">{AI_CONFIRM_COPY}</p>
+          {detail && <p className="text-xs text-ink-soft">{detail}</p>}
         </div>
         <div className="px-6 pb-6 flex gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 px-4 py-2 bg-white border border-[#DCDCD6] hover:bg-[#F5F5F0] text-[#1E2923] rounded-card text-sm font-bold transition-colors"
+            className="flex-1 px-4 py-2 bg-white border border-neutral-xdcdcd6 hover:bg-surface-muted text-ink rounded-card text-sm font-bold transition-colors"
           >
             Cancel
           </button>
@@ -74,7 +74,7 @@ export function AiConfirmModal({
             ref={confirmRef}
             type="button"
             onClick={onConfirm}
-            className="flex-1 px-4 py-2 bg-[#183B28] hover:bg-[#12261C] text-white rounded-card text-sm font-bold transition-colors"
+            className="flex-1 px-4 py-2 bg-brand-strong hover:bg-brand-rail-ink text-white rounded-card text-sm font-bold transition-colors"
           >
             {confirmLabel}
           </button>

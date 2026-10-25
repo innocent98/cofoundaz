@@ -91,7 +91,7 @@ function PipelineInner() {
       </div>
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-3xl font-display font-semibold text-sage-900">Pipeline</h1>
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">Pipeline</h1>
         {board.status === "ready" && (
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" onClick={() => setEditingStages(true)} className={BTN_SECONDARY}>
@@ -106,7 +106,7 @@ function PipelineInner() {
 
       <SalesGate status={board.status} error={board.error} onRetry={() => void board.reload()} loadingLabel="Loading pipeline">
         {overview && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white px-6 py-5 rounded-modal border border-sage-200/80 shadow-card">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white px-6 py-5 rounded-modal border border-neutral-200/80 shadow-card">
             <Stat label="Pipeline value" value={formatMoney(overview.total_pipeline_minor)} />
             <Stat label="Weighted forecast" value={formatMoney(overview.weighted_forecast_minor)} />
             <Stat
@@ -119,7 +119,7 @@ function PipelineInner() {
         )}
 
         {deals.length === 0 && (
-          <p className="text-sm text-sage-600 bg-white border border-sage-200/80 rounded-card px-4 py-3">
+          <p className="text-sm text-neutral-600 bg-white border border-neutral-200/80 rounded-card px-4 py-3">
             No deals yet. Add your first deal, or open Leads and choose &ldquo;Make it a deal&rdquo;.
           </p>
         )}
@@ -134,7 +134,7 @@ function PipelineInner() {
                   key={stage.id}
                   aria-label={`${stage.name} stage`}
                   className={`w-64 rounded-modal p-3 border space-y-3 flex-shrink-0 min-h-[300px] transition-colors ${
-                    dragOver === stage.id ? "bg-green-100 border-green-400" : "bg-[#f2f6f4]/60 border-sage-200/80"
+                    dragOver === stage.id ? "bg-brand-100 border-brand-400" : "bg-neutral-xf2f6f4/60 border-neutral-200/80"
                   }`}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -143,9 +143,9 @@ function PipelineInner() {
                   onDragLeave={() => setDragOver((s) => (s === stage.id ? null : s))}
                   onDrop={(e) => handleDrop(e, stage.id)}
                 >
-                  <div className="px-2 pt-1 flex items-center justify-between gap-2 text-xs font-semibold text-sage-600">
+                  <div className="px-2 pt-1 flex items-center justify-between gap-2 text-xs font-semibold text-neutral-600">
                     <h2 className="truncate">{stage.name}</h2>
-                    <span className="text-sage-500 font-medium whitespace-nowrap">
+                    <span className="text-neutral-500 font-medium whitespace-nowrap">
                       {stageDeals.length} · {formatMoney(stageTotal)}
                     </span>
                   </div>
@@ -162,7 +162,7 @@ function PipelineInner() {
                       />
                     ))}
                     {stageDeals.length === 0 && (
-                      <div className="h-20 flex items-center justify-center text-xs text-sage-500 italic border-2 border-dashed border-sage-200 rounded-card">
+                      <div className="h-20 flex items-center justify-center text-xs text-neutral-500 italic border-2 border-dashed border-neutral-200 rounded-card">
                         Drop here
                       </div>
                     )}
@@ -223,10 +223,10 @@ function PipelineInner() {
 function Stat({ label, value, muted = false, accent = false }: { label: string; value: string; muted?: boolean; accent?: boolean }) {
   return (
     <div>
-      <span className="text-[11px] font-bold text-sage-500 uppercase tracking-wider block mb-1">{label}</span>
+      <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider block mb-1">{label}</span>
       <span
-        className={`font-display font-bold ${muted ? "text-base text-sage-500" : "text-3xl"} ${
-          accent && !muted ? "text-[#1e4836]" : muted ? "" : "text-sage-900"
+        className={`font-display font-bold ${muted ? "text-base text-neutral-500" : "text-3xl"} ${
+          accent && !muted ? "text-brand-hover" : muted ? "" : "text-neutral-900"
         }`}
       >
         {value}
@@ -254,26 +254,26 @@ function DealCard({
     <div
       draggable
       onDragStart={(e) => e.dataTransfer.setData("text/plain", deal.id)}
-      className="bg-white rounded-card p-4 border border-sage-200/90 shadow-card space-y-2 hover:border-sage-300 transition-all cursor-grab active:cursor-grabbing"
+      className="bg-white rounded-card p-4 border border-neutral-200/90 shadow-card space-y-2 hover:border-neutral-300 transition-all cursor-grab active:cursor-grabbing"
     >
       <button type="button" onClick={onOpen} className="block w-full text-left space-y-2 cursor-pointer" aria-label={`Open deal ${deal.name}`}>
         <div className="flex items-center gap-2">
           <div
-            className="w-6 h-6 rounded-full bg-sage-200 text-sage-700 flex items-center justify-center text-xs font-bold shrink-0"
+            className="w-6 h-6 rounded-full bg-neutral-200 text-neutral-700 flex items-center justify-center text-xs font-bold shrink-0"
             aria-hidden="true"
           >
             {person.charAt(0).toUpperCase()}
           </div>
-          <div className="font-display font-bold text-sage-900 text-base truncate">{deal.name}</div>
+          <div className="font-display font-bold text-neutral-900 text-base truncate">{deal.name}</div>
         </div>
         {(deal.account_name || deal.contact_name) && (
-          <div className="text-xs text-sage-500 truncate">
+          <div className="text-xs text-neutral-500 truncate">
             {[deal.account_name, deal.contact_name].filter(Boolean).join(" · ")}
           </div>
         )}
-        <div className="font-bold text-green-900 text-sm">{formatMoney(deal.value_minor)}</div>
+        <div className="font-bold text-brand-900 text-sm">{formatMoney(deal.value_minor)}</div>
         <div className="flex items-center justify-between gap-2 pt-1">
-          <span className={`text-xs font-medium truncate ${overdue ? "text-red-600" : "text-sage-500"}`}>
+          <span className={`text-xs font-medium truncate ${overdue ? "text-danger-600" : "text-neutral-500"}`}>
             {deal.next_step || deal.next_step_due
               ? `${deal.next_step ?? "Next step"}${deal.next_step_due ? ` · ${dueLabel(deal.next_step_due)}` : ""}`
               : "No next step"}
@@ -285,7 +285,7 @@ function DealCard({
         aria-label={`Move ${deal.name} to stage`}
         value={deal.stage_id}
         onChange={(e) => onMove(e.target.value)}
-        className="md:hidden w-full bg-sage-50 border border-sage-200 rounded-input px-2 py-1.5 text-xs text-sage-700"
+        className="md:hidden w-full bg-neutral-50 border border-neutral-200 rounded-input px-2 py-1.5 text-xs text-neutral-700"
       >
         {stages.map((s) => (
           <option key={s.id} value={s.id}>

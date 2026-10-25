@@ -91,12 +91,12 @@ export function PostDrawer({
         </>
       }
     >
-      <p className="text-xs text-sage-600 rounded-card bg-sage-50 border border-sage-200 p-3">
+      <p className="text-xs text-neutral-600 rounded-card bg-neutral-50 border border-neutral-200 p-3">
         Status only, not posted to a platform. Cofoundaz does not post to Instagram, X, LinkedIn or anywhere else.
         Published here means you marked it published, or its scheduled time passed and it was marked for you.
       </p>
       {draft.status === 'published' && draft.publishedAt && (
-        <p className="text-sm font-medium text-sage-800">
+        <p className="text-sm font-medium text-neutral-800">
           Marked published at {new Date(draft.publishedAt).toLocaleString()}
         </p>
       )}
@@ -180,13 +180,13 @@ export function PostDrawer({
         onUse={(text) => onChange({ ...draft, body: text })}
       />
       <MediaSlot media={draft.media} onChange={(media) => onChange({ ...draft, media })} />
-      {errors.media_id && <p role="alert" className="text-xs text-red-700">{errors.media_id}</p>}
+      {errors.media_id && <p role="alert" className="text-xs text-danger-700">{errors.media_id}</p>}
 
       {draft.id && (
-        <div className="pt-2 border-t border-sage-200">
+        <div className="pt-2 border-t border-neutral-200">
           {confirmDelete ? (
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm text-sage-700">Delete this post permanently?</span>
+              <span className="text-sm text-neutral-700">Delete this post permanently?</span>
               <button type="button" onClick={onDelete} disabled={saving} className={BTN_DANGER}>
                 Yes, delete
               </button>

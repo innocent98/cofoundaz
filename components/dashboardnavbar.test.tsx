@@ -27,7 +27,7 @@ const note = (over: Record<string, unknown>) => ({
   time: '1m ago',
   href: '/dashboard',
   isUnread: true,
-  iconBg: 'bg-[#EAF2ED]',
+  iconBg: 'bg-brand-tint',
   iconText: '✦',
   ...over,
 });

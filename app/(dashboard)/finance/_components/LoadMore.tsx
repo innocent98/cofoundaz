@@ -8,13 +8,13 @@ import { secondaryBtn } from "./ui";
 export function LoadMore<T>({ list, noun }: { list: PagedList<T>; noun: string }) {
   if (list.items.length === 0) return null;
   return (
-    <div className="flex flex-col items-center gap-2 border-t border-sage-100 p-4">
-      <p className="text-xs text-sage-500" aria-live="polite">
+    <div className="flex flex-col items-center gap-2 border-t border-neutral-100 p-4">
+      <p className="text-xs text-neutral-500" aria-live="polite">
         Showing {list.items.length}
         {list.total !== null ? ` of ${list.total}` : ""} {noun}
       </p>
       {list.moreError && (
-        <p role="alert" className="text-xs font-medium text-red-600">
+        <p role="alert" className="text-xs font-medium text-danger-600">
           {list.moreError}
         </p>
       )}

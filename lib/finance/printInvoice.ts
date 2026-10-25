@@ -1,3 +1,4 @@
+// colour-ok-file: the invoice prints in a standalone window that has no access to the app stylesheet, so it needs literal colours.
 import { formatDate, formatMoney } from './format';
 
 // "Download PDF" has no server endpoint (the BE deferred it), so it is FE-only:

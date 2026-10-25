@@ -14,14 +14,14 @@ export const MISSION_COPY = {
 
 function Shell({ children, footer }: { children: React.ReactNode; footer?: React.ReactNode }) {
   return (
-    <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col justify-between min-h-[300px]">
+    <div className="rounded-card border border-brand-100 bg-white p-6 shadow-card flex flex-col justify-between min-h-[300px]">
       <div>{children}</div>
       {footer}
     </div>
   );
 }
 
-const linkClass = 'text-sm font-bold text-[#266B4E] flex items-center justify-start gap-1 hover:underline pt-6 cursor-pointer';
+const linkClass = 'text-sm font-bold text-brand-x266b4e flex items-center justify-start gap-1 hover:underline pt-6 cursor-pointer';
 
 export function MissionCard({
   mission,
@@ -44,7 +44,7 @@ export function MissionCard({
   if (loading) return <CardSkeleton label="Loading Today's Mission" className="min-h-[300px]" rows={4} />;
   if (mission === undefined || mission?.error) return <CardError title="Today's Mission" onRetry={onRetry} className="min-h-[300px]" />;
 
-  const title = <h3 className="font-bold text-base text-sage-900 mb-4">Today&apos;s Mission</h3>;
+  const title = <h3 className="font-bold text-base text-neutral-900 mb-4">Today&apos;s Mission</h3>;
   const goTo = (
     <Link href="/mission" className={linkClass}>
       Go to mission &rarr;
@@ -55,7 +55,7 @@ export function MissionCard({
     return (
       <Shell footer={goTo}>
         {title}
-        <p className="text-sm text-sage-500 py-6">{MISSION_COPY.noRoadmap}</p>
+        <p className="text-sm text-neutral-500 py-6">{MISSION_COPY.noRoadmap}</p>
       </Shell>
     );
   }
@@ -71,23 +71,23 @@ export function MissionCard({
           }
         >
           {title}
-          <p className="text-sm text-sage-500 py-6">{MISSION_COPY.weekendOff}</p>
+          <p className="text-sm text-neutral-500 py-6">{MISSION_COPY.weekendOff}</p>
         </Shell>
       );
     }
     return (
       <Shell footer={goTo}>
         {title}
-        <p className="text-sm text-sage-500 py-6">{MISSION_COPY.allCaughtUp}</p>
+        <p className="text-sm text-neutral-500 py-6">{MISSION_COPY.allCaughtUp}</p>
       </Shell>
     );
   }
 
   if (mission.tasks.every((t) => t.completed)) {
     return (
-      <div className="rounded-card border border-green-100 bg-white p-6 shadow-card flex flex-col items-center justify-center text-center py-10 min-h-[300px]">
-        <Flame className="w-12 h-12 fill-copper-500 text-copper-500 mb-4" />
-        <h3 className="font-bold text-lg text-sage-900">
+      <div className="rounded-card border border-brand-100 bg-white p-6 shadow-card flex flex-col items-center justify-center text-center py-10 min-h-[300px]">
+        <Flame className="w-12 h-12 fill-accent-500 text-accent-500 mb-4" />
+        <h3 className="font-bold text-lg text-neutral-900">
           Mission complete.{mission.streakDays > 0 ? ` ${mission.streakDays}-day streak.` : ''}
         </h3>
         <Link href="/mission" className={linkClass}>
@@ -114,10 +114,10 @@ export function MissionCard({
   return (
     <Shell footer={goTo}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="font-bold text-base text-sage-900">Today&apos;s Mission</h3>
+        <h3 className="font-bold text-base text-neutral-900">Today&apos;s Mission</h3>
         {mission.streakDays > 0 && (
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-copper-700">
-            <Flame className="w-4 h-4 fill-copper-500 text-copper-500" />
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-accent-700">
+            <Flame className="w-4 h-4 fill-accent-500 text-accent-500" />
             <span>{mission.streakDays}-day streak</span>
           </div>
         )}
@@ -133,7 +133,7 @@ export function MissionCard({
                   role="img"
                   aria-label={done ? 'Done' : 'Not done'}
                   className={`w-6 h-6 rounded-input flex items-center justify-center shrink-0 mt-0.5 ${
-                    done ? 'bg-[#266B4E] text-white shadow-card' : 'border border-sage-300 bg-white'
+                    done ? 'bg-brand-x266b4e text-white shadow-card' : 'border border-neutral-300 bg-white'
                   }`}
                 >
                   {done && <Check className="w-4 h-4 stroke-[2.5]" />}
@@ -147,16 +147,16 @@ export function MissionCard({
                   disabled={done}
                   onClick={() => void complete(task.id)}
                   className={`w-6 h-6 rounded-input flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${
-                    done ? 'bg-[#266B4E] text-white shadow-card' : 'border border-sage-300 bg-white hover:border-sage-400 cursor-pointer'
+                    done ? 'bg-brand-x266b4e text-white shadow-card' : 'border border-neutral-300 bg-white hover:border-neutral-400 cursor-pointer'
                   }`}
                 >
                   <Check className={`w-4 h-4 stroke-[2.5] transition-all ${done ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`} />
                 </button>
               )}
               <div>
-                <p className={`text-sm font-semibold ${done ? 'text-sage-500 line-through' : 'text-[#1D2A24]'}`}>{task.title}</p>
+                <p className={`text-sm font-semibold ${done ? 'text-neutral-500 line-through' : 'text-ink-deep'}`}>{task.title}</p>
                 {task.reason ? (
-                  <p className={`text-xs mt-1 leading-normal ${'text-sage-500'}`}>{task.reason}</p>
+                  <p className={`text-xs mt-1 leading-normal ${'text-neutral-500'}`}>{task.reason}</p>
                 ) : null}
               </div>
             </li>

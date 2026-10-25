@@ -115,13 +115,13 @@ function DayCell({
         ev.preventDefault();
         onMove({ entryId: id, target: day });
       }}
-      className={`${tall ? 'min-h-[260px]' : 'min-h-[115px]'} p-2 flex flex-col gap-1 transition-colors ${over ? 'bg-copper-100/60 ring-2 ring-inset ring-[#9C5B34]' : muted ? 'bg-sage-50/30' : 'bg-white hover:bg-sage-50/50'}`}
+      className={`${tall ? 'min-h-[260px]' : 'min-h-[115px]'} p-2 flex flex-col gap-1 transition-colors ${over ? 'bg-accent-100/60 ring-2 ring-inset ring-accent-600' : muted ? 'bg-neutral-50/30' : 'bg-white hover:bg-neutral-50/50'}`}
     >
       <button
         type="button"
         onClick={() => onAddOnDay(day)}
         aria-label={`Add a post on ${label}`}
-        className="self-start text-xs font-semibold text-sage-700 hover:text-[#9C5B34] cursor-pointer min-h-6 min-w-6"
+        className="self-start text-xs font-semibold text-neutral-700 hover:text-accent-600 cursor-pointer min-h-6 min-w-6"
       >
         {day.getDate()}
       </button>
@@ -140,15 +140,15 @@ export function MonthGrid({ anchor, ...rest }: ViewProps & { anchor: Date }) {
   const firstDayIndex = new Date(year, month, 1).getDay();
   const totalDays = new Date(year, month + 1, 0).getDate();
   return (
-    <div className="bg-white rounded-modal border border-sage-200/80 shadow-card overflow-hidden" role="group" aria-label={`${monthName(month)} ${year}, month view`}>
-      <div className="grid grid-cols-7 bg-sage-50/80 border-b border-sage-200 text-center text-xs font-bold text-sage-500 uppercase tracking-wider py-3">
+    <div className="bg-white rounded-modal border border-neutral-200/80 shadow-card overflow-hidden" role="group" aria-label={`${monthName(month)} ${year}, month view`}>
+      <div className="grid grid-cols-7 bg-neutral-50/80 border-b border-neutral-200 text-center text-xs font-bold text-neutral-500 uppercase tracking-wider py-3">
         {WEEKDAYS.map((d) => (
           <span key={d}>{d}</span>
         ))}
       </div>
-      <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-sage-100">
+      <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-neutral-100">
         {Array.from({ length: firstDayIndex }).map((_, i) => (
-          <div key={`empty-${i}`} className="min-h-[110px] bg-sage-50/30 opacity-40" />
+          <div key={`empty-${i}`} className="min-h-[110px] bg-neutral-50/30 opacity-40" />
         ))}
         {Array.from({ length: totalDays }).map((_, i) => {
           const day = new Date(year, month, i + 1);
@@ -162,13 +162,13 @@ export function MonthGrid({ anchor, ...rest }: ViewProps & { anchor: Date }) {
 export function WeekGrid({ anchor, ...rest }: ViewProps & { anchor: Date }) {
   const days = weekDays(anchor);
   return (
-    <div className="bg-white rounded-modal border border-sage-200/80 shadow-card overflow-hidden" role="group" aria-label="Week view">
-      <div className="grid grid-cols-7 bg-sage-50/80 border-b border-sage-200 text-center text-xs font-bold text-sage-500 uppercase tracking-wider py-3">
+    <div className="bg-white rounded-modal border border-neutral-200/80 shadow-card overflow-hidden" role="group" aria-label="Week view">
+      <div className="grid grid-cols-7 bg-neutral-50/80 border-b border-neutral-200 text-center text-xs font-bold text-neutral-500 uppercase tracking-wider py-3">
         {days.map((d) => (
           <span key={d.toISOString()}>{WEEKDAYS[d.getDay()]}</span>
         ))}
       </div>
-      <div className="grid grid-cols-7 divide-x divide-sage-100">
+      <div className="grid grid-cols-7 divide-x divide-neutral-100">
         {days.map((d) => (
           <DayCell key={d.toISOString()} day={d} tall showTime entries={rest.byDay.get(dayKey(d)) ?? []} {...rest} />
         ))}
@@ -189,7 +189,7 @@ export function Agenda({
 }) {
   const days = [...byDay.keys()].sort();
   if (days.length === 0) {
-    return <p className="rounded-modal border border-sage-200/80 bg-white p-5 text-sm text-sage-600 shadow-card">{emptyLabel}</p>;
+    return <p className="rounded-modal border border-neutral-200/80 bg-white p-5 text-sm text-neutral-600 shadow-card">{emptyLabel}</p>;
   }
   return (
     <ol aria-label="Agenda" className="space-y-4">
@@ -198,7 +198,7 @@ export function Agenda({
         const date = new Date(y, m - 1, d);
         return (
           <li key={key} className="space-y-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-sage-500">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500">
               {date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
             </h3>
             <ul className="space-y-2">
@@ -207,14 +207,14 @@ export function Agenda({
                   <button
                     type="button"
                     onClick={() => onOpenPost(e)}
-                    className="flex w-full items-center gap-3 rounded-card border border-sage-200/80 bg-white p-3 text-left shadow-card cursor-pointer"
+                    className="flex w-full items-center gap-3 rounded-card border border-neutral-200/80 bg-white p-3 text-left shadow-card cursor-pointer"
                   >
                     <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-card ${CHANNEL_COLOR[e.channel]}`}>
                       <ChannelIcon channel={e.channel} className="h-4 w-4" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold text-sage-900">{e.title}</span>
-                      <span className="block text-xs text-sage-500">
+                      <span className="block truncate text-sm font-semibold text-neutral-900">{e.title}</span>
+                      <span className="block text-xs text-neutral-500">
                         {CHANNEL_LABELS[e.channel]} · {e.scheduled_at ? timeLabel(e.scheduled_at) : 'No time'} · {statusWord(e)}
                       </span>
                     </span>
@@ -232,7 +232,7 @@ export function Agenda({
 export function Legend({ channels }: { channels: CalendarEntry['channel'][] }) {
   if (channels.length === 0) return null;
   return (
-    <ul aria-label="Channels in this view" className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-sage-600 pt-1">
+    <ul aria-label="Channels in this view" className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-neutral-600 pt-1">
       {channels.map((k) => (
         <li key={k} className="flex items-center gap-2">
           <span className={`flex h-5 w-5 items-center justify-center rounded-[6px] ${CHANNEL_COLOR[k]}`}>
@@ -264,13 +264,13 @@ export function DraftRow({
       className="py-2.5 flex items-center justify-between gap-3"
     >
       <div className="min-w-0 flex items-center gap-2">
-        <GripVertical className="hidden md:block h-4 w-4 shrink-0 text-sage-600" aria-hidden="true" />
+        <GripVertical className="hidden md:block h-4 w-4 shrink-0 text-neutral-600" aria-hidden="true" />
         <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[6px] ${CHANNEL_COLOR[entry.channel]}`}>
           <ChannelIcon channel={entry.channel} className="h-3.5 w-3.5" />
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-sage-900 truncate">{entry.title}</p>
-          <p className="text-xs text-sage-500">{CHANNEL_LABELS[entry.channel]}</p>
+          <p className="text-sm font-semibold text-neutral-900 truncate">{entry.title}</p>
+          <p className="text-xs text-neutral-500">{CHANNEL_LABELS[entry.channel]}</p>
         </div>
       </div>
       <button type="button" onClick={() => onOpen(entry)} className={BTN_SECONDARY}>

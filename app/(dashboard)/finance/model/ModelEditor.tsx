@@ -160,7 +160,7 @@ export function ModelEditor({
   const costList = (key: "oneOffs" | "capex", title: string, help: string, overrideKey: "one_offs" | "capex", apiField: string, noun: string) => (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-bold text-sage-600 uppercase">{title}</p>
+        <p className="text-xs font-bold text-neutral-600 uppercase">{title}</p>
         <span className="flex items-center gap-3">
           {edited(overrideKey) && (
             <button type="button" className={linkBtn} disabled={busy !== null} onClick={() => void reset([overrideKey])}>
@@ -172,7 +172,7 @@ export function ModelEditor({
           </button>
         </span>
       </div>
-      <p className="text-xs text-sage-500">{help}</p>
+      <p className="text-xs text-neutral-500">{help}</p>
       {state[key].map((r, i) => (
         <div key={i} className="grid grid-cols-[1fr_7rem_6rem_auto] gap-2 items-center">
           <input aria-label={`${noun} ${i + 1} label`} placeholder="Label" className={inputCls} value={r.label} maxLength={120} onChange={(e) => setCost(key, i, { label: e.target.value })} />
@@ -184,7 +184,7 @@ export function ModelEditor({
         </div>
       ))}
       {fieldError(apiField).map((m, i) => (
-        <p key={i} className="text-xs font-medium text-red-600">
+        <p key={i} className="text-xs font-medium text-danger-600">
           {m}
         </p>
       ))}
@@ -192,16 +192,16 @@ export function ModelEditor({
   );
 
   return (
-    <div className="bg-white rounded-modal border border-sage-200 p-6 shadow-card space-y-5">
+    <div className="bg-white rounded-modal border border-neutral-200 p-6 shadow-card space-y-5">
       <div>
-        <h2 className="font-bold text-sage-900 border-b border-sage-100 pb-3">Edit assumptions</h2>
-        <p className="text-xs text-sage-500 mt-2">
+        <h2 className="font-bold text-neutral-900 border-b border-neutral-100 pb-3">Edit assumptions</h2>
+        <p className="text-xs text-neutral-500 mt-2">
           Change a number, then Recalculate. Recalculating is instant and does not use the AI. Starting figures are the monthly levels the projection grows from.
         </p>
       </div>
 
       {model.assumptions?.revenue_source === "business_builder" && (
-        <p role="note" className="text-xs font-semibold text-copper-700 bg-copper-100/60 border border-copper-200 rounded-input px-3 py-2">
+        <p role="note" className="text-xs font-semibold text-accent-700 bg-accent-100/60 border border-accent-200 rounded-input px-3 py-2">
           Starting revenue comes from your Business Builder plan, not from actuals. Change it below if it is off.
         </p>
       )}
@@ -212,12 +212,12 @@ export function ModelEditor({
           const errs = fieldError(f.override as string);
           return (
             <div key={f.key} className="space-y-1">
-              <label htmlFor={`me-${f.key}`} className="text-xs font-bold text-sage-500 uppercase">
-                {f.label} <span className="font-medium normal-case text-sage-600">({f.unit})</span>
+              <label htmlFor={`me-${f.key}`} className="text-xs font-bold text-neutral-500 uppercase">
+                {f.label} <span className="font-medium normal-case text-neutral-600">({f.unit})</span>
               </label>
               <input id={`me-${f.key}`} inputMode="decimal" className={inputCls} value={state[f.key]} onChange={(e) => set(f.key, e.target.value)} />
               {edited(f.override) && (
-                <p className="text-xs text-sage-500">
+                <p className="text-xs text-neutral-500">
                   Edited{ai !== null ? `. AI suggested ${ai}` : ""}.{" "}
                   <button type="button" className={linkBtn} disabled={busy !== null} onClick={() => void reset([f.override])}>
                     Use AI value
@@ -225,7 +225,7 @@ export function ModelEditor({
                 </p>
               )}
               {errs.map((m, i) => (
-                <p key={i} className="text-xs font-medium text-red-600">
+                <p key={i} className="text-xs font-medium text-danger-600">
                   {m}
                 </p>
               ))}
@@ -236,7 +236,7 @@ export function ModelEditor({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-bold text-sage-600 uppercase">Hiring plan</p>
+          <p className="text-xs font-bold text-neutral-600 uppercase">Hiring plan</p>
           <span className="flex items-center gap-3">
             {edited("hiring_plan") && (
               <button type="button" className={linkBtn} disabled={busy !== null} onClick={() => void reset(["hiring_plan"])}>
@@ -248,7 +248,7 @@ export function ModelEditor({
             </button>
           </span>
         </div>
-        <p className="text-xs text-sage-500">A monthly cost that starts in the month you pick and continues after it.</p>
+        <p className="text-xs text-neutral-500">A monthly cost that starts in the month you pick and continues after it.</p>
         {hiringRows.map((r, i) => (
           <div key={i} className="grid grid-cols-[1fr_7rem_6rem_auto] gap-2 items-center">
             <input aria-label={`Hire ${i + 1} role`} placeholder="Role" className={inputCls} value={r.role} maxLength={120} onChange={(e) => setHiring(i, { role: e.target.value })} />
@@ -260,7 +260,7 @@ export function ModelEditor({
           </div>
         ))}
         {fieldError("hiring_plan").map((m, i) => (
-          <p key={i} className="text-xs font-medium text-red-600">
+          <p key={i} className="text-xs font-medium text-danger-600">
             {m}
           </p>
         ))}
@@ -270,7 +270,7 @@ export function ModelEditor({
       {costList("capex", "Capex", "Cash out in the month you pick, then depreciated straight-line from the next month.", "capex", "capex", "Capex")}
 
       {warnings.length > 0 && (
-        <ul role="status" className="text-xs font-medium text-copper-700 bg-copper-100/60 border border-copper-200 rounded-input px-3 py-2 space-y-1">
+        <ul role="status" className="text-xs font-medium text-accent-700 bg-accent-100/60 border border-accent-200 rounded-input px-3 py-2 space-y-1">
           {warnings.map((w, i) => (
             <li key={i}>{w}</li>
           ))}
@@ -279,7 +279,7 @@ export function ModelEditor({
 
       <FormError message={localError ?? (error && !Object.keys(error.fieldErrors).length ? error.message : null)} />
 
-      <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-sage-100">
+      <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-neutral-100">
         <button type="button" className={primaryBtn} disabled={busy !== null} onClick={() => void recalculate()}>
           <RefreshCw className={`w-4 h-4 ${busy === "recalc" ? "animate-spin" : ""}`} aria-hidden="true" />
           {busy === "recalc" ? "Recalculating" : "Recalculate"}

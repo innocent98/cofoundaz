@@ -26,7 +26,7 @@ export function SectionHeading({
             'text-xs font-semibold uppercase tracking-[0.08em]',
             // copper-700 is the on-light text token (6.25:1 on white). copper-500
             // is the light accent for eyebrows on dark green (5.96:1 on green-900).
-            isDark ? 'text-copper-500' : 'text-copper-700'
+            isDark ? 'text-accent-500' : 'text-accent-700'
           )}
         >
           {eyebrow}
@@ -38,7 +38,7 @@ export function SectionHeading({
           Tag === 'h1'
             ? 'text-[34px] leading-[1.08] md:text-[44px] lg:text-[50px]'
             : 'text-[28px] leading-[1.1] md:text-[34px] lg:text-[38px]',
-          isDark ? 'text-white' : 'text-green-900',
+          isDark ? 'text-white' : 'text-brand-900',
           eyebrow && 'mt-3'
         )}
       >
@@ -49,7 +49,7 @@ export function SectionHeading({
           className={cn(
             'mt-4 text-base leading-relaxed md:text-[19px]',
             align === 'center' && 'mx-auto',
-            isDark ? 'text-green-200' : 'text-sage-700'
+            isDark ? 'text-brand-200' : 'text-neutral-700'
           )}
         >
           {subtitle}

@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <Container width="prose" className="max-w-[620px] pb-24 pt-16">
-      <h1 className="text-center font-display text-[32px] font-semibold text-green-900 md:text-[40px]">
+      <h1 className="text-center font-display text-[32px] font-semibold text-brand-900 md:text-[40px]">
         {contact.title}
       </h1>
-      <p className="mt-3 text-center text-base text-sage-500">{contact.subtitle}</p>
+      <p className="mt-3 text-center text-base text-neutral-500">{contact.subtitle}</p>
       <ContactForm />
     </Container>
   )

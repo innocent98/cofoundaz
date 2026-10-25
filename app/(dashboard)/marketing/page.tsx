@@ -8,10 +8,10 @@ import { BTN_ACCENT, CARD, DataGate } from '@/components/marketing-hub/states';
 
 function Tile({ label, value, note }: { label: string; value: string; note: string }) {
   return (
-    <div className="bg-white p-6 rounded-modal border border-sage-200/80 shadow-card space-y-1">
-      <span className="text-[11px] font-bold text-sage-600 tracking-wider uppercase">{label}</span>
-      <div className="text-3xl font-display font-bold text-sage-900">{value}</div>
-      <p className="text-xs text-sage-500">{note}</p>
+    <div className="bg-white p-6 rounded-modal border border-neutral-200/80 shadow-card space-y-1">
+      <span className="text-[11px] font-bold text-neutral-600 tracking-wider uppercase">{label}</span>
+      <div className="text-3xl font-display font-bold text-neutral-900">{value}</div>
+      <p className="text-xs text-neutral-500">{note}</p>
     </div>
   );
 }
@@ -27,10 +27,10 @@ export default function MarketingOverviewPage() {
   return (
     <div className="space-y-8 animate-fadeIn">
       <div className="space-y-1">
-        <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">
+        <h1 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 tracking-tight">
           Marketing Hub
         </h1>
-        <p className="text-sage-500 text-sm md:text-base">Plan it, write it, ship it, measure it.</p>
+        <p className="text-neutral-500 text-sm md:text-base">Plan it, write it, ship it, measure it.</p>
       </div>
 
       <DataGate status={status} error={error} onRetry={reload} loadingLabel="Loading your marketing overview">
@@ -59,21 +59,21 @@ export default function MarketingOverviewPage() {
               />
             </div>
 
-            <div className="bg-[#0e271f] rounded-modal p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-white shadow-card">
+            <div className="bg-brand-rail-deep rounded-modal p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-white shadow-card">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-card bg-[#9C5B34] text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-card bg-accent-600 text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
                   ✦
                 </div>
                 {latestGap ? (
                   <div className="space-y-1">
-                    <h3 className="font-display font-semibold text-lg text-sage-100">This week&apos;s idea</h3>
-                    <p className="text-sm text-sage-200 font-medium">{latestGap.title}</p>
-                    <p className="text-sm text-sage-300 leading-relaxed">{latestGap.angle}</p>
+                    <h3 className="font-display font-semibold text-lg text-neutral-100">This week&apos;s idea</h3>
+                    <p className="text-sm text-neutral-200 font-medium">{latestGap.title}</p>
+                    <p className="text-sm text-neutral-300 leading-relaxed">{latestGap.angle}</p>
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    <h3 className="font-display font-semibold text-lg text-sage-100">No content ideas yet</h3>
-                    <p className="text-sm text-sage-300 leading-relaxed">
+                    <h3 className="font-display font-semibold text-lg text-neutral-100">No content ideas yet</h3>
+                    <p className="text-sm text-neutral-300 leading-relaxed">
                       Track a few keywords, then ask the AI which topics you have not covered.
                     </p>
                   </div>
@@ -95,12 +95,12 @@ export default function MarketingOverviewPage() {
             </div>
 
             <div className={`${CARD} p-6 flex flex-wrap gap-3 items-center justify-between`}>
-              <p className="text-sm text-sage-600">Jump straight into the work:</p>
+              <p className="text-sm text-neutral-600">Jump straight into the work:</p>
               <div className="flex flex-wrap gap-3 text-sm font-semibold">
-                <Link className="text-[#0e271f] hover:underline" href="/marketing/calendar">Content calendar</Link>
-                <Link className="text-[#0e271f] hover:underline" href="/marketing/campaigns">Campaigns</Link>
-                <Link className="text-[#0e271f] hover:underline" href="/marketing/copy">AI copy</Link>
-                <Link className="text-[#0e271f] hover:underline" href="/marketing/analytics">Analytics</Link>
+                <Link className="text-brand-rail-deep hover:underline" href="/marketing/calendar">Content calendar</Link>
+                <Link className="text-brand-rail-deep hover:underline" href="/marketing/campaigns">Campaigns</Link>
+                <Link className="text-brand-rail-deep hover:underline" href="/marketing/copy">AI copy</Link>
+                <Link className="text-brand-rail-deep hover:underline" href="/marketing/analytics">Analytics</Link>
               </div>
             </div>
           </>

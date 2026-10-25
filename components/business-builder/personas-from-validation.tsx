@@ -65,15 +65,15 @@ export function PersonasFromValidation({ onDone }: { onDone: () => void | Promis
         onClick={() => setConfirming(true)}
         disabled={busy || isOverBudget}
         title={isOverBudget ? `AI is paused until ${formattedResetsAt}` : undefined}
-        className="flex items-center gap-1.5 bg-[#F5ECDC] hover:bg-[#EAD5C6] text-[#522F1A] font-bold px-4 py-2.5 rounded-card text-xs transition-colors border border-[#EAD5C6] disabled:opacity-60 shadow-card"
+        className="flex items-center gap-1.5 bg-accent-xf5ecdc hover:bg-accent-200 text-accent-900 font-bold px-4 py-2.5 rounded-card text-xs transition-colors border border-accent-200 disabled:opacity-60 shadow-card"
       >
-        {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 fill-[#8A5330] text-[#8A5330]" />}
+        {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 fill-accent-700 text-accent-700" />}
         <span>{busy ? 'Drafting' : 'Generate personas from my validation notes'}</span>
       </button>
       {note && (
-        <p role="status" className="text-[11px] font-semibold text-[#8A5330] max-w-xs text-right">
+        <p role="status" className="text-[11px] font-semibold text-accent-700 max-w-xs text-right">
           {note.text}{' '}
-          {note.validationLink && <Link href="/validation" className="underline text-[#183B28]">Go to Validation</Link>}
+          {note.validationLink && <Link href="/validation" className="underline text-brand-strong">Go to Validation</Link>}
         </p>
       )}
       <AiConfirmModal

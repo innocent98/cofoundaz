@@ -10,8 +10,8 @@ import { slugify } from '@/lib/validation-format';
 const DEFAULT_POST_SIGNUP = "You're on the list, we'll be in touch soon.";
 
 const FIELD =
-  'w-full bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-4 py-2.5 text-sm outline-none focus:border-[#183B28] focus:ring-1 focus:ring-[#183B28]';
-const LABEL = 'text-xs font-bold text-[#1E2923] uppercase tracking-wider';
+  'w-full bg-surface-subtle border border-line-soft rounded-input px-4 py-2.5 text-sm outline-none focus:border-brand-strong focus:ring-1 focus:ring-brand-strong';
+const LABEL = 'text-xs font-bold text-ink uppercase tracking-wider';
 
 export interface BuilderApi {
   create: (body: { name: string; config: Record<string, unknown>; assumption_ids?: string[] }) => Promise<SmokeTest>;
@@ -121,14 +121,14 @@ export function SmokeBuilder({
   return (
     <div className="flex flex-col gap-6 max-w-3xl mx-auto w-full">
       <div className="flex items-center gap-4">
-        <button onClick={onCancel} className="text-sm font-bold text-[#617065] hover:text-[#1E2923] cursor-pointer">← Back</button>
-        <h2 className="text-2xl font-display font-bold text-[#1E2923]">{draft ? 'Review your drafted test' : 'New smoke test'}</h2>
+        <button onClick={onCancel} className="text-sm font-bold text-ink-muted hover:text-ink cursor-pointer">← Back</button>
+        <h2 className="text-2xl font-display font-bold text-ink">{draft ? 'Review your drafted test' : 'New smoke test'}</h2>
       </div>
 
       {draft?.rationale && (
-        <div className="flex items-start gap-3 bg-[#FDF4E3] border border-[#EAD5C6] rounded-modal px-4 py-3">
-          <Sparkles className="w-4 h-4 text-[#8A5330] mt-0.5 shrink-0" aria-hidden="true" />
-          <p className="text-sm text-[#5C3A22]">
+        <div className="flex items-start gap-3 bg-accent-xfdf4e3 border border-accent-200 rounded-modal px-4 py-3">
+          <Sparkles className="w-4 h-4 text-accent-700 mt-0.5 shrink-0" aria-hidden="true" />
+          <p className="text-sm text-accent-x5c3a22">
             <span className="font-bold">Why this test: </span>
             {draft.rationale}
           </p>
@@ -137,14 +137,14 @@ export function SmokeBuilder({
 
       <div className="flex items-center gap-2" aria-hidden="true">
         {[1, 2, 3].map((n) => (
-          <div key={n} className={`flex-1 h-2 rounded-full ${step >= n ? 'bg-[#183B28]' : 'bg-[#EBEBE6]'}`} />
+          <div key={n} className={`flex-1 h-2 rounded-full ${step >= n ? 'bg-brand-strong' : 'bg-line-soft'}`} />
         ))}
       </div>
 
-      <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-5 md:p-8 flex flex-col gap-6">
+      <div className="bg-white rounded-modal border border-line-soft shadow-card p-5 md:p-8 flex flex-col gap-6">
         {step === 1 && (
           <div className="flex flex-col gap-6">
-            <h3 className="text-lg font-bold text-[#1E2923]">Step 1: Page design</h3>
+            <h3 className="text-lg font-bold text-ink">Step 1: Page design</h3>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="sb-name" className={LABEL}>Test name</label>
@@ -162,14 +162,14 @@ export function SmokeBuilder({
                 <label htmlFor="sb-cta" className={LABEL}>CTA button text</label>
                 <input id="sb-cta" value={cta} onChange={(e) => setCta(e.target.value)} type="text" placeholder="e.g. Get Early Access" className={FIELD} />
               </div>
-              <div className="flex flex-col gap-3 pt-4 border-t border-[#EBEBE6]">
+              <div className="flex flex-col gap-3 pt-4 border-t border-line-soft">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" checked={requireEmail} onChange={(e) => setRequireEmail(e.target.checked)} className="w-4 h-4" />
-                  <span className="text-sm font-medium text-[#1E2923]">Require email capture</span>
+                  <span className="text-sm font-medium text-ink">Require email capture</span>
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" checked={showPricing} onChange={(e) => setShowPricing(e.target.checked)} className="w-4 h-4" />
-                  <span className="text-sm font-medium text-[#1E2923]">Show fake-door pricing section</span>
+                  <span className="text-sm font-medium text-ink">Show fake-door pricing section</span>
                 </label>
               </div>
               <div className="flex flex-col gap-1.5 pt-2">
@@ -178,7 +178,7 @@ export function SmokeBuilder({
               </div>
             </div>
             <div className="flex justify-end pt-4">
-              <button onClick={() => setStep(2)} className="bg-[#183B28] hover:bg-[#11291C] text-white px-6 py-2.5 rounded-card font-bold text-sm flex items-center gap-2 cursor-pointer">
+              <button onClick={() => setStep(2)} className="bg-brand-strong hover:bg-brand-rail text-white px-6 py-2.5 rounded-card font-bold text-sm flex items-center gap-2 cursor-pointer">
                 Next <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -187,7 +187,7 @@ export function SmokeBuilder({
 
         {step === 2 && (
           <div className="flex flex-col gap-6">
-            <h3 className="text-lg font-bold text-[#1E2923]">Step 2: Goal &amp; metrics</h3>
+            <h3 className="text-lg font-bold text-ink">Step 2: Goal &amp; metrics</h3>
             <div className="flex flex-col gap-4">
               <span className={LABEL}>Success metric</span>
               <div className="flex flex-col gap-3" role="radiogroup" aria-label="Success metric">
@@ -196,9 +196,9 @@ export function SmokeBuilder({
                   { v: 'cta_click', label: 'CTA click (no email)' },
                   { v: 'preorder_click', label: 'Preorder click (pricing page)' },
                 ].map((m) => (
-                  <label key={m.v} className={`flex items-center gap-3 p-4 border rounded-card cursor-pointer transition-colors ${metricType === m.v ? 'bg-[#E6EFEA] border-[#183B28]' : 'border-[#EBEBE6] hover:bg-[#FAFAFA]'}`}>
+                  <label key={m.v} className={`flex items-center gap-3 p-4 border rounded-card cursor-pointer transition-colors ${metricType === m.v ? 'bg-neutral-xe6efea border-brand-strong' : 'border-line-soft hover:bg-surface-ghost'}`}>
                     <input type="radio" name="metric" checked={metricType === m.v} onChange={() => setMetricType(m.v)} className="w-4 h-4" />
-                    <span className="text-sm font-bold text-[#1E2923]">{m.label}</span>
+                    <span className="text-sm font-bold text-ink">{m.label}</span>
                   </label>
                 ))}
               </div>
@@ -206,15 +206,15 @@ export function SmokeBuilder({
                 <label htmlFor="sb-target" className={LABEL}>Target conversion rate (%)</label>
                 <input id="sb-target" value={targetConversion} onChange={(e) => setTargetConversion(e.target.value)} type="number" min={1} max={50} aria-invalid={targetInvalid} aria-describedby="sb-target-msg" className={FIELD} />
                 {targetInvalid ? (
-                  <span id="sb-target-msg" role="alert" className="text-xs font-semibold text-[#B0483B]">Between 1 and 50.</span>
+                  <span id="sb-target-msg" role="alert" className="text-xs font-semibold text-danger-600">Between 1 and 50.</span>
                 ) : (
-                  <span id="sb-target-msg" className="text-xs text-[#617065]">Between 1 and 50. Typical validation bar: 5 to 10% on cold traffic.</span>
+                  <span id="sb-target-msg" className="text-xs text-ink-muted">Between 1 and 50. Typical validation bar: 5 to 10% on cold traffic.</span>
                 )}
               </div>
             </div>
-            <div className="flex justify-between pt-4 border-t border-[#EBEBE6]">
-              <button onClick={() => setStep(1)} className="text-sm font-bold text-[#617065] hover:text-[#1E2923] cursor-pointer">Back</button>
-              <button onClick={() => setStep(3)} disabled={targetInvalid} className="bg-[#183B28] hover:bg-[#11291C] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-card font-bold text-sm flex items-center gap-2 cursor-pointer">
+            <div className="flex justify-between pt-4 border-t border-line-soft">
+              <button onClick={() => setStep(1)} className="text-sm font-bold text-ink-muted hover:text-ink cursor-pointer">Back</button>
+              <button onClick={() => setStep(3)} disabled={targetInvalid} className="bg-brand-strong hover:bg-brand-rail disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-card font-bold text-sm flex items-center gap-2 cursor-pointer">
                 Next <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -223,12 +223,12 @@ export function SmokeBuilder({
 
         {step === 3 && (
           <div className="flex flex-col gap-6">
-            <h3 className="text-lg font-bold text-[#1E2923]">Step 3: Page address &amp; publish</h3>
+            <h3 className="text-lg font-bold text-ink">Step 3: Page address &amp; publish</h3>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="sb-slug" className={LABEL}>Page address</label>
                 <div className="flex items-stretch min-w-0">
-                  <span className="bg-[#F0F0EC] border border-r-0 border-[#EBEBE6] px-3 py-2.5 text-sm text-[#617065] rounded-l-input truncate max-w-[55%] md:max-w-none">{slugHost}</span>
+                  <span className="bg-line-faint border border-r-0 border-line-soft px-3 py-2.5 text-sm text-ink-muted rounded-l-input truncate max-w-[55%] md:max-w-none">{slugHost}</span>
                   <input
                     id="sb-slug"
                     type="text"
@@ -237,35 +237,35 @@ export function SmokeBuilder({
                     onChange={(e) => { setSlug(e.target.value.toLowerCase()); setSlugError(null); }}
                     aria-invalid={slugError ? true : undefined}
                     aria-describedby={slugError ? 'sb-slug-error' : undefined}
-                    className={`flex-1 min-w-0 bg-[#F7F7F5] border px-4 py-2.5 text-sm outline-none rounded-r-input ${slugError ? 'border-[#B0483B]' : 'border-[#EBEBE6] focus:border-[#183B28]'}`}
+                    className={`flex-1 min-w-0 bg-surface-subtle border px-4 py-2.5 text-sm outline-none rounded-r-input ${slugError ? 'border-danger-600' : 'border-line-soft focus:border-brand-strong'}`}
                   />
                 </div>
                 {slugError ? (
-                  <span id="sb-slug-error" role="alert" className="text-xs font-semibold text-[#B0483B]">{slugError}</span>
+                  <span id="sb-slug-error" role="alert" className="text-xs font-semibold text-danger-600">{slugError}</span>
                 ) : (
-                  <span className="text-xs text-[#617065]">
+                  <span className="text-xs text-ink-muted">
                     3 to 60 lowercase letters, numbers and dashes.{' '}
                     {name.trim() && !slug && (
-                      <button type="button" className="underline font-semibold text-[#183B28] cursor-pointer" onClick={() => setSlug(slugify(name))}>
+                      <button type="button" className="underline font-semibold text-brand-strong cursor-pointer" onClick={() => setSlug(slugify(name))}>
                         Use &quot;{slugify(name)}&quot;
                       </button>
                     )}
                   </span>
                 )}
               </div>
-              <div className="mt-2 border border-[#EBEBE6] rounded-modal bg-[#F7F7F5] p-6 flex flex-col items-center justify-center gap-3 text-center">
-                <h4 className="text-xl font-bold text-[#1E2923] break-words max-w-full">{headline || 'Hero headline preview'}</h4>
-                {subheadline && <p className="text-[#617065] text-sm break-words max-w-full">{subheadline}</p>}
-                <button className="bg-[#9C5B34] text-white px-6 py-2 rounded-card font-bold mt-1" type="button" disabled>{cta || 'Get Early Access'}</button>
+              <div className="mt-2 border border-line-soft rounded-modal bg-surface-subtle p-6 flex flex-col items-center justify-center gap-3 text-center">
+                <h4 className="text-xl font-bold text-ink break-words max-w-full">{headline || 'Hero headline preview'}</h4>
+                {subheadline && <p className="text-ink-muted text-sm break-words max-w-full">{subheadline}</p>}
+                <button className="bg-accent-600 text-white px-6 py-2 rounded-card font-bold mt-1" type="button" disabled>{cta || 'Get Early Access'}</button>
               </div>
             </div>
-            <div className="flex flex-col-reverse md:flex-row md:justify-between gap-3 pt-4 border-t border-[#EBEBE6]">
-              <button onClick={() => setStep(2)} className="text-sm font-bold text-[#617065] hover:text-[#1E2923] cursor-pointer self-start">Back</button>
+            <div className="flex flex-col-reverse md:flex-row md:justify-between gap-3 pt-4 border-t border-line-soft">
+              <button onClick={() => setStep(2)} className="text-sm font-bold text-ink-muted hover:text-ink cursor-pointer self-start">Back</button>
               <div className="flex flex-col md:flex-row gap-2">
-                <button onClick={() => submit(false)} disabled={busy !== null} className="border border-[#183B28] text-[#183B28] hover:bg-[#E6EFEA] disabled:opacity-60 px-5 py-2.5 rounded-card font-bold text-sm flex items-center justify-center gap-2 cursor-pointer">
+                <button onClick={() => submit(false)} disabled={busy !== null} className="border border-brand-strong text-brand-strong hover:bg-neutral-xe6efea disabled:opacity-60 px-5 py-2.5 rounded-card font-bold text-sm flex items-center justify-center gap-2 cursor-pointer">
                   {busy === 'draft' && <Loader2 className="w-4 h-4 animate-spin" />} Save as draft
                 </button>
-                <button onClick={() => submit(true)} disabled={busy !== null} className="bg-[#9C5B34] hover:bg-[#8A5330] disabled:opacity-60 text-white px-6 py-2.5 rounded-card font-bold text-sm flex items-center justify-center gap-2 cursor-pointer">
+                <button onClick={() => submit(true)} disabled={busy !== null} className="bg-accent-600 hover:bg-accent-700 disabled:opacity-60 text-white px-6 py-2.5 rounded-card font-bold text-sm flex items-center justify-center gap-2 cursor-pointer">
                   {busy === 'publish' && <Loader2 className="w-4 h-4 animate-spin" />} Publish
                 </button>
               </div>

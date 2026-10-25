@@ -119,8 +119,8 @@ export function StageEditor({
     >
       <form onSubmit={save} noValidate className="p-6 md:p-8 space-y-5">
         <div>
-          <h2 className="text-xl font-display font-bold text-sage-900">Edit stages</h2>
-          <p className="text-sm text-sage-500 mt-1">
+          <h2 className="text-xl font-display font-bold text-neutral-900">Edit stages</h2>
+          <p className="text-sm text-neutral-500 mt-1">
             Rename, reorder or add stages (up to {MAX_STAGES}). A stage can only be deleted when it has no deals. Win chance
             drives the weighted forecast.
           </p>
@@ -132,7 +132,7 @@ export function StageEditor({
             const closed = r.kind !== 'open';
             const deleteBlocked = closed || count > 0;
             return (
-              <li key={r.key} className="border border-sage-200 rounded-card p-3 space-y-2">
+              <li key={r.key} className="border border-neutral-200 rounded-card p-3 space-y-2">
                 <div className="flex flex-col md:flex-row md:items-center gap-2">
                   <input
                     aria-label={`Stage ${i + 1} name`}
@@ -141,7 +141,7 @@ export function StageEditor({
                     maxLength={60}
                     onChange={(e) => patchRow(r.key, { name: e.target.value })}
                   />
-                  <label className="flex items-center gap-2 text-xs font-semibold text-sage-600 shrink-0">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600 shrink-0">
                     Win chance
                     <input
                       aria-label={`${r.name || `Stage ${i + 1}`} win chance percent`}
@@ -155,7 +155,7 @@ export function StageEditor({
                   </label>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs text-sage-500">
+                  <span className="text-xs text-neutral-500">
                     {KIND_NOTE[r.kind] || 'Open stage'}
                     {r.id ? ` · ${count} deal${count === 1 ? '' : 's'}` : ' · new'}
                   </span>
@@ -165,7 +165,7 @@ export function StageEditor({
                       onClick={() => move(i, -1)}
                       disabled={i === 0}
                       aria-label={`Move ${r.name || `stage ${i + 1}`} up`}
-                      className="h-9 w-9 rounded-card border border-sage-200 text-sage-700 hover:bg-sage-50 disabled:opacity-40 cursor-pointer"
+                      className="h-9 w-9 rounded-card border border-neutral-200 text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 cursor-pointer"
                     >
                       ↑
                     </button>
@@ -174,7 +174,7 @@ export function StageEditor({
                       onClick={() => move(i, 1)}
                       disabled={i === rows.length - 1}
                       aria-label={`Move ${r.name || `stage ${i + 1}`} down`}
-                      className="h-9 w-9 rounded-card border border-sage-200 text-sage-700 hover:bg-sage-50 disabled:opacity-40 cursor-pointer"
+                      className="h-9 w-9 rounded-card border border-neutral-200 text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 cursor-pointer"
                     >
                       ↓
                     </button>
@@ -190,7 +190,7 @@ export function StageEditor({
                             : undefined
                       }
                       aria-label={`Delete ${r.name || `stage ${i + 1}`}`}
-                      className="h-9 px-3 rounded-card border border-red-200 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="h-9 px-3 rounded-card border border-danger-200 text-xs font-semibold text-danger-700 hover:bg-danger-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Delete
                     </button>
@@ -206,7 +206,7 @@ export function StageEditor({
         </button>
 
         {error && (
-          <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-card px-4 py-3">
+          <p role="alert" className="text-sm text-danger-700 bg-danger-50 border border-danger-200 rounded-card px-4 py-3">
             {error}
           </p>
         )}

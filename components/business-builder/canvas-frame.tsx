@@ -80,7 +80,7 @@ export function CanvasFrame({ type, title, editor, actions, children }: Props) {
       />
 
       {editor.loadError && !editor.loading && (
-        <p role="alert" className="text-sm text-[#A34B4B] bg-[#FBEBEB] border border-[#F0D5D5] rounded-modal p-4">{editor.loadError}</p>
+        <p role="alert" className="text-sm text-danger-text bg-danger-wash border border-danger-xf0d5d5 rounded-modal p-4">{editor.loadError}</p>
       )}
 
       {children(tools)}

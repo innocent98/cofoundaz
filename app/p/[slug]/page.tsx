@@ -92,47 +92,47 @@ export default function PublicSmokePage() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#F4F6F5] flex flex-col items-center px-4 py-10 md:py-16">
+    <div className="min-h-[100dvh] bg-neutral-100 flex flex-col items-center px-4 py-10 md:py-16">
       <div className="w-full max-w-xl flex-1 flex flex-col">
         {phase === 'loading' && (
-          <div className="flex items-center justify-center gap-2 text-sage-500 py-20">
+          <div className="flex items-center justify-center gap-2 text-neutral-500 py-20">
             <Loader2 className="w-5 h-5 animate-spin" /> <span className="text-sm">Loading…</span>
           </div>
         )}
 
         {(phase === 'unavailable' || phase === 'failed') && (
-          <div className="bg-white rounded-modal p-8 border border-sage-200/70 shadow-card text-center my-auto">
-            <div className="w-14 h-14 bg-[#F4F6F5] rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-6 h-6 text-[#8A5330]" />
+          <div className="bg-white rounded-modal p-8 border border-neutral-200/70 shadow-card text-center my-auto">
+            <div className="w-14 h-14 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6 text-accent-700" />
             </div>
-            <h1 className="text-lg font-bold text-[#1D2A24]">
+            <h1 className="text-lg font-bold text-ink-deep">
               {phase === 'unavailable' ? "This page isn't available" : 'Something went wrong'}
             </h1>
-            <p className="text-sm text-sage-500 mt-1.5">
+            <p className="text-sm text-neutral-500 mt-1.5">
               {phase === 'unavailable' ? 'The link may be wrong, or the page is not online right now.' : 'Please refresh the page to try again.'}
             </p>
           </div>
         )}
 
         {phase === 'ready' && page && (
-          <main className="bg-white rounded-modal p-6 md:p-10 border border-sage-200/70 shadow-card text-center space-y-6 my-auto">
+          <main className="bg-white rounded-modal p-6 md:p-10 border border-neutral-200/70 shadow-card text-center space-y-6 my-auto">
             <div className="space-y-3">
-              <h1 className="text-2xl md:text-4xl font-display font-bold text-[#1D2A24] break-words">{page.headline}</h1>
-              {page.subheadline && <p className="text-sm md:text-base text-sage-500 break-words">{page.subheadline}</p>}
+              <h1 className="text-2xl md:text-4xl font-display font-bold text-ink-deep break-words">{page.headline}</h1>
+              {page.subheadline && <p className="text-sm md:text-base text-neutral-500 break-words">{page.subheadline}</p>}
             </div>
 
             {message ? (
-              <div role="status" className="bg-[#E6EFEA] rounded-card p-5 flex flex-col items-center gap-2">
+              <div role="status" className="bg-neutral-xe6efea rounded-card p-5 flex flex-col items-center gap-2">
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                  <Check className="w-5 h-5 text-[#1E4D3B]" />
+                  <Check className="w-5 h-5 text-brand-700" />
                 </div>
-                <p className="text-sm font-semibold text-[#1D2A24] break-words">{message}</p>
+                <p className="text-sm font-semibold text-ink-deep break-words">{message}</p>
               </div>
             ) : (
               <form onSubmit={onCta} noValidate className="space-y-3 text-left">
                 {page.require_email && (
                   <div className="space-y-1.5">
-                    <label htmlFor="pp-email" className="text-xs font-bold text-[#1D2A24]">Email address</label>
+                    <label htmlFor="pp-email" className="text-xs font-bold text-ink-deep">Email address</label>
                     <input
                       id="pp-email"
                       type="email"
@@ -143,31 +143,31 @@ export default function PublicSmokePage() {
                       placeholder="you@example.com"
                       aria-invalid={error ? true : undefined}
                       aria-describedby={error ? 'pp-email-error' : undefined}
-                      className={`w-full bg-white border rounded-card px-4 py-3 text-sm text-sage-900 focus:outline-none ${error ? 'border-[#B0483B]' : 'border-sage-200 focus:border-[#1e4836]'}`}
+                      className={`w-full bg-white border rounded-card px-4 py-3 text-sm text-neutral-900 focus:outline-none ${error ? 'border-danger-600' : 'border-neutral-200 focus:border-brand-hover'}`}
                     />
-                    {error && <p id="pp-email-error" role="alert" className="text-xs font-semibold text-[#B0483B]">{error}</p>}
+                    {error && <p id="pp-email-error" role="alert" className="text-xs font-semibold text-danger-600">{error}</p>}
                   </div>
                 )}
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-[#9C5B34] hover:bg-[#8A5330] disabled:opacity-60 text-white font-semibold py-3.5 rounded-card text-sm transition-all shadow-card flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full bg-accent-600 hover:bg-accent-700 disabled:opacity-60 text-white font-semibold py-3.5 rounded-card text-sm transition-all shadow-card flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                   {page.cta_text}
                 </button>
-                {!page.require_email && error && <p role="alert" className="text-xs font-semibold text-[#B0483B]">{error}</p>}
+                {!page.require_email && error && <p role="alert" className="text-xs font-semibold text-danger-600">{error}</p>}
               </form>
             )}
 
             {page.show_pricing && !message && (
-              <section aria-label="Pricing" className="border border-sage-200 rounded-card p-5 text-left space-y-3 bg-[#F7F7F5]">
-                <h2 className="text-base font-bold text-[#1D2A24]">Pricing</h2>
-                <p className="text-sm text-sage-500">Pricing is not final yet. Tell us you would pay and we will keep you posted.</p>
+              <section aria-label="Pricing" className="border border-neutral-200 rounded-card p-5 text-left space-y-3 bg-surface-subtle">
+                <h2 className="text-base font-bold text-ink-deep">Pricing</h2>
+                <p className="text-sm text-neutral-500">Pricing is not final yet. Tell us you would pay and we will keep you posted.</p>
                 <button
                   type="button"
                   onClick={onPreorder}
-                  className="w-full border border-[#183B28] text-[#183B28] hover:bg-[#E6EFEA] font-semibold py-3 rounded-card text-sm transition-colors cursor-pointer"
+                  className="w-full border border-brand-strong text-brand-strong hover:bg-neutral-xe6efea font-semibold py-3 rounded-card text-sm transition-colors cursor-pointer"
                 >
                   I would pay for this
                 </button>
@@ -176,7 +176,7 @@ export default function PublicSmokePage() {
           </main>
         )}
       </div>
-      <p className="text-center text-xs text-sage-600 pt-8">{page?.powered_by || 'Powered by Cofoundaz'}</p>
+      <p className="text-center text-xs text-neutral-600 pt-8">{page?.powered_by || 'Powered by Cofoundaz'}</p>
     </div>
   );
 }

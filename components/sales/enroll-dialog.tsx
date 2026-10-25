@@ -80,17 +80,17 @@ export function EnrollDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative w-full max-w-md bg-white rounded-modal shadow-raised border border-sage-200 p-6 space-y-4"
+        className="relative w-full max-w-md bg-white rounded-modal shadow-raised border border-neutral-200 p-6 space-y-4"
       >
-        <h2 id={titleId} className="font-display font-semibold text-lg text-sage-900">
+        <h2 id={titleId} className="font-display font-semibold text-lg text-neutral-900">
           Enrol {targets.label} in a sequence
         </h2>
 
         {result ? (
           <div className="space-y-3" role="status">
-            <p className="text-sm text-sage-800 font-semibold">{enrollSummary(result)}.</p>
+            <p className="text-sm text-neutral-800 font-semibold">{enrollSummary(result)}.</p>
             {result.skipped.length > 0 && (
-              <ul className="text-sm text-sage-700 list-disc pl-5 space-y-1">
+              <ul className="text-sm text-neutral-700 list-disc pl-5 space-y-1">
                 {result.skipped.map((s) => (
                   <li key={s.id}>
                     {single ? targets.label : 'One person'}{' '}
@@ -116,7 +116,7 @@ export function EnrollDialog({
           <ErrorState message={sequences.error ?? 'Could not load sequences.'} onRetry={() => void sequences.reload()} />
         ) : options.length === 0 ? (
           <div className="space-y-3">
-            <p className="text-sm text-sage-700">You have no sequences yet. Create one first, then come back.</p>
+            <p className="text-sm text-neutral-700">You have no sequences yet. Create one first, then come back.</p>
             <div className="flex justify-end gap-3">
               <button type="button" onClick={onClose} className={BTN_SECONDARY}>
                 Cancel
@@ -141,7 +141,7 @@ export function EnrollDialog({
                 ))}
               </select>
               {options.find((s) => s.id === selected)?.status === 'paused' && (
-                <p className="text-xs text-sage-600">This sequence is paused. They are enrolled but nothing is sent until you resume it.</p>
+                <p className="text-xs text-neutral-600">This sequence is paused. They are enrolled but nothing is sent until you resume it.</p>
               )}
             </div>
             <div className="flex justify-end gap-3">

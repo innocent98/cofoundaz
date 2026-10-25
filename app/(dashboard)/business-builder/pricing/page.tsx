@@ -68,7 +68,7 @@ export default function PricingPage() {
             {canWrite && !creating && (
               <button
                 onClick={() => setCreating(true)}
-                className="bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
+                className="bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2.5 rounded-card text-xs transition-colors flex items-center gap-1.5 shadow-card"
               >
                 <Plus className="w-3.5 h-3.5" /><span>{suggestMode ? 'Suggest a pricing model' : 'Add pricing model'}</span>
               </button>
@@ -77,21 +77,21 @@ export default function PricingPage() {
         }
       />
 
-      {loading && <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card h-56 animate-pulse" />}
+      {loading && <div className="bg-white rounded-modal border border-line-soft shadow-card h-56 animate-pulse" />}
 
       {!loading && error && (
-        <div className="bg-[#FBEBEB] border border-[#F0D5D5] rounded-modal p-4 text-sm text-[#A34B4B]">{error}</div>
+        <div className="bg-danger-wash border border-danger-xf0d5d5 rounded-modal p-4 text-sm text-danger-text">{error}</div>
       )}
 
       {!loading && !error && records.length === 0 && !showNew && (
-        <div className="bg-white rounded-modal border border-[#EBEBE6] shadow-card p-12 text-center flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#F0F4F1] text-[#183B28] flex items-center justify-center">
+        <div className="bg-white rounded-modal border border-line-soft shadow-card p-12 text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-neutral-xf0f4f1 text-brand-strong flex items-center justify-center">
             <Tag className="w-6 h-6" />
           </div>
-          <p className="text-sm font-bold text-[#1E2923]">No pricing model yet</p>
-          <p className="text-xs text-[#768478] max-w-xs">Choose a model and lay out your tiers, what each costs and what&apos;s included. The advisor below can suggest a starting point.</p>
+          <p className="text-sm font-bold text-ink">No pricing model yet</p>
+          <p className="text-xs text-ink-soft max-w-xs">Choose a model and lay out your tiers, what each costs and what&apos;s included. The advisor below can suggest a starting point.</p>
           {canWrite && (
-            <button onClick={() => setCreating(true)} className="mt-1 flex items-center gap-1.5 bg-[#183B28] hover:bg-[#12261C] text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
+            <button onClick={() => setCreating(true)} className="mt-1 flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail-ink text-white font-bold px-4 py-2 rounded-card text-xs transition-colors">
               <Plus className="w-3.5 h-3.5" /><span>{suggestMode ? 'Suggest your pricing model' : 'Add your pricing model'}</span>
             </button>
           )}
@@ -122,7 +122,7 @@ export default function PricingPage() {
                 <>
                   {threads.button(rec.id, 'this pricing model')}
                   {canWrite && (
-                    <button onClick={() => handleDelete(rec.id, String(rec.data.model_type || 'this'))} className="p-1.5 rounded-input text-[#768478] hover:text-[#A34B4B] hover:bg-[#FBEBEB] transition-colors" aria-label="Delete pricing model">
+                    <button onClick={() => handleDelete(rec.id, String(rec.data.model_type || 'this'))} className="p-1.5 rounded-input text-ink-soft hover:text-danger-text hover:bg-danger-wash transition-colors" aria-label="Delete pricing model">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}

@@ -54,7 +54,7 @@ export function TestimonialCarousel() {
   }
 
   return (
-    <section className="bg-green-950 text-green-100">
+    <section className="bg-brand-950 text-brand-100">
       <Container width="narrow" className="py-16 text-center md:py-22">
         <h2 className="font-display text-[28px] font-semibold text-white md:text-4xl">
           {title}
@@ -73,13 +73,13 @@ export function TestimonialCarousel() {
             <div className="mt-7 flex items-center justify-center gap-3">
               <span
                 aria-hidden="true"
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-green-600 text-[15px] font-bold text-white"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-600 text-[15px] font-bold text-white"
               >
                 {quote.initials}
               </span>
               <div className="text-left">
                 <div className="text-[15px] font-bold text-white">{quote.name}</div>
-                <div className="text-[13px] text-green-300">{quote.company}</div>
+                <div className="text-[13px] text-brand-300">{quote.company}</div>
               </div>
             </div>
           </div>
@@ -115,7 +115,7 @@ export function TestimonialCarousel() {
                   aria-hidden="true"
                   className={cn(
                     'h-2 w-2 rounded-full transition-colors',
-                    i === index ? 'bg-copper-500' : 'bg-white/25'
+                    i === index ? 'bg-accent-500' : 'bg-white/25'
                   )}
                 />
               </button>

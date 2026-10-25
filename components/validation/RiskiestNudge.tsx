@@ -31,9 +31,9 @@ export function RiskiestNudge({ riskiest }: { riskiest: RiskiestAssumption | nul
   };
 
   return (
-    <div className="bg-[#0e271f] text-white rounded-modal p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
+    <div className="bg-brand-rail-deep text-white rounded-modal p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
       <div className="flex items-start md:items-center gap-3 md:gap-4">
-        <div className="w-10 h-10 md:w-12 md:h-12 rounded-card bg-[#9C5B34] text-white flex items-center justify-center shrink-0">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-card bg-accent-600 text-white flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
           </svg>
@@ -46,7 +46,7 @@ export function RiskiestNudge({ riskiest }: { riskiest: RiskiestAssumption | nul
         type="button"
         onClick={onDesign}
         disabled={drafting}
-        className="bg-[#9C5B34] hover:bg-[#8A5330] disabled:opacity-70 text-white font-semibold px-4 py-2 md:px-5 md:py-2.5 rounded-card text-xs md:text-sm transition-all shrink-0 self-start md:self-auto cursor-pointer inline-flex items-center gap-2"
+        className="bg-accent-600 hover:bg-accent-700 disabled:opacity-70 text-white font-semibold px-4 py-2 md:px-5 md:py-2.5 rounded-card text-xs md:text-sm transition-all shrink-0 self-start md:self-auto cursor-pointer inline-flex items-center gap-2"
       >
         {drafting && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
         {drafting ? 'Designing…' : 'Design experiment'}

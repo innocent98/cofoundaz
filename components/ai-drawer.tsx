@@ -101,17 +101,17 @@ export function AiDrawer() {
         <button
           type="button"
           onClick={() => (isAiDrawerOpen ? closeAiDrawer() : openAiDrawer())}
-          className="fixed hidden md:flex md:bottom-6 md:right-6 z-50 w-14 h-14 bg-[#1F4D3A] text-white rounded-full shadow-card items-center justify-center hover:bg-[#15382A] transition-colors group cursor-pointer"
+          className="fixed hidden md:flex md:bottom-6 md:right-6 z-50 w-14 h-14 bg-brand-x1f4d3a text-white rounded-full shadow-card items-center justify-center hover:bg-brand-x15382a transition-colors group cursor-pointer"
           aria-label="Ask your AI Co-Founder"
           aria-keyshortcuts="Meta+J Control+J"
         >
-          <Sparkles className="w-6 h-6 fill-copper-600 text-copper-600 group-hover:scale-110 transition-transform" />
+          <Sparkles className="w-6 h-6 fill-accent-600 text-accent-600 group-hover:scale-110 transition-transform" />
           <span
             role="tooltip"
-            className="pointer-events-none absolute right-full mr-3 hidden whitespace-nowrap rounded-input bg-[#12291F] px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-raised transition-opacity md:flex md:items-center md:gap-2 group-hover:opacity-100 group-focus-visible:opacity-100"
+            className="pointer-events-none absolute right-full mr-3 hidden whitespace-nowrap rounded-input bg-brand-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-raised transition-opacity md:flex md:items-center md:gap-2 group-hover:opacity-100 group-focus-visible:opacity-100"
           >
             Ask your AI Co-Founder
-            <kbd className="rounded-input border border-[#2E5A45] px-1.5 py-0.5 text-[10px] text-sage-200">⌘J</kbd>
+            <kbd className="rounded-input border border-brand-x2e5a45 px-1.5 py-0.5 text-[10px] text-neutral-200">⌘J</kbd>
           </span>
         </button>
       )}
@@ -124,19 +124,19 @@ export function AiDrawer() {
             className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
           />
 
-          <div className="relative w-full max-w-md h-full bg-[#FAFAFA] shadow-raised flex flex-col transform transition-transform border-l border-sage-200">
+          <div className="relative w-full max-w-md h-full bg-surface-ghost shadow-raised flex flex-col transform transition-transform border-l border-neutral-200">
             {/* Header */}
-            <div className="p-4 border-b border-sage-100 flex items-center justify-between bg-white shrink-0">
+            <div className="p-4 border-b border-neutral-100 flex items-center justify-between bg-white shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-card bg-[#1F4D3A] text-white flex items-center justify-center shadow-card">
-                  <Sparkles className="w-4 h-4 fill-copper-600 text-copper-600" />
+                <div className="w-8 h-8 rounded-card bg-brand-x1f4d3a text-white flex items-center justify-center shadow-card">
+                  <Sparkles className="w-4 h-4 fill-accent-600 text-accent-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-[#1E2923]">AI Co-Founder</h3>
+                  <h3 className="font-bold text-sm text-ink">AI Co-Founder</h3>
                   <Link 
                     href="/ai" 
                     onClick={closeAiDrawer}
-                    className="text-xs font-semibold text-[#1E4D3B] hover:underline"
+                    className="text-xs font-semibold text-brand-700 hover:underline"
                   >
                     Open full view →
                   </Link>
@@ -147,7 +147,7 @@ export function AiDrawer() {
                   <button
                     type="button"
                     onClick={startNewChat}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-card text-xs font-semibold text-sage-600 hover:text-[#1F4D3A] hover:bg-sage-100 transition-colors cursor-pointer"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-card text-xs font-semibold text-neutral-600 hover:text-brand-x1f4d3a hover:bg-neutral-100 transition-colors cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     New chat
@@ -156,7 +156,7 @@ export function AiDrawer() {
                 <button
                   onClick={closeAiDrawer}
                   aria-label="Close AI Co-Founder"
-                  className="p-1.5 rounded-card text-sage-400 hover:text-[#1F4D3A] hover:bg-sage-100 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-card text-neutral-400 hover:text-brand-x1f4d3a hover:bg-neutral-100 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -169,11 +169,11 @@ export function AiDrawer() {
             </div>
 
             {/* Chat Thread */}
-            <div className="flex-1 overflow-y-auto min-h-0 bg-[#FAFAFA]" ref={chatScrollRef}>
+            <div className="flex-1 overflow-y-auto min-h-0 bg-surface-ghost" ref={chatScrollRef}>
               <div className="p-4 space-y-6">
                 
                 {threadLoading && (
-                  <div className="flex items-center justify-center gap-2 py-10 text-xs text-sage-500" role="status">
+                  <div className="flex items-center justify-center gap-2 py-10 text-xs text-neutral-500" role="status">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Loading conversation...
                   </div>
@@ -181,11 +181,11 @@ export function AiDrawer() {
 
                 {!threadLoading && messages.length === 0 && (
                   <div className="flex flex-col items-center justify-center h-full text-center py-10 space-y-3">
-                    <Sparkles className="w-8 h-8 text-[#9C5B34]" />
-                    <p className="text-sm font-medium text-sage-700">
+                    <Sparkles className="w-8 h-8 text-accent-600" />
+                    <p className="text-sm font-medium text-neutral-700">
                       Ask your AI co-founder anything.
                     </p>
-                    <p className="text-xs text-sage-500 max-w-[16rem]">
+                    <p className="text-xs text-neutral-500 max-w-[16rem]">
                       Replies use what it knows about your workspace. Your conversations are private to you.
                     </p>
                     <div className="flex flex-col gap-2 w-full pt-2">
@@ -194,7 +194,7 @@ export function AiDrawer() {
                           key={prompt}
                           type="button"
                           onClick={() => handleSendMessage(prompt)}
-                          className="text-xs font-medium text-[#1E2923] bg-white border border-sage-200 px-3 py-2.5 rounded-card hover:border-sage-300 hover:bg-sage-50 transition-colors cursor-pointer text-left shadow-card"
+                          className="text-xs font-medium text-ink bg-white border border-neutral-200 px-3 py-2.5 rounded-card hover:border-neutral-300 hover:bg-neutral-50 transition-colors cursor-pointer text-left shadow-card"
                         >
                           {prompt}
                         </button>
@@ -209,19 +209,19 @@ export function AiDrawer() {
                     className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                   >
                     {msg.role === 'assistant' && (
-                      <div className="text-[11px] font-semibold text-sage-500 mb-1 ml-9">Co-Founder</div>
+                      <div className="text-[11px] font-semibold text-neutral-500 mb-1 ml-9">Co-Founder</div>
                     )}
                     <div className={`flex items-start gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''} w-full`}>
                       {msg.role === 'assistant' && (
-                        <div className="w-7 h-7 rounded-input bg-[#1F4D3A] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-card">
-                          <Sparkles className="w-3.5 h-3.5 fill-copper-600 text-copper-600" />
+                        <div className="w-7 h-7 rounded-input bg-brand-x1f4d3a text-white flex items-center justify-center shrink-0 mt-0.5 shadow-card">
+                          <Sparkles className="w-3.5 h-3.5 fill-accent-600 text-accent-600" />
                         </div>
                       )}
                       <div
                         className={`max-w-[85%] p-3.5 text-sm rounded-card shadow-card ${
                           msg.role === 'user'
-                            ? 'bg-[#1F4D3A] text-white rounded-tr-sm'
-                            : 'bg-white border border-sage-100 text-[#1C201D] rounded-tl-sm'
+                            ? 'bg-brand-x1f4d3a text-white rounded-tr-sm'
+                            : 'bg-white border border-neutral-100 text-neutral-x1c201d rounded-tl-sm'
                         }`}
                       >
                         <ChatMessageContent message={msg} />
@@ -233,9 +233,9 @@ export function AiDrawer() {
             </div>
 
             {/* Chat Input Bar */}
-            <div className="p-4 bg-white border-t border-sage-100 relative shrink-0">
+            <div className="p-4 bg-white border-t border-neutral-100 relative shrink-0">
               {error && (
-                <p role="alert" className="mb-2 text-xs font-medium text-red-700">
+                <p role="alert" className="mb-2 text-xs font-medium text-danger-700">
                   {error}
                 </p>
               )}
@@ -245,7 +245,7 @@ export function AiDrawer() {
                   e.preventDefault();
                   handleSendMessage(chatInput);
                 }}
-                className="relative flex flex-col bg-[#F9F9F8] border border-[#EBEBE6] rounded-card px-2 py-2 focus-within:ring-2 focus-within:ring-copper-600 focus-within:border-transparent transition-all"
+                className="relative flex flex-col bg-neutral-xf9f9f8 border border-line-soft rounded-card px-2 py-2 focus-within:ring-2 focus-within:ring-accent-600 focus-within:border-transparent transition-all"
               >
                 <textarea
                   autoFocus
@@ -259,7 +259,7 @@ export function AiDrawer() {
                   }}
                   placeholder={isGenerating ? 'Your co-founder is replying...' : 'Ask anything...'}
                   aria-label="Message your AI co-founder"
-                  className="w-full bg-transparent text-sm outline-none text-[#1E2923] placeholder-[#8E9B90] py-2 resize-none h-[40px] max-h-[120px]"
+                  className="w-full bg-transparent text-sm outline-none text-ink placeholder-ink-subtle py-2 resize-none h-[40px] max-h-[120px]"
                 />
                 <div className="flex items-center justify-end mt-1">
                   <button
@@ -267,8 +267,8 @@ export function AiDrawer() {
                     disabled={!chatInput.trim() || isGenerating || threadLoading}
                     className={`font-semibold text-xs px-4 py-1.5 rounded-card shadow-card transition-colors flex items-center justify-center min-w-[64px] ${
                       chatInput.trim() && !isGenerating && !threadLoading
-                        ? 'bg-copper-600 hover:bg-copper-700 text-white cursor-pointer'
-                        : 'bg-[#EBEBE6] text-[#8E9B90] cursor-not-allowed'
+                        ? 'bg-accent-600 hover:bg-accent-700 text-white cursor-pointer'
+                        : 'bg-line-soft text-ink-subtle cursor-not-allowed'
                     }`}
                   >
                     {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Send'}

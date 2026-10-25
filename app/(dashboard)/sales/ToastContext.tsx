@@ -68,12 +68,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             className={`px-5 py-3 rounded-modal shadow-raised flex items-center gap-3 border ${
               toast.kind === "error"
-                ? "bg-red-50 border-red-200 text-red-800"
-                : "bg-[#0e271f] border-[#1f4236] text-sage-100"
+                ? "bg-danger-50 border-danger-200 text-danger-800"
+                : "bg-brand-rail-deep border-brand-x1f4236 text-neutral-100"
             }`}
           >
             <span
-              className={`font-bold text-sm ${toast.kind === "error" ? "text-red-600" : "text-green-400"}`}
+              className={`font-bold text-sm ${toast.kind === "error" ? "text-danger-600" : "text-brand-400"}`}
               aria-hidden="true"
             >
               {toast.kind === "error" ? "!" : "✓"}

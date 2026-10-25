@@ -102,7 +102,7 @@ function RecordMetricDrawer({ onClose, onSaved }: { onClose: () => void; onSaved
         </>
       }
     >
-      <p className="text-xs text-sage-600 rounded-card bg-sage-50 border border-sage-200 p-3">
+      <p className="text-xs text-neutral-600 rounded-card bg-neutral-50 border border-neutral-200 p-3">
         Metrics add up. Record each real-world event once, at one scope (the whole business, one channel or one campaign,
         never two), or the totals will double count. Made a typo? Delete the entry from Recorded entries and record it again.
       </p>
@@ -137,7 +137,7 @@ function RecordMetricDrawer({ onClose, onSaved }: { onClose: () => void; onSaved
             <option value="">Choose a campaign</option>
             {campaigns.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-          {campaigns.length === 0 && <p className="text-xs text-sage-500">You have no campaigns yet.</p>}
+          {campaigns.length === 0 && <p className="text-xs text-neutral-500">You have no campaigns yet.</p>}
         </Field>
       )}
     </Drawer>
@@ -190,18 +190,18 @@ function RecordedEntries({ range, refreshKey, onChanged }: { range: AnalyticsRan
 
   return (
     <section aria-label="Recorded entries" className={`${CARD} overflow-hidden`}>
-      <div className="px-6 py-4 border-b border-sage-200 bg-sage-50/50">
-        <h3 className="text-sm font-semibold text-sage-900">Recorded entries</h3>
-        <p className="text-xs text-sage-500">Every number you typed in for this range, newest first.</p>
+      <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50/50">
+        <h3 className="text-sm font-semibold text-neutral-900">Recorded entries</h3>
+        <p className="text-xs text-neutral-500">Every number you typed in for this range, newest first.</p>
       </div>
-      {status === 'error' && <p role="alert" className="px-6 py-5 text-sm text-red-700">{error}</p>}
-      {!page && status === 'loading' && <p className="px-6 py-5 text-sm text-sage-500">Loading your entries...</p>}
-      {page && rows.length === 0 && <p className="px-6 py-5 text-sm text-sage-500">No entries recorded in this range.</p>}
+      {status === 'error' && <p role="alert" className="px-6 py-5 text-sm text-danger-700">{error}</p>}
+      {!page && status === 'loading' && <p className="px-6 py-5 text-sm text-neutral-500">Loading your entries...</p>}
+      {page && rows.length === 0 && <p className="px-6 py-5 text-sm text-neutral-500">No entries recorded in this range.</p>}
       {rows.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-sage-200 text-[11px] font-bold text-sage-600 uppercase tracking-wider">
+              <tr className="border-b border-neutral-200 text-[11px] font-bold text-neutral-600 uppercase tracking-wider">
                 <th scope="col" className="py-3 px-6">Date</th>
                 <th scope="col" className="py-3 px-6">Metric</th>
                 <th scope="col" className="py-3 px-6">Value</th>
@@ -209,19 +209,19 @@ function RecordedEntries({ range, refreshKey, onChanged }: { range: AnalyticsRan
                 <th scope="col" className="relative py-3 px-6 text-right"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-sage-100 text-sm">
+            <tbody className="divide-y divide-neutral-100 text-sm">
               {rows.map((m) => (
                 <tr key={m.id}>
-                  <td className="py-3 px-6 text-sage-600 whitespace-nowrap">{m.ts}</td>
-                  <td className="py-3 px-6 text-sage-900 font-medium">{METRIC_LABEL[m.metric]}</td>
-                  <td className="py-3 px-6 text-sage-900 tabular-nums">{m.metric === 'spend' ? formatMoney(m.value) : m.value.toLocaleString()}</td>
-                  <td className="py-3 px-6 text-sage-600">{scopeLabel(m)}</td>
+                  <td className="py-3 px-6 text-neutral-600 whitespace-nowrap">{m.ts}</td>
+                  <td className="py-3 px-6 text-neutral-900 font-medium">{METRIC_LABEL[m.metric]}</td>
+                  <td className="py-3 px-6 text-neutral-900 tabular-nums">{m.metric === 'spend' ? formatMoney(m.value) : m.value.toLocaleString()}</td>
+                  <td className="py-3 px-6 text-neutral-600">{scopeLabel(m)}</td>
                   <td className="py-3 px-6 text-right">
                     <button
                       type="button"
                       onClick={() => setPending(m)}
                       aria-label={`Delete ${METRIC_LABEL[m.metric]} entry from ${m.ts}`}
-                      className="text-xs font-semibold text-red-700 hover:underline cursor-pointer min-h-8"
+                      className="text-xs font-semibold text-danger-700 hover:underline cursor-pointer min-h-8"
                     >
                       Delete
                     </button>
@@ -233,8 +233,8 @@ function RecordedEntries({ range, refreshKey, onChanged }: { range: AnalyticsRan
         </div>
       )}
       {page && page.total > rows.length && (
-        <div className="px-6 py-4 border-t border-sage-100 flex items-center justify-between gap-3">
-          <p className="text-xs text-sage-500">Showing {rows.length} of {page.total}</p>
+        <div className="px-6 py-4 border-t border-neutral-100 flex items-center justify-between gap-3">
+          <p className="text-xs text-neutral-500">Showing {rows.length} of {page.total}</p>
           <button type="button" onClick={showMore} className={BTN_SECONDARY}>Show more</button>
         </div>
       )}
@@ -298,14 +298,14 @@ export default function MarketingAnalyticsPage() {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">Performance analytics</h1>
+        <h1 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 tracking-tight">Performance analytics</h1>
         <div className="flex flex-wrap items-center gap-3">
           <label htmlFor="range" className="sr-only">Date range</label>
           <select
             id="range"
             value={range}
             onChange={(e) => setRange(e.target.value as AnalyticsRange)}
-            className="bg-white border border-sage-300 rounded-card px-4 py-2.5 text-sm font-semibold text-sage-900 outline-none focus:border-sage-400 shadow-card"
+            className="bg-white border border-neutral-300 rounded-card px-4 py-2.5 text-sm font-semibold text-neutral-900 outline-none focus:border-neutral-400 shadow-card"
           >
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
@@ -337,28 +337,28 @@ export default function MarketingAnalyticsPage() {
                   ['Conversion rate', pct(analytics.funnel.conversion_rate)],
                 ].map(([label, val]) => (
                   <div key={label} className={`${CARD} p-5 space-y-1`}>
-                    <span className="text-[11px] font-bold text-sage-600 tracking-wider uppercase">{label}</span>
-                    <div className="text-2xl font-display font-bold text-sage-900">{val}</div>
+                    <span className="text-[11px] font-bold text-neutral-600 tracking-wider uppercase">{label}</span>
+                    <div className="text-2xl font-display font-bold text-neutral-900">{val}</div>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-sage-500">
+              <p className="text-xs text-neutral-500">
                 Every number here is one you recorded. Nothing syncs from an ad platform or analytics tool, and each entry counts once, at one scope.
                 Ranges cover the last {range === '7d' ? 7 : range === '30d' ? 30 : 90} days plus today, in UTC.
               </p>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className={`${CARD} p-6 space-y-5`}>
-                  <h3 className="text-sm font-semibold text-sage-900">Traffic by week</h3>
+                  <h3 className="text-sm font-semibold text-neutral-900">Traffic by week</h3>
                   {weeks.length === 0 ? (
-                    <p className="text-sm text-sage-500">No visits recorded in this range.</p>
+                    <p className="text-sm text-neutral-500">No visits recorded in this range.</p>
                   ) : (
                     <div className="flex items-end gap-2 h-44" role="img" aria-label={`Weekly visits: ${weeks.map((w) => `${w.week_start} ${w.visits}`).join(', ')}`}>
                       {weeks.map((w) => (
                         <div key={w.week_start} className="flex-1 flex flex-col items-center justify-end gap-1 h-full min-w-0">
-                          <span className="text-[10px] text-sage-600 tabular-nums">{w.visits}</span>
-                          <div className="w-full rounded-t bg-[#1e4836]" style={{ height: `${Math.max(2, (w.visits / maxVisits) * 100)}%` }} />
-                          <span className="text-[10px] text-sage-600 truncate w-full text-center">{w.week_start.slice(5)}</span>
+                          <span className="text-[10px] text-neutral-600 tabular-nums">{w.visits}</span>
+                          <div className="w-full rounded-t bg-brand-hover" style={{ height: `${Math.max(2, (w.visits / maxVisits) * 100)}%` }} />
+                          <span className="text-[10px] text-neutral-600 truncate w-full text-center">{w.week_start.slice(5)}</span>
                         </div>
                       ))}
                     </div>
@@ -366,33 +366,33 @@ export default function MarketingAnalyticsPage() {
                 </div>
 
                 <div className={`${CARD} p-6 space-y-5`}>
-                  <h3 className="text-sm font-semibold text-sage-900">CAC by channel</h3>
+                  <h3 className="text-sm font-semibold text-neutral-900">CAC by channel</h3>
                   {cacRows.length === 0 ? (
-                    <p className="text-sm text-sage-500">No channel spend or conversions recorded in this range.</p>
+                    <p className="text-sm text-neutral-500">No channel spend or conversions recorded in this range.</p>
                   ) : (
                     <div className="space-y-4 pt-1">
                       {cacRows.map((r) => (
                         <div key={r.channel} className="space-y-1.5">
                           <div className="flex items-center justify-between text-sm font-medium">
-                            <span className="text-sage-700 flex items-center gap-2">
+                            <span className="text-neutral-700 flex items-center gap-2">
                               {CHANNEL_LABELS[r.channel]}
                               {r.estimated && (
                                 <span
                                   title="Includes campaign spend split by the campaign's channel mix"
-                                  className="rounded-full bg-copper-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-copper-800"
+                                  className="rounded-full bg-accent-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-800"
                                 >
                                   Estimated
                                 </span>
                               )}
                             </span>
-                            <span className="text-sage-900 font-semibold">
+                            <span className="text-neutral-900 font-semibold">
                               {r.cac === null ? 'No conversions yet' : formatCac(r.cac)}
                             </span>
                           </div>
-                          <div className="w-full bg-sage-100 h-3 rounded-full overflow-hidden p-0.5 border border-sage-200/50">
-                            <div className="h-full rounded-full bg-[#1e4836]" style={{ width: `${r.cac === null ? 0 : (r.cac / maxCac) * 100}%` }} />
+                          <div className="w-full bg-neutral-100 h-3 rounded-full overflow-hidden p-0.5 border border-neutral-200/50">
+                            <div className="h-full rounded-full bg-brand-hover" style={{ width: `${r.cac === null ? 0 : (r.cac / maxCac) * 100}%` }} />
                           </div>
-                          <p className="text-xs text-sage-500">
+                          <p className="text-xs text-neutral-500">
                             {formatMoney(r.spend)} spent, {r.conversions} {r.conversions === 1 ? 'conversion' : 'conversions'}
                             {r.estimated && ' (includes campaign spend split by the campaign\'s channel mix)'}
                           </p>
@@ -404,16 +404,16 @@ export default function MarketingAnalyticsPage() {
               </div>
 
               <div className={`${CARD} overflow-hidden`}>
-                <div className="px-6 py-4 border-b border-sage-200 bg-sage-50/50">
-                  <h3 className="text-sm font-semibold text-sage-900">Campaign leaderboard</h3>
+                <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50/50">
+                  <h3 className="text-sm font-semibold text-neutral-900">Campaign leaderboard</h3>
                 </div>
                 {analytics.leaderboard.length === 0 ? (
-                  <p className="px-6 py-5 text-sm text-sage-500">No campaign-level metrics recorded in this range.</p>
+                  <p className="px-6 py-5 text-sm text-neutral-500">No campaign-level metrics recorded in this range.</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-sage-200 text-[11px] font-bold text-sage-600 uppercase tracking-wider">
+                        <tr className="border-b border-neutral-200 text-[11px] font-bold text-neutral-600 uppercase tracking-wider">
                           <th className="py-3 px-6">Campaign</th>
                           <th className="py-3 px-6">Clicks</th>
                           <th className="py-3 px-6">Conversions</th>
@@ -421,14 +421,14 @@ export default function MarketingAnalyticsPage() {
                           <th className="py-3 px-6 text-right">CAC</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-sage-100 text-sm">
+                      <tbody className="divide-y divide-neutral-100 text-sm">
                         {analytics.leaderboard.map((item) => (
-                          <tr key={item.campaign_id} className="hover:bg-sage-50/50 transition-colors">
-                            <td className="py-4 px-6 font-semibold text-sage-900">{item.name}</td>
-                            <td className="py-4 px-6 text-sage-500 font-medium">{item.clicks.toLocaleString()}</td>
-                            <td className="py-4 px-6 text-sage-500 font-medium">{item.conversions.toLocaleString()}</td>
-                            <td className="py-4 px-6 text-sage-500 font-medium">{formatMoney(item.spend)}</td>
-                            <td className="py-4 px-6 font-bold text-green-800 text-right">{item.cac === null ? 'No conversions' : formatCac(item.cac)}</td>
+                          <tr key={item.campaign_id} className="hover:bg-neutral-50/50 transition-colors">
+                            <td className="py-4 px-6 font-semibold text-neutral-900">{item.name}</td>
+                            <td className="py-4 px-6 text-neutral-500 font-medium">{item.clicks.toLocaleString()}</td>
+                            <td className="py-4 px-6 text-neutral-500 font-medium">{item.conversions.toLocaleString()}</td>
+                            <td className="py-4 px-6 text-neutral-500 font-medium">{formatMoney(item.spend)}</td>
+                            <td className="py-4 px-6 font-bold text-brand-800 text-right">{item.cac === null ? 'No conversions' : formatCac(item.cac)}</td>
                           </tr>
                         ))}
                       </tbody>

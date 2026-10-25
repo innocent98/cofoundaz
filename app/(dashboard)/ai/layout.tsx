@@ -22,14 +22,14 @@ export default function AICoFounderLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-[#1E2923]">
+    <div className="min-h-screen bg-surface-faint text-ink">
       <div className="flex flex-col min-w-0">
         <ShellTopBar title="AI Co-Founder" />
 
         {/* Main Page Body */}
         <main className="p-4 md:p-6 lg:p-8 flex-1 flex flex-col">
           {/* Top Navigation Tabs */}
-          <div className="flex items-center gap-2 border-b border-[#EBEBE6] pb-2 mb-6 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2 border-b border-line-soft pb-2 mb-6 overflow-x-auto no-scrollbar">
             {tabs.map((tab) => {
               const isActive = pathname === tab.href;
               return (
@@ -38,8 +38,8 @@ export default function AICoFounderLayout({
                   href={tab.href}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-[#E9DDBE] text-[#12291F] shadow-card'
-                      : 'text-[#67716C] hover:bg-[#F5EEDC] hover:text-[#12291F]'
+                      ? 'bg-accent-xe9ddbe text-brand-900 shadow-card'
+                      : 'text-neutral-500 hover:bg-accent-xf5eedc hover:text-brand-900'
                   }`}
                 >
                   {tab.label}

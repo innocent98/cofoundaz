@@ -51,20 +51,20 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
   const recent = items.slice(0, 8);
 
   return (
-    <header className="sticky top-0 z-40 w-full shrink-0 bg-white border-b border-sage-200/80 px-4 md:px-8 py-2.5 flex items-center justify-between gap-3 md:gap-4 shadow-card">
+    <header className="sticky top-0 z-40 w-full shrink-0 bg-white border-b border-neutral-200/80 px-4 md:px-8 py-2.5 flex items-center justify-between gap-3 md:gap-4 shadow-card">
       {/* Brand icon opens the sidebar on mobile/tablet */}
       <button
         type="button"
         onClick={() => sidebar.openSidebar()}
         aria-label="Open sidebar"
-        className="lg:hidden shrink-0 h-9 w-9 flex items-center justify-center rounded-card hover:bg-sage-100 transition-colors cursor-pointer"
+        className="lg:hidden shrink-0 h-9 w-9 flex items-center justify-center rounded-card hover:bg-neutral-100 transition-colors cursor-pointer"
       >
         <BrandLogo variant="mark" height={30} eager />
       </button>
 
       {/* Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="hidden md:block text-sm text-sage-500 font-normal shrink-0">
-        Workspace <span className="text-sage-300 mx-0.5">/</span> <span className="text-sage-900 font-semibold">{title}</span>
+      <nav aria-label="Breadcrumb" className="hidden md:block text-sm text-neutral-500 font-normal shrink-0">
+        Workspace <span className="text-neutral-300 mx-0.5">/</span> <span className="text-neutral-900 font-semibold">{title}</span>
       </nav>
 
       {/* Global search (⌘K) */}
@@ -73,13 +73,13 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
         onClick={openSearch}
         aria-label="Search"
         aria-keyshortcuts="Meta+K Control+K"
-        className="flex-1 min-w-0 max-w-lg flex items-center justify-between gap-2 bg-[#F0F5F2] border border-[#E2EBE6] rounded-card px-3.5 py-1.5 text-xs text-sage-600 cursor-pointer hover:border-sage-300 transition-colors text-left"
+        className="flex-1 min-w-0 max-w-lg flex items-center justify-between gap-2 bg-neutral-xf0f5f2 border border-neutral-xe2ebe6 rounded-card px-3.5 py-1.5 text-xs text-neutral-600 cursor-pointer hover:border-neutral-300 transition-colors text-left"
       >
         <span className="flex min-w-0 items-center gap-2">
-          <Search className="w-3.5 h-3.5 shrink-0 text-sage-500 stroke-[1.75]" aria-hidden="true" />
-          <span className="truncate text-sage-600">{SEARCH_PLACEHOLDER}</span>
+          <Search className="w-3.5 h-3.5 shrink-0 text-neutral-500 stroke-[1.75]" aria-hidden="true" />
+          <span className="truncate text-neutral-600">{SEARCH_PLACEHOLDER}</span>
         </span>
-        <kbd className="hidden md:inline bg-white border border-sage-200 rounded-input px-1.5 py-0.5 text-[10px] text-sage-600 font-body shadow-card">⌘K</kbd>
+        <kbd className="hidden md:inline bg-white border border-neutral-200 rounded-input px-1.5 py-0.5 text-[10px] text-neutral-600 font-body shadow-card">⌘K</kbd>
       </button>
 
       <div className="flex items-center gap-3 md:gap-4 shrink-0">
@@ -87,12 +87,12 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
           <Link
             href="/health"
             aria-label={`Health score ${health.score}`}
-            className="hidden md:flex bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium items-center gap-1.5 h-[34px] hover:bg-[#D5E7DF] transition-colors"
+            className="hidden md:flex bg-brand-100 text-brand-900 px-3 py-1 rounded-full text-xs font-medium items-center gap-1.5 h-[34px] hover:bg-brand-xd5e7df transition-colors"
           >
             <span>Health</span>
             <span className="font-bold">{health.score}</span>
             {health.weeklyDelta !== 0 && (
-              <span className={`font-bold ${health.weeklyDelta > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <span className={`font-bold ${health.weeklyDelta > 0 ? 'text-brand-600' : 'text-danger-600'}`}>
                 {health.weeklyDelta > 0 ? '↑' : '↓'}
               </span>
             )}
@@ -107,28 +107,28 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
             aria-expanded={bellOpen}
             aria-haspopup="true"
             onClick={() => setBellOpen((v) => !v)}
-            className="relative w-9 h-9 rounded-full border border-[#DCE6E1] bg-white flex items-center justify-center cursor-pointer hover:bg-sage-50 transition-colors"
+            className="relative w-9 h-9 rounded-full border border-neutral-xdce6e1 bg-white flex items-center justify-center cursor-pointer hover:bg-neutral-50 transition-colors"
           >
-            <Bell className="w-4 h-4 text-[#66756F]" />
+            <Bell className="w-4 h-4 text-neutral-x66756f" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#12291F] text-white text-[10px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center font-bold">
+              <span className="absolute -top-1 -right-1 bg-brand-900 text-white text-[10px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center font-bold">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </button>
 
           {bellOpen && (
-            <div className="fixed inset-x-4 top-16 z-50 md:absolute md:inset-x-auto md:top-12 md:right-0 md:w-96 bg-white border border-sage-100 rounded-modal shadow-raised p-4">
-              <div className="flex items-center justify-between pb-3 border-b border-sage-100 mb-2">
-                <h4 className="font-bold text-sm text-sage-900">Notifications</h4>
+            <div className="fixed inset-x-4 top-16 z-50 md:absolute md:inset-x-auto md:top-12 md:right-0 md:w-96 bg-white border border-neutral-100 rounded-modal shadow-raised p-4">
+              <div className="flex items-center justify-between pb-3 border-b border-neutral-100 mb-2">
+                <h4 className="font-bold text-sm text-neutral-900">Notifications</h4>
                 {unreadCount > 0 && (
-                  <button type="button" onClick={markAllRead} className="text-xs font-semibold text-[#114B32] hover:underline cursor-pointer">
+                  <button type="button" onClick={markAllRead} className="text-xs font-semibold text-brand-x114b32 hover:underline cursor-pointer">
                     Mark all read
                   </button>
                 )}
               </div>
               {(notifError || retrying) && recent.length === 0 ? (
-                <div role="alert" className="p-4 text-center text-sm text-sage-700">
+                <div role="alert" className="p-4 text-center text-sm text-neutral-700">
                   <p>Could not load notifications.</p>
                   <button
                     type="button"
@@ -137,29 +137,29 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
                       void Promise.resolve(refetchNotifs()).finally(() => setRetrying(false));
                     }}
                     disabled={retrying}
-                    className="mt-2 min-h-11 rounded-card bg-[#114B32] px-4 text-xs font-semibold text-white hover:bg-[#0e3e29] disabled:opacity-60"
+                    className="mt-2 min-h-11 rounded-card bg-brand-x114b32 px-4 text-xs font-semibold text-white hover:bg-brand-x0e3e29 disabled:opacity-60"
                   >
                     {retrying ? 'Retrying...' : 'Retry'}
                   </button>
                 </div>
               ) : recent.length === 0 ? (
-                <div className="p-4 text-center text-sm text-sage-500">No new notifications.</div>
+                <div className="p-4 text-center text-sm text-neutral-500">No new notifications.</div>
               ) : (
                 <ul className="space-y-1 max-h-[60vh] overflow-y-auto">
                   {recent.map((n) => {
                     const body = (
                       <>
-                        <div className={`w-[26px] h-[26px] shrink-0 rounded-input mt-0.5 flex items-center justify-center text-xs font-bold text-[#114B32] ${n.iconBg}`} aria-hidden="true">
+                        <div className={`w-[26px] h-[26px] shrink-0 rounded-input mt-0.5 flex items-center justify-center text-xs font-bold text-brand-x114b32 ${n.iconBg}`} aria-hidden="true">
                           {n.iconText}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className={`text-xs font-medium ${n.isUnread ? 'text-sage-900' : 'text-sage-700'}`}>{n.title}</p>
-                          <span className="text-[10px] text-sage-500">{n.time}</span>
+                          <p className={`text-xs font-medium ${n.isUnread ? 'text-neutral-900' : 'text-neutral-700'}`}>{n.title}</p>
+                          <span className="text-[10px] text-neutral-500">{n.time}</span>
                         </div>
-                        {n.isUnread && <div className="w-2 h-2 rounded-full bg-[#114B32] mt-1.5 shrink-0" aria-label="Unread" />}
+                        {n.isUnread && <div className="w-2 h-2 rounded-full bg-brand-x114b32 mt-1.5 shrink-0" aria-label="Unread" />}
                       </>
                     );
-                    const cls = `flex items-start gap-3 p-2.5 rounded-card transition-colors ${n.isUnread ? 'bg-[#F5EEDC]' : 'hover:bg-sage-50'}`;
+                    const cls = `flex items-start gap-3 p-2.5 rounded-card transition-colors ${n.isUnread ? 'bg-accent-xf5eedc' : 'hover:bg-neutral-50'}`;
                     return (
                       <li key={n.id}>
                         {n.href ? (
@@ -186,7 +186,7 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
               <Link
                 href="/notifications"
                 onClick={() => setBellOpen(false)}
-                className="mt-3 block border-t border-sage-100 pt-3 text-center text-xs font-bold text-[#266B4E] hover:underline"
+                className="mt-3 block border-t border-neutral-100 pt-3 text-center text-xs font-bold text-brand-x266b4e hover:underline"
               >
                 View all notifications
               </Link>
@@ -198,7 +198,7 @@ export function DashboardNavbar({ onInvite, title = 'Dashboard' }: DashboardNavb
           <button
             type="button"
             onClick={onInvite}
-            className="bg-copper-600 text-white font-semibold text-xs px-3 md:px-4 h-[36px] rounded-input hover:bg-copper-700 transition-colors cursor-pointer whitespace-nowrap"
+            className="bg-accent-600 text-white font-semibold text-xs px-3 md:px-4 h-[36px] rounded-input hover:bg-accent-700 transition-colors cursor-pointer whitespace-nowrap"
           >
             + Invite
           </button>

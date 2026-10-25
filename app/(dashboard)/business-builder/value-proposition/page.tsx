@@ -52,20 +52,20 @@ export default function ValuePropositionPage() {
     tone: 'sand' | 'sage',
     tools: (key: string, label: string, opts?: { ai?: boolean }) => React.ReactNode
   ) => (
-    <div className="bg-white rounded-modal p-6 border border-[#EBEBE6] shadow-card flex flex-col gap-6">
-      <h3 className="text-sm font-bold text-[#1E2923]">{title}</h3>
+    <div className="bg-white rounded-modal p-6 border border-line-soft shadow-card flex flex-col gap-6">
+      <h3 className="text-sm font-bold text-ink">{title}</h3>
       <div className="flex flex-col gap-5">
         {defs.map((b) => (
           <div key={b.key} className="flex flex-col gap-2 relative group">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-bold tracking-wider text-[#768478] uppercase">{b.label}</span>
+              <span className="text-[11px] font-bold tracking-wider text-ink-soft uppercase">{b.label}</span>
               <div className="flex items-center gap-3">
                 {tools(b.key, b.label, { ai: true })}
                 {canWrite && <InlineAdd onAdd={(t) => addItem(b.key, t)} />}
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              {listOf(b.key).length === 0 && <span className="text-[11px] text-[#B7C0B8] italic">Empty</span>}
+              {listOf(b.key).length === 0 && <span className="text-[11px] text-neutral-xb7c0b8 italic">Empty</span>}
               {listOf(b.key).map((item, idx) => (
                 <span
                   key={`${idx}:${item}`}
@@ -73,10 +73,10 @@ export default function ValuePropositionPage() {
                   {...(canWrite ? reorder.dropProps(b.key, idx) : {})}
                   className={`group/item flex items-center gap-1 text-xs font-medium pl-2 pr-2 py-2 rounded-card border transition-colors ${
                     reorder.isOver(b.key, idx)
-                      ? 'ring-1 ring-[#2D5A3F] border-[#2D5A3F]'
+                      ? 'ring-1 ring-brand-mid border-brand-mid'
                       : highlighted.includes(item)
-                        ? 'ring-2 ring-[#EAD5C6] border-[#9C5B34]'
-                        : tone === 'sand' ? 'bg-[#F5F2E9] text-[#522F1A] border-[#EAE3D2]' : 'bg-[#E6EFEA] text-[#183B28] border-[#D5E3DB]'
+                        ? 'ring-2 ring-accent-200 border-accent-600'
+                        : tone === 'sand' ? 'bg-neutral-xf5f2e9 text-accent-900 border-accent-xeae3d2' : 'bg-neutral-xe6efea text-brand-strong border-neutral-xd5e3db'
                   }`}
                 >
                   {canWrite && (
@@ -91,7 +91,7 @@ export default function ValuePropositionPage() {
                       onClick={() => setSource((cur) => (cur && cur.block === b.key && cur.item === item ? null : { block: b.key, item }))}
                       aria-pressed={source?.block === b.key && source.item === item}
                       aria-label={`Connect ${item} to a ${targetBlockFor(b.key) === 'gains' ? 'gain' : 'pain'}`}
-                      className={`hidden lg:inline-flex ${source?.block === b.key && source.item === item ? 'text-[#9C5B34]' : 'opacity-60 hover:opacity-100'}`}
+                      className={`hidden lg:inline-flex ${source?.block === b.key && source.item === item ? 'text-accent-600' : 'opacity-60 hover:opacity-100'}`}
                     >
                       <Link2 className="w-3 h-3" />
                     </button>
@@ -100,13 +100,13 @@ export default function ValuePropositionPage() {
                     <button
                       type="button"
                       onClick={() => connect({ block: b.key, item })}
-                      className="hidden lg:inline text-[10px] font-bold text-[#9C5B34] underline"
+                      className="hidden lg:inline text-[10px] font-bold text-accent-600 underline"
                     >
                       {isConnected(source, { block: b.key, item }) ? 'Disconnect' : 'Connect here'}
                     </button>
                   )}
                   {canWrite && (
-                    <button onClick={() => removeItem(b.key, idx)} className="opacity-60 md:opacity-0 group-hover/item:opacity-100 transition-opacity hover:text-[#A34B4B]" aria-label={`Remove note: ${noteLabel(item)}`}>
+                    <button onClick={() => removeItem(b.key, idx)} className="opacity-60 md:opacity-0 group-hover/item:opacity-100 transition-opacity hover:text-danger-text" aria-label={`Remove note: ${noteLabel(item)}`}>
                       <X className="w-3 h-3" />
                     </button>
                   )}
@@ -129,8 +129,8 @@ export default function ValuePropositionPage() {
       {(tools) =>
         loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-modal h-80 border border-[#EBEBE6] shadow-card animate-pulse" />
-            <div className="bg-white rounded-modal h-80 border border-[#EBEBE6] shadow-card animate-pulse" />
+            <div className="bg-white rounded-modal h-80 border border-line-soft shadow-card animate-pulse" />
+            <div className="bg-white rounded-modal h-80 border border-line-soft shadow-card animate-pulse" />
           </div>
         ) : (
           <>

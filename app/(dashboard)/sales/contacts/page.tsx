@@ -26,10 +26,10 @@ function ContactDeepLink() {
   if (!contactId) {
     return (
       <div role="alert" className={`${CARD} p-8 space-y-2`}>
-        <h1 className="font-display font-semibold text-lg text-sage-900">Contact not found</h1>
-        <p className="text-sm text-sage-600">
+        <h1 className="font-display font-semibold text-lg text-neutral-900">Contact not found</h1>
+        <p className="text-sm text-neutral-600">
           Contacts live on their account.{" "}
-          <Link href="/sales/accounts" className="font-semibold text-green-800 hover:underline">
+          <Link href="/sales/accounts" className="font-semibold text-brand-800 hover:underline">
             Open Accounts
           </Link>
         </p>
@@ -40,7 +40,7 @@ function ContactDeepLink() {
 
   return (
     <div className="space-y-4">
-      <Link href="/sales/accounts" className="text-sm font-semibold text-green-800 hover:underline">
+      <Link href="/sales/accounts" className="text-sm font-semibold text-brand-800 hover:underline">
         ← Accounts
       </Link>
       <ContactDrawer contactId={contactId} onClose={() => router.push("/sales/accounts")} onChanged={() => void contact.reload()} />

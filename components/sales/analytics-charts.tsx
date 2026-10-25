@@ -12,18 +12,18 @@ import {
 
 // Sales analytics charts (recharts), themed like the Marketing hub charts. Every series is the API's data.
 
-const GREEN = '#2D5A3F';
-const GRID = '#EBEBE6';
-const AXIS = '#768478';
+const GREEN = 'var(--color-brand-mid)';
+const GRID = 'var(--color-line-soft)';
+const AXIS = 'var(--color-ink-soft)';
 /** Won first, then the loss reasons. Six reasons plus Won are all told apart by the legend text too. */
-const SLICE_COLORS = ['#2D5A3F', '#9C5B34', '#A65243', '#768478', '#D4A27F', '#4A7A60', '#7A5C4F'];
+const SLICE_COLORS = ['var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)', 'var(--color-chart-4)', 'var(--color-chart-5)', 'var(--color-chart-6)', 'var(--color-chart-7)'];
 
 const tooltipStyle = {
-  background: '#FFFFFF',
+  background: 'var(--color-white)',
   border: `1px solid ${GRID}`,
   borderRadius: 10,
   fontSize: 12,
-  boxShadow: '0 4px 16px rgba(20,41,31,0.08)',
+  boxShadow: '0 4px 16px var(--color-shadow-soft)',
 } as const;
 
 export interface Slice {
@@ -59,7 +59,7 @@ export function WinLossDonut({ winLoss }: { winLoss: SalesAnalytics['win_loss'] 
   const slices = winLossSlices(winLoss);
   const total = winLoss.won + winLoss.lost;
   if (total === 0) {
-    return <p className="text-sm text-sage-600">No deals were closed in this period.</p>;
+    return <p className="text-sm text-neutral-600">No deals were closed in this period.</p>;
   }
   const summary = slices.map((s) => `${s.label} ${s.count} (${pctOf(s.count, total)})`).join(', ');
   return (
@@ -74,21 +74,21 @@ export function WinLossDonut({ winLoss }: { winLoss: SalesAnalytics['win_loss'] 
           </PieChart>
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-display font-bold text-sage-900">{winLoss.win_rate_pct === null ? 'None' : `${winLoss.win_rate_pct}%`}</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-sage-600">Win rate</span>
+          <span className="text-2xl font-display font-bold text-neutral-900">{winLoss.win_rate_pct === null ? 'None' : `${winLoss.win_rate_pct}%`}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-600">Win rate</span>
         </div>
       </div>
-      <ul className="space-y-2.5 text-xs font-medium text-sage-700 min-w-0 w-full">
+      <ul className="space-y-2.5 text-xs font-medium text-neutral-700 min-w-0 w-full">
         {slices.map((s) => (
           <li key={s.key}>
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: s.color }} aria-hidden="true" />
               <span className="truncate">{s.label}</span>
-              <span className="ml-auto shrink-0 tabular-nums text-sage-900 font-semibold">
+              <span className="ml-auto shrink-0 tabular-nums text-neutral-900 font-semibold">
                 {s.count} · {pctOf(s.count, total)}
               </span>
             </div>
-            {s.value_minor !== null && <p className="pl-[18px] tabular-nums text-sage-600">{formatMoney(s.value_minor)} lost</p>}
+            {s.value_minor !== null && <p className="pl-[18px] tabular-nums text-neutral-600">{formatMoney(s.value_minor)} lost</p>}
           </li>
         ))}
       </ul>
@@ -112,7 +112,7 @@ export function RevenueChart({ months }: { months: MonthlyRevenue[] }) {
             contentStyle={tooltipStyle}
             labelFormatter={(m) => monthLabel(String(m), true)}
             formatter={(v, _n, item) => [`${formatMoney(Number(v))} from ${item.payload.deals} ${item.payload.deals === 1 ? 'deal' : 'deals'}`, 'Closed won']}
-            cursor={{ fill: 'rgba(45,90,63,0.06)' }}
+            cursor={{ fill: 'var(--color-tint-brand-06)' }}
           />
           <Bar dataKey="value" fill={GREEN} radius={[4, 4, 0, 0]} maxBarSize={36} isAnimationActive={false} />
         </BarChart>

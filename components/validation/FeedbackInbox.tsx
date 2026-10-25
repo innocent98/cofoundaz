@@ -84,8 +84,8 @@ export function FeedbackInbox({
       onClick={() => setFilter(value)}
       className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap cursor-pointer border transition-colors ${
         filter === value
-          ? 'bg-[#183B28] border-[#183B28] text-white'
-          : 'bg-white border-[#EBEBE6] text-[#617065] hover:border-[#C5CFC7]'
+          ? 'bg-brand-strong border-brand-strong text-white'
+          : 'bg-white border-line-soft text-ink-muted hover:border-neutral-xc5cfc7'
       }`}
     >
       {label} <span className="opacity-80">{count}</span>
@@ -95,13 +95,13 @@ export function FeedbackInbox({
   return (
     <section aria-label="Feedback inbox" className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-display font-semibold text-sage-900">Feedback inbox</h2>
+        <h2 className="text-lg font-display font-semibold text-neutral-900">Feedback inbox</h2>
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => onShowDismissed(!showDismissed)}
             aria-pressed={showDismissed}
-            className="flex items-center gap-1.5 bg-white hover:bg-sage-50 border border-sage-200 text-sage-700 font-semibold px-3 py-2 rounded-card text-xs cursor-pointer"
+            className="flex items-center gap-1.5 bg-white hover:bg-neutral-50 border border-neutral-200 text-neutral-700 font-semibold px-3 py-2 rounded-card text-xs cursor-pointer"
           >
             {showDismissed ? <EyeOff className="w-3.5 h-3.5" aria-hidden="true" /> : <Eye className="w-3.5 h-3.5" aria-hidden="true" />}
             {showDismissed ? 'Hide dismissed' : 'Show dismissed'}
@@ -109,7 +109,7 @@ export function FeedbackInbox({
           <button
             type="button"
             onClick={() => setForm({ mode: 'add' })}
-            className="flex items-center gap-1.5 bg-[#183B28] hover:bg-[#11291C] text-white font-semibold px-4 py-2 rounded-card text-xs shadow-card cursor-pointer"
+            className="flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail text-white font-semibold px-4 py-2 rounded-card text-xs shadow-card cursor-pointer"
           >
             <Plus className="w-4 h-4" aria-hidden="true" /> Add feedback
           </button>
@@ -122,23 +122,23 @@ export function FeedbackInbox({
       </div>
 
       {error && (
-        <div className="flex items-center justify-between gap-3 bg-[#FBEAE7] border border-[#F0C9C2] rounded-card px-4 py-3">
-          <span className="flex items-center gap-2 text-sm text-[#8A2E22]">
+        <div className="flex items-center justify-between gap-3 bg-danger-xfbeae7 border border-danger-xf0c9c2 rounded-card px-4 py-3">
+          <span className="flex items-center gap-2 text-sm text-danger-deep">
             <AlertTriangle className="w-4 h-4 shrink-0" aria-hidden="true" /> {error}
           </span>
-          <button type="button" onClick={onRetry} className="text-xs font-semibold text-[#8A2E22] underline cursor-pointer">
+          <button type="button" onClick={onRetry} className="text-xs font-semibold text-danger-deep underline cursor-pointer">
             Retry
           </button>
         </div>
       )}
 
       {loading && items.length === 0 ? (
-        <div role="status" className="flex items-center justify-center gap-2 text-sage-500 py-12">
+        <div role="status" className="flex items-center justify-center gap-2 text-neutral-500 py-12">
           <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /> <span className="text-sm">Loading feedback…</span>
         </div>
       ) : visible.length === 0 ? (
-        <div data-testid="feedback-empty" className="bg-white rounded-modal p-8 border border-dashed border-sage-200 text-center">
-          <p className="text-sm text-sage-500">
+        <div data-testid="feedback-empty" className="bg-white rounded-modal p-8 border border-dashed border-neutral-200 text-center">
+          <p className="text-sm text-neutral-500">
             {total === 0 && filter === 'all'
               ? 'No feedback yet. Interview quotes and open survey answers show up here on their own. Add emails and in-app messages by hand.'
               : `Nothing from ${filter === 'all' ? 'any source' : SOURCE_LABEL[filter]} yet.`}
@@ -149,23 +149,23 @@ export function FeedbackInbox({
           {visible.map((item) => (
             <li
               key={item.id}
-              className={`bg-white rounded-modal p-4 md:p-5 border border-sage-200/80 shadow-card space-y-2.5 ${item.dismissed ? 'opacity-70' : ''}`}
+              className={`bg-white rounded-modal p-4 md:p-5 border border-neutral-200/80 shadow-card space-y-2.5 ${item.dismissed ? 'opacity-70' : ''}`}
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="bg-sage-100 text-sage-700 text-xs font-medium px-2.5 py-0.5 rounded-full">{SOURCE_LABEL[item.source]}</span>
-                <span className="text-xs text-sage-500 font-medium">{item.origin.label}</span>
-                <span className="text-xs text-sage-400">{formatReceivedOn(item.received_on)}</span>
-                {item.dismissed && <span className="bg-copper-100 text-copper-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">Dismissed</span>}
+                <span className="bg-neutral-100 text-neutral-700 text-xs font-medium px-2.5 py-0.5 rounded-full">{SOURCE_LABEL[item.source]}</span>
+                <span className="text-xs text-neutral-500 font-medium">{item.origin.label}</span>
+                <span className="text-xs text-neutral-400">{formatReceivedOn(item.received_on)}</span>
+                {item.dismissed && <span className="bg-accent-100 text-accent-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">Dismissed</span>}
               </div>
-              <p className="text-sage-800 text-sm md:text-base break-words">{item.text}</p>
+              <p className="text-neutral-800 text-sm md:text-base break-words">{item.text}</p>
               <div className="flex flex-wrap items-center gap-2">
                 {item.imported ? (
                   <>
-                    <span className="text-xs text-sage-500">
+                    <span className="text-xs text-neutral-500">
                       Edit it in the{' '}
                       <Link
                         href={item.origin.type === 'survey' ? '/validation/surveys' : '/validation/interviews'}
-                        className="font-semibold text-[#183B28] underline"
+                        className="font-semibold text-brand-strong underline"
                       >
                         {item.origin.type === 'survey' ? 'survey' : 'interview'}
                       </Link>
@@ -176,7 +176,7 @@ export function FeedbackInbox({
                         type="button"
                         onClick={() => restore(item)}
                         disabled={busyId === item.id}
-                        className="ml-auto flex items-center gap-1.5 bg-white border border-sage-200 text-sage-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-sage-50 cursor-pointer disabled:opacity-60"
+                        className="ml-auto flex items-center gap-1.5 bg-white border border-neutral-200 text-neutral-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-neutral-50 cursor-pointer disabled:opacity-60"
                       >
                         <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" /> Restore
                       </button>
@@ -186,7 +186,7 @@ export function FeedbackInbox({
                         onClick={() => dismiss(item)}
                         disabled={busyId === item.id}
                         aria-label={`Dismiss: ${item.text}`}
-                        className="ml-auto flex items-center gap-1.5 bg-white border border-sage-200 text-sage-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-sage-50 cursor-pointer disabled:opacity-60"
+                        className="ml-auto flex items-center gap-1.5 bg-white border border-neutral-200 text-neutral-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-neutral-50 cursor-pointer disabled:opacity-60"
                       >
                         <X className="w-3.5 h-3.5" aria-hidden="true" /> Dismiss
                       </button>
@@ -198,7 +198,7 @@ export function FeedbackInbox({
                       type="button"
                       onClick={() => setForm({ mode: 'edit', item })}
                       aria-label={`Edit: ${item.text}`}
-                      className="p-1.5 rounded-input text-sage-400 hover:text-sage-800 hover:bg-sage-100 cursor-pointer"
+                      className="p-1.5 rounded-input text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 cursor-pointer"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -206,7 +206,7 @@ export function FeedbackInbox({
                       type="button"
                       onClick={() => setToDelete(item)}
                       aria-label={`Delete: ${item.text}`}
-                      className="p-1.5 rounded-input text-sage-400 hover:text-[#B0483B] hover:bg-sage-100 cursor-pointer"
+                      className="p-1.5 rounded-input text-neutral-400 hover:text-danger-600 hover:bg-neutral-100 cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -278,7 +278,7 @@ function FeedbackForm({
     }
   };
 
-  const field = 'w-full bg-white border border-sage-200 rounded-card px-3 py-2 text-sm focus:outline-none focus:border-[#183B28]';
+  const field = 'w-full bg-white border border-neutral-200 rounded-card px-3 py-2 text-sm focus:outline-none focus:border-brand-strong';
   return (
     <ModalDialog
       label={initial ? 'Edit feedback' : 'Add feedback'}
@@ -289,14 +289,14 @@ function FeedbackForm({
       className="bg-white rounded-modal shadow-raised w-full max-w-lg p-6 outline-none"
     >
       <form onSubmit={submit} className="space-y-4">
-        <h2 className="text-lg font-display font-bold text-[#1E2923]">{initial ? 'Edit feedback' : 'Add feedback'}</h2>
+        <h2 className="text-lg font-display font-bold text-ink">{initial ? 'Edit feedback' : 'Add feedback'}</h2>
         <label className="block space-y-1">
-          <span className="text-xs font-semibold text-sage-600">What did they say?</span>
+          <span className="text-xs font-semibold text-neutral-600">What did they say?</span>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} className={field} />
         </label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <label className="block space-y-1">
-            <span className="text-xs font-semibold text-sage-600">Where from</span>
+            <span className="text-xs font-semibold text-neutral-600">Where from</span>
             <select value={source} onChange={(e) => setSource(e.target.value as ManualFeedbackSource)} className={`${field} cursor-pointer`}>
               {MANUAL_SOURCES.map((s) => (
                 <option key={s} value={s}>
@@ -306,20 +306,20 @@ function FeedbackForm({
             </select>
           </label>
           <label className="block space-y-1">
-            <span className="text-xs font-semibold text-sage-600">Date</span>
+            <span className="text-xs font-semibold text-neutral-600">Date</span>
             <input type="date" value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} className={field} />
           </label>
         </div>
         {error && (
-          <p role="alert" className="text-sm font-semibold text-[#B0483B]">
+          <p role="alert" className="text-sm font-semibold text-danger-600">
             {error}
           </p>
         )}
         <div className="flex justify-end gap-2 pt-1">
-          <button type="button" onClick={onClose} disabled={busy} className="px-4 py-2 rounded-card text-sm font-semibold text-[#617065] hover:bg-[#F0F0EC] cursor-pointer disabled:opacity-60">
+          <button type="button" onClick={onClose} disabled={busy} className="px-4 py-2 rounded-card text-sm font-semibold text-ink-muted hover:bg-line-faint cursor-pointer disabled:opacity-60">
             Cancel
           </button>
-          <button type="submit" disabled={busy} className="px-4 py-2 rounded-card text-sm font-bold bg-[#183B28] hover:bg-[#11291C] text-white inline-flex items-center gap-2 cursor-pointer disabled:opacity-60">
+          <button type="submit" disabled={busy} className="px-4 py-2 rounded-card text-sm font-bold bg-brand-strong hover:bg-brand-rail text-white inline-flex items-center gap-2 cursor-pointer disabled:opacity-60">
             {busy && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             {initial ? 'Save changes' : 'Add feedback'}
           </button>

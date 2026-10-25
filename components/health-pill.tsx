@@ -15,13 +15,13 @@ export function HealthPill({ className = '' }: { className?: string }) {
     <div
       className={
         className ||
-        'bg-[#E3EFE9] text-[#12291F] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]'
+        'bg-brand-100 text-brand-900 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 h-[34px]'
       }
     >
       <span>Health</span>
       <span className="font-bold">{health.score}</span>
       {health.weeklyDelta !== 0 && (
-        <span className={`font-bold ${health.weeklyDelta > 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <span className={`font-bold ${health.weeklyDelta > 0 ? 'text-brand-600' : 'text-danger-600'}`}>
           {health.weeklyDelta > 0 ? '↑' : '↓'}
         </span>
       )}

@@ -3,22 +3,25 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const root = path.resolve(__dirname, '..')
-const css = readFileSync(path.join(root, 'app/globals.css'), 'utf8')
+const globalsCss = readFileSync(path.join(root, 'app/globals.css'), 'utf8')
+// Colour (and shadow) tokens live in their own file — the only place a colour literal may exist.
+const colourCss = readFileSync(path.join(root, 'styles/colour-tokens.css'), 'utf8')
+const css = `${globalsCss}\n${colourCss}`
 
 const TOKENS: Record<string, string> = {
-  'color-green-950': '#0B1F17', 'color-green-900': '#12291F',
-  'color-green-800': '#183B2C', 'color-green-700': '#1E4D3B',
-  'color-green-600': '#266049', 'color-green-500': '#2E7256',
-  'color-green-400': '#4E8F73', 'color-green-300': '#7FB09A',
-  'color-green-200': '#B3D0C3', 'color-green-100': '#E3EFE9',
-  'color-green-50': '#F2F7F4',
-  'color-copper-700': '#8A5330', 'color-copper-600': '#9C5B34',
-  'color-copper-500': '#D89A6E', 'color-copper-200': '#EAD5C6',
-  'color-copper-100': '#F6EAE1',
-  'color-sage-900': '#171C1A', 'color-sage-700': '#3A423E',
-  'color-sage-500': '#67716C', 'color-sage-300': '#C3CCC7',
-  'color-sage-100': '#F4F6F5',
-  'color-red-600': '#B0483B', 'color-red-100': '#F6E5E2',
+  'color-brand-950': '#0B1F17', 'color-brand-900': '#12291F',
+  'color-brand-800': '#183B2C', 'color-brand-700': '#1E4D3B',
+  'color-brand-600': '#266049', 'color-brand-500': '#2E7256',
+  'color-brand-400': '#4E8F73', 'color-brand-300': '#7FB09A',
+  'color-brand-200': '#B3D0C3', 'color-brand-100': '#E3EFE9',
+  'color-brand-50': '#F2F7F4',
+  'color-accent-700': '#8A5330', 'color-accent-600': '#9C5B34',
+  'color-accent-500': '#D89A6E', 'color-accent-200': '#EAD5C6',
+  'color-accent-100': '#F6EAE1',
+  'color-neutral-900': '#171C1A', 'color-neutral-700': '#3A423E',
+  'color-neutral-500': '#67716C', 'color-neutral-300': '#C3CCC7',
+  'color-neutral-100': '#F4F6F5',
+  'color-danger-600': '#B0483B', 'color-danger-100': '#F6E5E2',
 }
 
 describe('design tokens', () => {
@@ -51,7 +54,7 @@ describe('design tokens', () => {
   })
 
   it('sets the copper focus ring at 2px with 2px offset', () => {
-    expect(css).toMatch(/outline:\s*2px solid var\(--color-copper-600\)/)
+    expect(css).toMatch(/outline:\s*2px solid var\(--color-accent-600\)/)
     expect(css).toMatch(/outline-offset:\s*2px/)
   })
 
@@ -81,10 +84,10 @@ describe('cleared Tailwind namespaces are never referenced in source', () => {
 
   /** Shades that actually exist on each PRD ramp. Anything else compiles to nothing. */
   const RAMP_SHADES: Record<string, readonly string[]> = {
-    green: ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'],
-    copper: ['100', '200', '500', '600', '700', '800', '900'],
-    sage: ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900'],
-    red: ['50', '100', '200', '600', '700', '800'],
+    brand: ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'],
+    accent: ['100', '200', '500', '600', '700', '800', '900'],
+    neutral: ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900'],
+    danger: ['50', '100', '200', '600', '700', '800'],
   }
 
   const COLOR_UTILITIES = [
@@ -95,7 +98,7 @@ describe('cleared Tailwind namespaces are never referenced in source', () => {
 
   /** Default palettes that `--color-*: initial` deletes outright. */
   const DEAD_PALETTES = [
-    'slate', 'gray', 'zinc', 'neutral', 'stone', 'orange', 'amber', 'yellow', 'lime',
+    'slate', 'gray', 'zinc', 'stone', 'orange', 'amber', 'yellow', 'lime',
     'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia',
     'pink', 'rose',
   ]
@@ -160,7 +163,51 @@ describe('cleared Tailwind namespaces are never referenced in source', () => {
   })
 
   it('never uses a shade that does not exist on a PRD ramp', () => {
-    const pattern = new RegExp(`\\b${utility}-(green|copper|sage|red)-(\\d{2,3})\\b`, 'g')
+    const pattern = new RegExp(`\\b${utility}-(brand|accent|neutral|danger)-(\\d{2,3})\\b`, 'g')
     expect(scan(pattern, (m) => !RAMP_SHADES[m[1]].includes(m[2]))).toEqual([])
+  })
+})
+
+/**
+ * Colour-literal guard (D38).
+ *
+ * Every colour is a token defined in `styles/colour-tokens.css`; that file is the only
+ * place a hex / rgb() / hsl() may appear, so the brand can be changed in one file.
+ * A line that genuinely cannot use a token (canvas, Satori, a standalone print window)
+ * carries a `colour-ok: <reason>` comment; a whole file can opt out with a
+ * `colour-ok-file: <reason>` comment. Mirrored by scripts/precommit-checks.mjs.
+ */
+describe('no hard-coded colours outside styles/colour-tokens.css', () => {
+  const DIRS = ['app', 'components', 'hooks', 'lib', 'ui', 'styles', 'content', 'types']
+  const LITERAL = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9A-Za-z_-])|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(/g
+
+  function walk(dir: string): string[] {
+    let entries
+    try {
+      entries = readdirSync(dir, { withFileTypes: true })
+    } catch {
+      return []
+    }
+    return entries.flatMap((entry) => {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) return walk(full)
+      if (!/\.(tsx?|css)$/.test(entry.name) || /\.(test|spec)\.tsx?$/.test(entry.name)) return []
+      return [full]
+    })
+  }
+
+  it('finds no colour literal outside the token file', () => {
+    const hits: string[] = []
+    for (const file of DIRS.flatMap((d) => walk(path.join(root, d)))) {
+      const rel = path.relative(root, file)
+      if (rel === 'styles/colour-tokens.css') continue
+      const text = readFileSync(file, 'utf8')
+      if (text.includes('colour-ok-file')) continue
+      text.split('\n').forEach((line, i) => {
+        if (line.includes('colour-ok')) return
+        for (const m of line.matchAll(LITERAL)) hits.push(`${rel}:${i + 1}  ${m[0]}`)
+      })
+    }
+    expect(hits).toEqual([])
   })
 })

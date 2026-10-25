@@ -74,12 +74,12 @@ type Pending =
 function StatusBadge({ status }: { status: InvoiceStatus }) {
   const cls =
     status === "paid"
-      ? "bg-green-50 text-green-700 border-green-200"
+      ? "bg-brand-50 text-brand-700 border-brand-200"
       : status === "overdue"
-        ? "bg-red-50 text-red-600 border-red-200"
+        ? "bg-danger-50 text-danger-600 border-danger-200"
         : status === "sent"
-          ? "bg-copper-100 text-copper-700 border-copper-200"
-          : "bg-sage-100 text-sage-600 border-sage-200";
+          ? "bg-accent-100 text-accent-700 border-accent-200"
+          : "bg-neutral-100 text-neutral-600 border-neutral-200";
   return <span className={`text-[10px] font-bold px-2.5 py-1 rounded-pill border uppercase tracking-wider ${cls}`}>{status}</span>;
 }
 
@@ -243,10 +243,10 @@ function Builder({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-white rounded-modal border border-sage-200 p-6 shadow-card space-y-6">
-        <div className="flex items-center justify-between border-b border-sage-100 pb-4">
-          <h2 className="text-xl font-display font-bold text-sage-900">{editing ? `Edit ${editing.number}` : "Invoice builder"}</h2>
-          <button type="button" onClick={onClose} className="inline-flex items-center max-md:min-h-11 text-xs font-semibold text-sage-500 hover:text-sage-700 transition-colors">
+      <div className="bg-white rounded-modal border border-neutral-200 p-6 shadow-card space-y-6">
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+          <h2 className="text-xl font-display font-bold text-neutral-900">{editing ? `Edit ${editing.number}` : "Invoice builder"}</h2>
+          <button type="button" onClick={onClose} className="inline-flex items-center max-md:min-h-11 text-xs font-semibold text-neutral-500 hover:text-neutral-700 transition-colors">
             Cancel
           </button>
         </div>
@@ -276,7 +276,7 @@ function Builder({
           <div className="space-y-1.5">
             <div className="flex justify-between">
               <span className={labelCls}>Line items (NGN)</span>
-              <button type="button" onClick={() => setLines((ls) => [...ls, { description: "", quantity: "1", price: "" }])} className="inline-flex items-center max-md:min-h-11 text-xs font-bold text-copper-600 hover:underline">
+              <button type="button" onClick={() => setLines((ls) => [...ls, { description: "", quantity: "1", price: "" }])} className="inline-flex items-center max-md:min-h-11 text-xs font-bold text-accent-600 hover:underline">
                 + Add item
               </button>
             </div>
@@ -294,11 +294,11 @@ function Builder({
                 )}
               </div>
             ))}
-            {lineErr && <p className="text-xs font-medium text-red-600">{lineErr}</p>}
+            {lineErr && <p className="text-xs font-medium text-danger-600">{lineErr}</p>}
           </div>
 
           {(hasNonLatin1(clientName) || lines.some((l) => hasNonLatin1(l.description))) && (
-            <p className="text-xs font-medium text-copper-700 bg-copper-100/60 border border-copper-200 rounded-input px-3 py-2">
+            <p className="text-xs font-medium text-accent-700 bg-accent-100/60 border border-accent-200 rounded-input px-3 py-2">
               The invoice PDF can only print basic Latin letters. Other characters, such as dotted Yoruba letters, will show as ? in the PDF. The email and this screen are unaffected.
             </p>
           )}
@@ -329,7 +329,7 @@ function Builder({
 
         <fieldset className="space-y-3">
           <legend className={labelCls}>Payment details (optional)</legend>
-          <p className="text-xs text-sage-500">Bank transfer details printed on the PDF and in the email. Clear all four fields to leave them out.</p>
+          <p className="text-xs text-neutral-500">Bank transfer details printed on the PDF and in the email. Clear all four fields to leave them out.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Field label="Bank name" htmlFor="inv-bank-name">
               <input id="inv-bank-name" className={inputCls} value={bank.bank_name} onChange={(e) => setBank({ ...bank, bank_name: e.target.value })} />
@@ -345,21 +345,21 @@ function Builder({
             </Field>
           </div>
           {error && Object.entries(error.fieldErrors).filter(([k]) => k.startsWith("payment_details")).map(([k, m]) => (
-            <p key={k} className="text-xs font-medium text-red-600">{m}</p>
+            <p key={k} className="text-xs font-medium text-danger-600">{m}</p>
           ))}
         </fieldset>
 
-        <label className="flex items-start gap-2 max-md:min-h-11 text-sm text-sage-700">
-          <input type="checkbox" checked={autoRemind} onChange={(e) => setAutoRemind(e.target.checked)} className="accent-green-900 mt-0.5" />
+        <label className="flex items-start gap-2 max-md:min-h-11 text-sm text-neutral-700">
+          <input type="checkbox" checked={autoRemind} onChange={(e) => setAutoRemind(e.target.checked)} className="accent-brand-900 mt-0.5" />
           <span>
             Auto-remind the client when overdue
-            <span className="block text-xs text-sage-500">After the due date they get an email with the invoice attached, then one every 7 days, up to 8.</span>
+            <span className="block text-xs text-neutral-500">After the due date they get an email with the invoice attached, then one every 7 days, up to 8.</span>
           </span>
         </label>
 
         <FormError message={localError ?? (error && !Object.keys(error.fieldErrors).length ? error.message : null)} />
 
-        <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-sage-100">
+        <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-neutral-100">
           <button type="button" onClick={() => void save(false)} disabled={busy} className={`${secondaryBtn} flex-1`}>
             {busy ? "Saving" : "Save draft"}
           </button>
@@ -379,22 +379,22 @@ function Builder({
         </div>
       </div>
 
-      <div className="bg-sage-50 rounded-modal border border-sage-200 p-8 shadow-card flex flex-col justify-between">
-        <div className="bg-white border border-sage-200 shadow-card p-8 rounded-card min-h-[400px] flex flex-col">
+      <div className="bg-neutral-50 rounded-modal border border-neutral-200 p-8 shadow-card flex flex-col justify-between">
+        <div className="bg-white border border-neutral-200 shadow-card p-8 rounded-card min-h-[400px] flex flex-col">
           <div className="flex justify-between items-start mb-8">
             <div>
-              <p className="text-2xl font-bold text-sage-900">INVOICE</p>
-              <p className="text-xs text-sage-500 font-medium">{editing?.number ?? "Number assigned when saved"}</p>
+              <p className="text-2xl font-bold text-neutral-900">INVOICE</p>
+              <p className="text-xs text-neutral-500 font-medium">{editing?.number ?? "Number assigned when saved"}</p>
             </div>
             <div className="text-right">
-              <p className="font-bold text-sage-900">{clientName || "Client name"}</p>
-              <p className="text-xs text-sage-500 font-medium">{TERMS.find((t) => t.value === terms)?.label}</p>
+              <p className="font-bold text-neutral-900">{clientName || "Client name"}</p>
+              <p className="text-xs text-neutral-500 font-medium">{TERMS.find((t) => t.value === terms)?.label}</p>
             </div>
           </div>
-          <div className="flex-1 border-y border-sage-100 py-4 mb-4">
+          <div className="flex-1 border-y border-neutral-100 py-4 mb-4">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-sage-600 border-b border-sage-50">
+                <tr className="text-left text-xs text-neutral-600 border-b border-neutral-50">
                   <th className="pb-2">Description</th>
                   <th className="pb-2 text-right">Amount</th>
                 </tr>
@@ -404,10 +404,10 @@ function Builder({
                   const p = parseLine(l);
                   return p ? (
                     <tr key={i}>
-                      <td className="py-2 text-sage-800 font-medium">
+                      <td className="py-2 text-neutral-800 font-medium">
                         {p.description} (x{p.quantity})
                       </td>
-                      <td className="py-2 text-right font-bold text-sage-900">{formatMoney(p.quantity * p.unit_price_minor)}</td>
+                      <td className="py-2 text-right font-bold text-neutral-900">{formatMoney(p.quantity * p.unit_price_minor)}</td>
                     </tr>
                   ) : null;
                 })}
@@ -415,21 +415,21 @@ function Builder({
             </table>
           </div>
           <div className="w-full flex flex-col items-end text-sm space-y-1">
-            <div className="w-1/2 flex justify-between font-medium text-sage-600">
+            <div className="w-1/2 flex justify-between font-medium text-neutral-600">
               <span>Subtotal</span>
               <span>{formatMoney(totals.subtotal)}</span>
             </div>
-            <div className="w-1/2 flex justify-between font-medium text-sage-600">
+            <div className="w-1/2 flex justify-between font-medium text-neutral-600">
               <span>Tax ({Number.isFinite(tax) ? tax : 0}%)</span>
               <span>{formatMoney(totals.tax)}</span>
             </div>
-            <div className="w-1/2 flex justify-between font-bold text-lg text-sage-900 pt-2 border-t border-sage-100">
+            <div className="w-1/2 flex justify-between font-bold text-lg text-neutral-900 pt-2 border-t border-neutral-100">
               <span>Total</span>
               <span>{formatMoney(totals.total)}</span>
             </div>
           </div>
         </div>
-        <p className="text-center text-[10px] text-sage-600 font-bold uppercase tracking-widest mt-6">Preview. The server confirms the totals when you save.</p>
+        <p className="text-center text-[10px] text-neutral-600 font-bold uppercase tracking-widest mt-6">Preview. The server confirms the totals when you save.</p>
       </div>
 
       {confirmSend && (
@@ -473,27 +473,27 @@ function InvoiceDetail({
         {invoice.status === "paid" && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute right-2 top-0 -rotate-12 border-4 border-green-800/70 text-green-800/70 font-bold text-2xl px-3 py-1 rounded-card tracking-widest"
+            className="pointer-events-none absolute right-2 top-0 -rotate-12 border-4 border-brand-800/70 text-brand-800/70 font-bold text-2xl px-3 py-1 rounded-card tracking-widest"
           >
             PAID
           </span>
         )}
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={invoice.status} />
-          {tag && <span className="bg-green-50 text-green-800 border border-green-200 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">{tag}</span>}
+          {tag && <span className="bg-brand-50 text-brand-800 border border-brand-200 text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase tracking-wider">{tag}</span>}
         </div>
         <div>
-          <p className="font-bold text-sage-900">{invoice.client_name}</p>
-          <p className="text-xs text-sage-500">{invoice.client_email}</p>
-          {invoice.account_name && <p className="text-xs text-sage-500">Sales client: {invoice.account_name}</p>}
-          <p className="text-xs text-sage-500 mt-1">
+          <p className="font-bold text-neutral-900">{invoice.client_name}</p>
+          <p className="text-xs text-neutral-500">{invoice.client_email}</p>
+          {invoice.account_name && <p className="text-xs text-neutral-500">Sales client: {invoice.account_name}</p>}
+          <p className="text-xs text-neutral-500 mt-1">
             Issued {formatDate(invoice.issued_on)} · Due {formatDate(invoice.due_on)}
             {invoice.paid_at ? ` · Paid ${formatDate(invoice.paid_at)}` : ""}
           </p>
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs text-sage-600 border-b border-sage-100">
+            <tr className="text-left text-xs text-neutral-600 border-b border-neutral-100">
               <th className="pb-2">Description</th>
               <th className="pb-2 text-right">Amount</th>
             </tr>
@@ -501,44 +501,44 @@ function InvoiceDetail({
           <tbody>
             {invoice.line_items.map((l, i) => (
               <tr key={i}>
-                <td className="py-1.5 text-sage-800">
+                <td className="py-1.5 text-neutral-800">
                   {l.description} (x{l.quantity})
                 </td>
-                <td className="py-1.5 text-right font-semibold text-sage-900">{formatMoney(l.amount_minor, invoice.currency)}</td>
+                <td className="py-1.5 text-right font-semibold text-neutral-900">{formatMoney(l.amount_minor, invoice.currency)}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <div className="flex flex-col items-end gap-0.5 text-sage-600">
+        <div className="flex flex-col items-end gap-0.5 text-neutral-600">
           <p>Subtotal {formatMoney(invoice.subtotal_minor, invoice.currency)}</p>
           <p>
             Tax ({invoice.tax_percent}%) {formatMoney(invoice.tax_minor, invoice.currency)}
           </p>
-          <p className="font-bold text-lg text-sage-900">Total {formatMoney(invoice.total_minor, invoice.currency)}</p>
+          <p className="font-bold text-lg text-neutral-900">Total {formatMoney(invoice.total_minor, invoice.currency)}</p>
         </div>
 
         {invoice.notes && (
-          <div className="border-t border-sage-100 pt-3 space-y-1">
-            <p className="text-xs font-bold text-sage-600 uppercase">Notes</p>
-            <p className="text-sm text-sage-700 whitespace-pre-line break-words">{invoice.notes}</p>
+          <div className="border-t border-neutral-100 pt-3 space-y-1">
+            <p className="text-xs font-bold text-neutral-600 uppercase">Notes</p>
+            <p className="text-sm text-neutral-700 whitespace-pre-line break-words">{invoice.notes}</p>
           </div>
         )}
         {invoice.payment_details && (
-          <div className="border-t border-sage-100 pt-3 space-y-1">
-            <p className="text-xs font-bold text-sage-600 uppercase">Pay by bank transfer</p>
-            <p className="text-sm text-sage-700">
+          <div className="border-t border-neutral-100 pt-3 space-y-1">
+            <p className="text-xs font-bold text-neutral-600 uppercase">Pay by bank transfer</p>
+            <p className="text-sm text-neutral-700">
               {invoice.payment_details.bank_name} · {invoice.payment_details.account_name} · {invoice.payment_details.account_number}
             </p>
-            {invoice.payment_details.instructions && <p className="text-xs text-sage-500">{invoice.payment_details.instructions}</p>}
+            {invoice.payment_details.instructions && <p className="text-xs text-neutral-500">{invoice.payment_details.instructions}</p>}
           </div>
         )}
 
         {(invoice.status === "sent" || invoice.status === "overdue") && (
-          <div className="border-t border-sage-100 pt-3 space-y-2">
-            <p className="text-xs font-bold text-sage-600 uppercase">Pay link</p>
+          <div className="border-t border-neutral-100 pt-3 space-y-2">
+            <p className="text-xs font-bold text-neutral-600 uppercase">Pay link</p>
             {invoice.pay_url ? (
               <div className="space-y-1">
-                <p className="text-xs text-sage-700 break-all">{invoice.pay_url}</p>
+                <p className="text-xs text-neutral-700 break-all">{invoice.pay_url}</p>
                 <button
                   type="button"
                   className={linkBtn}
@@ -557,12 +557,12 @@ function InvoiceDetail({
               </div>
             ) : (
               <div className="space-y-1">
-                <p className="text-xs text-sage-500">No pay link yet. Connect Paystack or Flutterwave, then create one so your client can pay online.</p>
+                <p className="text-xs text-neutral-500">No pay link yet. Connect Paystack or Flutterwave, then create one so your client can pay online.</p>
                 <div className="flex items-center gap-3">
                   <button type="button" className={linkBtn} disabled={busy} onClick={() => onAction({ kind: "paylink", invoice })}>
                     Create pay link
                   </button>
-                  <Link href="/finance/integrations" className="text-xs font-bold text-sage-600 hover:underline">
+                  <Link href="/finance/integrations" className="text-xs font-bold text-neutral-600 hover:underline">
                     Go to Integrations
                   </Link>
                 </div>
@@ -572,19 +572,19 @@ function InvoiceDetail({
         )}
 
         {invoice.status !== "draft" && invoice.status !== "paid" && (
-          <div className="border-t border-sage-100 pt-3 space-y-1.5">
-            <p className="text-xs font-bold text-sage-600 uppercase">Reminders</p>
-            {rem.hint && <p className="text-xs text-sage-600">{rem.hint}</p>}
-            <p className="text-xs text-sage-500">{rem.auto}</p>
-            <label className="flex items-center gap-2 max-md:min-h-11 text-xs text-sage-700">
-              <input type="checkbox" checked={invoice.auto_remind} disabled={busy} onChange={() => onAction({ kind: "autoremind", invoice })} className="accent-green-900" />
+          <div className="border-t border-neutral-100 pt-3 space-y-1.5">
+            <p className="text-xs font-bold text-neutral-600 uppercase">Reminders</p>
+            {rem.hint && <p className="text-xs text-neutral-600">{rem.hint}</p>}
+            <p className="text-xs text-neutral-500">{rem.auto}</p>
+            <label className="flex items-center gap-2 max-md:min-h-11 text-xs text-neutral-700">
+              <input type="checkbox" checked={invoice.auto_remind} disabled={busy} onChange={() => onAction({ kind: "autoremind", invoice })} className="accent-brand-900" />
               Auto-remind when overdue
             </label>
           </div>
         )}
 
-        {invoice.last_sent_at && <p className="text-xs text-sage-500">Last emailed {formatDate(invoice.last_sent_at)}.</p>}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-sage-100">
+        {invoice.last_sent_at && <p className="text-xs text-neutral-500">Last emailed {formatDate(invoice.last_sent_at)}.</p>}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-neutral-100">
           <button type="button" className={secondaryBtn} disabled={busy} onClick={() => onAction({ kind: "pdf", invoice })}>
             <Download className="w-4 h-4" aria-hidden="true" /> Download PDF
           </button>
@@ -788,7 +788,7 @@ export default function InvoicesPage() {
                 aria-pressed={filter === f.key}
                 onClick={() => setFilter(f.key)}
                 className={`px-4 py-1.5 max-md:min-h-11 rounded-pill text-xs font-semibold transition-colors ${
-                  filter === f.key ? "bg-green-900 text-white" : "bg-white border border-sage-200 text-sage-600 hover:bg-sage-50"
+                  filter === f.key ? "bg-brand-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50"
                 }`}
               >
                 {f.label}
@@ -808,33 +808,33 @@ export default function InvoicesPage() {
             </EmptyBlock>
           ) : (
             <>
-              <div className="bg-white rounded-modal border border-sage-200 overflow-hidden shadow-card">
+              <div className="bg-white rounded-modal border border-neutral-200 overflow-hidden shadow-card">
                 {invoices.items.length === 0 ? (
-                  <div className="p-8 text-center text-sage-500 font-medium text-sm">No invoices with this status.</div>
+                  <div className="p-8 text-center text-neutral-500 font-medium text-sm">No invoices with this status.</div>
                 ) : (
                   <>
-                    <ul className="md:hidden divide-y divide-sage-100" aria-label="Invoices">
+                    <ul className="md:hidden divide-y divide-neutral-100" aria-label="Invoices">
                       {invoices.items.map((inv) => (
                         <li key={inv.id} className="p-4 space-y-2">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <p className="font-semibold text-sage-900">{inv.number}</p>
-                              <p className="text-sm text-sage-600 break-words">{inv.client_name}</p>
-                              <p className="text-xs text-sage-500">Due {inv.due_on ? formatDate(inv.due_on) : "when sent"}</p>
+                              <p className="font-semibold text-neutral-900">{inv.number}</p>
+                              <p className="text-sm text-neutral-600 break-words">{inv.client_name}</p>
+                              <p className="text-xs text-neutral-500">Due {inv.due_on ? formatDate(inv.due_on) : "when sent"}</p>
                             </div>
                             <div className="text-right space-y-1">
-                              <p className="font-bold text-sage-900 whitespace-nowrap">{formatMoney(inv.total_minor, inv.currency)}</p>
+                              <p className="font-bold text-neutral-900 whitespace-nowrap">{formatMoney(inv.total_minor, inv.currency)}</p>
                               <StatusBadge status={inv.status} />
                             </div>
                           </div>
-                          {payTag(inv) && <p className="text-xs font-semibold text-green-800">{payTag(inv)}</p>}
-                          <label className="flex items-center gap-3 min-h-11 text-sm font-medium text-sage-700 cursor-pointer">
+                          {payTag(inv) && <p className="text-xs font-semibold text-brand-800">{payTag(inv)}</p>}
+                          <label className="flex items-center gap-3 min-h-11 text-sm font-medium text-neutral-700 cursor-pointer">
                             <input
                               type="checkbox"
                               checked={inv.auto_remind}
                               disabled={busy || inv.status === "paid"}
                               onChange={() => void handle({ kind: "autoremind", invoice: inv })}
-                              className="accent-green-900 cursor-pointer w-5 h-5"
+                              className="accent-brand-900 cursor-pointer w-5 h-5"
                             />
                             Auto-remind
                           </label>
@@ -845,7 +845,7 @@ export default function InvoicesPage() {
                     <div className="hidden md:block overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-sage-50/50 border-b border-sage-100 text-xs text-sage-600 font-bold uppercase tracking-wider">
+                          <tr className="bg-neutral-50/50 border-b border-neutral-100 text-xs text-neutral-600 font-bold uppercase tracking-wider">
                             <th className="py-4 px-6">Invoice</th>
                             <th className="py-4 px-4">Client</th>
                             <th className="py-4 px-4">Due</th>
@@ -855,16 +855,16 @@ export default function InvoicesPage() {
                             <th className="py-4 px-6 text-right">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-sage-100 text-sm">
+                        <tbody className="divide-y divide-neutral-100 text-sm">
                           {invoices.items.map((inv) => (
-                            <tr key={inv.id} className="hover:bg-sage-50/50 transition-colors">
-                              <td className="py-4 px-6 font-semibold text-sage-900">{inv.number}</td>
-                              <td className="py-4 px-4 text-sage-600 font-medium">
+                            <tr key={inv.id} className="hover:bg-neutral-50/50 transition-colors">
+                              <td className="py-4 px-6 font-semibold text-neutral-900">{inv.number}</td>
+                              <td className="py-4 px-4 text-neutral-600 font-medium">
                                 {inv.client_name}
-                                <span className="block text-xs text-sage-600">{inv.client_email}</span>
+                                <span className="block text-xs text-neutral-600">{inv.client_email}</span>
                               </td>
-                              <td className="py-4 px-4 text-sage-500 font-medium">{inv.due_on ? formatDate(inv.due_on) : "Set when sent"}</td>
-                              <td className="py-4 px-4 font-bold text-sage-900 text-right whitespace-nowrap">{formatMoney(inv.total_minor, inv.currency)}</td>
+                              <td className="py-4 px-4 text-neutral-500 font-medium">{inv.due_on ? formatDate(inv.due_on) : "Set when sent"}</td>
+                              <td className="py-4 px-4 font-bold text-neutral-900 text-right whitespace-nowrap">{formatMoney(inv.total_minor, inv.currency)}</td>
                               <td className="py-4 px-4 text-center">
                                 <input
                                   type="checkbox"
@@ -872,12 +872,12 @@ export default function InvoicesPage() {
                                   disabled={busy || inv.status === "paid"}
                                   onChange={() => void handle({ kind: "autoremind", invoice: inv })}
                                   aria-label={`Auto-remind for ${inv.number}`}
-                                  className="accent-green-900 cursor-pointer"
+                                  className="accent-brand-900 cursor-pointer"
                                 />
                               </td>
                               <td className="py-4 px-4">
                                 <StatusBadge status={inv.status} />
-                                {payTag(inv) && <span className="block text-[11px] font-semibold text-green-800 mt-1">{payTag(inv)}</span>}
+                                {payTag(inv) && <span className="block text-[11px] font-semibold text-brand-800 mt-1">{payTag(inv)}</span>}
                               </td>
                               <td className="py-4 px-6 text-right">
                                 <RowActions inv={inv} nowMs={nowMs} busy={busy} onAction={(a) => void handle(a)} />
@@ -891,7 +891,7 @@ export default function InvoicesPage() {
                 )}
                 <LoadMore list={invoices} noun="invoices" />
               </div>
-              <p className="text-xs text-sage-500">
+              <p className="text-xs text-neutral-500">
                 Overdue is worked out from the due date. With Auto-remind on, an overdue invoice emails the client a reminder with the PDF attached, then again every 7 days, up to 8 times. You and your team are notified once when an invoice goes overdue.
               </p>
             </>

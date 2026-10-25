@@ -68,21 +68,21 @@ export function Drawer({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="fixed inset-y-0 right-0 w-full max-w-lg bg-white z-[56] shadow-accent border-l border-sage-200 flex flex-col"
+        className="fixed inset-y-0 right-0 w-full max-w-lg bg-white z-[56] shadow-accent border-l border-neutral-200 flex flex-col"
       >
-        <div className="flex items-center justify-between p-6 border-b border-sage-200">
-          <h2 id={titleId} className="text-xl font-display font-semibold text-sage-900">{title}</h2>
+        <div className="flex items-center justify-between p-6 border-b border-neutral-200">
+          <h2 id={titleId} className="text-xl font-display font-semibold text-neutral-900">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="h-10 w-10 flex items-center justify-center text-sage-500 hover:text-sage-900 text-lg cursor-pointer"
+            className="h-10 w-10 flex items-center justify-center text-neutral-500 hover:text-neutral-900 text-lg cursor-pointer"
           >
             ×
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5">{children}</div>
-        {footer && <div className="p-6 border-t border-sage-200 flex gap-3">{footer}</div>}
+        {footer && <div className="p-6 border-t border-neutral-200 flex gap-3">{footer}</div>}
       </div>
     </>
   );
@@ -103,13 +103,13 @@ export function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={htmlFor} className="text-xs font-semibold text-sage-700 uppercase tracking-wider">
+      <label htmlFor={htmlFor} className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">
         {label}
       </label>
       {children}
-      {hint && !error && <p className="text-xs text-sage-500">{hint}</p>}
+      {hint && !error && <p className="text-xs text-neutral-500">{hint}</p>}
       {error && (
-        <p role="alert" className="text-xs text-red-700">
+        <p role="alert" className="text-xs text-danger-700">
           {error}
         </p>
       )}

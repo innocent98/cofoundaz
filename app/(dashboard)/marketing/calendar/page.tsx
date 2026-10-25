@@ -262,24 +262,24 @@ function CalendarWorkbench() {
     <div className="space-y-6 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">Content calendar</h1>
+          <h1 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 tracking-tight">Content calendar</h1>
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <button
               type="button"
               onClick={() => setAnchor(shiftAnchor(view, anchor, -1))}
               aria-label={view === 'week' ? 'Previous week' : 'Previous month'}
-              className="text-xs font-semibold text-sage-700 hover:text-sage-900 px-3 py-2 rounded bg-sage-200/60 cursor-pointer"
+              className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 px-3 py-2 rounded bg-neutral-200/60 cursor-pointer"
             >
               ← Prev
             </button>
-            <span className="text-sage-600 font-medium text-sm min-w-32 text-center" aria-live="polite">
+            <span className="text-neutral-600 font-medium text-sm min-w-32 text-center" aria-live="polite">
               {label}
             </span>
             <button
               type="button"
               onClick={() => setAnchor(shiftAnchor(view, anchor, 1))}
               aria-label={view === 'week' ? 'Next week' : 'Next month'}
-              className="text-xs font-semibold text-sage-700 hover:text-sage-900 px-3 py-2 rounded bg-sage-200/60 cursor-pointer"
+              className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 px-3 py-2 rounded bg-neutral-200/60 cursor-pointer"
             >
               Next →
             </button>
@@ -289,11 +289,11 @@ function CalendarWorkbench() {
                 const now = new Date();
                 setAnchor(view === 'week' ? now : new Date(now.getFullYear(), now.getMonth(), 1));
               }}
-              className="text-xs font-semibold text-sage-600 hover:text-sage-900 px-3 py-2 cursor-pointer"
+              className="text-xs font-semibold text-neutral-600 hover:text-neutral-900 px-3 py-2 cursor-pointer"
             >
               Today
             </button>
-            <div role="group" aria-label="Calendar view" className="hidden md:flex rounded-full border border-sage-200 bg-white p-0.5 text-xs font-semibold">
+            <div role="group" aria-label="Calendar view" className="hidden md:flex rounded-full border border-neutral-200 bg-white p-0.5 text-xs font-semibold">
               {(['month', 'week'] as const).map((v) => (
                 <button
                   key={v}
@@ -303,7 +303,7 @@ function CalendarWorkbench() {
                     setView(v);
                     setAnchor(v === 'month' ? new Date(anchor.getFullYear(), anchor.getMonth(), 1) : weekAnchorForMonth(anchor, new Date()));
                   }}
-                  className={`rounded-full px-3 py-1.5 capitalize cursor-pointer ${view === v ? 'bg-[#0e271f] text-white' : 'text-sage-600 hover:text-sage-900'}`}
+                  className={`rounded-full px-3 py-1.5 capitalize cursor-pointer ${view === v ? 'bg-brand-rail-deep text-white' : 'text-neutral-600 hover:text-neutral-900'}`}
                 >
                   {v}
                 </button>
@@ -333,8 +333,8 @@ function CalendarWorkbench() {
         <section aria-label="AI proposed posts" className={`${CARD} p-6 space-y-4`}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="font-display font-semibold text-lg text-sage-900">AI proposed {proposals.length} {proposals.length === 1 ? 'post' : 'posts'}</h2>
-              <p className="text-xs text-sage-500">Nothing is on your calendar until you add it.</p>
+              <h2 className="font-display font-semibold text-lg text-neutral-900">AI proposed {proposals.length} {proposals.length === 1 ? 'post' : 'posts'}</h2>
+              <p className="text-xs text-neutral-500">Nothing is on your calendar until you add it.</p>
             </div>
             <div className="flex gap-2">
               <button type="button" onClick={addAll} disabled={adding} className={BTN_PRIMARY}>
@@ -345,19 +345,19 @@ function CalendarWorkbench() {
               </button>
             </div>
           </div>
-          <ul className="divide-y divide-sage-100">
+          <ul className="divide-y divide-neutral-100">
             {proposals.map((p, i) => {
               const { iso, late } = proposalWhen(p);
               return (
                 <li key={`${p.title}-${i}`} className="py-3 flex flex-col md:flex-row md:items-start justify-between gap-3">
                   <div className="space-y-1 min-w-0">
-                    <p className="text-sm font-semibold text-sage-900">{p.title}</p>
-                    <p className="text-xs text-sage-500 flex flex-wrap items-center gap-x-2">
+                    <p className="text-sm font-semibold text-neutral-900">{p.title}</p>
+                    <p className="text-xs text-neutral-500 flex flex-wrap items-center gap-x-2">
                       <ChannelLabel channel={p.channel} />
                       <span>{new Date(iso).toLocaleDateString()}</span>
                       {late && <span>Added as a draft, 9:00 has passed today</span>}
                     </p>
-                    <p className="text-sm text-sage-700">{p.body}</p>
+                    <p className="text-sm text-neutral-700">{p.body}</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button type="button" disabled={adding} onClick={() => void addProposal(p)} className={BTN_PRIMARY}>
@@ -410,7 +410,7 @@ function CalendarWorkbench() {
           <Agenda byDay={byDay} onOpenPost={openEdit} emptyLabel={`Nothing planned for ${label}.`} />
         </div>
 
-        <p className="text-xs text-sage-500">
+        <p className="text-xs text-neutral-500">
           Status only, not posted to a platform. Cofoundaz marks a scheduled post published when its time passes; it never
           sends anything to Instagram, X, LinkedIn or any other service.
           <span className="hidden md:inline"> Drag a post to another day to reschedule it, or hold Alt and use the arrow keys.</span>
@@ -418,9 +418,9 @@ function CalendarWorkbench() {
 
         {cal.backlog.length > 0 && (
           <section aria-label="Unscheduled drafts" className={`${CARD} p-6 space-y-3`}>
-            <h2 className="font-display font-semibold text-lg text-sage-900">Unscheduled drafts</h2>
-            <p className="hidden md:block text-xs text-sage-500">Drag a draft onto a day to give it a date.</p>
-            <ul className="divide-y divide-sage-100">
+            <h2 className="font-display font-semibold text-lg text-neutral-900">Unscheduled drafts</h2>
+            <p className="hidden md:block text-xs text-neutral-500">Drag a draft onto a day to give it a date.</p>
+            <ul className="divide-y divide-neutral-100">
               {cal.backlog.map((e) => (
                 <DraftRow key={e.id} entry={e} onOpen={openEdit} />
               ))}

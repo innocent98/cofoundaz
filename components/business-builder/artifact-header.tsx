@@ -27,15 +27,15 @@ export function ArtifactHeader({ title, saveStatus, updatedAt, updatedBy, onOpen
   return (
     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
       <div className="min-w-0">
-        <h2 className="text-3xl font-display font-bold text-[#1E2923] tracking-tight">{title}</h2>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#556358] mt-1.5" aria-live="polite">
+        <h2 className="text-3xl font-display font-bold text-ink tracking-tight">{title}</h2>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-body mt-1.5" aria-live="polite">
           {saveStatus === 'saving' && (
-            <span className="flex items-center gap-1 text-[#8A5330] font-medium"><Loader2 className="w-3 h-3 animate-spin" /> Saving</span>
+            <span className="flex items-center gap-1 text-accent-700 font-medium"><Loader2 className="w-3 h-3 animate-spin" /> Saving</span>
           )}
           {saveStatus === 'saved' && (
-            <span className="flex items-center gap-1 text-[#183B28] font-medium"><Check className="w-3 h-3" /> Saved</span>
+            <span className="flex items-center gap-1 text-brand-strong font-medium"><Check className="w-3 h-3" /> Saved</span>
           )}
-          {saveStatus === 'error' && <span className="text-[#B0483B] font-medium">Not saved. Retrying on your next edit.</span>}
+          {saveStatus === 'error' && <span className="text-danger-600 font-medium">Not saved. Retrying on your next edit.</span>}
           {saveStatus && edited && <span aria-hidden="true">·</span>}
           {edited && <span>{edited}</span>}
           {onOpenHistory && (
@@ -44,7 +44,7 @@ export function ArtifactHeader({ title, saveStatus, updatedAt, updatedBy, onOpen
               <button
                 type="button"
                 onClick={onOpenHistory}
-                className="flex items-center gap-1 font-semibold text-[#183B28] hover:underline"
+                className="flex items-center gap-1 font-semibold text-brand-strong hover:underline"
               >
                 <History className="w-3 h-3" /> Version history
               </button>

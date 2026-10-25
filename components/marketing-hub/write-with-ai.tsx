@@ -76,15 +76,15 @@ export function WriteWithAi({
   }
 
   return (
-    <div className="rounded-card border border-sage-200 bg-sage-50/60 p-4 space-y-3" role="group" aria-label="Write with AI">
+    <div className="rounded-card border border-neutral-200 bg-neutral-50/60 p-4 space-y-3" role="group" aria-label="Write with AI">
       <div className="flex items-center justify-between">
         <p className={LABEL}>Write with AI</p>
-        <button type="button" onClick={() => { gen.reset(); setOpen(false); }} className="text-xs font-semibold text-sage-600 hover:underline cursor-pointer">
+        <button type="button" onClick={() => { gen.reset(); setOpen(false); }} className="text-xs font-semibold text-neutral-600 hover:underline cursor-pointer">
           Close
         </button>
       </div>
       <div className="space-y-1.5">
-        <label htmlFor="wai-message" className="text-xs font-semibold text-sage-700">What should it say?</label>
+        <label htmlFor="wai-message" className="text-xs font-semibold text-neutral-700">What should it say?</label>
         <textarea
           id="wai-message"
           rows={2}
@@ -97,13 +97,13 @@ export function WriteWithAi({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <label htmlFor="wai-tone" className="text-xs font-semibold text-sage-700">Tone</label>
+          <label htmlFor="wai-tone" className="text-xs font-semibold text-neutral-700">Tone</label>
           <select id="wai-tone" className={INPUT} value={tone} onChange={(e) => setTone(e.target.value as CopyTone)}>
             {TONES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="wai-platform" className="text-xs font-semibold text-sage-700">Length limit</label>
+          <label htmlFor="wai-platform" className="text-xs font-semibold text-neutral-700">Length limit</label>
           <select id="wai-platform" className={INPUT} value={platform} onChange={(e) => setPlatform(e.target.value as PlatformKey | '')}>
             <option value="">No limit</option>
             {options.map((p) => <option key={p.key} value={p.key}>{p.label} ({p.limit})</option>)}
@@ -116,10 +116,10 @@ export function WriteWithAi({
         </button>
         <GenerationNote phase={gen.phase} error={gen.error} generatingLabel="The AI is writing your options. This usually takes under a minute." />
       </div>
-      {shown && variants.length === 0 && <p className="text-xs text-sage-600">The AI returned no options. Try again.</p>}
+      {shown && variants.length === 0 && <p className="text-xs text-neutral-600">The AI returned no options. Try again.</p>}
       {variants.map((text, idx) => (
-        <div key={`${shown?.id}-${idx}`} className="rounded-card border border-sage-200 bg-white p-3 space-y-2">
-          <p className="text-sm text-sage-900 whitespace-pre-wrap leading-relaxed">{text}</p>
+        <div key={`${shown?.id}-${idx}`} className="rounded-card border border-neutral-200 bg-white p-3 space-y-2">
+          <p className="text-sm text-neutral-900 whitespace-pre-wrap leading-relaxed">{text}</p>
           <div className="flex items-center justify-between gap-3">
             <CharCounter
               count={shown?.output.lengths?.[idx] ?? charCount(text)}
@@ -132,7 +132,7 @@ export function WriteWithAi({
             </button>
           </div>
           {isOverLimit(shown?.output, idx) && (
-            <p className="text-xs text-red-700">This option is over the limit. Edit it after you use it, or write again.</p>
+            <p className="text-xs text-danger-700">This option is over the limit. Edit it after you use it, or write again.</p>
           )}
         </div>
       ))}

@@ -26,11 +26,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       {toast.show && (
         <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-          <div className="bg-[#0e271f] text-white px-5 py-2.5 rounded-card shadow-raised flex items-center gap-3 border border-[#1f4236]">
-            <div className="flex items-center justify-center text-green-400 font-bold text-sm">
+          <div className="bg-brand-rail-deep text-white px-5 py-2.5 rounded-card shadow-raised flex items-center gap-3 border border-brand-x1f4236">
+            <div className="flex items-center justify-center text-brand-400 font-bold text-sm">
               ✓
             </div>
-            <span className="font-medium text-sm tracking-wide text-sage-100">
+            <span className="font-medium text-sm tracking-wide text-neutral-100">
               {toast.message}
             </span>
           </div>

@@ -17,17 +17,17 @@ export const SERIES_METRICS: { value: SeriesMetric; label: string }[] = [
   { value: 'spend', label: 'Spend' },
 ];
 
-const GREEN = '#2D5A3F';
-const COPPER = '#9C5B34';
-const GRID = '#EBEBE6';
-const AXIS = '#768478';
+const GREEN = 'var(--color-brand-mid)';
+const COPPER = 'var(--color-accent-600)';
+const GRID = 'var(--color-line-soft)';
+const AXIS = 'var(--color-ink-soft)';
 
 const tooltipStyle = {
-  background: '#FFFFFF',
+  background: 'var(--color-white)',
   border: `1px solid ${GRID}`,
   borderRadius: 10,
   fontSize: 12,
-  boxShadow: '0 4px 16px rgba(20,41,31,0.08)',
+  boxShadow: '0 4px 16px var(--color-shadow-soft)',
 } as const;
 
 /** Spend is stored in minor units; everything else is a plain count. */
@@ -62,7 +62,7 @@ export function SeriesChart({ series, metric }: { series: CampaignPerformance['s
             contentStyle={tooltipStyle}
             labelFormatter={(l) => shortDate(String(l))}
             formatter={(v) => [metric === 'spend' ? `₦${Number(v).toLocaleString()}` : Number(v).toLocaleString(), label]}
-            cursor={{ fill: 'rgba(45,90,63,0.06)' }}
+            cursor={{ fill: 'var(--color-tint-brand-06)' }}
           />
           <Bar dataKey="value" fill={GREEN} radius={[4, 4, 0, 0]} maxBarSize={36} />
         </BarChart>
@@ -89,7 +89,7 @@ export function ChannelChart({ rows, metric }: { rows: CampaignPerformance['by_c
           <Tooltip
             contentStyle={tooltipStyle}
             formatter={(v) => [metric === 'spend' ? `₦${Number(v).toLocaleString()}` : Number(v).toLocaleString(), `${label} (estimated)`]}
-            cursor={{ fill: 'rgba(156,91,52,0.06)' }}
+            cursor={{ fill: 'var(--color-tint-accent-06)' }}
           />
           <Bar dataKey="value" fill={COPPER} radius={[0, 4, 4, 0]} maxBarSize={24} />
         </BarChart>

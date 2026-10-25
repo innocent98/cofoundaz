@@ -23,7 +23,7 @@ export function PersonSelect({ value, members, onChange, label, disabled, fallba
       value={value ?? ''}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value === '' ? null : e.target.value)}
-      className="max-w-[180px] bg-[#F7F7F5] border border-[#EBEBE6] rounded-input px-2 py-1 text-sm font-semibold text-[#1E2923] outline-none focus:border-[#2D5A3F] disabled:opacity-60"
+      className="max-w-[180px] bg-surface-subtle border border-line-soft rounded-input px-2 py-1 text-sm font-semibold text-ink outline-none focus:border-brand-mid disabled:opacity-60"
     >
       <option value="">Unassigned</option>
       {!known && value && <option value={value}>{fallbackLabel || 'Former member'}</option>}

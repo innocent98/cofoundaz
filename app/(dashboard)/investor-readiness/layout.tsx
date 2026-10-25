@@ -19,13 +19,13 @@ export default function ReadinessLayout({ children }: { children: React.ReactNod
 
   return (
     <ToastProvider>
-      <div className="flex flex-col min-h-full min-w-0 bg-[#f5f7f5] text-[#2c3531] font-body w-full">
+      <div className="flex flex-col min-h-full min-w-0 bg-neutral-xf5f7f5 text-neutral-x2c3531 font-body w-full">
         
         {/* Outer Single Top Header */}
-        <div className="sticky top-0 z-40 bg-white border-b border-sage-200/85 shadow-card w-full">
+        <div className="sticky top-0 z-40 bg-white border-b border-neutral-200/85 shadow-card w-full">
           <ShellTopBar title="Investor Readiness" />
 
-          <nav className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none bg-sage-50 px-6 py-2">
+          <nav className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none bg-neutral-50 px-6 py-2">
             {navItems.map((tab) => {
               const isActive = pathname === tab.path || (tab.path !== "/investor-readiness" && pathname?.startsWith(tab.path));
               return (
@@ -34,8 +34,8 @@ export default function ReadinessLayout({ children }: { children: React.ReactNod
                   onClick={() => router.push(tab.path)}
                   className={`px-3.5 py-1.5 md:px-4 md:py-2 rounded-full text-[11px] md:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                     isActive
-                      ? "bg-[#EAD5C6] text-[#2c220b] shadow-card font-semibold"
-                      : "bg-[#eaeee9] text-sage-700 hover:bg-[#e0e6df]"
+                      ? "bg-accent-200 text-accent-x2c220b shadow-card font-semibold"
+                      : "bg-neutral-xeaeee9 text-neutral-700 hover:bg-neutral-xe0e6df"
                   }`}
                 >
                   {tab.name}

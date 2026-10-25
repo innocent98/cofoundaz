@@ -25,15 +25,15 @@ export default function MvpFeedbackPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-2xl md:text-3xl font-display font-semibold text-sage-900 tracking-tight">MVP feedback</h1>
+        <h1 className="text-2xl md:text-3xl font-display font-semibold text-neutral-900 tracking-tight">MVP feedback</h1>
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={onFindThemes}
             disabled={fb.clustering || total === 0}
-            className="px-4 py-2.5 rounded-card font-bold text-sm transition-colors flex items-center gap-2 shadow-card cursor-pointer disabled:opacity-60 bg-[#FDF4E3] hover:bg-[#F5ECDC] text-[#8A5330] border border-[#EAD5C6]"
+            className="px-4 py-2.5 rounded-card font-bold text-sm transition-colors flex items-center gap-2 shadow-card cursor-pointer disabled:opacity-60 bg-accent-xfdf4e3 hover:bg-accent-xf5ecdc text-accent-700 border border-accent-200"
           >
-            {fb.clustering ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Sparkles className="w-4 h-4 fill-[#8A5330]" aria-hidden="true" />}
+            {fb.clustering ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Sparkles className="w-4 h-4 fill-accent-700" aria-hidden="true" />}
             <span>{fb.clustering ? 'Finding themes…' : 'Find themes'}</span>
           </button>
           <InsightSynthesizer source="all" />

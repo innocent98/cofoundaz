@@ -242,7 +242,7 @@ function CopyWorkbench() {
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <h1 className="text-3xl md:text-4xl font-display font-semibold text-sage-900 tracking-tight">AI copy generator</h1>
+      <h1 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 tracking-tight">AI copy generator</h1>
 
       <div role="tablist" aria-label="AI copy" className="flex gap-2">
         {([['generate', 'Generate'], ['history', 'History']] as const).map(([key, label]) => (
@@ -255,7 +255,7 @@ function CopyWorkbench() {
             aria-controls={`copy-panel-${key}`}
             onClick={() => setTab(key)}
             className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer ${
-              tab === key ? 'bg-[#0e271f] text-white shadow-card' : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
+              tab === key ? 'bg-brand-rail-deep text-white shadow-card' : 'bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50'
             }`}
           >
             {label}
@@ -266,16 +266,16 @@ function CopyWorkbench() {
       {tab === 'generate' && (
         <div id="copy-panel-generate" role="tabpanel" aria-labelledby="copy-tab-generate" className="space-y-8">
           {campaign && (
-            <p className="rounded-card border border-sage-200 bg-white px-4 py-3 text-sm text-sage-700">
+            <p className="rounded-card border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-700">
               Writing for the campaign{' '}
-              <Link href={`/marketing/campaigns/${campaign.id}`} className="font-semibold text-[#0e271f] hover:underline">{campaign.name}</Link>.
+              <Link href={`/marketing/campaigns/${campaign.id}`} className="font-semibold text-brand-rail-deep hover:underline">{campaign.name}</Link>.
               Copy you save goes to its content.
             </p>
           )}
           {needsBusinessBuilder && (
-            <p className="rounded-card border border-sage-200 bg-sage-50/60 px-4 py-3 text-sm text-sage-700">
+            <p className="rounded-card border border-neutral-200 bg-neutral-50/60 px-4 py-3 text-sm text-neutral-700">
               The AI writes better copy when it knows your customers. Add your personas in{' '}
-              <Link href="/business-builder" className="font-semibold text-[#0e271f] hover:underline">Business Builder</Link>.
+              <Link href="/business-builder" className="font-semibold text-brand-rail-deep hover:underline">Business Builder</Link>.
             </p>
           )}
 
@@ -304,7 +304,7 @@ function CopyWorkbench() {
                   {platforms.map((p) => <option key={p.key} value={p.key}>{p.label} ({p.limit} characters)</option>)}
                 </select>
                 {chosenPlatform && (
-                  <p className="text-xs text-sage-500">
+                  <p className="text-xs text-neutral-500">
                     {chosenPlatform.kind === 'hard'
                       ? `${chosenPlatform.label} rejects anything over ${chosenPlatform.limit} characters.`
                       : `Longer than ${chosenPlatform.limit} characters works on ${chosenPlatform.label}, but it can be cut off or perform worse.`}
@@ -323,7 +323,7 @@ function CopyWorkbench() {
                     aria-pressed={tone === t.value}
                     onClick={() => setTone(t.value)}
                     className={`px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
-                      tone === t.value ? 'bg-[#0e271f] text-white shadow-card' : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
+                      tone === t.value ? 'bg-brand-rail-deep text-white shadow-card' : 'bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50'
                     }`}
                   >
                     {t.label}
@@ -372,14 +372,14 @@ function CopyWorkbench() {
           {shown && (
             <div className="space-y-4 animate-fadeIn pt-2">
               {refinement && (
-                <p className="text-sm text-sage-700 flex flex-wrap items-center gap-3">
+                <p className="text-sm text-neutral-700 flex flex-wrap items-center gap-3">
                   <span>Refined: &ldquo;{refinement.instruction}&rdquo;</span>
-                  <button type="button" onClick={() => void backToOriginal()} className="text-xs font-semibold text-[#0e271f] hover:underline cursor-pointer">
+                  <button type="button" onClick={() => void backToOriginal()} className="text-xs font-semibold text-brand-rail-deep hover:underline cursor-pointer">
                     Back to the original set
                   </button>
                 </p>
               )}
-              <p className="text-xs font-semibold text-sage-500 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
                 {variants.length === 0
                   ? 'The AI returned no variants. Try again.'
                   : `${variants.length} ${variants.length === 1 ? 'variant' : 'variants'}. Ship two and let your audience pick the winner.`}
@@ -387,7 +387,7 @@ function CopyWorkbench() {
 
               {variants.map((text, idx) => (
                 <div key={`${shown.id}-${idx}`} className={`${CARD} p-6 space-y-4`}>
-                  <p className="text-sage-900 text-sm md:text-base leading-relaxed whitespace-pre-wrap">{text}</p>
+                  <p className="text-neutral-900 text-sm md:text-base leading-relaxed whitespace-pre-wrap">{text}</p>
                   <CharCounter
                     count={shown.output.lengths?.[idx] ?? charCount(text)}
                     limit={shown.output.limit}
@@ -395,7 +395,7 @@ function CopyWorkbench() {
                     platformLabel={shownPlatform?.label}
                   />
                   {isOverLimit(shown.output, idx) && (
-                    <p className="text-xs text-red-700">
+                    <p className="text-xs text-danger-700">
                       This variant is over the limit. Refine it with &ldquo;Make it shorter&rdquo;, or edit it after you use it.
                     </p>
                   )}
@@ -419,7 +419,7 @@ function CopyWorkbench() {
                     <button
                       type="button"
                       onClick={() => (savingIdx === idx ? setSavingIdx(null) : openSave(idx, text))}
-                      className="text-[#0e271f] hover:underline font-semibold text-xs cursor-pointer ml-auto"
+                      className="text-brand-rail-deep hover:underline font-semibold text-xs cursor-pointer ml-auto"
                     >
                       Save to calendar
                     </button>
@@ -427,7 +427,7 @@ function CopyWorkbench() {
 
                   {refineIdx === idx && (
                     <form
-                      className="rounded-card border border-sage-200 bg-sage-50/60 p-4 space-y-3"
+                      className="rounded-card border border-neutral-200 bg-neutral-50/60 p-4 space-y-3"
                       onSubmit={(e) => {
                         e.preventDefault();
                         void onRefine(idx);
@@ -449,7 +449,7 @@ function CopyWorkbench() {
                   )}
 
                   {savingIdx === idx && (
-                    <div className="rounded-card border border-sage-200 bg-sage-50/60 p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="rounded-card border border-neutral-200 bg-neutral-50/60 p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="space-y-1.5 md:col-span-3">
                         <label htmlFor={`save-title-${idx}`} className={LABEL}>Calendar title</label>
                         <input id={`save-title-${idx}`} className={INPUT} maxLength={200} value={saveTitle} onChange={(e) => setSaveTitle(e.target.value)} />
@@ -480,13 +480,13 @@ function CopyWorkbench() {
 
       {tab === 'history' && (
         <section id="copy-panel-history" role="tabpanel" aria-labelledby="copy-tab-history" aria-label="History" className={`${CARD} p-6 space-y-3`}>
-          <h2 className="font-display font-semibold text-lg text-sage-900">Everything you have generated</h2>
-          {history.status === 'loading' && <p className="text-sm text-sage-500">Loading your history...</p>}
-          {history.status === 'error' && <p role="alert" className="text-sm text-red-700">{history.error}</p>}
+          <h2 className="font-display font-semibold text-lg text-neutral-900">Everything you have generated</h2>
+          {history.status === 'loading' && <p className="text-sm text-neutral-500">Loading your history...</p>}
+          {history.status === 'error' && <p role="alert" className="text-sm text-danger-700">{history.error}</p>}
           {history.status === 'ready' && history.history.length === 0 && (
-            <p className="text-sm text-sage-600">Nothing generated yet. Write your first variants on the Generate tab.</p>
+            <p className="text-sm text-neutral-600">Nothing generated yet. Write your first variants on the Generate tab.</p>
           )}
-          <ul className="divide-y divide-sage-100">
+          <ul className="divide-y divide-neutral-100">
             {history.history.slice(0, historyShown).map((h) => {
               const r = refineOf(h);
               const plat = platformOf(h.output.platform ?? (h.inputs.platform as string | undefined));
@@ -494,8 +494,8 @@ function CopyWorkbench() {
               return (
                 <li key={h.id} className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
                   <div className="min-w-0 space-y-0.5">
-                    <p className="text-sm font-medium text-sage-900 truncate">{String(h.inputs.key_message ?? '')}</p>
-                    <p className="text-xs text-sage-500">
+                    <p className="text-sm font-medium text-neutral-900 truncate">{String(h.inputs.key_message ?? '')}</p>
+                    <p className="text-xs text-neutral-500">
                       {r ? `Refinement: ${r.instruction} · ` : ''}
                       {h.status === 'failed' ? 'Failed' : h.status === 'generating' ? 'Still generating' : `${h.output.variants?.length ?? 0} variants`}
                       {plat ? ` · ${plat.label}` : ''}

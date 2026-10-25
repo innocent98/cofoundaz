@@ -26,14 +26,14 @@ const ICONS: Record<ChannelKey, LucideIcon> = {
 };
 
 export const CHANNEL_COLOR: Record<ChannelKey, string> = {
-  organic_social: 'bg-[#0e271f] text-white',
-  paid_social: 'bg-[#9C5B34] text-white',
-  search: 'bg-[#6E4326] text-white',
-  email: 'bg-[#1e4836] text-white',
-  content_seo: 'bg-[#46735e] text-white',
-  partnerships: 'bg-[#266049] text-white',
-  events: 'bg-[#522F1A] text-white',
-  referral: 'bg-[#2E7256] text-white',
+  organic_social: 'bg-brand-rail-deep text-white',
+  paid_social: 'bg-accent-600 text-white',
+  search: 'bg-accent-800 text-white',
+  email: 'bg-brand-hover text-white',
+  content_seo: 'bg-brand-x46735e text-white',
+  partnerships: 'bg-brand-600 text-white',
+  events: 'bg-accent-900 text-white',
+  referral: 'bg-brand-500 text-white',
 };
 
 export function ChannelIcon({ channel, className = 'h-3.5 w-3.5' }: { channel: ChannelKey; className?: string }) {

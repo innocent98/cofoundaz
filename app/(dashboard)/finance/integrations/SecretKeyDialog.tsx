@@ -69,7 +69,7 @@ export function SecretKeyDialog({
   return (
     <Modal title={`${replacing ? "Replace" : "Connect"} ${copy.name}`} onClose={busy ? () => undefined : onClose}>
       <form onSubmit={(e) => void submit(e)} className="space-y-4" autoComplete="off">
-        <p className="text-xs text-sage-500">
+        <p className="text-xs text-neutral-500">
           For your security we never show your key again. It is stored encrypted and only used to read your {copy.name} transactions and create pay links on your account.
           {replacing ? " Paste the new key; the old one is discarded." : ""}
         </p>

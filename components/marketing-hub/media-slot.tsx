@@ -43,14 +43,14 @@ export function MediaThumb({ media, className = 'h-28 w-28' }: { media: Marketin
 
   const current = loaded && loaded.id === media.id ? loaded : null;
   if (!current) {
-    return <div role="status" aria-label={`Loading ${media.filename}`} className={`${className} animate-pulse rounded-card border border-sage-200 bg-sage-50`} />;
+    return <div role="status" aria-label={`Loading ${media.filename}`} className={`${className} animate-pulse rounded-card border border-neutral-200 bg-neutral-50`} />;
   }
   if (!current.src) {
     return (
-      <div className={`${className} flex flex-col items-center justify-center gap-1 rounded-card border border-sage-200 bg-sage-50 p-2 text-center`}>
-        <ImagePlus className="h-5 w-5 text-sage-600" aria-hidden="true" />
-        <span className="w-full truncate text-[11px] text-sage-600">{media.filename}</span>
-        <span className="text-[10px] text-sage-500">Preview unavailable</span>
+      <div className={`${className} flex flex-col items-center justify-center gap-1 rounded-card border border-neutral-200 bg-neutral-50 p-2 text-center`}>
+        <ImagePlus className="h-5 w-5 text-neutral-600" aria-hidden="true" />
+        <span className="w-full truncate text-[11px] text-neutral-600">{media.filename}</span>
+        <span className="text-[10px] text-neutral-500">Preview unavailable</span>
       </div>
     );
   }
@@ -59,7 +59,7 @@ export function MediaThumb({ media, className = 'h-28 w-28' }: { media: Marketin
     <img
       src={current.src}
       alt={media.filename}
-      className={`${className} rounded-card border border-sage-200 object-cover bg-sage-50`}
+      className={`${className} rounded-card border border-neutral-200 object-cover bg-neutral-50`}
       onError={() => setLoaded({ id: media.id, src: null })}
     />
   );
@@ -71,9 +71,9 @@ function Library({ onPick }: { onPick: (m: MarketingMedia) => void }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  if (status === 'loading') return <p className="text-xs text-sage-500">Loading your images...</p>;
-  if (status === 'error' || status === 'forbidden') return <p role="alert" className="text-xs text-red-700">{error}</p>;
-  if (media.length === 0) return <p className="text-xs text-sage-500">No images uploaded yet.</p>;
+  if (status === 'loading') return <p className="text-xs text-neutral-500">Loading your images...</p>;
+  if (status === 'error' || status === 'forbidden') return <p role="alert" className="text-xs text-danger-700">{error}</p>;
+  if (media.length === 0) return <p className="text-xs text-neutral-500">No images uploaded yet.</p>;
 
   return (
     <div className="space-y-2">
@@ -87,14 +87,14 @@ function Library({ onPick }: { onPick: (m: MarketingMedia) => void }) {
               type="button"
               onClick={() => setConfirm(m)}
               aria-label={`Delete ${m.filename} from your library`}
-              className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-700 shadow-card cursor-pointer"
+              className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-danger-700 shadow-card cursor-pointer"
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
           </li>
         ))}
       </ul>
-      {err && <p role="alert" className="text-xs text-red-700">{err}</p>}
+      {err && <p role="alert" className="text-xs text-danger-700">{err}</p>}
       {confirm && (
         <ConfirmDialog
           title="Delete this image?"
@@ -159,14 +159,14 @@ export function MediaSlot({
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs font-semibold text-sage-700 uppercase tracking-wider">Image</span>
+      <span className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">Image</span>
       <div className="flex items-start gap-4">
         {media ? (
           <MediaThumb media={media} />
         ) : (
-          <div className="flex h-28 w-28 shrink-0 flex-col items-center justify-center gap-1 rounded-card border border-dashed border-sage-300 bg-sage-50 text-center">
-            <ImagePlus className="h-5 w-5 text-sage-600" aria-hidden="true" />
-            <span className="text-[11px] text-sage-500">No image</span>
+          <div className="flex h-28 w-28 shrink-0 flex-col items-center justify-center gap-1 rounded-card border border-dashed border-neutral-300 bg-neutral-50 text-center">
+            <ImagePlus className="h-5 w-5 text-neutral-600" aria-hidden="true" />
+            <span className="text-[11px] text-neutral-500">No image</span>
           </div>
         )}
         <div className="flex flex-col items-start gap-2">
@@ -191,8 +191,8 @@ export function MediaSlot({
           )}
         </div>
       </div>
-      <p className="text-xs text-sage-500">PNG, JPEG, GIF or WebP, up to 5 MB. Only your marketing team can see these images.</p>
-      {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
+      <p className="text-xs text-neutral-500">PNG, JPEG, GIF or WebP, up to 5 MB. Only your marketing team can see these images.</p>
+      {error && <p role="alert" className="text-xs text-danger-700">{error}</p>}
       {showLibrary && (
         <Library
           onPick={(m) => {

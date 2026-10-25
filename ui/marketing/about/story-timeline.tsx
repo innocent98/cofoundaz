@@ -13,16 +13,16 @@ export function StoryTimeline() {
               className="grid grid-cols-1 gap-2 pb-8 md:grid-cols-[80px_1fr] md:gap-6"
             >
               {/* Deviation D-1: copper-700 for copper text on a white surface. */}
-              <div className="pt-0.5 font-display text-lg font-bold text-copper-700 md:text-right">
+              <div className="pt-0.5 font-display text-lg font-bold text-accent-700 md:text-right">
                 {entry.year}
               </div>
-              <div className="relative border-l-2 border-green-100 pl-6">
+              <div className="relative border-l-2 border-brand-100 pl-6">
                 <span
                   aria-hidden="true"
-                  className="absolute -left-[7px] top-1 h-3 w-3 rounded-full border-2 border-white bg-green-700"
+                  className="absolute -left-[7px] top-1 h-3 w-3 rounded-full border-2 border-white bg-brand-700"
                 />
-                <h3 className="text-[17px] font-bold text-sage-900">{entry.title}</h3>
-                <p className="mt-1.5 text-[15px] leading-relaxed text-sage-500">{entry.body}</p>
+                <h3 className="text-[17px] font-bold text-neutral-900">{entry.title}</h3>
+                <p className="mt-1.5 text-[15px] leading-relaxed text-neutral-500">{entry.body}</p>
               </div>
             </li>
           ))}

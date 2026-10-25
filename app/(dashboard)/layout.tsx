@@ -29,7 +29,7 @@ export default function DashboardLayout({
           <NotificationsProvider>
             <AiDrawerProvider>
               <SearchProvider>
-                <div className="min-h-screen bg-[#F4F6F5] flex w-full">
+                <div className="min-h-screen bg-neutral-100 flex w-full">
                   <Sidebar
                     isOpen={isSidebarOpen}
                     setIsOpen={setIsSidebarOpen}

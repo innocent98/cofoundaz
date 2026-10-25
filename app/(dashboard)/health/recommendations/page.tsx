@@ -44,11 +44,11 @@ export default function RecommendationsPage() {
   return (
     <div className="flex flex-col gap-6 pt-2 pb-12">
       <div>
-        <h2 className="text-3xl font-display font-medium text-[#1E2923] tracking-tight">Recommendations</h2>
-        <p className="text-xs text-[#617065] mt-1.5">Ranked by priority. Each lift is an estimate, not a guarantee.</p>
+        <h2 className="text-3xl font-display font-medium text-ink tracking-tight">Recommendations</h2>
+        <p className="text-xs text-ink-muted mt-1.5">Ranked by priority. Each lift is an estimate, not a guarantee.</p>
       </div>
 
-      <div role="group" aria-label="Recommendation status" className="flex items-center gap-1 bg-[#F5F5F0] p-1 rounded-card border border-[#EBEBE6] w-fit">
+      <div role="group" aria-label="Recommendation status" className="flex items-center gap-1 bg-surface-muted p-1 rounded-card border border-line-soft w-fit">
         {FILTERS.map((f) => (
           <button
             key={f.key}
@@ -56,7 +56,7 @@ export default function RecommendationsPage() {
             aria-pressed={filter === f.key}
             onClick={() => setFilter(f.key)}
             className={`px-4 py-1.5 rounded-[6px] text-xs font-medium transition-all ${
-              filter === f.key ? 'bg-white text-[#1E2923] font-bold shadow-card' : 'bg-transparent text-[#768478] hover:text-[#1E2923]'
+              filter === f.key ? 'bg-white text-ink font-bold shadow-card' : 'bg-transparent text-ink-soft hover:text-ink'
             }`}
           >
             {f.label}
@@ -67,7 +67,7 @@ export default function RecommendationsPage() {
       {loading && (
         <div className="flex flex-col gap-4">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="bg-white rounded-modal border border-[#EBEBE6] shadow-card h-28 animate-pulse" />
+            <div key={i} className="bg-white rounded-modal border border-line-soft shadow-card h-28 animate-pulse" />
           ))}
         </div>
       )}
@@ -77,7 +77,7 @@ export default function RecommendationsPage() {
       )}
 
       {!loading && !error && recs.length === 0 && (
-        <div className="text-center py-12 text-[#617065] text-sm">
+        <div className="text-center py-12 text-ink-muted text-sm">
           {filter === 'pending' ? 'All caught up. No pending recommendations right now.' : `No ${filter} recommendations.`}
         </div>
       )}
@@ -87,16 +87,16 @@ export default function RecommendationsPage() {
           {recs.map((item) => {
             const busy = busyId === item.id;
             return (
-              <div key={item.id} className="bg-white rounded-modal p-6 md:p-7 border border-[#EBEBE6] shadow-card flex flex-col gap-3">
+              <div key={item.id} className="bg-white rounded-modal p-6 md:p-7 border border-line-soft shadow-card flex flex-col gap-3">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
                   <div className="flex items-start gap-4 flex-1">
-                    <span className="bg-[#EAF2ED] text-[#2D5A3F] text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
+                    <span className="bg-brand-tint text-brand-mid text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
                       {formatLift(item.estimated_lift)}
                     </span>
                     <div className="flex flex-col gap-1.5">
-                      <h3 className="text-base font-bold text-[#1E2923] leading-snug">{item.title}</h3>
-                      <p className="text-xs text-[#617065] leading-relaxed">{item.body}</p>
-                      <div className="text-[11px] text-[#768478] mt-1 font-medium capitalize">
+                      <h3 className="text-base font-bold text-ink leading-snug">{item.title}</h3>
+                      <p className="text-xs text-ink-muted leading-relaxed">{item.body}</p>
+                      <div className="text-[11px] text-ink-soft mt-1 font-medium capitalize">
                         Effort: {item.effort} · {dimensionLabel(item.dimension)}
                       </div>
                     </div>
@@ -108,7 +108,7 @@ export default function RecommendationsPage() {
                         type="button"
                         onClick={() => run(item.id, () => accept(item.id), item.href)}
                         disabled={busy}
-                        className="flex items-center gap-1 bg-[#183B28] hover:bg-[#11291C] disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-card transition-colors cursor-pointer"
+                        className="flex items-center gap-1 bg-brand-strong hover:bg-brand-rail disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-card transition-colors cursor-pointer"
                       >
                         Start <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                       </button>
@@ -116,7 +116,7 @@ export default function RecommendationsPage() {
                         type="button"
                         onClick={() => run(item.id, () => dismiss(item.id))}
                         disabled={busy}
-                        className="flex items-center gap-1 bg-white hover:bg-[#F5F5F0] text-[#617065] border border-[#EBEBE6] text-xs font-bold px-4 py-2 rounded-card transition-colors disabled:opacity-50 cursor-pointer"
+                        className="flex items-center gap-1 bg-white hover:bg-surface-muted text-ink-muted border border-line-soft text-xs font-bold px-4 py-2 rounded-card transition-colors disabled:opacity-50 cursor-pointer"
                       >
                         <X className="w-3.5 h-3.5" aria-hidden="true" /> Dismiss
                       </button>
@@ -125,14 +125,14 @@ export default function RecommendationsPage() {
                   {(filter === 'accepted' || (filter === 'pending' && !canAction)) && canOpenPath(item.href, role) && (
                     <Link
                       href={item.href}
-                      className="flex items-center gap-1 shrink-0 self-start md:self-center bg-white hover:bg-[#F5F5F0] text-[#183B28] border border-[#EBEBE6] text-xs font-bold px-4 py-2 rounded-card transition-colors"
+                      className="flex items-center gap-1 shrink-0 self-start md:self-center bg-white hover:bg-surface-muted text-brand-strong border border-line-soft text-xs font-bold px-4 py-2 rounded-card transition-colors"
                     >
                       Open <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                     </Link>
                   )}
                 </div>
                 {rowError[item.id] && (
-                  <div className="flex items-start gap-1.5 text-[11px] font-semibold text-[#B0483B] bg-[#FBEBEB] border border-[#F0D5D5] rounded-input px-2.5 py-1.5 w-fit">
+                  <div className="flex items-start gap-1.5 text-[11px] font-semibold text-danger-600 bg-danger-wash border border-danger-xf0d5d5 rounded-input px-2.5 py-1.5 w-fit">
                     <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                     <span>{rowError[item.id]}</span>
                   </div>

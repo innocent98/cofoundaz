@@ -237,7 +237,7 @@ export default function Sidebar({
       {/* Sidebar Container */}
       <aside
         aria-label="Main navigation"
-        className={`fixed left-0 top-0 z-50 flex h-[100dvh] max-h-[100dvh] w-64 shrink-0 flex-col justify-between overflow-x-hidden overflow-y-auto overscroll-none bg-[#061A12] p-4 text-sm font-medium text-[#A3B899] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden will-change-transform transition-all duration-300 ease-in-out ${isOpen
+        className={`fixed left-0 top-0 z-50 flex h-[100dvh] max-h-[100dvh] w-64 shrink-0 flex-col justify-between overflow-x-hidden overflow-y-auto overscroll-none bg-brand-x061a12 p-4 text-sm font-medium text-brand-xa3b899 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden will-change-transform transition-all duration-300 ease-in-out ${isOpen
             ? 'visible translate-x-0 opacity-100 shadow-raised'
             : 'invisible -translate-x-full opacity-0'
           } lg:visible lg:translate-x-0 lg:opacity-100`}
@@ -250,7 +250,7 @@ export default function Sidebar({
             <button
               type="button"
               onClick={handleClose}
-              className="lg:hidden shrink-0 p-1.5 rounded-input text-[#7B9382] hover:text-white hover:bg-[#0E281C] transition-colors cursor-pointer"
+              className="lg:hidden shrink-0 p-1.5 rounded-input text-neutral-x7b9382 hover:text-white hover:bg-brand-x0e281c transition-colors cursor-pointer"
               aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
@@ -264,7 +264,7 @@ export default function Sidebar({
               onClick={() => { setSwitcherOpen((v) => !v); setProfileOpen(false); }}
               aria-haspopup="menu"
               aria-expanded={switcherOpen}
-              className="w-full bg-[#0C2419] border border-[#183B2B] rounded-card p-3 flex items-center justify-between gap-2 cursor-pointer hover:border-[#26533D] transition-colors text-left"
+              className="w-full bg-brand-x0c2419 border border-brand-x183b2b rounded-card p-3 flex items-center justify-between gap-2 cursor-pointer hover:border-brand-x26533d transition-colors text-left"
             >
               <div className="flex min-w-0 items-center gap-3">
                 {logoUrl ? (
@@ -275,7 +275,7 @@ export default function Sidebar({
                     className="h-8 w-8 shrink-0 rounded-input object-cover"
                   />
                 ) : (
-                  <div className="bg-[#122E21] text-[#D89A6E] font-bold h-8 w-8 shrink-0 flex items-center justify-center rounded-input text-sm">
+                  <div className="bg-brand-x122e21 text-accent-500 font-bold h-8 w-8 shrink-0 flex items-center justify-center rounded-input text-sm">
                     {workspaceInitial}
                   </div>
                 )}
@@ -285,19 +285,19 @@ export default function Sidebar({
                     {workspaceName}
                   </p>
                   {stageLabel && (
-                    <p className="truncate text-xs text-[#7B9382]">
+                    <p className="truncate text-xs text-neutral-x7b9382">
                       {stageLabel}
                     </p>
                   )}
                 </div>
               </div>
 
-              <ChevronDown className={`w-4 h-4 shrink-0 text-[#7B9382] transition-transform ${switcherOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 shrink-0 text-neutral-x7b9382 transition-transform ${switcherOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {switcherOpen && (
-              <div role="menu" className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#0C2419] border border-[#1F4332] rounded-card shadow-raised p-1.5">
-                <p className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#4D6D58]">Workspaces</p>
+              <div role="menu" className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-brand-x0c2419 border border-brand-x1f4332 rounded-card shadow-raised p-1.5">
+                <p className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-line-focus">Workspaces</p>
                 {(memberships.length > 0
                   ? memberships
                   : [{ startup_id: activeWorkspaceId ?? 'current', name: workspaceName, role: null }]
@@ -309,28 +309,28 @@ export default function Sidebar({
                       type="button"
                       role="menuitem"
                       onClick={() => switchWorkspace(m.startup_id)}
-                      className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-input text-left hover:bg-[#122E21] transition-colors"
+                      className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-input text-left hover:bg-brand-x122e21 transition-colors"
                     >
                       <span className="truncate text-sm text-white">{m.name?.trim() || 'Workspace'}</span>
-                      {isActive && <Check className="w-4 h-4 shrink-0 text-[#D89A6E]" />}
+                      {isActive && <Check className="w-4 h-4 shrink-0 text-accent-500" />}
                     </button>
                   );
                 })}
-                <div className="my-1.5 border-t border-[#183B2B]" />
+                <div className="my-1.5 border-t border-brand-x183b2b" />
                 <Link
                   href="/account"
                   onClick={() => { setSwitcherOpen(false); handleClose(); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
                 >
-                  <UserCircle className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  <UserCircle className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
                   Account &amp; profile
                 </Link>
                 <Link
                   href="/settings"
                   onClick={() => { setSwitcherOpen(false); handleClose(); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
                 >
-                  <Settings className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  <Settings className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
                   Settings &amp; billing
                 </Link>
               </div>
@@ -341,14 +341,14 @@ export default function Sidebar({
           {roleLoading ? (
             <div role="status" aria-label="Loading navigation" className="flex w-full flex-col space-y-3 px-2">
               {Array.from({ length: 8 }, (_, i) => (
-                <div key={i} className="h-8 rounded-modal bg-[#0C2419] animate-pulse" />
+                <div key={i} className="h-8 rounded-modal bg-brand-x0c2419 animate-pulse" />
               ))}
             </div>
           ) : (
           <div className="flex w-full flex-col space-y-6">
             {visibleSections.map((section) => (
               <div key={section.title} className="w-full">
-                <p className="block w-full text-[11px] font-bold uppercase tracking-wider text-[#7B9382] mb-2 px-2">
+                <p className="block w-full text-[11px] font-bold uppercase tracking-wider text-neutral-x7b9382 mb-2 px-2">
                   {section.title}
                 </p>
 
@@ -363,15 +363,15 @@ export default function Sidebar({
                           href={item.href}
                           onClick={handleClose}
                           className={`relative flex w-full items-center justify-between gap-2 px-3 py-2.5 rounded-modal transition-all ${isActive
-                              ? 'bg-[#0E2C1E] text-white font-bold border-l-2 border-[#D89A6E] shadow-card'
-                              : 'text-[#A3B899] hover:text-white hover:bg-[#0A2217]'
+                              ? 'bg-brand-x0e2c1e text-white font-bold border-l-2 border-accent-500 shadow-card'
+                              : 'text-brand-xa3b899 hover:text-white hover:bg-brand-x0a2217'
                             }`}
                         >
                           <div className="flex min-w-0 items-center gap-3">
                             <Icon
                               className={`w-4 h-4 shrink-0 ${isActive
-                                  ? 'text-[#D89A6E]'
-                                  : 'text-[#7B9382]'
+                                  ? 'text-accent-500'
+                                  : 'text-neutral-x7b9382'
                                 }`}
                             />
 
@@ -381,12 +381,12 @@ export default function Sidebar({
                           </div>
 
                           {item.locked && (
-                            <Lock className="w-3.5 h-3.5 shrink-0 text-[#D89A6E]" />
+                            <Lock className="w-3.5 h-3.5 shrink-0 text-accent-500" />
                           )}
                           {item.href === '/mission' && missionOpen > 0 && (
                             <span
                               aria-label={`${missionOpen} open ${missionOpen === 1 ? 'task' : 'tasks'}`}
-                              className="shrink-0 bg-[#D89A6E] text-[#061A12] text-xs font-bold px-1.5 py-0.5 rounded-full"
+                              className="shrink-0 bg-accent-500 text-brand-x061a12 text-xs font-bold px-1.5 py-0.5 rounded-full"
                             >
                               {missionOpen > 9 ? '9+' : missionOpen}
                             </span>
@@ -403,14 +403,14 @@ export default function Sidebar({
         </div>
 
         {/* Footer Navigation & Profile */}
-        <div className="flex w-full shrink-0 flex-col pt-6 border-t border-[#122E21] mt-6 space-y-1">
+        <div className="flex w-full shrink-0 flex-col pt-6 border-t border-brand-x122e21 mt-6 space-y-1">
           <Link
             href="/notifications"
             onClick={handleClose}
-            className="flex w-full items-center justify-between gap-2 px-3 py-2 rounded-card hover:text-white hover:bg-[#0A2217] transition-colors"
+            className="flex w-full items-center justify-between gap-2 px-3 py-2 rounded-card hover:text-white hover:bg-brand-x0a2217 transition-colors"
           >
             <div className="flex min-w-0 items-center gap-3">
-              <Bell className="w-4 h-4 shrink-0 text-[#7B9382]" />
+              <Bell className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
 
               <span className="truncate">
                 Notifications
@@ -418,7 +418,7 @@ export default function Sidebar({
             </div>
 
             {unreadCount > 0 && (
-              <span className="shrink-0 bg-[#D89A6E] text-[#061A12] text-xs font-bold px-1.5 py-0.5 rounded-full">
+              <span className="shrink-0 bg-accent-500 text-brand-x061a12 text-xs font-bold px-1.5 py-0.5 rounded-full">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -427,9 +427,9 @@ export default function Sidebar({
           <Link
             href="/settings"
             onClick={handleClose}
-            className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-[#0A2217] transition-colors"
+            className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-brand-x0a2217 transition-colors"
           >
-            <Settings className="w-4 h-4 shrink-0 text-[#7B9382]" />
+            <Settings className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
 
             <span className="truncate">
               Settings & Billing
@@ -439,9 +439,9 @@ export default function Sidebar({
           <Link
             href="/setup/mfa"
             onClick={handleClose}
-            className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-[#0A2217] transition-colors"
+            className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-brand-x0a2217 transition-colors"
           >
-            <Lock className="w-4 h-4 shrink-0 text-[#7B9382]" />
+            <Lock className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
 
             <span className="truncate">
               Security (2FA)
@@ -455,14 +455,14 @@ export default function Sidebar({
               onClick={() => { setProfileOpen((v) => !v); setSwitcherOpen(false); }}
               aria-haspopup="menu"
               aria-expanded={profileOpen}
-              className="flex w-full items-center justify-between gap-2 px-2 py-1 rounded-card cursor-pointer hover:bg-[#0A2217] transition-colors text-left"
+              className="flex w-full items-center justify-between gap-2 px-2 py-1 rounded-card cursor-pointer hover:bg-brand-x0a2217 transition-colors text-left"
             >
               <div className="flex min-w-0 items-center gap-3">
                 {founderAvatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={founderAvatar} alt="Your profile photo" className="h-9 w-9 shrink-0 rounded-full object-cover" />
                 ) : (
-                  <div className="bg-[#122E21] text-white font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-full text-xs">
+                  <div className="bg-brand-x122e21 text-white font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-full text-xs">
                     {founderInitials}
                   </div>
                 )}
@@ -472,53 +472,53 @@ export default function Sidebar({
                     {founderDisplay}
                   </p>
 
-                  <p className="truncate text-xs text-[#7B9382]">
+                  <p className="truncate text-xs text-neutral-x7b9382">
                     {founderRoleText}
                   </p>
                 </div>
               </div>
 
-              <ChevronDown className={`w-3.5 h-3.5 shrink-0 text-[#7B9382] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 shrink-0 text-neutral-x7b9382 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {profileOpen && (
-              <div role="menu" className="absolute left-0 right-0 bottom-full mb-1.5 z-50 bg-[#0C2419] border border-[#1F4332] rounded-card shadow-raised p-1.5">
+              <div role="menu" className="absolute left-0 right-0 bottom-full mb-1.5 z-50 bg-brand-x0c2419 border border-brand-x1f4332 rounded-card shadow-raised p-1.5">
                 <div className="px-2.5 py-2">
                   <p className="truncate text-sm font-semibold text-white">{founderDisplay}</p>
-                  {founderEmail && <p className="truncate text-xs text-[#7B9382]">{founderEmail}</p>}
+                  {founderEmail && <p className="truncate text-xs text-neutral-x7b9382">{founderEmail}</p>}
                 </div>
-                <div className="my-1 border-t border-[#183B2B]" />
+                <div className="my-1 border-t border-brand-x183b2b" />
                 <Link
                   href="/account"
                   onClick={() => { setProfileOpen(false); handleClose(); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
                 >
-                  <UserCircle className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  <UserCircle className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
                   Profile
                 </Link>
                 <Link
                   href="/notifications?tab=preferences"
                   onClick={() => { setProfileOpen(false); handleClose(); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
                 >
-                  <SlidersHorizontal className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  <SlidersHorizontal className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
                   Preferences
                 </Link>
                 <Link
                   href="/settings"
                   onClick={() => { setProfileOpen(false); handleClose(); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#A3B899] hover:text-white hover:bg-[#122E21] transition-colors"
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
                 >
-                  <Settings className="w-4 h-4 shrink-0 text-[#7B9382]" />
+                  <Settings className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
                   Settings &amp; billing
                 </Link>
-                <div className="my-1 border-t border-[#183B2B]" />
+                <div className="my-1 border-t border-brand-x183b2b" />
                 <button
                   type="button"
                   role="menuitem"
                   onClick={handleLogout}
                   disabled={loggingOut}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-[#E88B7D] hover:text-white hover:bg-[#3A1A16] disabled:opacity-60 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-danger-xe88b7d hover:text-white hover:bg-danger-x3a1a16 disabled:opacity-60 transition-colors"
                 >
                   <LogOut className="w-4 h-4 shrink-0" />
                   {loggingOut ? 'Signing out…' : 'Sign out'}

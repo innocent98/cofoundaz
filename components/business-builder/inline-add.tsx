@@ -28,7 +28,7 @@ export function InlineAdd({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`flex items-center gap-0.5 text-xs text-[#8E9B90] hover:text-[#183B28] transition-colors ${className}`}
+        className={`flex items-center gap-0.5 text-xs text-ink-subtle hover:text-brand-strong transition-colors ${className}`}
       >
         <Plus className="w-3 h-3" /> Add
       </button>
@@ -53,7 +53,7 @@ export function InlineAdd({
       placeholder={placeholder}
       aria-label={placeholder}
       maxLength={300}
-      className="w-40 border-b border-[#183B28] bg-transparent text-xs text-[#1E2923] outline-none py-0.5"
+      className="w-40 border-b border-brand-strong bg-transparent text-xs text-ink outline-none py-0.5"
     />
   );
 }

@@ -123,23 +123,23 @@ export function FollowUpSection({ dealId, hasContact }: { dealId: string; hasCon
 
   return (
     <section aria-label="Follow-up email" className="space-y-3">
-      <h3 className="text-xs font-bold text-sage-500 uppercase tracking-wider">Follow-up email</h3>
-      {phase === 'loading' && <p className="text-sm text-sage-600">Checking for a draft...</p>}
+      <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Follow-up email</h3>
+      {phase === 'loading' && <p className="text-sm text-neutral-600">Checking for a draft...</p>}
       {(phase === 'idle' || phase === 'sent') && (
         <>
-          <p className="text-sm text-sage-600">
+          <p className="text-sm text-neutral-600">
             {phase === 'sent' && draft?.sent_at
               ? `A follow-up was sent on ${new Date(draft.sent_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}. You can write another.`
               : 'The AI drafts one email to this deal’s contact. You edit it, then send it.'}
           </p>
-          {!hasContact && <p className="text-sm text-sage-600">Add a contact with an email to this deal before sending.</p>}
+          {!hasContact && <p className="text-sm text-neutral-600">Add a contact with an email to this deal before sending.</p>}
           <button type="button" className={BTN_SECONDARY} onClick={() => void write()}>
             {phase === 'sent' ? 'Write another follow-up' : 'Write a follow-up'}
           </button>
         </>
       )}
       {phase === 'writing' && (
-        <p role="status" className="text-sm text-sage-600">
+        <p role="status" className="text-sm text-neutral-600">
           Writing your follow-up...
         </p>
       )}
@@ -162,12 +162,12 @@ export function FollowUpSection({ dealId, hasContact }: { dealId: string; hasCon
         </div>
       )}
       {note && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-danger-700">
           {note}
         </p>
       )}
       {sendError && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-danger-700">
           {sendError}
         </p>
       )}

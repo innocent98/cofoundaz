@@ -90,35 +90,35 @@ function VerifyEmailContent() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-[16px] shadow-card border border-sage-100 text-center">
+    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-[16px] shadow-card border border-neutral-100 text-center">
       {status === 'verifying' && (
         <div className="space-y-4">
-          <div className="w-10 h-10 border-4 border-green-800 border-t-transparent rounded-full animate-spin mx-auto" />
-          <h1 className="text-xl font-bold font-display text-sage-900">Verifying your email</h1>
-          <p className="text-sm text-sage-500">Confirming your account with Cofoundaz…</p>
+          <div className="w-10 h-10 border-4 border-brand-800 border-t-transparent rounded-full animate-spin mx-auto" />
+          <h1 className="text-xl font-bold font-display text-neutral-900">Verifying your email</h1>
+          <p className="text-sm text-neutral-500">Confirming your account with Cofoundaz…</p>
         </div>
       )}
 
       {status === 'success' && (
         <div className="space-y-4">
-          <div className="w-12 h-12 bg-green-100 text-green-700 rounded-full flex items-center justify-center mx-auto">
+          <div className="w-12 h-12 bg-brand-100 text-brand-700 rounded-full flex items-center justify-center mx-auto">
             <CheckCircle2 className="h-7 w-7" />
           </div>
-          <h1 className="text-xl font-bold font-display text-sage-900">Email verified!</h1>
-          <p className="text-sm text-sage-500">Your account is active. Redirecting to your dashboard...</p>
+          <h1 className="text-xl font-bold font-display text-neutral-900">Email verified!</h1>
+          <p className="text-sm text-neutral-500">Your account is active. Redirecting to your dashboard...</p>
         </div>
       )}
 
       {(status === 'idle' || status === 'error') && (
         <div className="space-y-5 text-left">
           <div className="text-center">
-            <div className="w-12 h-12 bg-sage-100 text-sage-700 rounded-full flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 bg-neutral-100 text-neutral-700 rounded-full flex items-center justify-center mx-auto mb-3">
               <Mail className="h-6 w-6" />
             </div>
-            <h1 className="text-xl font-bold font-display text-sage-900">Verify your email</h1>
-            <p className="text-sm text-sage-600 mt-1">
+            <h1 className="text-xl font-bold font-display text-neutral-900">Verify your email</h1>
+            <p className="text-sm text-neutral-600 mt-1">
               {emailParam ? (
-                <>We sent a verification link to <span className="font-semibold text-sage-900">{emailParam}</span>.</>
+                <>We sent a verification link to <span className="font-semibold text-neutral-900">{emailParam}</span>.</>
               ) : (
                 'Please check your email and click the verification link.'
               )}
@@ -126,19 +126,19 @@ function VerifyEmailContent() {
           </div>
 
           {status === 'error' && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-[12px] text-xs text-red-700">
+            <div className="p-3 bg-danger-50 border border-danger-200 rounded-[12px] text-xs text-danger-700">
               {errorMessage}
             </div>
           )}
 
           {resendMessage && (
-            <div className={`p-3 rounded-[12px] text-xs ${resendStatus === 'sent' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+            <div className={`p-3 rounded-[12px] text-xs ${resendStatus === 'sent' ? 'bg-brand-50 text-brand-700 border border-brand-200' : 'bg-danger-50 text-danger-700 border border-danger-200'}`}>
               {resendMessage}
             </div>
           )}
 
           <div className="pt-2 space-y-3">
-            <label className="block text-xs font-medium text-sage-700">
+            <label className="block text-xs font-medium text-neutral-700">
               Or paste your verification code / token:
             </label>
             <div className="flex gap-2">
@@ -147,26 +147,26 @@ function VerifyEmailContent() {
                 placeholder="Verification token"
                 value={tokenInput}
                 onChange={(e) => setTokenInput(e.target.value)}
-                className="flex-1 px-3 py-2 text-sm border border-sage-200 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-green-800"
+                className="flex-1 px-3 py-2 text-sm border border-neutral-200 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-brand-800"
               />
               <button
                 type="button"
                 onClick={() => executeVerification(tokenInput)}
                 disabled={!tokenInput.trim()}
-                className="px-4 py-2 bg-green-900 hover:bg-green-800 disabled:opacity-50 text-white text-sm font-semibold rounded-[12px] transition"
+                className="px-4 py-2 bg-brand-900 hover:bg-brand-800 disabled:opacity-50 text-white text-sm font-semibold rounded-[12px] transition"
               >
                 Verify
               </button>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-sage-100 flex flex-col gap-2">
+          <div className="pt-4 border-t border-neutral-100 flex flex-col gap-2">
             {emailParam && (
               <button
                 type="button"
                 onClick={handleResend}
                 disabled={resendStatus === 'sending'}
-                className="w-full py-2.5 px-4 bg-sage-50 hover:bg-sage-100 text-sage-800 text-sm font-medium rounded-[12px] transition"
+                className="w-full py-2.5 px-4 bg-neutral-50 hover:bg-neutral-100 text-neutral-800 text-sm font-medium rounded-[12px] transition"
               >
                 {resendStatus === 'sending' ? 'Sending...' : 'Resend verification email'}
               </button>
@@ -174,7 +174,7 @@ function VerifyEmailContent() {
 
             <Link
               href="/login"
-              className="text-center py-2 text-sm text-sage-600 hover:text-sage-900 transition"
+              className="text-center py-2 text-sm text-neutral-600 hover:text-neutral-900 transition"
             >
               Back to Login
             </Link>
@@ -187,7 +187,7 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="text-center text-sm text-sage-400">Loading...</div>}>
+    <Suspense fallback={<div className="text-center text-sm text-neutral-400">Loading...</div>}>
       <VerifyEmailContent />
     </Suspense>
   );

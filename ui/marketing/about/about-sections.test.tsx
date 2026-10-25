@@ -99,6 +99,6 @@ describe('AboutPage', () => {
 
   it('renders exactly one accent (copper) button on the whole page', () => {
     const { container } = render(<AboutPage />)
-    expect(container.querySelectorAll('.bg-copper-600')).toHaveLength(1)
+    expect(container.querySelectorAll('.bg-accent-600')).toHaveLength(1)
   })
 })

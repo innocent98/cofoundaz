@@ -14,10 +14,10 @@ export default function NotFound() {
             of aria-hidden, so this needs a real fix, not just the ARIA
             exemption. green-400 is the lightest token on our ramp that clears
             3:1 here (3.82:1). */}
-        <div aria-hidden="true" className="font-display text-[88px] font-bold leading-none text-green-400">
+        <div aria-hidden="true" className="font-display text-[88px] font-bold leading-none text-brand-400">
           404
         </div>
-        <h1 className="mt-2 font-display text-[28px] font-semibold text-balance text-green-900 md:text-[34px]">
+        <h1 className="mt-2 font-display text-[28px] font-semibold text-balance text-brand-900 md:text-[34px]">
           Well, this page didn’t survive product-market fit.
         </h1>
         <div className="mt-7">

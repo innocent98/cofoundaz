@@ -203,9 +203,9 @@ function ContactBody({
   return (
     <>
       {contact.account_id && accountName && (
-        <p className="text-sm text-sage-600">
+        <p className="text-sm text-neutral-600">
           Works at{' '}
-          <Link href={`/sales/accounts/${contact.account_id}`} className="font-semibold text-green-800 hover:underline">
+          <Link href={`/sales/accounts/${contact.account_id}`} className="font-semibold text-brand-800 hover:underline">
             {accountName}
           </Link>
         </p>
@@ -224,7 +224,7 @@ function ContactBody({
           </button>
         </div>
       </form>
-      <hr className="border-sage-200" />
+      <hr className="border-neutral-200" />
       <ActivityLog
         heading="Activity"
         filter={{ contact_id: contact.id }}
@@ -275,7 +275,7 @@ export function ContactDrawer({
       {contact.status === 'loading' && <LoadingState label="Loading contact" />}
       {contact.status === 'error' &&
         (notFound ? (
-          <p role="alert" className="text-sm text-sage-700">
+          <p role="alert" className="text-sm text-neutral-700">
             This contact was not found. It may have been deleted.
           </p>
         ) : (

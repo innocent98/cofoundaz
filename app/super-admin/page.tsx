@@ -198,11 +198,11 @@ export default function SuperAdminDashboard(): React.JSX.Element {
   ];
 
   const staffMembers: StaffMember[] = [
-    { name: 'Lena Cho', email: 'lena@cofoundaz.com', initial: 'LC', initialBg: 'bg-[#B34024]', role: 'Super admin', roleBg: 'bg-[#FDF0ED] text-[#A63326]', mfa: 'Hardware key', lastAccess: 'Now' },
-    { name: 'Ope Adeyemi', email: 'ope@cofoundaz.com', initial: 'OA', initialBg: 'bg-[#B34024]', role: 'Super admin', roleBg: 'bg-[#FDF0ED] text-[#A63326]', mfa: 'Hardware key', lastAccess: '2h ago' },
-    { name: 'Marcus Reyes', email: 'marcus@cofoundaz.com', initial: 'MR', initialBg: 'bg-[#594B30]', role: 'Support admin', roleBg: 'bg-[#F9F6EE] text-[#8C6D28]', mfa: 'Authenticator', lastAccess: '18 min ago' },
-    { name: 'Sara Bello', email: 'sara@cofoundaz.com', initial: 'SB', initialBg: 'bg-[#183B28]', role: 'Content admin', roleBg: 'bg-[#EBF5ED] text-[#137333]', mfa: 'Authenticator', lastAccess: 'Yesterday' },
-    { name: 'Tomi Williams', email: 'tomi@cofoundaz.com', initial: 'TW', initialBg: 'bg-[#594B30]', role: 'Support admin', roleBg: 'bg-[#F9F6EE] text-[#8C6D28]', mfa: 'Not enrolled', lastAccess: '3d ago' },
+    { name: 'Lena Cho', email: 'lena@cofoundaz.com', initial: 'LC', initialBg: 'bg-danger-xb34024', role: 'Super admin', roleBg: 'bg-danger-xfdf0ed text-danger-ink', mfa: 'Hardware key', lastAccess: 'Now' },
+    { name: 'Ope Adeyemi', email: 'ope@cofoundaz.com', initial: 'OA', initialBg: 'bg-danger-xb34024', role: 'Super admin', roleBg: 'bg-danger-xfdf0ed text-danger-ink', mfa: 'Hardware key', lastAccess: '2h ago' },
+    { name: 'Marcus Reyes', email: 'marcus@cofoundaz.com', initial: 'MR', initialBg: 'bg-accent-x594b30', role: 'Support admin', roleBg: 'bg-neutral-xf9f6ee text-accent-x8c6d28', mfa: 'Authenticator', lastAccess: '18 min ago' },
+    { name: 'Sara Bello', email: 'sara@cofoundaz.com', initial: 'SB', initialBg: 'bg-brand-strong', role: 'Content admin', roleBg: 'bg-neutral-xebf5ed text-success-text', mfa: 'Authenticator', lastAccess: 'Yesterday' },
+    { name: 'Tomi Williams', email: 'tomi@cofoundaz.com', initial: 'TW', initialBg: 'bg-accent-x594b30', role: 'Support admin', roleBg: 'bg-neutral-xf9f6ee text-accent-x8c6d28', mfa: 'Not enrolled', lastAccess: '3d ago' },
   ];
 
   const tenantWorkspaces: TenantWorkspace[] = [
@@ -215,12 +215,12 @@ export default function SuperAdminDashboard(): React.JSX.Element {
   ];
 
   const auditLogs: AuditLogEntry[] = [
-    { actor: 'Lena Cho', action: 'Flag change', actionBg: 'bg-[#F9F6EE] text-[#8C6D28]', target: 'AI voice notes → 25%', when: 'Today 08:12' },
-    { actor: 'Lena Cho', action: 'Key rotation', actionBg: 'bg-[#FDF0ED] text-[#A63326]', target: 'Document store master key', when: 'Yesterday 22:40' },
-    { actor: 'Ope Adeyemi', action: 'Role grant', actionBg: 'bg-[#EBF5ED] text-[#137333]', target: 'Marcus Reyes → Support admin', when: 'Jul 24 10:15' },
-    { actor: 'System', action: 'Policy enforced', actionBg: 'bg-[#EBF5ED] text-[#137333]', target: 'MFA required, 1 staff blocked', when: 'Jul 23 09:00' },
-    { actor: 'Lena Cho', action: 'Access revoked', actionBg: 'bg-[#FDF0ED] text-[#A63326]', target: 'contractor@vendor.io', when: 'Jul 20 17:32' },
-    { actor: 'Marcus Reyes', action: 'Credit grant', actionBg: 'bg-[#EBF5ED] text-[#137333]', target: 'Payflow · 2,000 credits', when: 'Jul 19 14:08' },
+    { actor: 'Lena Cho', action: 'Flag change', actionBg: 'bg-neutral-xf9f6ee text-accent-x8c6d28', target: 'AI voice notes → 25%', when: 'Today 08:12' },
+    { actor: 'Lena Cho', action: 'Key rotation', actionBg: 'bg-danger-xfdf0ed text-danger-ink', target: 'Document store master key', when: 'Yesterday 22:40' },
+    { actor: 'Ope Adeyemi', action: 'Role grant', actionBg: 'bg-neutral-xebf5ed text-success-text', target: 'Marcus Reyes → Support admin', when: 'Jul 24 10:15' },
+    { actor: 'System', action: 'Policy enforced', actionBg: 'bg-neutral-xebf5ed text-success-text', target: 'MFA required, 1 staff blocked', when: 'Jul 23 09:00' },
+    { actor: 'Lena Cho', action: 'Access revoked', actionBg: 'bg-danger-xfdf0ed text-danger-ink', target: 'contractor@vendor.io', when: 'Jul 20 17:32' },
+    { actor: 'Marcus Reyes', action: 'Credit grant', actionBg: 'bg-neutral-xebf5ed text-success-text', target: 'Payflow · 2,000 credits', when: 'Jul 19 14:08' },
   ];
 
   const dangerActions: DangerAction[] = [
@@ -259,41 +259,41 @@ export default function SuperAdminDashboard(): React.JSX.Element {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F7F7F5] text-[#1E2923] font-body antialiased flex relative selection:bg-[#EAD5C6]">
+    <div className="min-h-screen bg-surface-subtle text-ink font-body antialiased flex relative selection:bg-accent-200">
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#121413] text-white px-5 py-3 rounded-[24px] shadow-accent flex items-center space-x-2.5 text-sm font-medium border border-[#2A2E2C]">
-          <span className="w-4 h-4 rounded-full bg-[#1C4230] flex items-center justify-center text-white text-[10px] font-bold">✓</span>
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-neutral-x121413 text-white px-5 py-3 rounded-[24px] shadow-accent flex items-center space-x-2.5 text-sm font-medium border border-neutral-x2a2e2c">
+          <span className="w-4 h-4 rounded-full bg-brand-x1c4230 flex items-center justify-center text-white text-[10px] font-bold">✓</span>
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* DANGER ZONE APPROVAL MODAL */}
       {activeModalAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#121413]/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white border border-[#E8E8E2] rounded-[24px] max-w-lg w-full p-7 space-y-6 shadow-accent relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-x121413/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white border border-line rounded-[24px] max-w-lg w-full p-7 space-y-6 shadow-accent relative">
             
             {/* Header */}
             <div className="flex items-start space-x-4">
-              <div className="w-9 h-9 rounded-[24px] bg-[#FDF0ED] text-[#A63326] flex items-center justify-center font-bold text-base shrink-0 border border-[#F3D5CE]">
+              <div className="w-9 h-9 rounded-[24px] bg-danger-xfdf0ed text-danger-ink flex items-center justify-center font-bold text-base shrink-0 border border-danger-xf3d5ce">
                 !
               </div>
               <div className="space-y-1">
-                <h3 className="text-lg font-display font-medium text-[#1E2923]">{activeModalAction.modalTitle}</h3>
-                <p className="text-xs text-[#8E9B90] leading-relaxed">{activeModalAction.modalDescription}</p>
+                <h3 className="text-lg font-display font-medium text-ink">{activeModalAction.modalTitle}</h3>
+                <p className="text-xs text-ink-subtle leading-relaxed">{activeModalAction.modalDescription}</p>
               </div>
             </div>
 
             {/* Blast Radius Box */}
-            <div className="bg-[#F7F7F5] border border-[#E8E8E2] rounded-[24px] p-4 space-y-1.5">
-              <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Blast radius</span>
-              <div className="text-xs font-bold text-[#A63326]">{activeModalAction.blastRadius}</div>
+            <div className="bg-surface-subtle border border-line rounded-[24px] p-4 space-y-1.5">
+              <span className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Blast radius</span>
+              <div className="text-xs font-bold text-danger-ink">{activeModalAction.blastRadius}</div>
             </div>
 
             {/* Reason input */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1E2923] block">
+              <label className="text-xs font-bold text-ink block">
                 Reason (required, permanently logged)
               </label>
               <input
@@ -301,26 +301,26 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 value={reasonText}
                 onChange={(e) => setReasonText(e.target.value)}
                 placeholder="Why is this necessary?"
-                className="w-full bg-white border border-[#E8E8E2] rounded-modal px-3.5 py-2.5 text-xs text-[#1E2923] focus:outline-none focus:border-[#B34024] transition-colors"
+                className="w-full bg-white border border-line rounded-modal px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-danger-xb34024 transition-colors"
               />
             </div>
 
             {/* Second Approver select */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1E2923] block">
+              <label className="text-xs font-bold text-ink block">
                 Second approver
               </label>
               <div className="relative">
                 <select
                   value={selectedApprover}
                   onChange={(e) => setSelectedApprover(e.target.value)}
-                  className="w-full bg-white border border-[#E8E8E2] rounded-modal px-3.5 py-2.5 text-xs text-[#1E2923] focus:outline-none focus:border-[#B34024] appearance-none cursor-pointer"
+                  className="w-full bg-white border border-line rounded-modal px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-danger-xb34024 appearance-none cursor-pointer"
                 >
                   <option value="Ope Adeyemi (CEO)">Ope Adeyemi (CEO)</option>
                   <option value="Marcus Reyes (Support Lead)">Marcus Reyes (Support Lead)</option>
                   <option value="Sara Bello (Content Lead)">Sara Bello (Content Lead)</option>
                 </select>
-                <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8E9B90] pointer-events-none" />
+                <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-subtle pointer-events-none" />
               </div>
             </div>
 
@@ -329,7 +329,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => { setActiveModalAction(null); setReasonText(''); }}
-                className="py-2.5 rounded-modal text-xs font-semibold border border-[#E8E8E2] text-[#1E2923] hover:bg-[#F7F7F5] transition-colors cursor-pointer"
+                className="py-2.5 rounded-modal text-xs font-semibold border border-line text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -341,7 +341,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                   setActiveModalAction(null);
                   setReasonText('');
                 }}
-                className="py-2.5 rounded-modal text-xs font-semibold bg-[#D59A8D] hover:bg-[#C98A7D] text-white transition-colors cursor-pointer shadow-card"
+                className="py-2.5 rounded-modal text-xs font-semibold bg-danger-xd59a8d hover:bg-danger-xc98a7d text-white transition-colors cursor-pointer shadow-card"
               >
                 Request approval
               </button>
@@ -352,7 +352,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
       )}
 
       {/* SIDEBAR NAVIGATION */}
-      <aside className="w-64 bg-[#121413] text-[#A3A8A4] flex flex-col justify-between shrink-0 select-none border-r border-[#1E2220]">
+      <aside className="w-64 bg-neutral-x121413 text-neutral-xa3a8a4 flex flex-col justify-between shrink-0 select-none border-r border-neutral-x1e2220">
         
         {/* Top Header & Links */}
         <div className="p-6 space-y-8">
@@ -362,7 +362,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
             <BrandLogo variant="mark" tone="light" height={32} />
             <div>
               <h1 className="text-white font-display font-medium text-base tracking-tight leading-none">Cofoundaz</h1>
-              <span className="text-[10px] font-bold tracking-widest text-[#B34024] uppercase">SUPER ADMIN</span>
+              <span className="text-[10px] font-bold tracking-widest text-danger-xb34024 uppercase">SUPER ADMIN</span>
             </div>
           </div>
 
@@ -371,16 +371,16 @@ export default function SuperAdminDashboard(): React.JSX.Element {
             
             {/* PLATFORM */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#686D6A] px-3">Platform</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-x686d6a px-3">Platform</span>
               
               <button
                 type="button"
                 onClick={() => { setActiveTab('Overview'); showToast('Switched to Overview'); }}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
-                  activeTab === 'Overview' ? 'bg-[#1C211F] text-white font-semibold' : 'hover:bg-[#181C1A] hover:text-white'
+                  activeTab === 'Overview' ? 'bg-neutral-x1c211f text-white font-semibold' : 'hover:bg-neutral-x181c1a hover:text-white'
                 }`}
               >
-                <LayoutDashboard size={16} className={activeTab === 'Overview' ? 'text-[#B34024]' : 'text-[#8E9B90]'} />
+                <LayoutDashboard size={16} className={activeTab === 'Overview' ? 'text-danger-xb34024' : 'text-ink-subtle'} />
                 <span>Overview</span>
               </button>
 
@@ -388,10 +388,10 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 type="button"
                 onClick={() => { setActiveTab('Feature flags'); showToast('Switched to Feature flags'); }}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
-                  activeTab === 'Feature flags' ? 'bg-[#1C211F] text-white font-semibold' : 'hover:bg-[#181C1A] hover:text-white'
+                  activeTab === 'Feature flags' ? 'bg-neutral-x1c211f text-white font-semibold' : 'hover:bg-neutral-x181c1a hover:text-white'
                 }`}
               >
-                <Flag size={16} className={activeTab === 'Feature flags' ? 'text-[#B34024]' : 'text-[#8E9B90]'} />
+                <Flag size={16} className={activeTab === 'Feature flags' ? 'text-danger-xb34024' : 'text-ink-subtle'} />
                 <span>Feature flags</span>
               </button>
 
@@ -399,26 +399,26 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 type="button"
                 onClick={() => { setActiveTab('AI configuration'); showToast('Switched to AI configuration'); }}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
-                  activeTab === 'AI configuration' ? 'bg-[#1C211F] text-white font-semibold' : 'hover:bg-[#181C1A] hover:text-white'
+                  activeTab === 'AI configuration' ? 'bg-neutral-x1c211f text-white font-semibold' : 'hover:bg-neutral-x181c1a hover:text-white'
                 }`}
               >
-                <Sliders size={16} className={activeTab === 'AI configuration' ? 'text-[#B34024]' : 'text-[#8E9B90]'} />
+                <Sliders size={16} className={activeTab === 'AI configuration' ? 'text-danger-xb34024' : 'text-ink-subtle'} />
                 <span>AI configuration</span>
               </button>
             </div>
 
             {/* GOVERNANCE */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#686D6A] px-3">Governance</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-x686d6a px-3">Governance</span>
               
               <button
                 type="button"
                 onClick={() => { setActiveTab('Staff access'); showToast('Switched to Staff access'); }}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
-                  activeTab === 'Staff access' ? 'bg-[#1C211F] text-white font-semibold' : 'hover:bg-[#181C1A] hover:text-white'
+                  activeTab === 'Staff access' ? 'bg-neutral-x1c211f text-white font-semibold' : 'hover:bg-neutral-x181c1a hover:text-white'
                 }`}
               >
-                <Users size={16} className={activeTab === 'Staff access' ? 'text-[#B34024]' : 'text-[#8E9B90]'} />
+                <Users size={16} className={activeTab === 'Staff access' ? 'text-danger-xb34024' : 'text-ink-subtle'} />
                 <span>Staff access</span>
               </button>
 
@@ -426,10 +426,10 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 type="button"
                 onClick={() => { setActiveTab('Tenant operations'); showToast('Switched to Tenant operations'); }}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
-                  activeTab === 'Tenant operations' ? 'bg-[#1C211F] text-white font-semibold' : 'hover:bg-[#181C1A] hover:text-white'
+                  activeTab === 'Tenant operations' ? 'bg-neutral-x1c211f text-white font-semibold' : 'hover:bg-neutral-x181c1a hover:text-white'
                 }`}
               >
-                <Boxes size={16} className={activeTab === 'Tenant operations' ? 'text-[#B34024]' : 'text-[#8E9B90]'} />
+                <Boxes size={16} className={activeTab === 'Tenant operations' ? 'text-danger-xb34024' : 'text-ink-subtle'} />
                 <span>Tenant operations</span>
               </button>
 
@@ -437,26 +437,26 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 type="button"
                 onClick={() => { setActiveTab('Security'); showToast('Switched to Security'); }}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
-                  activeTab === 'Security' ? 'bg-[#1C211F] text-white font-semibold' : 'hover:bg-[#181C1A] hover:text-white'
+                  activeTab === 'Security' ? 'bg-neutral-x1c211f text-white font-semibold' : 'hover:bg-neutral-x181c1a hover:text-white'
                 }`}
               >
-                <Shield size={16} className={activeTab === 'Security' ? 'text-[#B34024]' : 'text-[#8E9B90]'} />
+                <Shield size={16} className={activeTab === 'Security' ? 'text-danger-xb34024' : 'text-ink-subtle'} />
                 <span>Security</span>
               </button>
             </div>
 
             {/* CRITICAL */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#686D6A] px-3">Critical</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-x686d6a px-3">Critical</span>
               
               <button
                 type="button"
                 onClick={() => { setActiveTab('Danger zone'); showToast('Switched to Danger zone'); }}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-modal text-xs font-medium transition-colors cursor-pointer ${
-                  activeTab === 'Danger zone' ? 'bg-[#1C211F] text-white font-semibold' : 'hover:bg-[#181C1A] hover:text-white'
+                  activeTab === 'Danger zone' ? 'bg-neutral-x1c211f text-white font-semibold' : 'hover:bg-neutral-x181c1a hover:text-white'
                 }`}
               >
-                <AlertTriangle size={16} className={activeTab === 'Danger zone' ? 'text-[#B34024]' : 'text-[#8E9B90]'} />
+                <AlertTriangle size={16} className={activeTab === 'Danger zone' ? 'text-danger-xb34024' : 'text-ink-subtle'} />
                 <span>Danger zone</span>
               </button>
             </div>
@@ -465,14 +465,14 @@ export default function SuperAdminDashboard(): React.JSX.Element {
         </div>
 
         {/* User Profile Footer */}
-        <div className="p-4 border-t border-[#1E2220] flex items-center justify-between bg-[#101211]">
+        <div className="p-4 border-t border-neutral-x1e2220 flex items-center justify-between bg-neutral-x101211">
           <div className="flex items-center space-x-3 overflow-hidden">
-            <div className="w-8 h-8 rounded-full bg-[#B34024] text-white font-bold text-xs flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-full bg-danger-xb34024 text-white font-bold text-xs flex items-center justify-center shrink-0">
               LC
             </div>
             <div className="overflow-hidden">
               <div className="text-white text-xs font-semibold truncate">Lena Cho</div>
-              <div className="text-[10px] text-[#7A8580] truncate">Super admin · CTO</div>
+              <div className="text-[10px] text-neutral-x7a8580 truncate">Super admin · CTO</div>
             </div>
           </div>
         </div>
@@ -483,16 +483,16 @@ export default function SuperAdminDashboard(): React.JSX.Element {
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* Top Header */}
-        <header className="sticky top-0 z-40 border-b border-[#E8E8E2] px-8 py-3.5 flex items-center justify-between bg-white w-full">
+        <header className="sticky top-0 z-40 border-b border-line px-8 py-3.5 flex items-center justify-between bg-white w-full">
           <div className="flex items-center space-x-2 text-sm md:text-base font-semibold tracking-tight">
-            <span className="text-[#617065] font-normal">Super admin</span>
-            <span className="text-[#8E9B90] font-normal">/</span>
-            <span className="text-[#1E2923] font-semibold">{activeTab}</span>
+            <span className="text-ink-muted font-normal">Super admin</span>
+            <span className="text-ink-subtle font-normal">/</span>
+            <span className="text-ink font-semibold">{activeTab}</span>
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="bg-[#FDF0ED] text-[#A63326] border border-[#F3D5CE] px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-[#A63326]"></span>
+            <div className="bg-danger-xfdf0ed text-danger-ink border border-danger-xf3d5ce px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-danger-ink"></span>
               <span>Full access · session ends in 42 min</span>
             </div>
           </div>
@@ -505,34 +505,34 @@ export default function SuperAdminDashboard(): React.JSX.Element {
           {activeTab === 'Overview' && (
             <div className="space-y-8 animate-in fade-in duration-200">
               <div className="space-y-1">
-                <h2 className="text-3xl font-display font-medium text-[#1E2923]">Platform control</h2>
-                <p className="text-xs text-[#8E9B90]">Everything below applies across all 2,847 workspaces.</p>
+                <h2 className="text-3xl font-display font-medium text-ink">Platform control</h2>
+                <p className="text-xs text-ink-subtle">Everything below applies across all 2,847 workspaces.</p>
               </div>
 
               {/* 4 Stat Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
-                  <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Workspaces</span>
-                  <div className="text-3xl font-display font-medium text-[#1E2923]">2,847</div>
-                  <div className="text-xs text-[#8E9B90]">across 4 regions</div>
+                <div className="bg-white border border-line rounded-[24px] p-6 space-y-3 shadow-card">
+                  <span className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Workspaces</span>
+                  <div className="text-3xl font-display font-medium text-ink">2,847</div>
+                  <div className="text-xs text-ink-subtle">across 4 regions</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
-                  <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Uptime, 30d</span>
-                  <div className="text-3xl font-display font-medium text-[#1E2923]">99.97%</div>
-                  <div className="text-xs font-semibold text-[#137333]">within SLA</div>
+                <div className="bg-white border border-line rounded-[24px] p-6 space-y-3 shadow-card">
+                  <span className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Uptime, 30d</span>
+                  <div className="text-3xl font-display font-medium text-ink">99.97%</div>
+                  <div className="text-xs font-semibold text-success-text">within SLA</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
-                  <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">AI spend, MTD</span>
-                  <div className="text-3xl font-display font-medium text-[#1E2923]">$18.4K</div>
-                  <div className="text-xs text-[#8E9B90]">74% of budget</div>
+                <div className="bg-white border border-line rounded-[24px] p-6 space-y-3 shadow-card">
+                  <span className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">AI spend, MTD</span>
+                  <div className="text-3xl font-display font-medium text-ink">$18.4K</div>
+                  <div className="text-xs text-ink-subtle">74% of budget</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
-                  <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Open incidents</span>
-                  <div className="text-3xl font-display font-medium text-[#1E2923]">1</div>
-                  <div className="text-xs font-semibold text-[#A63326]">AI gateway degraded</div>
+                <div className="bg-white border border-line rounded-[24px] p-6 space-y-3 shadow-card">
+                  <span className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Open incidents</span>
+                  <div className="text-3xl font-display font-medium text-ink">1</div>
+                  <div className="text-xs font-semibold text-danger-ink">AI gateway degraded</div>
                 </div>
               </div>
 
@@ -540,65 +540,65 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 {/* Infrastructure Box */}
-                <div className="lg:col-span-7 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-card">
-                  <h3 className="text-sm font-bold text-[#1E2923]">Infrastructure</h3>
+                <div className="lg:col-span-7 bg-white border border-line rounded-[24px] p-6 md:p-7 space-y-5 shadow-card">
+                  <h3 className="text-sm font-bold text-ink">Infrastructure</h3>
 
-                  <div className="space-y-4 text-xs font-medium text-[#1E2923]">
-                    <div className="flex items-center justify-between py-2 border-b border-[#F0F0EC]">
+                  <div className="space-y-4 text-xs font-medium text-ink">
+                    <div className="flex items-center justify-between py-2 border-b border-line-faint">
                       <div className="flex items-center space-x-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#137333]"></span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-success-text"></span>
                         <span>API cluster</span>
                       </div>
-                      <span className="text-[#8E9B90] font-normal">142ms p95</span>
+                      <span className="text-ink-subtle font-normal">142ms p95</span>
                     </div>
 
-                    <div className="flex items-center justify-between py-2 border-b border-[#F0F0EC]">
+                    <div className="flex items-center justify-between py-2 border-b border-line-faint">
                       <div className="flex items-center space-x-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#B39353]"></span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-accent-gold"></span>
                         <span>AI gateway</span>
                       </div>
-                      <span className="text-[#B39353] font-semibold">Degraded · 4.2s p95</span>
+                      <span className="text-accent-gold font-semibold">Degraded · 4.2s p95</span>
                     </div>
 
-                    <div className="flex items-center justify-between py-2 border-b border-[#F0F0EC]">
+                    <div className="flex items-center justify-between py-2 border-b border-line-faint">
                       <div className="flex items-center space-x-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#137333]"></span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-success-text"></span>
                         <span>Primary database</span>
                       </div>
-                      <span className="text-[#8E9B90] font-normal">18% capacity</span>
+                      <span className="text-ink-subtle font-normal">18% capacity</span>
                     </div>
 
-                    <div className="flex items-center justify-between py-2 border-b border-[#F0F0EC]">
+                    <div className="flex items-center justify-between py-2 border-b border-line-faint">
                       <div className="flex items-center space-x-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#137333]"></span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-success-text"></span>
                         <span>Document store</span>
                       </div>
-                      <span className="text-[#8E9B90] font-normal">2.4 TB used</span>
+                      <span className="text-ink-subtle font-normal">2.4 TB used</span>
                     </div>
 
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center space-x-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#137333]"></span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-success-text"></span>
                         <span>Background jobs</span>
                       </div>
-                      <span className="text-[#8E9B90] font-normal">312 queued</span>
+                      <span className="text-ink-subtle font-normal">312 queued</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Recent Privileged Actions Box */}
-                <div className="lg:col-span-5 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-card">
-                  <h3 className="text-sm font-bold text-[#1E2923]">Recent privileged actions</h3>
+                <div className="lg:col-span-5 bg-white border border-line rounded-[24px] p-6 md:p-7 space-y-5 shadow-card">
+                  <h3 className="text-sm font-bold text-ink">Recent privileged actions</h3>
 
                   <div className="space-y-4">
                     {recentPrivilegedActions.map((act, i) => (
-                      <div key={i} className="flex items-start space-x-3 pb-3 border-b border-[#F0F0EC] last:border-0 last:pb-0">
-                        <div className="w-6 h-6 rounded-card bg-[#F7F7F5] border border-[#E8E8E2] flex items-center justify-center text-xs shrink-0 mt-0.5">
+                      <div key={i} className="flex items-start space-x-3 pb-3 border-b border-line-faint last:border-0 last:pb-0">
+                        <div className="w-6 h-6 rounded-card bg-surface-subtle border border-line flex items-center justify-center text-xs shrink-0 mt-0.5">
                           {act.type === 'badge' ? '⚑' : act.type === 'key' ? '§' : act.type === 'role' ? '≡' : '✕'}
                         </div>
                         <div>
-                          <div className="text-xs font-semibold text-[#1E2923] leading-snug">{act.action}</div>
-                          <div className="text-[11px] text-[#8E9B90] mt-0.5">{act.actor}</div>
+                          <div className="text-xs font-semibold text-ink leading-snug">{act.action}</div>
+                          <div className="text-[11px] text-ink-subtle mt-0.5">{act.actor}</div>
                         </div>
                       </div>
                     ))}
@@ -613,28 +613,28 @@ export default function SuperAdminDashboard(): React.JSX.Element {
           {activeTab === 'Feature flags' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="space-y-1">
-                <h2 className="text-3xl font-display font-medium text-[#1E2923]">Feature flags</h2>
-                <p className="text-xs text-[#8E9B90]">Ship carefully. Percentages roll out to a stable hash of workspace ID.</p>
+                <h2 className="text-3xl font-display font-medium text-ink">Feature flags</h2>
+                <p className="text-xs text-ink-subtle">Ship carefully. Percentages roll out to a stable hash of workspace ID.</p>
               </div>
 
               <div className="space-y-4">
                 {features.map((feature) => (
-                  <div key={feature.id} className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-4 shadow-card">
+                  <div key={feature.id} className="bg-white border border-line rounded-[24px] p-6 space-y-4 shadow-card">
                     
                     {/* Top Row */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <h3 className="text-sm font-bold text-[#1E2923]">{feature.name}</h3>
+                        <h3 className="text-sm font-bold text-ink">{feature.name}</h3>
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-input ${
-                          feature.badgeType === 'beta' ? 'bg-[#F9F6EE] text-[#8C6D28]' :
-                          feature.badgeType === 'ga' ? 'bg-[#EBF5ED] text-[#137333]' : 'bg-[#EFEFEA] text-[#7A8580]'
+                          feature.badgeType === 'beta' ? 'bg-neutral-xf9f6ee text-accent-x8c6d28' :
+                          feature.badgeType === 'ga' ? 'bg-neutral-xebf5ed text-success-text' : 'bg-neutral-xefefea text-neutral-x7a8580'
                         }`}>
                           {feature.badge}
                         </span>
                       </div>
 
                       <div className="flex items-center space-x-3">
-                        <span className="text-xs font-bold text-[#617065]">
+                        <span className="text-xs font-bold text-ink-muted">
                           {feature.enabled ? `${feature.percentage}%` : 'Off'}
                         </span>
                         
@@ -643,7 +643,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                           type="button"
                           onClick={() => handleToggleFeature(feature.id)}
                           className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                            feature.enabled ? 'bg-[#183B28]' : 'bg-[#D0D0CA]'
+                            feature.enabled ? 'bg-brand-strong' : 'bg-neutral-xd0d0ca'
                           }`}
                         >
                           <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${
@@ -653,7 +653,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                       </div>
                     </div>
 
-                    <p className="text-xs text-[#8E9B90]">{feature.description}</p>
+                    <p className="text-xs text-ink-subtle">{feature.description}</p>
 
                     {/* Percentage buttons */}
                     <div className="grid grid-cols-5 gap-2 pt-1">
@@ -666,8 +666,8 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                             onClick={() => handleSetPercentage(feature.id, pct)}
                             className={`py-2 rounded-modal text-xs font-semibold border transition-colors cursor-pointer ${
                               isSelected 
-                                ? 'bg-[#183B28] text-white border-[#183B28] shadow-card' 
-                                : 'bg-white text-[#1E2923] border-[#E8E8E2] hover:bg-[#FAFAF8]'
+                                ? 'bg-brand-strong text-white border-brand-strong shadow-card' 
+                                : 'bg-white text-ink border-line hover:bg-neutral-xfafaf8'
                             }`}
                           >
                             {pct}%
@@ -686,47 +686,47 @@ export default function SuperAdminDashboard(): React.JSX.Element {
           {activeTab === 'AI configuration' && (
             <div className="space-y-8 animate-in fade-in duration-200">
               <div className="space-y-1">
-                <h2 className="text-3xl font-display font-medium text-[#1E2923]">AI configuration</h2>
-                <p className="text-xs text-[#8E9B90]">Model routing and cost controls for every AI surface in the product.</p>
+                <h2 className="text-3xl font-display font-medium text-ink">AI configuration</h2>
+                <p className="text-xs text-ink-subtle">Model routing and cost controls for every AI surface in the product.</p>
               </div>
 
               {/* Surfaces Table */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
+              <div className="bg-white border border-line rounded-[24px] overflow-hidden shadow-card">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-[#E8E8E2] text-[10px] font-bold uppercase tracking-wider text-[#8E9B90]">
+                      <tr className="border-b border-line text-[10px] font-bold uppercase tracking-wider text-ink-subtle">
                         <th className="py-4 px-6">Surface</th>
                         <th className="py-4 px-6">Model</th>
                         <th className="py-4 px-6">Credits / run</th>
                         <th className="py-4 px-6">Avg latency</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E8E8E2] text-xs font-medium text-[#1E2923]">
+                    <tbody className="divide-y divide-line text-xs font-medium text-ink">
                       {aiSurfaces.map((item, index) => (
-                        <tr key={index} className="hover:bg-[#FAFAF8] transition-colors">
-                          <td className="py-4 px-6 font-semibold text-[#1E2923]">{item.surface}</td>
+                        <tr key={index} className="hover:bg-neutral-xfafaf8 transition-colors">
+                          <td className="py-4 px-6 font-semibold text-ink">{item.surface}</td>
                           <td className="py-4 px-6 relative">
                             {index === 0 ? (
                               <div className="relative">
                                 <button
                                   type="button"
                                   onClick={() => setIsAiDropdownOpen(!isAiDropdownOpen)}
-                                  className="w-full max-w-xs bg-white border border-[#B39353] rounded-modal px-3.5 py-2 text-xs font-medium text-[#1E2923] flex items-center justify-between shadow-card cursor-pointer focus:outline-none"
+                                  className="w-full max-w-xs bg-white border border-accent-gold rounded-modal px-3.5 py-2 text-xs font-medium text-ink flex items-center justify-between shadow-card cursor-pointer focus:outline-none"
                                 >
                                   <span>{selectedAiModel}</span>
-                                  <ChevronDown size={14} className="text-[#8E9B90]" />
+                                  <ChevronDown size={14} className="text-ink-subtle" />
                                 </button>
 
                                 {isAiDropdownOpen && (
-                                  <div className="absolute top-full left-0 mt-1 w-full max-w-xs bg-white border border-[#E8E8E2] rounded-modal shadow-accent z-30 overflow-hidden">
+                                  <div className="absolute top-full left-0 mt-1 w-full max-w-xs bg-white border border-line rounded-modal shadow-accent z-30 overflow-hidden">
                                     {['Balanced tier', 'Fast tier', 'Reasoning tier'].map((opt) => (
                                       <button
                                         key={opt}
                                         type="button"
                                         onClick={() => { setSelectedAiModel(opt); setIsAiDropdownOpen(false); showToast(`Model set to ${opt}`); }}
                                         className={`w-full text-left px-3.5 py-2.5 text-xs transition-colors cursor-pointer ${
-                                          selectedAiModel === opt ? 'bg-[#1E2923] text-white font-semibold' : 'hover:bg-[#F7F7F5] text-[#1E2923]'
+                                          selectedAiModel === opt ? 'bg-ink text-white font-semibold' : 'hover:bg-surface-subtle text-ink'
                                         }`}
                                       >
                                         {opt}
@@ -736,14 +736,14 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                                 )}
                               </div>
                             ) : (
-                              <div className="bg-[#F7F7F5] border border-[#E8E8E2] rounded-modal px-3.5 py-2 w-full max-w-xs flex items-center justify-between text-[#1E2923]">
+                              <div className="bg-surface-subtle border border-line rounded-modal px-3.5 py-2 w-full max-w-xs flex items-center justify-between text-ink">
                                 <span>{item.model}</span>
-                                <ChevronDown size={14} className="text-[#8E9B90]" />
+                                <ChevronDown size={14} className="text-ink-subtle" />
                               </div>
                             )}
                           </td>
-                          <td className="py-4 px-6 text-[#1E2923] font-bold">{item.credits}</td>
-                          <td className="py-4 px-6 text-[#A63326] font-medium">{item.latency}</td>
+                          <td className="py-4 px-6 text-ink font-bold">{item.credits}</td>
+                          <td className="py-4 px-6 text-danger-ink font-medium">{item.latency}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -755,47 +755,47 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 {/* Guardrails Card */}
-                <div className="lg:col-span-7 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-6 shadow-card">
-                  <h3 className="text-sm font-bold text-[#1E2923]">Guardrails</h3>
+                <div className="lg:col-span-7 bg-white border border-line rounded-[24px] p-6 md:p-7 space-y-6 shadow-card">
+                  <h3 className="text-sm font-bold text-ink">Guardrails</h3>
 
                   <div className="space-y-5">
                     
-                    <div className="flex items-center justify-between pb-4 border-b border-[#F0F0EC]">
+                    <div className="flex items-center justify-between pb-4 border-b border-line-faint">
                       <div className="space-y-0.5">
-                        <div className="text-xs font-bold text-[#1E2923]">Strip PII before model calls</div>
-                        <div className="text-[11px] text-[#8E9B90]">Redact identifiers from prompts in transit.</div>
+                        <div className="text-xs font-bold text-ink">Strip PII before model calls</div>
+                        <div className="text-[11px] text-ink-subtle">Redact identifiers from prompts in transit.</div>
                       </div>
-                      <div className="w-11 h-6 flex items-center bg-[#183B28] rounded-full p-1 cursor-pointer">
+                      <div className="w-11 h-6 flex items-center bg-brand-strong rounded-full p-1 cursor-pointer">
                         <div className="bg-white w-4 h-4 rounded-full shadow-raised transform translate-x-5" />
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pb-4 border-b border-[#F0F0EC]">
+                    <div className="flex items-center justify-between pb-4 border-b border-line-faint">
                       <div className="space-y-0.5">
-                        <div className="text-xs font-bold text-[#1E2923]">Never send workspace data for training</div>
-                        <div className="text-[11px] text-[#8E9B90]">Enforced at the gateway, not by policy alone.</div>
+                        <div className="text-xs font-bold text-ink">Never send workspace data for training</div>
+                        <div className="text-[11px] text-ink-subtle">Enforced at the gateway, not by policy alone.</div>
                       </div>
-                      <div className="w-11 h-6 flex items-center bg-[#183B28] rounded-full p-1 cursor-pointer">
+                      <div className="w-11 h-6 flex items-center bg-brand-strong rounded-full p-1 cursor-pointer">
                         <div className="bg-white w-4 h-4 rounded-full shadow-raised transform translate-x-5" />
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pb-4 border-b border-[#F0F0EC]">
+                    <div className="flex items-center justify-between pb-4 border-b border-line-faint">
                       <div className="space-y-0.5">
-                        <div className="text-xs font-bold text-[#1E2923]">Force disclaimers on legal and finance output</div>
-                        <div className="text-[11px] text-[#8E9B90]">Cannot be disabled per workspace.</div>
+                        <div className="text-xs font-bold text-ink">Force disclaimers on legal and finance output</div>
+                        <div className="text-[11px] text-ink-subtle">Cannot be disabled per workspace.</div>
                       </div>
-                      <div className="w-11 h-6 flex items-center bg-[#183B28] rounded-full p-1 cursor-pointer">
+                      <div className="w-11 h-6 flex items-center bg-brand-strong rounded-full p-1 cursor-pointer">
                         <div className="bg-white w-4 h-4 rounded-full shadow-raised transform translate-x-5" />
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <div className="text-xs font-bold text-[#1E2923]">Prompt-injection filtering</div>
-                        <div className="text-[11px] text-[#8E9B90]">Screens uploaded documents before processing.</div>
+                        <div className="text-xs font-bold text-ink">Prompt-injection filtering</div>
+                        <div className="text-[11px] text-ink-subtle">Screens uploaded documents before processing.</div>
                       </div>
-                      <div className="w-11 h-6 flex items-center bg-[#183B28] rounded-full p-1 cursor-pointer">
+                      <div className="w-11 h-6 flex items-center bg-brand-strong rounded-full p-1 cursor-pointer">
                         <div className="bg-white w-4 h-4 rounded-full shadow-raised transform translate-x-5" />
                       </div>
                     </div>
@@ -804,19 +804,19 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                 </div>
 
                 {/* Spend this month Card */}
-                <div className="lg:col-span-5 bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-5 shadow-card">
-                  <h3 className="text-sm font-bold text-[#1E2923]">Spend this month</h3>
+                <div className="lg:col-span-5 bg-white border border-line rounded-[24px] p-6 md:p-7 space-y-5 shadow-card">
+                  <h3 className="text-sm font-bold text-ink">Spend this month</h3>
 
                   <div className="space-y-2">
-                    <div className="text-3xl font-display font-medium text-[#1E2923]">$18,420</div>
-                    <div className="text-[11px] text-[#8E9B90]">of $25,000 budget</div>
+                    <div className="text-3xl font-display font-medium text-ink">$18,420</div>
+                    <div className="text-[11px] text-ink-subtle">of $25,000 budget</div>
                   </div>
 
-                  <div className="w-full bg-[#EFEFEA] h-2.5 rounded-full overflow-hidden">
-                    <div className="bg-[#B39353] h-full rounded-full w-[74%]"></div>
+                  <div className="w-full bg-neutral-xefefea h-2.5 rounded-full overflow-hidden">
+                    <div className="bg-accent-gold h-full rounded-full w-[74%]"></div>
                   </div>
 
-                  <p className="text-xs text-[#617065] leading-relaxed pt-2">
+                  <p className="text-xs text-ink-muted leading-relaxed pt-2">
                     Plan generation is 41% of spend on 3% of runs. Worth routing its outline pass to the fast tier.
                   </p>
                 </div>
@@ -829,23 +829,23 @@ export default function SuperAdminDashboard(): React.JSX.Element {
           {activeTab === 'Staff access' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <h2 className="text-3xl font-display font-medium text-[#1E2923]">Staff access</h2>
+                <h2 className="text-3xl font-display font-medium text-ink">Staff access</h2>
 
                 <button
                   type="button"
                   onClick={() => showToast('Opened add staff member modal')}
-                  className="bg-[#B34024] hover:bg-[#9E351C] text-white px-5 py-2.5 rounded-modal text-xs font-semibold transition-colors shadow-card cursor-pointer w-fit"
+                  className="bg-danger-xb34024 hover:bg-danger-x9e351c text-white px-5 py-2.5 rounded-modal text-xs font-semibold transition-colors shadow-card cursor-pointer w-fit"
                 >
                   + Add staff member
                 </button>
               </div>
 
               {/* Staff Table */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
+              <div className="bg-white border border-line rounded-[24px] overflow-hidden shadow-card">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-[#E8E8E2] text-[10px] font-bold uppercase tracking-wider text-[#8E9B90]">
+                      <tr className="border-b border-line text-[10px] font-bold uppercase tracking-wider text-ink-subtle">
                         <th className="py-4 px-6">Staff member</th>
                         <th className="py-4 px-6">Role</th>
                         <th className="py-4 px-6">MFA</th>
@@ -853,16 +853,16 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                         <th className="py-4 px-6 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E8E8E2] text-xs font-medium text-[#1E2923]">
+                    <tbody className="divide-y divide-line text-xs font-medium text-ink">
                       {staffMembers.map((staff, i) => (
-                        <tr key={i} className="hover:bg-[#FAFAF8] transition-colors">
+                        <tr key={i} className="hover:bg-neutral-xfafaf8 transition-colors">
                           <td className="py-4 px-6 flex items-center space-x-3.5">
                             <div className={`w-8 h-8 rounded-modal ${staff.initialBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-card`}>
                               {staff.initial}
                             </div>
                             <div>
-                              <div className="font-semibold text-[#1E2923]">{staff.name}</div>
-                              <div className="text-[11px] text-[#8E9B90] font-normal">{staff.email}</div>
+                              <div className="font-semibold text-ink">{staff.name}</div>
+                              <div className="text-[11px] text-ink-subtle font-normal">{staff.email}</div>
                             </div>
                           </td>
                           <td className="py-4 px-6">
@@ -870,15 +870,15 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                               {staff.role}
                             </span>
                           </td>
-                          <td className={`py-4 px-6 font-medium ${staff.mfa === 'Not enrolled' ? 'text-[#A63326]' : 'text-[#4A5550]'}`}>
+                          <td className={`py-4 px-6 font-medium ${staff.mfa === 'Not enrolled' ? 'text-danger-ink' : 'text-neutral-x4a5550'}`}>
                             {staff.mfa}
                           </td>
-                          <td className="py-4 px-6 text-[#8E9B90]">{staff.lastAccess}</td>
+                          <td className="py-4 px-6 text-ink-subtle">{staff.lastAccess}</td>
                           <td className="py-4 px-6 text-right">
                             <button
                               type="button"
                               onClick={() => showToast(`Revoked access for ${staff.name}`)}
-                              className="text-[#A63326] hover:text-[#80251A] font-semibold cursor-pointer"
+                              className="text-danger-ink hover:text-danger-x80251a font-semibold cursor-pointer"
                             >
                               Revoke
                             </button>
@@ -891,7 +891,7 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               </div>
 
               {/* Bottom Info Banner */}
-              <div className="bg-[#F9F6EE] border border-[#EEDFB8] rounded-[24px] p-4 text-xs text-[#6B5A35] font-medium">
+              <div className="bg-neutral-xf9f6ee border border-accent-xeedfb8 rounded-[24px] p-4 text-xs text-accent-x6b5a35 font-medium">
                 No staff role, including super admin, can read workspace documents or the Founder Journal. That boundary is enforced in the data layer, not in this UI.
               </div>
             </div>
@@ -901,15 +901,15 @@ export default function SuperAdminDashboard(): React.JSX.Element {
           {activeTab === 'Tenant operations' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="space-y-1">
-                <h2 className="text-3xl font-display font-medium text-[#1E2923]">Tenant operations</h2>
-                <p className="text-xs text-[#8E9B90]">Region, data residency, and lifecycle for individual workspaces.</p>
+                <h2 className="text-3xl font-display font-medium text-ink">Tenant operations</h2>
+                <p className="text-xs text-ink-subtle">Region, data residency, and lifecycle for individual workspaces.</p>
               </div>
 
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
+              <div className="bg-white border border-line rounded-[24px] overflow-hidden shadow-card">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-[#E8E8E2] text-[10px] font-bold uppercase tracking-wider text-[#8E9B90]">
+                      <tr className="border-b border-line text-[10px] font-bold uppercase tracking-wider text-ink-subtle">
                         <th className="py-4 px-6">Workspace</th>
                         <th className="py-4 px-6">Region</th>
                         <th className="py-4 px-6">Data residency</th>
@@ -917,17 +917,17 @@ export default function SuperAdminDashboard(): React.JSX.Element {
                         <th className="py-4 px-6">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E8E8E2] text-xs font-medium text-[#1E2923]">
+                    <tbody className="divide-y divide-line text-xs font-medium text-ink">
                       {tenantWorkspaces.map((t, i) => (
-                        <tr key={i} className="hover:bg-[#FAFAF8] transition-colors">
-                          <td className="py-4 px-6 font-semibold text-[#1E2923]">{t.name}</td>
-                          <td className="py-4 px-6 text-[#617065]">{t.region}</td>
-                          <td className="py-4 px-6 text-[#617065]">{t.residency}</td>
-                          <td className="py-4 px-6 text-[#617065]">{t.storage}</td>
+                        <tr key={i} className="hover:bg-neutral-xfafaf8 transition-colors">
+                          <td className="py-4 px-6 font-semibold text-ink">{t.name}</td>
+                          <td className="py-4 px-6 text-ink-muted">{t.region}</td>
+                          <td className="py-4 px-6 text-ink-muted">{t.residency}</td>
+                          <td className="py-4 px-6 text-ink-muted">{t.storage}</td>
                           <td className="py-4 px-6">
                             <span className={`inline-block px-2.5 py-1 rounded-input text-[11px] font-medium ${
-                              t.status === 'Active' ? 'bg-[#EBF5ED] text-[#137333]' :
-                              t.status === 'Dormant' ? 'bg-[#EFEFEA] text-[#7A8580]' : 'bg-[#FDF0ED] text-[#A63326]'
+                              t.status === 'Active' ? 'bg-neutral-xebf5ed text-success-text' :
+                              t.status === 'Dormant' ? 'bg-neutral-xefefea text-neutral-x7a8580' : 'bg-danger-xfdf0ed text-danger-ink'
                             }`}>
                               {t.status}
                             </span>
@@ -947,81 +947,81 @@ export default function SuperAdminDashboard(): React.JSX.Element {
               
               {/* 3 Metric Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
-                  <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Failed logins, 24h</span>
-                  <div className="text-3xl font-display font-medium text-[#1E2923]">38</div>
-                  <div className="text-xs text-[#8E9B90]">no pattern detected</div>
+                <div className="bg-white border border-line rounded-[24px] p-6 space-y-3 shadow-card">
+                  <span className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Failed logins, 24h</span>
+                  <div className="text-3xl font-display font-medium text-ink">38</div>
+                  <div className="text-xs text-ink-subtle">no pattern detected</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
-                  <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Staff without MFA</span>
-                  <div className="text-3xl font-display font-medium text-[#A63326]">1</div>
-                  <div className="text-xs text-[#1E2923]">Tomi Williams</div>
+                <div className="bg-white border border-line rounded-[24px] p-6 space-y-3 shadow-card">
+                  <span className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Staff without MFA</span>
+                  <div className="text-3xl font-display font-medium text-danger-ink">1</div>
+                  <div className="text-xs text-ink">Tomi Williams</div>
                 </div>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 space-y-3 shadow-card">
-                  <span className="text-[10px] font-bold text-[#8E9B90] uppercase tracking-wider">Last penetration test</span>
-                  <div className="text-3xl font-display font-medium text-[#1E2923]">May 2026</div>
-                  <div className="text-xs text-[#137333]">no criticals</div>
+                <div className="bg-white border border-line rounded-[24px] p-6 space-y-3 shadow-card">
+                  <span className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Last penetration test</span>
+                  <div className="text-3xl font-display font-medium text-ink">May 2026</div>
+                  <div className="text-xs text-success-text">no criticals</div>
                 </div>
               </div>
 
               {/* Security Toggles Card */}
-              <div className="bg-white border border-[#E8E8E2] rounded-[24px] p-6 md:p-7 space-y-6 shadow-card">
+              <div className="bg-white border border-line rounded-[24px] p-6 md:p-7 space-y-6 shadow-card">
                 
                 <div className="space-y-5">
                   
-                  <div className="flex items-center justify-between pb-4 border-b border-[#F0F0EC]">
+                  <div className="flex items-center justify-between pb-4 border-b border-line-faint">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-[#1E2923]">Require MFA for all staff</div>
-                      <div className="text-[11px] text-[#8E9B90]">Blocks portal access until enrolled.</div>
+                      <div className="text-xs font-bold text-ink">Require MFA for all staff</div>
+                      <div className="text-[11px] text-ink-subtle">Blocks portal access until enrolled.</div>
                     </div>
                     <button 
                       type="button" 
                       onClick={() => setSecurityToggles(p => ({...p, requireMfa: !p.requireMfa}))}
-                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.requireMfa ? 'bg-[#183B28]' : 'bg-[#D0D0CA]'}`}
+                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.requireMfa ? 'bg-brand-strong' : 'bg-neutral-xd0d0ca'}`}
                     >
                       <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${securityToggles.requireMfa ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between pb-4 border-b border-[#F0F0EC]">
+                  <div className="flex items-center justify-between pb-4 border-b border-line-faint">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-[#1E2923]">IP allowlist for admin portals</div>
-                      <div className="text-[11px] text-[#8E9B90]">Restrict staff access to office and VPN ranges.</div>
+                      <div className="text-xs font-bold text-ink">IP allowlist for admin portals</div>
+                      <div className="text-[11px] text-ink-subtle">Restrict staff access to office and VPN ranges.</div>
                     </div>
                     <button 
                       type="button" 
                       onClick={() => setSecurityToggles(p => ({...p, ipAllowlist: !p.ipAllowlist}))}
-                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.ipAllowlist ? 'bg-[#183B28]' : 'bg-[#D0D0CA]'}`}
+                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.ipAllowlist ? 'bg-brand-strong' : 'bg-neutral-xd0d0ca'}`}
                     >
                       <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${securityToggles.ipAllowlist ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between pb-4 border-b border-[#F0F0EC]">
+                  <div className="flex items-center justify-between pb-4 border-b border-line-faint">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-[#1E2923]">Cap super admin sessions at 60 minutes</div>
-                      <div className="text-[11px] text-[#8E9B90]">Re-authentication required after expiry.</div>
+                      <div className="text-xs font-bold text-ink">Cap super admin sessions at 60 minutes</div>
+                      <div className="text-[11px] text-ink-subtle">Re-authentication required after expiry.</div>
                     </div>
                     <button 
                       type="button" 
                       onClick={() => setSecurityToggles(p => ({...p, capSessions: !p.capSessions}))}
-                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.capSessions ? 'bg-[#183B28]' : 'bg-[#D0D0CA]'}`}
+                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.capSessions ? 'bg-brand-strong' : 'bg-neutral-xd0d0ca'}`}
                     >
                       <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${securityToggles.capSessions ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between pb-4 border-b border-[#F0F0EC]">
+                  <div className="flex items-center justify-between pb-4 border-b border-line-faint">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-[#1E2923]">Alert on anomalous data access</div>
-                      <div className="text-[11px] text-[#8E9B90]">Pages on-call for unusual export volume.</div>
+                      <div className="text-xs font-bold text-ink">Alert on anomalous data access</div>
+                      <div className="text-[11px] text-ink-subtle">Pages on-call for unusual export volume.</div>
                     </div>
                     <button 
                       type="button" 
                       onClick={() => setSecurityToggles(p => ({...p, alertAnomalous: !p.alertAnomalous}))}
-                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.alertAnomalous ? 'bg-[#183B28]' : 'bg-[#D0D0CA]'}`}
+                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.alertAnomalous ? 'bg-brand-strong' : 'bg-neutral-xd0d0ca'}`}
                     >
                       <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${securityToggles.alertAnomalous ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
@@ -1029,13 +1029,13 @@ export default function SuperAdminDashboard(): React.JSX.Element {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-[#1E2923]">Allow founder self-serve data export</div>
-                      <div className="text-[11px] text-[#8E9B90]">Founders can export their workspace any time.</div>
+                      <div className="text-xs font-bold text-ink">Allow founder self-serve data export</div>
+                      <div className="text-[11px] text-ink-subtle">Founders can export their workspace any time.</div>
                     </div>
                     <button 
                       type="button" 
                       onClick={() => setSecurityToggles(p => ({...p, founderExport: !p.founderExport}))}
-                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.founderExport ? 'bg-[#183B28]' : 'bg-[#D0D0CA]'}`}
+                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${securityToggles.founderExport ? 'bg-brand-strong' : 'bg-neutral-xd0d0ca'}`}
                     >
                       <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${securityToggles.founderExport ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
@@ -1047,30 +1047,30 @@ export default function SuperAdminDashboard(): React.JSX.Element {
 
               {/* Global Audit Log */}
               <div className="space-y-4">
-                <h3 className="text-sm font-bold text-[#1E2923]">Global audit log</h3>
+                <h3 className="text-sm font-bold text-ink">Global audit log</h3>
 
-                <div className="bg-white border border-[#E8E8E2] rounded-[24px] overflow-hidden shadow-card">
+                <div className="bg-white border border-line rounded-[24px] overflow-hidden shadow-card">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-[#E8E8E2] text-[10px] font-bold uppercase tracking-wider text-[#8E9B90]">
+                        <tr className="border-b border-line text-[10px] font-bold uppercase tracking-wider text-ink-subtle">
                           <th className="py-4 px-6">Actor</th>
                           <th className="py-4 px-6">Action</th>
                           <th className="py-4 px-6">Target</th>
                           <th className="py-4 px-6">When</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#E8E8E2] text-xs font-medium text-[#1E2923]">
+                      <tbody className="divide-y divide-line text-xs font-medium text-ink">
                         {auditLogs.map((log, i) => (
-                          <tr key={i} className="hover:bg-[#FAFAF8] transition-colors">
-                            <td className="py-4 px-6 font-semibold text-[#1E2923]">{log.actor}</td>
+                          <tr key={i} className="hover:bg-neutral-xfafaf8 transition-colors">
+                            <td className="py-4 px-6 font-semibold text-ink">{log.actor}</td>
                             <td className="py-4 px-6">
                               <span className={`inline-block px-2.5 py-1 rounded-input text-[11px] font-medium ${log.actionBg}`}>
                                 {log.action}
                               </span>
                             </td>
-                            <td className="py-4 px-6 text-[#617065]">{log.target}</td>
-                            <td className="py-4 px-6 text-[#8E9B90]">{log.when}</td>
+                            <td className="py-4 px-6 text-ink-muted">{log.target}</td>
+                            <td className="py-4 px-6 text-ink-subtle">{log.when}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1086,22 +1086,22 @@ export default function SuperAdminDashboard(): React.JSX.Element {
           {activeTab === 'Danger zone' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="space-y-1">
-                <h2 className="text-3xl font-display font-medium text-[#A63326]">Danger zone</h2>
-                <p className="text-xs text-[#8E9B90]">These actions affect every workspace on the platform. Each requires a second super admin to approve.</p>
+                <h2 className="text-3xl font-display font-medium text-danger-ink">Danger zone</h2>
+                <p className="text-xs text-ink-subtle">These actions affect every workspace on the platform. Each requires a second super admin to approve.</p>
               </div>
 
               <div className="space-y-4">
                 {dangerActions.map((danger, index) => (
-                  <div key={index} className="bg-white border border-[#F3D5CE] rounded-[24px] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
+                  <div key={index} className="bg-white border border-danger-xf3d5ce rounded-[24px] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
                     <div className="space-y-1 max-w-2xl">
-                      <h3 className="text-sm font-bold text-[#1E2923]">{danger.title}</h3>
-                      <p className="text-xs text-[#8E9B90] leading-relaxed">{danger.description}</p>
+                      <h3 className="text-sm font-bold text-ink">{danger.title}</h3>
+                      <p className="text-xs text-ink-subtle leading-relaxed">{danger.description}</p>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => setActiveModalAction(danger)}
-                      className="bg-white hover:bg-[#FDF0ED] text-[#A63326] border border-[#F3D5CE] px-5 py-2.5 rounded-modal text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-card"
+                      className="bg-white hover:bg-danger-xfdf0ed text-danger-ink border border-danger-xf3d5ce px-5 py-2.5 rounded-modal text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-card"
                     >
                       {danger.buttonText}
                     </button>

@@ -30,17 +30,17 @@ export default function NarrativePage() {
   return (
     <div className="space-y-6 animate-fadeIn pb-12 max-w-5xl mx-auto pt-4">
       <div className="space-y-1">
-        <h1 className="text-3xl font-display font-semibold text-sage-900">Narrative consistency</h1>
-        <p className="text-sm text-sage-500">Ensure your deck, your model, and your script tell the exact same story.</p>
+        <h1 className="text-3xl font-display font-semibold text-neutral-900">Narrative consistency</h1>
+        <p className="text-sm text-neutral-500">Ensure your deck, your model, and your script tell the exact same story.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="lg:col-span-8 bg-white rounded-modal border border-sage-200 shadow-card p-6 flex flex-col h-full space-y-4">
+        <div className="lg:col-span-8 bg-white rounded-modal border border-neutral-200 shadow-card p-6 flex flex-col h-full space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm text-sage-900">The Financial Story Draft</h3>
+            <h3 className="font-semibold text-sm text-neutral-900">The Financial Story Draft</h3>
             <button
               onClick={handleSave}
-              className="bg-[#9C5B34] hover:bg-[#8A5330] text-white font-semibold py-1.5 px-3 rounded-card text-xs transition-colors shadow-card flex items-center gap-1.5"
+              className="bg-accent-600 hover:bg-accent-700 text-white font-semibold py-1.5 px-3 rounded-card text-xs transition-colors shadow-card flex items-center gap-1.5"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Save draft</span>
@@ -52,31 +52,31 @@ export default function NarrativePage() {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               placeholder="Draft your financial narrative here..."
-              className="w-full h-full min-h-[300px] resize-y bg-sage-50 border border-sage-200 rounded-card p-4 text-sm text-sage-900 focus:outline-none focus:border-[#1e4836] transition-colors leading-relaxed"
+              className="w-full h-full min-h-[300px] resize-y bg-neutral-50 border border-neutral-200 rounded-card p-4 text-sm text-neutral-900 focus:outline-none focus:border-brand-hover transition-colors leading-relaxed"
             />
           </div>
-          <p className="text-xs text-sage-500 italic">
+          <p className="text-xs text-neutral-500 italic">
             This block will be analyzed by the consistency checker against your uploaded pitch deck and financial model.
           </p>
         </div>
 
         <div className="lg:col-span-4 space-y-4">
-          <h3 className="font-semibold text-sm text-sage-900 px-1 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-[#8A5330]" />
+          <h3 className="font-semibold text-sm text-neutral-900 px-1 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-accent-700" />
             AI Discrepancies
           </h3>
 
           {discrepancies.map((d) => (
-            <div key={d.id} className="bg-white rounded-modal border border-[#EAD5C6] shadow-card p-4 space-y-2">
-              <p className="text-sm font-semibold text-sage-900 leading-snug">{d.issue}</p>
-              <div className="bg-[#f5efe6] p-3 rounded-card text-xs text-[#8A5330] font-medium border border-[#EAD5C6]">
+            <div key={d.id} className="bg-white rounded-modal border border-accent-200 shadow-card p-4 space-y-2">
+              <p className="text-sm font-semibold text-neutral-900 leading-snug">{d.issue}</p>
+              <div className="bg-neutral-xf5efe6 p-3 rounded-card text-xs text-accent-700 font-medium border border-accent-200">
                 {d.advice}
               </div>
             </div>
           ))}
 
           {discrepancies.length === 0 && (
-            <div className="bg-sage-50 rounded-modal border border-sage-200/50 p-6 text-center text-sage-500 text-sm">
+            <div className="bg-neutral-50 rounded-modal border border-neutral-200/50 p-6 text-center text-neutral-500 text-sm">
               Your narrative is perfectly aligned.
             </div>
           )}

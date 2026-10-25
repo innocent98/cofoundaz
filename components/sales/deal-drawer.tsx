@@ -83,8 +83,8 @@ export function LostReasonModal({
       className="bg-white rounded-modal p-6 md:p-8 w-full max-w-sm shadow-accent space-y-5 outline-none"
     >
       <div>
-        <h2 className="text-xl font-display font-bold text-sage-900">Why was this deal lost?</h2>
-        <p className="text-sm text-sage-500 mt-1">{dealName}</p>
+        <h2 className="text-xl font-display font-bold text-neutral-900">Why was this deal lost?</h2>
+        <p className="text-sm text-neutral-500 mt-1">{dealName}</p>
       </div>
       <div role="radiogroup" aria-label="Reason" className="grid grid-cols-2 gap-3">
         {CLOSED_REASONS.map((r) => (
@@ -96,8 +96,8 @@ export function LostReasonModal({
             onClick={() => setReason(r.value)}
             className={`px-4 py-2 border rounded-card text-sm font-medium transition-colors cursor-pointer ${
               reason === r.value
-                ? 'bg-green-100 border-green-700 text-green-900'
-                : 'border-sage-200 text-sage-700 hover:bg-sage-50 hover:border-sage-300'
+                ? 'bg-brand-100 border-brand-700 text-brand-900'
+                : 'border-neutral-200 text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300'
             }`}
           >
             {r.label}
@@ -388,18 +388,18 @@ function DealBody({
   return (
     <>
       <div className="flex flex-wrap items-center gap-2 text-sm">
-        <span className="font-display font-bold text-green-900 text-lg">{formatMoney(deal.value_minor)}</span>
-        <span className="text-sage-500">in {stage?.name ?? 'an archived stage'}</span>
+        <span className="font-display font-bold text-brand-900 text-lg">{formatMoney(deal.value_minor)}</span>
+        <span className="text-neutral-500">in {stage?.name ?? 'an archived stage'}</span>
         <StallBadge deal={deal} long />
         {deal.closed_reason && (
-          <span className="text-xs bg-sage-100 text-sage-700 rounded-full px-2 py-0.5 font-semibold">
+          <span className="text-xs bg-neutral-100 text-neutral-700 rounded-full px-2 py-0.5 font-semibold">
             Lost: {CLOSED_REASONS.find((r) => r.value === deal.closed_reason)?.label ?? deal.closed_reason}
           </span>
         )}
       </div>
-      {deal.closed_note && <p className="text-sm text-sage-600 -mt-3">{deal.closed_note}</p>}
+      {deal.closed_note && <p className="text-sm text-neutral-600 -mt-3">{deal.closed_note}</p>}
       {deal.is_stalled && (
-        <p className="text-sm text-copper-800 bg-copper-100 rounded-card px-4 py-3">
+        <p className="text-sm text-accent-800 bg-accent-100 rounded-card px-4 py-3">
           No activity for {deal.days_inactive} days. Log a call, email or note below to restart the clock.
         </p>
       )}
@@ -456,19 +456,19 @@ function DealBody({
         </div>
       </form>
 
-      <hr className="border-sage-200" />
+      <hr className="border-neutral-200" />
       <section aria-label="Call prep" className="space-y-2">
-        <h3 className="text-xs font-bold text-sage-500 uppercase tracking-wider">Call prep</h3>
-        <p className="text-sm text-sage-600">A one-page AI brief for your next call on this deal: objections, a goal and questions to ask.</p>
+        <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Call prep</h3>
+        <p className="text-sm text-neutral-600">A one-page AI brief for your next call on this deal: objections, a goal and questions to ask.</p>
         <Link href={`/sales/coach?tab=prep&deal=${encodeURIComponent(deal.id)}`} className={`${BTN_SECONDARY} inline-block`}>
           Prep for a call
         </Link>
       </section>
 
-      <hr className="border-sage-200" />
+      <hr className="border-neutral-200" />
       <FollowUpSection dealId={deal.id} hasContact={!!deal.contact_id} />
 
-      <hr className="border-sage-200" />
+      <hr className="border-neutral-200" />
       <ActivityLog
         heading="Activity and notes"
         filter={{ deal_id: deal.id }}
@@ -480,14 +480,14 @@ function DealBody({
         }}
       />
 
-      <hr className="border-sage-200" />
+      <hr className="border-neutral-200" />
       <section aria-label="Stage history" className="space-y-3">
-        <h3 className="text-xs font-bold text-sage-500 uppercase tracking-wider">Stage history</h3>
-        <ol className="space-y-2 text-sm text-sage-700">
+        <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Stage history</h3>
+        <ol className="space-y-2 text-sm text-neutral-700">
           {[...deal.stage_history].reverse().map((h) => (
             <li key={h.id} className="flex justify-between gap-3">
               <span>{h.from_stage_name ? `${h.from_stage_name} → ${h.to_stage_name}` : `Created in ${h.to_stage_name}`}</span>
-              <span className="text-xs text-sage-500 whitespace-nowrap">{relativeTime(h.changed_at)}</span>
+              <span className="text-xs text-neutral-500 whitespace-nowrap">{relativeTime(h.changed_at)}</span>
             </li>
           ))}
         </ol>
@@ -550,13 +550,13 @@ export function DealDrawer({
       {detail.status === 'loading' && <LoadingState label="Loading deal" />}
       {detail.status === 'error' &&
         (notFound ? (
-          <p role="alert" className="text-sm text-sage-700">
+          <p role="alert" className="text-sm text-neutral-700">
             This deal was not found. It may have been deleted.
           </p>
         ) : (
           <ErrorState message={detail.error ?? 'Could not load this deal.'} onRetry={() => void reload()} />
         ))}
-      {detail.status === 'forbidden' && <p className="text-sm text-sage-700">Sales is not available for your role.</p>}
+      {detail.status === 'forbidden' && <p className="text-sm text-neutral-700">Sales is not available for your role.</p>}
       {detail.data && (
         <DealBody
           key={detail.data.id}

@@ -55,10 +55,10 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={bodyId}
-        className="relative w-full max-w-md bg-white rounded-modal shadow-raised border border-sage-200 p-6 space-y-4"
+        className="relative w-full max-w-md bg-white rounded-modal shadow-raised border border-neutral-200 p-6 space-y-4"
       >
-        <h2 id={titleId} className="font-display font-semibold text-lg text-sage-900">{title}</h2>
-        <div id={bodyId} className="text-sm text-sage-700 leading-relaxed">{body}</div>
+        <h2 id={titleId} className="font-display font-semibold text-lg text-neutral-900">{title}</h2>
+        <div id={bodyId} className="text-sm text-neutral-700 leading-relaxed">{body}</div>
         <div className="flex flex-wrap justify-end gap-3 pt-1">
           <button ref={cancelRef} type="button" onClick={onCancel} className={BTN_SECONDARY}>{cancelLabel}</button>
           <button
