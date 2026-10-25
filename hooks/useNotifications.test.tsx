@@ -64,8 +64,19 @@ describe('notification deep links', () => {
     expect(notificationHref('healthscore.record', {})).toBe('/health');
   });
 
+  it('document notifications follow data.href, else the nearest list', () => {
+    expect(notificationHref('document.version.created', { href: '/documents/abc' })).toBe('/documents/abc');
+    expect(notificationHref('document.grant.created', { href: '/documents/shared-with-me' })).toBe('/documents/shared-with-me');
+    expect(notificationHref('document.shared', {})).toBe('/documents');
+    expect(notificationHref('document.signature.signed', {})).toBe('/documents/signatures');
+    expect(notificationHref('document.grant.created', null)).toBe('/documents/shared-with-me');
+    // an external or protocol-relative href is never followed
+    expect(notificationHref('document.shared', { href: '//evil.example/documents' })).toBe('/documents');
+    expect(notificationHref('document.shared', { href: 'https://evil.example' })).toBe('/documents');
+  });
+
   it('types without a destination have none', () => {
-    expect(notificationHref('document.shared', {})).toBeNull();
+    expect(notificationHref('unknown.thing', {})).toBeNull();
   });
 
   it('mapNotification carries the title, href and unread flag', () => {

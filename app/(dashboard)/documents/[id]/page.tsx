@@ -3,14 +3,42 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, Loader2, Check, AlertTriangle, Plus, Trash2, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Loader2, Check, AlertTriangle, Plus, Trash2, ChevronUp, ChevronDown, GripVertical, History, Share2, Sparkles } from 'lucide-react';
+import { useAiDrawer } from '@/components/ai-drawer-context';
+import { ConfirmDialog, btnIcon, btnPrimary, btnSecondary } from '@/components/documents/ui';
+import { ShareDialog } from '@/components/documents/share-dialog';
+import { VersionDrawer } from '@/components/documents/version-drawer';
+import { apiErrorInfo } from '@/lib/api/api-error';
+import { getFolders, trashDocument } from '@/lib/api/documents';
+import { sectionsToText } from '@/lib/documents-format';
 import { useDocumentEditor, DocSection } from '@/hooks/useDocumentEditor';
+import { useToast } from '../ToastContext';
 import { useChipReorder } from '@/components/business-builder/use-chip-reorder';
 
 export default function DocumentEditorPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id as string;
   const { doc, loading, notFound, refetch, save } = useDocumentEditor(id);
+  const router = useRouter();
+  const { triggerToast } = useToast();
+  const { openAiDrawer } = useAiDrawer();
+  const [status, setStatus] = useState('draft');
+  const [folder, setFolder] = useState('');
+  const [folderOptions, setFolderOptions] = useState<string[]>([]);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [trashOpen, setTrashOpen] = useState(false);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        setFolderOptions((await getFolders()).folders.map((f) => f.path));
+      } catch {
+        setFolderOptions([]);
+      }
+    })();
+  }, []);
 
   const [title, setTitle] = useState('');
   const [sections, setSections] = useState<DocSection[]>([]);
@@ -25,6 +53,8 @@ export default function DocumentEditorPage() {
     if (!doc) return;
     queueMicrotask(() => {
       setTitle(doc.title);
+      setStatus(doc.status);
+      setFolder(doc.folder ?? '');
       setSections(doc.sections.map((s) => ({ ...s })));
       setDirty(false);
     });
@@ -78,7 +108,7 @@ export default function DocumentEditorPage() {
     setSaving(true);
     setError(null);
     setConflict(false);
-    const res = await save(title, sections);
+    const res = await save(title, sections, { status, folder: folder.trim() || null });
     setSaving(false);
     if (res.ok) {
       setDirty(false);
@@ -97,12 +127,12 @@ export default function DocumentEditorPage() {
 
   return (
     <main className="p-4 md:p-8 max-w-3xl w-full mx-auto flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
-        <Link href="/documents" className="flex items-center gap-1.5 text-sm font-semibold text-ink-muted hover:text-ink">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Link href="/documents" className="inline-flex items-center gap-1.5 min-h-11 text-sm font-semibold text-ink-muted hover:text-ink">
           <ArrowLeft className="w-4 h-4" /> Documents
         </Link>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-ink-subtle">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-ink-subtle" aria-live="polite">
             {saving ? (
               <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Saving…</span>
             ) : savedAt ? (
@@ -111,11 +141,27 @@ export default function DocumentEditorPage() {
               'Unsaved changes'
             ) : null}
           </span>
-          <button
-            onClick={onSave}
-            disabled={saving || !dirty}
-            className="bg-brand-strong hover:bg-brand-rail disabled:opacity-50 text-white text-sm font-bold px-5 py-2 rounded-card transition-colors shadow-card"
-          >
+          {doc && (
+            <>
+              <button type="button" onClick={() => setShareOpen(true)} className={btnSecondary}>
+                <Share2 className="w-3.5 h-3.5" /> Share
+              </button>
+              <button type="button" onClick={() => setHistoryOpen(true)} className={btnSecondary}>
+                <History className="w-3.5 h-3.5" /> Version history
+              </button>
+              <button
+                type="button"
+                onClick={() => openAiDrawer({ seed: `I want to talk about my document “${title || doc.title}”. Here is its content:\n\n${sectionsToText(sections)}` })}
+                className={btnSecondary}
+              >
+                <Sparkles className="w-3.5 h-3.5" /> Ask AI
+              </button>
+              <button type="button" aria-label="Move to Trash" onClick={() => setTrashOpen(true)} className={btnIcon}>
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
+          )}
+          <button onClick={onSave} disabled={saving || !dirty} className={btnPrimary}>
             Save
           </button>
         </div>
@@ -137,7 +183,7 @@ export default function DocumentEditorPage() {
               <div className="flex flex-col gap-2">
                 <p className="text-sm font-semibold text-danger-600">This document was changed somewhere else since you opened it.</p>
                 <p className="text-xs text-accent-700">Reload to get the latest version. Your unsaved edits here will be lost.</p>
-                <button onClick={reloadLatest} className="w-fit bg-white border border-danger-xf0d5d5 text-danger-600 text-xs font-bold px-3 py-1.5 rounded-card hover:bg-danger-wash transition-colors">
+                <button onClick={reloadLatest} className="w-fit min-h-11 bg-white border border-danger-xf0d5d5 text-danger-600 text-xs font-bold px-3 rounded-card hover:bg-danger-wash transition-colors">
                   Reload latest
                 </button>
               </div>
@@ -151,11 +197,34 @@ export default function DocumentEditorPage() {
               value={title}
               onChange={(e) => { setTitle(e.target.value); setDirty(true); setSavedAt(false); }}
               placeholder="Untitled document"
-              className="text-2xl md:text-3xl font-display font-bold text-ink tracking-tight w-full focus:outline-none placeholder:text-neutral-xc5cfc7"
+              aria-label="Document title"
+              className="text-2xl md:text-3xl font-display font-bold text-ink tracking-tight w-full min-h-11 focus:outline-none placeholder:text-neutral-xc5cfc7"
             />
-            <div className="flex items-center gap-2 text-[11px] text-ink-subtle -mt-3">
-              <span className="capitalize">{doc.status}</span>
-              <span>·</span>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-ink-subtle -mt-3">
+              <label className="flex items-center gap-2">
+                Status
+                <select
+                  value={status}
+                  onChange={(e) => { setStatus(e.target.value); touch(); }}
+                  className="min-h-11 border border-line-strong rounded-input px-2 text-xs font-semibold text-ink bg-white"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="final">Final</option>
+                </select>
+              </label>
+              <label className="flex items-center gap-2">
+                Folder
+                <input
+                  list="editor-folders"
+                  value={folder}
+                  placeholder="Uncategorised"
+                  onChange={(e) => { setFolder(e.target.value); touch(); }}
+                  className="min-h-11 w-44 border border-line-strong rounded-input px-2 text-xs text-ink bg-white"
+                />
+                <datalist id="editor-folders">
+                  {folderOptions.map((f) => <option key={f} value={f} />)}
+                </datalist>
+              </label>
               <span>v{doc.version}</span>
             </div>
 
@@ -172,7 +241,7 @@ export default function DocumentEditorPage() {
                   <div className="flex items-center gap-2">
                     <span
                       {...reorder.handleProps('sec', idx)}
-                      className="cursor-grab text-neutral-xc5cfc7 hover:text-ink-subtle opacity-0 group-hover/sec:opacity-100 transition-opacity shrink-0"
+                      className="hidden md:inline cursor-grab text-neutral-xc5cfc7 hover:text-ink-subtle md:opacity-0 md:group-hover/sec:opacity-100 transition-opacity shrink-0"
                       aria-label="Drag to reorder section"
                     >
                       <GripVertical className="w-4 h-4" />
@@ -182,16 +251,17 @@ export default function DocumentEditorPage() {
                       value={sec.heading}
                       onChange={(e) => setSectionHeading(idx, e.target.value)}
                       placeholder="Section heading"
-                      className="flex-1 text-sm font-bold text-ink uppercase tracking-wide bg-transparent focus:outline-none focus:bg-surface-ghost rounded px-1 -mx-1 py-0.5 placeholder:text-neutral-xc5cfc7 placeholder:normal-case"
+                      aria-label="Section heading"
+                      className="flex-1 min-h-11 text-sm font-bold text-ink uppercase tracking-wide bg-transparent focus:outline-none focus:bg-surface-ghost rounded px-1 -mx-1 py-0.5 placeholder:text-neutral-xc5cfc7 placeholder:normal-case"
                     />
                     {/* Reorder + remove — appear on row hover to keep the page calm. */}
-                    <div className="flex items-center gap-0.5 opacity-0 group-hover/sec:opacity-100 focus-within:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-0.5 md:opacity-0 md:group-hover/sec:opacity-100 md:focus-within:opacity-100 transition-opacity">
                       <button
                         type="button"
                         onClick={() => moveSection(idx, -1)}
                         disabled={idx === 0}
                         aria-label="Move section up"
-                        className="p-1 rounded text-ink-subtle hover:text-ink hover:bg-line-faint disabled:opacity-30 disabled:hover:bg-transparent"
+                        className="inline-flex items-center justify-center min-h-11 min-w-11 rounded text-ink-subtle hover:text-ink hover:bg-line-faint disabled:opacity-30 disabled:hover:bg-transparent"
                       >
                         <ChevronUp className="w-4 h-4" />
                       </button>
@@ -200,7 +270,7 @@ export default function DocumentEditorPage() {
                         onClick={() => moveSection(idx, 1)}
                         disabled={idx === sections.length - 1}
                         aria-label="Move section down"
-                        className="p-1 rounded text-ink-subtle hover:text-ink hover:bg-line-faint disabled:opacity-30 disabled:hover:bg-transparent"
+                        className="inline-flex items-center justify-center min-h-11 min-w-11 rounded text-ink-subtle hover:text-ink hover:bg-line-faint disabled:opacity-30 disabled:hover:bg-transparent"
                       >
                         <ChevronDown className="w-4 h-4" />
                       </button>
@@ -208,7 +278,7 @@ export default function DocumentEditorPage() {
                         type="button"
                         onClick={() => removeSection(idx)}
                         aria-label="Remove section"
-                        className="p-1 rounded text-ink-subtle hover:text-danger-600 hover:bg-danger-wash"
+                        className="inline-flex items-center justify-center min-h-11 min-w-11 rounded text-ink-subtle hover:text-danger-600 hover:bg-danger-wash"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -227,13 +297,43 @@ export default function DocumentEditorPage() {
               <button
                 type="button"
                 onClick={addSection}
-                className="flex items-center justify-center gap-1.5 text-sm font-semibold text-ink-muted hover:text-brand-strong border border-dashed border-line-strong hover:border-line-focus rounded-card py-3 transition-colors"
+                className="flex items-center justify-center gap-1.5 min-h-11 text-sm font-semibold text-ink-muted hover:text-brand-strong border border-dashed border-line-strong hover:border-line-focus rounded-card py-3 transition-colors"
               >
                 <Plus className="w-4 h-4" /> Add section
               </button>
             </div>
           </div>
         </>
+      )}
+
+      {doc && shareOpen && <ShareDialog doc={{ id: doc.id, title: title || doc.title }} onClose={() => setShareOpen(false)} />}
+      {doc && historyOpen && (
+        <VersionDrawer
+          documentId={doc.id}
+          currentSections={doc.sections}
+          canRestore
+          onClose={() => setHistoryOpen(false)}
+          onRestored={() => void refetch()}
+        />
+      )}
+      {doc && trashOpen && (
+        <ConfirmDialog
+          title="Move to Trash?"
+          body="This document moves to the Trash for 30 days. People it is shared with lose access until you restore it."
+          confirmLabel="Move to Trash"
+          danger
+          onClose={() => setTrashOpen(false)}
+          onConfirm={async () => {
+            try {
+              await trashDocument(doc.id);
+              triggerToast('Moved to the Trash.');
+              router.push('/documents');
+            } catch (err) {
+              setTrashOpen(false);
+              triggerToast(apiErrorInfo(err, 'Could not move to the Trash.').message, 'error');
+            }
+          }}
+        />
       )}
     </main>
   );

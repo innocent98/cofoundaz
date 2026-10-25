@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import { apiErrorInfo } from '@/lib/api/api-error';
 
 export type SignatureStatus = 'Awaiting' | 'Complete' | 'Cancelled' | 'Expired';
 
@@ -120,9 +121,12 @@ export function useSignatureRequests() {
   );
 
   const cancelRequest = useCallback(
-    async (id: string) => {
+    async (id: string): Promise<{ ok: boolean; error?: string }> => {
       try {
         await apiClient(`/documents/signature-requests/${id}/cancel`, { method: 'POST' });
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: apiErrorInfo(err, 'Could not cancel the request.').message };
       } finally {
         await refetch();
       }
@@ -130,12 +134,12 @@ export function useSignatureRequests() {
     [refetch]
   );
 
-  const remindRequest = useCallback(async (id: string) => {
+  const remindRequest = useCallback(async (id: string): Promise<{ ok: boolean; error?: string }> => {
     try {
       await apiClient(`/documents/signature-requests/${id}/remind`, { method: 'POST' });
-      return true;
-    } catch {
-      return false;
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: apiErrorInfo(err, 'Could not send the reminder.').message };
     }
   }, []);
 

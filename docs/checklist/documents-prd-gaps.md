@@ -29,6 +29,11 @@ now revoked. The six pre-existing NovaPay documents are untouched.
 Legend: ✅ meets PRD · ❌ gap · Severity: **Sec** (permission/data exposure) > **High** (PRD behaviour broken or a headline feature missing) >
 **Med** (PRD feature partial) > **Low** (copy, polish, a11y)
 
+## FE slice status (`feature/documents-fe`, 2026-10-25)
+Done (FE): 10, 19, 23, 24, 26, 27, 29, 30, 32, 33, 34, 35, 36, 38 and the UI halves of 7, 8, 9, 11, 14, 20, 21, 22, 28. Row 25's UI half: the upload
+dialog states the 15 MB limit and accepts Markdown. Waiting on BE-C: 12, 13, 18. Waiting on BE-D: 16, 17, 31 (and the UI of 15, 37).
+Evidence: `docs/checklist/documents-fe-walk.md`; SOP: `docs/sop/2026-10-25-documents-fe-library.md`.
+
 ## Works (verified live)
 - ✅ **Real API everywhere:** the library, editor, templates, signatures, shared and both public pages all call the real API. The only static
   data is dead code (gap 35).

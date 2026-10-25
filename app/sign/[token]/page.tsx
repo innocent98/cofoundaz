@@ -130,7 +130,7 @@ export default function PublicSignerPage() {
             <p className="text-sm text-ink-muted">
               {result.status === 'complete'
                 ? `All ${result.total} signature${result.total === 1 ? '' : 's'} are in, this document is complete.`
-                : `${result.signed_count} of ${result.total} signed, we’ll let the others know it’s their turn.`}
+                : `${result.signed_count} of ${result.total} signed. The remaining signers have their own links.`}
             </p>
             <p className="text-xs text-ink-subtle">You can safely close this tab.</p>
           </div>

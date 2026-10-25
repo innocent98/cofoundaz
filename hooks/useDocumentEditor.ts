@@ -57,13 +57,17 @@ export function useDocumentEditor(id: string) {
   }, [id, load]);
 
   const save = useCallback(
-    async (title: string, sections: DocSection[]): Promise<SaveResult> => {
+    async (
+      title: string,
+      sections: DocSection[],
+      meta?: { status?: string; folder?: string | null }
+    ): Promise<SaveResult> => {
       if (!doc) return { ok: false, error: 'Not loaded.' };
       try {
         const res = await apiClient<{ data?: EditableDoc }>(`/documents/${id}`, {
           method: 'PUT',
           // PUT is a full replace: echo status and folder back or the save wipes them.
-          body: JSON.stringify({ title, sections, status: doc.status, folder: doc.folder ?? null, version: doc.version }),
+          body: JSON.stringify({ title, sections, status: meta?.status ?? doc.status, folder: meta && 'folder' in meta ? meta.folder : (doc.folder ?? null), version: doc.version }),
         });
         if (res?.data) setDoc(res.data); // new version + normalized sections
         return { ok: true };

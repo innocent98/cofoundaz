@@ -19,12 +19,12 @@ export default function TemplatesPage() {
       triggerToast(`Created “${res.title || name}”.`);
       router.push('/documents');
     } else {
-      triggerToast(res.error || 'Could not create the document.');
+      triggerToast(res.error || 'Could not create the document.', 'error');
     }
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8 space-y-10">
+    <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-10">
       <div>
         <h1 className="text-3xl font-display text-ink-strong tracking-tight mb-1">Templates</h1>
         <p className="text-xs text-neutral-x738279">Start from a structure that works, create a document, then fill it in.</p>
@@ -73,7 +73,7 @@ export default function TemplatesPage() {
                     <button
                       onClick={() => handleUse(tmpl.key, tmpl.name)}
                       disabled={creatingKey === tmpl.key}
-                      className="text-xs font-semibold text-brand-strong hover:text-accent-bronze transition-colors self-start mt-4 disabled:opacity-60"
+                      className="text-xs font-semibold text-brand-strong hover:text-accent-bronze transition-colors self-start mt-2 min-h-11 disabled:opacity-60"
                     >
                       {creatingKey === tmpl.key ? 'Creating…' : 'Use template →'}
                     </button>
