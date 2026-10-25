@@ -13,7 +13,7 @@ import { ConfirmDelete } from '@/components/validation/ConfirmDelete';
 import { SHARE_LINK_ROTATE_WARNING, deleteWarning, surveyShareUrl } from '@/lib/validation-format';
 
 const STATUS_BADGE: Record<string, string> = {
-  open: 'bg-brand-100 text-brand-800',
+  open: 'bg-success-100 text-success-800',
   draft: 'bg-neutral-100 text-neutral-700',
   closed: 'bg-accent-100 text-accent-800',
 };

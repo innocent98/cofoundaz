@@ -206,7 +206,7 @@ export default function MfaSetupPage() {
                 >
                   <span className="tracking-wider">{secret}</span>
                   {copied === 'secret' ? (
-                    <Check className="w-3.5 h-3.5 text-brand-mid" />
+                    <Check className="w-3.5 h-3.5 text-success" />
                   ) : (
                     <Copy className="w-3.5 h-3.5 text-ink-muted" />
                   )}

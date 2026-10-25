@@ -107,10 +107,10 @@ function StatusChip({ status }: { status: BudgetStatus }) {
     status === "over"
       ? "bg-danger-50 text-danger-600 border-danger-200"
       : status === "near"
-        ? "bg-accent-100 text-accent-700 border-accent-200"
+        ? "bg-warning-100 text-warning-800 border-warning-500/40"
         : status === "unbudgeted"
           ? "bg-neutral-100 text-neutral-600 border-neutral-200"
-          : "bg-brand-50 text-brand-800 border-brand-200";
+          : "bg-success-50 text-success-800 border-success-500/40";
   return <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-input border uppercase tracking-wider ${tone}`}>{STATUS_LABEL[status]}</span>;
 }
 
@@ -119,7 +119,7 @@ function VarianceBar({ b }: { b: Budget }) {
   return (
     <div className="space-y-1">
       <div className="w-full bg-neutral-100 rounded-pill h-2 overflow-hidden" role="img" aria-label={b.percent_used === null ? "No limit" : `${b.percent_used}% of the budget used`}>
-        <div className={`${over ? "bg-danger-600" : "bg-brand-800"} h-full rounded-pill`} style={{ width: `${clampPercent(b.percent_used)}%` }}></div>
+        <div className={`${over ? "bg-danger-600" : b.status === "near" ? "bg-warning-500" : "bg-success-500"} h-full rounded-pill`} style={{ width: `${clampPercent(b.percent_used)}%` }}></div>
       </div>
       <p className="text-[11px] text-neutral-500">{b.percent_used === null ? "No limit set" : `${b.percent_used}% used`}</p>
     </div>
@@ -332,7 +332,7 @@ export default function BudgetsPage() {
                             {b.variance_minor === null ? (
                               <span className="text-neutral-600">Not applicable</span>
                             ) : (
-                              <span className={b.variance_minor > 0 ? "text-danger-600 font-semibold" : "text-brand-800 font-semibold"}>
+                              <span className={b.variance_minor > 0 ? "text-danger-600 font-semibold" : "text-success font-semibold"}>
                                 {b.variance_minor > 0 ? "Over by " : "Left "}
                                 {formatMoney(Math.abs(b.variance_minor), b.currency)}
                                 {b.variance_percent !== null && (

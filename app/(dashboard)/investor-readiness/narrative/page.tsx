@@ -62,14 +62,14 @@ export default function NarrativePage() {
 
         <div className="lg:col-span-4 space-y-4">
           <h3 className="font-semibold text-sm text-neutral-900 px-1 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-accent-700" />
+            <AlertTriangle className="w-4 h-4 text-warning" />
             AI Discrepancies
           </h3>
 
           {discrepancies.map((d) => (
-            <div key={d.id} className="bg-white rounded-modal border border-accent-200 shadow-card p-4 space-y-2">
+            <div key={d.id} className="bg-white rounded-modal border border-warning-500/40 shadow-card p-4 space-y-2">
               <p className="text-sm font-semibold text-neutral-900 leading-snug">{d.issue}</p>
-              <div className="bg-neutral-xf5efe6 p-3 rounded-card text-xs text-accent-700 font-medium border border-accent-200">
+              <div className="bg-warning-50 p-3 rounded-card text-xs text-warning font-medium border border-warning-500/40">
                 {d.advice}
               </div>
             </div>

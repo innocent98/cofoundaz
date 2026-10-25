@@ -27,7 +27,7 @@ export default function VerifyCredentialPage() {
 
         {res.status === 'ready' && res.data?.valid === true && (
           <div role="status" className="space-y-4">
-            <p className="flex items-center gap-2 text-lg font-semibold text-brand-900"><BadgeCheck className="h-6 w-6 text-brand-700" aria-hidden="true" /> Valid credential</p>
+            <p className="flex items-center gap-2 text-lg font-semibold text-brand-900"><BadgeCheck className="h-6 w-6 text-success" aria-hidden="true" /> Valid credential</p>
             <dl className="space-y-3 text-sm">
               <div><dt className="text-xs font-bold uppercase tracking-wider text-neutral-600">Awarded to</dt><dd className="font-semibold text-neutral-900">{res.data.holder_name}</dd></div>
               <div><dt className="text-xs font-bold uppercase tracking-wider text-neutral-600">Course</dt><dd className="font-semibold text-neutral-900">{res.data.course_title}</dd></div>

@@ -42,7 +42,7 @@ export default function ReadinessScorePage() {
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               />
               <path
-                className={`${score.overall >= 70 ? 'text-brand-hover' : score.overall >= 40 ? 'text-accent-700' : 'text-danger-600'}`}
+                className={`${score.overall >= 70 ? 'text-success' : score.overall >= 40 ? 'text-warning' : 'text-danger-600'}`}
                 strokeWidth="3"
                 strokeDasharray={`${score.overall}, 100`}
                 stroke="currentColor"
@@ -82,7 +82,7 @@ export default function ReadinessScorePage() {
                 </div>
                 <div className="w-full bg-neutral-100 h-2.5 rounded-full overflow-hidden">
                   <div 
-                    className={`h-full rounded-full ${dim.value >= 70 ? 'bg-brand-hover' : dim.value >= 40 ? 'bg-accent-700' : 'bg-danger-600'}`}
+                    className={`h-full rounded-full ${dim.value >= 70 ? 'bg-success-500' : dim.value >= 40 ? 'bg-warning-500' : 'bg-danger-600'}`}
                     style={{ width: `${dim.value}%` }}
                   ></div>
                 </div>

@@ -59,7 +59,7 @@ export default function LearningPathsPage() {
                         <li key={c.id}>
                           <Link href={`/academy/courses/${c.id}`} className="flex min-h-11 items-center gap-3 rounded-card border border-neutral-100 p-3 hover:bg-neutral-50">
                             {c.completed ? (
-                              <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-700" aria-label="Completed" />
+                              <CheckCircle2 className="h-5 w-5 shrink-0 text-success" aria-label="Completed" />
                             ) : (
                               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-neutral-300 text-[10px] font-bold text-neutral-600">{i + 1}</span>
                             )}

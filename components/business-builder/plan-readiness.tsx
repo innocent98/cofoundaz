@@ -88,7 +88,7 @@ export function PlanReadinessCard() {
         {data.items.map((item) => (
           <li key={item.type} className="px-6 py-3 flex items-center gap-3">
             {isReady(item) ? (
-              <CheckCircle2 className="w-4 h-4 text-brand-strong shrink-0" aria-label="Ready" />
+              <CheckCircle2 className="w-4 h-4 text-success shrink-0" aria-label="Ready" />
             ) : (
               <AlertTriangle className="w-4 h-4 text-accent-600 shrink-0" aria-label="Needs attention" />
             )}

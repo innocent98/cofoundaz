@@ -130,7 +130,7 @@ export default function MissionUpcomingPage() {
                                 {task.effort}
                               </span>
                               {task.carriedOver && (
-                                <span className="bg-accent-xf7eedc text-accent-700 text-xs font-medium px-3 py-1 rounded-full">Carried over</span>
+                                <span className="bg-warning-100 text-warning-800 text-xs font-medium px-3 py-1 rounded-full">Carried over</span>
                               )}
                             </div>
                           </div>

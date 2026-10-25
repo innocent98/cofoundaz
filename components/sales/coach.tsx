@@ -40,7 +40,7 @@ const LABEL = 'text-xs font-bold text-neutral-600 uppercase tracking-wider block
 function LimitNotice({ limit }: { limit: AiLimit }) {
   if (!limit.overBudget) return null;
   return (
-    <div role="status" className="rounded-card border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-900">
+    <div role="status" className="rounded-card border border-warning-500/40 bg-warning-50 px-4 py-3 text-sm text-warning-800">
       <strong className="font-semibold">Daily AI limit used up.</strong> Your workspace has no AI left for today, so the coach
       cannot reply or score a call until it resets at {limit.resetsAt}.
     </div>
@@ -367,7 +367,7 @@ function RolePlayChat({ rp, session, limit }: { rp: RolePlay; session: CoachSess
       </div>
 
       {rp.slow && (
-        <div role="alert" className="rounded-card border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-900 flex flex-wrap items-center justify-between gap-3">
+        <div role="alert" className="rounded-card border border-warning-500/40 bg-warning-50 px-4 py-3 text-sm text-warning-800 flex flex-wrap items-center justify-between gap-3">
           <span>The buyer is taking longer than usual to reply.</span>
           <button type="button" onClick={() => void rp.checkAgain()} className={BTN_SECONDARY}>Check again</button>
         </div>
@@ -408,7 +408,7 @@ function RolePlayScoring({ rp }: { rp: RolePlay }) {
       <h2 className="text-xl font-display font-bold text-neutral-900">Scoring your call</h2>
       {rp.slow ? (
         <div role="alert" className="space-y-3">
-          <p className="text-sm text-accent-900">Scoring is taking longer than usual. Nothing is lost; your call is saved.</p>
+          <p className="text-sm text-warning-800">Scoring is taking longer than usual. Nothing is lost; your call is saved.</p>
           <button type="button" onClick={() => void rp.checkAgain()} className={BTN_SECONDARY}>Check again</button>
         </div>
       ) : (
@@ -565,7 +565,7 @@ export function CallPrepPanel({
 
           {cp.generating && <Spinner label="Writing your call prep..." />}
           {cp.slow && (
-            <div role="alert" className="rounded-card border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-900 flex flex-wrap items-center justify-between gap-3">
+            <div role="alert" className="rounded-card border border-warning-500/40 bg-warning-50 px-4 py-3 text-sm text-warning-800 flex flex-wrap items-center justify-between gap-3">
               <span>The call prep is taking longer than usual.</span>
               <button type="button" onClick={cp.checkAgain} className={BTN_SECONDARY}>Check again</button>
             </div>

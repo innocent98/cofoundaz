@@ -88,7 +88,7 @@ export function FeedbackInbox({
           : 'bg-white border-line-soft text-ink-muted hover:border-neutral-xc5cfc7'
       }`}
     >
-      {label} <span className="opacity-80">{count}</span>
+      {label} <span>{count}</span>
     </button>
   );
 

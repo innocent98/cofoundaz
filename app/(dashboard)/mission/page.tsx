@@ -242,7 +242,7 @@ export default function MissionTodayPage() {
         </div>
 
         {streak > 0 && (
-          <div className="flex items-center gap-1.5 bg-accent-xf7eedc text-accent-700 px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-card shrink-0">
+          <div className="flex items-center gap-1.5 bg-warning-100 text-warning-800 px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-card shrink-0">
             <Flame className="w-4 h-4 fill-accent-500 text-accent-500" aria-hidden="true" />
             <span>{streak}-day streak</span>
           </div>

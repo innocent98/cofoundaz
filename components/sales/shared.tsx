@@ -66,7 +66,7 @@ export function StallBadge({ deal, long = false }: { deal: Pick<Deal, 'is_stalle
   return (
     <span
       title={`No activity for ${deal.days_inactive} days`}
-      className="bg-accent-100 text-accent-800 text-[10px] font-bold px-2 py-0.5 rounded-[6px] flex items-center gap-1 shrink-0"
+      className="bg-warning-100 text-warning-800 text-[10px] font-bold px-2 py-0.5 rounded-[6px] flex items-center gap-1 shrink-0"
     >
       <span aria-hidden="true">⚠</span> {long ? `Stalled, ${deal.days_inactive} days` : 'Stalled'}
     </span>

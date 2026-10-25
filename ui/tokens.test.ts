@@ -20,7 +20,36 @@ const TOKENS: Record<string, string> = {
   'color-danger-600': '#B0483B', 'color-danger-100': '#F6E5E2',
   'color-warning': '#9C5B34', 'color-ink': '#051736',
   'color-info': '#0E7490', 'color-success-text': '#137333',
+  'color-success-50': '#EAF6EE', 'color-success-100': '#D4EDDC', 'color-success-500': '#1E9E50',
+  'color-success-700': '#137333', 'color-success-800': '#0E5A28',
+  'color-warning-50': '#FBF1EA', 'color-warning-100': '#F6E5D8', 'color-warning-500': '#C27A3E',
+  'color-warning-700': '#9C5B34', 'color-warning-800': '#7A4526',
+  'color-info-50': '#E3F4F8', 'color-info-700': '#0E7490',
 }
+
+const lum = (hex: string) => {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const v = parseInt(hex.slice(i, i + 2), 16) / 255
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+const ratio = (a: string, b: string) => {
+  const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+describe('semantic state tokens', () => {
+  // text shade on white and on its own tints needs 4.5:1; the -500 graphic fill needs 3:1 on white
+  const cases: Array<[string, string, number]> = [
+    ['#137333', '#FFFFFF', 4.5], ['#137333', '#EAF6EE', 4.5], ['#0E5A28', '#D4EDDC', 4.5],
+    ['#9C5B34', '#FFFFFF', 4.5], ['#9C5B34', '#FBF1EA', 4.5], ['#7A4526', '#F6E5D8', 4.5],
+    ['#1E9E50', '#FFFFFF', 3], ['#C27A3E', '#FFFFFF', 3],
+  ]
+  it.each(cases)('%s on %s is at least %s:1', (fg, bg, min) => {
+    expect(ratio(fg, bg)).toBeGreaterThanOrEqual(min)
+  })
+})
 
 describe('design tokens', () => {
   it.each(Object.entries(TOKENS))('defines --%s as %s', (name, hex) => {

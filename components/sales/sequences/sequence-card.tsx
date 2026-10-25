@@ -344,7 +344,7 @@ export function SequenceCard({
                     </p>
                   )}
                   {usesEmptyable && !subjectErr && (
-                    <p className="text-xs text-accent-800">
+                    <p className="text-xs text-warning-800">
                       If a contact has no company or last name, a missing value is left out, so this subject goes out as &ldquo;{subjectRendered || '(empty)'}&rdquo;.
                     </p>
                   )}

@@ -12,8 +12,8 @@ import { MoveNote } from '@/components/business-builder/move-note';
 import { useStickyDnd } from '@/components/business-builder/use-sticky-dnd';
 
 const QUAD_STYLE: Record<string, { icon: React.ReactNode; bg: string; border: string; title: string; dot: string }> = {
-  strengths: { icon: <ArrowUpRight className="w-4 h-4" />, bg: 'bg-brand-50', border: 'border-neutral-xd5e3db', title: 'text-brand-strong', dot: 'bg-brand-strong' },
-  weaknesses: { icon: <ArrowDownRight className="w-4 h-4" />, bg: 'bg-neutral-xfaf4f0', border: 'border-accent-200', title: 'text-accent-700', dot: 'bg-accent-700' },
+  strengths: { icon: <ArrowUpRight className="w-4 h-4" />, bg: 'bg-success-50', border: 'border-success-500/40', title: 'text-success-800', dot: 'bg-success-500' },
+  weaknesses: { icon: <ArrowDownRight className="w-4 h-4" />, bg: 'bg-warning-50', border: 'border-warning-500/40', title: 'text-warning-800', dot: 'bg-warning-500' },
   opportunities: { icon: <Target className="w-4 h-4" />, bg: 'bg-neutral-xf4f6fb', border: 'border-info-xd5dbe8', title: 'text-info-x3d527d', dot: 'bg-info-x3d527d' },
   threats: { icon: <AlertTriangle className="w-4 h-4" />, bg: 'bg-danger-tint', border: 'border-danger-xf4c7c7', title: 'text-danger-text', dot: 'bg-danger-text' },
 };

@@ -64,9 +64,9 @@ export default function TemplatesPage() {
         </div>
 
         {result && (
-          <div className="bg-brand-tint border border-brand-xcde1d3 rounded-card p-3 flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-brand-mid shrink-0 mt-0.5" />
-            <span className="text-xs font-semibold text-brand-mid leading-snug">{result}</span>
+          <div className="bg-success-50 border border-success-500/40 rounded-card p-3 flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
+            <span className="text-xs font-semibold text-success leading-snug">{result}</span>
           </div>
         )}
         {actionError && (

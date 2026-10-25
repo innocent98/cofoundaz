@@ -21,7 +21,7 @@ export function HealthPill({ className = '' }: { className?: string }) {
       <span>Health</span>
       <span className="font-bold">{health.score}</span>
       {health.weeklyDelta !== 0 && (
-        <span className={`font-bold ${health.weeklyDelta > 0 ? 'text-brand-600' : 'text-danger-600'}`}>
+        <span className={`font-bold ${health.weeklyDelta > 0 ? 'text-success' : 'text-danger-600'}`}>
           {health.weeklyDelta > 0 ? '↑' : '↓'}
         </span>
       )}

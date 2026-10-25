@@ -42,7 +42,7 @@ export default function ServicesPage() {
                   <span className="text-sm font-medium text-neutral-700">{provider.name}</span>
                   {provider.isVetted && (
                     <span title="Vetted Provider">
-                      <ShieldCheck className="w-4 h-4 text-brand-hover" />
+                      <ShieldCheck className="w-4 h-4 text-success" />
                     </span>
                   )}
                 </div>

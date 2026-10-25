@@ -9,8 +9,8 @@ export const HEALTH_PENDING_COPY = 'Complete your kickoff assessment to see what
 
 function scoreColor(score: number): string {
   if (score < 40) return 'var(--color-danger-600)';
-  if (score < 70) return 'var(--color-accent-600)';
-  return 'var(--color-brand-500)';
+  if (score < 70) return 'var(--color-warning-500)';
+  return 'var(--color-success-500)';
 }
 
 const R = 40;

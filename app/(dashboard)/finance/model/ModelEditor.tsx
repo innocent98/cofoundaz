@@ -201,7 +201,7 @@ export function ModelEditor({
       </div>
 
       {model.assumptions?.revenue_source === "business_builder" && (
-        <p role="note" className="text-xs font-semibold text-accent-700 bg-accent-100/60 border border-accent-200 rounded-input px-3 py-2">
+        <p role="note" className="text-xs font-semibold text-warning bg-warning-50 border border-warning-500/40 rounded-input px-3 py-2">
           Starting revenue comes from your Business Builder plan, not from actuals. Change it below if it is off.
         </p>
       )}
@@ -270,7 +270,7 @@ export function ModelEditor({
       {costList("capex", "Capex", "Cash out in the month you pick, then depreciated straight-line from the next month.", "capex", "capex", "Capex")}
 
       {warnings.length > 0 && (
-        <ul role="status" className="text-xs font-medium text-accent-700 bg-accent-100/60 border border-accent-200 rounded-input px-3 py-2 space-y-1">
+        <ul role="status" className="text-xs font-medium text-warning bg-warning-50 border border-warning-500/40 rounded-input px-3 py-2 space-y-1">
           {warnings.map((w, i) => (
             <li key={i}>{w}</li>
           ))}

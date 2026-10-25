@@ -33,7 +33,7 @@ export function CategorySelect({
   const known = value && !options.some((o) => o.toLowerCase() === value.toLowerCase());
   const [adding, setAdding] = useState(false);
   const cls = compact
-    ? "text-xs bg-white border border-accent-600 text-accent-700 rounded-input px-2 py-1 max-w-[9rem] outline-none font-medium"
+    ? "text-xs bg-white border border-warning-500 text-warning rounded-input px-2 py-1 max-w-[9rem] outline-none font-medium"
     : inputCls;
 
   if (adding) {

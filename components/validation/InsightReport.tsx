@@ -82,7 +82,7 @@ export function InsightReport({
               <div key={s.id} className="bg-white border border-line-soft rounded-card p-4 flex flex-col gap-3 shadow-card">
                 <p className="text-sm font-bold text-ink break-words">{s.assumption_statement}</p>
                 <div className="flex items-center gap-3">
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent-xfdf4e3 text-accent-700">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-warning-100 text-warning-800">
                     {STATUS_LABEL[s.from_status] ?? s.from_status}
                   </span>
                   <ArrowRight className="w-4 h-4 text-ink-muted" aria-label="to" />

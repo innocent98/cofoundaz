@@ -167,7 +167,7 @@ export default function MockQAPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         <div className="bg-white rounded-modal border border-neutral-200 shadow-card p-6 space-y-4">
           <h3 className="font-semibold text-sm text-neutral-900 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-brand-hover" />
+            <CheckCircle2 className="w-4 h-4 text-success" />
             Strongest answer
           </h3>
           <div className="bg-neutral-xf0f3f0 p-4 rounded-card text-sm text-neutral-800 italic">

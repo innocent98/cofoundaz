@@ -151,7 +151,7 @@ export function SmokeResults({
             {test.status === 'live' && (
               <div className="flex items-center gap-2 shrink-0">
                 <button onClick={copy} className="flex items-center gap-1.5 bg-white border border-line-soft text-ink px-3 py-2 rounded-input text-xs font-semibold cursor-pointer hover:bg-surface-ghost">
-                  {copied ? <Check className="w-3.5 h-3.5 text-brand-x2e7a56" /> : <Copy className="w-3.5 h-3.5" />} {copied ? 'Copied' : 'Copy link'}
+                  {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />} {copied ? 'Copied' : 'Copy link'}
                 </button>
                 <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 bg-brand-strong hover:bg-brand-rail text-white px-3 py-2 rounded-input text-xs font-semibold">
                   <ExternalLink className="w-3.5 h-3.5" /> Open page
@@ -175,10 +175,10 @@ export function SmokeResults({
         <>
           {banner.kind === 'verdict' ? (
             <div className={`p-4 rounded-modal border flex items-start gap-3 shadow-card ${banner.verdict === 'validated' ? 'bg-neutral-xe6efea border-neutral-xd5e3db' : 'bg-danger-tint border-danger-xf4c7c7'}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${banner.verdict === 'validated' ? 'bg-brand-strong text-white' : 'bg-danger-600 text-white'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${banner.verdict === 'validated' ? 'bg-success-700 text-white' : 'bg-danger-600 text-white'}`}>
                 <Check className="w-3.5 h-3.5" />
               </div>
-              <p data-testid="signal-banner" className={`text-sm font-bold ${banner.verdict === 'validated' ? 'text-brand-strong' : 'text-danger-text'}`}>{banner.text}</p>
+              <p data-testid="signal-banner" className={`text-sm font-bold ${banner.verdict === 'validated' ? 'text-success' : 'text-danger-text'}`}>{banner.text}</p>
             </div>
           ) : (
             <div className="p-4 rounded-modal border bg-surface-ghost border-line-soft flex items-start gap-3 shadow-card">
