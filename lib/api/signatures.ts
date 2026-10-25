@@ -31,6 +31,8 @@ export type Executed =
   | null
   | { state: 'pending'; file_id: null; filename: null; size_bytes: null }
   | { state: 'legacy'; file_id: null; filename: null; size_bytes: null }
+  /** Not in the guide yet: the API may report a build that gave up. Treated as "could not be built". */
+  | { state: 'failed' | 'unavailable'; file_id: null; filename: null; size_bytes: null }
   | { state: 'ready'; file_id: string; filename: string; size_bytes: number; sha256: string };
 
 export interface SignatureRequest {

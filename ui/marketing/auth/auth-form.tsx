@@ -11,6 +11,8 @@ interface AuthFormProps {
   error?: string | null
   successMessage?: string | null
   isSubmitting?: boolean
+  /** Prefills the email (an invite link carries it). */
+  initialEmail?: string
 }
 
 export function AuthForm({
@@ -19,11 +21,12 @@ export function AuthForm({
   error: externalError,
   successMessage,
   isSubmitting = false,
+  initialEmail = '',
 }: AuthFormProps) {
   const copy = authModes[mode]
   const isSignup = mode === 'signup'
 
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(initialEmail)
   const [password, setPassword] = useState('')
   const [agreedTerms, setAgreedTerms] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
@@ -133,7 +136,7 @@ export function AuthForm({
               type="checkbox"
               checked={agreedTerms}
               onChange={(e) => setAgreedTerms(e.target.checked)}
-              className="mt-0.5 h-4 w-4 accent-brand-600"
+              className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-brand-600"
             />
             <label htmlFor="auth-terms" className="text-[13px] leading-[1.4] text-neutral-700">
               {authShared.termsPrefix}{' '}

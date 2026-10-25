@@ -41,13 +41,22 @@ export function linkAuditLine(c: LinkCopy): string {
 export type ExecutedUi =
   | { kind: 'none' }
   | { kind: 'preparing' }
+  /** Still pending long after completion: stop the spinner and say so. */
+  | { kind: 'delayed' }
+  | { kind: 'failed' }
   | { kind: 'ready'; fileId: string; filename: string; sizeBytes: number }
   | { kind: 'legacy' };
 
-export function executedUi(e: Executed): ExecutedUi {
+/** The worker builds the executed PDF in seconds; past this a pending copy is "taking longer", not "preparing". */
+export const EXECUTED_PREPARING_WINDOW_MS = 2 * 60_000;
+
+export function executedUi(e: Executed, completedAt?: string | null, now = Date.now()): ExecutedUi {
   if (!e) return { kind: 'none' };
   if (e.state === 'ready') return { kind: 'ready', fileId: e.file_id, filename: e.filename, sizeBytes: e.size_bytes };
   if (e.state === 'legacy') return { kind: 'legacy' };
+  if (e.state === 'failed' || e.state === 'unavailable') return { kind: 'failed' };
+  const done = completedAt ? new Date(completedAt).getTime() : NaN;
+  if (!isNaN(done) && now - done > EXECUTED_PREPARING_WINDOW_MS) return { kind: 'delayed' };
   return { kind: 'preparing' };
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { daysLeft, diffLines, formatSize, shareChip, sectionsToText } from './documents-format';
+import { daysLeft, diffLines, formatSize, personName, shareChip, sectionsToText } from './documents-format';
 
 describe('documents-format', () => {
   it('labels share state', () => {
@@ -28,5 +28,14 @@ describe('documents-format', () => {
   it('caps document text for Ask AI', () => {
     const t = sectionsToText([{ heading: 'H', body: 'x'.repeat(100) }], 20);
     expect(t.endsWith('[truncated]')).toBe(true);
+  });
+});
+
+describe('personName', () => {
+  it('never shows "Unknown" for a member without a profile name', () => {
+    expect(personName({ name: null })).toBe('A member');
+    expect(personName({ name: '  ' })).toBe('A member');
+    expect(personName(null)).toBe('A member');
+    expect(personName({ name: 'Ada Founder' })).toBe('Ada Founder');
   });
 });

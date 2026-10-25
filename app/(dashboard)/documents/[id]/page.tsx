@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
@@ -99,11 +99,25 @@ export default function DocumentEditorPage() {
     touch();
   };
 
+  // Focus goes to the new section's heading (text selected) so typing right after "Add section" names it
+  // instead of landing in the title.
+  const focusNew = useRef<number | null>(null);
   const addSection = () => {
     // New sections carry no id; the server assigns one on save.
+    focusNew.current = sections.length;
     setSections((prev) => [...prev, { heading: 'New section', body: '' }]);
     touch();
   };
+  useEffect(() => {
+    const idx = focusNew.current;
+    if (idx === null) return;
+    const el = document.querySelector<HTMLInputElement>(`[data-section-heading="${idx}"]`);
+    if (!el) return;
+    focusNew.current = null;
+    el.focus();
+    el.select();
+    el.scrollIntoView({ block: 'center' });
+  }, [sections]);
 
   const removeSection = (idx: number) => {
     setSections((prev) => prev.filter((_, i) => i !== idx));
@@ -332,6 +346,7 @@ export default function DocumentEditorPage() {
                       value={sec.heading}
                       onChange={(e) => setSectionHeading(idx, e.target.value)}
                       placeholder="Section heading"
+                      data-section-heading={idx}
                       aria-label="Section heading"
                       className="flex-1 min-h-11 text-sm font-bold text-ink uppercase tracking-wide bg-transparent focus:outline-none focus:bg-surface-ghost rounded px-1 -mx-1 py-0.5 placeholder:text-neutral-xc5cfc7 placeholder:normal-case"
                     />

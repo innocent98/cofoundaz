@@ -120,13 +120,13 @@ export default function SharedWithOthersPage() {
       {rows && rows.length > 0 && (
         <ul className="bg-white border border-line rounded-modal shadow-card divide-y divide-line">
           {rows.map((r) => (
-            <li key={r.key} className="flex items-center gap-3 px-4 py-1.5">
+            <li key={r.key} className="flex flex-wrap items-center gap-x-3 gap-y-0 px-4 py-1.5">
               <FileText className="w-4 h-4 text-ink-subtle shrink-0" />
-              <div className="min-w-0 flex-1">
-                <Link href={r.target === 'file' ? '/documents' : `/documents/${r.documentId}`} className="text-sm font-semibold text-ink hover:underline truncate flex items-center min-h-11">
+              <div className="min-w-0 flex-1 basis-56">
+                <Link href={r.target === 'file' ? '/documents' : `/documents/${r.documentId}`} className="text-sm font-semibold text-ink hover:underline break-words flex items-center min-h-11">
                   {r.document}
                 </Link>
-                <p className="text-[11px] text-ink-subtle truncate">
+                <p className="text-[11px] text-ink-subtle break-words">
                   {r.who} · {r.kind === 'link' ? 'Link' : 'Person'} · {r.detail}
                 </p>
               </div>

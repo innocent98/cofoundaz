@@ -266,3 +266,25 @@ Emails used are `@example.com` sinks.
 - DOCX refusal: the UI cannot select a DOCX (disabled option); the API answer was checked directly: `422 PDF_REQUIRED` "Only PDF files can be sent for signature. Export the document to PDF first."
 - Real email delivery (console mail backend only).
 - Test data left behind (local): requests "Walk NDA BE-D.pdf" (2 signed, 1 signed, 1 cancelled), the documents and exports "Walk NDA BE-D".
+
+## Re-walk fixes walk (2026-10-25)
+
+Branch `fix/documents-rewalk-fixes`. FE dev server on port 3109 against the shared API on `:8000` (migration `0076`, api and worker sharing storage).
+Defect numbers are from the hand re-walk (`docs/checklist/documents-rewalk.md`, PR #175). The pane denies clipboard access, which is exactly the
+condition D1 needs. Hosts keep logins apart: `localhost` (founder), `m.localhost` (mentor), `sg.localhost` (anonymous).
+
+| Defect | Control and what I did | 1440 | 375 |
+|---|---|---|---|
+| D1 document | Share dialog on "Founder Agreement": "Create link for anyone". The pane blocked the clipboard; toast "Link created. Copy it from the field below." and a read-only field holds `http://localhost:3000/shared/...` | pass | pass (field 44 px high) |
+| D1 file | Share dialog on `rewalk-small.pdf`: create (link shown in the field), close, reopen, press the row's Copy: toast "Your browser blocked copying. The link is shown below: select it and copy it." and the field appears under the row | pass | pass |
+| D2 | Signatures list with the two requests stuck on `executed.state: "pending"` since before #192: each shows "The executed copy is taking longer than usual. Check back later." and a Check again button, no spinner (no `.animate-spin` on the page); Check again re-reads the list (3 list requests seen) | pass | pass (button 44 px) |
+| D3 | Editor "Rewalk Blank Doc (API edit)": real click on "Add section", then real typing "Risks": the title stays "Rewalk Blank Doc (API edit)" and the new section heading becomes "Risks" (focus on the new heading, its "New section" text selected) | pass | pass (focus and selection checked; no horizontal scroll) |
+| D4 | `/signup?next=%2Finvite%2Fabc&email=invitee-fix%40example.com` on a clean host: the email field holds `invitee-fix@example.com`; a real click on the terms checkbox ticks it | pass | pass (checkbox 20 px, enlarged from 16 px; no horizontal scroll) |
+| Share rows truncate at 375 | Shared with others: every row shows the whole recipient line (e.g. "rewalk-investor · Person · Shared Oct 25, 2026", "Anyone with the link · Link · Expires Nov 24, 2026, never viewed"); the chip and icon buttons wrap under the text; no clipped text | n/a | pass |
+| Share rows in the dialog at 375 | Share dialog on "Rewalk Doc A": people rows show name and the full email address with the permission select under it; link row text no longer squeezed; no clipped text, nothing under 44 px | n/a | pass |
+| "Unknown" author | Made a comment as `doc-accountant@example.com` (profile has no name; the API sends `author: {"name": null}` and no email). Mentor `bb-mentor-1` opened the shared document: four comments read "A member", the word "Unknown" no longer appears | pass | pass (no horizontal scroll) |
+
+Left behind (local only): share links on "Founder Agreement" and `rewalk-small.pdf`, a grant and a comment from `doc-accountant` on "Rewalk Doc A", an unsaved extra section in "Rewalk Blank Doc (API edit)" (not saved).
+
+Not changed: D5 (no way to invite an investor; product, Funding not built) and the BE half of D2 (backfill or an `unavailable` state). The FE already treats
+`executed.state` of `failed` or `unavailable` as "could not be made", in case the API adds it.

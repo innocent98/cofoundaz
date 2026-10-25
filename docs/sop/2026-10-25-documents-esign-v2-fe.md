@@ -37,3 +37,19 @@ Revert the PR; the API is untouched. The executed PDF needs the worker to read t
 - Re-run one signing once api and worker share an uploads volume, to see the executed copy go pending to ready and download it.
 - Field placement on the PDF is not built (API decision), so the send dialog says signatures are added on a page at the end.
 - Sharing exported or executed files by grant is still not in the API.
+
+## Update: re-walk fixes (`fix/documents-rewalk-fixes`)
+
+Defects from the hand re-walk (`docs/checklist/documents-rewalk.md`), fixed in one PR:
+
+| Defect | Fix |
+|---|---|
+| D1 Copy link gave nothing to copy when the clipboard was blocked | `share-dialog.tsx` keeps a set of links the browser refused to copy and shows each in a read-only, click-to-select field under its row (documents and files). The toast now points at that field |
+| D2 Old completed requests spun forever on "Preparing the executed copy" | `executedUi(e, completedAt)` in `lib/documents-sign.ts`: a pending copy more than 2 minutes after completion is `delayed`: plain copy "The executed copy is taking longer than usual. Check back later.", a Check again button, no spinner and no polling. Inside the window the spinner and 3 s polling stay, and the existing 60 s cap now uses the same copy. `executed.state` of `failed` or `unavailable` (not in the guide yet) reads "could not be made" |
+| D3 Add section left focus in the title | The editor focuses the new section's heading and selects "New section", so typing names it |
+| D4 Signup ignored `?email=` | `AuthForm` takes `initialEmail`; `/signup` reads `email` from the query (one plain address only, in a Suspense boundary). The terms checkbox is 20 px (was 16) |
+| Share rows truncated at 375 | Rows and dialog lines wrap instead of cutting, with the controls wrapping under the text |
+| Comment authors with no profile name read "Unknown" | `personName` returns "A member" (the API sends `author.name: null` and no email) |
+
+Verification: `docs/checklist/documents-fe-walk.md` (re-walk fixes section), unit tests (`lib/documents-sign.test.ts`, `lib/documents-format.test.ts`, `ui/marketing/auth/auth-form.test.tsx`), mocked e2e in `e2e/documents-esign.spec.ts`.
+Not in this PR: D5 (no investor invite; Funding) and the BE half of D2 (backfill stuck requests).
