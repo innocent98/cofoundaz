@@ -2,30 +2,82 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Check, FileText, Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
-import { apiClient, ApiError } from '@/lib/api/client';
+import { Check, Download, FileText, Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
+import { ApiError } from '@/lib/api/client';
+import { fetchSignerExecuted, getSignView, sign as signRequest, type SignResult, type SignView } from '@/lib/api/signatures';
+import { apiErrorInfo } from '@/lib/api/api-error';
 import BrandLogo from '@/components/brand/BrandLogo';
 
-// Public signing view — GET /sign/{token} (no auth). See
-// cofoundaz-api/docs/fe-integration-guide-documents-esignature.md §3–§4.
-interface SignView {
-  request: { title: string; status: string };
-  file: { id: string; filename: string; content_type: string; size_bytes: number; url: string };
-  signer: { email: string; name: string };
-}
-// POST /sign/{token} response (no signers[] — privacy-scoped, §4).
-interface SignResult {
-  title: string;
-  status: string;
-  signed_count: number;
-  total: number;
-  completed_at: string | null;
-}
+// Public signing view (no auth). See cofoundaz-api/docs/fe-integration-guide-documents-esign-v2.md section 5.
+// Opening the link marks the signer Viewed. Every dead token is the same 404, shown as one page.
 
 function fmtSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const POLL_MS = 3000;
+const POLL_LIMIT_MS = 60_000;
+
+/** After the last signature: the signer's own executed copy, ready in a few seconds. */
+function ExecutedCopy({ token }: { token: string }) {
+  const [state, setState] = useState<'preparing' | 'ready' | 'slow' | 'gone'>('preparing');
+  const [file, setFile] = useState<{ blob: Blob; filename: string } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const started = Date.now();
+    const tick = async () => {
+      while (!cancelled) {
+        const r = await fetchSignerExecuted(token);
+        if (cancelled) return;
+        if (r.state === 'ready') {
+          setFile({ blob: r.blob, filename: r.filename });
+          setState('ready');
+          return;
+        }
+        if (r.state === 'gone') {
+          setState('gone');
+          return;
+        }
+        if (Date.now() - started > POLL_LIMIT_MS) {
+          setState('slow');
+          return;
+        }
+        await new Promise((res) => setTimeout(res, POLL_MS));
+      }
+    };
+    void tick();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const save = () => {
+    if (!file) return;
+    const url = URL.createObjectURL(file.blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  if (state === 'gone') return null;
+  if (state === 'ready') {
+    return (
+      <button type="button" onClick={save} className="inline-flex items-center justify-center gap-1.5 min-h-11 px-5 rounded-card bg-brand-strong hover:bg-brand-rail text-white text-sm font-bold shadow-card transition-colors">
+        <Download className="w-4 h-4" /> Download the signed PDF
+      </button>
+    );
+  }
+  return (
+    <p role="status" className="flex items-start gap-2 text-xs text-ink-muted max-w-sm">
+      <Loader2 className={`w-4 h-4 shrink-0 ${state === 'slow' ? '' : 'animate-spin'}`} aria-hidden />
+      {state === 'slow' ? 'The signed copy is taking longer than usual. It will be emailed to you when it is ready.' : 'Preparing the signed copy…'}
+    </p>
+  );
 }
 
 export default function PublicSignerPage() {
@@ -44,14 +96,13 @@ export default function PublicSignerPage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await apiClient<{ data?: SignView }>(`/sign/${token}`);
-      const d = res?.data ?? (res as unknown as SignView);
+      const d = await getSignView(token);
       setView(d);
       if (d?.signer?.name) setTypedName(d.signer.name);
     } catch (err) {
-      // Uniform 404 = unknown / already-signed / expired link.
-      if (err instanceof ApiError && err.status === 404) setInvalid(true);
-      else setInvalid(true);
+      // Uniform 404 = unknown, used, expired, cancelled or not-your-turn link: one page for all of them.
+      void err;
+      setInvalid(true);
     } finally {
       setLoading(false);
     }
@@ -78,17 +129,13 @@ export default function PublicSignerPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await apiClient<{ data?: SignResult }>(`/sign/${token}`, {
-        method: 'POST',
-        body: JSON.stringify({ typed_name: name }),
-      });
-      setResult(res?.data ?? (res as unknown as SignResult));
+      setResult(await signRequest(token, name));
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) {
         setError('This link has already been used or is no longer valid.');
       } else {
-        const d = (err as ApiError)?.data as { error?: { message?: string } } | undefined;
-        setError(d?.error?.message || 'Could not record your signature. Please try again.');
+        const info = apiErrorInfo(err, 'Could not record your signature. Please try again.');
+        setError(info.status === 429 ? 'Too many attempts. Wait a minute and try again.' : info.message);
       }
     } finally {
       setSubmitting(false);
@@ -132,6 +179,7 @@ export default function PublicSignerPage() {
                 ? `All ${result.total} signature${result.total === 1 ? '' : 's'} are in, this document is complete.`
                 : `${result.signed_count} of ${result.total} signed. The remaining signers have their own links.`}
             </p>
+            {result.status === 'complete' && result.executed_url && <ExecutedCopy token={token} />}
             <p className="text-xs text-ink-subtle">You can safely close this tab.</p>
           </div>
         )}
@@ -141,9 +189,16 @@ export default function PublicSignerPage() {
             <div className="border-b border-line px-6 py-4 bg-surface-faint">
               <h2 className="text-lg font-semibold">{view.request.title}</h2>
               <p className="text-sm text-ink-muted">Hi {view.signer.name || view.signer.email}, please review and sign below.</p>
+              {view.request.sent_by && <p className="text-xs text-ink-subtle mt-1">Sent by {view.request.sent_by}{view.request.expires_at ? `. This link expires ${new Date(view.request.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}.` : '.'}</p>}
             </div>
 
             <div className="p-6 flex flex-col gap-6">
+              {view.request.message && (
+                <div className="rounded-card border border-line bg-surface-faint p-4">
+                  <span className="block text-[10px] font-bold text-ink-subtle uppercase tracking-wider mb-1">Message from {view.request.sent_by || 'the sender'}</span>
+                  <p className="text-sm text-ink whitespace-pre-wrap">{view.request.message}</p>
+                </div>
+              )}
               <div className="flex items-center gap-3 bg-surface-subtle border border-line rounded-card p-4">
                 <div className="w-10 h-10 rounded-input bg-white border border-line flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5 text-ink-muted" />
@@ -152,9 +207,9 @@ export default function PublicSignerPage() {
                   <span className="text-sm font-bold truncate">{view.file.filename}</span>
                   <span className="text-xs text-ink-subtle">{fmtSize(view.file.size_bytes)}</span>
                 </div>
-                {/^https?:\/\//.test(view.file.url) && (
+                {/^https?:\/\//.test(view.file.download_url) && (
                   <a
-                    href={view.file.url}
+                    href={view.file.download_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-xs font-semibold text-brand-strong hover:text-brand-rail"
@@ -167,17 +222,17 @@ export default function PublicSignerPage() {
               {/* Inline preview so the signer can read the document without leaving
                   the page. Only for previewable types over an absolute URL; other
                   files fall back to the "Open" link above. */}
-              {/^https?:\/\//.test(view.file.url) &&
+              {/^https?:\/\//.test(view.file.download_url) &&
                 (view.file.content_type?.includes('pdf') ? (
                   <iframe
-                    src={view.file.url}
+                    src={view.file.download_url}
                     title={view.file.filename}
                     className="w-full h-80 rounded-card border border-line bg-surface-subtle"
                   />
                 ) : view.file.content_type?.startsWith('image/') ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={view.file.url}
+                    src={view.file.download_url}
                     alt={view.file.filename}
                     className="w-full max-h-80 object-contain rounded-card border border-line bg-surface-subtle"
                   />
@@ -224,7 +279,8 @@ export default function PublicSignerPage() {
                   </span>
                 </label>
 
-                {error && <p className="text-xs font-semibold text-danger-600">{error}</p>}
+                <p className="text-[11px] text-ink-subtle leading-relaxed">{view.legal_caveat}</p>
+                {error && <p role="alert" className="text-xs font-semibold text-danger-600">{error}</p>}
                 <button
                   type="submit"
                   disabled={submitting || !consented || !typedName.trim()}

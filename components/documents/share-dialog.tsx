@@ -5,17 +5,20 @@ import { Copy, Trash2 } from 'lucide-react';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import {
   createGrant,
-  createShareLink,
+  createLinkShare,
   listGrants,
-  listShareLinks,
+  listLinkShares,
   revokeGrant,
-  revokeShareLink,
+  revokeLinkShare,
+  setShareExpiry,
   updateGrant,
   type Grant,
   type GrantPermission,
   type ShareLink,
+  type ShareTarget,
 } from '@/lib/api/documents';
 import { formatDate } from '@/lib/documents-format';
+import { endOfDayIso, shareExpiryBounds } from '@/lib/documents-sign';
 import { useToast } from '@/app/(dashboard)/documents/ToastContext';
 import { Dialog, btnIcon, btnPrimary, btnSecondary, inputCls, labelCls } from './ui';
 
@@ -49,13 +52,18 @@ function PermissionSelect({
  */
 export function ShareDialog({
   doc,
+  kind = 'document',
   onClose,
   onChanged,
 }: {
   doc: { id: string; title: string };
+  /** An uploaded file can only be shared by link (view only); a document can also be granted to people. */
+  kind?: 'document' | 'file';
   onClose: () => void;
   onChanged?: () => void;
 }) {
+  const target: ShareTarget = { kind, id: doc.id };
+  const isFile = kind === 'file';
   const { triggerToast } = useToast();
   const [grants, setGrants] = useState<Grant[] | null>(null);
   const [links, setLinks] = useState<ShareLink[]>([]);
@@ -68,20 +76,24 @@ export function ShareDialog({
 
   const [linkEmail, setLinkEmail] = useState('');
   const [linkAccess, setLinkAccess] = useState<GrantPermission>('view');
-  const [linkExpires, setLinkExpires] = useState(true);
+  const [expiry, setExpiry] = useState<'7' | '30' | '90' | 'never' | 'custom'>('30');
+  const [customDate, setCustomDate] = useState('');
   const [sendingLink, setSendingLink] = useState(false);
-  const [newLink, setNewLink] = useState<string | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [editDate, setEditDate] = useState('');
+  const bounds = shareExpiryBounds();
 
   const load = useCallback(async () => {
     try {
-      const [g, l] = await Promise.all([listGrants(doc.id), listShareLinks(doc.id)]);
+      const [g, l] = await Promise.all([isFile ? Promise.resolve<Grant[]>([]) : listGrants(doc.id), listLinkShares({ kind, id: doc.id })]);
       setGrants(g);
       setLinks(l);
       setLoadError(null);
     } catch (err) {
       setLoadError(apiErrorInfo(err, 'Could not load who has access.').message);
     }
-  }, [doc.id]);
+  }, [doc.id, kind, isFile]);
 
   useEffect(() => {
     void (async () => {
@@ -130,17 +142,41 @@ export function ShareDialog({
     changed();
   };
 
-  const sendLink = async (e: React.FormEvent) => {
-    e.preventDefault();
+  /** The expiry body for a create: a date wins; otherwise a number of days or null for never. */
+  const expiryBody = (): { expires_at?: string; expires_in_days?: number | null } | string => {
+    if (expiry === 'custom') {
+      if (!customDate) return 'Pick the date the link should stop working.';
+      if (customDate < bounds.min || customDate > bounds.max) return 'Pick a date from tomorrow to one year from now.';
+      return { expires_at: endOfDayIso(customDate) };
+    }
+    return { expires_in_days: expiry === 'never' ? null : Number(expiry) };
+  };
+
+  const create = async (withEmail: boolean) => {
+    const exp = expiryBody();
+    if (typeof exp === 'string') {
+      setLinkError(exp);
+      return;
+    }
     setSendingLink(true);
+    setLinkError(null);
     try {
-      const link = await createShareLink(doc.id, linkEmail.trim(), linkAccess, linkExpires ? 30 : null);
-      setNewLink(link ?? null);
-      triggerToast(`Link sent to ${linkEmail.trim()}.`);
-      setLinkEmail('');
+      const made = await createLinkShare(target, {
+        ...(withEmail ? { email: linkEmail.trim() } : {}),
+        access_level: isFile ? 'view' : linkAccess,
+        ...exp,
+      });
+      if (withEmail) {
+        triggerToast(`Link sent to ${linkEmail.trim()}.`);
+        setLinkEmail('');
+      } else {
+        if (made.link) await navigator.clipboard?.writeText(made.link);
+        triggerToast(made.link ? 'Link created and copied.' : 'Link created.');
+      }
       changed();
     } catch (err) {
-      triggerToast(apiErrorInfo(err, 'Could not create the link.').message, 'error');
+      const info = apiErrorInfo(err, 'Could not create the link.');
+      setLinkError(info.status === 429 ? 'You have made a lot of links in a short time. Try again in a little while.' : info.message);
     } finally {
       setSendingLink(false);
     }
@@ -148,12 +184,33 @@ export function ShareDialog({
 
   const revokeLink = async (l: ShareLink) => {
     try {
-      await revokeShareLink(doc.id, l.id);
-      triggerToast('Link revoked.');
+      await revokeLinkShare(target, l.id);
+      triggerToast('Link revoked. It stops working now.');
     } catch (err) {
       triggerToast(apiErrorInfo(err, 'Could not revoke the link.').message, 'error');
     }
     changed();
+  };
+
+  const saveExpiry = async (l: ShareLink, never: boolean) => {
+    if (!never && (!editDate || editDate < bounds.min || editDate > bounds.max)) {
+      triggerToast('Pick a date from tomorrow to one year from now.', 'error');
+      return;
+    }
+    try {
+      await setShareExpiry(target, l.id, never ? null : endOfDayIso(editDate));
+      triggerToast(never ? 'Link set to never expire.' : `Link now expires ${formatDate(endOfDayIso(editDate))}.`);
+      setEditing(null);
+    } catch (err) {
+      triggerToast(apiErrorInfo(err, 'Could not change the expiry.').message, 'error');
+    }
+    changed();
+  };
+
+  const copyLink = async (l: ShareLink) => {
+    if (!l.link) return;
+    await navigator.clipboard?.writeText(l.link);
+    triggerToast('Link copied.');
   };
 
   const activeLinks = links.filter((l) => l.status === 'active' && !l.revoked_at);
@@ -161,6 +218,7 @@ export function ShareDialog({
   return (
     <Dialog label={`Share “${doc.title}”`} onClose={onClose} wide>
       <div className="p-6 space-y-7">
+        {!isFile && (
         <section className="space-y-3" aria-labelledby="share-people">
           <h4 id="share-people" className={labelCls}>
             People with access
@@ -226,73 +284,108 @@ export function ShareDialog({
             </ul>
           )}
         </section>
+        )}
 
-        <section className="space-y-3 border-t border-line pt-6" aria-labelledby="share-link">
+        <section className={`space-y-3 ${isFile ? '' : 'border-t border-line pt-6'}`} aria-labelledby="share-link">
           <h4 id="share-link" className={labelCls}>
             Anyone with the link
           </h4>
           <p className="text-[11px] text-ink-subtle">
-            We email a read-only link. Anyone who has the link can open the document without signing in, so only send it to
-            people you trust. The link is shown once.
+            Anyone who has the link can open {isFile ? 'this file' : 'this document'} without signing in{isFile ? '' : ', and read it'}. Share it only with people you trust, and pick an expiry. You can copy the link again or turn it off at any time.
           </p>
-          {newLink ? (
-            <div className="flex items-center gap-2">
-              <input readOnly aria-label="New share link" value={newLink} className={`${inputCls} bg-surface-faint truncate`} />
-              <button
-                type="button"
-                className={btnPrimary}
-                onClick={() => {
-                  void navigator.clipboard?.writeText(newLink);
-                  triggerToast('Link copied.');
-                }}
-              >
-                <Copy size={13} /> Copy
+
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-end gap-2">
+              <label className="flex flex-col gap-1 text-xs font-semibold text-neutral-600">
+                Link works for
+                <select aria-label="Link expiry" value={expiry} onChange={(e) => setExpiry(e.target.value as typeof expiry)} className="min-h-11 border border-line-strong rounded-input px-2 text-xs font-semibold text-ink bg-white">
+                  <option value="7">7 days</option>
+                  <option value="30">30 days</option>
+                  <option value="90">90 days</option>
+                  <option value="custom">Until a date</option>
+                  <option value="never">Never expires</option>
+                </select>
+              </label>
+              {expiry === 'custom' && (
+                <label className="flex flex-col gap-1 text-xs font-semibold text-neutral-600">
+                  Expires on
+                  <input type="date" aria-label="Link expiry date" min={bounds.min} max={bounds.max} value={customDate} onChange={(e) => setCustomDate(e.target.value)} className="min-h-11 border border-line-strong rounded-input px-2 text-xs text-ink bg-white" />
+                </label>
+              )}
+              <button type="button" disabled={sendingLink} onClick={() => void create(false)} className={btnPrimary}>
+                {sendingLink ? 'Creating…' : 'Create link for anyone'}
               </button>
             </div>
-          ) : (
-            <form onSubmit={sendLink} className="space-y-2">
-              <div className="flex flex-col md:flex-row gap-2">
-                <label htmlFor="link-email" className="sr-only">
-                  Email address for the link
-                </label>
-                <input
-                  id="link-email"
-                  type="email"
-                  required
-                  value={linkEmail}
-                  onChange={(e) => setLinkEmail(e.target.value)}
-                  placeholder="name@company.com"
-                  className={inputCls}
-                />
-                <PermissionSelect value={linkAccess} onChange={setLinkAccess} label="Link permission" />
-                <button type="submit" disabled={sendingLink} className={`${btnSecondary} shrink-0`}>
-                  {sendingLink ? 'Sending…' : 'Send link'}
-                </button>
-              </div>
-              <label className="flex items-center gap-2 min-h-11 text-xs text-neutral-600 font-medium">
-                <input type="checkbox" checked={linkExpires} onChange={(e) => setLinkExpires(e.target.checked)} className="w-4 h-4" />
-                Link expires in 30 days
-              </label>
-            </form>
+            {expiry === 'never' && <p className="text-[11px] text-warning-800">This link keeps working until you revoke it.</p>}
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void create(true);
+            }}
+            className="flex flex-col md:flex-row gap-2"
+          >
+            <label htmlFor="link-email" className="sr-only">
+              Email address for the link
+            </label>
+            <input id="link-email" type="email" required value={linkEmail} onChange={(e) => setLinkEmail(e.target.value)} placeholder="Or email the link to name@company.com" className={inputCls} />
+            {!isFile && <PermissionSelect value={linkAccess} onChange={setLinkAccess} label="Link permission" />}
+            <button type="submit" disabled={sendingLink} className={`${btnSecondary} shrink-0`}>
+              Send link
+            </button>
+          </form>
+          {linkError && (
+            <p role="alert" className="text-xs font-semibold text-danger-600">
+              {linkError}
+            </p>
           )}
+
           {activeLinks.length > 0 && (
-            <ul className="divide-y divide-line border border-line rounded-card">
+            <ul className="divide-y divide-line border border-line rounded-card" aria-label="Active links">
               {activeLinks.map((l) => (
-                <li key={l.id} className="flex items-center gap-2 px-3 py-1.5">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-ink truncate">{l.email}</p>
-                    <p className="text-[11px] text-ink-subtle">
-                      {PERMISSION_LABEL[l.access_level] ?? 'Can view'} ·{' '}
-                      {l.expires_at ? `expires ${formatDate(l.expires_at)}` : 'no expiry'}
-                    </p>
+                <li key={l.id} className="px-3 py-1.5 space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-ink truncate">{l.anyone_with_link || !l.email ? 'Anyone with the link' : l.email}</p>
+                      <p className="text-[11px] text-ink-subtle">
+                        {PERMISSION_LABEL[l.access_level] ?? 'Can view'} · {l.expires_at ? `expires ${formatDate(l.expires_at)}` : 'no expiry'}
+                        {l.last_viewed_at ? ` · last opened ${formatDate(l.last_viewed_at)}` : ' · not opened yet'}
+                      </p>
+                    </div>
+                    {l.link ? (
+                      <button type="button" aria-label={`Copy link for ${l.email ?? 'anyone'}`} onClick={() => void copyLink(l)} className={`${btnSecondary} px-3`}>
+                        <Copy size={13} /> Copy
+                      </button>
+                    ) : (
+                      <span className="text-[11px] text-ink-subtle max-w-40">This older link cannot be shown again. Make a new one.</span>
+                    )}
+                    <button type="button" className="min-h-11 px-2 text-xs font-semibold text-brand-strong hover:text-accent-bronze" onClick={() => { setEditing(editing === l.id ? null : l.id); setEditDate(''); }}>
+                      Change expiry
+                    </button>
+                    <button type="button" aria-label={`Revoke link for ${l.email ?? 'anyone'}`} onClick={() => void revokeLink(l)} className={btnIcon}>
+                      <Trash2 size={15} />
+                    </button>
                   </div>
-                  <button type="button" aria-label={`Revoke link for ${l.email}`} onClick={() => void revokeLink(l)} className={btnIcon}>
-                    <Trash2 size={15} />
-                  </button>
+                  {editing === l.id && (
+                    <div className="flex flex-wrap items-end gap-2 pb-1">
+                      <label className="flex flex-col gap-1 text-xs font-semibold text-neutral-600">
+                        New expiry date
+                        <input type="date" aria-label="New expiry date" min={bounds.min} max={bounds.max} value={editDate} onChange={(e) => setEditDate(e.target.value)} className="min-h-11 border border-line-strong rounded-input px-2 text-xs text-ink bg-white" />
+                      </label>
+                      <button type="button" className={btnPrimary} onClick={() => void saveExpiry(l, false)}>
+                        Save date
+                      </button>
+                      <button type="button" className={btnSecondary} onClick={() => void saveExpiry(l, true)}>
+                        Never expires
+                      </button>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
           )}
+          {activeLinks.length === 0 && grants !== null && <p className="text-xs text-ink-subtle">No active links.</p>}
         </section>
 
         <div className="flex justify-end">

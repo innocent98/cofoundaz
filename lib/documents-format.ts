@@ -66,7 +66,7 @@ export interface LibraryItem {
   version?: number;
   aiGenerated?: boolean;
   /** Files made by Export carry where they came from; null source once the document is purged. */
-  origin?: 'upload' | 'export';
+  origin?: 'upload' | 'export' | 'executed';
   sourceDocumentId?: string | null;
   sourceVersion?: number | null;
   trashedAt: string | null;
