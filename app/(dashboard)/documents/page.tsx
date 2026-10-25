@@ -54,11 +54,11 @@ function TypeBadge({ label }: { label: string }) {
 
 function StatusChip({ item }: { item: LibraryItem }) {
   if (item.source === 'file') {
-    if (item.scanStatus === 'pending') return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-accent-xf2ece1 text-accent-x7a6025">Scanning</span>;
+    if (item.scanStatus === 'pending') return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-warning-100 text-warning-800">Scanning</span>;
     if (item.scanStatus === 'blocked') return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-danger-tint text-danger-bold">Blocked</span>;
     return <span className="text-[11px] text-ink-subtle">{formatSize(item.sizeBytes ?? 0)}</span>;
   }
-  const cls = item.status === 'Final' ? 'bg-neutral-xe5efea text-brand-x1e3e2b' : 'bg-neutral-xeceeef text-neutral-x55625a';
+  const cls = item.status === 'Final' ? 'bg-success-100 text-success-800' : 'bg-neutral-xeceeef text-neutral-x55625a';
   return <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${cls}`}>{item.status}</span>;
 }
 
@@ -354,7 +354,7 @@ export default function DocumentsLibraryPage() {
                 <span className="truncate text-ink">{j.name}</span>
                 <span
                   className={
-                    j.state === 'failed' ? 'text-danger-bold font-semibold' : j.state === 'done' ? 'text-brand-strong font-semibold' : 'text-ink-subtle'
+                    j.state === 'failed' ? 'text-danger-bold font-semibold' : j.state === 'done' ? 'text-success font-semibold' : 'text-ink-subtle'
                   }
                   role={j.state === 'failed' ? 'alert' : undefined}
                 >

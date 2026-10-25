@@ -251,11 +251,14 @@ Full top-30 pair table from the run: kept in the PR description. `ui/tokens.test
 * Before/after screenshots at 1440 and 375, logged in as the local founder: 212 shots each side, 31 pages differ (pixel diff), contact sheet:
   `/private/tmp/claude-501/-Users-adebayovictor-Documents-dev-cofoundaz/a5cfaec0-f039-4096-90eb-3615b4181064/scratchpad/contact-sheet/index.html`. Not committed.
 
-### Hand-over to the Documents session (not changed here)
-* `app/(dashboard)/documents/signatures/page.tsx:69,71,148`: signature status chips and the signed tick use copper/blue tails; pending should be `warning`, signed `success`.
-* `app/sign/[token]/page.tsx:126`: completion tick uses `brand-mid`, should be `success`.
-* `app/(dashboard)/documents/[id]/page.tsx:109`: "Saved" uses `brand-mid`, should be `success`.
-* Documents routes were not in the contrast audit; run it once the Documents FE lands.
+### Documents (done in a second PR after the Documents FE merged)
+Documents was left to its own session in the first PR. After #167 merged, the same state mapping was applied to it (`fix/colour-semantics-documents`):
+* `documents/signatures/page.tsx`: Awaiting chip `warning`, Complete chip and signer tick `success`.
+* `documents/page.tsx`: Scanning chip `warning`, Final chip `success`, finished job state `success`.
+* `documents/[id]/page.tsx`: "Saved" `success`, stale-version hint `warning`.
+* `app/sign/[token]/page.tsx`: completion tick `success`.
+Contrast re-run including Documents routes (library, shared, shared with me, signatures, templates, 6 document pages, 1440 and 375): **32 pairs, 0 failing, before and after**.
+Not exercised live: `/sign/[token]` and `/shared/[token]` (need a live token) and the Awaiting/Complete chips (the local founder has only Cancelled requests), so those colours are checked in code only.
 
 ### Operate / roll back
 No runtime config. Revert the PR. The state tokens are in `styles/colour-tokens.css`; change a value there to re-tune all states at once.
