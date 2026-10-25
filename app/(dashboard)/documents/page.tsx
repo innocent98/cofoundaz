@@ -8,6 +8,7 @@ import { useAiDrawer } from '@/components/ai-drawer-context';
 import { ConfirmDialog, PromptDialog, btnPrimary, btnSecondary, inputCls } from '@/components/documents/ui';
 import { FileViewer } from '@/components/documents/file-viewer';
 import { RowMenu, type MenuAction } from '@/components/documents/row-menu';
+import { ExportDialog } from '@/components/documents/export-dialog';
 import { ShareDialog } from '@/components/documents/share-dialog';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import {
@@ -80,6 +81,7 @@ export default function DocumentsLibraryPage() {
 
   // Dialog state
   const [shareDoc, setShareDoc] = useState<LibraryItem | null>(null);
+  const [exportDoc, setExportDoc] = useState<LibraryItem | null>(null);
   const [viewFile, setViewFile] = useState<LibraryItem | null>(null);
   const [rename, setRename] = useState<LibraryItem | null>(null);
   const [move, setMove] = useState<LibraryItem | null>(null);
@@ -236,8 +238,15 @@ export default function DocumentsLibraryPage() {
     }
     const a: MenuAction[] = [{ label: 'Open', onSelect: () => open(item) }, { label: 'Rename', onSelect: () => setRename(item) }];
     a.push({ label: 'Move to folder', onSelect: () => setMove(item) }, { label: 'Edit tags', onSelect: () => setTagsFor(item) });
-    if (item.source === 'document') a.push({ label: 'Share', onSelect: () => setShareDoc(item) });
-    else a.push({ label: 'Download', onSelect: () => void download(item) });
+    if (item.source === 'document') {
+      a.push({ label: 'Share', onSelect: () => setShareDoc(item) }, { label: 'Export as PDF or Word', onSelect: () => setExportDoc(item) });
+    } else {
+      a.push({ label: 'Download', onSelect: () => void download(item) });
+      if (item.origin === 'export' && item.sourceDocumentId) {
+        const src = item.sourceDocumentId;
+        a.push({ label: 'Open source document', onSelect: () => router.push(`/documents/${src}`) });
+      }
+    }
     a.push({ label: 'Ask AI', onSelect: () => void askAi(item) }, { label: 'Move to Trash', danger: true, onSelect: () => setToTrash(item) });
     return a;
   };
@@ -283,7 +292,7 @@ export default function DocumentsLibraryPage() {
   const metaLine = (item: LibraryItem) =>
     isTrash
       ? `Deleted · ${daysLeft(item.purgesAt) ?? 0} days left before it is removed for good`
-      : `${item.ownerName} · ${formatDate(item.modified)} · ${shareChip(item.shareCount)}`;
+      : `${item.ownerName} · ${formatDate(item.modified)} · ${item.origin === 'export' ? `Exported${item.sourceVersion ? ` from version ${item.sourceVersion}` : ''}` : shareChip(item.shareCount)}`;
 
   return (
     <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-6">
@@ -579,6 +588,7 @@ export default function DocumentsLibraryPage() {
       </div>
 
       {shareDoc && <ShareDialog doc={{ id: shareDoc.id, title: shareDoc.title }} onClose={() => setShareDoc(null)} onChanged={() => void reload()} />}
+      {exportDoc && <ExportDialog documentId={exportDoc.id} onClose={() => setExportDoc(null)} onExported={() => void reload()} />}
       {viewFile && <FileViewer file={{ id: viewFile.id, title: viewFile.title }} onClose={() => setViewFile(null)} />}
 
       {rename && (

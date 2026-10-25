@@ -65,6 +65,10 @@ export interface LibraryItem {
   sizeBytes?: number;
   version?: number;
   aiGenerated?: boolean;
+  /** Files made by Export carry where they came from; null source once the document is purged. */
+  origin?: 'upload' | 'export';
+  sourceDocumentId?: string | null;
+  sourceVersion?: number | null;
   trashedAt: string | null;
   purgesAt: string | null;
 }
@@ -104,6 +108,9 @@ export function fileToItem(f: FileSummary): LibraryItem {
     status: titleCase(f.scan_status),
     scanStatus: f.scan_status,
     sizeBytes: f.size_bytes,
+    origin: f.origin,
+    sourceDocumentId: f.source_document_id ?? null,
+    sourceVersion: f.source_version ?? null,
     trashedAt: f.trashed_at,
     purgesAt: f.purges_at,
   };

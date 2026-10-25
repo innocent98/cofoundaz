@@ -14,7 +14,7 @@ import {
 } from '@/lib/api/documents';
 import { diffLines, formatDate, personName, sectionsForDiff } from '@/lib/documents-format';
 import { useToast } from '@/app/(dashboard)/documents/ToastContext';
-import { ConfirmDialog, btnIcon, btnPrimary } from './ui';
+import { ConfirmDialog, btnIcon, btnPrimary, btnSecondary } from './ui';
 
 type Mode = 'preview' | 'changes';
 
@@ -25,12 +25,15 @@ export function VersionDrawer({
   canRestore,
   onClose,
   onRestored,
+  onExport,
 }: {
   documentId: string;
   currentSections: DocSection[];
   canRestore: boolean;
   onClose: () => void;
   onRestored: () => void;
+  /** Opens the export dialog (export always uses the current version). */
+  onExport?: () => void;
 }) {
   const { triggerToast } = useToast();
   const [versions, setVersions] = useState<VersionRow[] | null>(null);
@@ -100,6 +103,14 @@ export function VersionDrawer({
       </div>
 
       <div className="p-6 space-y-5">
+        {onExport && (
+          <div className="flex flex-wrap items-center justify-between gap-2 border border-line rounded-card p-3">
+            <p className="text-xs text-ink-muted">Export saves the current version as a PDF or Word file. To export an older one, restore it first.</p>
+            <button type="button" className={btnSecondary} onClick={onExport}>
+              Export current version
+            </button>
+          </div>
+        )}
         {error && (
           <p role="alert" className="text-xs font-semibold text-danger-600">
             {error}{' '}

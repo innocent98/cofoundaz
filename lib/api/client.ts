@@ -99,10 +99,19 @@ function handleSessionExpired(endpoint: string): void {
   window.location.assign(`/login?session=expired&next=${next}`);
 }
 
-export async function apiClient<T>(
+export async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  return (await apiRequest<T>(endpoint, options)).data;
+}
+
+/** Same as apiClient, but also reports the HTTP status (e.g. 201 created vs 200 already there). */
+export async function apiClientWithStatus<T>(endpoint: string, options: RequestInit = {}): Promise<{ status: number; data: T }> {
+  return apiRequest<T>(endpoint, options);
+}
+
+async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
-): Promise<T> {
+): Promise<{ status: number; data: T }> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
 
   const headers = new Headers(options.headers);
@@ -166,8 +175,8 @@ export async function apiClient<T>(
   }
 
   if (res.status === 204) {
-    return {} as T;
+    return { status: 204, data: {} as T };
   }
 
-  return res.json() as Promise<T>;
+  return { status: res.status, data: (await res.json()) as T };
 }
