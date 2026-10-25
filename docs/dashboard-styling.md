@@ -13,8 +13,8 @@ Phase 1 of the colour-token refactor (D38) renamed the ramps and moved every col
 
 | Role | Tokens (old name) |
 |---|---|
-| Brand | `brand-50 … brand-950` (was `green-*`) |
-| Accent | `accent-100, 200, 500, 600, 700, 800, 900` (was `copper-*`) |
+| Brand | `brand-50 … brand-950` (was `green-*`). Phase 2: navy `#051736` (950) and blue `#0263F4` (600; exact logo blue `#0F6AFC` is 500) |
+| Accent | `accent-100, 200, 500, 600, 700, 800, 900` (was `copper-*`). Phase 2: aliases of the brand ramp; copper survives only as `warning` |
 | Neutral | `neutral-50 … neutral-900` (was `sage-*`) |
 | Danger | `danger-50, 100, 200, 600, 700, 800` (was `red-*`) |
 | Roles | `ink*` (text), `line*` (borders), `surface-*`, `brand-strong/hover/mid/tint`, `accent-gold` … |
