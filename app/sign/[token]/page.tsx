@@ -228,7 +228,7 @@ export default function PublicSignerPage() {
                   the page. Only for previewable types over an absolute URL; other
                   files fall back to the "Open" link above. */}
               {previewSrc &&
-                (view.file.content_type?.includes('pdf') ? (
+                (view.file.content_type?.split(';')[0].trim().toLowerCase() === 'application/pdf' ? (
                   <iframe src={previewSrc} title={view.file.filename} className="w-full h-80 rounded-card border border-line bg-surface-subtle" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
