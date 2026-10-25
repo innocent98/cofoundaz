@@ -35,8 +35,8 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 | Per-workspace timezones for the mission scheduler | follow-up |
 | Health benchmarks with real cohorts | needs usage data |
 | Brand: real logo + favicon everywhere (`feature/brand-logo`, 2026-10-24, SOP `docs/sop/brand-logo-and-favicon.md`) | done on branch, awaiting merge |
-| Brand colours: colour-token refactor. **Phase 1 done on branch `refactor/colour-tokens` (2026-10-24, SOP `docs/sop/colour-tokens.md`)**: all ~5,500 hard-coded colours in ~310 files are now tokens in `styles/colour-tokens.css`, a lint rule blocks new ones, screenshot diff in the PR. Phase 2 (still to do, separate small PR): swap the `brand-*` values to navy `#051736` + blue `#0F6AFC` | phase 1 awaiting merge; phase 2 queued |
-| Brand colours: colour-token refactor, phase 1 hard-coded hex (≈5,500 in 223 files) to semantic tokens with zero visual change, phase 2 swap to navy `#051736` + blue `#0F6AFC` | 🟡 phase 1 in FE #162 (zero visual change: 199/252 shots identical, 53 explained; lint rule); phase 2 next after #162 merges, needs Adebayo's screenshot sign-off |
+| Brand colours: colour-token refactor. Phase 1 (#162, merged 2026-10-25): all ~5,500 hard-coded colours are tokens in `styles/colour-tokens.css`, lint rule blocks new ones. Phase 2: see the next row | phase 1 merged; phase 2 on `feature/brand-colours`, awaiting sign-off |
+| Brand colours: colour-token refactor, phase 1 hard-coded hex (≈5,500 in 223 files) to semantic tokens with zero visual change, phase 2 swap to navy `#051736` + blue `#0F6AFC` | 🟡 phase 1 merged (#162). **Phase 2 done on branch `feature/brand-colours` (2026-10-25, SOP `docs/sop/colour-tokens.md`)**: values only; copper retired from UI chrome (Option B, A shown for comparison), 290 of 359 legacy tokens folded, AA audit 217/237 pairs pass (20 need component fixes, listed in the SOP). **Awaiting Adebayo's visual sign-off, then merge** |
 
 ## Blocked on accounts / product calls (not code)
 Mono production approval (sandbox keys now available) · Google calendar sync (OAuth values to re-encrypt; Outlook later) ·

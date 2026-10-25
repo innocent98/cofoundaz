@@ -9,19 +9,17 @@ const colourCss = readFileSync(path.join(root, 'styles/colour-tokens.css'), 'utf
 const css = `${globalsCss}\n${colourCss}`
 
 const TOKENS: Record<string, string> = {
-  'color-brand-950': '#0B1F17', 'color-brand-900': '#12291F',
-  'color-brand-800': '#183B2C', 'color-brand-700': '#1E4D3B',
-  'color-brand-600': '#266049', 'color-brand-500': '#2E7256',
-  'color-brand-400': '#4E8F73', 'color-brand-300': '#7FB09A',
-  'color-brand-200': '#B3D0C3', 'color-brand-100': '#E3EFE9',
-  'color-brand-50': '#F2F7F4',
-  'color-accent-700': '#8A5330', 'color-accent-600': '#9C5B34',
-  'color-accent-500': '#D89A6E', 'color-accent-200': '#EAD5C6',
-  'color-accent-100': '#F6EAE1',
-  'color-neutral-900': '#171C1A', 'color-neutral-700': '#3A423E',
-  'color-neutral-500': '#67716C', 'color-neutral-300': '#C3CCC7',
-  'color-neutral-100': '#F4F6F5',
+  'color-brand-950': '#051736', 'color-brand-900': '#072454',
+  'color-brand-800': '#0A367F', 'color-brand-700': '#0D4FBC',
+  'color-brand-600': '#0263F4', 'color-brand-500': '#0F6AFC',
+  'color-brand-400': '#4F8FFA', 'color-brand-300': '#9CC2FF',
+  'color-brand-200': '#C8DEFF', 'color-brand-100': '#E8F1FF',
+  'color-brand-50': '#F6FAFF', 'color-neutral-900': '#181B20',
+  'color-neutral-700': '#3B4048', 'color-neutral-500': '#686F79',
+  'color-neutral-300': '#C4CAD4', 'color-neutral-100': '#F4F6F8',
   'color-danger-600': '#B0483B', 'color-danger-100': '#F6E5E2',
+  'color-warning': '#9C5B34', 'color-ink': '#051736',
+  'color-info': '#0E7490', 'color-success-text': '#137333',
 }
 
 describe('design tokens', () => {
@@ -53,8 +51,12 @@ describe('design tokens', () => {
     expect(css).toMatch(/--font-body:\s*var\(--font-hanken\)/)
   })
 
-  it('sets the copper focus ring at 2px with 2px offset', () => {
-    expect(css).toMatch(/outline:\s*2px solid var\(--color-accent-600\)/)
+  it('keeps the accent ramp as aliases of the brand ramp (copper retired from UI chrome)', () => {
+    expect(css).toMatch(/--color-accent-600:\s*var\(--color-brand-600\)/)
+  })
+
+  it('sets the brand-blue focus ring at 2px with 2px offset', () => {
+    expect(css).toMatch(/outline:\s*2px solid var\(--color-focus\)/)
     expect(css).toMatch(/outline-offset:\s*2px/)
   })
 

@@ -43,14 +43,14 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* PRD §1.1: 2px copper focus ring, 2px offset, on every interactive element */
+  /* PRD §1.1: 2px brand-blue focus ring, 2px offset, on every interactive element */
   *:focus-visible {
-    outline: 2px solid var(--color-accent-600);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--color-accent-200);
+    background: var(--color-brand-200);
     color: var(--color-brand-900);
   }
 }
