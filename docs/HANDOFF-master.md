@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §2b. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-11 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead11-handoff:docs/HANDOFF-master.md`
+> If the lead-12 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead12-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-25 ~17:00 WAT (lead session 11 handover)**. Lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-25 ~21:15 WAT (lead session 12 pause for the night)**. Lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -16,13 +16,27 @@ Last updated: **2026-10-25 ~17:00 WAT (lead session 11 handover)**. Lead 11 was 
 
 ## 0. FOR ADEBAYO
 
-### 0a. Open PRs and in-flight sessions (lead 11 handover, 2026-10-25 ~17:00 WAT)
-**Nothing is in flight.** No open PRs in either repo, no sub-session working. The last one, Documents BE-C
-(`local_f658d252-166f-46d7-b572-5d648d303db1`), was asked to remove its scratch containers and its worktree after #189 merged; check
-`ls /Users/adebayovictor/Documents/dev/cofoundaz/wt` and `docker ps` and remove any leftover `wt/documents-be-c` once it's clean.
+### 0a. Open PRs and in-flight sessions (lead 12 pause, 2026-10-25 ~21:15 WAT)
+**Three sub-sessions were still working at the pause** (started by lead 12; each ends in a PR, none merges):
+| Session | Task | Branch / worktree | Ends in |
+|---|---|---|---|
+| `docs-be-d` `local_00ae63ac-b3b0-4c71-bd48-6e3ec6be1c5b` | Re-walk D2 (BE): an idempotent `python -m app.services.documents.requeue_finalize [--dry-run]` re-queues finalize jobs for completed v2 requests with no executed copy or unsent emails; maybe an `executed.state: "failed"` value | API `fix/documents-executed-requeue`, worktree `wt/documents-be-d` | API PR, plus the per-environment command for Adebayo (local, staging, prod) |
+| `docs-fe-bec` `local_b1a20dc6-d1e0-4b63-aad3-b0b077e496cd` | Re-walk D1 (share-modal copy fallback shows no link), D2 FE (cap the endless "Preparing the executed copy" spinner), D3 (Add section focus), D4 (signup `?email=` prefill), plus 375 share-row truncation and "Unknown" comment authors | FE `fix/documents-rewalk-fixes`, worktree `wt/documents-rewalk-fixes` | FE PR |
+| `docs-rewalk` `local_0d731a61-4408-4ed8-af71-6f132b923cda` | The unclicked re-walk items: version diff tab, grant revoke + Send link, `document.*` bell notifications, every menu/modal at 375, `LINK_NOT_RECOVERABLE` (unit-tested only if not producible) | FE `docs/documents-rewalk-2`, worktree `wt/documents-rewalk` | docs PR |
+
+**Next lead, first:** read each session's report (`list_sessions {"linked": true}` from lead 12's session won't work for you: open them by id), check each PR (CI, head branch, no attribution), and tell Adebayo. If `failed` was added in the API, tell the FE session so its spinner cap uses it. After merges: the shared stack (`pull --ff-only`, `up -d api worker`; no migration expected), run the requeue command locally (the local stuck requests are `a8a56480...` and `895cba33...`), then have the defects re-checked live (the `docs-rewalk` session has the context) and mark **Documents ✅** only if every control passes. The worktree `wt/documents-be-d` couldn't be removed by its session (classifier): Adebayo removes it after its PR merges.
 
 Before telling Adebayo any PR is ready: CI, head branch (no `claude/`), no attribution in commits or body. "Dependency review (PR only)"
 is red on every API PR: repo setup, not code. Ignore it.
+
+**Merged in lead session 12 (2026-10-25):**
+- API #190 Documents BE-D e-sign v2 (`0075`, new dep `pypdf`), #191 BE-D review fixes (`0076`: signing row lock, link-copy audit,
+  `LINK_NOT_RECOVERABLE`, `legacy` state, expiry bounds, per-party email claim, `PDF_UNREADABLE`), #192 worker shares the
+  `app_storage` volume (compose, dev + prod).
+- FE #173 Documents templates + AI drafts + legal banner + PDF/DOCX export, #174 e-sign v2 UI (send flow, order, message, viewed,
+  detail + audit, executed PDF, public sign page, link shares on files; SVG blob-preview XSS fixed before merge), #175 Documents
+  hand re-walk (76/87).
+- Shared stack verified on API `ccb30cf9`, migration `0076`, api + worker on the `cofoundaz-api_app_storage` volume, `/health` 200.
 
 **Merged in lead session 11 (2026-10-25):**
 - API #185 Documents BE-A (squash, `22f90ee2`, migration `0072`), #186 Finance D9 + D10 (`4513f845`), #187 Documents BE-B (`8630d2ad`,
@@ -147,6 +161,16 @@ All are reversible and none blocks merging.
     gold badges. State UI uses `success` / `warning` / `danger` / `info` tokens, never the brand ramp (#168, #169).
 40. **Academy content approved as it stands (Adebayo 2026-10-25, "flip all"):** all 48 files `review_status: reviewed` (API #188).
     New content files still start as `draft`.
+42. **E-sign copy link kept, with an audit trail (lead 12, from the #190 Opus review):** editors can still copy a signer's link (gap
+   row 31, the fallback when email fails), but every handout (create response or copy) is recorded in `signature_signers.link_copies`,
+   shown to editors and printed on the certificate by name (no member email, since the certificate goes to external signers).
+   Alternative: drop copy-link and offer only "remind". Adebayo was told and didn't object.
+43. **E-sign scope calls (BE-D session, lead accepted):** no field placement yet (signatures go on an appended signature page next to
+   the certificate; needs the PDF viewer + a field model); DOCX must be exported to PDF before signing (`422 PDF_REQUIRED`); signers
+   can download the executed PDF with their own link for 90 days.
+44. **Signer/share links are derived from `SECRET_KEY`** (HMAC of purpose, id and version; only a hash is stored). That makes the
+   still-open §0c item 4 (confirm `SECRET_KEY` on staging/prod is a real random value) a signing-security item now, and rotating it
+   kills every outstanding signer and share link.
 41. **Documents BE-B limits accepted (lead, in the BE-B SOP):** a grant outlives the grantee's workspace membership (member removal
     doesn't exist yet: fix it with the Team page); a provider-signed file URL already issued stays valid up to 5 minutes after trash.
 
@@ -162,7 +186,11 @@ All are reversible and none blocks merging.
 4. Still open from lead 7: confirm `SECRET_KEY` on staging/prod is a real random value (`SALES_OUTREACH_UNSUBSCRIBE_KEY` is set,
    Adebayo 2026-10-25: never rotate it); a dedicated `outreach@` mailbox +
    hourly limit ~50; journal encryption key on staging (journal writes 500 there until set); Mono production approval.
-5. Optional: SVG versions of the logo and wordmark from the designer (they'd replace the PNGs in `public/brand/`).
+5. **Before e-sign is used on staging/prod:** confirm `SECRET_KEY` there is a real random value (0b-44). After the D2 API PR
+   merges and deploys, run its requeue command once per environment (the PR states the exact command).
+6. Remove `wt/documents-be-d` once its PR merges (its session was blocked from removing it):
+   `git -C cofoundaz-api worktree remove /Users/adebayovictor/Documents/dev/cofoundaz/wt/documents-be-d`.
+7. Optional: SVG versions of the logo and wordmark from the designer (they'd replace the PNGs in `public/brand/`).
 
 Done in lead 9: unsubscribe round trip (passed live, recorded in #151), Funding product call (D-FIN-11), LinkedIn id (D37).
 Done in lead 10: Paystack test payment (your test key), runway rows call (D-FIN-12), Documents Q1-Q4 (D-DOC-1..4), squash-merge call.
@@ -179,7 +207,10 @@ comes with it).
 ## 1. Repos and local stack
 - FE `cofoundaz` (Next 16 App Router, React 19, Tailwind v4, TS strict) and API `cofoundaz-api` (FastAPI): sibling dirs under
   `/Users/adebayovictor/Documents/dev/cofoundaz`. The lead session works from the parent dir (not a git repo).
-- **develop heads (2026-10-25 ~17:00, lead 11):** API `064daaba` (#189), FE `6c7d989` (#169).
+- **develop heads (2026-10-25 ~21:15, lead 12):** API `ccb30cf9` (#192), FE `4e0a06f` (#175). The shared API checkout is on
+  `ccb30cf9`, migrated to **`0076_documents_signer_link_audit`**, api + worker rebuilt (have `pypdf`) and both mount the
+  `cofoundaz-api_app_storage` volume (files uploaded locally before #192 lived in the old container layer and now 404).
+- *(lead 11, superseded)* **develop heads (2026-10-25 ~17:00):** API `064daaba` (#189), FE `6c7d989` (#169).
   The shared API checkout is on `064daaba`, migrated to **`0074_documents_templates_export`**, image rebuilt (has `python-docx`),
   api + worker recreated, Academy content re-synced (all `reviewed`). Verified live: `/health` 200; BE-C templates list (9, Legal /
   Financial / Pitch / Operational) and PDF + DOCX export 201 `scan_status: clean` (two test exports left in NovaPay).
@@ -221,7 +252,7 @@ comes with it).
 | Sales | #165, #166, #168, #172, #177, #179 | #142, #143, #149, #154 | 626/626 (#144) + Sequences hand re-walk #151 incl. live sends + unsubscribe round trip | ✅ **Done 2026-10-24** |
 | Academy | #173, #178, #179, #180, #183 | #148, #152 | #150 (114/119) then re-check #156: D1-D4 20/20 | ✅ **Done 2026-10-24**; content **reviewed** 2026-10-25 (#188) |
 | Finance | #167, #170, #171, #176, #182, #184, #186 | #153, #160, #163 | #157 then slice (e) re-check in #163: **138/141 ✅** incl. a real Paystack test payment and Mono sandbox sync (142 rows). Accepted as unit-tested only (not producible in test mode / the pane): needs-attention banner, non-NGN skip counts, payout tagging, I20 print window, E11 file chooser | ✅ **Done 2026-10-25** (D9 + D10: API #186, verified live; see `finance-rewalk.md`) |
-| Documents | BE-A #185, BE-B #187, BE-C #189 ✅; **BE-D not built** | #167 (library, trash, versions, grants, Shared with me), #169 colours | FE walk 95/95 + 93/93 (F, TM, mentor; `documents-fe-walk.md`); BE-C verified live (templates, PDF + DOCX export) | 🟡 BE-D → FE for BE-C/BE-D → hand re-walk |
+| Documents | BE-A #185, BE-B #187, BE-C #189, BE-D #190 + #191, worker volume #192 | #167, #169, #173, #174 | Hand re-walk #175: **76/87**, 5 ❌ (D1-D4 being fixed, D5 = Funding), 6 unclicked (being finished) | 🟡 fixes in flight (§0a) → re-check → ✅ |
 
 Remaining after these: Calendar (API ✅, sync not built) → Journal (API ✅) → Notifications (API ✅) → Team
 (invitations only in the API) → Settings (partial; Billing needs Paystack) → Funding, Investor Readiness, Marketplace, Analytics
@@ -232,26 +263,21 @@ Cross-cutting: **brand** logo + favicon (#158); **colour tokens** phase 1 (#162)
 colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169). All merged; SOP `docs/sop/colour-tokens.md`.
 
 ## 2b. Incoming (ordered)
-1. **Documents BE-D, e-sign v2** (own API session, Sonnet, branch e.g. `feature/documents-esign-v2`, next migration **`0075`** chained
-   from `0074_documents_templates_export`). Gap rows **15** (executed PDF stamped with each signature + an audit certificate page,
-   emailed to every party), **16** (signing order, a message to signers, a "viewed" state), **17** (anyone-with-link share with an expiry
-   date; also make uploaded files shareable, a BE-C follow-up), **31** (request detail fields), **37** (return `signed_ip` /
-   `signed_user_agent` to editors and print them on the certificate). D-DOC-2: simple typed-name signatures + legal caveat, no
-   certificate provider. Exports from BE-C (`source_document_id`, `source_version`) must be signable; decide DOCX signing (sign the PDF
-   export, or convert). **Security path:** public signer tokens, emails, rate limits, executed-file storage: one Opus review, and the lead
-   re-reads the token and storage code itself.
-2. **Documents FE for BE-C + BE-D** (one FE session after BE-D merges, or start the BE-C half earlier): template generator form with ✨
-   AI-draft chips and the disclaimer banner on legal templates, Export PDF/DOCX, sign any document, the BE-D signing flow (order, message,
-   viewed, certificate download, link expiry), and the 4 items #167 couldn't verify (PDF preview pixels, cross-origin preview on staging,
-   consultant/accountant/advisor/investor roles). Guides: `cofoundaz-api/docs/fe-integration-guide-documents-templates-export.md` and
-   BE-D's guide.
-3. **Documents hand re-walk** on merged develop: every control, 1440 + 375, F, TM, mentor, consultant and new accountant + investor
-   accounts, a real signing round trip to an inbox the lead controls, a file served from the real storage backend. Then **Documents ✅**.
-4. Then the next pages in §2 order: **Calendar** (API ✅, Google sync not built; redirect URLs agreed in 0b-18) → Journal → Notifications →
+1. **Finish Documents** (§0a): review the three in-flight PRs, Adebayo merges, update the stack, run the requeue command, re-check
+   D1-D4 live plus the remaining items, then **Documents ✅**. Staging-only checks once deployed: preview CORS from the staging
+   origin, the Cloudinary `read_private` path (unit-tested with a fake only), and the requeue command for any staging requests
+   completed before #192.
+2. Then the next pages in §2 order: **Calendar** (API ✅, Google sync not built; redirect URLs agreed in 0b-18) → Journal → Notifications →
    Team (FE mock-driven; also fix grant/membership removal, 0b-41) → Settings (Billing needs Paystack) → Funding, Investor Readiness,
    Marketplace, Analytics (no API, design first like Sales) → Legal (Victoria). Keep at most 2-3 sessions running.
 
 ## 2c. Follow-ups (not blocking)
+- **From lead 12:** e-sign field placement (needs the PDF viewer + a `signature_fields` model), a draw-a-signature pad, an editor
+  "rebuild executed copy" action, reminder timers, a real malware scanner behind `get_scanner()`; no invite path for investors
+  (re-walk D5, comes with Funding); the worker's email claim is at-most-once (a crash between claim and send loses that one email;
+  the signer can still download); `GET /sign/{token}` marks Viewed, so mail link scanners may mark it early; the certificate's
+  legal caveat spills onto a near-empty page; a signer's own tab never offers the executed PDF (they get it by email and their
+  link works).
 - **From lead 11:** BE-C: uploaded files still can't be shared by link; non-Latin text in PDFs needs a TrueType font; legal template text
   needs a lawyer; AI template draft tested with a fake client only (budget exhaustion / provider failure not seen live). BE-B: 30-day
   purge, Cloudinary inline URLs and the grant rate limit unit-tested only. #167: PDF preview pixels and staging CORS for previews
@@ -385,6 +411,15 @@ colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169
   `.next`, screenshot builds up to 5 GB). `git worktree remove` refuses dirty trees; a leftover folder after "Directory not empty" is a
   deregistered copy, safe to `rm -rf` once checked with `lsof`. (5) zsh doesn't word-split `$var` in `for x in $list`: use arrays or
   explicit loops in shell snippets.
+
+- **Lead-12 lessons:** (1) **In-process tests can't see container topology:** unit, `run_once` and e2e all share one storage dir, so
+  the worker missing the uploads volume (#192) only showed in the FE live walk on docker. Any new worker job that touches storage,
+  mail or other per-container state needs one check on the docker stack. (2) Adebayo merged #190 and #174 before their follow-up
+  pushes and PR CI finished: put review fixes in the brief as "new PR from develop if merged" (done), and check develop CI after any
+  early merge. (3) A turn started by a side-session event can't start sessions, but it can **message existing ones**: reuse an idle
+  session that already has the context (new branch in its worktree) instead of proposing cards. (4) The classifier blocks a
+  sub-session's `git worktree remove`; hand it to Adebayo. (5) Opus review + the lead's own read of tokens/storage found the signing
+  race (Medium) that 569 unit tests missed; keep doing both for every security path.
 
 ## 4b. Follow-ups queued
 - **Lessons from 2026-10-19:** parallel FE sub-sessions that both add a shared module (e.g. `lib/api/comments.ts`) collide
