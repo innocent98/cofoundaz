@@ -24,14 +24,18 @@ export function RowMenu({ title, actions }: { title: string; actions: MenuAction
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
     };
-    const onMove = () => setOpen(false);
+    const onResize = () => setOpen(false);
+    // The menu can scroll itself when the viewport is short; only a scroll elsewhere detaches it from its row.
+    const onScroll = (e: Event) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
     document.addEventListener('mousedown', onDown);
     document.addEventListener('keydown', onKey);
-    window.addEventListener('resize', onMove);
-    window.addEventListener('scroll', onMove, true);
+    window.addEventListener('resize', onResize);
+    window.addEventListener('scroll', onScroll, true);
     return () => {
-      window.removeEventListener('resize', onMove);
-      window.removeEventListener('scroll', onMove, true);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onScroll, true);
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('keydown', onKey);
     };
@@ -45,20 +49,21 @@ export function RowMenu({ title, actions }: { title: string; actions: MenuAction
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => {
-          // Fixed position so the menu can never be clipped: open on the side with more room, then clamp
-          // inside the viewport (the fixed tab bar covers the bottom edge on phones) and scroll if still too tall.
+          // Fixed position so the menu can never be clipped: start on the side with more room, then slide it
+          // inside the usable viewport (the fixed tab bar covers the bottom edge on phones). It only scrolls
+          // when the whole viewport is shorter than the menu.
           const r = ref.current?.getBoundingClientRect();
           if (r) {
             const margin = 8;
             const bottomReserve = 80;
+            const usable = Math.max(window.innerHeight - bottomReserve - margin * 2, 132);
             const want = actions.length * 44 + 8;
+            const height = Math.min(want, usable);
             const below = window.innerHeight - bottomReserve - r.bottom - margin;
-            const above = r.top - margin * 2;
-            const opensDown = below >= want || below >= above;
-            const room = Math.max(opensDown ? below : above, 132);
-            const height = Math.min(want, room);
-            const top = opensDown ? r.bottom + 4 : Math.max(margin, r.top - 4 - height);
-            setPos({ top, right: Math.max(margin, window.innerWidth - r.right), maxHeight: room });
+            const opensDown = below >= height || below >= r.top - margin;
+            const wanted = opensDown ? r.bottom + 4 : r.top - 4 - height;
+            const top = Math.min(Math.max(wanted, margin), margin + usable - height);
+            setPos({ top, right: Math.max(margin, window.innerWidth - r.right), maxHeight: usable });
           }
           setOpen((o) => !o);
         }}

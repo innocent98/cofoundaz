@@ -12,8 +12,8 @@
 
 ## How
 
-- **D6** `components/documents/row-menu.tsx`: the menu is now `fixed`, positioned from the button's rect when it opens. It opens on the side with more room (below, minus an 80px reserve for the mobile tab bar), clamps `top` to an 8px margin, and gets a `maxHeight` with `overflow-y-auto`, so every item stays reachable even in a very short viewport. It closes on scroll and resize, because a fixed menu would otherwise detach from its row. Works for document and file rows (same component).
-- **D7** `components/documents/send-dialog.tsx`: the signer row wraps below `md`. Email gets `flex-1 basis-40` and the name input drops to its own full-width line (`order-last`, `basis-full`); from `md` up it is the original single row.
+- **D6** `components/documents/row-menu.tsx`: the menu is now `fixed`, positioned from the button's rect when it opens. It starts on the side with more room (below, minus an 80px reserve for the mobile tab bar), then slides inside the usable viewport so the whole menu is visible; `maxHeight` plus `overflow-y-auto` only matters when the viewport is shorter than the menu. It closes on page scroll and resize (a fixed menu would detach from its row) but ignores scrolls inside the menu itself. Works for document and file rows (same component).
+- **D7** `components/documents/send-dialog.tsx`: below `md` each signer is two rows: number and email (full width), then name with the reorder and remove buttons. `md:contents` flattens both rows back into the original single row from `md` up.
 - **D8** `app/(dashboard)/documents/page.tsx`: a "New folder" button (`btnSecondary`, `lg:hidden` through its wrapper) sits beside the folder select and opens the same `PromptDialog` as the desktop tree, including "New folder in <current>" nesting.
 
 Rejected: a portal for the menu (more code, same result); keeping `absolute` with a flip only (cannot guarantee in-viewport on short screens).
