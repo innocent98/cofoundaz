@@ -1,6 +1,6 @@
 # Documents: hand re-walk (merged develop)
 
-**Date:** 2026-10-25. **Verdict: not ✅ yet.** 93 of 103 recorded checks pass, 8 are ❌ (D1 to D8; all Low to Med, no data or permission leak), 1 is unit-tested only and 1 is env-only (staging CORS). The security and e-sign paths that were the big risks all passed live (role gating, grants, link shares, sequential signing, executed PDF, certificate, notifications audience). Documents becomes ✅ once D1 to D3, D6 to D8 are fixed and re-checked (D4 is outside Documents, D5 is a Funding dependency).
+**Date:** 2026-10-25, re-checked 2026-10-27 (see Third pass). **Verdict: not ✅ yet: D1 to D4 re-checked and pass on develop; D6 to D8 pass on the FE fix branch (#179) and need one re-check on develop after it merges, then this flips to ✅.** 93 of 103 recorded checks pass, 8 are ❌ (D1 to D8; all Low to Med, no data or permission leak), 1 is unit-tested only and 1 is env-only (staging CORS). The security and e-sign paths that were the big risks all passed live (role gating, grants, link shares, sequential signing, executed PDF, certificate, notifications audience). Documents becomes ✅ once D1 to D3, D6 to D8 are fixed and re-checked (D4 is outside Documents, D5 is a Funding dependency).
 
 **What was walked.** Merged `origin/develop` `3395635` (FE #174 merge) in my own `next dev` on `:3911`, proxied to the shared local API on `:8000` (develop `ccb30cf9`, migration `0076`, api and worker sharing `app_storage`). Workspace NovaPay. Every result was compared with the raw API response (curl with a bearer token and `X-Workspace-Id`). Emails were read from the `[email:console]` lines in the api and worker logs. Hosts keep logins apart: `localhost` (founder), `tm.localhost`, `m.localhost`, `bc.localhost`, `acc.localhost` (accountant), `inv.localhost` (investor), `pub.localhost`/`sign.localhost`/`sign2.localhost` (anonymous public pages).
 
@@ -141,6 +141,27 @@ Columns: area, control, role (F founder, TM team member, M mentor, BC consultant
 | 101 | 375 dialogs | Share modal (people + anyone-with-link) | F | 375 | Fits | dialog 16..359, no clipped controls, no target <40px (verified in the first pass) | — | ✅ |
 | 102 | 375 library | Folder tree replaced by a select; choose Trash; New folder | F | 375 | Same capabilities as 1440 | Select lists All/Legal/NDAs/Rewalk Folder/Walk/Uncategorised/Trash and Trash opens ("Trash" heading). The **New folder button is display:none at 375** (height 0), so a folder can't be created on a phone | — | ❌ FE (Low to Med) |
 | 103 | E-sign | 409 LINK_NOT_RECOVERABLE | F | — | Old request without a stored link | Cannot be created without DB edits (no pre-recovery active request exists). Per lead: **unit-tested only (API #191)** | — | 🧪 unit-tested only (API #191) |
+
+## Third pass (2026-10-27): re-check of D1 to D8
+
+Environment: merged `origin/develop` `68df2cb` in my own `next dev` on `:3911` (proxied to the shared local API on `:8000`), workspace NovaPay, founder `throwaway-founder`. D6 to D8 were additionally checked on the FE fix branch `fix/documents-375-layout` ([FE #179](https://github.com/innocent98/cofoundaz/pull/179)) in a second `next dev` on `:3912`; **that is a branch preview, not merged develop**, so those three are marked "pending merge" until they are re-checked after #179 lands. Browser pane at 1440x900 and 375x812 (emulated). The pane denies clipboard access, so the Copy fallback path is the one that runs.
+
+| # | Defect | Surface | Width | How checked | Result |
+|---|---|---|---|---|---|
+| D1 | Copy link fallback | Share modal (file `Rewalk Doc A.pdf`), create link, click Copy | 1440 | Real click on Copy | Toast "Your browser blocked copying. The link is shown below: select it and copy it."; the read-only "Link for anyone" field is visible (502px wide) and holds the full `/shared/…` URL. ✅ |
+| D1 | same | same | 375 | Copy via script click after creating the link | Same toast; link field inside the modal, no horizontal overflow (screenshot). ✅ |
+| D2 (BE) | Old requests end in a final state | `GET /documents/signature-requests` | n/a | curl as founder | `a8a56480` and `895cba33`: `status: complete`, `executed: {state: "failed", file_id: null, filename: null, size_bytes: null}`. The earlier completed requests are `ready`. ✅ |
+| D2 (UI) | Signatures list stops spinning | Signatures tab | 1440 | Page text and DOM | Both failed rows show "The executed copy could not be made. The signatures above are still on record; ask the sender to contact support if you need the signed PDF." (2 matches); 0 `animate-spin` elements, 0 "Preparing" strings. ✅ |
+| D2 (fresh) | A new request still goes pending to ready | API | n/a | Created `8b211e7e` on `Rewalk Doc A.pdf` (signer `rewalk3-signer@example.com`, placeholder), signed it via `POST /sign/{token}`, polled every 3s | First poll after signing: `complete`, `executed.state: pending`; next poll (3s later): `ready`, stays `ready`. ✅ |
+| D3 | Add section focus | Editor of `Meeting Notes` | 1440 | Real click on "Add section", then typed `ZZ` | Focus is on the new "Section heading" input, which now holds `ZZ`; the document title is still "Meeting Notes". (Not saved.) ✅ |
+| D3 | same | same | 375 | same | Same result, field in view. ✅ |
+| D4 | Signup prefill | `/signup?next=%2Fdashboard&email=rewalk3-prefill%40example.com` on `pub.localhost:3911` | 1440 and 375 | Read the email input | Email field holds `rewalk3-prefill@example.com` (placeholder address); password empty; at 375 the field is 327px wide, no overflow. ✅ |
+| D6 | File-row menu in viewport | Library list, "…" on file rows | 375 | Baseline on develop: opened the menu on `Rewalk Doc A.pdf` (10 items) | **Reproduced on develop: menu top = -70.** (❌ on develop) |
+| D6 | same | same, FE #179 branch | 375 | Opened the menu on rows at the top, middle and bottom of the list (file rows with 9 items, document rows with 8) | Every item within 0..732px vertically and 0..375px horizontally in all six cases, no inner scrolling; also checked at 1440 on three rows (all in view). Pending merge. |
+| D7 | Signer email width | Signatures, New request, add a second signer, tick sequential | 375 | Measured inputs on the #179 branch (original walk on develop: 26px) | Email 245px (plain) and 269px (sequential), full width on its own row; name, reorder and remove buttons on the next row; no dialog overflow. At 1440 it is still one row (email 234px, name 112px). Pending merge. |
+| D8 | New folder on a phone | Library | 375 | Develop: button absent (screenshot). #179 branch: clicked "New folder" beside the folder select, typed `Rewalk Phone Folder`, Enter | Dialog "New folder" opens, folder created, appears in the select as "Rewalk Phone Folder (0)". Pending merge. |
+
+New test data from this pass (local only): public link on `Rewalk Doc A.pdf`, request `8b211e7e` (signed), folder "Rewalk Phone Folder". No real addresses were used.
 
 ## Verification table (what is proven live and how)
 
