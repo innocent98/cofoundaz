@@ -163,6 +163,8 @@ Environment: merged `origin/develop` `68df2cb` in my own `next dev` on `:3911` (
 
 New test data from this pass (local only): public link on `Rewalk Doc A.pdf`, request `8b211e7e` (signed), folder "Rewalk Phone Folder". No real addresses were used.
 
+**Handoff (2026-10-27).** Done: D1 to D4 re-checked on develop and pass; D6 to D8 fixed in FE #179 (head `2fb925a`, branch `fix/documents-375-layout`) and verified on the branch preview. Left: when #179 is merged, re-check D6 (row menu fully in view on file and document rows at 375), D7 (signer email full width in Send for signature at 375) and D8 (New folder button beside the folder select at 375) on merged develop, then flip the verdict above to ✅ and update the Documents row in `buildout-status.md`. Not re-walked this pass: roles other than the founder. Docs branch `docs/documents-rewalk-3`, PR #180.
+
 ## Verification table (what is proven live and how)
 
 | Behaviour | How proven |
