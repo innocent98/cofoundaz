@@ -179,23 +179,27 @@ export function SendDialog({
         <div className="space-y-2">
           <span className={labelCls}>Signers</span>
           {signers.map((s, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              {sequential && <span className="w-5 text-center text-xs font-bold text-ink-subtle shrink-0">{i + 1}</span>}
-              <input type="email" required={i === 0} aria-label={`Signer ${i + 1} email`} value={s.email} onChange={(e) => update(i, 'email', e.target.value)} placeholder="email@company.com" className={`${inputCls} flex-1 min-w-0 text-xs`} />
-              <input aria-label={`Signer ${i + 1} name`} value={s.name} onChange={(e) => update(i, 'name', e.target.value)} placeholder="Name" className={`${inputCls} w-24 md:w-28 text-xs`} />
-              {sequential && signers.length > 1 && (
-                <>
-                  <button type="button" disabled={i === 0} onClick={() => move(i, -1)} className={`${btnIcon} shrink-0`} aria-label={`Move signer ${i + 1} up`}>
-                    <ArrowUp size={14} />
-                  </button>
-                  <button type="button" disabled={i === signers.length - 1} onClick={() => move(i, 1)} className={`${btnIcon} shrink-0`} aria-label={`Move signer ${i + 1} down`}>
-                    <ArrowDown size={14} />
-                  </button>
-                </>
-              )}
-              <button type="button" onClick={() => setSigners((prev) => (prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev))} className={`${btnIcon} shrink-0`} aria-label={`Remove signer ${i + 1}`}>
-                <Trash2 size={14} />
-              </button>
+            <div key={i} className="flex flex-col md:flex-row md:items-center gap-1.5">
+              <div className="flex items-center gap-1.5 md:contents">
+                {sequential && <span className="w-5 text-center text-xs font-bold text-ink-subtle shrink-0">{i + 1}</span>}
+                <input type="email" required={i === 0} aria-label={`Signer ${i + 1} email`} value={s.email} onChange={(e) => update(i, 'email', e.target.value)} placeholder="email@company.com" className={`${inputCls} flex-1 min-w-0 text-xs`} />
+              </div>
+              <div className={`flex items-center gap-1.5 md:contents ${sequential ? 'pl-6 md:pl-0' : ''}`}>
+                <input aria-label={`Signer ${i + 1} name`} value={s.name} onChange={(e) => update(i, 'name', e.target.value)} placeholder="Name" className={`${inputCls} flex-1 min-w-0 md:flex-none md:w-28 text-xs`} />
+                {sequential && signers.length > 1 && (
+                  <>
+                    <button type="button" disabled={i === 0} onClick={() => move(i, -1)} className={`${btnIcon} shrink-0`} aria-label={`Move signer ${i + 1} up`}>
+                      <ArrowUp size={14} />
+                    </button>
+                    <button type="button" disabled={i === signers.length - 1} onClick={() => move(i, 1)} className={`${btnIcon} shrink-0`} aria-label={`Move signer ${i + 1} down`}>
+                      <ArrowDown size={14} />
+                    </button>
+                  </>
+                )}
+                <button type="button" onClick={() => setSigners((prev) => (prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev))} className={`${btnIcon} shrink-0`} aria-label={`Remove signer ${i + 1}`}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
           ))}
           {signers.map((_, i) =>
