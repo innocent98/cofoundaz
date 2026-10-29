@@ -23,10 +23,7 @@ import {
   PieChart,
   TrendingUp,
   Coins,
-  Gem,
-  Star,
   Scale,
-  ShoppingBag,
   GraduationCap,
   Folder,
   Calendar,
@@ -62,6 +59,8 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
+// Funding Hub, Investor Readiness and Marketplace are hidden until their APIs ship (2026-10-29).
+// Their pages still exist at /funding, /investor-readiness and /marketplace.
 const navSections: NavSection[] = [
   {
     title: 'OVERVIEW',
@@ -92,15 +91,12 @@ const navSections: NavSection[] = [
   {
     title: 'FUND & PROTECT',
     items: [
-      { label: 'Funding Hub', href: '/funding', icon: Gem },
-      { label: 'Investor Readiness', href: '/investor-readiness', icon: Star },
       { label: 'Legal & Compliance', href: '/legal', icon: Scale },
     ],
   },
   {
     title: 'RESOURCES',
     items: [
-      { label: 'Marketplace', href: '/marketplace', icon: ShoppingBag },
       { label: 'Learning Academy', href: '/academy', icon: GraduationCap },
       { label: 'Documents', href: '/documents', icon: Folder },
     ],

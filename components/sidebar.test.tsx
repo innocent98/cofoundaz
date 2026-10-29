@@ -32,6 +32,13 @@ describe('Sidebar (PRD 2.1)', () => {
     missionOpen = 0;
   });
 
+  it('hides Funding Hub, Investor Readiness and Marketplace until their APIs ship', () => {
+    render(<Sidebar />);
+    for (const label of ['Funding Hub', 'Investor Readiness', 'Marketplace']) {
+      expect(hasLink(label)).toBe(false);
+    }
+  });
+
   it('founder sees every group, including the founder-only Journal with its lock', () => {
     render(<Sidebar />);
     for (const label of ['Dashboard', "Today's Mission", 'Health Score', 'Roadmap', 'Finance Hub', 'Team', 'Journal']) {

@@ -1,6 +1,6 @@
 # Documents: hand re-walk (merged develop)
 
-**Date:** 2026-10-25, re-checked 2026-10-27 (see Third pass). **Verdict: not ✅ yet: D1 to D4 re-checked and pass on develop; D6 to D8 pass on the FE fix branch (#179) and need one re-check on develop after it merges, then this flips to ✅.** 93 of 103 recorded checks pass, 8 are ❌ (D1 to D8; all Low to Med, no data or permission leak), 1 is unit-tested only and 1 is env-only (staging CORS). The security and e-sign paths that were the big risks all passed live (role gating, grants, link shares, sequential signing, executed PDF, certificate, notifications audience). Documents becomes ✅ once D1 to D3, D6 to D8 are fixed and re-checked (D4 is outside Documents, D5 is a Funding dependency).
+**Date:** 2026-10-25, re-checked 2026-10-27 and 2026-10-29. **Verdict: ✅ (2026-10-29).** D1 to D4 and D6 to D8 are fixed and every control passes on merged develop at 1440 and 375 (see Third pass and Fourth pass); D5 is a Funding dependency outside Documents. Original first-pass result: 93 of 103 recorded checks pass, 8 are ❌ (D1 to D8; all Low to Med, no data or permission leak), 1 is unit-tested only and 1 is env-only (staging CORS). The security and e-sign paths that were the big risks all passed live (role gating, grants, link shares, sequential signing, executed PDF, certificate, notifications audience). Documents becomes ✅ once D1 to D3, D6 to D8 are fixed and re-checked (D4 is outside Documents, D5 is a Funding dependency).
 
 **What was walked.** Merged `origin/develop` `3395635` (FE #174 merge) in my own `next dev` on `:3911`, proxied to the shared local API on `:8000` (develop `ccb30cf9`, migration `0076`, api and worker sharing `app_storage`). Workspace NovaPay. Every result was compared with the raw API response (curl with a bearer token and `X-Workspace-Id`). Emails were read from the `[email:console]` lines in the api and worker logs. Hosts keep logins apart: `localhost` (founder), `tm.localhost`, `m.localhost`, `bc.localhost`, `acc.localhost` (accountant), `inv.localhost` (investor), `pub.localhost`/`sign.localhost`/`sign2.localhost` (anonymous public pages).
 
@@ -163,7 +163,38 @@ Environment: merged `origin/develop` `68df2cb` in my own `next dev` on `:3911` (
 
 New test data from this pass (local only): public link on `Rewalk Doc A.pdf`, request `8b211e7e` (signed), folder "Rewalk Phone Folder". No real addresses were used.
 
-**Handoff (2026-10-27).** Done: D1 to D4 re-checked on develop and pass; D6 to D8 fixed in FE #179 (head `2fb925a`, branch `fix/documents-375-layout`) and verified on the branch preview. Left: when #179 is merged, re-check D6 (row menu fully in view on file and document rows at 375), D7 (signer email full width in Send for signature at 375) and D8 (New folder button beside the folder select at 375) on merged develop, then flip the verdict above to ✅ and update the Documents row in `buildout-status.md`. Not re-walked this pass: roles other than the founder. Docs branch `docs/documents-rewalk-3`, PR #180.
+**Handoff (2026-10-27), closed 2026-10-29 (see Fourth pass).** Done: D1 to D4 re-checked on develop and pass; D6 to D8 fixed in FE #179 (head `2fb925a`, branch `fix/documents-375-layout`) and verified on the branch preview. Left: when #179 is merged, re-check D6 (row menu fully in view on file and document rows at 375), D7 (signer email full width in Send for signature at 375) and D8 (New folder button beside the folder select at 375) on merged develop, then flip the verdict above to ✅ and update the Documents row in `buildout-status.md`. Not re-walked this pass: roles other than the founder. Docs branch `docs/documents-rewalk-3`, PR #180.
+
+## Fourth pass (2026-10-29): D6 to D8 on merged develop
+
+Environment: merged `origin/develop` `6715b41` (includes FE #179 `ff24fb4`) in my own `next dev` on `:3913`, proxied to the shared local API on `:8000` (develop, migration 0076, worker up), workspace NovaPay, founder `throwaway-founder`. Browser pane at 375x812 and 1440x900. **Environment note:** the shared stack was recreated before this pass and the stored bytes of the old seeded files are gone (the API's own signed download returns 404 for `Untitled document.pdf`, so its Open preview shows the API's NOT_FOUND body). That is storage, not the UI, and does not touch D6 to D8; content-dependent controls were checked on freshly uploaded files instead (`rewalk4-phone.pdf`, `rewalk4-valid.pdf`).
+
+| # | Control | Width | How checked | Result |
+|---|---|---|---|---|
+| D6 | "…" menu, 8 document rows and 9 to 10 file rows, at the top, middle and bottom of the list (rows 0, 1, 2, 4, 6, 9, 12, 16, 19, 25, 30, 38) | 375 | Scrolled each row to the top, middle or bottom edge, opened the menu, measured every item | All items inside 0..732px vertically (above the 80px tab bar) and 0..375px horizontally, each 44px high, no inner scrolling, no page overflow. Smallest top was 8px, largest bottom 726px. ✅ |
+| D6 | Every item of the 10-item file menu (`Untitled document.pdf`) | 375 | `elementFromPoint` at each item's centre, then the action | Open, Rename, Move to folder, Edit tags, Download, Share by link, Send for signature, Open source document, Ask AI, Move to Trash: each hits its own button (not covered by the header or tab bar). Rename, Move to folder, Edit tags and Share by link open their dialogs and close again. ✅ |
+| D6 | Open (fresh `rewalk4-phone.pdf`) | 375 | Clicked | Viewer dialog with the embedded PDF, Download and Close. ✅ |
+| D6 | Download (fresh file) | 375 | Clicked, network log | `GET /documents/files/{id}/download` 200, then the signed link 200 (aborted as a download). ✅ |
+| D6 | Send for signature | 375 | Clicked | Navigates to `/documents/signatures?file={id}` with the dialog open and the file preselected. ✅ |
+| D6 | Ask AI | 375 | Clicked | The co-founder drawer opens with the file named in the first message. ✅ |
+| D6 | Move to Trash | 375 | Clicked, confirmed | Confirm dialog, toast "Moved rewalk4-phone.pdf to the Trash.", row gone from the list. ✅ |
+| D6 | Menu at 1440 | 1440 | Rows 0, 8, 20, 38 | All items in view, menu 208px wide. ✅ |
+| D7 | Signer row, one signer | 375 | Measured | Email 295px, name 245px, both full width on separate rows (was 26px). ✅ |
+| D7 | Add signer, sequential on, fill both | 375 | Measured, filled | Email 269px; name 121px with Up, Down, Remove (44px each) on the second row; no dialog overflow. ✅ |
+| D7 | Move signer up and down | 375 | Clicked | Order swaps and swaps back (`b,a` then `a,b`). ✅ |
+| D7 | Remove signer, add again | 375 | Clicked | 2 rows to 1, then 2 again. ✅ |
+| D7 | Send request | 375 | Valid PDF `rewalk4-valid.pdf`, two signers (`rewalk4-a@example.com`, `rewalk4-b@example.com`, placeholders), sequential | "Signature request sent", signer 1 with Copy, signer 2 "Waits for Rewalk A to sign." No overflow. ✅ |
+| D7 | Malformed PDF | 375 | Sent my hand-made PDF with no xref | Inline alert "This PDF can't be signed: it is encrypted, damaged or too long. Upload a plain PDF." ✅ (error path) |
+| D7 | Cancel request | 375 | Clicked Cancel, confirmed | Dialog "Cancel “rewalk4-valid.pdf”?", then card shows Cancelled, both signers "The request was cancelled". ✅ |
+| D7 | Row at 1440 | 1440 | Measured | One row: email 234px, name 112px, Up, Down, Remove 44px, all at the same top. ✅ |
+| D8 | "New folder" next to the folder select | 375 | Measured, hit test | 119x44px, hit-testable. ✅ |
+| D8 | Cancel and Escape | 375 | Opened, then Cancel; opened, then Escape | Dialog "New folder" closes both ways. ✅ |
+| D8 | Empty name | 375 | Create folder with no name | Dialog stays open (required field). ✅ |
+| D8 | Create at root | 375 | `Rewalk Phone Final` | Toast "Folder created.", appears in the select as "Rewalk Phone Final (0)". ✅ |
+| D8 | Create nested | 375 | Selected that folder, New folder, `Child` | Dialog title "New folder in Rewalk Phone Final"; option "  Child (0)" appears indented. ✅ |
+| D8 | At 1440 | 1440 | Measured | Phone button hidden, select hidden, tree "New folder" visible (248px). ✅ |
+
+Test data from this pass (local only): folders "Rewalk Phone Final" and "Child", file `rewalk4-valid.pdf` with a cancelled request, file `rewalk4-phone.pdf` in Trash. No real addresses.
 
 ## Verification table (what is proven live and how)
 
