@@ -22,15 +22,13 @@ Last updated: **2026-10-30 ~00:30 WAT (lead session 15 handover)**. Lead 15 was 
 (don't auto-chain). Every session was told to commit, push, write a ledger note and stop.
 
 **Next lead, first (in this order):**
-1. **API #199 Notifications** (`jnt-pass` re-chained it to **0081 on 0080_journal_gaps**; see the sessions table for its head).
-   Adebayo approved it in lead 15 (2026-10-29: "merge all once you can"). Merge when CI is green: the only expected reds are
-   "Dependency review" and GitGuardian (old test values in history; the squash drops them). Then update the shared stack (below).
-2. **Tell Adebayo all three FE-dev pages are ready to hand over** once #199 is on develop: Team, Journal, Notifications (briefs
-   `docs/fe-handoff/{team,journal,notifications}.md`, merged in FE #186-#188). Caveats for the FE dev: journal writes 500
-   `JOURNAL_NOT_CONFIGURED` on staging until the journal key is set; digest/quiet-hours settings save, but no digest email is sent yet.
+1. **The merge train is done.** API #199 Notifications merged at 00:25 (`e7153db7`, 0081). The stack is on **`0081_notifications_gaps`**.
+2. **FE-dev hand-over:** Adebayo sends the FE dev `docs/fe-handoff/MESSAGE-to-fe-dev.md` (the process, strict develop-only PRs,
+   order Team → Journal → Notifications). When his PRs come in: check CI, check that the head branch is off develop, then re-walk
+   every acceptance row at 1440 + 375 for every role on merged develop before flipping a page ✅.
 3. **Resume the two FE passes** (Sonnet, each in its own worktree, each draft PR, never merges): read each ledger note, then message
    the session by id to continue. Re-walk every control at 1440 + 375 for every role before flipping a page done.
-4. **S8 AI preferences** in `settings` (`local_4b2900da-…`): migration **0082 after 0081**. Start it once #199 merges and a slot frees
+4. **S8 AI preferences** in `settings` (`local_4b2900da-…`): migration **0082 after 0081**. Start it when a slot frees
    (max 2-3 sessions running).
 5. Then **Admin Portal (25) + Super Admin Portal (26) BE**, design first (§2b item 3).
 6. Parked: lead's `fix/sidebar-scroll` (`wt/sidebar-scroll`, `5b71c2c`, not pushed). #184 is merged, so rebase on develop, `npm ci`,
@@ -48,15 +46,15 @@ then `/health` (it can show 000 for ~15 s while restarting; re-check). Rebuild (
 
 **Merged in lead 15 (2026-10-29/30, all squash):** API **#200 Team** `a8832a15`, **#196 Billing** `e7a39e77` (0078; its e2e was fixed
 by giving CI a throwaway Paystack test key + stubbed provider, `e092073f`), **#194 Calendar** `513143fd` (0079), **#198 Journal**
-`e033720f` (0080). FE #187, #188, #189 were merged by Adebayo before lead 15 started.
+`e033720f` (0080), **#199 Notifications** `e7153db7` (0081). FE #187, #188, #189 were merged by Adebayo before lead 15 started.
 
-**Shared stack:** API develop `e033720f`, migration **`0080_journal_gaps`** head, `/health` 200.
+**Shared stack:** API develop `e7153db7`, migration **`0081_notifications_gaps`** head, `/health` 200.
 
 **Sessions (all Sonnet; message by id, they keep context):**
 | Session | Task | Branch / worktree | State at handover |
 |---|---|---|---|
-| `jnt-pass` `local_e08a654a-63c4-48f3-a39a-c278c1cb3ce9` | Journal/Notifications/Team API pass + FE-dev briefs | API `feature/notifications-be-gaps` | told to re-chain #199 to 0081, push, ledger, stop; at 00:30 not yet pushed (head still `527787ed`). If it hasn't pushed, message it to finish |
-| `calendar-fe` `local_d57769cf-ac86-4e8e-bdf0-3b21e854d268` | Calendar FE pass (all FE gaps in `cofoundaz-api/docs/handoff/calendar-prd-gaps.md`, guide `fe-integration-guide-calendar-v2.md`), dev server :3101 | FE `feature/calendar-fe` (`wt/calendar-fe`) | **FE PR #190** open, head `509c734` (re-walk ledger in `docs/calendar-rewalk.md` / `docs/checklist/calendar-rewalk.md`); paused, read its ledger for what's left |
+| `jnt-pass` `local_e08a654a-63c4-48f3-a39a-c278c1cb3ce9` | Journal/Notifications/Team API pass + FE-dev briefs | API `feature/notifications-be-gaps` | done: #199 re-chained, merged by lead 15. Can be archived |
+| `calendar-fe` `local_d57769cf-ac86-4e8e-bdf0-3b21e854d268` | Calendar FE pass (all FE gaps in `cofoundaz-api/docs/handoff/calendar-prd-gaps.md`, guide `fe-integration-guide-calendar-v2.md`), dev server :3101 | FE `feature/calendar-fe` (`wt/calendar-fe`) | **FE PR #190** open, head `509c734`, stopped clean. Ledger `docs/checklist/calendar-rewalk.md`, SOP `docs/sop/2026-10-30-calendar-fe.md`. Left: confirm CI; re-verify the needs-attention banner after its refetch fix; walk the team-member and 375 rows marked "not walked"; then merge and re-walk on develop. Deferred: action-item assignee/title edit. No BE bugs |
 | `settings-fe` `local_53684470-dcdd-47d1-824c-99564cde4b1f` | Settings + Billing FE pass (gap list `docs/checklist/settings-prd-gaps.md`; guides `fe-integration-guide-settings{,-billing}.md`). **S7 (digest UI) excluded: it's in the FE dev's Notifications brief; never touch `app/(dashboard)/notifications/`.** S8 deferred (no BE yet). Dev server :3102 | FE `feature/settings-billing-fe` (`wt/settings-fe`) | told to commit, push WIP, open a draft PR, write a ledger at `docs/checklist/settings-rewalk.md` and stop; at 00:30 not yet pushed |
 | `settings` `local_4b2900da-007e-45cb-a59d-6f2cceb6ac45` | Billing BE (merged); next S8 AI preferences (0082) | API | idle; was archived, lead 15 unarchived it |
 | `calendar` `local_46e14c47-501d-45b6-8daa-7be515785014` | Calendar BE (merged) | API | done; can be archived |
@@ -395,9 +393,9 @@ comes with it).
 | Academy | #173, #178, #179, #180, #183 | #148, #152 | #150 (114/119) then re-check #156: D1-D4 20/20 | ✅ **Done 2026-10-24**; content **reviewed** 2026-10-25 (#188) |
 | Finance | #167, #170, #171, #176, #182, #184, #186 | #153, #160, #163 | #157 then slice (e) re-check in #163: **138/141 ✅** incl. a real Paystack test payment and Mono sandbox sync (142 rows). Accepted as unit-tested only (not producible in test mode / the pane): needs-attention banner, non-NGN skip counts, payout tagging, I20 print window, E11 file chooser | ✅ **Done 2026-10-25** (D9 + D10: API #186, verified live; see `finance-rewalk.md`) |
 | Documents | BE-A #185, BE-B #187, BE-C #189, BE-D #190 + #191, worker volume #192, requeue + `failed` #193 | #167, #169, #173, #174, fixes #177, #179 | #175, #178, third pass #180, **fourth pass FE #185: D6-D8 pass on develop** | ✅ **Done 2026-10-29** |
-| Calendar | API #194 ✅ merged `513143fd` (0079) | `calendar-fe` session, draft PR (§0a) | not walked | 🟡 FE pass in progress |
+| Calendar | API #194 ✅ merged `513143fd` (0079) | FE PR #190 (`calendar-fe`), a few rows left (§0a) | not walked | 🟡 FE pass in progress |
 | Settings + Billing | API #195 + #196 ✅ merged (0078); S8 AI preferences BE queued (0082) | `settings-fe` session, draft PR (§0a) | not walked | 🟡 FE pass in progress; S8 BE next |
-| Journal, Notifications, Team | #200 Team ✅, #198 Journal ✅ (0080); #199 Notifications re-chained to 0081, merge when green | FE briefs for the junior FE dev in FE #186-#188 | FE dev builds, lead re-walks | 🟡 hand to the FE dev once #199 merges (Team can start now) |
+| Journal, Notifications, Team | #200, #198 (0080), #199 (0081) ✅ all merged | FE briefs FE #186-#188 + `fe-handoff/MESSAGE-to-fe-dev.md` | FE dev builds, lead re-walks | 🟡 **with the FE dev** (BE complete) |
 | Funding Hub, Investor Readiness, Marketplace | none | mock, **hidden from the sidebar** (FE #184) | n/a | ⏸ after Admin + Super Admin BE (Adebayo 2026-10-29) |
 | Admin Portal (25), Super Admin Portal (26) | none | `app/admin-portal`, `app/super-admin` exist | n/a | ⏭ **next BE build** after the merge train |
 | Analytics & Reports (22), Legal (13, Victoria #138) | none / blocked | mock, still in the sidebar | n/a | later |
@@ -411,7 +409,7 @@ Cross-cutting: **brand** logo + favicon (#158); **colour tokens** phase 1 (#162)
 colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169). All merged; SOP `docs/sop/colour-tokens.md`.
 
 ## 2b. Incoming (ordered)
-1. **Finish the merge train:** only API #199 (0081) is left (#200, #196, #194 and #198 merged in lead 15). Update the shared stack after it.
+1. ~~Merge train~~ **done in lead 15** (#200, #196, #194, #198, #199; stack on 0081).
 2. **S8 AI preferences** (`settings` session, brief sent 2026-10-29): `GET/PATCH /ai/settings`; daily briefing off stops briefing
    generation + notification, proactive suggestions off stops the AI-initiated nudges (session documents which surfaces), tone from
    a fixed enum into the LLM prompt seam. "What I remember" / Forget / Clear all deferred (no memory store); FE hides that section.
