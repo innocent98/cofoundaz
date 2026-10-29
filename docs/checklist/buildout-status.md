@@ -21,6 +21,7 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 | Settings | gap list `settings-prd-gaps.md` (D-SET-1..14 all accepted by Adebayo 2026-10-29) | API #195 (Settings BE a, 0077) and #196 (Billing BE b, 0078) open, merge in that order | not started (Billing tab 100% mock) | not walked live yet | live Paystack round trip (hosted page, real webhook) not exercised |
 | Journal | gap list `journal-prd-gaps.md` (J1-J19; D-JNL-1..5 built to defaults) | API #198 open (`feature/journal-be-gaps`, 0080) | **FE developer** (hand-off `fe-handoff/journal.md`) | not started; FE is the human developer's | BE built + live-captured; Retros / prompt-library screens have no design (API only) |
 | Notifications | gap list `notifications-prd-gaps.md` (N1-N13; D-NOT-1..6 built to defaults) | API #199 open (`feature/notifications-be-gaps`, 0081) | **FE developer** (hand-off `fe-handoff/notifications.md`) | not started; FE is the human developer's | BE built + live-captured; Push and Announcements deliberately out |
+| Team | gap list `team-prd-gaps.md` (T1-T12; D-TEAM-1..6; PRD overridden to a light page by Adebayo 2026-10-29) | API #200 open (`feature/team-be-gaps`, no migration) | **FE developer** (hand-off `fe-handoff/team.md`) | not started; the page is 100% mock today | Tasks, Directory and grants matrix deliberately not built |
 
 ## Cross-cutting fixes found along the way (all merged)
 Worker never registered notification subscribers (#130) · invite emails had no link (#131) · weekends-off reset streaks /
