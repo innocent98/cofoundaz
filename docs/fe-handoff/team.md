@@ -21,7 +21,7 @@ Take the viewer's role from the existing auth context (`/auth/me` memberships). 
 
 - Heading: "Your team", line "{n} members" (no seat counts: D-TEAM-6). Buttons: "+ Invite someone" (founder only), "Manage roles" (scrolls to / switches to the Roles tab).
 - Rows from `GET /team/members` (guide 1): avatar initials, name (**fall back to email when `name` is null**), email, role chip (labels in 8), "you" tag on your own `user_id`, last active
-  (relative time of `last_active_at`, "never" when null). Founders also see **"Manage"** on every row except their own.
+  (founders only: relative time of `last_active_at`, "never" when null; for every other role the API returns null for everyone, so **hide the column**). Founders also see **"Manage"** on every row except their own.
 - Below the members, a founder sees pending invitations from `GET /team/invitations` (guide 3): email, role chip, "invite pending" (or "invite expired" when `expired`), and two actions:
   **Resend** (`POST /team/invitations/{id}/resend`; toast "Invitation sent" or, when `delivered` is false, an error toast "Couldn't send the email. Try again.") and **Revoke**
   (confirm "Revoke the invitation for {email}?", then `DELETE`; row disappears). A 409 `INVITATION_NOT_PENDING` means someone already accepted or revoked it: refetch and show "That invitation is no longer pending."
