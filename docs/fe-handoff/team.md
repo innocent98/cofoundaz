@@ -69,7 +69,7 @@ Table: Actor, Action, Target, When from `GET /team/audit?limit=30` with a "Load 
 
 ## 7. Role labels (D-TEAM-3)
 
-`founder` -> "Co-Founder" in role pickers and chips except the first founder shown as "Founder" is NOT possible to tell apart, so show **"Founder"** for `founder` everywhere on this page and "Co-Founder" only on the invite card (existing). `team_member` Team Member, `mentor` Mentor,
+Show **"Founder"** for `founder` everywhere on this page (a first and a second founder cannot be told apart); "Co-Founder" stays only on the invite modal card (existing). `team_member` Team Member, `mentor` Mentor,
 `business_consultant` Business Consultant, `accountant` Accountant, `legal_advisor` Legal Advisor, `investor` Investor.
 
 ## 8. Cross-cutting rules
