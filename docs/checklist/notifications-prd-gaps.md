@@ -29,7 +29,7 @@ Mock or wrong:
 
 | # | Question | Default (built unless told otherwise) |
 |---|---|---|
-| **D-NOT-1** | Which types are "critical" (locked on, bypass digest and quiet hours)? PRD: payment failed, runway low, compliance overdue, signature requests. | `billing.payment.failed`, `finance.runway.low`, `finance.invoice.overdue`, `roadmap.milestone.overdue`, `document.signature.requested`, `sales.sending.paused`. One constant (`categories.CRITICAL_TYPES`). **They now also email**, which they never did. |
+| **D-NOT-1** | Which types are "critical" (locked on, bypass digest and quiet hours)? PRD: payment failed, runway low, compliance overdue, signature requests. | `billing.payment.failed`, `finance.runway.low`, `finance.invoice.overdue`, `document.signature.requested`, `sales.sending.paused`. One constant (`categories.CRITICAL_TYPES`). **They now also email**, which they never did. |
 | **D-NOT-2** | The Preferences grid needs a row per module. Should the new rows email by default? | 12 rows (the 5 existing plus Finance, Marketing, Sales, Validation, Academy, AI & insights, Billing). **New rows email OFF by default** (Billing ON); In app ON everywhere. Nobody starts receiving new kinds of email unasked. |
 | **D-NOT-3** | Push channel (PRD columns In-app / Email / Push). | **Not built** (no device tokens, no push provider). The grid has In app + Email only; no "coming soon" column. |
 | **D-NOT-4** | Announcements tab (design only, not in the PRD). | **Remove the tab.** Fake product news is dishonest, and there is no owner or admin tool to publish it. A later slice if you want it. |

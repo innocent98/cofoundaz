@@ -67,7 +67,7 @@ Wire to the same `GET/PUT /notifications/preferences` (fields in guide section 5
 | Quiet hours toggle | `quiet_enabled` | |
 | From / Until | `quiet_from`, `quiet_until` (`HH:MM`, window may cross midnight) | Options 18:00 to 23:00 for From and 04:00 to 09:00 for Until |
 | Explainer (digest card) | static | "Urgent alerts always arrive straight away, so they are not repeated in your digest." |
-| Quiet-hours note (replaces the design's "what still gets through") | static | "Email pauses from {from} to {until}. Notifications still appear in your inbox. Critical alerts (runway, overdue invoices and milestones, signature requests, payment failures) always reach you." |
+| Quiet-hours note (replaces the design's "what still gets through") | static | "Email pauses from {from} to {until}. Notifications still appear in your inbox. Critical alerts (runway, overdue invoices, signature requests, payment failures) always reach you." |
 
 Each control saves on change (same optimistic pattern). Do not say "Push pauses" anywhere.
 
