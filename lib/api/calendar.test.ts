@@ -67,4 +67,10 @@ describe('calendarApi', () => {
     await calendarApi.addToTasks('abc', ['i1']);
     expect((spy.mock.calls[1][1] as RequestInit).body).toBe('{"item_ids":["i1"]}');
   });
+
+  it('encodes ids so a crafted ?meeting= cannot reach another path', async () => {
+    const spy = mockFetch({ data: {}, meta: null });
+    await calendarApi.getMeeting('../sync/google');
+    expect(String(spy.mock.calls[0][0])).toContain('/calendar/meetings/..%2Fsync%2Fgoogle');
+  });
 });

@@ -197,6 +197,9 @@ async function req<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   return (await apiClient<{ data: T }>(endpoint, options)).data;
 }
 
+/** Ids can come from the URL (`?event=`, `?meeting=`): never let one add path segments. */
+const enc = encodeURIComponent;
+
 const JSON_BODY = (body: unknown): RequestInit => ({ body: JSON.stringify(body) });
 
 export const calendarApi = {
@@ -206,41 +209,41 @@ export const calendarApi = {
     return req<Feed>(`/calendar/feed?${q.toString()}`);
   },
 
-  getEvent: (id: string) => req<CalendarEvent>(`/calendar/events/${id}`),
+  getEvent: (id: string) => req<CalendarEvent>(`/calendar/events/${enc(id)}`),
   createEvent: (input: EventInput) =>
     req<CalendarEvent>('/calendar/events', { method: 'POST', ...JSON_BODY(input) }),
   updateEvent: (id: string, patch: Partial<EventInput>) =>
-    req<CalendarEvent>(`/calendar/events/${id}`, { method: 'PATCH', ...JSON_BODY(patch) }),
-  deleteEvent: (id: string) => req<unknown>(`/calendar/events/${id}`, { method: 'DELETE' }),
+    req<CalendarEvent>(`/calendar/events/${enc(id)}`, { method: 'PATCH', ...JSON_BODY(patch) }),
+  deleteEvent: (id: string) => req<unknown>(`/calendar/events/${enc(id)}`, { method: 'DELETE' }),
 
   milestones: () => req<MilestonesResponse>('/calendar/milestones'),
 
   meetings: (when: 'upcoming' | 'past' | 'all' = 'upcoming') =>
     req<{ meetings: Meeting[] }>(`/calendar/meetings?when=${when}`),
-  getMeeting: (id: string) => req<Meeting>(`/calendar/meetings/${id}`),
+  getMeeting: (id: string) => req<Meeting>(`/calendar/meetings/${enc(id)}`),
   createMeeting: (input: MeetingInput) =>
     req<Meeting>('/calendar/meetings', { method: 'POST', ...JSON_BODY(input) }),
   updateMeeting: (id: string, patch: Partial<MeetingInput>) =>
-    req<Meeting>(`/calendar/meetings/${id}`, { method: 'PATCH', ...JSON_BODY(patch) }),
-  deleteMeeting: (id: string) => req<unknown>(`/calendar/meetings/${id}`, { method: 'DELETE' }),
+    req<Meeting>(`/calendar/meetings/${enc(id)}`, { method: 'PATCH', ...JSON_BODY(patch) }),
+  deleteMeeting: (id: string) => req<unknown>(`/calendar/meetings/${enc(id)}`, { method: 'DELETE' }),
   runAssistant: (id: string, transcript: string) =>
-    req<{ assistant_state: AssistantState }>(`/calendar/meetings/${id}/assistant`, {
+    req<{ assistant_state: AssistantState }>(`/calendar/meetings/${enc(id)}/assistant`, {
       method: 'POST',
       ...JSON_BODY({ transcript }),
     }),
   patchActionItem: (id: string, itemId: string, patch: { title?: string; assignee_id?: string | null }) =>
-    req<ActionItem>(`/calendar/meetings/${id}/action-items/${itemId}`, { method: 'PATCH', ...JSON_BODY(patch) }),
+    req<ActionItem>(`/calendar/meetings/${enc(id)}/action-items/${enc(itemId)}`, { method: 'PATCH', ...JSON_BODY(patch) }),
   addToTasks: (id: string, itemIds?: string[]) =>
     req<{ created: Array<{ item_id: string; task_id: string }>; milestone_id: string; action_items: ActionItem[] }>(
-      `/calendar/meetings/${id}/action-items/add-to-tasks`,
+      `/calendar/meetings/${enc(id)}/action-items/add-to-tasks`,
       { method: 'POST', ...JSON_BODY(itemIds ? { item_ids: itemIds } : {}) },
     ),
 
   reminderRules: () => req<ReminderRules>('/calendar/reminder-rules'),
   saveReminderRule: (kind: ReminderKind, offsets: number[]) =>
-    req<ReminderRules>(`/calendar/reminder-rules/${kind}`, { method: 'PUT', ...JSON_BODY({ offsets_minutes: offsets }) }),
+    req<ReminderRules>(`/calendar/reminder-rules/${enc(kind)}`, { method: 'PUT', ...JSON_BODY({ offsets_minutes: offsets }) }),
   resetReminderRule: (kind: ReminderKind) =>
-    req<ReminderRules>(`/calendar/reminder-rules/${kind}`, { method: 'DELETE' }),
+    req<ReminderRules>(`/calendar/reminder-rules/${enc(kind)}`, { method: 'DELETE' }),
 
   syncStatus: () => req<SyncStatus>('/calendar/sync'),
   // The connect call sets an HttpOnly cookie on the API origin that the callback checks, so it must send credentials.
