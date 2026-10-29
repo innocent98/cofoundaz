@@ -310,7 +310,12 @@ colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169
    on staging until its encryption key is set (§0c item 4).
 4. **Calendar and Settings carry on** in their sessions: Calendar BE → API PR → FE pass; Settings PR 1 → Billing once D-SET-1..7
    are answered → FE pass. Relay D-CAL-3 when Adebayo answers.
-5. Then Funding, Investor Readiness, Marketplace, Analytics (no API, design first like Sales) → Legal (Victoria). Keep at most 2-3
+5. **CI tuning, both repos (Adebayo 2026-10-29; global rule "CI pipeline shape").** One small `ci/pipeline-speed` PR per repo:
+   path filters so docs-only PRs skip unit/build/e2e (most of our PRs are docs: re-walks, handoffs) with a cheap always-run job so
+   required checks still report; shard the API unit suite (~4,460 tests) across 2-4 jobs with `pytest-split` and keep coverage
+   combined; FE `vitest --shard`; check dependency caching. Keep e2e on PRs. Skip the post-merge e2e on `develop` only if branch
+   protection requires up-to-date branches (check it first). Measure before and after on one PR.
+6. Then Funding, Investor Readiness, Marketplace, Analytics (no API, design first like Sales) → Legal (Victoria). Keep at most 2-3
    sessions running.
 
 ## 2c. Follow-ups (not blocking)
