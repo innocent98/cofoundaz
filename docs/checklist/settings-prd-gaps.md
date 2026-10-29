@@ -107,8 +107,8 @@ Severity: **Sec** > **High** > **Med** > **Low**.
 
 | Item | State |
 |---|---|
-| API PR 1, branch `feature/settings-be` (migration 0077) | Complete: S1 to S7, S9, S10 (founder-only billing access). Head `e3887fcf` at parking time; local CI gates run on a scratch DB. |
-| API PR 2, branch `feature/settings-billing` (migration 0078, stacked on PR 1) | Built and tested to the **recommended defaults**; opened as a **draft** because Adebayo has not answered D-SET-1, 2, 4 and 6. Opus review done, its High/Medium findings fixed. |
+| API PR 1, branch `feature/settings-be` (migration 0077) | Complete: S1 to S7, S9, S10 (founder-only billing access). API PR #195 (head `e3887fcf`), CI gates run locally on a scratch DB: full unit 4425 passed, e2e 98 passed. |
+| API PR 2, branch `feature/settings-billing` (migration 0078, stacked on PR 1) | Built and tested to the **recommended defaults**; draft PR #196 (head `f1a1df11`), draft because Adebayo has not answered D-SET-1, 2, 4 and 6. Opus review done, its High/Medium findings fixed. |
 | Where the unanswered values live (one-line changes) | Prices, plan contents, credits, seats, storage: `cofoundaz-api/app/services/billing/catalog.py` (`PLANS`, `ADDONS`) AND the seed inlined in `alembic/versions/0078_billing.py` (`_PLANS`; before release, edit the migration seed or add a data migration, since a deployed DB already holds the rows in `billing_plans`). Trial length: env `BILLING_TRIAL_DAYS` (default 14). Grace: `BILLING_GRACE_DAYS` (7). Proration: `flows.py` `_prorated_credit` / `preview_change`. Enforcement: env `PLAN_ENFORCEMENT` (default off). |
 | Left | FE session (Settings hub + Billing tabs); hand re-walk of every control at 1440 + 375 for every role; Adebayo's D-SET answers; S8 AI preferences; digest sender; account deletion/export; read-only mode; seat/storage add-ons; live Paystack round trip (hosted page, real charge, real webhook). |
 | Next step | Lead relays D-SET-1 to 7, then merge PR 1, then re-chain PR 2 on develop, then FE sub-session using the two guides in `cofoundaz-api/docs/`. |
