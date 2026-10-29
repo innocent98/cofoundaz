@@ -315,6 +315,11 @@ colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169
    required checks still report; shard the API unit suite (~4,460 tests) across 2-4 jobs with `pytest-split` and keep coverage
    combined; FE `vitest --shard`; check dependency caching. Keep e2e on PRs. Skip the post-merge e2e on `develop` only if branch
    protection requires up-to-date branches (check it first). Measure before and after on one PR.
+   **Trim API e2e to the critical journeys (Adebayo 2026-10-29: "e2e shouldn't be something big, just the criticals").** The API has
+   97 e2e tests in 64 files, one per feature, because each feeds an FE guide's captures. Mark ~10-15 critical journeys (signup + verify
+   + login, assessment to dashboard, invite + accept, document upload + share + e-sign to executed PDF, invoice + Paystack test payment,
+   Billing subscribe + webhook, Calendar connect) with a `critical` marker and run only those on every PR. The rest run nightly and on
+   PRs that touch their area (path filters), and stay available for re-capturing guides. FE Playwright is already small (13 tests).
 6. Then Funding, Investor Readiness, Marketplace, Analytics (no API, design first like Sales) → Legal (Victoria). Keep at most 2-3
    sessions running.
 
