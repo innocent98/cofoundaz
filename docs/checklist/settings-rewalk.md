@@ -15,8 +15,16 @@ bodies via browser stubs.
 - Founder at 1440, third full run: 56 of 63 checks passed; the 7 failures were all harness faults (curly apostrophes in selectors, API
   slowness racing read-backs, localStorage re-seeded by the init script after logout) plus real fixes already applied (nested `<main>`,
   one huge daily bar, `INVALID_REFERENCE` message, trial price label).
-- A full 8-pass run (4 roles x 1440 and 375) was started and had not finished when work paused. Its output is in the scratchpad
-  (`results.json`, `shots/`); screenshots are not committed.
+- **Full 8-pass run finished: 246 checks, 220 pass, 26 fail** (founder, team member, mentor, accountant at 1440 and 375). Output is in the
+  author's scratchpad (`results.json`, `shots/`; not committed). Failures to triage, not yet diagnosed (some are harness timing, since the API
+  was slow under load: password hashing took 3 to 5 s):
+  - 2FA turn-on step times out waiting for the secret in the dialog for accountant@1440, founder@375, accountant@375, and the three 2FA
+    steps after it cascade (login needs a code did NOT hold, so 2FA never turned on). Passed for founder@1440, team member and mentor. Check whether
+    the setup call is slow or the dialog really misses the secret.
+  - "Password change succeeds" fails at 375 for 4 roles on the reload after the change (`page.waitForSelector`, 30 s): check whether this device is
+    really kept signed in after a password change at 375 or whether the reload is just slow.
+  - Founder@1440 Paystack-return cases after the first (stubbed verify): timed out; a standalone run of the same case passed, so suspect leftover routes in the walk.
+  - Founder@375: profile clear (`fetch failed`) and avatar upload/remove timeouts: harness or API load.
 - Two screens were read by eye (profile, security, billing overview, usage).
 
 ## Left to do
