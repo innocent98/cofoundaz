@@ -30,3 +30,9 @@ F1 to F12, F14, F15, F17, F18: built. F13: built except action-item assignee/tit
 
 ## Not exercised
 Real Google consent and tokens; calendar-invite email delivery from the UI (API shows `invite_state`); reminder notifications firing (clock); team member walk of most drawers (same code path as founder).
+
+## Ledger (2026-10-30, end of session)
+- **Done:** all five pages built, pushed, PR #190 open; typecheck, lint, touched vitest, build green locally.
+- **Left:** (1) confirm CI green on the pushed head; (2) re-verify the needs-attention banner after its refetch fix; (3) team-member and 375 rows marked "not walked"; (4) merge, then re-walk on merged `develop` before marking the page done; (5) deferred: action-item assignee/title edit.
+- **BE bugs found:** none. Observation only: `GET /calendar/sync` is called twice per page (layout banner + Sync page); harmless.
+- **Next step:** check CI on #190, run the "not walked" rows, then hand to the lead for merge. Test accounts (`calfe-<role>-64cbf@example.com`) exist on the local DB only.
