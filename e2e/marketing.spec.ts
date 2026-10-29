@@ -194,11 +194,13 @@ test.describe('Marketing: founder at 1440', () => {
   })
 
   test('dragging a post to another day keeps its time and PATCHes scheduled_at', async ({ page }) => {
-    const { patches } = await setup(page, { entries: [entry()] })
+    // Pin "today" to mid-month: near a month end, today + 3 falls outside the month view and the drop cell never renders.
+    await page.clock.setFixedTime(new Date(2026, 9, 14, 9, 0))
+    const original = new Date(2026, 9, 15, 14, 30)
+    const { patches } = await setup(page, { entries: [entry({ scheduled_at: original.toISOString() })] })
     await page.goto('/marketing/calendar')
     const chip = page.getByRole('button', { name: /Waitlist teaser/ })
     await expect(chip).toBeVisible()
-    const original = new Date(entry().scheduled_at)
     const target = new Date(original)
     target.setDate(original.getDate() + 2)
     // Day cells hold an "Add a post on {Month} {day}" button; its parent cell is the drop target.
