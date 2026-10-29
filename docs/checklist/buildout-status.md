@@ -30,6 +30,7 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 ## Still open (none blocks a finished page)
 | Item | Type |
 |---|---|
+| Funding Hub, Investor Readiness, Marketplace hidden from the sidebar until their APIs ship (2026-10-29, `feature/hide-unbuilt-nav`); pages still reachable by URL. Unhide after Admin + Super Admin BE, then their own BE passes | product call |
 | Validation: 3 minor FE items (see `validation-rewalk.md`) | follow-up |
 | Consolidate the two comment-thread UIs + mention helpers | refactor follow-up |
 | `ShellTopBar` on the remaining section layouts: Assessment, Marketing, sales, investor-readiness, marketplace, academy, legal, funding, documents, ai, notifications, analytics-reports done; Finance / Journal / Settings etc. not checked | per-page, as each page is walked |
