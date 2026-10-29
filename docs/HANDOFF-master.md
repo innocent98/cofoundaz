@@ -269,7 +269,7 @@ All are reversible and none blocks merging.
    not restricted: no CASA audit. Demo video (2-4 min, unlisted YouTube, production domain visible): homepage + privacy link →
    login → Calendar → Connect Google → **pause on the consent screen showing app name + both scopes** → calendar picker → create an
    event in Cofoundaz and show it in Google → show a Google event as Busy in Cofoundaz → disconnect and show access revoked.
-- **GitGuardian:** mark incidents 39270782 (#195 test password), 39270739 (#194 `ms-` ids) and #198's test passcode as test values / false positives after their squash merges.
+- **GitGuardian:** mark incidents 39270782 (#195 test password), 39270739 (#194 `ms-` ids) and 39279306 (#198 test passcode) as test values / false positives after their squash merges.
 1. **Outreach deliverability (DNS):** `default._domainkey.cofoundaz.com` is NXDOMAIN on the authoritative nameservers (Cloudoon:
    ns1.cloudoon.com, ns2.cloudoon.net, ns3.cloudoon.org): add the DKIM TXT from cPanel → Email Deliverability in the **Cloudoon** DNS
    panel. Set reverse DNS for 169.58.188.170 to `mail.cofoundaz.com` at Contabo. Not a Sales blocker (your call, 2026-10-24).
