@@ -41,8 +41,9 @@ export const NAV_ROLES: Record<string, MemberRole[]> = {
   '/marketplace': [F, TM],
   '/academy': [F, TM],
   '/documents': EVERYONE,
-  // PRD says externals see meetings they are invited to, but the calendar API is core-roles only (403 for a mentor, verified live).
-  '/calendar': [F, TM],
+  // Every role may open Calendar: founders and team members get all of it, the rest only the meetings they are invited to
+  // (read-only, GET /calendar/meetings). The calendar layout narrows the sub-pages by role.
+  '/calendar': EVERYONE,
   '/team': [F, TM],
   '/analytics-reports': [F, TM, M, BC],
   '/journal': [F],
