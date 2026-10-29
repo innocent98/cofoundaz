@@ -7,7 +7,7 @@
 > If the lead-14 handoff PR hasn't merged yet, read this file from its branch:
 > `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead14-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-29 ~22:45 WAT (lead session 14 handover)**. Lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-29 ~23:00 WAT (lead session 14 handover)**. Lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -18,18 +18,19 @@ Last updated: **2026-10-29 ~22:45 WAT (lead session 14 handover)**. Lead 14 was 
 
 ### 0a. Open PRs and in-flight sessions
 
-**Lead 14 handover (2026-10-29 ~22:45 WAT), current.** Adebayo starts lead 15 himself (don't auto-chain this time).
+**Lead 14 handover (2026-10-29 ~23:00 WAT), current.** Adebayo starts lead 15 himself (don't auto-chain this time).
 
-**Next lead, first (in this order):**
-1. **Ask Adebayo to merge the green PRs** (the classifier now blocks the lead's `gh pr merge` as "Merge Without Review"; earlier
-   today it allowed #197/#195/#183/#180-182). Give him one bash block per PR, squash, in this order:
-   FE **#184** (hide 3 hubs), **#185** (Documents ✅), **#186** Journal / **#187** Notifications / **#188** Team FE hand-off briefs
-   (all docs; all touch `buildout-status.md`, so merge one at a time and let GitHub update the next), then API **#196** Billing
-   (marked ready by lead 14; wait for its CI: it never ran as a draft).
-2. **Merge train after #196:** message `calendar` "Billing merged": it re-chains `0077_calendar_meetings_sync` → **0079 on
-   0078_billing**, pushes, CI green (GitGuardian is history-only: squash) → Adebayo merges **#194**. Then message `jnt-pass` to
-   re-chain **0080 Journal (#198) on 0079** and **0081 Notifications (#199) on 0080** → merge #198, then #199. **#200 Team** has no
-   migration: merge once its CodeQL is green.
+**Next lead, first (in this order):** Adebayo approved the lead merging PRs (2026-10-29: "I approve you to merge"), but the
+classifier may still refuse `gh pr merge` ("Merge Without Review"); if it does, give him one bash block per PR. Squash every merge.
+1. **FE #187 then #188** (Notifications / Team FE hand-off briefs; lead 14 resolved their `buildout-status.md` conflicts, #188 now
+   contains #187's row, so merge #187 first). Then this handoff PR **#189**.
+2. **API merge train, each when its CI is green** (GitGuardian red on #196/#198 is history-only test values: squash; ignore
+   "Dependency review"):
+   - **#196 Billing** (head `6c954349`, SSRF fix reviewed by lead 14: strict `cfz_(checkout|card|addon|upgrade)_<20 hex>` regex,
+     422 `INVALID_REFERENCE` before any Paystack call, `quote()`, the only interpolated Paystack path).
+   - then message `calendar` "Billing merged" → it re-chains to **0079 on 0078_billing** → **#194** green → merge.
+   - then message `jnt-pass` → **#198 Journal** re-chained to **0080 on 0079** → merge → **#199 Notifications** to **0081 on 0080** → merge.
+   - **#200 Team** (head `931476e2`, no migration): merge when green, any time.
 3. After each API merge, update the shared stack (Adebayo's OK; lead 14 had it: "Yes, start it"):
    `git -C cofoundaz-api pull --ff-only`, `alembic upgrade head`, restart api + worker; `docker compose build api worker` only if
    `pyproject.toml` deps changed (Billing/Calendar may add PyJWT use but no new deps: check the lock diff).
@@ -37,25 +38,23 @@ Last updated: **2026-10-29 ~22:45 WAT (lead session 14 handover)**. Lead 14 was 
 5. Then the **Admin Portal (25) + Super Admin Portal (26) BE** (design first: PRD + `app/admin-portal`, `app/super-admin`), then the
    Settings/Billing and Calendar **FE passes** (FE-developer briefs or Claude FE sessions: ask Adebayo which).
 
-**Merged by lead 14:** API #197 dnspython 2.9.0 (`bfa0d866`), API #195 Settings BE (a) (`7c0576b1`, migration 0077; GitGuardian
-incident 39270782 is a test password in an old commit, squashed out: Adebayo marks it), FE #180, #181, #182, #183 (Marketing e2e
-month-end fix: FE develop CI green again).
+**Open PRs at handover (~23:00):**
+| PR | What | State |
+|---|---|---|
+| FE #187 / #188 | Notifications / Team gap lists + `docs/fe-handoff/{page}.md` briefs | conflicts fixed by lead 14, CI re-running |
+| FE #189 | this handoff | CI running |
+| API #196 | Billing BE (b), migration 0078, D-SET-1..14 accepted, plan gate dark | head `6c954349` (SSRF + asserts fixed), CI running |
+| API #194 | Calendar BE, `milestone-`/`marketing-` ids, proof cookie = signed JWT | head `6813b28a`; red only from the 0077 clash until it re-chains to 0079 |
+| API #198 | Journal BE gaps, 0080 | head `dc146b85` (unlock token now a purpose-scoped HS256 JWT, generated test passcodes), CI running |
+| API #199 | Notifications BE gaps, 0081 | green; re-chain after #198 |
+| API #200 | Team BE (role change, remove, leave, invite resend/revoke, audit, comments index) | head `931476e2` (asserts fixed), CI running |
 
-**Open PRs at handover:**
-| PR | What | State | Next |
-|---|---|---|---|
-| FE #184 | Hide Funding Hub, Investor Readiness, Marketplace from the sidebar (routes stay) | green | Adebayo merges |
-| FE #185 | Documents ✅: D6-D8 re-walked on merged develop at 375 + 1440, every control passes (4th pass in `documents-rewalk.md`) | green | Adebayo merges → **Documents done** |
-| FE #186/#187/#188 | Journal / Notifications / Team PRD gap lists + `docs/fe-handoff/{page}.md` briefs for the junior FE dev | green | Adebayo merges; hand the briefs to the FE dev once the matching API PR merges |
-| API #196 | Billing BE (b): Paystack subscriptions, webhook HMAC, plan gate dark (`PLAN_ENFORCEMENT` off), D-SET-1..14 accepted, migration 0078 | ready (lead 14). First full CI: **CodeQL critical `py/partial-ssrf`** (`paystack.py:68`: the callback's `reference` goes into the Paystack URL path unvalidated, a real bug) + 3 side-effect asserts | `settings` fixing (strict reference regex + 422 `INVALID_REFERENCE` + quote, tests); merge after green; GitGuardian red = #195's old commit only |
-| API #194 | Calendar BE: feed, meetings, reminders, Google sync; `ms-`→`milestone-` + `mk-`→`marketing-` renamed; CodeQL fixed (proof cookie now a signed JWT) | red only because 0077 clashes with develop | re-chain to 0079 after #196 |
-| API #198 | Journal BE gaps (by-date, stats, insights, passcode lock, retros, export, delete, reminders), 0080 | CodeQL high (HMAC unlock token flagged; passcode is bcrypt) + GitGuardian test passcode | `jnt-pass` switching the token to PyJWT and building test passcodes at runtime |
-| API #199 | Notifications BE gaps (archive, filters + counts, preferences grid, digest, quiet hours), 0081 | green | re-chain after #198 |
-| API #200 | Team BE (role change, remove, leave, invite resend/revoke, audit tab, comments index) | CodeQL: 7 side-effect asserts in tests | `jnt-pass` fixing |
+**Merged in lead 14:** API #197, #195; FE #180, #181, #182, #183 (lead) and #184 (three hubs hidden), #185 (**Documents ✅**),
+#186 (Journal FE brief) by Adebayo.
 
 **Sessions (all Sonnet, idle unless noted; message by id, they keep context):** `settings` `local_4b2900da-007e-45cb-a59d-6f2cceb6ac45`
-(queued: S8 AI preferences after #196), `calendar` `local_46e14c47-501d-45b6-8daa-7be515785014` (waiting for "Billing merged"),
-`jnt-pass` `local_e08a654a-63c4-48f3-a39a-c278c1cb3ce9` (fixing #198/#200, then re-chain on the lead's word), `docs-finish`
+(SSRF fix pushed; starts S8 AI preferences once #196 merges, migration 0082), `calendar` `local_46e14c47-501d-45b6-8daa-7be515785014` (waiting for "Billing merged"),
+`jnt-pass` `local_e08a654a-63c4-48f3-a39a-c278c1cb3ce9` (fixes pushed; re-chains #198/#199 on the lead's word), `docs-finish`
 `local_ee3b1fcd-06d0-4914-9b4c-1f0726ffd456` (done; can be archived after #185 merges).
 
 **Known red checks (ignore):** "Dependency review (PR only)" on every API PR (GitHub Dependency graph is off; Adebayo can enable it
@@ -347,7 +346,7 @@ comes with it).
 | Sales | #165, #166, #168, #172, #177, #179 | #142, #143, #149, #154 | 626/626 (#144) + Sequences hand re-walk #151 incl. live sends + unsubscribe round trip | ✅ **Done 2026-10-24** |
 | Academy | #173, #178, #179, #180, #183 | #148, #152 | #150 (114/119) then re-check #156: D1-D4 20/20 | ✅ **Done 2026-10-24**; content **reviewed** 2026-10-25 (#188) |
 | Finance | #167, #170, #171, #176, #182, #184, #186 | #153, #160, #163 | #157 then slice (e) re-check in #163: **138/141 ✅** incl. a real Paystack test payment and Mono sandbox sync (142 rows). Accepted as unit-tested only (not producible in test mode / the pane): needs-attention banner, non-NGN skip counts, payout tagging, I20 print window, E11 file chooser | ✅ **Done 2026-10-25** (D9 + D10: API #186, verified live; see `finance-rewalk.md`) |
-| Documents | BE-A #185, BE-B #187, BE-C #189, BE-D #190 + #191, worker volume #192, requeue + `failed` #193 | #167, #169, #173, #174, fixes #177, #179 | #175, #178, third pass #180, **fourth pass FE #185: D6-D8 pass on develop** | ✅ **Done once FE #185 merges** |
+| Documents | BE-A #185, BE-B #187, BE-C #189, BE-D #190 + #191, worker volume #192, requeue + `failed` #193 | #167, #169, #173, #174, fixes #177, #179 | #175, #178, third pass #180, **fourth pass FE #185: D6-D8 pass on develop** | ✅ **Done 2026-10-29** |
 | Calendar | API #194 (feed, meetings, reminders, Google sync), merges after #196 as 0079 | 100% static mock | not walked | 🟡 BE in the merge train → FE pass |
 | Settings + Billing | API #195 merged (profile, 2FA, sessions, workspace, notif schedule); #196 Billing ready; S8 AI preferences toggles queued ("What I remember" deferred) | Billing tab 100% mock; Security tab not wired | not walked | 🟡 BE nearly done → FE pass |
 | Journal, Notifications, Team | API #198, #199, #200 (gap pass done) | FE briefs for the junior FE dev in FE #186-#188 | FE dev builds, lead re-walks | 🟡 FE-developer hand-off (0b-46) |
@@ -364,7 +363,7 @@ Cross-cutting: **brand** logo + favicon (#158); **colour tokens** phase 1 (#162)
 colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169). All merged; SOP `docs/sop/colour-tokens.md`.
 
 ## 2b. Incoming (ordered)
-1. **Merge train** (§0a "Next lead, first"): FE #184-#188, then API #196 → #194 (0079) → #198 (0080) → #199 (0081), #200 any time
+1. **Merge train** (§0a "Next lead, first"): FE #187, #188, #189, then API #196 → #194 (0079) → #198 (0080) → #199 (0081), #200 any time
    green. Update the shared stack after each API merge.
 2. **S8 AI preferences** (`settings` session, brief sent 2026-10-29): `GET/PATCH /ai/settings`; daily briefing off stops briefing
    generation + notification, proactive suggestions off stops the AI-initiated nudges (session documents which surfaces), tone from
