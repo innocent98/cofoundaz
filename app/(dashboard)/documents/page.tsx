@@ -382,13 +382,13 @@ export default function DocumentsLibraryPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         {/* Folder navigation: a select on small screens, the tree from lg up. */}
-        <div className="lg:hidden">
+        <div className="lg:hidden flex items-center gap-2">
           <label htmlFor="folder-select" className="sr-only">
             Folder
           </label>
           <select
             id="folder-select"
-            className={inputCls}
+            className={`${inputCls} flex-1 min-w-0`}
             value={viewKey(view)}
             onChange={(e) => {
               const r = sidebarRows.find((s) => viewKey(s.view) === e.target.value);
@@ -402,6 +402,9 @@ export default function DocumentsLibraryPage() {
               </option>
             ))}
           </select>
+          <button type="button" onClick={() => setNewFolder(true)} className={`${btnSecondary} shrink-0 gap-1.5`}>
+            <FolderPlus size={14} /> New folder
+          </button>
         </div>
         <nav aria-label="Folders" className="hidden lg:block lg:col-span-1 bg-white border border-line rounded-modal p-2 shadow-card space-y-0.5">
           {sidebarRows.map((r) => {

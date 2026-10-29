@@ -13,7 +13,7 @@ export interface MenuAction {
 /** A per-row actions menu (real buttons, closes on Escape or outside click). */
 export function RowMenu({ title, actions }: { title: string; actions: MenuAction[] }) {
   const [open, setOpen] = useState(false);
-  const [up, setUp] = useState(false);
+  const [pos, setPos] = useState<{ top: number; right: number; maxHeight: number } | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -24,9 +24,18 @@ export function RowMenu({ title, actions }: { title: string; actions: MenuAction
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
     };
+    const onResize = () => setOpen(false);
+    // The menu can scroll itself when the viewport is short; only a scroll elsewhere detaches it from its row.
+    const onScroll = (e: Event) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
     document.addEventListener('mousedown', onDown);
     document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', onResize);
+    window.addEventListener('scroll', onScroll, true);
     return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onScroll, true);
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('keydown', onKey);
     };
@@ -40,9 +49,22 @@ export function RowMenu({ title, actions }: { title: string; actions: MenuAction
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => {
-          // Open upward when there is no room below (the fixed tab bar covers the bottom edge on phones).
+          // Fixed position so the menu can never be clipped: start on the side with more room, then slide it
+          // inside the usable viewport (the fixed tab bar covers the bottom edge on phones). It only scrolls
+          // when the whole viewport is shorter than the menu.
           const r = ref.current?.getBoundingClientRect();
-          if (r) setUp(window.innerHeight - r.bottom < actions.length * 44 + 96);
+          if (r) {
+            const margin = 8;
+            const bottomReserve = 80;
+            const usable = Math.max(window.innerHeight - bottomReserve - margin * 2, 132);
+            const want = actions.length * 44 + 8;
+            const height = Math.min(want, usable);
+            const below = window.innerHeight - bottomReserve - r.bottom - margin;
+            const opensDown = below >= height || below >= r.top - margin;
+            const wanted = opensDown ? r.bottom + 4 : r.top - 4 - height;
+            const top = Math.min(Math.max(wanted, margin), margin + usable - height);
+            setPos({ top, right: Math.max(margin, window.innerWidth - r.right), maxHeight: usable });
+          }
           setOpen((o) => !o);
         }}
         className={btnIcon}
@@ -50,7 +72,7 @@ export function RowMenu({ title, actions }: { title: string; actions: MenuAction
         <MoreHorizontal size={16} />
       </button>
       {open && (
-        <div role="menu" className={`absolute right-0 z-30 w-52 bg-white border border-line rounded-card shadow-raised py-1 ${up ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
+        <div role="menu" style={pos ? { top: pos.top, right: pos.right, maxHeight: pos.maxHeight } : undefined} className="fixed z-30 w-52 overflow-y-auto bg-white border border-line rounded-card shadow-raised py-1">
           {actions.map((a) => (
             <button
               key={a.label}

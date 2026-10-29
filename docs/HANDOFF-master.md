@@ -7,7 +7,7 @@
 > If the lead-13 handoff PR hasn't merged yet, read this file from its branch:
 > `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead13-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-27 ~14:30 WAT (lead session 13 handover, weekly usage limit)**. Lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-29 ~20:30 WAT (lead session 14, in progress)**. Lead 14 is session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -16,7 +16,22 @@ Last updated: **2026-10-27 ~14:30 WAT (lead session 13 handover, weekly usage li
 
 ## 0. FOR ADEBAYO
 
-### 0a. Open PRs and in-flight sessions (lead 13 handover, 2026-10-27 ~14:30 WAT)
+### 0a. Open PRs and in-flight sessions
+
+**Lead 14 (2026-10-29), current.** Adebayo: "Accept all defaults" (D-SET-1..14), "Yes, I will" (D-CAL-3, Google verification;
+parked, he has the checklist + demo-video script), then "merge all open PRs and continue with next ready builds in sub-sessions".
+- **Merged by lead 14:** API #197 dnspython 2.9.0 (squash `bfa0d866`, unblocks pip-audit on every API PR); FE #180 Documents re-walk 3
+  (`e531039f`), FE #182 Settings gap list with D-SET accepted (`6715b41d`). FE #181 (this handoff) after its conflict fix.
+- **Not mergeable yet, sessions fixing (merge train #195 → #196 → #194):** `settings` merges develop into #195/#196 and marks #196
+  ready (GitGuardian on #195 is history-only: squash-merge + Adebayo marks the incident); `calendar` renames `ms-` → `milestone-`,
+  fixes CodeQL (nonce cookie → HMAC with `SECRET_KEY`, side-effect asserts), merges develop, then re-chains 0077 → **0079 on
+  0078_billing** after #196 merges (lead messages it). `docs-finish` re-checks D6-D8 at 375 on develop (`docs/documents-done`) and
+  flips Documents ✅ only if every control passes.
+- **Known red checks:** "Dependency review (PR only)" fails on every API PR (repo Dependency graph setting is off; Adebayo can
+  enable it in Settings → Code security). FE develop CI red since 2026-10-27 on `e2e/marketing.spec.ts:196` (drag a post to another
+  day, 30s timeout), so every FE PR shows it until fixed.
+
+**Lead 13 handover (2026-10-27 ~14:30 WAT), kept for history:**
 Adebayo merged every lead-12 PR (FE #176-#178, API #193) before lead 13 started. Lead 13 started three sub-sessions and, at the
 weekly usage limit, asked each to **commit, push if local CI is green, write a ledger note, report and stop**. None merges.
 | Session (open by id) | Task | Branch / worktree | State at handover |
@@ -199,9 +214,9 @@ All are reversible and none blocks merging.
 
 ### 0c. Waiting on you (not on code)
 **Open product calls (lead 13):**
-- **D-CAL-3:** will you submit the Google OAuth app for verification? The calendar scope is sensitive: in "Testing" only listed test
+- ~~D-CAL-3~~ **answered 2026-10-29: yes, parked** (you submit later). Was: will you submit the Google OAuth app for verification? The calendar scope is sensitive: in "Testing" only listed test
   users can connect and their refresh tokens die after 7 days. The code handles both modes (a "Reconnect Google" state).
-- **D-SET-1..7 (Billing), defaults proposed by the Settings session:** (1) prices Starter free, Growth ₦24k/mo or ₦240k/yr, Scale
+- ~~D-SET-1..14~~ **all accepted 2026-10-29 ("Accept all defaults")**. Were, as proposed by the Settings session: (1) prices Starter free, Growth ₦24k/mo or ₦240k/yr, Scale
   ₦68k/mo or ₦680k/yr (the design's); (2) plan contents = the design's lists; (3) plan gate built but off behind `PLAN_ENFORCEMENT`;
   (4) 14-day Growth trial, no card; (5) D-SAL-11 outreach gate wired but off; (6) upgrade prorated now, downgrade at period end;
   (7) cancel at period end, data kept 90 days, no pause. Lead told the session to hold 1, 2, 4 and 6 (money calls) until you answer.
