@@ -355,7 +355,9 @@ colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169
 1. **Walk the page live** (browser pane, 1440 + 375) against the PRD section **and** the existing designed UI. Click every
    control, compare it to the raw API, and write `docs/checklist/{page}-prd-gaps.md` with the decisions.
 2. **Build every BE gap** with tests + an e2e journey whose captures feed a **live-captured FE guide**, an SOP and the checklist.
-   Reproduce **all** CI gates locally (fresh DB; `TZ=UTC` after local midnight). One PR per page, stacked when needed.
+   Locally run only the fast checks (lint, format, typecheck, the touched area's tests, the migration round trip if one was added,
+   on a fresh DB; `TZ=UTC` after local midnight). CI runs the full suite, e2e and scans and is the authority (Adebayo 2026-10-29,
+   global rule: full local runs were wearing the machine). One PR per page, stacked when needed.
 3. **One FE sub-session per page** (`start_session`, fresh, worktree, Sonnet), with the gap list + guide as its spec.
 4. **Verify each FE PR yourself** (CI, no attribution, scope, no mock), then **re-walk live** on develop after merge.
    A re-walk means **clicking every control** on every sub-page at 1440 and 375, for every role, and checking each result
@@ -386,7 +388,7 @@ colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169
 
 - **Never run the API unit suite on the host against the dev DB:** migration tests downgrade `DATABASE_URL` and wipe every
   post-0045 table (comments, canvas versions, calendar…). Use `DATABASE_URL=postgresql://user:password@localhost:5432/ci_scratch`.
-  For full CI parity without touching the live stack, use the worktree recipe in memory `local-test-db-gotcha`.
+  For a local test run without touching the live stack, use the worktree recipe in memory `local-test-db-gotcha`.
 - **Walking several roles at once:** use `http://m.localhost:3000`, `http://bc.localhost:3000`, `http://tm.localhost:3000`
   (separate localStorage per host). `127.0.0.1` is blocked by Next dev. Role accounts (local only): `bb-mentor-1`,
   `bb-consultant-1`, `rewalk-tm` @example.com, all `Throwaway123!`.
