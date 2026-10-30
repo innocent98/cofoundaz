@@ -48,14 +48,14 @@ buttons come back by themselves. Reported to the lead as a BE request.
 
 ## Verification
 - `typecheck`, `lint`, vitest for the touched files (`lib/billing-format.test.ts`, `components/settings/billing/billing-tab.test.tsx`), `build`.
-- Re-walk: `docs/checklist/settings-rewalk.md` (every control, 1440 and 375, founder, team member, mentor, accountant, against the live
-  API on :8000). **Method, honestly:** a scripted real-browser (Chromium) walk that clicks and types into every control and compares
-  with the raw API, plus screenshots read by eye. Earlier re-walks were typed by hand in the browser pane.
-- **Paystack was never reached.** The shared stack on :8000 has a Paystack key, so the walk stubs the three redirecting POSTs
-  (checkout, add card, add-on purchase) in the browser and aborts the hosted-page navigation. Paid states (active, canceling, past due,
-  pending downgrade, upgrade, downgrade, cancel, resume) are rendered from the **guide's captured bodies served through browser
-  stubs**, not from a real paid subscription. Not exercised at all: the hosted checkout page, a real charge, a real webhook, a real
-  refund of the ₦50 check, a real `subscription/disable`, the receipt PDF's content (the download is wired to a stub body).
+- Re-walk: `docs/checklist/settings-rewalk.md`: 308 of 308 checks (founder, team member, mentor, accountant at 1440 and 375) against the live API on :8000.
+  **Method, honestly:** a scripted real-browser (Chromium) walk, not typed by hand like earlier re-walks; screenshots read by eye.
+- **Paystack test mode** (key confirmed as a test key): real `initialize` for checkout, add card and add-on through the UI, redirect to the hosted URL
+  (navigation aborted, no card entered), and the real `verify` of an unpaid reference on return. Paid states (active, canceling, past due, pending
+  downgrade, upgrade, downgrade, cancel, resume) are rendered from the guide's captured bodies via browser stubs.
+  **Not verified:** a paid checkout end to end, real webhook delivery, the real ₦50 refund, a real `subscription/disable`, receipt PDF content.
+- Bugs the walk found and fixed: 2FA setup ran twice under React strict mode (secret on screen was not the server's), the Paystack-return result
+  was dropped under strict mode, nested `<main>`, invoice table overflow at 375.
 
 ## Operate / roll back
 FE only: revert the PR. The old mock page had no data to keep. The Paystack return URL (`/settings?tab=billing`) is configured in the API.

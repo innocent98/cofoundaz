@@ -30,37 +30,27 @@ export function InvoicesView(): React.JSX.Element {
       {data.length === 0 ? (
         <p className="text-xs text-ink-subtle py-4">No invoices yet. They appear here after your first payment.</p>
       ) : (
-        <div className="overflow-x-auto -mx-1">
-          <table className="w-full text-xs min-w-[34rem]">
-            <thead>
-              <tr className="text-left text-ink-subtle">
-                <th className="py-2 px-1 font-semibold">Date</th><th className="py-2 px-1 font-semibold">Invoice</th>
-                <th className="py-2 px-1 font-semibold">Description</th><th className="py-2 px-1 font-semibold">Amount</th>
-                <th className="py-2 px-1 font-semibold">Status</th><th className="py-2 px-1"><span className="sr-only">Receipt</span></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {data.map((inv) => (
-                <tr key={inv.id}>
-                  <td className="py-3 px-1 whitespace-nowrap">{formatDate(inv.date)}</td>
-                  <td className="py-3 px-1 whitespace-nowrap">{inv.number}</td>
-                  <td className="py-3 px-1">{inv.description}</td>
-                  <td className="py-3 px-1 whitespace-nowrap font-semibold">{formatNaira(inv.amount_minor)}</td>
-                  <td className="py-3 px-1">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${inv.status === 'paid' ? 'bg-brand-tint text-brand-strong' : 'bg-danger-xfdf0ed text-danger-ink'}`}>
-                      {inv.status === 'paid' ? 'Paid' : 'Failed'}
-                    </span>
-                  </td>
-                  <td className="py-3 px-1 text-right">
-                    <Button variant="secondary" loading={busy === inv.id} onClick={() => download(inv)} aria-label={`Download receipt ${inv.number}`}>
-                      Receipt
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className="divide-y divide-line">
+          {data.map((inv) => (
+            <li key={inv.id} className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+              <div className="min-w-0">
+                <p className="font-semibold text-ink">{inv.description}</p>
+                <p className="text-ink-subtle">
+                  {formatDate(inv.date)} · {inv.number}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="font-semibold text-ink">{formatNaira(inv.amount_minor)}</span>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${inv.status === 'paid' ? 'bg-brand-tint text-brand-strong' : 'bg-danger-xfdf0ed text-danger-ink'}`}>
+                  {inv.status === 'paid' ? 'Paid' : 'Failed'}
+                </span>
+                <Button variant="secondary" loading={busy === inv.id} onClick={() => download(inv)} aria-label={`Download receipt ${inv.number}`}>
+                  Receipt
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </Card>
   );

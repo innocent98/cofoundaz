@@ -48,17 +48,17 @@ export function BillingTab({
   const reference = checkoutReference(params.toString());
   useEffect(() => {
     if (!isFounder || !reference || handled.current === reference) return;
+    // Runs once per reference (also under React strict mode, which mounts twice): the guard is the ref, so the
+    // result is applied without a cancelled-flag that would drop it when the first mount is torn down.
     handled.current = reference;
-    let alive = true;
     setReturnChecking(true);
     void (async () => {
       try {
         const v = await verifyReference(reference);
-        if (alive) setReturnMsg(verifyMessage(v));
+        setReturnMsg(verifyMessage(v));
       } catch (e) {
         const info = apiErrorInfo(e, "We couldn't confirm that payment yet.");
-        if (alive)
-          setReturnMsg(
+        setReturnMsg(
             info.status === 404
               ? { tone: 'error', text: "We couldn't find that payment on this workspace." }
               : info.code === 'INVALID_REFERENCE'
@@ -66,14 +66,11 @@ export function BillingTab({
                 : { tone: 'info', text: "We couldn't confirm that payment yet. This page updates as soon as it lands." },
           );
       } finally {
-        if (alive) setReturnChecking(false);
+        setReturnChecking(false);
         await reloadSub();
         router.replace(`${pathname}?tab=billing`, { scroll: false });
       }
     })();
-    return () => {
-      alive = false;
-    };
     // reloadSub/router/pathname are stable for the life of the page
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFounder, reference]);

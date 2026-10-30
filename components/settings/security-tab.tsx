@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
 import { Copy, Download, Monitor, ShieldCheck } from 'lucide-react';
@@ -218,26 +218,25 @@ function SetupDialog({ onClose }: { onClose: () => void }) {
   const [busy, setBusy] = useState(false);
   const [codes, setCodes] = useState<string[] | null>(null);
 
+  // Each setup call replaces the pending secret server-side, so it must run exactly once even when the
+  // effect runs twice (React strict mode): the secret on screen has to be the one the server holds.
+  const started = useRef(false);
   useEffect(() => {
-    let alive = true;
+    if (started.current) return;
+    started.current = true;
     void (async () => {
       try {
         const s = await totpSetup();
-        if (!alive) return;
         setSetup(s);
         try {
-          const url = await QRCode.toDataURL(s.otpauth_uri, { margin: 1, width: 200 });
-          if (alive) setQr(url);
+          setQr(await QRCode.toDataURL(s.otpauth_uri, { margin: 1, width: 200 }));
         } catch {
           /* manual key still works */
         }
       } catch (e) {
-        if (alive) setErr(apiErrorInfo(e, "We couldn't start two-factor setup.").message);
+        setErr(apiErrorInfo(e, "We couldn't start two-factor setup.").message);
       }
     })();
-    return () => {
-      alive = false;
-    };
   }, []);
 
   const verify = async (e: React.FormEvent) => {
