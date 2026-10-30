@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-15 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead15-handoff:docs/HANDOFF-master.md`
+> If the lead-16 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead16-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-30 ~00:30 WAT (lead session 15 handover)**. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-30 ~16:30 WAT (lead session 16)**. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -18,7 +18,21 @@ Last updated: **2026-10-30 ~00:30 WAT (lead session 15 handover)**. Lead 15 was 
 
 ### 0a. Open PRs and in-flight sessions
 
-**Lead 15 handover (2026-10-30 ~00:30 WAT), current.** Adebayo paused for the night and starts lead 16 himself tomorrow
+**Lead 16 (2026-10-30), current.**
+
+**Merged:** API #201 AI preferences (0082). FE #190 Calendar, #192 Settings + Billing + AI preferences, #191, #193, #194, #195. **Calendar and Settings are ✅ on merged develop** (Settings by scripted real-browser walk, 350/350).
+
+**Open, CI to confirm, Adebayo merges:** FE #196 sidebar scroll; API #202 stops the live e2e gate crashing on a missing `PAYSTACK_SECRET_KEY`. That crash failed every `CD (staging)` run since #196 Billing, so no staging-verified proof was minted. The next gate run on develop is the real proof and may show failures it was hiding.
+
+**Done by Adebayo:** FE dev message sent; `JOURNAL_ENCRYPTION_KEY` set; local Paystack key confirmed as a test key. Watch for the FE dev's Team, Journal and Notifications PRs and re-walk each on merged develop.
+
+**Next, in order:** Admin Portal + Super Admin (§2b item 3; both FE pages exist as mocks, `app/admin-portal/page.tsx` and `app/super-admin/page.tsx`, with no API and no walk; design first), then Google sign-in/sign-up (§2b item 3a).
+
+**Cleaned:** merged worktrees and 46 stale remote branches. Kept remote: `docs/sales-sequences-rewalk` (a re-check commit not on develop) and `feat/legal-compliance` (Legal design spec, no PR). Shared FE checkout's stale gap-list drafts deleted and develop pulled. Old untracked `public/cofoundaz_logo.png` and `public/cofoundaz_text_logo.png` left alone: superseded by `public/brand/`, not on develop, so not recoverable if deleted.
+
+**Not verified, needs a person or a public URL:** Billing paid checkout, webhooks, ₦50 refund, real cancel and resume, receipt PDF. Calendar real Google consent, reminders firing, invite email. AI preferences real model tone.
+
+**Lead 15 handover (2026-10-30 ~00:30 WAT), kept for history.** Adebayo paused for the night and starts lead 16 himself tomorrow
 (don't auto-chain). Every session was told to commit, push, write a ledger note and stop.
 
 **Next lead, first (in this order):**
@@ -398,8 +412,8 @@ comes with it).
 | Academy | #173, #178, #179, #180, #183 | #148, #152 | #150 (114/119) then re-check #156: D1-D4 20/20 | ✅ **Done 2026-10-24**; content **reviewed** 2026-10-25 (#188) |
 | Finance | #167, #170, #171, #176, #182, #184, #186 | #153, #160, #163 | #157 then slice (e) re-check in #163: **138/141 ✅** incl. a real Paystack test payment and Mono sandbox sync (142 rows). Accepted as unit-tested only (not producible in test mode / the pane): needs-attention banner, non-NGN skip counts, payout tagging, I20 print window, E11 file chooser | ✅ **Done 2026-10-25** (D9 + D10: API #186, verified live; see `finance-rewalk.md`) |
 | Documents | BE-A #185, BE-B #187, BE-C #189, BE-D #190 + #191, worker volume #192, requeue + `failed` #193 | #167, #169, #173, #174, fixes #177, #179 | #175, #178, third pass #180, **fourth pass FE #185: D6-D8 pass on develop** | ✅ **Done 2026-10-29** |
-| Calendar | API #194 ✅ merged `513143fd` (0079) | FE PR #190 (`calendar-fe`), a few rows left (§0a) | not walked | 🟡 FE pass in progress |
-| Settings + Billing | API #195 + #196 ✅ merged (0078); S8 AI preferences BE queued (0082) | `settings-fe` session, draft PR (§0a) | not walked | 🟡 FE pass in progress; S8 BE next |
+| Calendar | API #194 ✅ merged `513143fd` (0079) | FE #190 merged | #194 re-walk on merged develop | ✅ **Done 2026-10-30**; real Google consent, reminders firing and invite email not verified |
+| Settings + Billing + AI preferences | API #195, #196, #201 ✅ merged (0082) | FE #192 merged | #195 re-walk on merged develop, 350/350 scripted | ✅ **Done 2026-10-30**; paid Paystack flow and real model tone not verified |
 | Journal, Notifications, Team | #200, #198 (0080), #199 (0081) ✅ all merged | FE briefs FE #186-#188 + `fe-handoff/MESSAGE-to-fe-dev.md` | FE dev builds, lead re-walks | 🟡 **with the FE dev** (BE complete) |
 | Funding Hub, Investor Readiness, Marketplace | none | mock, **hidden from the sidebar** (FE #184) | n/a | ⏸ after Admin + Super Admin BE (Adebayo 2026-10-29) |
 | Admin Portal (25), Super Admin Portal (26) | none | `app/admin-portal`, `app/super-admin` exist | n/a | ⏭ **next BE build** after the merge train |
@@ -422,7 +436,8 @@ colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169
    Design first like Sales: read the PRD sections + the existing FE pages, write a spec with D-ADM-n questions, get Adebayo's calls,
    then BE slices with live-captured guides. Platform-level roles (not workspace roles) are new: check how `super-admin` auth should
    work before building.
-4. **FE passes for Calendar and Settings/Billing**: Claude FE sessions (`calendar-fe`, `settings-fe`), started 2026-10-29 by
+3a. **Google sign-in/sign-up** (Adebayo 2026-10-30, queued after Admin). Nothing exists yet: Google is only used for Calendar. Calls to make first: linking to an existing email account, whether 2FA still applies, and first-time users going through onboarding and invite acceptance. Needs a redirect URI per environment.
+4. ~~FE passes for Calendar and Settings/Billing~~ **done in lead 16.** **FE passes for Calendar and Settings/Billing**: Claude FE sessions (`calendar-fe`, `settings-fe`), started 2026-10-29 by
    Adebayo's call ("we can start now"); resume them from their ledgers. The junior FE dev builds Journal, Notifications, Team from `docs/fe-handoff/*.md`; the lead re-walks each after merge.
 5. **CI tuning, both repos (Adebayo 2026-10-29; global rule "CI pipeline shape").** One small `ci/pipeline-speed` PR per repo:
    path filters so docs-only PRs skip unit/build/e2e (most of our PRs are docs: re-walks, handoffs) with a cheap always-run job so
