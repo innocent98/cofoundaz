@@ -1,136 +1,91 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Clock, AlertCircle, Check, Circle, Plus, X } from 'lucide-react';
-import { useCalendarApi } from '@/hooks/useCalendarApi';
+import React from 'react';
+import Link from 'next/link';
+import { AlertCircle, Check, Circle, Clock } from 'lucide-react';
+import { useMilestones } from '@/hooks/useCalendarApi';
+import type { CalendarMilestone } from '@/lib/api/calendar';
+import { longDate } from '@/lib/calendar-format';
+import { secondaryBtn } from '@/components/calendar/drawer';
 
-const useToast = () => ({ triggerToast: (msg: string) => console.log(msg) });
+const STATUS: Record<CalendarMilestone['calendar_status'], { label: string; badge: string; bar: string; icon: React.ReactNode; iconBox: string; border: string }> = {
+  on_track: { label: 'On track', badge: 'bg-accent-xf2ece1 text-accent-x7a6025', bar: 'bg-accent-gold', icon: <Clock size={16} aria-hidden />, iconBox: 'bg-accent-xf2ece1 text-accent-x7a6025', border: 'border-line' },
+  at_risk: { label: 'At risk', badge: 'bg-danger-tint text-danger-bold', bar: 'bg-danger-bold', icon: <AlertCircle size={16} aria-hidden />, iconBox: 'bg-danger-tint text-danger-bold', border: 'border-danger-bold' },
+  complete: { label: 'Complete', badge: 'bg-brand-strong text-white', bar: 'bg-brand-strong', icon: <Check size={16} aria-hidden />, iconBox: 'bg-brand-strong text-white', border: 'border-line' },
+  not_started: { label: 'Not started', badge: 'bg-surface-muted text-ink-muted', bar: 'bg-neutral-400', icon: <Circle size={16} aria-hidden />, iconBox: 'bg-surface-muted text-ink-muted', border: 'border-line' },
+};
+
+function daysLeftLabel(n: number | null, complete: boolean): string | null {
+  if (n === null || complete) return null;
+  if (n < 0) return `${-n} ${-n === 1 ? 'day' : 'days'} overdue`;
+  if (n === 0) return 'Due today';
+  return `${n} ${n === 1 ? 'day' : 'days'} left`;
+}
 
 export default function MilestonesPage() {
-  const { milestones } = useCalendarApi();
-  const { triggerToast } = useToast();
-  
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-  const [eventTitle, setEventTitle] = useState('');
-  const [eventDate, setEventDate] = useState('2026-07-15');
-
-  const showToast = (msg: string) => triggerToast(msg);
-
-  const handleCreateEvent = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsEventModalOpen(false);
-    showToast('New milestone created.');
-    setEventTitle('');
-  };
+  const { data, loading, error, reload } = useMilestones();
+  const list = data?.milestones ?? [];
 
   return (
-    <>
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
-        <div className="flex items-end justify-between">
-          <h1 className="text-3xl font-display text-ink-strong tracking-tight">Milestones</h1>
-          <div className="flex items-center space-x-3">
-            <span className="text-xs font-medium text-ink-muted">3 of 7 complete this quarter</span>
-            <button 
-              onClick={() => { setIsEventModalOpen(true); showToast('New milestone drawer opened.'); }}
-              className="px-4 py-2 bg-accent-bronze hover:bg-accent-x906d3a text-white rounded-modal text-xs font-semibold flex items-center space-x-1.5 shadow-card transition-colors h-[36px]"
-            >
-              <Plus size={15} />
-              <span>+ Milestone</span>
-            </button>
-          </div>
+    <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8 space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h1 className="text-2xl md:text-3xl font-display text-ink-strong tracking-tight">Milestones</h1>
+        <div className="flex items-center gap-3">
+          {data && <span className="text-xs font-medium text-ink-muted">{data.summary.complete} of {data.summary.total} complete</span>}
+          <Link href="/roadmap/milestones" className={secondaryBtn}>Manage in Roadmap</Link>
         </div>
+      </div>
+      <p className="text-xs text-ink-muted">Milestones come from your roadmap. Change one there and it updates here.</p>
 
-        <div className="space-y-4">
-          {milestones.map((item, idx) => (
-            <div 
-              key={idx}
-              onClick={() => showToast(`Opened milestone: ${item.title}`)}
-              className={`bg-white border ${item.cardBorderClass || 'border-line'} rounded-[24px] p-6 shadow-card space-y-4 cursor-pointer hover:border-line-strong transition-all`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3.5">
-                  <div className={`w-8 h-8 rounded-card flex items-center justify-center shrink-0 ${item.iconType === 'progress' ? 'bg-accent-xf2ece1 text-accent-x7a6025' : item.iconType === 'risk' ? 'bg-danger-tint text-danger-bold' : item.iconType === 'complete' ? 'bg-brand-strong text-white' : 'bg-surface-muted text-ink-muted'}`}>
-                    {item.iconType === 'progress' && <Clock size={16} />}
-                    {item.iconType === 'risk' && <AlertCircle size={16} />}
-                    {item.iconType === 'complete' && <Check size={16} />}
-                    {item.iconType === 'default' && <Circle size={16} />}
-                  </div>
-                  <div>
-                    <h2 className="font-semibold text-sm text-ink">{item.title}</h2>
-                    <p className="text-xs text-ink-muted mt-0.5">{item.dueDate}</p>
-                  </div>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-[11px] font-semibold ${item.badgeClass}`}>{item.status}</span>
-              </div>
-
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-ink-muted">{item.tasksInfo}</span>
-                  <span className="font-semibold text-ink">{item.progress}%</span>
-                </div>
-                <div className="w-full bg-surface-muted h-2 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full transition-all duration-500 ${item.progressBarClass}`} style={{ width: `${item.progress}%` }} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </main>
-
-      {/* MODAL: NEW EVENT / MILESTONE DRAWER */}
-      {isEventModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white border border-line rounded-[24px] p-6 md:p-8 shadow-accent max-w-md w-full space-y-6 relative animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-display text-ink">Create calendar milestone</h2>
-              <button onClick={() => setIsEventModalOpen(false)} className="p-1 rounded-card text-ink-muted hover:bg-surface-muted">
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateEvent} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Milestone Title</label>
-                <input 
-                  type="text"
-                  required
-                  placeholder="e.g. Series A term sheet signed"
-                  value={eventTitle}
-                  onChange={(e) => setEventTitle(e.target.value)}
-                  className="w-full bg-white border border-line rounded-card px-3 py-2 text-xs text-ink placeholder-neutral-x9ca8a0 focus:outline-none focus:ring-1 focus:ring-accent-bronze"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">Date</label>
-                <input 
-                  type="date"
-                  required
-                  value={eventDate}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  className="w-full bg-white border border-line rounded-card px-3 py-2 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-accent-bronze"
-                />
-              </div>
-
-              <div className="flex items-center space-x-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsEventModalOpen(false)}
-                  className="flex-1 px-4 py-2 bg-white border border-line rounded-card text-xs font-semibold text-ink hover:bg-surface-muted transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-accent-bronze hover:bg-accent-x906d3a text-white rounded-card text-xs font-semibold shadow-card transition-colors"
-                >
-                  Save milestone
-                </button>
-              </div>
-            </form>
-          </div>
+      {loading && !data && <p role="status" className="text-xs text-ink-muted">Loading milestones…</p>}
+      {error && !data && (
+        <div role="alert" className="bg-danger-tint border border-danger-bold rounded-modal p-4 text-xs text-danger-bold flex items-center justify-between gap-3">
+          <span>{error}</span>
+          <button type="button" onClick={reload} className="font-semibold underline">Try again</button>
         </div>
       )}
-    </>
+      {data && list.length === 0 && (
+        <div className="bg-white border border-line rounded-[24px] shadow-card p-10 text-center space-y-2">
+          <p className="text-sm font-semibold text-ink">No milestones yet</p>
+          <p className="text-xs text-ink-muted">Build your roadmap and its milestones will appear here with their dates.</p>
+          <Link href="/roadmap" className={`${secondaryBtn} inline-block`}>Open Roadmap</Link>
+        </div>
+      )}
+
+      <ul className="space-y-4">
+        {list.map((m) => {
+          const s = STATUS[m.calendar_status];
+          const chip = daysLeftLabel(m.days_left, m.calendar_status === 'complete');
+          return (
+            <li key={m.id}>
+              <Link href="/roadmap/milestones" className={`block bg-white border ${s.border} rounded-[24px] p-5 md:p-6 shadow-card space-y-4 hover:border-line-strong transition-colors`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3.5 min-w-0">
+                    <div className={`w-8 h-8 rounded-card flex items-center justify-center shrink-0 ${s.iconBox}`}>{s.icon}</div>
+                    <div className="min-w-0">
+                      <h2 className="font-semibold text-sm text-ink break-words">{m.title}</h2>
+                      <p className="text-xs text-ink-muted mt-0.5">{m.due_on ? `Due ${longDate(m.due_on)}` : 'No date set'}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <span className={`px-3 py-1 rounded-full text-[11px] font-semibold ${s.badge}`}>{s.label}</span>
+                    {chip && <span className={`text-[11px] font-medium ${m.days_left !== null && m.days_left < 0 ? 'text-danger-bold' : 'text-ink-muted'}`}>{chip}</span>}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-ink-muted">{m.tasks_total === 0 ? 'No tasks yet' : `${m.tasks_done} of ${m.tasks_total} tasks complete`}</span>
+                    <span className="font-semibold text-ink">{m.progress}%</span>
+                  </div>
+                  <div className="w-full bg-surface-muted h-2 rounded-full overflow-hidden" role="progressbar" aria-valuenow={m.progress} aria-valuemin={0} aria-valuemax={100} aria-label={`${m.title} progress`}>
+                    <div className={`h-full rounded-full ${s.bar}`} style={{ width: `${Math.min(100, Math.max(0, m.progress))}%` }} />
+                  </div>
+                </div>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </main>
   );
 }
