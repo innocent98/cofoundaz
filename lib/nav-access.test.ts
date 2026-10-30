@@ -8,10 +8,10 @@ describe('nav access (PRD §2.1)', () => {
     }
   });
 
-  it('accountant sees only Finance, Documents, Notifications, Settings (plus Dashboard); Calendar follows the API, which is core-roles only', () => {
-    const visible = ['/dashboard', '/finance', '/documents', '/notifications', '/settings'];
+  it('accountant sees only Finance, Documents, Notifications, Settings (plus Dashboard and Calendar, where they see only meetings they are invited to)', () => {
+    const visible = ['/dashboard', '/finance', '/documents', '/notifications', '/settings', '/calendar'];
     for (const href of visible) expect(canSee(href, 'accountant')).toBe(true);
-    for (const href of ['/mission', '/ai', '/marketing', '/journal', '/team', '/roadmap', '/legal', '/calendar']) {
+    for (const href of ['/mission', '/ai', '/marketing', '/journal', '/team', '/roadmap', '/legal']) {
       expect(canSee(href, 'accountant')).toBe(false);
     }
   });
