@@ -1,31 +1,42 @@
-# Settings + Billing FE: click-through re-walk
+# Settings + Billing + AI preferences: click-through re-walk on merged develop
 
-**Date:** 2026-10-30. **Verdict: 350 of 350 checks pass, 0 fail** (308 Settings and Billing + 42 AI preferences; 4 roles x 1440 and 375). Branch `feature/settings-billing-fe` (PR 192), dev server `:3102`
-against the shared API on `:8000` (migration 0081).
+**Date:** 2026-10-30. **Verdict: DONE. 350 of 350 checks pass, 0 fail** (308 Settings and Billing + 42 AI preferences; founder, team member,
+mentor and accountant, each at 1440 and 375). Every control a role can reach was exercised for that role; a `-` means the control is not shown to
+that role by design (for example Workspace editing and Billing for non-founders, AI preferences for mentor and accountant), and the row says how that is checked.
 
-**Method, honestly.** Not typed by hand like the earlier re-walks: a scripted real-browser (Chromium) walk clicks and types into every control,
-then compares with the raw API (`GET /auth/me`, `/workspace`, `/billing/*`). Screenshots were read by eye. The script, fixtures and raw results
-live in the shared notes folder (`side-session-notes/.../settings-walk/`: `setup.mjs`, `walk.mjs`, `results.json`), not in the repo.
-Throwaway accounts: founder, team member (TM), mentor (M), accountant (AC), all in one fresh workspace.
+**What was walked.** Merged `origin/develop` `b0074f5` (FE #192: Settings hub, Billing and AI preferences), fresh worktree, `next dev -p 3102`, `/api/v1`
+proxied to the shared API on `:8000` (alembic `0082_ai_preferences`, API #195, #196, #201 merged), fresh throwaway founder, team member (TM), mentor (M) and
+accountant (AC) in one new workspace.
 
-**What is live and what is stubbed.** "live API" rows hit the real API. "stubbed" rows serve the guide's captured body through a browser stub:
-every paid state (active, canceling, past due, pending downgrade), upgrade / downgrade / cancel / resume and their errors, the cards list,
-invoices with rows, and the Paystack-return outcomes other than "not completed". No account here holds a real paid subscription.
+**Method, honestly.** Not typed by hand like the earlier re-walks: a scripted real-browser (Chromium) walk clicks and types into every control and
+compares with the raw API (`GET /auth/me`, `/workspace`, `/billing/*`, `/ai/settings`, `/dashboard/summary`); screenshots were read by eye. The scripts, fixtures and raw
+results are in the shared notes folder (`side-session-notes/.../settings-walk/`: `setup.mjs`, `walk.mjs`, `ai-walk.mjs`, `live-paystack.mjs`,
+`live-verify.mjs`, `results.json`, `ai-results.json`), not in the repo.
 
-**Real Paystack test mode (key confirmed as a test key by Adebayo, 2026-10-30).** Through the UI at 1440 and 375: real `checkout`, real add-card
-and real add-on `initialize` calls returned 200 with a hosted URL and the browser redirected to it (navigation aborted: the hosted page was never
-opened and no card was entered). A real unpaid reference came back through `?reference=` and the real `verify` answered "not completed", the page
-showed "The payment wasn't completed, so nothing changed. You can try again." and cleaned the URL.
-**NOT verified (needs a person on Paystack's hosted page or a public webhook):** a paid checkout end to end, `subscription.create` / renewal /
-`invoice.payment_failed` webhook delivery, the real refund of the ₦50 card check, real `subscription/disable`, receipt PDF content.
+**Live and stubbed.** "live API" rows hit the real API. "stubbed" rows serve the guide's captured body through a browser stub: every paid state (active,
+canceling, past due, pending downgrade), upgrade / downgrade / cancel / resume and their errors, the cards list, invoices with rows, and the Paystack-return
+outcomes other than "not completed".
 
-**Findings fixed during the walk.** 2FA setup called the API twice under React strict mode, so the secret on screen was not the one the server held
-(code always rejected); the Paystack-return result was dropped under strict mode; nested `<main>`; one giant daily bar; invoice table overflowed at 375
-(now a list); `INVALID_REFERENCE` message; trial price label.
-**Left as is (BE, filed with the lead):** `GET /auth/sessions` cannot mark this device without the cookie (FE hides per-row Sign out then);
-local storage returns file paths for avatar and logo.
+**Real Paystack test mode (local key confirmed as a test key).** Through the UI at 1440 and 375: real checkout, add-card and add-on `initialize` returned 200 with a hosted URL and the
+browser was redirected to it (navigation aborted: the hosted page was never opened and no card was entered). A real unpaid reference came back through `?reference=`; the
+real `verify` answered "not completed" and the page showed "The payment wasn't completed, so nothing changed. You can try again.".
 
-Roles: F founder, TM team member, M mentor, AC accountant. A cell lists the roles that passed at that width; `-` means the control is not shown to those roles.
+## NOT verified (labelled, not walked)
+- A **paid checkout** end to end (a person on Paystack's hosted page).
+- Real **webhook** delivery: `subscription.create`, renewal, `invoice.payment_failed`.
+- The real **refund of the ₦50** card check.
+- A real **cancel at Paystack** (`subscription/disable`) and a real resume.
+- **Receipt PDF content** (the download is checked with a stub body only).
+- **Tone**: the real model sounding different (the API's own journey runs a stub model).
+- Paid-plan screens are rendered from the guide's captures, not from a real paid subscription.
+
+## Findings
+None failed on merged develop. Known and filed with the lead (BE): `GET /auth/sessions` can't mark the current device without the cookie, so the FE hides per-row
+Sign out when no row is current (covered by two rows below); a malformed `verify` reference returns 422 `INVALID_REFERENCE`; the local storage backend returns file paths for avatar and logo URLs.
+
+Roles: F founder, TM team member, M mentor, AC accountant. A cell lists the roles that passed at that width.
+
+## Settings and Billing
 
 | Area | Control | 1440 | 375 | Source |
 |---|---|---|---|---|
@@ -54,7 +65,7 @@ Roles: F founder, TM team member, M mentor, AC accountant. A cell lists the role
 | Workspace | founder: logo upload | F | F | live API |
 | Workspace | founder: logo wrong type rejected | F | F | live API |
 | Notifications | tab links to /notifications preferences | F, TM, M, AC | F, TM, M, AC | live API |
-| AI preferences | not-saved notice + link to /ai/settings | F, TM | F, TM | live API |
+| AI preferences | panel renders (switches + tone), no memory section, no not-saved banner | F, TM | F, TM | live API |
 | Billing | overview (live): plan card matches the API | F | F | live API |
 | Billing | usage (live): credits, seats, storage meters | F | F | live API |
 | Billing | usage (stubbed 100%): limit banner, Buy credits → Add-ons | F | F | stubbed API (guide capture) |
@@ -109,12 +120,7 @@ Roles: F founder, TM team member, M mentor, AC accountant. A cell lists the role
 | Billing | overview active: no horizontal overflow | - | F | live API |
 | Billing | no horizontal overflow | - | TM, M, AC | live API |
 
-## AI preferences (added 2026-10-30, API #201 `GET/PATCH /ai/settings`, migration 0082)
-
-Wired on the hub tab and on `/ai/settings` through one component (`components/ai/ai-preferences-panel.tsx`): proactive suggestions, daily briefing,
-tone. The memory section, Forget and Clear all, and the "not saved yet" banner are gone. The dashboard gained the new `off` status (briefing card,
-Risks, Opportunities). Walk: change each setting, reload, check the API and the UI agree; then the dashboard against the live `GET /dashboard/summary`.
-**Not verified:** the model sounding different with the tone chosen (the API's own journey runs a stub model).
+## AI preferences (API #201 `GET/PATCH /ai/settings`)
 
 | Area | Control | 1440 | 375 | Source |
 |---|---|---|---|---|
@@ -125,7 +131,7 @@ Risks, Opportunities). Walk: change each setting, reload, check the API and the 
 | Dashboard | briefing off + suggestions off: briefing and opportunities show the quiet off states, API status "off" | F, TM | F, TM | live API |
 | Dashboard | briefing back on, suggestions still off: briefing not "off", Opportunities still off | F, TM | F, TM | live API |
 | /ai/settings | same source of truth: shows saved values; toggle here shows on the hub tab | F, TM | F, TM | live API |
-| AI preferences | save failure (stubbed 500) rolls the switch back with an error toast | F, TM | F, TM | stubbed API |
+| AI preferences | save failure (stubbed 500) rolls the switch back with an error toast | F, TM | F, TM | stubbed API (guide capture) |
 | AI preferences | restore defaults (suggestions on, briefing on, Encouraging) | F, TM | F, TM | live API |
 | AI preferences | tab hidden, ?tab=ai falls back to Profile, API 403 | M, AC | M, AC | live API |
 | AI preferences | no horizontal overflow (tab) | - | F, TM | live API |
