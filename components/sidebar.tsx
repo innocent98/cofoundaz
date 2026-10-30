@@ -233,12 +233,12 @@ export default function Sidebar({
       {/* Sidebar Container */}
       <aside
         aria-label="Main navigation"
-        className={`fixed left-0 top-0 z-50 flex h-[100dvh] max-h-[100dvh] w-64 shrink-0 flex-col justify-between overflow-x-hidden overflow-y-auto overscroll-none bg-brand-x061a12 p-4 text-sm font-medium text-brand-xa3b899 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden will-change-transform transition-all duration-300 ease-in-out ${isOpen
+        className={`fixed left-0 top-0 z-50 flex h-[100dvh] max-h-[100dvh] w-64 shrink-0 flex-col overflow-hidden overscroll-none bg-brand-x061a12 p-4 text-sm font-medium text-brand-xa3b899 will-change-transform transition-all duration-300 ease-in-out ${isOpen
             ? 'visible translate-x-0 opacity-100 shadow-raised'
             : 'invisible -translate-x-full opacity-0'
           } lg:visible lg:translate-x-0 lg:opacity-100`}
       >
-        <div className="w-full shrink-0">
+        <div className="flex min-h-0 w-full flex-1 flex-col">
           {/* Brand Header & Mobile Close Button */}
           <div className="flex w-full items-center justify-between gap-2 mb-6 px-2 pt-1">
             <CofaundazLogo />
@@ -333,7 +333,11 @@ export default function Sidebar({
             )}
           </div>
 
-          {/* Navigation Groups */}
+          {/* Navigation Groups: the only part that scrolls, so the header and footer stay put */}
+          <div
+            data-testid="sidebar-nav-scroll"
+            className="-mr-2 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-2 [scrollbar-color:var(--color-brand-x26533d)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-brand-x26533d [&::-webkit-scrollbar-track]:bg-transparent"
+          >
           {roleLoading ? (
             <div role="status" aria-label="Loading navigation" className="flex w-full flex-col space-y-3 px-2">
               {Array.from({ length: 8 }, (_, i) => (
@@ -396,6 +400,7 @@ export default function Sidebar({
             ))}
           </div>
           )}
+          </div>
         </div>
 
         {/* Footer Navigation & Profile */}
