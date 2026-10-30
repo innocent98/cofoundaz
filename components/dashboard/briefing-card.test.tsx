@@ -33,6 +33,16 @@ function setup(overrides: Partial<React.ComponentProps<typeof BriefingCard>> = {
   return props;
 }
 
+describe('BriefingCard off state', () => {
+  it('is a quiet message with a link to AI preferences, not an error and not the empty copy', () => {
+    setup({ briefing: { ...ready, status: 'off', id: null, content: '', actions: [] } });
+    expect(screen.getByText('Daily briefing is off. Turn it on in Settings → AI preferences.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Open AI preferences' }).getAttribute('href')).toBe('/settings?tab=ai');
+    expect(screen.queryByText(BRIEFING_EMPTY_COPY)).toBeNull();
+    expect(screen.queryByText('Couldn’t load this.')).toBeNull();
+  });
+});
+
 describe('BriefingCard', () => {
   it('shows a skeleton while loading and the PRD error copy with Retry on failure', () => {
     const { unmount } = render(

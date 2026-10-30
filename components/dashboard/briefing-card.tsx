@@ -13,6 +13,8 @@ import { CardError, CardSkeleton } from './card-states';
 export const BRIEFING_EMPTY_COPY =
   'I’ll have your first briefing ready tomorrow morning once I’ve seen a full day of your workspace.';
 
+export const BRIEFING_OFF_COPY = 'Daily briefing is off. Turn it on in Settings → AI preferences.';
+
 /** "Tell me more" opens the drawer with a fresh conversation about today's briefing. */
 export function briefingSeed(briefing: Pick<AIBriefing, 'content'>): string {
   return `Tell me more about today's briefing.\n\nHere is the briefing:\n${briefing.content}`;
@@ -43,6 +45,30 @@ export function BriefingCard({
   if (!briefing || briefing.error) return <CardError dark title="your AI Briefing" onRetry={onRetry} className="min-h-[300px]" />;
   // The briefing is built from finance figures: roles that cannot open Finance never see the card.
   if (briefing.status === 'restricted') return null;
+
+  // The member switched the daily briefing off (Settings → AI preferences): a quiet state, not an error.
+  if (briefing.status === 'off') {
+    return (
+      <div className="bg-brand-x0f291e text-white rounded-card p-6 shadow-card flex flex-col justify-between min-h-[300px]">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-accent-500 rounded-modal text-brand-x0f291e flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-brand-x0f291e" />
+          </div>
+          <div>
+            <h3 className="font-bold text-base text-white leading-snug">Your AI Briefing</h3>
+            <p className="text-xs font-semibold text-brand-x8fb5a0">Co-Founder</p>
+          </div>
+        </div>
+        <p className="text-sm text-neutral-200 leading-relaxed mb-6">{BRIEFING_OFF_COPY}</p>
+        <Link
+          href="/settings?tab=ai"
+          className="bg-accent-500 hover:bg-accent-xe4ae87 text-brand-x0f291e text-sm font-bold py-3 rounded-card transition-colors text-center"
+        >
+          Open AI preferences
+        </Link>
+      </div>
+    );
+  }
 
   const doIt = async (action: BriefingAction) => {
     if (!briefing.id || busy !== null) return;

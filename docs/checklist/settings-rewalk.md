@@ -1,6 +1,6 @@
 # Settings + Billing FE: click-through re-walk
 
-**Date:** 2026-10-30. **Verdict: 308 of 308 checks pass, 0 fail** (4 roles x 1440 and 375). Branch `feature/settings-billing-fe` (PR 192), dev server `:3102`
+**Date:** 2026-10-30. **Verdict: 350 of 350 checks pass, 0 fail** (308 Settings and Billing + 42 AI preferences; 4 roles x 1440 and 375). Branch `feature/settings-billing-fe` (PR 192), dev server `:3102`
 against the shared API on `:8000` (migration 0081).
 
 **Method, honestly.** Not typed by hand like the earlier re-walks: a scripted real-browser (Chromium) walk clicks and types into every control,
@@ -108,3 +108,24 @@ Roles: F founder, TM team member, M mentor, AC accountant. A cell lists the role
 | Billing | trial (live): second start refused 409, CTA hidden | - | F | live API |
 | Billing | overview active: no horizontal overflow | - | F | live API |
 | Billing | no horizontal overflow | - | TM, M, AC | live API |
+
+## AI preferences (added 2026-10-30, API #201 `GET/PATCH /ai/settings`, migration 0082)
+
+Wired on the hub tab and on `/ai/settings` through one component (`components/ai/ai-preferences-panel.tsx`): proactive suggestions, daily briefing,
+tone. The memory section, Forget and Clear all, and the "not saved yet" banner are gone. The dashboard gained the new `off` status (briefing card,
+Risks, Opportunities). Walk: change each setting, reload, check the API and the UI agree; then the dashboard against the live `GET /dashboard/summary`.
+**Not verified:** the model sounding different with the tone chosen (the API's own journey runs a stub model).
+
+| Area | Control | 1440 | 375 | Source |
+|---|---|---|---|---|
+| AI preferences | defaults shown: both on, Encouraging; no memory section or not-saved banner | F, TM | F, TM | live API |
+| AI preferences | Proactive suggestions off persists after reload | F, TM | F, TM | live API |
+| AI preferences | Daily briefing off persists after reload | F, TM | F, TM | live API |
+| AI preferences | Tone: Straight shooter persists; Encouraging back | F, TM | F, TM | live API |
+| Dashboard | briefing off + suggestions off: briefing and opportunities show the quiet off states, API status "off" | F, TM | F, TM | live API |
+| Dashboard | briefing back on, suggestions still off: briefing not "off", Opportunities still off | F, TM | F, TM | live API |
+| /ai/settings | same source of truth: shows saved values; toggle here shows on the hub tab | F, TM | F, TM | live API |
+| AI preferences | save failure (stubbed 500) rolls the switch back with an error toast | F, TM | F, TM | stubbed API |
+| AI preferences | restore defaults (suggestions on, briefing on, Encouraging) | F, TM | F, TM | live API |
+| AI preferences | tab hidden, ?tab=ai falls back to Profile, API 403 | M, AC | M, AC | live API |
+| AI preferences | no horizontal overflow (tab) | - | F, TM | live API |

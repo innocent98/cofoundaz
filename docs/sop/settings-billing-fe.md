@@ -6,8 +6,15 @@
 Branch `feature/settings-billing-fe`, one PR to `develop`. Backends: Settings BE (a) API #195 and Billing BE (b) API #196.
 Contracts: API repo `docs/fe-integration-guide-settings.md` and `docs/fe-integration-guide-settings-billing.md` (live captures).
 Gap rows closed (`docs/checklist/settings-prd-gaps.md`): S1 to S6, S9, S10, B1 to B13 on the FE side. **S7 is the Notifications
-developer's** (`docs/fe-handoff/notifications.md` section 6; this PR does not touch `app/(dashboard)/notifications/`) and **S8 is
-deferred** (no API; the existing `/ai/settings` UI is linked as it is, with a notice that it is not saved).
+developer's** (`docs/fe-handoff/notifications.md` section 6; this PR does not touch `app/(dashboard)/notifications/`) and **S8 is done**
+(API #201): see "AI preferences" below.
+
+## AI preferences (S8)
+`components/ai/ai-preferences-panel.tsx` is the one component behind both Settings → AI preferences and `/ai/settings`: `GET`/`PATCH /ai/settings`
+(proactive suggestions, daily briefing, tone), per member per workspace, founder and team member only (others see the API's 403 as a plain message; the
+hub hides the tab). Saves are optimistic and roll back with an error toast. "What I remember", Forget and Clear all were removed (no memory store).
+The dashboard learned the new `off` status: the briefing card, Risks and Opportunities show a quiet "turn it on in Settings → AI preferences" state
+(`hooks/useDashboardApi.ts`, `components/dashboard/{briefing-card,risks-opportunities}.tsx`). Not verified: the real model's tone.
 
 ## Why
 The Settings page was only a Billing screen, every number hardcoded, and the avatar-menu "Account & profile" page was read-only

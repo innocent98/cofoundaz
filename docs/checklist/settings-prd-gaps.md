@@ -132,7 +132,7 @@ Built on the real APIs in `app/(dashboard)/settings/`. Re-walk evidence: `settin
 | S5 sessions | Done with a limit: the API marks the current device from the cookie only, so per-row sign out is hidden when no row is current; "Sign out other devices" always works. BE request filed |
 | S6 workspace | Done: founder edits, others read-only; logo upload |
 | S7 digest + quiet hours | **Not in this PR**: the Notifications developer's (`fe-handoff/notifications.md` section 6). The hub's Notifications tab links to that page |
-| S8 AI preferences | **Deferred**: no API yet. The tab links to the existing `/ai/settings` with a "not saved yet" notice |
+| S8 AI preferences | Done (API #201): proactive suggestions, daily briefing, tone on the hub tab and `/ai/settings` (one component); "What I remember" removed (no memory store); dashboard shows the new `off` state |
 | S9 audit trail | BE only (no UI by design) |
 | S10 role gating | Done: AI preferences hidden for non-core roles; Billing shows "Billing is managed by your workspace founder." to every non-founder |
 | B1, B2 plans | Done: Plans tab from `GET /billing/plans`, monthly / annual |

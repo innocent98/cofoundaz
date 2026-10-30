@@ -7,7 +7,7 @@ export interface MissionTask {
   completedAt?: string;
 }
 
-export type AIContentStatus = 'empty' | 'generating' | 'ready' | 'restricted';
+export type AIContentStatus = 'empty' | 'generating' | 'ready' | 'restricted' | 'off';
 
 export interface BriefingAction {
   index: number;

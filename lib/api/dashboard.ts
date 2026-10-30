@@ -1,6 +1,6 @@
 import { apiClient } from './client';
 
-export type AIContentStatus = 'empty' | 'generating' | 'ready' | 'restricted';
+export type AIContentStatus = 'empty' | 'generating' | 'ready' | 'restricted' | 'off';
 
 export interface DashboardSectionError {
   error: true;

@@ -138,3 +138,20 @@ export function uploadWorkspaceLogo(file: File): Promise<WorkspaceSettings> {
   form.append('file', file);
   return call<WorkspaceSettings>('/workspace/logo', { method: 'POST', body: form });
 }
+
+// ---------------------------------------------------------------- AI preferences
+// cofoundaz-api/docs/fe-integration-guide-ai-settings.md. Per member per workspace; founder and team member only (others 403).
+
+export type AiTone = 'straight_shooter' | 'encouraging';
+
+export interface AiSettings {
+  proactive_suggestions: boolean;
+  daily_briefing: boolean;
+  tone: AiTone;
+}
+
+export const getAiSettings = (): Promise<AiSettings> => call<AiSettings>('/ai/settings');
+
+/** Send only what changes; the response is always the full object. */
+export const updateAiSettings = (patch: Partial<AiSettings>): Promise<AiSettings> =>
+  call<AiSettings>('/ai/settings', { method: 'PATCH', ...json(patch) });
