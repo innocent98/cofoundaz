@@ -204,7 +204,7 @@ export function mapKpis(k: any): KPISnapshot[] {
   return tiles;
 }
 
-const AI_STATUSES: AIContentStatus[] = ["empty", "generating", "ready", "restricted"];
+const AI_STATUSES: AIContentStatus[] = ["empty", "generating", "ready", "restricted", "off"];
 
 function coerceStatus(raw: unknown, hasContent: boolean): AIContentStatus {
   if (typeof raw === "string" && (AI_STATUSES as string[]).includes(raw)) return raw as AIContentStatus;
@@ -357,7 +357,7 @@ export function mapSummary(payload: any): DashboardSummaryResponse {
     const content = b.message || b.content || "";
     let status = coerceStatus(b.status, Boolean(content));
     // If not generating or restricted and there is no message, it's empty
-    if (!content && status !== "generating" && status !== "restricted") status = "empty";
+    if (!content && status !== "generating" && status !== "restricted" && status !== "off") status = "empty";
 
     briefingState = {
       id: typeof b.id === "string" ? b.id : null,

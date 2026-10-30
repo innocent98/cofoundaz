@@ -117,3 +117,33 @@ Severity: **Sec** > **High** > **Med** > **Low**.
 | Where the unanswered values live (one-line changes) | Prices, plan contents, credits, seats, storage: `cofoundaz-api/app/services/billing/catalog.py` (`PLANS`, `ADDONS`) AND the seed inlined in `alembic/versions/0078_billing.py` (`_PLANS`; before release, edit the migration seed or add a data migration, since a deployed DB already holds the rows in `billing_plans`). Trial length: env `BILLING_TRIAL_DAYS` (default 14). Grace: `BILLING_GRACE_DAYS` (7). Proration: `flows.py` `_prorated_credit` / `preview_change`. Enforcement: env `PLAN_ENFORCEMENT` (default off). |
 | Left | FE session (Settings hub + Billing tabs); hand re-walk of every control at 1440 + 375 for every role; Adebayo's D-SET answers; S8 AI preferences; digest sender; account deletion/export; read-only mode; seat/storage add-ons; live Paystack round trip (hosted page, real charge, real webhook). |
 | Next step | Lead relays D-SET-1 to 7, then merge PR 1, then re-chain PR 2 on develop, then FE sub-session using the two guides in `cofoundaz-api/docs/`. |
+
+
+## FE status (2026-10-30, PR `feature/settings-billing-fe`)
+
+Built on the real APIs in `app/(dashboard)/settings/`. Re-walk evidence: `settings-rewalk.md`. SOP: `docs/sop/settings-billing-fe.md`.
+
+| Gap | FE state |
+|---|---|
+| S1 profile edit | Done: Profile tab (name, role, country, phone), field errors from the API |
+| S2 avatar | Done: upload / remove (client checks type and 2 MB). Local storage returns a path, so the image only renders where storage returns a URL |
+| S3 change password | Done: sends the stored refresh token so this device stays signed in; wrong / weak / unchanged / mismatch handled |
+| S4 2FA | Done: status, turn on (QR + manual key + code), backup codes once, regenerate, turn off (password + code or backup code) |
+| S5 sessions | Done with a limit: the API marks the current device from the cookie only, so per-row sign out is hidden when no row is current; "Sign out other devices" always works. BE request filed |
+| S6 workspace | Done: founder edits, others read-only; logo upload |
+| S7 digest + quiet hours | **Not in this PR**: the Notifications developer's (`fe-handoff/notifications.md` section 6). The hub's Notifications tab links to that page |
+| S8 AI preferences | Done (API #201): proactive suggestions, daily briefing, tone on the hub tab and `/ai/settings` (one component); "What I remember" removed (no memory store); dashboard shows the new `off` state |
+| S9 audit trail | BE only (no UI by design) |
+| S10 role gating | Done: AI preferences hidden for non-core roles; Billing shows "Billing is managed by your workspace founder." to every non-founder |
+| B1, B2 plans | Done: Plans tab from `GET /billing/plans`, monthly / annual |
+| B3 checkout | Done: confirm sheet, `Idempotency-Key`, redirect to the hosted page, return verify (`?reference=`), outcome messages. The hosted page itself is **not exercised** |
+| B4 webhook | BE only |
+| B5 plan change | Done: preview then confirm; upgrade / downgrade / cancel-to-Starter copy; `NO_PAYMENT_METHOD`, `CHARGE_FAILED`, `CHARGE_PENDING` |
+| B6 cancel / resume | Done (no "Pause": not built) |
+| B7 usage | Done: meters, daily bars, breakdown hidden while empty, 90% and 100% banners |
+| B8 payment methods | Done: add (hosted ₦50 check), default, remove, last-card rule |
+| B9 invoices | Done: list and receipt PDF download |
+| B10 add-ons | Done: credit packs only |
+| B11 billing details | Done |
+| B12 plan gate | Gate is dark. `upgradeTarget()` for the 402 body exists; no page applies it yet (Sales outreach is the first) |
+| B13 notifications / banner | Failed-payment banner shows above every Settings tab for the founder; a site-wide banner needs the dashboard layout (lead's call) |

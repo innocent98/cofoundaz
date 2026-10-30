@@ -11,6 +11,7 @@ export interface MeProfile {
   role_title: string | null;
   country: string | null;
   avatar_url: string | null;
+  phone?: string | null;
 }
 
 export interface MeMembership {
