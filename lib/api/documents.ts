@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, apiClientWithStatus } from './client';
 
 // Documents library (BE-A + BE-B). Shapes are copied from the live captures in
 // cofoundaz-api docs/fe-integration-guide-documents-library.md. Every /documents
@@ -11,6 +11,8 @@ export interface Person {
 
 export interface DocSummary {
   id: string;
+  type?: 'document';
+  disclaimer?: string | null; // legal drafts only (D-DOC-4)
   kind: string;
   mime: string;
   title: string;
@@ -29,6 +31,10 @@ export interface DocSummary {
 
 export interface FileSummary {
   id: string;
+  type?: 'file';
+  origin?: 'upload' | 'export' | 'executed';
+  source_document_id?: string | null; // null once the source document is purged
+  source_version?: number | null;
   filename: string;
   content_type: string;
   mime: string;
@@ -321,25 +327,49 @@ export const UPLOAD_ACCEPT = '.pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.txt,.csv,.
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 export const MAX_UPLOAD_LABEL = '15 MB';
 
-// Token links ("anyone with the link"): the link is emailed and returned once.
+// Link shares (BE-D): a link emailed to one person, or "anyone with the link" (no email). Documents and files.
+// Editors get the link back on every list ("copy again"), except shares made before BE-D (`link: null`).
 export interface ShareLink {
   id: string;
-  email: string;
+  kind?: 'document' | 'file';
+  email: string | null;
+  anyone_with_link?: boolean;
   access_level: 'view' | 'comment';
   expires_at: string | null;
   revoked_at: string | null;
   last_viewed_at: string | null;
   created_at: string;
   status: string; // active | revoked | expired
+  link?: string | null;
   document_id?: string; // only on the workspace overview
+  file_id?: string;
 }
+export type ShareTarget = { kind: 'document' | 'file'; id: string };
+const sharesPath = (t: ShareTarget) => (t.kind === 'file' ? `/documents/files/${enc(t.id)}/shares` : `/documents/${enc(t.id)}/shares`);
+
 export async function listShareLinks(documentId: string): Promise<ShareLink[]> {
-  const res = await apiClient<Env<{ shares: ShareLink[] }>>(`/documents/${enc(documentId)}/shares`);
+  return listLinkShares({ kind: 'document', id: documentId });
+}
+export async function listLinkShares(t: ShareTarget): Promise<ShareLink[]> {
+  const res = await apiClient<Env<{ shares: ShareLink[] }>>(sharesPath(t));
   return res?.data?.shares ?? [];
 }
 export async function listAllShareLinks(): Promise<ShareLink[]> {
   const res = await apiClient<Env<{ shares: ShareLink[] }>>('/documents/shares');
   return res?.data?.shares ?? [];
+}
+export interface LinkShareBody {
+  /** Omit for "anyone with the link": nothing is emailed. */
+  email?: string;
+  access_level?: GrantPermission;
+  /** ISO date-time in the future, at most 365 days ahead. Wins over expires_in_days. */
+  expires_at?: string;
+  /** 1 to 365; null never expires; omitted means 30. */
+  expires_in_days?: number | null;
+}
+export async function createLinkShare(t: ShareTarget, body: LinkShareBody): Promise<ShareLink> {
+  const res = await apiClient<Env<ShareLink>>(sharesPath(t), json('POST', body));
+  return res.data as ShareLink;
 }
 export async function createShareLink(
   documentId: string,
@@ -347,14 +377,18 @@ export async function createShareLink(
   accessLevel: GrantPermission,
   expiresInDays: number | null,
 ): Promise<string | undefined> {
-  const res = await apiClient<Env<{ link?: string }>>(
-    `/documents/${enc(documentId)}/shares`,
-    json('POST', { email, access_level: accessLevel, expires_in_days: expiresInDays }),
-  );
-  return res?.data?.link;
+  const s = await createLinkShare({ kind: 'document', id: documentId }, { email, access_level: accessLevel, expires_in_days: expiresInDays });
+  return s?.link ?? undefined;
+}
+export async function setShareExpiry(t: ShareTarget, shareId: string, expiresAt: string | null): Promise<ShareLink> {
+  const res = await apiClient<Env<ShareLink>>(`${sharesPath(t)}/${enc(shareId)}`, json('PATCH', { expires_at: expiresAt }));
+  return res.data as ShareLink;
+}
+export async function revokeLinkShare(t: ShareTarget, shareId: string): Promise<void> {
+  await apiClient(`${sharesPath(t)}/${enc(shareId)}`, { method: 'DELETE' });
 }
 export async function revokeShareLink(documentId: string, shareId: string): Promise<void> {
-  await apiClient(`/documents/${enc(documentId)}/shares/${enc(shareId)}`, { method: 'DELETE' });
+  await revokeLinkShare({ kind: 'document', id: documentId }, shareId);
 }
 
 export interface DocFull extends DocSummary {
@@ -385,3 +419,133 @@ export function uploadProblem(file: { name: string; size: number }): string | nu
   if (file.size === 0) return `${file.name} is empty.`;
   return null;
 }
+
+
+// ---------------------------------------------------------------------------
+// Templates, AI drafts and export (BE-C). Shapes copied from
+// cofoundaz-api docs/fe-integration-guide-documents-templates-export.md.
+// ---------------------------------------------------------------------------
+
+export type TemplateCategory = 'Legal' | 'Financial' | 'Pitch' | 'Operational';
+export const TEMPLATE_CATEGORIES: TemplateCategory[] = ['Legal', 'Financial', 'Pitch', 'Operational'];
+
+export interface TemplateInfo {
+  key: string;
+  name: string;
+  description: string;
+  kind: string;
+  category: TemplateCategory;
+  sections: string[]; // heading strings (form.sections are objects)
+  disclaimer: string | null;
+}
+
+export type FormSource = 'profile' | 'business_builder' | 'account' | 'system' | 'template' | 'you' | null;
+
+export interface FormField {
+  key: string;
+  label: string;
+  type: 'text' | 'longtext' | 'date';
+  required: boolean;
+  value: string;
+  state: 'filled' | 'empty';
+  source: FormSource;
+  ai_draftable: boolean;
+}
+export interface FormSection {
+  key: string;
+  heading: string;
+  value: string;
+  state: 'filled' | 'empty';
+  source: FormSource;
+  ai_draftable: boolean;
+}
+export interface TemplateForm {
+  template_key: string;
+  fields: FormField[];
+  sections: FormSection[];
+  unfilled_required: string[];
+  disclaimer: string | null;
+  ai_available: boolean;
+}
+export interface TemplateDetail extends TemplateInfo {
+  form: TemplateForm;
+}
+
+export type AiStatus = 'not_requested' | 'queued' | 'nothing_to_draft' | 'over_budget';
+export interface AiRequest {
+  status: AiStatus;
+  job_id: string | null;
+  sections: string[];
+}
+export interface InstantiateBody {
+  title?: string;
+  folder?: string | null;
+  values?: Record<string, string>;
+  ai_draft?: boolean;
+  ai_sections?: string[];
+}
+export interface InstantiateResult {
+  document: DocFull;
+  form: TemplateForm;
+  ai: AiRequest;
+}
+
+export async function listTemplates(): Promise<TemplateInfo[]> {
+  const res = await apiClient<Env<{ templates: TemplateInfo[] }>>('/document-templates');
+  return res?.data?.templates ?? [];
+}
+export async function getTemplate(key: string): Promise<TemplateDetail> {
+  const res = await apiClient<Env<TemplateDetail>>(`/document-templates/${enc(key)}`);
+  return res.data as TemplateDetail;
+}
+export async function instantiateTemplate(key: string, body: InstantiateBody): Promise<InstantiateResult> {
+  const res = await apiClient<Env<InstantiateResult>>(`/documents/templates/${enc(key)}/instantiate`, json('POST', body));
+  return res.data as InstantiateResult;
+}
+export async function requestAiDraft(documentId: string, sections?: string[]): Promise<AiRequest> {
+  const res = await apiClient<Env<AiRequest>>(`/documents/${enc(documentId)}/ai-draft`, json('POST', sections ? { sections } : {}));
+  return res.data as AiRequest;
+}
+
+export type DraftResultStatus = 'ready' | 'partial' | 'failed' | 'over_budget' | 'gone';
+export interface DraftResult {
+  status: DraftResultStatus;
+  reason: string | null;
+  drafted: string[];
+  skipped: string[];
+  failed: string[];
+  document_version: number | null;
+}
+export interface JobView {
+  id: string;
+  type: string;
+  status: string; // queued | running | succeeded | failed | cancelled
+  result: DraftResult | null;
+  error: string | null;
+}
+export async function getJob(id: string): Promise<JobView> {
+  const res = await apiClient<Env<JobView>>(`/jobs/${enc(id)}`);
+  return res.data as JobView;
+}
+
+export type ExportFormat = 'pdf' | 'docx';
+export interface ExportResult {
+  file: FileSummary;
+  /** true when the API returned the file it already had (HTTP 200), false for a new export (201). */
+  existing: boolean;
+}
+export async function exportDocument(documentId: string, format: ExportFormat): Promise<ExportResult> {
+  const res = await apiClientWithStatus<Env<FileSummary>>(`/documents/${enc(documentId)}/export`, json('POST', { format }));
+  return { file: res.data.data as FileSummary, existing: res.status === 200 };
+}
+export async function listExports(documentId: string): Promise<FileSummary[]> {
+  const files = await listFiles();
+  return files.filter((f) => f.origin === 'export' && f.source_document_id === documentId);
+}
+
+/** Human labels for where a prefilled value came from (guide section 2). */
+export const SOURCE_LABEL: Record<string, string> = {
+  profile: 'From your profile',
+  business_builder: 'From Business Builder',
+  account: 'From your account',
+};

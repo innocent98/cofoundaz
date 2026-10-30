@@ -31,8 +31,14 @@ Legend: ✅ meets PRD · ❌ gap · Severity: **Sec** (permission/data exposure)
 
 ## FE slice status (`feature/documents-fe`, 2026-10-25)
 Done (FE): 10, 19, 23, 24, 26, 27, 29, 30, 32, 33, 34, 35, 36, 38 and the UI halves of 7, 8, 9, 11, 14, 20, 21, 22, 28. Row 25's UI half: the upload
-dialog states the 15 MB limit and accepts Markdown. Waiting on BE-C: 12, 13, 18. Waiting on BE-D: 16, 17, 31 (and the UI of 15, 37).
+dialog states the 15 MB limit and accepts Markdown. BE-C FE (rows 12, 13, 18, D-DOC-4) shipped in #173; BE-D FE (rows 15, 16, 17, 31, 37) is in the PR from `feature/documents-esign-v2-ui` (see `docs/sop/2026-10-25-documents-esign-v2-fe.md`) (BE-C SOP: `docs/sop/2026-10-25-documents-templates-export-fe.md`).
 Evidence: `docs/checklist/documents-fe-walk.md`; SOP: `docs/sop/2026-10-25-documents-fe-library.md`.
+
+## BE-C status (API #189, merged 2026-10-25)
+Done (BE): 12 (PDF/DOCX export as a stored, scanned, signable file), 13 (template form auto-filled from profile + Business Builder,
+`instantiate`, AI draft job), 18 (Legal / Financial / Pitch / Operational; NDA, contractor, founder agreement, SAFE with a disclaimer).
+Verified live on the shared stack by the lead (templates list, PDF + DOCX export 201, `scan_status: clean`). UI halves wait for the FE
+slice after BE-D. Remaining BE: BE-D rows 15, 16, 17, 31, 37. SOP `cofoundaz-api/docs/sop/2026-10-25-documents-be-c-templates-export.md`.
 
 ## Works (verified live)
 - ✅ **Real API everywhere:** the library, editor, templates, signatures, shared and both public pages all call the real API. The only static

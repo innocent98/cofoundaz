@@ -32,7 +32,8 @@ export function titleCase(s: string): string {
 }
 
 export function personName(p: { name: string | null } | null | undefined): string {
-  return p?.name?.trim() || 'Unknown';
+  // The API has no email for a member without a profile name, so say who they are in general terms.
+  return p?.name?.trim() || 'A member';
 }
 
 /** "Private" or "Shared · 2" (grants plus active token links). */
@@ -65,6 +66,10 @@ export interface LibraryItem {
   sizeBytes?: number;
   version?: number;
   aiGenerated?: boolean;
+  /** Files made by Export carry where they came from; null source once the document is purged. */
+  origin?: 'upload' | 'export' | 'executed';
+  sourceDocumentId?: string | null;
+  sourceVersion?: number | null;
   trashedAt: string | null;
   purgesAt: string | null;
 }
@@ -104,6 +109,9 @@ export function fileToItem(f: FileSummary): LibraryItem {
     status: titleCase(f.scan_status),
     scanStatus: f.scan_status,
     sizeBytes: f.size_bytes,
+    origin: f.origin,
+    sourceDocumentId: f.source_document_id ?? null,
+    sourceVersion: f.source_version ?? null,
     trashedAt: f.trashed_at,
     purgesAt: f.purges_at,
   };

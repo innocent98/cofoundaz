@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AuthForm } from "@/ui/marketing/auth/auth-form";
 import { apiClient, ApiError } from "@/lib/api/client";
 
@@ -26,8 +26,16 @@ interface LoginEnvelope {
   token?: string;
 }
 
-export default function SignupPage() {
+/** An invite link carries the invited address; use it only when it looks like one address. */
+function invitedEmail(raw: string | null): string {
+  const v = (raw ?? "").trim();
+  return /^[^\s@,<>]+@[^\s@,<>]+\.[^\s@,<>]+$/.test(v) ? v : "";
+}
+
+function SignupForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  const prefill = invitedEmail(params.get("email"));
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -110,7 +118,16 @@ export default function SignupPage() {
       error={error}
       successMessage={successMessage}
       isSubmitting={isSubmitting}
+      initialEmail={prefill}
     />
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupForm />
+    </Suspense>
   );
 }
 

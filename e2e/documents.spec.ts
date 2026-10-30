@@ -92,7 +92,7 @@ test.describe('Documents: founder library', () => {
     await expect(page.getByText('seed', { exact: true })).toBeVisible()
     await expect(page.getByText('Term sheet (signed).pdf')).toBeVisible()
     await page.getByRole('button', { name: 'Actions for Seed pitch narrative' }).click()
-    await expect(page.getByRole('menuitem')).toHaveText(['Open', 'Rename', 'Move to folder', 'Edit tags', 'Share', 'Ask AI', 'Move to Trash'])
+    await expect(page.getByRole('menuitem')).toHaveText(['Open', 'Rename', 'Move to folder', 'Edit tags', 'Share', 'Export as PDF or Word', 'Ask AI', 'Move to Trash'])
     await page.keyboard.press('Escape')
     await page.getByRole('button', { name: 'Grid' }).click()
     await expect(page.getByRole('button', { name: 'Actions for Term sheet (signed).pdf' })).toBeVisible()

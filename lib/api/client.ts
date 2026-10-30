@@ -10,6 +10,17 @@ export class ApiError extends Error {
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
 
+/** With a relative API base (the dev proxy) an absolute API link is read same-origin, which sidesteps CORS. */
+export function resolveApiUrl(url: string): string {
+  if (!API_BASE.startsWith('/')) return url;
+  try {
+    const u = new URL(url);
+    return u.pathname.startsWith('/api/v1') ? `${u.pathname}${u.search}` : url;
+  } catch {
+    return url;
+  }
+}
+
 // Guard so parallel 401s (the dashboard fires many calls at once) trigger a
 // single redirect, not a storm of them.
 let sessionRedirectInFlight = false;
@@ -99,10 +110,19 @@ function handleSessionExpired(endpoint: string): void {
   window.location.assign(`/login?session=expired&next=${next}`);
 }
 
-export async function apiClient<T>(
+export async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  return (await apiRequest<T>(endpoint, options)).data;
+}
+
+/** Same as apiClient, but also reports the HTTP status (e.g. 201 created vs 200 already there). */
+export async function apiClientWithStatus<T>(endpoint: string, options: RequestInit = {}): Promise<{ status: number; data: T }> {
+  return apiRequest<T>(endpoint, options);
+}
+
+async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
-): Promise<T> {
+): Promise<{ status: number; data: T }> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
 
   const headers = new Headers(options.headers);
@@ -166,8 +186,8 @@ export async function apiClient<T>(
   }
 
   if (res.status === 204) {
-    return {} as T;
+    return { status: 204, data: {} as T };
   }
 
-  return res.json() as Promise<T>;
+  return { status: res.status, data: (await res.json()) as T };
 }

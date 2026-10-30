@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { describe, expect, it } from 'vitest'
 import { AuthForm } from './auth-form'
@@ -21,6 +22,15 @@ describe('AuthForm signup mode', () => {
     render(<AuthForm mode="signup" />)
     expect(screen.getByRole('link', { name: 'Terms of Service' })).toHaveAttribute('href', '/terms')
     expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
+  })
+
+  it('prefills the email from an invite link and lets the terms box be ticked by a click', async () => {
+    const user = userEvent.setup()
+    render(<AuthForm mode="signup" initialEmail="invitee@example.com" />)
+    expect(screen.getByLabelText(/email/i)).toHaveValue('invitee@example.com')
+    const box = screen.getByRole('checkbox')
+    await user.click(box)
+    expect(box).toBeChecked()
   })
 
   it('offers a link to log in instead', () => {

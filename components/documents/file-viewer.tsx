@@ -3,23 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
 import { apiErrorInfo } from '@/lib/api/api-error';
-import { API_BASE } from '@/lib/api/client';
+import { resolveApiUrl } from '@/lib/api/client';
 import { fileContentLink, fileDownloadLink, type ContentLink } from '@/lib/api/documents';
 import { useToast } from '@/app/(dashboard)/documents/ToastContext';
 import { Dialog, btnSecondary } from './ui';
 
 const MAX_TEXT_CHARS = 200_000;
-
-/** With a relative API base (the dev proxy) a signed link is read same-origin, which sidesteps CORS. */
-function resolveUrl(url: string): string {
-  if (!API_BASE.startsWith('/')) return url;
-  try {
-    const u = new URL(url);
-    return u.pathname.startsWith('/api/v1') ? `${u.pathname}${u.search}` : url;
-  } catch {
-    return url;
-  }
-}
 
 function parseCsv(text: string): string[][] {
   return text
@@ -46,7 +35,7 @@ export function FileViewer({ file, onClose }: { file: { id: string; title: strin
         const l = await fileContentLink(file.id);
         if (!alive) return;
         setLink(l);
-        const src = resolveUrl(l.url);
+        const src = resolveApiUrl(l.url);
         if (l.viewer === 'pdf') {
           // The file is served with a sandbox policy, which stops the browser's PDF viewer in a
           // frame. A blob copy is not under that policy; fall back to the link if the fetch fails.
@@ -109,7 +98,7 @@ export function FileViewer({ file, onClose }: { file: { id: string; title: strin
     );
   } else if (viewer === 'image') {
     // eslint-disable-next-line @next/next/no-img-element -- signed, short-lived URL
-    body = <img src={resolveUrl(link.url)} alt={file.title} className="max-w-full max-h-[60vh] mx-auto rounded-card" />;
+    body = <img src={resolveApiUrl(link.url)} alt={file.title} className="max-w-full max-h-[60vh] mx-auto rounded-card" />;
   } else if ((viewer === 'text' || viewer === 'markdown' || viewer === 'csv') && text !== null) {
     body =
       viewer === 'csv' ? (

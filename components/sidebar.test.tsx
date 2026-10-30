@@ -32,6 +32,13 @@ describe('Sidebar (PRD 2.1)', () => {
     missionOpen = 0;
   });
 
+  it('hides Funding Hub, Investor Readiness and Marketplace until their APIs ship', () => {
+    render(<Sidebar />);
+    for (const label of ['Funding Hub', 'Investor Readiness', 'Marketplace']) {
+      expect(hasLink(label)).toBe(false);
+    }
+  });
+
   it('founder sees every group, including the founder-only Journal with its lock', () => {
     render(<Sidebar />);
     for (const label of ['Dashboard', "Today's Mission", 'Health Score', 'Roadmap', 'Finance Hub', 'Team', 'Journal']) {
@@ -40,11 +47,11 @@ describe('Sidebar (PRD 2.1)', () => {
     expect(['OVERVIEW', 'BUILD', 'GROW', 'FUND & PROTECT', 'RESOURCES', 'WORKSPACE'].every((t) => within(nav()).queryByText(t))).toBe(true);
   });
 
-  it('accountant sees only Finance Hub and Documents (plus Dashboard); everything else is hidden, not disabled', () => {
+  it('accountant sees only Finance Hub, Documents and Calendar (invited meetings only) plus Dashboard; everything else is hidden, not disabled', () => {
     role = 'accountant';
     render(<Sidebar />);
-    for (const label of ['Dashboard', 'Finance Hub', 'Documents']) expect(hasLink(label)).toBe(true);
-    for (const label of ["Today's Mission", 'AI Co-Founder', 'Marketing Hub', 'Journal', 'Team', 'Roadmap', 'Legal & Compliance', 'Calendar']) {
+    for (const label of ['Dashboard', 'Finance Hub', 'Documents', 'Calendar']) expect(hasLink(label)).toBe(true);
+    for (const label of ["Today's Mission", 'AI Co-Founder', 'Marketing Hub', 'Journal', 'Team', 'Roadmap', 'Legal & Compliance']) {
       expect(hasLink(label)).toBe(false);
     }
     // a group with no visible items disappears with it
