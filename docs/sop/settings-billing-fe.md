@@ -71,6 +71,6 @@ FE only: revert the PR. The old mock page had no data to keep. The Paystack retu
 - BE: `GET /auth/sessions` should identify the current device without a cookie (accept the refresh token in a header).
 - Site-wide failed-payment banner in the dashboard layout (needs the lead's OK to edit the layout).
 - 402 `PLAN_REQUIRED` upgrade prompt on the Sales outreach actions (Sales pages) once `PLAN_ENFORCEMENT` is turned on.
-- S7 digest and quiet hours UI (FE developer), S8 AI preferences (needs its API).
+- S7 digest and quiet hours UI (FE developer). The "What I remember" memory list returns when a memory store exists.
 - On the local storage backend `avatar_url` and `logo_url` are file paths, not URLs, so the avatar and the sidebar logo can't render
   locally (the sidebar shows a broken logo image after an upload). Production storage returns a URL. The Settings tabs fall back to initials.
