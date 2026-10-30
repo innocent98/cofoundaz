@@ -8,6 +8,8 @@ import { safeInternalHref } from '@/lib/safe-href';
 import { CardError, CardSkeleton } from './card-states';
 
 export const RISKS_EMPTY_COPY = 'No open risks. I’m watching runway, deadlines, and pipeline for you.';
+export const RISKS_OFF_COPY = 'Daily briefing is off, so risks are not refreshed. Turn it on in Settings → AI preferences.';
+export const OPPORTUNITIES_OFF_COPY = 'Proactive suggestions are off. Turn them on in Settings → AI preferences.';
 export const OPPORTUNITIES_EMPTY_COPY = 'Opportunities I spot (grants, quick wins, market signals) will show up here.';
 
 const SEVERITY_DOT: Record<RiskItem['severity'], string> = {
@@ -32,6 +34,17 @@ function Shell({ title, status, busyLabel, children }: { title: string; status: 
         {children}
       </div>
     </div>
+  );
+}
+
+function Off({ copy }: { copy: string }) {
+  return (
+    <p className="text-sm text-neutral-500 py-6">
+      {copy}{' '}
+      <Link href="/settings?tab=ai" className="font-bold text-brand-x266b4e hover:underline">
+        Open AI preferences
+      </Link>
+    </p>
   );
 }
 
@@ -75,7 +88,9 @@ export function RisksCard({
   if (!status) return <CardError title="Risks" onRetry={onRetry} />;
   return (
     <Shell title="Risks" status={status} busyLabel="Analyzing">
-      {status === 'generating' ? (
+      {status === 'off' ? (
+        <Off copy={RISKS_OFF_COPY} />
+      ) : status === 'generating' ? (
         <Generating />
       ) : items.length === 0 ? (
         <p className="text-sm text-neutral-500 py-6">{RISKS_EMPTY_COPY}</p>
@@ -105,7 +120,9 @@ export function OpportunitiesCard({
   if (!status) return <CardError title="Opportunities" onRetry={onRetry} />;
   return (
     <Shell title="Opportunities" status={status} busyLabel="Scanning">
-      {status === 'generating' ? (
+      {status === 'off' ? (
+        <Off copy={OPPORTUNITIES_OFF_COPY} />
+      ) : status === 'generating' ? (
         <Generating />
       ) : items.length === 0 ? (
         <p className="text-sm text-neutral-500 py-6">{OPPORTUNITIES_EMPTY_COPY}</p>
