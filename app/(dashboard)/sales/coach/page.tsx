@@ -1,7 +1,8 @@
 "use client";
 
 import React, { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { replaceUrl } from "@/lib/replace-url";
 import { useRolePlay } from "@/hooks/useSalesCoach";
 import { useAiStatus } from "@/hooks/useAiStatus";
 import { CallPrepPanel, RolePlayPanel } from "@/components/sales/coach";
@@ -10,7 +11,6 @@ type AICoachSubTab = "Role-play" | "Call prep";
 
 function AICoachContent() {
   const params = useSearchParams();
-  const router = useRouter();
   const rp = useRolePlay();
   const ai = useAiStatus();
   const limit = { overBudget: ai.isOverBudget, resetsAt: ai.formattedResetsAt };
@@ -22,7 +22,7 @@ function AICoachContent() {
 
   const pickTab = (next: AICoachSubTab) => {
     setTab(next);
-    router.replace(next === "Call prep" ? "/sales/coach?tab=prep" : "/sales/coach", { scroll: false });
+    replaceUrl(next === "Call prep" ? "/sales/coach?tab=prep" : "/sales/coach");
   };
 
   return (

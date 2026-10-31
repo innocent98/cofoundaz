@@ -22,13 +22,11 @@ Last updated: **2026-10-31 ~11:40 WAT (lead session 16, handing over to lead 17)
 
 **Staging FE is `https://www.cofoundaz.com`** (moves to `https://stage.cofoundaz.com` later, not now). The API already allows both. Lead can't type a password there; Adebayo signs in in the browser pane.
 
-**Merged:** API #203, FE #202.
+**Merged:** API #203, #204; FE #202, #203.
 
-**Settings freeze: root caused, fix in FE #203.** Reproduced on staging. Next takes a soft navigation's URL from the cached route entry, which ignores the query string on a static page, so after a load on `?tab=billing` every pill lands back there. Same-page URLs now use `lib/replace-url.ts`. See `docs/sop/2026-10-31-settings-pills-frozen.md`. Re-check on `www` after deploy.
+**Settings freeze: root caused, fix merged in FE #203.** Reproduced on staging. Next takes a soft navigation's URL from the cached route entry, which ignores the query string on a static page, so after a load on `?tab=billing` every pill lands back there. Same-page URLs now use `lib/replace-url.ts`. See `docs/sop/2026-10-31-settings-pills-frozen.md`. Re-check on `www` after deploy.
 
-**Open, Adebayo merges:** FE #203; API #204 (develop merged in for pypdf, head `187e8612`); this docs PR.
-
-**After #203 API deploys:** Adebayo clicks Keep my plan on Kolo. Then items 4-6 below.
+**Next checks:** Adebayo clicks Keep my plan on Kolo, then items 4-6 below.
 
 **Admin + Super Admin:** D-ADM-1..7 accepted. Spec `docs/superpowers/specs/2026-10-31-admin-portals-design.md`. Start slice A after this PR merges.
 

@@ -59,3 +59,6 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 - [ ] Slice E: Maintenance mode, global sign-out, second approver
 - [ ] Next: tickets, content, reported issues
 - [ ] After Marketplace: Expert vetting, listing moderation
+
+## Fixes
+- [x] Settings pills frozen after payment: same-page URL changes use `replaceUrl` (2026-10-31, `docs/sop/2026-10-31-settings-pills-frozen.md`); re-check on staging after deploy
