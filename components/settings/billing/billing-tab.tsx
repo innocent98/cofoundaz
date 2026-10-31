@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { replaceUrl } from '@/lib/replace-url';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import { verifyReference, type Subscription } from '@/lib/api/billing';
 import { checkoutReference, verifyMessage, type VerifyMessage } from '@/lib/billing-format';
@@ -30,7 +31,6 @@ export function BillingTab({
   subError: string | null;
   reloadSub: () => Promise<void>;
 }): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const view: BillingView = (BILLING_VIEWS as readonly string[]).includes(params.get('view') ?? '')
@@ -41,7 +41,7 @@ export function BillingTab({
   const [returnChecking, setReturnChecking] = useState(false);
   const handled = useRef<string | null>(null);
 
-  const go = (v: BillingView) => router.replace(`${pathname}?tab=billing${v === 'overview' ? '' : `&view=${v}`}`, { scroll: false });
+  const go = (v: BillingView) => replaceUrl(`${pathname}?tab=billing${v === 'overview' ? '' : `&view=${v}`}`);
 
   // Back from Paystack: verify the reference once. The query string never decides success; only the
   // verify response does. Then drop the reference from the URL so a refresh doesn't replay it.
@@ -68,10 +68,10 @@ export function BillingTab({
       } finally {
         setReturnChecking(false);
         await reloadSub();
-        router.replace(`${pathname}?tab=billing`, { scroll: false });
+        replaceUrl(`${pathname}?tab=billing`);
       }
     })();
-    // reloadSub/router/pathname are stable for the life of the page
+    // reloadSub/pathname are stable for the life of the page
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFounder, reference]);
 

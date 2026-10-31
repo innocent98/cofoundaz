@@ -1,7 +1,8 @@
 'use client';
 
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { replaceUrl } from '@/lib/replace-url';
 import { Menu } from 'lucide-react';
 import { useSidebar } from '@/components/sidebar-context';
 import { useWorkspace } from '@/components/workspace-context';
@@ -24,7 +25,6 @@ const LABELS: Record<Tab, string> = {
 function SettingsHub(): React.JSX.Element {
   const { openSidebar } = useSidebar();
   const { role, loading: roleLoading } = useWorkspace();
-  const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
 
@@ -52,7 +52,7 @@ function SettingsHub(): React.JSX.Element {
     }
   }, [isFounder, reloadSub]);
 
-  const select = (t: Tab) => router.replace(`${pathname}?tab=${t}`, { scroll: false });
+  const select = (t: Tab) => replaceUrl(`${pathname}?tab=${t}`);
   const pi = isFounder ? sub?.payment_issue : null;
 
   return (
@@ -75,7 +75,7 @@ function SettingsHub(): React.JSX.Element {
         {isFounder && sub && (
           <button
             type="button"
-            onClick={() => router.replace(`${pathname}?tab=billing&view=plans`, { scroll: false })}
+            onClick={() => replaceUrl(`${pathname}?tab=billing&view=plans`)}
             className="bg-brand-tint text-brand-strong border border-brand-xd5e6dc px-4 py-1.5 rounded-full text-xs font-semibold shadow-accent cursor-pointer shrink-0"
           >
             {sub.plan.name} plan
@@ -108,7 +108,7 @@ function SettingsHub(): React.JSX.Element {
           <Banner
             tone="error"
             title="Your last payment failed"
-            action={<Button variant="danger" onClick={() => router.replace(`${pathname}?tab=billing&view=payment`, { scroll: false })}>Fix payment</Button>}
+            action={<Button variant="danger" onClick={() => replaceUrl(`${pathname}?tab=billing&view=payment`)}>Fix payment</Button>}
           >
             Update your payment method to keep your workspace active, {pi.grace_days_left} {pi.grace_days_left === 1 ? 'day' : 'days'} left in
             the grace period (until {formatDate(pi.grace_ends_at)}).

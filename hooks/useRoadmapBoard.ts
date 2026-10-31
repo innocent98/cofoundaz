@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { replaceUrl } from '@/lib/replace-url';
 import { useRoadmapApi, type RoadmapMilestone } from '@/hooks/useRoadmapApi';
 import { useTeamMembers } from '@/hooks/useTeamMembers';
 import { useMilestoneBreakdown } from '@/hooks/useMilestoneBreakdown';
@@ -17,7 +18,6 @@ export function useRoadmapBoard() {
   const members = useTeamMembers();
   const { role } = useWorkspace();
   const breakdown = useMilestoneBreakdown(api.refetch);
-  const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
 
@@ -47,8 +47,8 @@ export function useRoadmapBoard() {
   const close = useCallback(() => {
     breakdown.clearHighlight();
     setPick({ key: paramsKey, id: null });
-    if (paramsKey) router.replace(pathname, { scroll: false });
-  }, [breakdown, paramsKey, router, pathname]);
+    if (paramsKey) replaceUrl(pathname);
+  }, [breakdown, paramsKey, pathname]);
 
   const canEdit = role === 'founder' || role === 'team_member';
 

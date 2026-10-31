@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-16 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead16-handoff:docs/HANDOFF-master.md`
+> If the lead-17 docs PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/admin-portals-design:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-30 ~16:30 WAT (lead session 16)**. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-10-31 ~11:40 WAT (lead session 16, handing over to lead 17)**. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -18,7 +18,44 @@ Last updated: **2026-10-30 ~16:30 WAT (lead session 16)**. Lead 15 was session `
 
 ### 0a. Open PRs and in-flight sessions
 
-**Lead 16 (2026-10-30), current.**
+**Lead 17 (2026-10-31), current.**
+
+**Staging FE is `https://www.cofoundaz.com`** (moves to `https://stage.cofoundaz.com` later, not now). The API already allows both. Lead can't type a password there; Adebayo signs in in the browser pane.
+
+**Merged:** API #203, #204; FE #202, #203.
+
+**Settings freeze: root caused, fix merged in FE #203.** Reproduced on staging. Next takes a soft navigation's URL from the cached route entry, which ignores the query string on a static page, so after a load on `?tab=billing` every pill lands back there. Same-page URLs now use `lib/replace-url.ts`. See `docs/sop/2026-10-31-settings-pills-frozen.md`. Re-check on `www` after deploy.
+
+**Next checks:** Adebayo clicks Keep my plan on Kolo, then items 4-6 below.
+
+**Admin + Super Admin:** D-ADM-1..7 accepted. Spec `docs/superpowers/specs/2026-10-31-admin-portals-design.md`. Start slice A after this PR merges.
+
+**Lead 16 handover (2026-10-31). Adebayo starts lead 17 himself: don't auto-chain from lead 16.**
+
+**Lead 17, first (in this order):**
+1. **Check API #203 and #204.** Both were still in CI at handover; "Dependency review" is the known red. Merge only when Adebayo names the PR in his current message.
+   - **#203** `fix/billing-paystack-link`, head `2aa8a27c`: cancel, plan changes and resume now find the live Paystack subscription. `GET /subscription?customer=` needs the numeric id, so a customer code returned nothing and the subscription stayed unlinked unless the webhook linked it. Unlinked cancel never reached Paystack, so the card would keep being charged; resume then got "This subscription is already in place." Also bumps `pypdf` to 6.21.4 for new advisories, so **rebuild** the images (`docker compose build api worker`) after merge.
+   - **#204** `feature/meeting-reminder-email`, head `2c049c10`: meeting reminders by email, new type `calendar.meeting.reminder`, new Calendar preferences row on by default, skips the digest. Adebayo asked for this. No live email yet.
+2. **FE #202** (this file and the checklist): Adebayo merges.
+3. **Settings freeze, open bug, not fixed.** Adebayo: after a payment, Settings buttons stop responding and a refresh doesn't help. Not reproduced locally on a paid account: no overlay, none disabled, all 12 Settings and Billing tabs worked. That was a dev server, not the cancelled state. His screenshot shows Keep my plan still responds, so tabs (`router.replace`) may be the difference: a guess. Waiting on him for the staging FE address, which buttons, Console errors, and a private-window try. `staging-app.cofoundaz.com` does not respond, so lead 16 gave him the wrong address. Repo homepage is `https://cofoundaz.vercel.app`.
+4. **After #203 deploys,** Adebayo clicks Keep my plan on Kolo. Confirm it recovers. His Paystack subscription may still be active from the unlinked cancel.
+5. **After #204 deploys,** a meeting 20 minutes ahead should send an email. Check quiet hours are off.
+6. **Webhook not proven.** Adebayo said the redirect proved it; it doesn't. The resume failure suggests `subscription.create` wasn't processed on staging, so ask him to check delivery in the Paystack dashboard (test webhook URL `https://staging-api.cofoundaz.com/api/v1/webhooks/billing/paystack`). Renewals depend on it.
+7. **Then build:** Admin Portal + Super Admin (§2b item 3, design first), then Google sign-in (§2b item 3a).
+
+**Verified by Adebayo on staging:** Google consent and two-way sync; paid subscription, card saved, receipt PDF, credit pack, cancel showing the end date; ₦50 charge. **Verified by lead 16:** AI tone on the real model (chat only, local stack, not the daily briefing). Staging gate passed on `00582a07` and minted proof.
+
+**Still not verified:** webhook delivery, resume, ₦50 refund (Adebayo will check on the live key, a real ₦50), a reminder firing on staging, invite email (Team page invite is still mock, waits on the FE dev), renewals.
+
+**Answered:** billing is recurring by design: checkout attaches a Paystack plan and Paystack charges the saved card. No renewal has happened yet.
+
+**Google sign-in correction:** the login page already shows "Continue with Google" and "Continue with Apple" buttons. They look unwired and no backend was found. Three product calls are still open: linking to existing accounts, 2FA, onboarding and invites.
+
+**Leftovers:** worktrees `wt/billing-paystack-link`, `wt/meeting-reminder-email`, `wt/billing-tone-checks` go when their PRs merge. Two untracked old logos in `cofoundaz/public/` await Adebayo's yes to delete. Local DB has a throwaway paid founder `freeze-walk-94d122@example.com`, and Paystack test mode has `resume-probe-*` customers. `cofoundaz-api/` checkout is one commit behind develop. Local `worker` showed unhealthy: not looked into.
+
+**Test tip:** a worktree needs `cp ../../cofoundaz-api/.env.example .env` and the venv `cofoundaz-api-kvMkS96W-py3.14`, with `DATABASE_URL=...ci_scratch` (see §4 and the local-test-db memory).
+
+**Lead 16 earlier (2026-10-30), kept for history.**
 
 **Merged:** API #201 AI preferences (0082). FE #190 Calendar, #192 Settings + Billing + AI preferences, #191, #193, #194, #195. **Calendar and Settings are ✅ on merged develop** (Settings by scripted real-browser walk, 350/350).
 
