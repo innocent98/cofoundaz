@@ -1,7 +1,8 @@
 'use client';
 
 import React, { Suspense, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { replaceUrl } from '@/lib/replace-url';
 import { Lock, Plus, Users } from 'lucide-react';
 import { useMeetings } from '@/hooks/useCalendarApi';
 import { useWorkspace } from '@/components/workspace-context';
@@ -14,7 +15,6 @@ import { primaryBtn } from '@/components/calendar/drawer';
 type When = 'upcoming' | 'past';
 
 function MeetingsContent() {
-  const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const { role } = useWorkspace();
@@ -29,7 +29,7 @@ function MeetingsContent() {
     const q = new URLSearchParams(params.toString());
     if (id) q.set('meeting', id);
     else q.delete('meeting');
-    router.replace(q.toString() ? `${pathname}?${q.toString()}` : pathname);
+    replaceUrl(q.toString() ? `${pathname}?${q.toString()}` : pathname);
   }
 
   return (
