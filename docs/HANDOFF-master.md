@@ -22,13 +22,13 @@ Last updated: **2026-10-31 ~11:40 WAT (lead session 16, handing over to lead 17)
 
 **Staging FE is `https://www.cofoundaz.com`** (moves to `https://stage.cofoundaz.com` later, not now). The API already allows both. Lead can't type a password there; Adebayo signs in in the browser pane.
 
-**Merged:** API #203, #204; FE #202, #203.
+**Merged:** API #203, #204, #205 (slice A), #206 (slice B); FE #202, #203, #205 (develop to main), #206, #207.
 
 **Settings freeze: root caused, fix merged in FE #203.** Reproduced on staging. Next takes a soft navigation's URL from the cached route entry, which ignores the query string on a static page, so after a load on `?tab=billing` every pill lands back there. Same-page URLs now use `lib/replace-url.ts`. See `docs/sop/2026-10-31-settings-pills-frozen.md`. Re-check on `www` after deploy.
 
-**Next checks:** Adebayo clicks Keep my plan on Kolo, then items 4-6 below.
+**Verified 2026-10-31:** freeze fix on `www`; Keep my plan on Kolo; webhook delivery (Adebayo, Paystack dashboard). **`www` deploys from `main`**, so FE fixes need a develop to main PR. API staging deploys from develop.
 
-**Admin + Super Admin:** D-ADM-1..7 accepted. Spec `docs/superpowers/specs/2026-10-31-admin-portals-design.md`. Start slice A after this PR merges.
+**Admin + Super Admin: API only here** (Adebayo: "only do the BE"); FE and its re-walk go to the junior FE dev via `docs/fe-handoff/admin-portal.md` and `super-admin.md`. D-ADM-1..7 and P1-P13 accepted. Spec `docs/superpowers/specs/2026-10-31-admin-portals-design.md`, gap list `docs/checklist/admin-prd-gaps.md`. Slice C (`local_451b8c48-40c1-4f21-bc44-5776eb604b37`, stacked on merged #206) waits on four billing calls. Slice D flags (`local_ff52e864-1f9b-49b9-8a57-06c262f77067`) running. Then slice E, then the later brief for flags, overrides and Danger zone.
 
 **Lead 16 handover (2026-10-31). Adebayo starts lead 17 himself: don't auto-chain from lead 16.**
 
