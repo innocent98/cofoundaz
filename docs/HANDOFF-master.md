@@ -4,8 +4,8 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If FE #202 hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/billing-tone-checks:docs/HANDOFF-master.md`
+> If the lead-17 docs PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/admin-portals-design:docs/HANDOFF-master.md`
 
 Last updated: **2026-10-31 ~11:40 WAT (lead session 16, handing over to lead 17)**. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
@@ -17,6 +17,20 @@ Last updated: **2026-10-31 ~11:40 WAT (lead session 16, handing over to lead 17)
 ## 0. FOR ADEBAYO
 
 ### 0a. Open PRs and in-flight sessions
+
+**Lead 17 (2026-10-31), current.**
+
+**Staging FE is `https://www.cofoundaz.com`** (moves to `https://stage.cofoundaz.com` later, not now). The API already allows both. Lead can't type a password there; Adebayo signs in in the browser pane.
+
+**Merged:** API #203, FE #202.
+
+**Settings freeze: root caused, fix in FE #203.** Reproduced on staging. Next takes a soft navigation's URL from the cached route entry, which ignores the query string on a static page, so after a load on `?tab=billing` every pill lands back there. Same-page URLs now use `lib/replace-url.ts`. See `docs/sop/2026-10-31-settings-pills-frozen.md`. Re-check on `www` after deploy.
+
+**Open, Adebayo merges:** FE #203; API #204 (develop merged in for pypdf, head `187e8612`); this docs PR.
+
+**After #203 API deploys:** Adebayo clicks Keep my plan on Kolo. Then items 4-6 below.
+
+**Admin + Super Admin:** D-ADM-1..7 accepted. Spec `docs/superpowers/specs/2026-10-31-admin-portals-design.md`. Start slice A after this PR merges.
 
 **Lead 16 handover (2026-10-31). Adebayo starts lead 17 himself: don't auto-chain from lead 16.**
 
