@@ -1,7 +1,8 @@
 'use client';
 
 import React, { Suspense, useEffect, useRef, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { replaceUrl } from '@/lib/replace-url';
 import { AlertTriangle } from 'lucide-react';
 import { useSyncStatus } from '@/hooks/useCalendarApi';
 import { calendarApi, type GoogleCalendarOption, type GoogleConnection, type SyncDirection } from '@/lib/api/calendar';
@@ -154,7 +155,6 @@ function GoogleCard({ g, configured, reload, setLocal }: { g: GoogleConnection; 
 }
 
 function SyncContent() {
-  const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const { toast } = useCalendarToast();
@@ -169,8 +169,8 @@ function SyncContent() {
     handled.current = true;
     if (errorParam) toast(callbackErrorMessage(errorParam), 'error');
     else toast('Google Calendar connected.');
-    router.replace(pathname);
-  }, [connectedParam, errorParam, pathname, router, toast]);
+    replaceUrl(pathname);
+  }, [connectedParam, errorParam, pathname, toast]);
 
   // The first sync runs in the background right after connecting: poll until it reports.
   const syncing = data?.google.status === 'active' && data.google.last_sync_at === null;

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { replaceUrl } from '@/lib/replace-url';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { useCalendarFeed, useEvent, useToday } from '@/hooks/useCalendarApi';
 import type { FeedItem, FeedLayer } from '@/lib/api/calendar';
@@ -57,7 +58,6 @@ function DeepLinkDrawer({ id, canManage, onClose, onChanged }: { id: string; can
 }
 
 function CalendarContent() {
-  const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const today = useToday();
@@ -91,7 +91,7 @@ function CalendarContent() {
     q.set('view', next.view ?? view);
     q.set('date', dayKey(next.date ?? anchor));
     q.delete('event');
-    router.replace(`${pathname}?${q.toString()}`);
+    replaceUrl(`${pathname}?${q.toString()}`);
   }
 
   function toggleLayer(l: FeedLayer) {
@@ -185,7 +185,7 @@ function CalendarContent() {
           onClose={() => {
             const q = new URLSearchParams(params.toString());
             q.delete('event');
-            router.replace(q.toString() ? `${pathname}?${q.toString()}` : pathname);
+            replaceUrl(q.toString() ? `${pathname}?${q.toString()}` : pathname);
           }}
           onChanged={feed.reload}
         />

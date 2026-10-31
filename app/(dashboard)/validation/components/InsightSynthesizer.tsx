@@ -1,7 +1,8 @@
 'use client';
 
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { replaceUrl } from '@/lib/replace-url';
 import { History, Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { ModalDialog } from '@/components/modal-dialog';
 import { ConfirmDelete } from '@/components/validation/ConfirmDelete';
@@ -36,7 +37,6 @@ export function InsightSynthesizer({ source }: { source: InsightSource }) {
 
 function Inner({ source }: { source: InsightSource }) {
   const { triggerToast } = useToast();
-  const router = useRouter();
   const pathname = usePathname();
   const search = useSearchParams();
   const { synthesizing, synthesize, history, read, remove, apply } = useInsights(source);
@@ -48,8 +48,8 @@ function Inner({ source }: { source: InsightSource }) {
 
   const close = useCallback(() => {
     setPanel(null);
-    if (search.get('insight')) router.replace(pathname);
-  }, [router, pathname, search]);
+    if (search.get('insight')) replaceUrl(pathname);
+  }, [pathname, search]);
 
   const openReport = useCallback(
     async (id: string) => {

@@ -49,3 +49,6 @@ honest results (#148) · Validation notifications leaked to mentors (#150) · pr
 Mono production approval (sandbox keys now available) · Google calendar sync (OAuth values to re-encrypt; Outlook later) ·
 Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (parked) · feedback by email / in-app widget
 (inbound-mail provider) · outreach DKIM record + dedicated mailbox, and a per-workspace outreach gate before production.
+
+## Fixes
+- [x] Settings pills frozen after payment: same-page URL changes use `replaceUrl` (2026-10-31, `docs/sop/2026-10-31-settings-pills-frozen.md`); re-check on staging after deploy
