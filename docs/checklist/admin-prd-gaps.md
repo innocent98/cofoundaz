@@ -79,10 +79,10 @@ from merged API #205 (slice A) and the spec, not from a live walk of the mocks.
 | S11 | Staff access table: Staff member (name, email), Role chip, MFA, Last access, Actions (Revoke). | **Built**: list, revoke | Mock | See S12 to S15 |
 | S12 | Role chip: "Super admin", "Support admin", "Content admin". | Built: `role` plus `scopes[]` | Mock | An Admin can hold several scopes; show one chip per scope. The labels "Support/Content admin" are the scopes `support`/`content`; `moderation` has no mock label |
 | S13 | MFA column: "Hardware key", "Authenticator", "Not enrolled". | Built: always TOTP (an invite requires it) | Mock | "Hardware key" Dropped until D-ADM-2's later phase; "Not enrolled" cannot occur (no TOTP, no access): drop the column or show "Authenticator" |
-| S14 | Last access column. | **Gap**: the list has no last-seen value (`users.last_login_at` exists) | Mock | Small BE add in slice B: `last_login_at` on each staff row |
+| S14 | Last access column. | **Built in slice B**: `last_login_at` on each staff row | Mock | Closes the gap |
 | S15 | "Add staff member" (toast). Needs a modal: email, role, scopes, reason, and the inviter's fresh authenticator code. | **Built**: `POST /super-admin/staff` | Mock | The invitee must already have an account with 2FA on (no emailed invite): modal must say so. See P9 for editing scopes |
 | S16 | Revoke (toast). Confirm with reason + fresh code; hide on your own row. | **Built** | Mock | Step-up copy in the guide (UX consequences) |
-| S17 | Edit a staff member's scopes or role without revoking. | **Open**: only revoke and re-invite exist | Missing | **Open** P9 |
+| S17 | Edit a staff member's scopes or role without revoking. | **Built in slice B** (P9): `PATCH /super-admin/staff/{id}` | Missing | Edit dialog: role, scopes, reason, fresh code |
 | S18 | Tenant operations table (workspace, region, data residency, storage, status). | **Dropped** (D-ADM-7) | Mock; **Remove** | Spec section 5. Storage per workspace is not shown anywhere else |
 | S19 | Security tab: 5 toggles (Require MFA for all staff, IP allowlist, Cap super admin sessions at 60 min, Alert on anomalous data access, Allow founder self-serve export) + "Last penetration test May 2026". | **Open**: none of this is in the spec | Mock | **Open** P7 |
 | S20 | Security tab "Global audit log" (Actor, Action, Target, When). | **Built**: `GET /super-admin/audit` + `/audit/export` | Mock | Becomes the Audit explorer page. "Target" has no single column: use `entity_type`, `entity_id` and `details.email` (names exist only for staff actions today) |
@@ -106,24 +106,24 @@ from merged API #205 (slice A) and the spec, not from a live walk of the mocks.
 | X3 | Denser tables at 375: both mocks use wide tables with no mobile treatment. | n/a | Mock | Re-walk at 1440 and 375 |
 | X4 | "No coming soon": sections not built are left out, not stubbed. | n/a | Mock | Spec section 5 |
 
-## Product calls and spec gaps (flagged, not decided)
+## Product calls and spec gaps: P1 to P13 ACCEPTED by Adebayo 2026-10-31 ("Accept all defaults")
 
-Each has a **default** that slice B or the FE will follow unless Adebayo says otherwise; all are cheap to change.
+**All thirteen are accepted as written in the Default column below**; slice B is built to them. Each is still cheap to change. Where the build refined a default, it says so in the row.
 
-| ID | Question | Default |
+| ID | Question | Default (now the decision) |
 |---|---|---|
-| P1 | Do **Admin** (support scope) mutations (suspend, reset password, resend verification) need a fresh authenticator code like Super Admin ones? The spec requires step-up only for Super Admin mutations. | **Yes**: reason, audit row and a fresh code on every staff mutation. Costs a code per support action; safest for suspend. If no: reason and audit only for Admin. |
-| P2 | Staff acting on staff accounts: can an Admin suspend or reset a staff member, can anyone suspend themselves? | An Admin cannot act on any staff account (hidden 404); a Super Admin can act on Admins, not on themselves; nobody suspends themselves. Revoke staff access first, then suspend. |
+| P1 | Do **Admin** (support scope) mutations (suspend, reset password, resend verification) need a fresh authenticator code like Super Admin ones? The spec requires step-up only for Super Admin mutations. | **Yes**: reason, audit row and a fresh code on every staff mutation (all four user actions, staff invite, revoke and PATCH already do). The CSV export is a read, so it takes a reason and an audit row but no code. If no: reason and audit only for Admin. |
+| P2 | Staff acting on staff accounts: can an Admin suspend or reset a staff member, can anyone suspend themselves? | An Admin cannot act on any staff account (**403 `STAFF_TARGET`**, not a hidden 404: an Admin knows staff exist); a Super Admin can act on other staff, never on themselves (422 `CANNOT_ACT_ON_SELF`). **Refined in the build:** an Admin opening a staff member's profile does not see their sign-in sessions or phone (a Super Admin does), and the profile's `can` object says which buttons are enabled. |
 | P3 | Definitions for the KPI tiles. | **Total workspaces** = non-deleted startups; **activation** = workspaces that finished onboarding within 14 days of signup, over signups, per 30-day window; **paid conversion** = workspaces on a paid, non-trial subscription over all active workspaces; **MRR** = sum of monthly-equivalent kobo of active paid subscriptions (annual / 12). Deltas compare to the previous 30 days. |
 | P4 | Ticket intake: there is no founder-facing "Contact support" form, so the queue would be empty. | Build the intake (a Help entry in Settings that opens a ticket) as part of the Tickets slice; until then Support stays hidden. |
 | P5 | Content CMS vs D-ACA-1 (Academy content is repo markdown, shipped in the image; a CMS needs it in the database). | Keep repo markdown for Academy in v1 and build the CMS only for Templates metadata first, or defer the whole CMS; decide when the Content slice starts. |
 | P6 | Maintenance mode implies a platform-wide write block. | Build it as a single middleware check on non-GET requests behind a platform setting (allow-list: auth, staff routes, health), not per router. Show the status message to users via an existing banner call. |
 | P7 | The Security tab's five toggles and the pen-test date. | Replace the tab with read-only facts: "MFA is required for all staff" (always true, D-ADM-7), session rule (step-up per action), no toggles. IP allowlist is an edge (nginx) setting, not an app switch; alert on anomalous access and founder-export toggle are not built and are removed. Drop the pen-test tile. P7b: flag targeting rules (plan, stage, workspace ids, PRD 26.3) are not in D-ADM-13; default is bucketing plus an explicit workspace allow-list only. |
 | P8 | Not covered by any slice: Platform analytics (PRD 26.5), the incident banner composer (26.4), "Open incidents" tile. | Out of this build; add a "Platform analytics" slice after E if wanted. The Admin dashboard tiles (A4 to A8) cover the first KPIs. |
-| P9 | Change a staff member's role or scopes without revoke and re-invite. | Add `PATCH /super-admin/staff/{id}` (role, scopes, reason, fresh code) as a small follow-up; until then the UI offers revoke then invite. |
+| P9 | Change a staff member's role or scopes without revoke and re-invite. | **Built in slice B:** `PATCH /super-admin/staff/{id}` (role, scopes, reason, fresh code); not on yourself (422 `CANNOT_EDIT_SELF`), no-op refused (422 `NO_CHANGE`), audit action `staff.updated` with before and after. Closes S17. |
 | P10 | "AI spend, MTD, % of budget": only tokens per workspace exist. | Show platform tokens this month and credits used (1 credit = 50 tokens, D-SET-9); no money figure or budget line until a platform budget is set. |
 | P11 | Workspace detail page (members, plan, usage, integration health, PRD 25.1 "Startup page"). | Slice B builds a read-only detail with member count and roles (no names beyond email), plan, usage meters and which integrations are connected, with no content. If you want only the list, say so. |
-| P12 | Suspended users and login: does suspend block sign-in as well as end sessions? | Yes: status `disabled` already fails authentication on every request and at login; unsuspend sets `active`. A "locked" account (failed logins) is a different state and is left alone. |
+| P12 | Suspended users and login: does suspend block sign-in as well as end sessions? | Yes: status `disabled` fails authentication on every request and at login. **Refined in the build:** unsuspend restores `active`, or `pending_verification` for someone who never verified; the MFA challenge, refresh and password-reset paths also refuse a suspended user, and pending reset and verification links are killed at suspend. A "locked" account (failed logins) is a different state and is left alone. |
 | P13 | Global search box in the top bar. | Per-page search only (Users, Workspaces); remove the global box until Tickets exists. |
 
 ## Build order
@@ -140,4 +140,6 @@ Each has a **default** that slice B or the FE will follow unless Adebayo says ot
 |---|---|
 | Slice A API #205 | Merged. |
 | This list | Written 2026-10-31 on `docs/admin-prd-gaps`; docs PR open, not merged. |
-| Left | Adebayo's answers to P1 to P13 (defaults stand until then); slices B to E; FE and re-walk by the FE dev. |
+| P1 to P13 | Accepted by Adebayo 2026-10-31 ("Accept all defaults"). |
+| Slice B | Built to the accepted calls on `feature/admin-users-workspaces` (PR open, not merged): A4 to A15 and S14, S17 have API support; guide `fe-integration-guide-admin-users.md`. |
+| Left | Slices C to E; FE and the 1440 + 375 re-walk by the FE dev; Tickets (P4), Content (P5). |
