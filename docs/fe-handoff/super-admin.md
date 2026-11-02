@@ -1,6 +1,6 @@
 # FE hand-off: Super Admin Portal (`/super-admin`)
 
-**For:** the FE developer. **Scope:** exactly what is below. Feature flags, Billing overrides and Danger zone come in a later brief, when their API is merged.
+**For:** the FE developer. **Scope:** exactly what is below. Feature flags and Billing overrides are in `docs/fe-handoff/super-admin-flags-billing.md`; Danger zone comes in a later brief.
 **Build after** `docs/fe-handoff/admin-portal.md`: reuse its step-up dialog and staff check.
 **Backend:** API #205 and #206, merged to `develop`. **Contract:** `cofoundaz-api/docs/fe-integration-guide-admin-staff.md`, plus `fe-integration-guide-admin-users.md` for KPIs. Every body was captured live. **Gap list:** `docs/checklist/admin-prd-gaps.md` (rows S1 to S30, X1 to X4). **Design:** `# Cofoundaz Web App UI Build/Super Admin Portal.dc.html`.
 Files: `app/super-admin/page.tsx` (almost entirely replaced), `lib/api/admin.ts`, new components as needed. Read `AGENTS.md` first. Delete all mock data and every "Switched to ..." toast.

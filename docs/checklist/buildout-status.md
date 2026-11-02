@@ -56,8 +56,9 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 - [x] Slice B: Users, Workspaces, Dashboard, edit staff (API #206)
 - [x] Gap list and P1-P13 accepted (FE #207)
 - [x] FE briefs: `docs/fe-handoff/admin-portal.md`, `super-admin.md`; FE and FE re-walk with the FE dev
-- [ ] Slice C: Billing overrides
-- [ ] Slice D: Feature flags
+- [x] Slice C: Billing overrides (API #207)
+- [x] Slice D: Feature flags (API #208)
+- [x] FE brief for flags, overrides and founder Billing changes: `docs/fe-handoff/super-admin-flags-billing.md`
 - [ ] Slice E: Maintenance mode, global sign-out, second approver
 - [ ] Next: tickets, content, reported issues
 - [ ] After Marketplace: Expert vetting, listing moderation
