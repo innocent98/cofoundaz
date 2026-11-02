@@ -11,6 +11,7 @@ import {
   exchangeGoogleTicket,
   googleErrorMessage,
 } from '@/lib/api/google-signin';
+import { isSafeInternalPath } from '@/lib/auth/safe-next';
 import { completePostLogin, clearStoredInvite } from '@/lib/auth/post-login';
 
 const MFA_HANDOFF_KEY = 'cf_mfa_handoff';
@@ -20,15 +21,6 @@ type View =
   | { kind: 'loading' }
   | { kind: 'error'; message: string }
   | { kind: 'invite-failed'; message: string; continueTo: string };
-
-function isSafePath(p: string | null | undefined): p is string {
-  if (!p || !p.startsWith('/') || p.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(p)) return false;
-  try {
-    return new URL(p, window.location.origin).origin === window.location.origin;
-  } catch {
-    return false;
-  }
-}
 
 // Return page for Google sign-in. The API redirects here with `#ticket=…` (or
 // `?error=…`); the ticket is redeemed once, then the session is handled exactly
@@ -63,7 +55,7 @@ export default function GoogleCallbackPage() {
       try {
         const data = await exchangeGoogleTicket(ticket);
         // Only the API's own answer counts: it returns the invite token only when the Google email matched the invite.
-        const next = isSafePath(data.next) ? data.next : null;
+        const next = isSafeInternalPath(data.next) ? data.next : null;
         const invite = data.invite_token ?? null;
 
         if (data.mfa_required && data.mfa_ticket) {
