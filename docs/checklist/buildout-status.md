@@ -59,7 +59,8 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 - [x] Slice C: Billing overrides (API #207)
 - [x] Slice D: Feature flags (API #208)
 - [x] FE brief for flags, overrides and founder Billing changes: `docs/fe-handoff/super-admin-flags-billing.md`
-- [ ] Slice E: Maintenance mode, global sign-out, second approver
+- [x] Slice E: Maintenance mode, global sign-out, second approver (API #209)
+- [x] FE brief: `docs/fe-handoff/super-admin-danger-zone.md`, with the app-wide maintenance banner
 - [ ] Next: tickets, content, reported issues
 - [ ] After Marketplace: Expert vetting, listing moderation
 
