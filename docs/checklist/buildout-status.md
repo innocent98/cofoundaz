@@ -61,7 +61,15 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 - [x] FE brief for flags, overrides and founder Billing changes: `docs/fe-handoff/super-admin-flags-billing.md`
 - [x] Slice E: Maintenance mode, global sign-out, second approver (API #209)
 - [x] FE brief: `docs/fe-handoff/super-admin-danger-zone.md`, with the app-wide maintenance banner
-- [ ] Next: tickets, content, reported issues
+- [x] Tickets with founder Help intake, T1-T8 accepted (API #211, 0087; FE brief #212), 2026-11-02
+- [x] Reported issues, R1-R12 lead defaults (API #212, 0088; FE brief #213), 2026-11-02
+- [ ] Content library: deferred by Adebayo 2026-11-02 (P5: Academy stays repo markdown; no Templates editor yet). Stays hidden
+- [ ] FE for all Admin briefs and its 1440 + 375 re-walk: the junior FE dev
+
+## Google sign-in / sign-up
+- [x] Four calls accepted 2026-11-02 (link by verified email, 2FA applies, onboarding + invite match, hide Apple)
+- [x] API #213 (no migration), FE brief #214; redirect URIs added by Adebayo 2026-11-02
+- [ ] FE wiring by the lead's team (`feature/google-sign-in-fe`, Adebayo 2026-11-02), then a real Google click on local and staging
 - [ ] After Marketplace: Expert vetting, listing moderation
 
 ## Fixes
