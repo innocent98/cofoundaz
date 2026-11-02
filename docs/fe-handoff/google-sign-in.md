@@ -1,3 +1,5 @@
+> **Built by the lead's team (branch `feature/google-sign-in-fe`, 2026-11-02). FE dev: skip this brief.** The text below is kept as the spec it was built from.
+
 # FE hand-off: Google sign-in and sign-up
 
 **For:** the FE developer. **Scope:** exactly what is below. **Backend:** API branch `feature/google-sign-in` (PR linked by the lead; merge first; no migration).
