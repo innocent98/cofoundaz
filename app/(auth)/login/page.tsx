@@ -5,17 +5,8 @@ import { useRouter } from "next/navigation";
 import { AuthForm } from "@/ui/marketing/auth/auth-form";
 import { apiClient, ApiError } from "@/lib/api/client";
 import { completePostLogin } from "@/lib/auth/post-login";
-
-// A `?next=` param (set by the global 401 redirect on session expiry) is honored
-// only when it's a safe internal path — never an external or auth URL.
-function safeNextPath(): string | null {
-  if (typeof window === "undefined") return null;
-  const next = new URLSearchParams(window.location.search).get("next");
-  if (next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/login") && !next.startsWith("/signup")) {
-    return next;
-  }
-  return null;
-}
+import { safeNextPath } from "@/lib/auth/safe-next";
+import { startGoogleSignIn, googleStartErrorMessage } from "@/lib/api/google-signin";
 
 interface LoginData {
   access_token?: string;
@@ -121,10 +112,20 @@ export default function LoginPage() {
     }
   }
 
+  async function handleGoogle() {
+    setError(null);
+    try {
+      await startGoogleSignIn(safeNextPath());
+    } catch (err: unknown) {
+      setError(googleStartErrorMessage(err));
+    }
+  }
+
   return (
     <AuthForm
       mode="login"
       onSubmit={handleLogin}
+      onGoogle={handleGoogle}
       error={error}
       isSubmitting={isSubmitting}
     />

@@ -25,7 +25,7 @@ export const authModes = {
 
 export const authShared = {
   google: 'Continue with Google',
-  apple: 'Continue with Apple',
+  googleLoading: 'Opening Google...',
   divider: 'or',
   emailLabel: 'Work email',
   emailPlaceholder: 'you@startup.com',
@@ -35,4 +35,34 @@ export const authShared = {
   termsLink: { label: 'Terms of Service', href: '/terms' },
   termsJoin: 'and',
   privacyLink: { label: 'Privacy Policy', href: '/privacy' },
+} as const
+
+// Copy for the Google sign-in return page (`/auth/google/callback`).
+export const googleSignIn = {
+  loading: 'Signing you in with Google',
+  backToSignIn: 'Back to sign in',
+  continueAnyway: 'Continue',
+  unknownError: "We couldn't sign you in with Google. Try again.",
+  ticketInvalid: 'That sign-in has expired. Start again.',
+  startNotConfigured: "Google sign-in isn't available right now. Use your email instead.",
+  inviteInvalid: 'This invitation is no longer valid.',
+  tooManyAttempts: 'Too many attempts. Please wait a moment and try again.',
+  startGeneric: "We couldn't start Google sign-in. Please try again.",
+  errors: {
+    access_denied: 'You cancelled Google sign-in.',
+    email_not_verified:
+      "Google hasn't verified that email address. Use another Google account or sign up with email.",
+    invalid_state: 'That sign-in expired. Please try again.',
+    invite_email_mismatch:
+      'This invitation was sent to a different email address. Sign in with the invited Google account.',
+    invite_invalid: 'This invitation is no longer valid.',
+    account_disabled: 'This account has been suspended. Contact support.',
+    account_unavailable: 'This account is unavailable.',
+    google_account_mismatch:
+      'This account is linked to a different Google account. Use that one, or sign in with your password.',
+    exchange_failed: "We couldn't verify your Google sign-in. Try again.",
+    maintenance: "Cofoundaz is in maintenance. New accounts can't be created right now.",
+    rate_limited: 'Too many attempts. Try again in a few minutes.',
+    try_again: 'Something went wrong. Please try again.',
+  },
 } as const
