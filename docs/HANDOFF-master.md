@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-18 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead18-handoff:docs/HANDOFF-master.md`
+> If the lead-19 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead19-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-11-02 ~14:15 WAT (lead session 17, handing over to lead 18)**. Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-02 ~16:30 WAT (lead session 18, handing over to lead 19)**. Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -18,7 +18,43 @@ Last updated: **2026-11-02 ~14:15 WAT (lead session 17, handing over to lead 18)
 
 ### 0a. Open PRs and in-flight sessions
 
-**Lead 17 handover to lead 18 (2026-11-02). Lead 17 starts lead 18 itself and then only relays.**
+**Lead 18 handover to lead 19 (2026-11-02).**
+
+**State:**
+- **Admin API "Next" is done** except Content (deferred). Merged today: API **#211 Tickets** (`073cef9f`, 0087), **#212 Reported issues** (`02c7caf5`, 0088), **#213 Google sign-in** (`08b34faa`, no migration). FE briefs **#212** (`admin-support-tickets.md`), **#213** (`admin-reported-issues.md`), **#214** (`google-sign-in.md`). Also FE #210 (Danger zone brief) and #211 (lead-18 handoff).
+- API develop is **`08b34faa`**; migrations end at **`0088_content_reports`**. Staging `CD (staging)` passed for `219ad18b`, `073cef9f`, `02c7caf5`; the `08b34faa` run was queued at handover: **confirm it**.
+- **Local stack is DOWN.** Adebayo ran `docker compose down` himself (images rebuilt for pypdf 6.21.4). The shared checkout is on `08b34faa`. When he brings it up: `docker compose up -d && docker compose exec -T api alembic upgrade head` (0088 not yet applied locally).
+
+**Decisions taken by Adebayo this session (all in memory `admin-decisions`, `google-sign-in-queued`):**
+- Tickets T1-T8 ("Accept all three" + defaults): first-reply SLA P1 1h / P2 4h / P3 24h / P4 72h; no AI triage; text only (5000 chars); 5 tickets/hr, 20/day, 30 replies/hr; workspace founder sees all the workspace's tickets, never notes; reply reopens within 14 days; escalate = P1 + note, resolve emails.
+- **P1 exception** ("Yes, skip it"): no fresh authenticator code on routine ticket actions (reply, note, assign, priority, resolve, escalate). Audit rows and escalate reasons stay.
+- **P5** ("Keep repo markdown"): Academy stays repo markdown. **Content editor deferred** ("Defer the editor"): Content library stays hidden.
+- Reported issues R1-R12 are **lead defaults** (Adebayo saw them, no change): staff see only the snippet copied at report time; remove/restore need step-up; moderator vs Super Admin on escalations.
+- **Google sign-in** ("Accept all four"): link by verified email (an unverified squatter row is taken over, its 2FA cleared); 2FA still applies; first sign-in goes to onboarding; invite accepted only if emails match; hide Apple. **Adebayo added the redirect URIs** (local, staging, prod).
+- **Google sign-in FE is ours, not the FE dev's** (Adebayo: "lets do it alongside our work").
+
+**In flight:**
+| Session | Task | Branch | State |
+|---|---|---|---|
+| `google-sign-in-fe` `local_c1f0452c-26a8-4d31-9aa8-d0762951aaa3` (Sonnet) | Wire Google buttons, `/auth/google/callback`, invite + MFA, hide Apple, walk 1440 + 375 | FE `feature/google-sign-in-fe` (`wt/google-sign-in-fe`) | started 16:10, building. Needs the local stack up, and Adebayo's real Google click once. Then a develop to main PR so `www` gets it, and a real click on staging |
+
+Done and idle (can be archived on Adebayo's yes): `admin-tickets` `local_dce82c80-...`, `admin-reports` `local_535f9f7b-...`, `google-sign-in` `local_d7993816-...`.
+
+**Follow-ups found this session (not blocking):**
+- Google (SOP `cofoundaz-api/docs/sop/2026-11-02-google-sign-in.md`): email the owner when Google is linked; a set-password path for Google-only accounts (they can't turn 2FA off today); unique index `oauth_accounts(user_id, provider)`; rate limit keys on the proxy IP unless `FORWARDED_ALLOW_IPS` is set; squatter's access token lives up to 15 min after takeover.
+- Reported issues: no notification to the author on removal yet.
+- Scratch containers from finished sessions are still running (`tk-*`, `rep-*`, `gsi-*`, `adz-*`, `dvafee-*`, `sr-ci-*`); worktrees `wt/admin-slice-*`, `wt/admin-tickets*`, `wt/admin-reports*`, `wt/google-sign-in` can go. Deleting is blocked for the lead: give Adebayo the commands.
+
+**Adebayo's own to-dos:** send the FE dev the Admin briefs (`admin-portal.md`, `super-admin*.md`, `admin-support-tickets.md`, `admin-reported-issues.md`) with `MESSAGE-to-fe-dev-admin.md`; the FE dev still has no PRs for Team, Journal, Notifications or Admin.
+
+**Next, in order (lead 19):**
+1. Confirm staging `CD (staging)` for `08b34faa`.
+2. Check `google-sign-in-fe`'s PR yourself (branch, CI, no attribution, walk evidence); get Adebayo's real Google click on local, then staging after a develop to main PR.
+3. **CI tuning** (§2b item 5): path filters, sharded unit suite, trim API e2e to critical journeys. Measure before/after.
+4. Then **Funding, Investor Readiness, Marketplace** (§2b item 6): design first per page (PRD + existing FE page, gap list with D-n questions), then BE slices; unhide each in the sidebar when it ships. Expert vetting and listing moderation come with Marketplace.
+5. Lead's habits (from lead 17, still true): check every session's branch, PR and CI yourself; brief each sub-session with worktree, branch, migration number and the rules; Opus review per task on security slices; grep tests for side effects in `assert` before pushing (CodeQL fails them); `gh pr merge --squash --match-head-commit` only on Adebayo's named go-ahead; keep 2-3 sessions building.
+
+**Lead 17 handover to lead 18 (2026-11-02), kept for history.**
 
 **State:**
 - **First-release Admin API is complete:** slices **A #205, B #206, C #207, D #208, E #209 all merged**. API develop is `219ad18b`; migrations end at `0086_admin_danger_zone`.
@@ -516,11 +552,11 @@ colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169
 2. **S8 AI preferences** (`settings` session, brief sent 2026-10-29): `GET/PATCH /ai/settings`; daily briefing off stops briefing
    generation + notification, proactive suggestions off stops the AI-initiated nudges (session documents which surfaces), tone from
    a fixed enum into the LLM prompt seam. "What I remember" / Forget / Clear all deferred (no memory store); FE hides that section.
-3. **Admin Portal (25) + Super Admin Portal (26) BE**: first release A-E all merged (lead 17, 2026-11-02). Next: Tickets, Content, Reported issues. (Original note follows.) Adebayo 2026-10-29: before Funding, Investor Readiness, Marketplace.
+3. **Admin Portal (25) + Super Admin Portal (26) BE**: ✅ A-E, Tickets (#211), Reported issues (#212) merged 2026-11-02; Content deferred by Adebayo; vetting/moderation after Marketplace. (Original note follows.) Adebayo 2026-10-29: before Funding, Investor Readiness, Marketplace.
    Design first like Sales: read the PRD sections + the existing FE pages, write a spec with D-ADM-n questions, get Adebayo's calls,
    then BE slices with live-captured guides. Platform-level roles (not workspace roles) are new: check how `super-admin` auth should
    work before building.
-3a. **Google sign-in/sign-up** (Adebayo 2026-10-30, queued after Admin). Nothing exists yet: Google is only used for Calendar. Calls to make first: linking to an existing email account, whether 2FA still applies, and first-time users going through onboarding and invite acceptance. Needs a redirect URI per environment.
+3a. **Google sign-in/sign-up**: ✅ API #213 merged 2026-11-02 (four calls accepted); FE by `google-sign-in-fe` in flight. (Original note follows.) Nothing existed then: Google is only used for Calendar. Calls to make first: linking to an existing email account, whether 2FA still applies, and first-time users going through onboarding and invite acceptance. Needs a redirect URI per environment.
 4. ~~FE passes for Calendar and Settings/Billing~~ **done in lead 16.** **FE passes for Calendar and Settings/Billing**: Claude FE sessions (`calendar-fe`, `settings-fe`), started 2026-10-29 by
    Adebayo's call ("we can start now"); resume them from their ledgers. The junior FE dev builds Journal, Notifications, Team from `docs/fe-handoff/*.md`; the lead re-walks each after merge.
 5. **CI tuning, both repos (Adebayo 2026-10-29; global rule "CI pipeline shape").** One small `ci/pipeline-speed` PR per repo:
