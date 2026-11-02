@@ -69,7 +69,8 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 ## Google sign-in / sign-up
 - [x] Four calls accepted 2026-11-02 (link by verified email, 2FA applies, onboarding + invite match, hide Apple)
 - [x] API #213 (no migration), FE brief #214; redirect URIs added by Adebayo 2026-11-02
-- [ ] FE wiring by the lead's team (`feature/google-sign-in-fe`, Adebayo 2026-11-02), then a real Google click on local and staging
+- [x] FE wiring by the lead's team: FE #216 open (`feature/google-sign-in-fe`, CI green; open-redirect fix in)
+- [ ] Adebayo's real Google click on local, merge #216, develop to main, real click on staging
 - [ ] After Marketplace: Expert vetting, listing moderation
 
 ## Fixes
