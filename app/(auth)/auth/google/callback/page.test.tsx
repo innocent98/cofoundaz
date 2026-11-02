@@ -70,8 +70,8 @@ describe('Google callback page', () => {
     expect(completePostLogin.mock.calls[0][0]).not.toHaveProperty('email');
   });
 
-  it('drops an unsafe next path', async () => {
-    exchange.mockResolvedValue({ access_token: 'a', next: '//evil.example' });
+  it.each(['//evil.example', '/\\evil.example', 'https://evil.example', '/a\nb'])('drops an unsafe next path %j', async (bad) => {
+    exchange.mockResolvedValue({ access_token: 'a', next: bad });
     visit('/auth/google/callback#ticket=abc');
     render(<GoogleCallbackPage />);
     await waitFor(() => expect(completePostLogin).toHaveBeenCalled());
@@ -95,13 +95,13 @@ describe('Google callback page', () => {
     expect(completePostLogin.mock.calls[0][0].inviteToken).toBe('inv-1');
   });
 
-  it('falls back to the stored invite token when the response has none', async () => {
+  it('ignores a stored invite token the API did not return, and clears it', async () => {
     sessionStorage.setItem('cf_invite_token', 'stored-1');
     exchange.mockResolvedValue({ access_token: 'a' });
     visit('/auth/google/callback#ticket=abc');
     render(<GoogleCallbackPage />);
     await waitFor(() => expect(completePostLogin).toHaveBeenCalled());
-    expect(completePostLogin.mock.calls[0][0].inviteToken).toBe('stored-1');
+    expect(completePostLogin.mock.calls[0][0].inviteToken).toBeNull();
     expect(sessionStorage.getItem('cf_invite_token')).toBeNull();
   });
 

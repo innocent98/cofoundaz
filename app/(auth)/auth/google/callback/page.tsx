@@ -11,7 +11,7 @@ import {
   exchangeGoogleTicket,
   googleErrorMessage,
 } from '@/lib/api/google-signin';
-import { completePostLogin, clearStoredInvite, INVITE_TOKEN_KEY } from '@/lib/auth/post-login';
+import { completePostLogin, clearStoredInvite } from '@/lib/auth/post-login';
 
 const MFA_HANDOFF_KEY = 'cf_mfa_handoff';
 const CALLBACK_PATH = '/auth/google/callback';
@@ -22,14 +22,11 @@ type View =
   | { kind: 'invite-failed'; message: string; continueTo: string };
 
 function isSafePath(p: string | null | undefined): p is string {
-  return !!p && p.startsWith('/') && !p.startsWith('//') && !p.includes('\\');
-}
-
-function storedInvite(): string | null {
+  if (!p || !p.startsWith('/') || p.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(p)) return false;
   try {
-    return sessionStorage.getItem(INVITE_TOKEN_KEY);
+    return new URL(p, window.location.origin).origin === window.location.origin;
   } catch {
-    return null;
+    return false;
   }
 }
 
@@ -50,7 +47,6 @@ export default function GoogleCallbackPage() {
     const query = new URLSearchParams(window.location.search);
     const ticket = hash.get('ticket');
     const errorCode = query.get('error');
-    const queryNext = query.get('next');
     // Nothing secret stays in the address bar.
     window.history.replaceState(null, '', CALLBACK_PATH);
 
@@ -66,8 +62,9 @@ export default function GoogleCallbackPage() {
     void (async () => {
       try {
         const data = await exchangeGoogleTicket(ticket);
-        const next = isSafePath(data.next) ? data.next : isSafePath(queryNext) ? queryNext : null;
-        const invite = data.invite_token || storedInvite();
+        // Only the API's own answer counts: it returns the invite token only when the Google email matched the invite.
+        const next = isSafePath(data.next) ? data.next : null;
+        const invite = data.invite_token ?? null;
 
         if (data.mfa_required && data.mfa_ticket) {
           try {
