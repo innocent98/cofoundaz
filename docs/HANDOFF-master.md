@@ -23,7 +23,7 @@ Last updated: **2026-11-02 ~14:15 WAT (lead session 17, handing over to lead 18)
 **State:**
 - **First-release Admin API is complete:** slices **A #205, B #206, C #207, D #208, E #209 all merged**. API develop is `219ad18b`; migrations end at `0086_admin_danger_zone`.
 - Develop was red from #207's merge until #210: the test Paystack stub stamped every payment with a fixed date, so from 2026-11-01 a monthly plan "bought" in a test had already ended. The fix is in `app/services/finance/payments/stub_transport.py`. Real billing was never affected.
-- FE develop has the Admin gap list (#207) and three FE briefs (#208, #209). Nothing is open on FE.
+- FE develop has the Admin gap list (#207) and three FE briefs (#208, #209). The Danger zone brief (#210) and this handoff are open.
 
 **Open, Adebayo merges:**
 - **FE #210**: Danger zone FE brief (`docs/fe-handoff/super-admin-danger-zone.md`), with the app-wide maintenance banner.
