@@ -66,7 +66,7 @@ These ship in the same PR, because a comped or refunded founder otherwise sees w
 
 ## D. Out of scope (do not build)
 
-Danger zone (next brief), cancelling a pending refund, any Paystack call, flag targeting by plan or stage, a founder-side flags hook, editing a flag's key, bulk overrides.
+Danger zone (`super-admin-danger-zone.md`), cancelling a pending refund, any Paystack call, flag targeting by plan or stage, a founder-side flags hook, editing a flag's key, bulk overrides.
 
 ## E. Acceptance = the re-walk rows
 
