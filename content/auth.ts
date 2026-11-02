@@ -25,7 +25,7 @@ export const authModes = {
 
 export const authShared = {
   google: 'Continue with Google',
-  googleLoading: 'Opening Google...',
+  googleSignup: 'Sign up with Google',
   divider: 'or',
   emailLabel: 'Work email',
   emailPlaceholder: 'you@startup.com',

@@ -16,5 +16,21 @@ Branch `feature/google-sign-in-fe`, dev server on :3103 proxying to the local AP
 | 9 | Other `?error=` codes (11 more + unknown) | n/a | unit tests (`app/(auth)/auth/google/callback/page.test.tsx`) |
 | 10 | Strict-mode double effect, MFA branch (handoff without email, with invite), invite accept success and failure, unsafe `next` dropped | n/a | unit tests (callback page test, `lib/api/google-signin.test.ts`) |
 
-## Still needs Adebayo's real Google click
+## Google branding pass (2026-11-02, after Adebayo's real sign-up and sign-in on :3000 worked)
+The button is Google's light-theme Sign-In button (`ui/marketing/auth/google-button.tsx`), not a Cofoundaz style. The app has no dark mode, so only the light theme ships.
+
+| Check | Result |
+|---|---|
+| Computed style, 1440 | white fill, `1px solid #747775`, text `#1F1F1F`, Roboto 500 loaded via next/font, 14px, height 40px, 12px side padding, 4px radius |
+| Mark | inline multicolour G, `#EA4335 #4285F4 #FBBC05 #34A853`, 20px, `aria-hidden` |
+| Labels | `/login` "Continue with Google", `/signup` "Sign up with Google" |
+| 375 | full width (327px), no horizontal overflow |
+| Accessibility | axe clean (unit test); native `<button>`, visible focus outline, `aria-busy` while starting |
+
+Screenshots: `google-sign-in-fe-walk-evidence/login-1440.jpg`, `signup-1440.jpg`, `login-375.jpg`, `signup-375.jpg`.
+
+## Real Google round trip
+2026-11-02: Adebayo did a real Google sign-up and sign-in on :3000 and both worked (reported by the lead). 2FA, link-by-email and invite round trips are still unit-tested only.
+
+## (Earlier note) Still needs Adebayo's real Google click
 The API redirects the browser to its configured FE address after Google. For the local run, that is the dev server on the address the API has in its config; start this branch on that port (3000 is free) and click Continue with Google once on `/login`. Then check: new account lands in onboarding; sign out and back in; a password account with the same email links and keeps its password; a 2FA account reaches the code screen; invite link with the invited and a different Google account.

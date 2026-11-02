@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { GoogleButton } from './google-button'
 import { Button, Field, fieldControlClasses } from '@/ui/primitives'
 import { authModes, authShared } from '@/content/auth'
 
@@ -79,16 +80,12 @@ export function AuthForm({
       <p className="mt-2 text-[15px] text-neutral-500">{copy.subtitle}</p>
 
       <div className="mt-7 flex flex-col gap-2.5">
-        <Button
-          type="button"
-          variant="secondary"
-          size="md"
-          className="w-full"
+        <GoogleButton
+          label={isSignup ? authShared.googleSignup : authShared.google}
           onClick={handleGoogle}
           disabled={!onGoogle || isSubmitting || googleLoading}
-        >
-          {googleLoading ? authShared.googleLoading : authShared.google}
-        </Button>
+          busy={googleLoading}
+        />
       </div>
 
       <div className="my-5 flex items-center gap-3 text-[13px] text-neutral-500">
