@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-17 docs PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/admin-portals-design:docs/HANDOFF-master.md`
+> If the lead-18 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead18-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-10-31 ~11:40 WAT (lead session 16, handing over to lead 17)**. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-02 ~14:15 WAT (lead session 17, handing over to lead 18)**. Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -18,7 +18,54 @@ Last updated: **2026-10-31 ~11:40 WAT (lead session 16, handing over to lead 17)
 
 ### 0a. Open PRs and in-flight sessions
 
-**Lead 17 (2026-10-31), current.**
+**Lead 17 handover to lead 18 (2026-11-02). Lead 17 starts lead 18 itself and then only relays.**
+
+**State:**
+- **First-release Admin API is complete:** slices **A #205, B #206, C #207, D #208, E #209 all merged**. API develop is `219ad18b`; migrations end at `0086_admin_danger_zone`.
+- Develop was red from #207's merge until #210: the test Paystack stub stamped every payment with a fixed date, so from 2026-11-01 a monthly plan "bought" in a test had already ended. The fix is in `app/services/finance/payments/stub_transport.py`. Real billing was never affected.
+- FE develop has the Admin gap list (#207) and three FE briefs (#208, #209). The Danger zone brief (#210) and this handoff are open.
+
+**Open, Adebayo merges:**
+- **FE #210**: Danger zone FE brief (`docs/fe-handoff/super-admin-danger-zone.md`), with the app-wide maintenance banner.
+- **This handoff PR.**
+
+**Slice E notes:**
+- Turning maintenance off is a one-person action; turning it on, and global sign-out, need a second Super Admin.
+- Accepted narrow gap: a live-updates stream ticket minted in the 30 s before a global sign-out can still open a stream. It's in the SOP.
+- Staging deploy of `219ad18b` not checked yet: confirm `CD (staging)` succeeded.
+
+**Admin is API only** (Adebayo 2026-10-31, "only do the BE"). The FE and its re-walk go to the junior FE dev:
+- Briefs: `docs/fe-handoff/admin-portal.md`, `super-admin.md`, `super-admin-flags-billing.md`, `super-admin-danger-zone.md` (FE #210).
+- Message: `docs/fe-handoff/MESSAGE-to-fe-dev-admin.md`, which Adebayo sends.
+- The FE dev has **no PRs open yet**, for Team, Journal, Notifications or Admin.
+
+**Decisions (all in memory `admin-decisions`):**
+- D-ADM-1..7 (spec `docs/superpowers/specs/2026-10-31-admin-portals-design.md`).
+- P1-P13 (`docs/checklist/admin-prd-gaps.md`).
+- Slice C's four calls ("Accept all four"): credit = AI credits; comp = free plan up to 365 days; extend trial 1-60 days capped at 90; a refund shows to the founder only after it's marked done.
+
+**Next API work, in order:**
+1. **Tickets**, with the founder Help intake in Settings (P4).
+2. **Content tools.** P5 is open: Academy stays repo markdown unless Adebayo says otherwise; ask when this starts.
+3. **Reported issues.**
+4. **Google sign-in** (§2b 3a). Three product calls first: linking to existing accounts, 2FA, onboarding and invites.
+
+Expert vetting and listing moderation wait for Marketplace.
+
+**Founder-side Billing change still owed to the FE:** a comped founder today sees "Your plan ends on" and a Keep my plan button that fails 409 `PLAN_COMPLIMENTARY`. The fix is part C of `super-admin-flags-billing.md`. Comp should be used on staging only after the FE dev ships it.
+
+**Not verified:** a real renewal, the ₦50 refund, a meeting reminder firing on staging, a comp lapsing in real time, live Paystack webhooks for comp.
+
+**How lead 17 learned to work (keep doing it):**
+- **Check a session's branch and PR yourself before reporting.** A note is not proof, and sessions have pushed with conflicts unresolved or waited on long local runs.
+- **Read CI's own log** when it fails. GitHub holds a run's logs until every job in it finishes.
+- **CI shares one e2e database across the staff journeys:** never assert exact staff counts, and leave maintenance mode off.
+- **`gh pr merge` needs Adebayo to name the PR** in his current message. Always pass `--match-head-commit`.
+- **Commit hooks run ESLint and need `node_modules`.** In an FE docs worktree, symlink one from a worktree that has it (e.g. `ln -s ../<wt>/node_modules`), commit, then remove the link. Never use `--no-verify`.
+- **Deleting worktrees is blocked by the classifier.** Give Adebayo the command.
+- **Keep 2 or 3 sessions building.** Don't idle while one waits on CI.
+
+**Lead 17 (2026-10-31), kept for history.**
 
 **Staging FE is `https://www.cofoundaz.com`** (moves to `https://stage.cofoundaz.com` later, not now). The API already allows both. Lead can't type a password there; Adebayo signs in in the browser pane.
 
@@ -469,7 +516,7 @@ colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169
 2. **S8 AI preferences** (`settings` session, brief sent 2026-10-29): `GET/PATCH /ai/settings`; daily briefing off stops briefing
    generation + notification, proactive suggestions off stops the AI-initiated nudges (session documents which surfaces), tone from
    a fixed enum into the LLM prompt seam. "What I remember" / Forget / Clear all deferred (no memory store); FE hides that section.
-3. **Admin Portal (25) + Super Admin Portal (26) BE** (Adebayo 2026-10-29: before Funding, Investor Readiness, Marketplace).
+3. **Admin Portal (25) + Super Admin Portal (26) BE**: first release A-E all merged (lead 17, 2026-11-02). Next: Tickets, Content, Reported issues. (Original note follows.) Adebayo 2026-10-29: before Funding, Investor Readiness, Marketplace.
    Design first like Sales: read the PRD sections + the existing FE pages, write a spec with D-ADM-n questions, get Adebayo's calls,
    then BE slices with live-captured guides. Platform-level roles (not workspace roles) are new: check how `super-admin` auth should
    work before building.
