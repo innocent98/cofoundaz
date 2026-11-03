@@ -4,6 +4,8 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthForm } from "@/ui/marketing/auth/auth-form";
 import { apiClient, ApiError } from "@/lib/api/client";
+import { safeNextPath } from "@/lib/auth/safe-next";
+import { startGoogleSignIn, googleStartErrorMessage } from "@/lib/api/google-signin";
 
 interface SignupEnvelope {
   data?: {
@@ -111,10 +113,20 @@ function SignupForm() {
     }
   }
 
+  async function handleGoogle() {
+    setError(null);
+    try {
+      await startGoogleSignIn(safeNextPath());
+    } catch (err: unknown) {
+      setError(googleStartErrorMessage(err));
+    }
+  }
+
   return (
     <AuthForm
       mode="signup"
       onSubmit={handleSignup}
+      onGoogle={handleGoogle}
       error={error}
       successMessage={successMessage}
       isSubmitting={isSubmitting}

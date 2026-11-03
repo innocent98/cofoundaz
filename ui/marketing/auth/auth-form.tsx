@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { GoogleButton } from './google-button'
 import { Button, Field, fieldControlClasses } from '@/ui/primitives'
 import { authModes, authShared } from '@/content/auth'
 
@@ -11,6 +12,8 @@ interface AuthFormProps {
   error?: string | null
   successMessage?: string | null
   isSubmitting?: boolean
+  /** Starts Google sign-in (navigates away on success; rejects on failure, the page shows the message). */
+  onGoogle?: () => Promise<void>
   /** Prefills the email (an invite link carries it). */
   initialEmail?: string
 }
@@ -21,6 +24,7 @@ export function AuthForm({
   error: externalError,
   successMessage,
   isSubmitting = false,
+  onGoogle,
   initialEmail = '',
 }: AuthFormProps) {
   const copy = authModes[mode]
@@ -30,6 +34,7 @@ export function AuthForm({
   const [password, setPassword] = useState('')
   const [agreedTerms, setAgreedTerms] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
+  const [googleLoading, setGoogleLoading] = useState(false)
 
   const activeError = externalError || localError
 
@@ -56,6 +61,17 @@ export function AuthForm({
     }
   }
 
+  async function handleGoogle() {
+    if (!onGoogle) return
+    setGoogleLoading(true)
+    try {
+      await onGoogle()
+    } finally {
+      // On success the window navigates away; on failure the button comes back.
+      setGoogleLoading(false)
+    }
+  }
+
   return (
     <div className="w-full max-w-[420px]">
       <h1 className="font-display text-[28px] font-semibold text-brand-900 md:text-[32px]">
@@ -64,12 +80,12 @@ export function AuthForm({
       <p className="mt-2 text-[15px] text-neutral-500">{copy.subtitle}</p>
 
       <div className="mt-7 flex flex-col gap-2.5">
-        <Button variant="secondary" size="md" className="w-full" disabled>
-          {authShared.google}
-        </Button>
-        <Button variant="secondary" size="md" className="w-full" disabled>
-          {authShared.apple}
-        </Button>
+        <GoogleButton
+          label={isSignup ? authShared.googleSignup : authShared.google}
+          onClick={handleGoogle}
+          disabled={!onGoogle || isSubmitting || googleLoading}
+          busy={googleLoading}
+        />
       </div>
 
       <div className="my-5 flex items-center gap-3 text-[13px] text-neutral-500">

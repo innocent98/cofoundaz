@@ -20,14 +20,19 @@ interface RouterLike {
   push: (href: string) => void;
 }
 
-export async function completePostLogin(opts: {
+export interface PostLoginResult {
+  /** Set when an invite was passed but could not be accepted. Nothing was navigated; the caller shows it and offers `continueTo`. */
+  inviteError: string | null;
+  continueTo: string;
+}
+
+async function resolveLanding(opts: {
   accessToken: string;
   refreshToken?: string;
-  email: string;
-  router: RouterLike;
+  email?: string;
   nextPath?: string | null;
-}): Promise<void> {
-  const { accessToken, refreshToken, email, router, nextPath } = opts;
+}): Promise<string> {
+  const { accessToken, refreshToken, nextPath } = opts;
 
   if (typeof window !== 'undefined') {
     localStorage.setItem('cf_token', accessToken);
@@ -52,25 +57,73 @@ export async function completePostLogin(opts: {
     console.warn('Could not fetch user profile details on login:', meErr);
   }
 
+  // Google sign-in has no typed email, so /auth/me is the source.
+  const email = meRes?.data?.user?.email ?? opts.email ?? '';
+
   if (meRes?.data?.user?.status === 'pending_verification') {
-    router.push(`/verify?email=${encodeURIComponent(email)}`);
-    return;
+    return `/verify?email=${encodeURIComponent(email)}`;
   }
 
   try {
     const state = await apiClient<OnboardingStateResponse>('/onboarding/state', { headers: authHeader });
     const onb = state.data;
     if (onb?.completed || (typeof onb?.step === 'number' && onb.step > 6)) {
-      router.push(nextPath || '/dashboard');
-    } else {
-      router.push('/onboarding');
+      return nextPath || '/dashboard';
     }
+    return '/onboarding';
   } catch (onberr: unknown) {
     if ((onberr as { status?: number })?.status === 403) {
-      router.push(`/verify?email=${encodeURIComponent(email)}`);
-    } else {
-      router.push(nextPath || '/dashboard');
+      return `/verify?email=${encodeURIComponent(email)}`;
     }
+    return nextPath || '/dashboard';
+  }
+}
+
+export async function completePostLogin(opts: {
+  accessToken: string;
+  refreshToken?: string;
+  /** Optional: when absent (Google sign-in) the email is read from /auth/me. */
+  email?: string;
+  router: RouterLike;
+  nextPath?: string | null;
+  /** Invite carried through a Google round trip; accepted once the session exists. */
+  inviteToken?: string | null;
+}): Promise<PostLoginResult | void> {
+  const { router, inviteToken } = opts;
+  const landing = await resolveLanding(opts);
+
+  if (inviteToken) {
+    try {
+      const res = await apiClient<{ data?: { startup_id?: string } }>('/invitations/accept', {
+        method: 'POST',
+        body: JSON.stringify({ token: inviteToken }),
+      });
+      clearStoredInvite();
+      const startupId = res?.data?.startup_id;
+      if (startupId) localStorage.setItem('cf_workspace_id', startupId);
+      router.push('/dashboard');
+      return;
+    } catch (err) {
+      clearStoredInvite();
+      const d = (err as { data?: { error?: { message?: string } } })?.data;
+      return {
+        inviteError: d?.error?.message || 'Could not accept the invitation.',
+        continueTo: landing,
+      };
+    }
+  }
+
+  router.push(landing);
+}
+
+// The invite token survives the Google round trip in sessionStorage (never a URL).
+export const INVITE_TOKEN_KEY = 'cf_invite_token';
+
+export function clearStoredInvite(): void {
+  try {
+    sessionStorage.removeItem(INVITE_TOKEN_KEY);
+  } catch {
+    /* ignore storage errors */
   }
 }
 
