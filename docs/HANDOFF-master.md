@@ -7,7 +7,7 @@
 > If the lead-19 handoff PR hasn't merged yet, read this file from its branch:
 > `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead19-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-11-02 ~16:50 WAT (lead session 18, handing over to lead 19; Adebayo starts lead 19 himself, don't auto-chain)**. Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-02 ~20:40 WAT (lead session 18, handing over to lead 19; Adebayo starts lead 19 himself, don't auto-chain)**. Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -20,12 +20,10 @@ Last updated: **2026-11-02 ~16:50 WAT (lead session 18, handing over to lead 19;
 
 **Lead 18 handover to lead 19 (2026-11-02). Adebayo starts lead 19 himself: don't auto-chain from lead 18.**
 
-**Lead 19, first thing:** Adebayo does the real Google sign-in check on FE #216 himself ("I'll do the google check first thing"). Help him run it, then verify each result against the API (`/auth/me`, `oauth_accounts`, audit rows):
-1. Bring up what the check needs (if not still running): local API stack (`cd cofoundaz-api && docker compose up -d && docker compose exec -T api alembic upgrade head`; 0088 may not be applied yet) and the #216 branch's dev server on **:3000** (the API's configured FE address; `wt/google-sign-in-fe`, `npm run dev -- -p 3000`). Open `http://localhost:3000/login` in the browser pane.
-2. Adebayo clicks Continue with Google. Check: new account lands in onboarding; sign out and back in; a password account with the same email links and keeps its password; a 2FA account reaches the code screen; invite link with the invited and with a different Google account.
-3. If it passes: tell him **FE #216** is ready (re-check CI on the head; last checked `5a769666`, green, mergeable, no attribution). After his named merge, open a develop to main PR so `www` gets it, then a real click on staging (`www.cofoundaz.com`, API `staging-api`).
-4. If it fails: message `google-sign-in-fe` (`local_c1f0452c-26a8-4d31-9aa8-d0762951aaa3`, it keeps context) with the exact failure; if the cause is the API, fix it on a `fix/google-sign-in-*` branch.
-
+**Lead 19, first thing:** the Google check is **done**. Adebayo did a real Google sign-up and sign-in on local :3000 on 2026-11-02 and both worked. He then asked for Google's official button branding, and it's in.
+1. **FE #216** (`feature/google-sign-in-fe`) is ready for his merge: head `fb1e0fe4`, CI green, mergeable, no attribution. It has the open-redirect fix and the official Google button (multicolour G, white with a `#747775` border, Roboto Medium 14px, `ui/marketing/auth/google-button.tsx`), with screenshots in `docs/checklist/google-sign-in-fe-walk-evidence/`. Re-check CI on the head before telling him; merge only on his named go-ahead.
+2. After it merges, open a **develop to main** PR so `www` gets it. Then Adebayo does a real click on staging (`www.cofoundaz.com`, API `staging-api`).
+3. The dev server on :3000 is stopped. The local API stack may still be up.
 
 **State:**
 - **Admin API "Next" is done** except Content (deferred). Merged today: API **#211 Tickets** (`073cef9f`, 0087), **#212 Reported issues** (`02c7caf5`, 0088), **#213 Google sign-in** (`08b34faa`, no migration). FE briefs **#212** (`admin-support-tickets.md`), **#213** (`admin-reported-issues.md`), **#214** (`google-sign-in.md`). Also FE #210 (Danger zone brief) and #211 (lead-18 handoff).
@@ -43,7 +41,7 @@ Last updated: **2026-11-02 ~16:50 WAT (lead session 18, handing over to lead 19;
 **In flight:**
 | Session | Task | Branch | State |
 |---|---|---|---|
-| `google-sign-in-fe` `local_c1f0452c-26a8-4d31-9aa8-d0762951aaa3` (Sonnet) | Wire Google buttons, `/auth/google/callback`, invite + MFA, hide Apple, walk 1440 + 375 | FE `feature/google-sign-in-fe` (`wt/google-sign-in-fe`) | **FE #216** open, head `5a769666`, CI green, mergeable, no attribution. Lead 18 found an open redirect in `safeNextPath` (`/\evil.com`); fixed with one shared `isSafeInternalPath` rule (decodes first; rejects `//`, backslash, whitespace, control chars) and reviewed. Walk evidence `docs/checklist/google-sign-in-fe-walk.md` (screens up to Google's chooser live; post-consent paths unit-tested). Waiting on Adebayo's real Google click, then his merge |
+| `google-sign-in-fe` `local_c1f0452c-26a8-4d31-9aa8-d0762951aaa3` (Sonnet) | Wire Google buttons, `/auth/google/callback`, invite + MFA, hide Apple, walk 1440 + 375 | FE `feature/google-sign-in-fe` (`wt/google-sign-in-fe`) | **FE #216** open, head `fb1e0fe4` (official Google button added after Adebayo's passing real click), CI green, mergeable, no attribution. Lead 18 found an open redirect in `safeNextPath` (`/\evil.com`); fixed with one shared `isSafeInternalPath` rule (decodes first; rejects `//`, backslash, whitespace, control chars) and reviewed. Walk evidence `docs/checklist/google-sign-in-fe-walk.md` (screens up to Google's chooser live; post-consent paths unit-tested). Real Google click passed (Adebayo, local). Waiting on his merge |
 
 Done and idle (can be archived on Adebayo's yes): `admin-tickets` `local_dce82c80-...`, `admin-reports` `local_535f9f7b-...`, `google-sign-in` `local_d7993816-...`.
 
@@ -56,7 +54,7 @@ Done and idle (can be archived on Adebayo's yes): `admin-tickets` `local_dce82c8
 
 **Next, in order (lead 19):**
 1. ~~Confirm staging for `08b34faa`~~ ✅ passed (lead 18).
-2. Google check and FE #216 (see "Lead 19, first thing" above). Staging `08b34faa` deploy: ✅ confirmed by lead 18.
+2. FE #216 merge, then develop to main, then a staging click (see "Lead 19, first thing" above). Staging `08b34faa` deploy: ✅ confirmed by lead 18.
 3. **CI tuning** (§2b item 5): path filters, sharded unit suite, trim API e2e to critical journeys. Measure before/after.
 4. Then **Funding, Investor Readiness, Marketplace** (§2b item 6): design first per page (PRD + existing FE page, gap list with D-n questions), then BE slices; unhide each in the sidebar when it ships. Expert vetting and listing moderation come with Marketplace.
 5. Lead's habits (from lead 17, still true): check every session's branch, PR and CI yourself; brief each sub-session with worktree, branch, migration number and the rules; Opus review per task on security slices; grep tests for side effects in `assert` before pushing (CodeQL fails them); `gh pr merge --squash --match-head-commit` only on Adebayo's named go-ahead; keep 2-3 sessions building.
@@ -563,7 +561,7 @@ colours + AA contrast 0 failing pairs over 106 routes plus Documents (#168, #169
    Design first like Sales: read the PRD sections + the existing FE pages, write a spec with D-ADM-n questions, get Adebayo's calls,
    then BE slices with live-captured guides. Platform-level roles (not workspace roles) are new: check how `super-admin` auth should
    work before building.
-3a. **Google sign-in/sign-up**: ✅ API #213 merged 2026-11-02 (four calls accepted); FE #216 open, waiting on Adebayo's real Google click. (Original note follows.) Nothing existed then: Google is only used for Calendar. Calls to make first: linking to an existing email account, whether 2FA still applies, and first-time users going through onboarding and invite acceptance. Needs a redirect URI per environment.
+3a. **Google sign-in/sign-up**: ✅ API #213 merged 2026-11-02 (four calls accepted); FE #216 open: real Google click passed locally, official button in; waiting on merge. (Original note follows.) Nothing existed then: Google is only used for Calendar. Calls to make first: linking to an existing email account, whether 2FA still applies, and first-time users going through onboarding and invite acceptance. Needs a redirect URI per environment.
 4. ~~FE passes for Calendar and Settings/Billing~~ **done in lead 16.** **FE passes for Calendar and Settings/Billing**: Claude FE sessions (`calendar-fe`, `settings-fe`), started 2026-10-29 by
    Adebayo's call ("we can start now"); resume them from their ledgers. The junior FE dev builds Journal, Notifications, Team from `docs/fe-handoff/*.md`; the lead re-walks each after merge.
 5. **CI tuning, both repos (Adebayo 2026-10-29; global rule "CI pipeline shape").** One small `ci/pipeline-speed` PR per repo:
