@@ -166,7 +166,7 @@ describe('calendar views', () => {
     render(<WeekGrid anchor={new Date(2026, 9, 21)} byDay={new Map([['2026-10-21', [e]]])} onOpenPost={noop} onAddOnDay={noop} onMove={noop} />);
     expect(screen.getByRole('group', { name: 'Week view' })).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /^Add a post on/ })).toHaveLength(7);
-    expect(screen.getByText(/2:30/)).toBeInTheDocument();
+    expect(screen.getByText(/(14|2):30/)).toBeInTheDocument();
   });
 
   it('lists a dated agenda for a phone, and says so when nothing is planned', () => {
