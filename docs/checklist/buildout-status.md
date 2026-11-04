@@ -22,6 +22,7 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 | Journal | gap list `journal-prd-gaps.md` (J1-J19; D-JNL-1..5 built to defaults) | ✅ API #198 merged 2026-10-30 (`e033720f`, 0080) | **FE developer** (hand-off `fe-handoff/journal.md`) | not started; FE is the human developer's | BE built + live-captured; Retros / prompt-library screens have no design (API only) |
 | Notifications | gap list `notifications-prd-gaps.md` (N1-N13; D-NOT-1..6 built to defaults) | ✅ API #199 merged 2026-10-30 (`e7153db7`, 0081) | **FE developer** (hand-off `fe-handoff/notifications.md`) | not started; FE is the human developer's | BE built + live-captured; Push and Announcements deliberately out |
 | Team | gap list `team-prd-gaps.md` (T1-T12; D-TEAM-1..6; PRD overridden to a light page by Adebayo 2026-10-29) | ✅ API #200 merged 2026-10-29 (`a8832a15`) | **FE developer** (hand-off `fe-handoff/team.md`) | not started; the page is 100% mock today | Tasks, Directory and grants matrix deliberately not built |
+| Google sign-in and sign-up (FE) | Brief `fe-handoff/google-sign-in.md`; D-decisions 2026-11-02 (link by verified email, 2FA applies, invite by matching email, Apple hidden) | API #213 merged (`08b34faa`) | Built by the lead's team, branch `feature/google-sign-in-fe` (PR open); the FE dev skips it | 🟡 Walked 2026-11-02 at 1440 + 375 against the local API (`google-sign-in-fe-walk.md`): both buttons, real `start` to accounts.google.com, error states, bogus ticket via the real exchange. **Not done:** a real Google account round trip (Adebayo's click) | Real consent, new account to onboarding, returning, link, 2FA and invite round trips are unit-tested only until Adebayo clicks through |
 
 ## Cross-cutting fixes found along the way (all merged)
 Worker never registered notification subscribers (#130) · invite emails had no link (#131) · weekends-off reset streaks /
@@ -59,8 +60,19 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 - [x] Slice C: Billing overrides (API #207)
 - [x] Slice D: Feature flags (API #208)
 - [x] FE brief for flags, overrides and founder Billing changes: `docs/fe-handoff/super-admin-flags-billing.md`
-- [ ] Slice E: Maintenance mode, global sign-out, second approver
-- [ ] Next: tickets, content, reported issues
+- [x] Slice E: Maintenance mode, global sign-out, second approver (API #209)
+- [x] FE brief: `docs/fe-handoff/super-admin-danger-zone.md`, with the app-wide maintenance banner
+- [x] Tickets with founder Help intake, T1-T8 accepted (API #211, 0087; FE brief #212), 2026-11-02
+- [x] Reported issues, R1-R12 lead defaults (API #212, 0088; FE brief #213), 2026-11-02
+- [ ] Content library: deferred by Adebayo 2026-11-02 (P5: Academy stays repo markdown; no Templates editor yet). Stays hidden
+- [ ] FE for all Admin briefs and its 1440 + 375 re-walk: the junior FE dev
+
+## Google sign-in / sign-up
+- [x] Four calls accepted 2026-11-02 (link by verified email, 2FA applies, onboarding + invite match, hide Apple)
+- [x] API #213 (no migration), FE brief #214; redirect URIs added by Adebayo 2026-11-02
+- [x] FE wiring by the lead's team: FE #216 open (`feature/google-sign-in-fe`, CI green; open-redirect fix in)
+- [x] Adebayo's real Google sign-up + sign-in on local (2026-11-02); official Google button added (#216 head `fb1e0fe4`)
+- [ ] Merge #216, develop to main, real click on staging
 - [ ] After Marketplace: Expert vetting, listing moderation
 
 ## Fixes

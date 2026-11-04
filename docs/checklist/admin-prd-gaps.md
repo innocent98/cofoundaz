@@ -142,4 +142,8 @@ from merged API #205 (slice A) and the spec, not from a live walk of the mocks.
 | This list | Written 2026-10-31 on `docs/admin-prd-gaps`; docs PR open, not merged. |
 | P1 to P13 | Accepted by Adebayo 2026-10-31 ("Accept all defaults"). |
 | Slice B | Built to the accepted calls on `feature/admin-users-workspaces` (PR open, not merged): A4 to A15 and S14, S17 have API support; guide `fe-integration-guide-admin-users.md`. |
-| Left | Slices C to E; FE and the 1440 + 375 re-walk by the FE dev; Tickets (P4), Content (P5). |
+| Slices C to E | Merged (API #207, #208, #209). |
+| Tickets (A16-A18, A9, P4) | Merged API #211 (0087), FE brief `docs/fe-handoff/admin-support-tickets.md` (#212). T1-T8 accepted 2026-11-02; no fresh code on ticket actions (accepted P1 exception, "Yes, skip it"). |
+| Reported issues (A21, PRD 25.5) | Merged API #212 (0088), FE brief `docs/fe-handoff/admin-reported-issues.md` (#213). R1-R12 lead defaults. |
+| P5 / A20 Content | Adebayo 2026-11-02: Academy stays repo markdown, and the Templates editor is deferred. Content library stays hidden. |
+| Left | FE and the 1440 + 375 re-walk by the FE dev; expert vetting and listing moderation after Marketplace. |

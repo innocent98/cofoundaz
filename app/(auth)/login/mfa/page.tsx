@@ -6,14 +6,17 @@ import Link from 'next/link';
 import { ShieldCheck, Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { mfaChallenge } from '@/lib/api/mfa';
-import { completePostLogin } from '@/lib/auth/post-login';
+import { completePostLogin, clearStoredInvite } from '@/lib/auth/post-login';
 
 const MFA_HANDOFF_KEY = 'cf_mfa_handoff';
 
 interface Handoff {
   ticket: string;
-  email: string;
+  /** Absent for Google sign-in; /auth/me supplies it. */
+  email?: string;
   next: string | null;
+  /** Invite carried through a Google sign-in; accepted after the challenge. */
+  invite?: string | null;
 }
 
 function readHandoff(): Handoff | null {
@@ -22,8 +25,8 @@ function readHandoff(): Handoff | null {
     const raw = sessionStorage.getItem(MFA_HANDOFF_KEY);
     if (!raw) return null;
     const h = JSON.parse(raw) as Partial<Handoff>;
-    if (!h?.ticket || !h?.email) return null;
-    return { ticket: h.ticket, email: h.email, next: h.next ?? null };
+    if (!h?.ticket) return null;
+    return { ticket: h.ticket, email: h.email, next: h.next ?? null, invite: h.invite ?? null };
   } catch {
     return null;
   }
@@ -37,6 +40,7 @@ export default function MfaChallengePage() {
   const [useBackup, setUseBackup] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inviteNotice, setInviteNotice] = useState<{ message: string; continueTo: string } | null>(null);
 
   // No ticket (deep-linked, refreshed, or storage cleared) → back to login.
   useEffect(() => {
@@ -60,13 +64,18 @@ export default function MfaChallengePage() {
       } catch {
         /* ignore */
       }
-      await completePostLogin({
+      const result = await completePostLogin({
         accessToken: access_token,
         refreshToken: refresh_token,
         email: handoff.email,
         router,
         nextPath: handoff.next,
+        inviteToken: handoff.invite,
       });
+      clearStoredInvite();
+      if (result && result.inviteError) {
+        setInviteNotice({ message: result.inviteError, continueTo: result.continueTo });
+      }
     } catch (err) {
       if (err instanceof ApiError) {
         const d = err.data as { error?: { code?: string; message?: string } } | undefined;
@@ -84,6 +93,23 @@ export default function MfaChallengePage() {
   };
 
   if (!handoff) return null;
+
+  if (inviteNotice) {
+    return (
+      <div className="w-full max-w-md">
+        <div role="alert" className="rounded-input border border-danger-200 bg-danger-50 p-3 text-[13px] text-danger-700">
+          {inviteNotice.message}
+        </div>
+        <button
+          type="button"
+          onClick={() => router.push(inviteNotice.continueTo)}
+          className="mt-4 w-full bg-brand-strong hover:bg-brand-rail text-white font-bold py-2.5 rounded-card text-sm transition-colors shadow-card"
+        >
+          Continue
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md">
