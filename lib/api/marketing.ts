@@ -929,7 +929,7 @@ export function summariseMix(mix: ChannelMix): string {
 /** "Oct 20 to Nov 3", "From Oct 20", "Until Nov 3" or "No period set". */
 export function formatPeriod(start: string | null, end: string | null): string {
   const fmt = (iso: string) =>
-    new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   if (start && end) return `${fmt(start)} to ${fmt(end)}`;
   if (start) return `From ${fmt(start)}`;
   if (end) return `Until ${fmt(end)}`;

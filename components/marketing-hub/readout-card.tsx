@@ -3,7 +3,7 @@ import type { CampaignReadout, ReadoutFigures, ReadoutMetric } from '@/lib/api/m
 import { CARD } from './states';
 
 function weekOf(iso: string): string {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+  return new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 const METRICS: { key: ReadoutMetric; label: string }[] = [
