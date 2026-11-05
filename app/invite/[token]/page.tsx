@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Check, Loader2, AlertTriangle, UserPlus, LogIn, Building2 } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import { INVITE_TOKEN_KEY } from '@/lib/auth/post-login';
 import BrandLogo from '@/components/brand/BrandLogo';
 
 // Public invite-acceptance landing — GET /invitations/{token} (no auth) previews
@@ -50,6 +51,11 @@ export default function AcceptInvitePage() {
     } catch {
       // Uniform 404 = unknown / expired / already-accepted link.
       setInvalid(true);
+      try {
+        sessionStorage.removeItem(INVITE_TOKEN_KEY);
+      } catch {
+        /* ignore storage errors */
+      }
     } finally {
       setLoading(false);
     }
@@ -59,6 +65,14 @@ export default function AcceptInvitePage() {
     if (!token) return;
     void (async () => {
       setLoggedIn(isLoggedIn());
+      // Signed out: keep the token so it survives sign-in (incl. the Google round trip).
+      if (!isLoggedIn()) {
+        try {
+          sessionStorage.setItem(INVITE_TOKEN_KEY, token);
+        } catch {
+          /* ignore storage errors */
+        }
+      }
       await load();
     })();
   }, [token, load]);

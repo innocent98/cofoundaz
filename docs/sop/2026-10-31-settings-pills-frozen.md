@@ -28,7 +28,8 @@ Rule from now on: use `replaceUrl` for a same-page query change, `router` only f
 ## Verification
 - Typecheck, lint, and the touched tests pass locally; CI runs the rest.
 - On the frozen staging page, `history.replaceState` changed the page to Profile while `router.replace` did nothing.
-- **Not yet verified:** the deployed fix on staging. Check after it reaches `www`: load `/settings?tab=billing`, click every pill, and repeat after a refresh.
+- Verified on `www` after deploy (2026-10-31, on `main` via #205): all 12 pills worked on a fresh load of `/settings?tab=billing`, and the 5 re-tested worked after a real reload.
+- `www` deploys from `main`, so a develop merge alone doesn't reach it.
 
 ## Operate / roll back
 No config or migration. Revert the PR to roll back.
