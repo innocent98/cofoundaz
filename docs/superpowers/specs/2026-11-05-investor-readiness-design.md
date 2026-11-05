@@ -1,9 +1,9 @@
 # Investor Readiness: design
 
-Status: **proposed, waiting for Adebayo's calls on D-IR-1..7** (`docs/checklist/investor-readiness-prd-gaps.md`).
+Status: **D-IR-1..7 accepted 2026-11-05 (Adebayo: "Accept all seven"), recommended options** (`docs/checklist/investor-readiness-prd-gaps.md`). Slice A in build.
 Source: `Cofoundaz_Technical_PRD.md` Module 15 (15.1 to 15.5), Module 14 for the hand-off. Today the five pages are 100%
 mock (`hooks/useReadinessApi.ts` returns hard-coded state; no BE route, table or service exists) and hidden from the
-sidebar (FE #184). Nothing here is built yet. Defaults below apply unless a D-IR answer changes them.
+sidebar (FE #184). Nothing here is built yet. The defaults below are now the decided design.
 
 ## 1. What the page is for
 
@@ -178,7 +178,7 @@ sessions in one day will hit the cap and the second gets the honest low-budget m
 
 ## 5. Roles and access
 
-Defaults pending D-IR-4. PRD: "Access: F; INV sees Readiness Score only if shared."
+Per D-IR-4 (accepted). PRD: "Access: F; INV sees Readiness Score only if shared."
 
 | Role | Score, gaps, history | Deck / Q&A / narrative (read) | Run AI tools, edit narrative | Notes |
 |---|---|---|---|---|

@@ -79,11 +79,12 @@ from the sidebar by FE #184). Every row below is therefore a gap. Slices: **A** 
 | 31 | Docs | No FE guide, SOP, checklist ticks | repo standard | live captures per slice | | default | each slice |
 | 32 | Admin | Support / staff cannot see a workspace's score | (admin portals) | none in v1 | none | default: out of scope; staff use DB read | later |
 
-## Decisions needed from Adebayo (genuine product calls)
+## Decisions (all accepted 2026-11-05)
 
 Lead recommendation is first in each list. Cost = build effort and ongoing AI spend (budget is 100k tokens per workspace per day).
 
 ### D-IR-1: How is the score produced?
+**Accepted 2026-11-05 (Adebayo: \"Accept all seven\"), recommended option.**
 - **(a) Deterministic from app data; AI only produces stored review artefacts that feed Story (recommended).** Every point
   traces to a number in another hub. Free to recompute (0 tokens), explainable, cannot be talked up by the founder.
   Story is the one blended dimension: deterministic checks (deck exists, investor plan generated) plus the latest AI
@@ -94,6 +95,7 @@ Lead recommendation is first in each list. Cost = build effort and ongoing AI sp
   bad deck the same as a good one.
 
 ### D-IR-2: Weights, stage scaling and the 70+ gate
+**Accepted 2026-11-05 (Adebayo: \"Accept all seven\"), recommended option.**
 - **Recommended:** Traction 25 · Financials 20 · Product 15 · Market 15 · Team 15 · Story 10; targets scaled to the
   startup's stage (ready for a round *at your stage*); overall **capped at 69** until a financial model, a reviewed deck
   and one traction/validation proof point exist.
@@ -102,6 +104,7 @@ Lead recommendation is first in each list. Cost = build effort and ongoing AI sp
   demoralising. Cost: config only, any option is the same build.
 
 ### D-IR-3: How does Readiness relate to Health Score?
+**Accepted 2026-11-05 (Adebayo: \"Accept all seven\"), recommended option.**
 - **Recommended: two separate scores over shared inputs.** Health = "how healthy is the business" (5 dimensions);
   Readiness = "would an investor write a cheque" (6 dimensions, includes deck and narrative). They reuse the same
   readers, so work in the app moves both. Show a small "Health {n}" chip on the Readiness page, no merging.
@@ -110,6 +113,7 @@ Lead recommendation is first in each list. Cost = build effort and ongoing AI sp
 - Alternative: fold Readiness into Health as a sixth dimension. Rejected: the PRD gives it its own module and verdict copy.
 
 ### D-IR-4: Who can see it?
+**Accepted 2026-11-05 (Adebayo: \"Accept all seven\"), recommended option.**
 - **Recommended:** founder full; team member reads score, gaps, history, deck review and narrative, but not Q&A
   transcripts and cannot run AI tools; mentors, consultants, accountants, legal advisors get 403; investors only through
   a share (D-IR-6).
@@ -118,6 +122,7 @@ Lead recommendation is first in each list. Cost = build effort and ongoing AI sp
   the founder invited for other reasons.
 
 ### D-IR-5: Pitch Deck "Design /10" and thumbnails
+**Accepted 2026-11-05 (Adebayo: \"Accept all seven\"), recommended option.**
 - **Recommended: text-based review plus layout heuristics (slides, words per slide, images per slide via PDF
   structure) behind the Design tile, labelled "layout check, not a visual review"; add `pypdfium2` for real thumbnails.**
   Honest with what the model can actually see. ≈ 10k tokens per review.
@@ -126,6 +131,7 @@ Lead recommendation is first in each list. Cost = build effort and ongoing AI sp
 - Alternative: drop the Design tile and show two scores. Smallest build; deviates from the PRD's three scores.
 
 ### D-IR-6: What an investor sees of the score, and who builds the share
+**Accepted 2026-11-05 (Adebayo: \"Accept all seven\"), recommended option.**
 - **Recommended: investors see score, band and the six dimension bars only (no gap notes, no transcripts, no draft); the
   share record is the Funding data-room scope `readiness`, owned by the Funding build; Readiness only provides the
   `snapshot` function.** No Readiness-side share UI in v1.
@@ -133,6 +139,7 @@ Lead recommendation is first in each list. Cost = build effort and ongoing AI sp
 - Alternative: no investor visibility in v1: cheapest, drops a PRD line.
 
 ### D-IR-7: Mock Q&A limits and retention
+**Accepted 2026-11-05 (Adebayo: \"Accept all seven\"), recommended option.**
 - **Recommended: 10 founder answers per session; refuse to start when less than ~40k tokens remain today; full
   transcript kept 90 days and visible to the founder only, scorecard kept indefinitely.** A session costs ~35k tokens (the
   largest AI spend in the app), so at most two fit in a day.
@@ -157,4 +164,4 @@ A can start on defaults after D-IR-1/2/3/4 are answered.
 
 ## Status (2026-11-05)
 
-Design only. No code. Nothing here is verified live because nothing exists to verify.
+D-IR-1..7 accepted 2026-11-05 (recommended options). Slice A (score + history) is in build on `feature/readiness-score`. Nothing is verified live yet.
