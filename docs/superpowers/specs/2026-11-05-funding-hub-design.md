@@ -147,7 +147,7 @@ engagement (views per day, average session, top documents). Every number has a "
 
 ## 7. AI touchpoints and cost
 
-Cost is tokens against the existing 100k/day/workspace budget (D-pipeline: a job that hits the budget ends with the worded
+Cost is tokens against the existing 100k/day/workspace budget (a job that hits the budget ends with the worded
 "budget used up for today" state, as Sales does). Estimates assume the chat-class model already configured.
 
 | Touchpoint | Trigger | Rough tokens | Notes |
