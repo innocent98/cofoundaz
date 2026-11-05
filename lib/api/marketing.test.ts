@@ -431,7 +431,7 @@ describe('marketing pure helpers', () => {
     expect(summariseMix({ email: 60, search: 40 })).toBe('Email 60%, Search 40%');
     expect(summariseMix({})).toBe('No channel split set');
     expect(formatPeriod(null, null)).toBe('No period set');
-    expect(formatPeriod('2026-10-20', '2026-11-03')).toMatch(/Oct 20, 2026 to Nov 3, 2026/);
+    expect(formatPeriod('2026-10-20', '2026-11-03')).toMatch(/20 Oct 2026 to 3 Nov 2026/);
     expect(formatPeriod('2026-10-20', null)).toMatch(/^From /);
   });
 });

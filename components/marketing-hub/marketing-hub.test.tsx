@@ -166,7 +166,7 @@ describe('calendar views', () => {
     render(<WeekGrid anchor={new Date(2026, 9, 21)} byDay={new Map([['2026-10-21', [e]]])} onOpenPost={noop} onAddOnDay={noop} onMove={noop} />);
     expect(screen.getByRole('group', { name: 'Week view' })).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /^Add a post on/ })).toHaveLength(7);
-    expect(screen.getByText(/2:30/)).toBeInTheDocument();
+    expect(screen.getByText(/14:30/)).toBeInTheDocument();
   });
 
   it('lists a dated agenda for a phone, and says so when nothing is planned', () => {
@@ -204,7 +204,7 @@ describe('ReadoutCard', () => {
   it('shows the newest ready readout with its week and the AI label', () => {
     render(<ReadoutCard readouts={[readout()]} loading={false} />);
     expect(screen.getByText('Clicks are up')).toBeInTheDocument();
-    expect(screen.getByText(/Week of October 19, 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Week of 19 October 2026/)).toBeInTheDocument();
     expect(screen.getByText('Shift budget to email.')).toBeInTheDocument();
     expect(screen.getByText(/Written by AI from the numbers you recorded/)).toBeInTheDocument();
   });
