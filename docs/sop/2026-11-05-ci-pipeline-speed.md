@@ -22,5 +22,3 @@ Rejected: `vitest --shard`. The whole unit step is ~110 s, so shards would each 
 **Roll back:** revert the PR; nothing depends on it.
 
 **Follow-ups:** the first run on a new `package-lock.json` is a cache miss (full `npm ci`) in every job; that is expected.
-
-_throwaway docs-only commit to demonstrate the skip; reverted next._
