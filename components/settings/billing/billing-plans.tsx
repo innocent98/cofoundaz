@@ -63,7 +63,12 @@ export function PlansView({
     setErr(null);
     setBusy(plan.key);
     try {
-      const preview = await previewChange(plan.key, interval);
+      // A comp has no card or period to prorate: paying goes through checkout, which replaces the comp.
+      // (The API's preview would call it an upgrade with a credit, and /change answers 409 PLAN_COMPLIMENTARY.)
+      const preview: ChangePreview =
+        sub.comped && plan.key !== 'starter'
+          ? { kind: 'checkout', amount_due_minor: planPrice(plan, interval), credit_minor: 0, effective: 'now', currency: 'NGN', keeps_until: null }
+          : await previewChange(plan.key, interval);
       if (preview.kind === 'same') {
         toast.info("You're already on that plan.");
         return;
@@ -160,9 +165,11 @@ export function PlansView({
           const price = planPrice(p, interval);
           const cta = isCurrent
             ? 'Current plan'
-            : PLAN_RANK[p.key] > PLAN_RANK[current] || onTrial
-              ? `${replaceable && p.key === current ? 'Subscribe to' : 'Upgrade to'} ${p.name}`
-              : `Switch to ${p.name}`;
+            : replaceable && p.key === current
+              ? `Subscribe to ${p.name}`
+              : PLAN_RANK[p.key] > PLAN_RANK[current] || onTrial
+                ? `Upgrade to ${p.name}`
+                : `Switch to ${p.name}`;
           return (
             <Card key={p.key} className={isCurrent ? 'ring-2 ring-brand-strong' : ''}>
               <div className="flex items-baseline justify-between">
