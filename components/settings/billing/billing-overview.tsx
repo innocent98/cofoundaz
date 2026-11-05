@@ -34,7 +34,10 @@ export function OverviewView({
   const [busy, setBusy] = useState<'cancel' | 'resume' | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
+  const comped = sub.comped;
   const isPaid = sub.plan.key !== 'starter' && sub.status !== 'trialing';
+  // A comp ends by itself: its ends_at is not a cancellation, so no ends banner, resume or cancel.
+  const canceling = sub.cancel_at_period_end && !comped;
   const defaultCard = cards.data?.find((c) => c.is_default) ?? cards.data?.[0] ?? null;
   const pi = sub.payment_issue;
 
@@ -93,7 +96,7 @@ export function OverviewView({
           You&rsquo;ll move to Starter unless you subscribe. Nothing is locked until then.
         </Banner>
       )}
-      {sub.cancel_at_period_end && (
+      {canceling && (
         <Banner
           tone="warn"
           title={`Your plan ends on ${formatDate(sub.ends_at)}`}
@@ -102,7 +105,7 @@ export function OverviewView({
           You keep {sub.plan.name} until then. Your data is kept for 90 days after.{sub.cancel_reason ? ` Reason given: ${sub.cancel_reason}.` : ''}
         </Banner>
       )}
-      {sub.pending_change && !sub.cancel_at_period_end && (
+      {sub.pending_change && !canceling && !comped && (
         <Banner tone="info" title={`Moving to ${sub.pending_change.plan.name} on ${formatDate(sub.renews_at ?? sub.ends_at)}`}>
           You keep {sub.plan.name} features until then.
         </Banner>
@@ -117,17 +120,17 @@ export function OverviewView({
               <h2 className="text-2xl font-display font-medium mt-1">{sub.plan.name}</h2>
               <p className="text-xs text-neutral-xa3b3a6 mt-1">
                 {planStatusLine(sub)}
-                {sub.plan.key !== 'starter' && sub.status !== 'trialing' && ` · billed ${sub.interval}`}
+                {sub.plan.key !== 'starter' && sub.status !== 'trialing' && !comped && ` · billed ${sub.interval}`}
               </p>
             </div>
             <div className="text-3xl font-display font-medium">
-              {sub.status === 'trialing' ? 'Free trial' : sub.price_minor === 0 ? 'Free' : formatNaira(sub.price_minor)}
+              {comped ? 'Complimentary' : sub.status === 'trialing' ? 'Free trial' : sub.price_minor === 0 ? 'Free' : formatNaira(sub.price_minor)}
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => onNavigate('plans')}>Change plan</Button>
             <Button variant="secondary" onClick={() => onNavigate('payment')}>Payment method</Button>
-            {isPaid && !sub.cancel_at_period_end && (
+            {isPaid && !canceling && !comped && (
               <Button variant="ghost" className="!text-white/80 hover:!bg-white/10" onClick={() => { setErr(null); setCancelOpen(true); }}>
                 Cancel plan
               </Button>
@@ -137,9 +140,11 @@ export function OverviewView({
 
         <Card>
           <span className="text-[10px] font-bold text-ink-subtle uppercase tracking-wider">
-            {sub.cancel_at_period_end ? 'Plan ends' : sub.status === 'trialing' ? 'Trial ends' : 'Next invoice'}
+            {comped ? 'Next invoice' : canceling ? 'Plan ends' : sub.status === 'trialing' ? 'Trial ends' : 'Next invoice'}
           </span>
-          {sub.cancel_at_period_end || sub.status === 'trialing' ? (
+          {comped ? (
+            <p className="text-sm text-ink-subtle mt-2">Nothing to pay while your plan is complimentary. Choose Change plan to keep it after {formatDate(sub.ends_at)}.</p>
+          ) : canceling || sub.status === 'trialing' ? (
             <p className="text-3xl font-display font-medium text-ink mt-2">{formatDate(sub.ends_at)}</p>
           ) : sub.renews_at ? (
             <>

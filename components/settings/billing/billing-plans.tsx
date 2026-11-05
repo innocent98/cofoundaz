@@ -53,6 +53,8 @@ export function PlansView({
   const current = sub.plan.key;
   const paid = current !== 'starter';
   const onTrial = sub.status === 'trialing';
+  // A trial or a comp is replaced by paying, so its own plan stays choosable.
+  const replaceable = onTrial || sub.comped;
 
   const unavailable = (code: string | null, fallback: string) =>
     code === 'BILLING_NOT_CONFIGURED' ? 'Payments are not available right now.' : fallback;
@@ -154,12 +156,12 @@ export function PlansView({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {data.plans.map((p) => {
-          const isCurrent = p.key === current && !onTrial;
+          const isCurrent = p.key === current && !replaceable;
           const price = planPrice(p, interval);
           const cta = isCurrent
             ? 'Current plan'
             : PLAN_RANK[p.key] > PLAN_RANK[current] || onTrial
-              ? `${onTrial && p.key === current ? 'Subscribe to' : 'Upgrade to'} ${p.name}`
+              ? `${replaceable && p.key === current ? 'Subscribe to' : 'Upgrade to'} ${p.name}`
               : `Switch to ${p.name}`;
           return (
             <Card key={p.key} className={isCurrent ? 'ring-2 ring-brand-strong' : ''}>
