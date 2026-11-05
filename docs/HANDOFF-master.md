@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-21 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead21-handoff:docs/HANDOFF-master.md`
+> If the lead-22 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead22-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-11-05 ~20:30 WAT (lead session 21, handing over to lead 22, which Adebayo starts himself)**. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-05 ~23:30 WAT (lead session 22, handing over to lead 23, which Adebayo starts himself)**. Lead 22 was session `local_d8bf2dc1-5968-4569-aefb-a51e78700310`. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -17,6 +17,108 @@ Last updated: **2026-11-05 ~20:30 WAT (lead session 21, handing over to lead 22,
 ## 0. FOR ADEBAYO
 
 ### 0a. Open PRs and in-flight sessions
+
+**Lead 22 handover to lead 23 (2026-11-05 ~23:30 WAT). Adebayo starts lead 23 himself: don't auto-chain from lead 22.**
+
+**State:**
+- API develop is **`8960f83a`**.
+- Migration chain: `0092 → 0093_readiness_mock_qa → 0095_funding_data_room → 0094_marketplace_listings` (head). Yes, 0094 sits after 0095 by down_revision; the SOPs say so.
+- FE develop has #229 and #230 (the gap lists) and #234 (lead-21 handoff).
+- The shared :8000 stack is down. Sessions run their own scratch stacks.
+- When the stack next comes up, rebuild `api` + `worker` first (Mako changed in the lock), then `alembic upgrade head`.
+
+**Merged in lead 22 (all squash, each on Adebayo's named "Merge #N"):**
+
+| PR | What | Commit |
+|---|---|---|
+| FE #229 | AI Co-Founder gap list | `ec90e02a` |
+| FE #230 | Auth & Onboarding gap list | `ebfd430b` |
+| API #223 | pins #220's 0092 migration test to 0091; `downgrade -1` from head broke every later slice | `3f462384` |
+| API #221 | Readiness D, mock Q&A | `f47a90ce` (0093) |
+| API #222 | Funding B, data room | `614236be` (0095) |
+| API #225 | Mako 1.4.3; the CVE-2026-102991 image alert is gone | `ae8d81ba` |
+| API #224 | Marketplace B, listings + directory | `8960f83a` (0094) |
+
+Every slice got an Opus review per task, then an Opus fix check, sometimes two rounds. The highs caught:
+- the Q&A 90-day purge kept verbatim answers in the scorecard;
+- `/otp` let the link holder find the invited email;
+- "downloads off" protected PDFs only;
+- the e2e 404 from adding `review` to `ReportItemType`;
+- a report restore could relist a moderator's step-up unlist.
+
+**Lead 23, first (in this order).** For every PR: verify it yourself (whole CI run incl. Security, e2e, CodeQL, attribution, `feature/` branch, one alembic head), then ask for "Merge #N". Squash with `--match-head-commit`.
+
+1. **API #226, AI Co-Founder slice 1** (`feature/ai-cofounder-slice-1`, head `a49db147`, `0097_ai_conversation_archive` on 0094).
+   - Done: Opus review plus fixes. The medium was that deleting a chat mid-reply let the LLM debit roll back, giving unbilled tokens past the budget. Fixed with a locked re-read after the call, and DELETE now returns 409 `REPLY_IN_PROGRESS` while generating. The lows were query trimming and a guide note on the report snippet copies. I checked the fix diff myself.
+   - At handover: 14 checks pass, only e2e is still running. If it's green, ask Adebayo to merge.
+2. **API #228, orchestrator + 4 agents** (`feature/ai-cofounder-orchestrator`, head `0e45526d`, `0098_ai_orchestrator` on 0097). It's stacked on #226 and its base is still the slice-1 branch, so only 1 check has run.
+   - Done: Opus review and 4 lows fixed:
+     - the router debit is committed first, and locks are taken in DELETE's order;
+     - the stray `BriefingStatus.cancelled` is gone;
+     - `<`/`>` are escaped in the workspace-data fence;
+     - history is capped at 24k chars, with a pre-flight budget refusal.
+   - After #226 merges: the session retargets it with `gh pr edit 228 --base develop`, never `--delete-branch`. Then check its full CI and ask to merge.
+   - The two-session deadlock test isn't feasible with the fixture; the SOP says the fix relies on lock order.
+3. **API #227, Auth & Onboarding step 1** (`feature/auth-onboarding-gaps`, head `adba1150`, `0096_auth_onboarding_gaps` on 0094). Auth, so it got the Opus review per task, a fix check, and lead checks of the follow-ups.
+   - The 2 highs, both fixed:
+     - Refresh-token reuse never committed the family revocation (this bug was already on develop).
+     - The CSRF guard could be skipped with a junk body token, which handed the refresh token to script.
+   - The 3 mediums, all fixed: an atomic lockout reservation; the lockout DoS; invite griefing, via a new decline endpoint.
+   - The fix check then found a new medium (refused pair attempts counted toward the email total) and 2 lows. All fixed in `e59f2293`, then a double-decrement fix in `adba1150` (from the automated PR reviewer).
+   - At handover CI was running: 9 pass, 5 pending.
+   - **Re-chain before merge:** if #226/#228 merge first, 0096 must move onto `0098_ai_orchestrator`. Tell the session the exact down_revision, then do a full CI re-check.
+   - Then the Auth FE PR (build-order step 2 in `auth-onboarding-prd-gaps.md`). It needs Adebayo's D-AUTH-7 industry-list edit and the D-AUTH-6 cookie switch.
+4. **API #229, Funding C cap table** (`feature/funding-cap-table`, head `7c72e2e2`, `0099_funding_cap_table` on **0095**, so it must re-chain onto the newest head).
+   - **Not reviewed yet.** CI is red on Security, CodeQL and CI gate; read the logs once the run is complete.
+   - Needs the Opus final review with money-path scrutiny: share maths, SAFE conversion (cap/discount/MFN, pre/post-money), dilution, row locks, audit rows, founder-only gating on every route, notification and export.
+   - Its session was told to park and write a ledger note.
+
+**Lead defaults set by lead 22. Each is written in its PR's SOP; Adebayo can overrule:**
+- **D-FUND-8.** With downloads off: images become stamped PDFs, other non-PDF types get 422 `VIEW_ONLY_UNSUPPORTED` (flagged at add time), and PDFs over 40M pixels are refused.
+- **Funding accepted risks:**
+  - the email-blind code cap means the link holder can delay an investor's code by up to an hour;
+  - folder-name case-insensitivity is enforced in the service, under a lock;
+  - the 120-s content ticket rides in the query string.
+- **Readiness.** Model ratings feeding `story.mock_qa` are accepted, bounded by the 69 cap.
+- **Auth lockout:**
+  - the email-wide lock refuses only IPs with no sign-in to that account in 30 days (the (email, IP) lock from D-AUTH-2 is unchanged);
+  - IPv6 is keyed on the /64;
+  - reset mails are capped 5/h per (email, IP) and 20/h per email;
+  - invited users can decline or start their own startup.
+
+**Sessions, all idle. Message by id; each keeps its context:**
+
+| Session | Has | Next for it |
+|---|---|---|
+| `ai-cofounder-api` `local_d8cf74aa-8eea-442b-9574-06bcee52194d` | #226, #228 | retarget #228 after #226 merges; then slice 3 (actions, feedback/regenerate, suggestions, `GET /ai/agents`), then the FE |
+| `auth-onboarding-api` `local_61ef1365-a1f8-4f3c-a21f-8137d3aebc6e` | #227 | re-chain on your word; then Auth FE |
+| `funding-slice-b-data-roo` `local_9566a3ee-8063-48a3-ad66-db641935ab03` | #229 | fix red CI + Opus findings, re-chain; then D term sheets, E grants (Adebayo reviews the catalogue), F copilot |
+| `marketplace-slice-a-prov` `local_aad778e5-f115-4579-8aa3-b3587cd13e75` | Marketplace A+B | slice C booking + checkout + ledger (Opus per task, Paystack test keys only, prod charging off). Two lows carried in: dynamic `getattr(client, method)` calls in asserts (`tests/api/test_marketplace_listings.py:209, 684-686`) and a stale `review` flag after the flagged value is removed (`listings.py:115-117`) |
+| `ir-design` `local_c61f651d-2256-42cc-a830-1c1f61496136` | Readiness A/B/D | slice C, the narrative |
+
+Keep at most 3 building at once. Number migrations up front: 0096-0099 are taken, so the next free number is 0100. Re-chain each PR at merge time.
+
+**Follow-ups (not blocking):**
+- slowapi `Limiter` has no Redis `storage_uri`, so per-IP limits apply per worker (small `chore/`).
+- The new auth tests and older suites still use `assert client.get(...)`. CodeQL flags only mutating calls, so keep new tests in the assign-then-assert style.
+- After the AI, Auth, Funding, Readiness and Marketplace backends land: FE passes plus every-control re-walks (1440 + 375, all roles) before any of those pages flips ✅ or is unhidden.
+
+**Adebayo's own to-dos (carried):**
+- Point the FE dev at the #231-233 review comments.
+- Edit the D-AUTH-7 industry list.
+- Do a real Google sign-up and sign-in on `www.cofoundaz.com`.
+- Send the FE dev the Admin message and briefs.
+- Tell Victoria to read #214's review.
+- Get counsel and Paystack to confirm Marketplace fund holding in writing (D-MP-3/9).
+- Turn on the Dependency graph and set `ENABLE_CODE_SCANNING=true`.
+- Review the fund directory and grants catalogue.
+
+**Gotchas learned in lead 22:**
+- A migration test using `downgrade -1` from `head` breaks as soon as anything chains on top. Pin explicit revisions.
+- A PR can only chain onto revisions that are on develop. Chaining onto an unmerged PR's revision makes CI see a missing revision.
+- Parallel `buildout-status.md` row edits conflict on every merge. Merge develop in and keep every row (a small script resolves it).
+- `gh pr checks` can die on a GitHub TLS timeout mid-wait. Re-check rather than trusting the loop's exit.
+- CodeQL `py/side-effect-in-assert` fails CI on `assert client.post/delete(...)`. Brief every session to assign first.
 
 **Lead 21 handover to lead 22 (2026-11-05 ~20:30 WAT). Adebayo starts lead 22 himself: don't auto-chain from lead 21.**
 
