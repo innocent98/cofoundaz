@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-19 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead19-handoff:docs/HANDOFF-master.md`
+> If the lead-20 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead20-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-11-02 ~20:40 WAT (lead session 18, handing over to lead 19; Adebayo starts lead 19 himself, don't auto-chain)**. Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-05 ~15:00 WAT (lead session 20, handing over to lead 21, which lead 20 started itself)**. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -18,7 +18,58 @@ Last updated: **2026-11-02 ~20:40 WAT (lead session 18, handing over to lead 19;
 
 ### 0a. Open PRs and in-flight sessions
 
-**Lead 18 handover to lead 19 (2026-11-02). Adebayo starts lead 19 himself: don't auto-chain from lead 18.**
+**Lead 20 handover to lead 21 (2026-11-05).**
+
+**Lead 21, first (in this order):**
+1. **API #218, Funding slice A (round + investor pipeline, migration `0090_funding_core`).** The Opus review passed the money path (row lock, `ALREADY_RECORDED` 409, Finance `Funding` category, never automatic). Its 5 fixes are pushed at `7c204192`: asserts, `IntegrityError` → 409 on the one-open-round index, edits locked after recording, a `move_stage` lock, an index on `recorded_transaction_id`. CI result: see "Lead 20's last checks" below. If the **Security** job is red, read its log (`gh run view --job <id> --log-failed` after the run completes), fix it on `feature/funding-pipeline` (message `funding-a` `local_f12e903b-ace7-4f92-bf1b-a8b5fdf1b04c`), and re-check. Merge only on Adebayo's named go-ahead, squash, `--match-head-commit`. **Don't use `--delete-branch` on a PR that another PR is stacked on**: #217 was closed by that and had to be reopened as #218.
+2. **FE #226, founder Billing comped plan + refunds (part C of `super-admin-flags-billing.md`)**: ready for Adebayo's merge (rows 21-24 pass at both widths, CI green on `baca1794`). Then the FE dev skips part C.
+3. **develop to main** after #226 merges, so `www` gets the comp fix and the Legal/Analytics sidebar hide (#225). **Merge it with a merge commit, never squash** (a squashed release caused today's conflict: #220 fixed it by merging main into develop).
+4. Then build, keeping 2-3 sessions running (see "Next build" below).
+
+**Merged in lead 20 (2026-11-05):** FE #219 (develop to main, merge commit `83b938c5`: Google sign-in on `www`), #220 (main into develop), #221 Funding design, #222 Investor Readiness design, #223 faster FE CI, #224 Marketplace design, #225 hide Legal & Compliance and Analytics & Reports. API #215 faster CI (4 unit shards, `critical` e2e on PRs, `CI gate` always reports; docs-only PRs skip the heavy jobs, proven on #222/#224), #216 Investor Readiness slice A (score + history, `0089_readiness_scores`, Opus-reviewed).
+
+**Decisions taken by Adebayo this session (all in memory):**
+- **D-IR-1..7** "Accept all seven" (`investor-readiness-decisions`): deterministic score, weights T25/F20/P15/M15/Team15/S10, capped at 69 until model + **reviewed** deck + traction proof; separate from Health; F full, TM reads (no Q&A transcripts, no AI tools), other roles 403; deck review = text + layout; investor sees bars only via a Funding share; Q&A 10 answers, refuse under ~40k tokens, 90-day transcripts.
+- **D-FUND-1..8** "Accept all eight" (`funding-decisions`): curated fund directory + grants catalogue (Adebayo reviews both), email + 6-digit code data room, SAFE-converting cap table, cap table and term sheets founder-only, rules-based term flags, one currency per round, downloads off + PDF watermark.
+- **D-MP-1..9** "Accept all nine" (`marketplace-decisions`): hybrid experts, `/provider` portal, platform holds funds **only once counsel + Paystack confirm in writing** (else split), 15% expert-side, verified reviews, real perks only, **production charging off until then**.
+- Hide Legal & Compliance and Analytics & Reports until real ("Yes, hide both"; FE #225).
+- **Victoria follows our process** (`victoria-legal-process`): her API #214 got a changes-requested review (migration `0067_legal` must become the next free number on the head, retarget to `develop`, magic-byte sniff + private storage for proof uploads, asserts, SOP/checklist/e2e/guide) and a comment spelling out gap list → D-LEG calls → slices → FE pass → every-control re-walk.
+- Fix the founder comp display ourselves (FE #226), not via the FE dev.
+
+**Verified this session:**
+- **Admin + Super Admin API is ready for all six FE briefs**: every route, code and step-up the briefs name exists on develop, with live-captured guides; staging runs the develop head. PRD lines not built all trace to decisions: D-ADM-3 (no impersonation), D-ADM-12 (no system health grid), D-ADM-13 (AI config deferred), P8 (platform analytics out), T2 (no AI triage), Content editor deferred, moderation with Marketplace. Small: founder ticket categories lack PRD's "Abuse"/"Data"; the staff guide's line "no scoped routes exist" is stale (fix in the next API docs PR).
+- The FE dev (sammyspec) pushed `feature/team-fe`, `feature/journal-fe`, `feature/notifications-fe` (2026-11-04/05) with **no PRs**, and has no Admin branches.
+
+**Module map (2026-11-05):**
+| Module | BE | PRD+UI pass | FE / re-walk |
+|---|---|---|---|
+| 14 Funding Hub | slice A in #218; **B data room, C cap table, D term sheets, E grants, F copilot/analytics left** (D-FUND-1 directory and D-FUND-2 catalogue need Adebayo's content review) | ✅ #221 | FE pass after the slices; hidden |
+| 15 Investor Readiness | A ✅ (#216); **B deck review, D mock Q&A, then C narrative left** | ✅ #222 | FE pass after; hidden |
+| 16 Marketplace | **none yet**: slices per `docs/superpowers/specs/2026-11-05-marketplace-design.md` | ✅ #224 | after; hidden; prod charging off |
+| 13 Legal | Victoria #214 (changes requested) | **not done** (she owes `legal-prd-gaps.md`) | hidden |
+| 22 Analytics & Reports | **none** | **not done** | hidden |
+| 03 AI Co-Founder | exists | **never done** | **never re-walked** |
+| 01 Auth & Onboarding | exists; Google ✅ | **only Google** | Google waits on Adebayo's click on `www` |
+| 20/21/23 Notifications, Journal, Team | ✅ | ✅ | waits on the FE dev's PRs |
+| 25/26 Admin + Super Admin | ✅ (verified ready) | ✅ | FE dev; founder part C is ours (#226) |
+| Everything else (14 pages) | ✅ | ✅ | ✅ re-walked |
+
+**Next build (Adebayo hadn't chosen at handover; ask him in one line):** PRD + UI passes for **AI Co-Founder** and **Auth & Onboarding** (never audited, every founder uses them), or the **Analytics & Reports** design. Alongside: **Readiness slice B** (deck review, `pypdfium2`) and **D** (mock Q&A), **Funding slice B** (data room, needs Documents link shares, email + OTP, PDF watermark), **Marketplace slice A** (catalogue + provider accounts). Migrations: next free is **0091** after #218. Victoria's Legal migration takes whatever is free when she rebases.
+
+**Adebayo's own to-dos:** real Google sign-up + sign-in on `www.cofoundaz.com`; send the FE dev `MESSAGE-to-fe-dev-admin.md` + six Admin briefs and ask for PRs on Team/Journal/Notifications; tell Victoria to read #214's review; ask counsel + Paystack in writing about holding Marketplace funds (D-MP-3/9); turn on GitHub Dependency graph + `ENABLE_CODE_SCANNING=true` to bring back "Dependency review"; later review the fund directory and grants catalogue.
+
+**Sessions (all Sonnet; message by id):** `funding-a` `local_f12e903b-ace7-4f92-bf1b-a8b5fdf1b04c` (#218 fixes), `comp-billing-fe` `local_b2d76332-cb44-4513-8393-a60cc4e1db95` (#226 walk), `ir-design` `local_c61f651d-2256-42cc-a830-1c1f61496136` (has Readiness context: give it slice B or D). Done, can be archived on Adebayo's yes: `ci-speed` `local_c2bfaa66-...`, `funding-design` `local_83cc81d5-...`, `marketplace-design` `local_a2953654-...`.
+
+**Gotchas learned in lead 20:**
+- `gh pr merge --delete-branch` on a branch another PR targets **closes** that PR (GitHub doesn't retarget). Merge without deleting, retarget the child with `gh pr edit <n> --base develop`, then delete.
+- Several design PRs all add a row to `docs/checklist/buildout-status.md`, so each merge conflicts the next: merge develop in and keep all rows.
+- Squash-merged stacked PRs leave the child with conflicts on the same lines: merge develop into the child (never rebase or force-push, others stack on it).
+- With the new CI, the Security job and e2e logs only appear after the **whole run** completes.
+- The shared local API stack on :8000 is **down**. Sessions run their own scratch stack (`<prefix>-pg`, `<prefix>-redis`) and stop it after.
+
+**Lead 20's last checks (filled at handover):** **#218** was red only on the Security job: **bandit B101, `assert` in app code** (`app/services/funding/investors.py:272`, `:301`, maybe more). Lead 20 sent `funding-a` the fix at handover (explicit checks instead of asserts, run the CI bandit command locally, push, full run green). Unit shards and e2e were still running on `7c204192`. Check its next head yourself before telling Adebayo it's ready. **#226** is complete: rows 21-24 PASS at 1440 and 375 (`billing-comped-refunds-walk.md`), CI green on `baca1794`, no attribution, scratch containers stopped. Ready for Adebayo's merge.
+
+**Lead 18 handover to lead 19 (2026-11-02), kept for history. Adebayo starts lead 19 himself: don't auto-chain from lead 18.**
 
 **Lead 19, first thing:** the Google check is **done**. Adebayo did a real Google sign-up and sign-in on local :3000 on 2026-11-02 and both worked. He then asked for Google's official button branding, and it's in.
 1. **FE #216** (`feature/google-sign-in-fe`) is ready for his merge: head `fb1e0fe4`, CI green, mergeable, no attribution. It has the open-redirect fix and the official Google button (multicolour G, white with a `#747775` border, Roboto Medium 14px, `ui/marketing/auth/google-button.tsx`), with screenshots in `docs/checklist/google-sign-in-fe-walk-evidence/`. Re-check CI on the head before telling him; merge only on his named go-ahead.
@@ -540,9 +591,9 @@ comes with it).
 | Calendar | API #194 ✅ merged `513143fd` (0079) | FE #190 merged | #194 re-walk on merged develop | ✅ **Done 2026-10-30**; real Google consent, reminders firing and invite email not verified |
 | Settings + Billing + AI preferences | API #195, #196, #201 ✅ merged (0082) | FE #192 merged | #195 re-walk on merged develop, 350/350 scripted | ✅ **Done 2026-10-30**; paid Paystack flow and real model tone not verified |
 | Journal, Notifications, Team | #200, #198 (0080), #199 (0081) ✅ all merged | FE briefs FE #186-#188 + `fe-handoff/MESSAGE-to-fe-dev.md` | FE dev builds, lead re-walks | 🟡 **with the FE dev** (BE complete) |
-| Funding Hub, Investor Readiness, Marketplace | none | mock, **hidden from the sidebar** (FE #184) | n/a | ⏸ after Admin + Super Admin BE (Adebayo 2026-10-29) |
-| Admin Portal (25), Super Admin Portal (26) | none | `app/admin-portal`, `app/super-admin` exist | n/a | ⏭ **next BE build** after the merge train |
-| Analytics & Reports (22), Legal (13, Victoria #138) | none / blocked | mock, still in the sidebar | n/a | later |
+| Funding Hub, Investor Readiness, Marketplace | designed 2026-11-05 (FE #221, #222, #224); Readiness A ✅ #216; Funding A #218 | mock, **hidden from the sidebar** (FE #184) | n/a | 🟡 **building**, see §0a module map |
+| Admin Portal (25), Super Admin Portal (26) | ✅ A-E, Tickets, Reports (verified ready 2026-11-05) | briefs with the FE dev; founder part C in FE #226 | n/a | 🟡 FE with the FE dev |
+| Analytics & Reports (22), Legal (13, Victoria #214) | none / Victoria slice 1 in review | mock, **hidden from the sidebar** (FE #225) | n/a | later |
 
 Remaining after these: Journal (API ✅) → Notifications (API ✅) → Team (invitations only in the API), all three as the
 **FE-developer hand-off pass** (0b-46) → Funding, Investor Readiness, Marketplace, Analytics

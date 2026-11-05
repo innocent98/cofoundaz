@@ -4,6 +4,8 @@ import {
   creditsPercentTone,
   formatNaira,
   formatStorage,
+  invoiceStatusLabel,
+  planStatusLine,
   upgradeTarget,
   verifyMessage,
 } from './billing-format';
@@ -66,5 +68,21 @@ describe('upgradeTarget', () => {
     expect(upgradeTarget([{ field: 'plan', message: 'growth' }])).toBe('growth');
     expect(upgradeTarget([{ field: 'plan', message: 'weird' }])).toBeNull();
     expect(upgradeTarget([])).toBeNull();
+  });
+});
+
+describe('invoiceStatusLabel', () => {
+  it('shows Paid, Partly refunded with the amount, Refunded and Failed', () => {
+    expect(invoiceStatusLabel({ status: 'paid', refunded_minor: 0 }).text).toBe('Paid');
+    expect(invoiceStatusLabel({ status: 'paid', refunded_minor: 1000000 }).text).toBe('Partly refunded: ₦10,000');
+    expect(invoiceStatusLabel({ status: 'refunded', refunded_minor: 2400000 }).text).toBe('Refunded');
+    expect(invoiceStatusLabel({ status: 'failed', refunded_minor: 0 }).text).toBe('Failed');
+  });
+});
+
+describe('planStatusLine', () => {
+  it('says Complimentary until the end date for a comp, not Ends', () => {
+    const line = planStatusLine({ comped: true, cancel_at_period_end: true, status: 'active', ends_at: '2026-11-30T15:26:00+00:00', renews_at: null, plan: { key: 'growth', name: 'Growth' } } as never);
+    expect(line).toBe('Complimentary until 30 Nov 2026');
   });
 });

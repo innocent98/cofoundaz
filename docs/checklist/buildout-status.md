@@ -23,6 +23,9 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 | Notifications | gap list `notifications-prd-gaps.md` (N1-N13; D-NOT-1..6 built to defaults) | ✅ API #199 merged 2026-10-30 (`e7153db7`, 0081) | **FE developer** (hand-off `fe-handoff/notifications.md`) | not started; FE is the human developer's | BE built + live-captured; Push and Announcements deliberately out |
 | Team | gap list `team-prd-gaps.md` (T1-T12; D-TEAM-1..6; PRD overridden to a light page by Adebayo 2026-10-29) | ✅ API #200 merged 2026-10-29 (`a8832a15`) | **FE developer** (hand-off `fe-handoff/team.md`) | not started; the page is 100% mock today | Tasks, Directory and grants matrix deliberately not built |
 | Google sign-in and sign-up (FE) | Brief `fe-handoff/google-sign-in.md`; D-decisions 2026-11-02 (link by verified email, 2FA applies, invite by matching email, Apple hidden) | API #213 merged (`08b34faa`) | Built by the lead's team, branch `feature/google-sign-in-fe` (PR open); the FE dev skips it | 🟡 Walked 2026-11-02 at 1440 + 375 against the local API (`google-sign-in-fe-walk.md`): both buttons, real `start` to accounts.google.com, error states, bogus ticket via the real exchange. **Not done:** a real Google account round trip (Adebayo's click) | Real consent, new account to onboarding, returning, link, 2FA and invite round trips are unit-tested only until Adebayo clicks through |
+| Funding Hub | Design pass 2026-11-05: `funding-prd-gaps.md` (51 gap rows, D-FUND-1..8 for Adebayo, lead defaults L1-L10) and `docs/superpowers/specs/2026-11-05-funding-hub-design.md` (slices A-F, B2 optional) | none yet (API has no Funding code) | none yet (6 mock pages) | not started | D-FUND-1..8 accepted 2026-11-05; coordinates with Investor Readiness (spec §9); stays hidden from the sidebar until A-F are re-walked |
+| Investor Readiness | Design pass only: PRD Module 15 + mock inventory mapped to 32 gap rows (`investor-readiness-prd-gaps.md`), design `docs/superpowers/specs/2026-11-05-investor-readiness-design.md`; D-IR-1..7 accepted 2026-11-05 | slice A (score + history) API #216 in review; B deck, D Q&A, C narrative planned | none yet (mock pages hidden, FE #184) | not started | Mock FE only; no BE exists. Hidden until all five pages are real |
+| Marketplace | Design pass only: PRD Module 16 + Admin 25.3/25.5 + 6-page mock inventory mapped to 62 gap rows (`marketplace-prd-gaps.md`), design `docs/superpowers/specs/2026-11-05-marketplace-design.md`; D-MP-1..9 accepted 2026-11-05 (production charging off until counsel and Paystack confirm in writing) | none yet (slices A providers+vetting, B listings+directory, C booking+checkout+ledger, D fulfilment, E settlement+disputes, F reviews+matches+tools planned; production charging gated on legal) | none yet (mock pages hidden, FE #184) | not started | Mock FE only; no BE exists. Tools tab shows invented perks. Hidden until every page is real |
 
 ## Cross-cutting fixes found along the way (all merged)
 Worker never registered notification subscribers (#130) · invite emails had no link (#131) · weekends-off reset streaks /
@@ -60,6 +63,7 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 - [x] Slice C: Billing overrides (API #207)
 - [x] Slice D: Feature flags (API #208)
 - [x] FE brief for flags, overrides and founder Billing changes: `docs/fe-handoff/super-admin-flags-billing.md`
+- [x] Founder Billing for comped plans and refunds (part C, rows 21-24): PR #226, walk `billing-comped-refunds-walk.md`, SOP `2026-11-05-billing-comped-refunds-fe.md`
 - [x] Slice E: Maintenance mode, global sign-out, second approver (API #209)
 - [x] FE brief: `docs/fe-handoff/super-admin-danger-zone.md`, with the app-wide maintenance banner
 - [x] Tickets with founder Help intake, T1-T8 accepted (API #211, 0087; FE brief #212), 2026-11-02
@@ -73,7 +77,7 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 - [x] FE wiring by the lead's team: FE #216 open (`feature/google-sign-in-fe`, CI green; open-redirect fix in)
 - [x] Adebayo's real Google sign-up + sign-in on local (2026-11-02); official Google button added (#216 head `fb1e0fe4`)
 - [ ] Merge #216, develop to main, real click on staging
-- [ ] After Marketplace: Expert vetting, listing moderation
+- [ ] Expert vetting, listing moderation: designed in `marketplace-design.md` (slice A, B; FE-4), built with Marketplace
 
 ## Fixes
 - [x] Settings pills frozen after payment: same-page URL changes use `replaceUrl` (2026-10-31, `docs/sop/2026-10-31-settings-pills-frozen.md`); verified on `www`

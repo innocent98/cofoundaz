@@ -1,5 +1,17 @@
 name: CI
 
+# PIPELINE SPEED (docs/sop/2026-11-05-ci-pipeline-speed.md). Measured before: one serial
+# "gates" job of ~4.5 min (install 55 s, lint 36 s, unit 110 s, build 40 s) beside a ~4.5 min
+# e2e job, on EVERY PR including docs-only ones. Now:
+#   1. `changes` classifies the PR; a docs-only PR (docs/**, *.md) skips every heavy job.
+#   2. `CI gate` always reports (green on a docs-only PR, red if anything that ran failed).
+#      There is no branch protection today; if it is added, require "CI gate".
+#   3. typecheck / lint / unit / build run in parallel (one matrix) instead of in series, each
+#      restoring a cached node_modules (skips the ~55 s `npm ci` on a lockfile cache hit).
+#   4. Playwright (13 tests, the e2e/accessibility/responsive journeys) is kept whole.
+# vitest sharding was considered and rejected: the whole unit step is ~110 s, so a shard
+# would pay a fresh runner + restore to save well under a minute.
+
 on:
   push:
     branches: [develop, main]
@@ -12,9 +24,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  gates:
-    name: Typecheck · Lint · Unit · Build
+  changes:
+    name: Classify changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      # "true" unless this is a PR that changes only docs.
+      code: ${{ steps.classify.outputs.code }}
+    steps:
+      - name: Classify the change set
+        id: classify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if [ "$EVENT" != "pull_request" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          gh api --paginate "repos/$REPO/pulls/$PR/files" -q '.[].filename' > changed.txt
+          echo "::group::Changed files"; cat changed.txt; echo "::endgroup::"
+          # Docs-only = every changed file is under docs/ or is a markdown file.
+          if grep -qvE '^docs/|\.md$' changed.txt; then CODE=true; else CODE=false; fi
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "### Change classification: code change = **$CODE**" >> "$GITHUB_STEP_SUMMARY"
+
+  gates:
+    name: ${{ matrix.check.name }}
+    needs: [changes]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - { name: Typecheck, run: npm run typecheck }
+          - { name: Lint, run: npm run lint }
+          - { name: Unit tests, run: npm test }
+          - { name: Build, run: npm run build }
     steps:
       - uses: actions/checkout@v4
 
@@ -23,23 +74,25 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Restore node_modules
+        id: nm
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: node_modules
+          # Keyed on the lockfile (exact resolved versions) and the Node major.
+          key: node-modules-${{ runner.os }}-node20-${{ hashFiles('package-lock.json') }}
+
       - name: Install dependencies
+        if: steps.nm.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Unit tests
-        run: npm test
-
-      - name: Build
-        run: npm run build
+      - name: ${{ matrix.check.name }}
+        run: ${{ matrix.check.run }}
 
   e2e:
     name: E2E · Accessibility · Responsive
+    needs: [changes]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +102,15 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Restore node_modules
+        id: nm
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node20-${{ hashFiles('package-lock.json') }}
+
       - name: Install dependencies
+        if: steps.nm.outputs.cache-hit != 'true'
         run: npm ci
 
       # playwright.config.ts builds and serves the app itself (webServer:
@@ -68,3 +129,22 @@ jobs:
           path: playwright-report/
           retention-days: 7
           if-no-files-found: ignore
+
+  # The one check that ALWAYS reports. The jobs above are legitimately skipped on a
+  # docs-only PR; a skipped required check would block merging, hence the gate.
+  ci-gate:
+    name: CI gate
+    if: always()
+    needs: [changes, gates, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every job that ran must have passed
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          BAD=$(echo "$RESULTS" | jq -r '[to_entries[] | select(.value.result != "success" and .value.result != "skipped") | .key] | join(", ")')
+          if [ -n "$BAD" ]; then
+            echo "::error::failed or cancelled: $BAD"
+            exit 1
+          fi

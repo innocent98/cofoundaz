@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { downloadInvoicePdf, listInvoices, type Invoice } from '@/lib/api/billing';
-import { formatDate, formatNaira } from '@/lib/billing-format';
+import { formatDate, formatNaira, invoiceStatusLabel } from '@/lib/billing-format';
 import { Button, Card, LoadError, Spinner } from '../ui';
 import { useAsync } from './use-async';
 
@@ -41,9 +41,11 @@ export function InvoicesView(): React.JSX.Element {
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-semibold text-ink">{formatNaira(inv.amount_minor)}</span>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${inv.status === 'paid' ? 'bg-brand-tint text-brand-strong' : 'bg-danger-xfdf0ed text-danger-ink'}`}>
-                  {inv.status === 'paid' ? 'Paid' : 'Failed'}
-                </span>
+                {(() => {
+                  const st = invoiceStatusLabel(inv);
+                  const cls = st.tone === 'ok' ? 'bg-brand-tint text-brand-strong' : st.tone === 'bad' ? 'bg-danger-xfdf0ed text-danger-ink' : 'bg-neutral-100 text-ink-subtle';
+                  return <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${cls}`}>{st.text}</span>;
+                })()}
                 <Button variant="secondary" loading={busy === inv.id} onClick={() => download(inv)} aria-label={`Download receipt ${inv.number}`}>
                   Receipt
                 </Button>

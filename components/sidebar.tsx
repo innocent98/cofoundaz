@@ -23,12 +23,10 @@ import {
   PieChart,
   TrendingUp,
   Coins,
-  Scale,
   GraduationCap,
   Folder,
   Calendar,
   Users,
-  BarChart2,
   Lock,
   Bell,
   Settings,
@@ -60,7 +58,8 @@ interface SidebarProps {
 }
 
 // Funding Hub, Investor Readiness and Marketplace are hidden until their APIs ship (2026-10-29).
-// Their pages still exist at /funding, /investor-readiness and /marketplace.
+// Legal & Compliance and Analytics & Reports are hidden too until they are real (Adebayo, 2026-11-05).
+// Their pages still exist at /funding, /investor-readiness, /marketplace, /legal and /analytics-reports.
 const navSections: NavSection[] = [
   {
     title: 'OVERVIEW',
@@ -89,12 +88,6 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    title: 'FUND & PROTECT',
-    items: [
-      { label: 'Legal & Compliance', href: '/legal', icon: Scale },
-    ],
-  },
-  {
     title: 'RESOURCES',
     items: [
       { label: 'Learning Academy', href: '/academy', icon: GraduationCap },
@@ -106,7 +99,6 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Calendar', href: '/calendar', icon: Calendar },
       { label: 'Team', href: '/team', icon: Users },
-      { label: 'Analytics & Reports', href: '/analytics-reports', icon: BarChart2 },
       { label: 'Journal', href: '/journal', icon: EditIcon, locked: true },
     ],
   },

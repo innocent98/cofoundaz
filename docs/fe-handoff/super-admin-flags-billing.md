@@ -56,6 +56,8 @@ There's no way to cancel a pending refund yet. Put "Record a refund only when yo
 
 ## C. Founder Billing changes (existing Settings screens)
 
+> **BUILT by the lead's team (PR innocent98/cofoundaz#226, 2026-11-05). FE dev: skip part C and rows 21 to 24.** Evidence: `docs/checklist/billing-comped-refunds-walk.md`.
+
 These ship in the same PR, because a comped or refunded founder otherwise sees wrong things.
 
 - **Comped plan** (`subscription.comped == true`): show "Complimentary until {ends_at}" in place of the plan status line. **Hide** the "Your plan ends on" banner, the **Keep my plan** button, the "Plan ends" next-invoice block, and Cancel. Today a comped founder would see "Your plan ends on..." and a Keep my plan button that fails with 409 `PLAN_COMPLIMENTARY`.

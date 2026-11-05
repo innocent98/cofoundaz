@@ -14,7 +14,7 @@ vi.mock('@/lib/api/billing', async (orig) => ({ ...(await orig<typeof import('@/
 const sub = (over: Partial<Subscription>): Subscription => ({
   plan: { key: 'growth', name: 'Growth' }, interval: 'monthly', status: 'active', price_minor: 2400000, currency: 'NGN',
   current_period_start: null, renews_at: '2026-11-27T12:00:00+00:00', ends_at: null, trial_ends_at: null, trial_available: false,
-  cancel_at_period_end: false, cancel_reason: null, pending_change: null, payment_issue: null, enforcement: false, ...over,
+  comped: false, cancel_at_period_end: false, cancel_reason: null, pending_change: null, payment_issue: null, enforcement: false, ...over,
 });
 
 describe('BillingTab', () => {
@@ -50,5 +50,18 @@ describe('BillingTab', () => {
   it('shows a Retry when the subscription failed to load', () => {
     render(<BillingTab isFounder sub={null} subError="We couldn't load your billing." reloadSub={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Retry' })).toBeTruthy();
+  });
+
+  const comped = () =>
+    sub({ comped: true, cancel_at_period_end: true, cancel_reason: 'comp', renews_at: null, ends_at: '2026-11-30T15:26:00+00:00' });
+
+  it('shows a comped plan as complimentary with no ends banner, Keep my plan, Plan ends or Cancel', () => {
+    render(<BillingTab isFounder sub={comped()} subError={null} reloadSub={vi.fn()} />);
+    expect(screen.getByText(/Complimentary until 30 Nov 2026/)).toBeTruthy();
+    expect(screen.queryByText(/Your plan ends on/)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Keep my plan' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Cancel plan' })).toBeNull();
+    expect(screen.queryByText('Plan ends')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Change plan' })).toBeTruthy();
   });
 });
