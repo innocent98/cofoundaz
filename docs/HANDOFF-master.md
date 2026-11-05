@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-20 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead20-handoff:docs/HANDOFF-master.md`
+> If the lead-21 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead21-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-11-05 ~15:00 WAT (lead session 20, handing over to lead 21, which lead 20 started itself)**. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-05 ~20:30 WAT (lead session 21, handing over to lead 22, which Adebayo starts himself)**. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -18,7 +18,54 @@ Last updated: **2026-11-05 ~15:00 WAT (lead session 20, handing over to lead 21,
 
 ### 0a. Open PRs and in-flight sessions
 
-**Lead 20 handover to lead 21 (2026-11-05).**
+**Lead 21 handover to lead 22 (2026-11-05 ~20:30 WAT). Adebayo starts lead 22 himself: don't auto-chain from lead 21.**
+
+**Lead 22, first (in this order):**
+1. **Three API slices are building. Each reports to lead 21, which relays to you until it's archived. You can also message a session by id.** Verify each PR yourself (whole CI run incl. Security + e2e, CodeQL, no attribution, branch name), run the Opus review, then ask Adebayo to merge:
+   | Slice | Session | Branch | Migration | Review |
+   |---|---|---|---|---|
+   | Readiness D, mock Q&A | `ir-design` `local_c61f651d-2256-42cc-a830-1c1f61496136` | `feature/readiness-mock-qa` (`wt/readiness-qa`) | `0093_readiness_mock_qa` on 0092 | Opus: transcript privacy (TM sees scores only), budget refusal under ~40k, retries don't re-spend, 90-day purge |
+   | Marketplace B, listings + directory | `marketplace-slice-a-prov` `local_aad778e5-f115-4579-8aa3-b3587cd13e75` | `feature/marketplace-listings` (`wt/marketplace-b`) | `0094_marketplace_listings` on 0092 | Opus: visibility (only approved, non-suspended), no staff fields to founders, self-act guard on listing moderation, slot maths across DST |
+   | Funding B, data room | `funding-slice-b-data-roo` `local_9566a3ee-8063-48a3-ad66-db641935ab03` | `feature/funding-data-room` (`wt/funding-b`) | `0095_funding_data_room` on 0092 | **Opus per task** (public token, email code brute force, serve-time authorisation, watermark) |
+   All three branch from 0092, so **each one that merges after another must re-chain** its migration onto the newest head (`alembic heads` = exactly one). Merge order suggestion: Readiness D, Marketplace B, Funding B.
+   The app was quit at ~20:00 and stalled `ir-design` mid-slice and the Marketplace session before slice B started; lead 21 nudged both to resume at ~20:20. If either shows idle with no PR, message it again.
+2. **FE #229 (AI Co-Founder gap list) and FE #230 (Auth & Onboarding gap list)**: docs only, decisions recorded (heads `677fcc1`, `43da7c3`). Check CI and attribution, then they're ready for Adebayo's merge. #230's D-AUTH-7 draft (26 industries + "Other", 8 goal chips, 6 stage cards) needs **Adebayo's edit** before the onboarding FE step uses it.
+3. **FE dev PRs #231 Team, #232 Journal, #233 Notifications** (opened by lead 21 from sammyspec's branches, reviews posted as PR comments 2026-11-05: Team `#issuecomment-6661516886`, Journal `...6661517730`, Notifications `...6661518526`). All three **need fixes**; #233 fails Unit tests on CI (Marketing tests reworded for one locale). Each also edits Marketing/test setup files that must move to a separate `chore/` PR. Adebayo points the FE dev at the comments. When the dev pushes, re-review against the comment list, CI green, then an every-control re-walk at 1440 + 375 per role before Adebayo merges. **Keep the PRs open** (Adebayo asked; fixes land in place).
+4. **Next builds once a slot frees (max 3 sessions):** (a) **Auth & Onboarding API PR** from `auth-onboarding-prd-gaps.md` build order step 1 (gaps 1-4, 6-8, 11, 12, 14, 21, 22, 25 + D-AUTH-2 lockout, D-AUTH-6 tokens out of localStorage needs the cookie/refresh path); auth = Opus review. Then its FE PR. (b) **AI Co-Founder MVP** per D-AI-1 (orchestrator + 4 agents, workspace context, confirm-first actions, archive + delete). (c) Then Readiness C (narrative), Funding C (cap table, Opus final), Marketplace C (booking + checkout + ledger, Opus per task, Paystack test keys only).
+
+**Merged in lead 21 (2026-11-05):** FE #226 + #227 (by lead 20 on Adebayo's "Merge both"), **#228 develop to main** (merge commit `e705ac1b`: `www` has #225 + #226). API **#218** Funding slice A (`b6cdd7c0`, 0090), **#219** Readiness slice B deck review (`9e21ae5f`, 0091; Opus found an uncounted-token retry + stuck review, fixed; worker `reap_stale` now caps re-queues), **#220** Marketplace slice A providers + vetting (`5d051f09`, 0092; Opus found self-vetting, ticks surviving request-changes, unscanned file reads, all fixed). API develop is **`5d051f09`**, migrations end at **`0092_marketplace_providers`**. FE develop is `24c6472` (+ this handoff).
+
+**Decisions taken by Adebayo this session (all in memory):**
+- **D-AI-1..6 "Accept all six"** (`ai-cofounder-decisions`): v1 = PRD MVP (orchestrator + Strategist, Finance, Legal-lite, Mentor; workspace context; 3 confirm-first actions; "Why I said this"); no streaming, "Cancel" stops the job; Suggested actions aggregate existing outputs; archive + "Delete forever", archived not searchable; memory deferred, panel dropped; hide Suggested actions and Your bench until built.
+- **D-AUTH-1..7 "Accept all seven"** (`auth-onboarding-decisions`): keep PRD duplicate-email message; lockout per (email, IP); hide Apple + SMS 2FA; onboarding first then 2FA banner, Co-Founder invite = founder with a warning, no Investor in the wizard; Kickoff Assessment as step 6; tokens out of localStorage before launch; lead drafts the industry list, Adebayo edits.
+- **Marketplace approved-profile edits "Lock name, queue flagged"** (`marketplace-decisions`): `display_name` locked after approval (422 `NAME_LOCKED`); pre-screen-flagged edits stay live and land in the Admin queue (`?flagged=true`, `clear-flag`); unflagged edits need no review. Built in #220.
+- Build AI Co-Founder + Auth & Onboarding PRD passes next ("AI Co-Founder + Auth"); keep the FE dev's PRs open rather than closing them.
+
+**Gotchas learned in lead 21:**
+- `feature-dev:code-reviewer` agents have **no Bash**: write the diff to the scratchpad (`git diff -U40 origin/develop...origin/<branch> > …`) and point them at it, or use `general-purpose` for git access.
+- `gh pr review --request-changes` fails on PRs opened from Adebayo's own account; post the review with `gh pr comment --body-file`.
+- In zsh, `git show $B:app/...` expands `:a` as a modifier: quote it (`"$B:app/..."`).
+- A session started by a session can't start sessions with `user_asked`; propose an `own_initiative` card (Adebayo clicks) or message an idle session that has the context. Archived sessions can't receive messages (`funding-a` was archived).
+- Parallel API slices all branch from the same head: assign distinct migration numbers up front and re-chain at merge.
+
+**Adebayo's own to-dos (carried + new):** point the FE dev at the three review comments; edit the D-AUTH-7 industry list in #230; real Google sign-up + sign-in on `www.cofoundaz.com`; send the FE dev `MESSAGE-to-fe-dev-admin.md` + the six Admin briefs; tell Victoria to read #214's review; counsel + Paystack in writing on holding Marketplace funds (D-MP-3/9); GitHub Dependency graph + `ENABLE_CODE_SCANNING=true`; later review the fund directory and grants catalogue.
+
+**Module map (2026-11-05 ~20:30):**
+| Module | BE | PRD+UI pass | FE / re-walk |
+|---|---|---|---|
+| 14 Funding Hub | A ✅ (#218); **B data room building**; C cap table, D term sheets, E grants, F copilot left | ✅ #221 | after slices; hidden |
+| 15 Investor Readiness | A ✅ (#216), B ✅ (#219); **D mock Q&A building**; C narrative left | ✅ #222 | after; hidden |
+| 16 Marketplace | A ✅ (#220); **B listings building**; C-F left (prod charging off) | ✅ #224 | after; hidden |
+| 03 AI Co-Founder | exists; MVP gaps per #229 | ✅ #229 (D-AI accepted) | fix slices next |
+| 01 Auth & Onboarding | exists; gaps per #230 | ✅ #230 (D-AUTH accepted) | fix slices next |
+| 20/21/23 Notifications, Journal, Team | ✅ | ✅ | FE dev PRs #233/#232/#231, need fixes |
+| 13 Legal | Victoria #214 (changes requested) | not done | hidden |
+| 22 Analytics & Reports | none | not done | hidden |
+| 25/26 Admin + Super Admin | ✅ | ✅ | FE dev (no PRs yet) |
+| Everything else (14 pages) | ✅ | ✅ | ✅ re-walked |
+
+
+**Lead 20 handover to lead 21 (2026-11-05), kept for history.**
 
 **Lead 21, first (in this order):**
 1. **API #218, Funding slice A (round + investor pipeline, migration `0090_funding_core`).** The Opus review passed the money path (row lock, `ALREADY_RECORDED` 409, Finance `Funding` category, never automatic). Its 5 fixes are pushed at `7c204192`: asserts, `IntegrityError` → 409 on the one-open-round index, edits locked after recording, a `move_stage` lock, an index on `recorded_transaction_id`. CI result: see "Lead 20's last checks" below. If the **Security** job is red, read its log (`gh run view --job <id> --log-failed` after the run completes), fix it on `feature/funding-pipeline` (message `funding-a` `local_f12e903b-ace7-4f92-bf1b-a8b5fdf1b04c`), and re-check. Merge only on Adebayo's named go-ahead, squash, `--match-head-commit`. **Don't use `--delete-branch` on a PR that another PR is stacked on**: #217 was closed by that and had to be reopened as #218.
