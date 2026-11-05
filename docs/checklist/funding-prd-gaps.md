@@ -166,7 +166,7 @@ Lead defaults (built as written, reversible):
 | C Cap table | 21-28, 45 | ready to build (decisions accepted) |
 | D Term sheets | 29-32 | ready to build (decisions accepted) |
 | E Grants | 33-36, 46, 47 | ready to build (decisions accepted) |
-| F Copilot + Analytics + glue | 8, 39-42, 49, 50 | not started |
+| F Copilot + Analytics + glue | 8, 39-42, 49, 50 | ready to build (decisions accepted) |
 
 ## Deferred follow-ups
 Health Score signals from Funding · investor updates (Module 22.3) · exit/waterfall modelling · live grant scraping · multi-currency totals ·
