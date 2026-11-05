@@ -67,27 +67,31 @@ Not walked (say so, don't guess): the unverified-user path in the browser right 
 unseen); a bogus `/reset-password/{token}` page (loads, error shape only seen through the API); the dashboard 2FA nag banner;
 real email delivery (file backend only); production proxy IP handling; Apple sign-in and SMS 2FA (not built).
 
-## Decisions needed (product calls)
-- **D-AUTH-1: sign-up "email already has an account".** The PRD prescribes the explicit message (it also tells people to
-  log in). Options: (a) keep the PRD message, rely on rate limits (gap 4); (b) generic "Check your inbox" and send an
-  "you already have an account" email. **Recommend (a)**: B2B founder sign-up, and the friction of (b) costs more than the
-  leak; the real leak (gap 1) is fixed separately.
-- **D-AUTH-2: lockout model.** Options: (a) per (email, IP) counter, same answer for unknown emails, message with minutes,
-  reset clears the lock; (b) per account but with a CAPTCHA after 3 failures; (c) keep. **Recommend (a).**
-- **D-AUTH-3: Apple sign-in and SMS 2FA.** PRD lists both; the API answers 501 and the FE shows "Coming soon" for SMS and
-  nothing for Apple. Options: build now; hide both until built; build Apple only. **Recommend hide both for v1**
-  (Apple needs a developer account and a key; SMS needs a provider and costs per code), keep the seams.
-- **D-AUTH-4: when to offer 2FA and what an invite can grant.** (i) PRD says verify → MFA setup, skippable; options:
-  keep that order, or onboard first and show the dashboard banner. **Recommend onboard first, banner until set.**
-  (ii) "Co-Founder" invites create the full `founder` role (billing, delete); "Investor" is offered although the PRD
-  list has six roles. Options: keep and add a one-line warning; remove Investor from the wizard. **Recommend keep
-  Co-Founder = founder with the warning, drop Investor (invited later from Team / Investor Readiness).**
-- **D-AUTH-5: Kickoff Assessment as wizard step 6.** Options: add it as the PRD says (Start assessment / Do it later);
-  keep today's "assessment banner on the dashboard". **Recommend add it** (small, the banner stays for Do it later).
-- **D-AUTH-6: token storage.** Options: fix before launch (memory + cookie, silent refresh); accept `localStorage` until
-  after launch. **Recommend before launch**: the cookie exists, and gap 6 gives an XSS foothold.
-- **D-AUTH-7: industry list and goal chips.** The PRD says "taxonomy list" without naming it. Options: Adebayo supplies
-  the list; the lead proposes ~25 industries plus "Other". **Recommend lead proposes, Adebayo edits.**
+## Decisions (all seven accepted by Adebayo 2026-11-05: "Accept all seven")
+- **D-AUTH-1: sign-up "email already has an account". Accepted 2026-11-05: (a)** keep the PRD message, rely on rate
+  limits (gap 4). The real leak (gap 1) is fixed separately.
+- **D-AUTH-2: lockout model. Accepted 2026-11-05: (a)** per (email, IP) counter, same answer for unknown emails, message
+  with minutes, a reset clears the lock.
+- **D-AUTH-3: Apple sign-in and SMS 2FA. Accepted 2026-11-05:** hide both for v1 (no Apple button, no SMS row); keep the
+  API seams.
+- **D-AUTH-4: 2FA timing and invite roles. Accepted 2026-11-05:** onboard first, dashboard banner until 2FA is set;
+  Co-Founder = `founder` role with a one-line warning ("Co-Founders have full access, including billing"); drop
+  Investor from the wizard (invited later from Team / Investor Readiness).
+- **D-AUTH-5: Kickoff Assessment as wizard step 6. Accepted 2026-11-05:** add it as the PRD says (Start assessment /
+  Do it later); the dashboard banner stays for Do it later.
+- **D-AUTH-6: token storage. Accepted 2026-11-05:** fix before launch (access token in memory, refresh through the
+  HttpOnly cookie, silent refresh).
+- **D-AUTH-7: industry list and goal chips. Accepted 2026-11-05:** the lead proposes, Adebayo edits. **Draft for his edit:**
+  - Industries (26, stored as these labels; "Other" opens a free-text field): Fintech · Healthtech · Edtech · Agritech ·
+    E-commerce & retail · Logistics & supply chain · Marketplaces · SaaS & developer tools · AI & data · Climate & energy ·
+    Mobility & transport · Proptech & construction · Media & entertainment · Gaming · Travel & hospitality · Food & beverage ·
+    Fashion & beauty · Consumer hardware · Manufacturing · Telecoms & connectivity · Legaltech & govtech · HR & recruiting ·
+    Cybersecurity · Insurtech · Professional services · Other.
+  - Goal chips (8, pick up to 3, exactly the PRD list): Validate my idea · Build my MVP · Get first customers ·
+    Grow revenue · Raise funding · Get legally set up · Get financially organized · Build my team.
+  - Stage cards (PRD labels + sublabels): Idea "It's in my head or on paper" · Validation "I'm testing it with real people" ·
+    Build "I'm building the product" · Launch "I'm live with first users" · Growth "I have revenue and I'm growing" ·
+    Scale "I'm expanding what already works".
 
 ## Build order (proposal)
 1. BE (one PR): gaps 1, 2 (body), 3, 4, 6, 7, 8 (ticket attempts), 11, 12 (`retry_after`), 14, 21, 22, 25 note; migration for
