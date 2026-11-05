@@ -5,10 +5,12 @@ Walked 2026-11-05 on a scratch API (`cbf-` Postgres and Redis, API :8871, FE dev
 | # | Row | 1440 | 375 | Evidence |
 |---|---|---|---|---|
 | 21 | Comped founder opens Billing | PASS | PASS | Card reads "Complimentary until 5 Dec 2026", price "Complimentary". Page text and buttons contain no "Your plan ends on", no "Keep my plan", no "Cancel plan", no "Plan ends". Next-invoice card says nothing is due. No horizontal overflow at 375. |
-| 22 | Same founder tries Change plan | PASS | not re-clicked | See below. |
-| 23 | Partial refund done | PASS | not re-walked | Invoices: "₦24,000, PARTLY REFUNDED: ₦10,000". |
-| 24 | Pending refund only | PASS at 375 (1440 shows the same API data) | PASS | Invoices: "₦24,000, PAID", no refund text. |
-| - | Full refund done | PASS | n/a | Invoices: "REFUNDED". |
+| 22 | Same founder tries Change plan | PASS | PASS | Both widths: Plans shows "Subscribe to Growth"; its dialog reads "₦24,000 per month..."; Not now closes it; Continue to Paystack sent `POST /billing/subscription/checkout` and got 200 (the browser then went to the stub checkout URL). |
+| 23 | Partial refund done | PASS | PASS | Invoices: "₦24,000, PARTLY REFUNDED: ₦10,000". No overflow at 375. |
+| 24 | Pending refund only | PASS | PASS | Invoices: "₦24,000, PAID", no refund text. |
+| - | Full refund done | PASS | PASS | Invoices: "₦24,000, REFUNDED". |
+
+A second walk on a fresh scratch stack closed the 375 and 1440 gaps from the first; every row is now clicked at both widths with the founders seeded through the real Super Admin comp, refund and mark-done calls.
 
 ## Controls clicked
 
@@ -24,5 +26,4 @@ For a comped founder the API's `preview-change` answers `upgrade` with a prorate
 ## Not verified
 
 - A real Paystack payment replacing the comp (stubbed here; the API guide marks this unit-tested only).
-- Rows 22 and 23 at 375 were not clicked through separately, only the overview and the pending invoice list.
 - Cancel and resume are unreachable in the UI for a comp, so the 409 on those two was not triggered from the page. Change's 409 was.
