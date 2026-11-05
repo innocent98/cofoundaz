@@ -77,6 +77,8 @@ export interface Subscription {
   ends_at: string | null;
   trial_ends_at: string | null;
   trial_available: boolean;
+  /** Staff gave this plan free. It ends on `ends_at`; cancel, resume and change return 409 PLAN_COMPLIMENTARY. */
+  comped: boolean;
   cancel_at_period_end: boolean;
   cancel_reason: string | null;
   pending_change: { plan: PlanRef; interval: BillingInterval } | null;
@@ -101,7 +103,9 @@ export interface Invoice {
   description: string;
   amount_minor: number;
   currency: string;
-  status: 'paid' | 'failed';
+  /** Only refunds staff have completed; pending ones never reach the founder. */
+  refunded_minor: number;
+  status: 'paid' | 'failed' | 'refunded';
   date: string;
 }
 

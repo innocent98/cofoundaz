@@ -63,6 +63,7 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 - [x] Slice C: Billing overrides (API #207)
 - [x] Slice D: Feature flags (API #208)
 - [x] FE brief for flags, overrides and founder Billing changes: `docs/fe-handoff/super-admin-flags-billing.md`
+- [x] Founder Billing for comped plans and refunds (part C, rows 21-24): PR #226, walk `billing-comped-refunds-walk.md`, SOP `2026-11-05-billing-comped-refunds-fe.md`
 - [x] Slice E: Maintenance mode, global sign-out, second approver (API #209)
 - [x] FE brief: `docs/fe-handoff/super-admin-danger-zone.md`, with the app-wide maintenance banner
 - [x] Tickets with founder Help intake, T1-T8 accepted (API #211, 0087; FE brief #212), 2026-11-02

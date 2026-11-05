@@ -1,4 +1,4 @@
-import type { BillingInterval, PlanKey, Subscription, VerifyResult } from '@/lib/api/billing';
+import type { BillingInterval, Invoice, PlanKey, Subscription, VerifyResult } from '@/lib/api/billing';
 
 /** Kobo to naira text: "₦24,000", "₦44,049.29" (kobo shown only when there are any). */
 export function formatNaira(kobo: number): string {
@@ -72,11 +72,19 @@ export function verifyMessage(v: VerifyResult): VerifyMessage {
 
 /** A short status line for the plan card. */
 export function planStatusLine(s: Subscription): string {
+  if (s.comped) return `Complimentary until ${formatDate(s.ends_at)}`;
   if (s.status === 'trialing') return `Free trial until ${formatDate(s.trial_ends_at ?? s.ends_at)}`;
   if (s.status === 'past_due') return 'Payment failed';
   if (s.cancel_at_period_end) return `Ends ${formatDate(s.ends_at)}`;
   if (s.status === 'active' && s.renews_at) return `Renews ${formatDate(s.renews_at)}`;
   return s.plan.key === 'starter' ? 'No card required' : '';
+}
+
+/** Founder-facing invoice state: label plus tone. Pending refunds are never passed to the founder, so never shown. */
+export function invoiceStatusLabel(inv: Pick<Invoice, 'status' | 'refunded_minor'>): { text: string; tone: 'ok' | 'bad' | 'muted' } {
+  if (inv.status === 'refunded') return { text: 'Refunded', tone: 'muted' };
+  if (inv.status === 'paid' && inv.refunded_minor > 0) return { text: `Partly refunded: ${formatNaira(inv.refunded_minor)}`, tone: 'muted' };
+  return inv.status === 'paid' ? { text: 'Paid', tone: 'ok' } : { text: 'Failed', tone: 'bad' };
 }
 
 export function creditsPercentTone(percent: number): 'ok' | 'warn' | 'full' {
