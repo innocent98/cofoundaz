@@ -1,6 +1,6 @@
 # Marketplace: design
 
-Date: 2026-11-05. Status: **design only, awaiting Adebayo's calls (D-MP-1..9)**. PRD Module 16 (`Cofoundaz_Technical_PRD.md:610-640`), plus the references at
+Date: 2026-11-05. Status: **design accepted 2026-11-05: D-MP-1..9 accepted as recommended (Adebayo: "Accept all nine"); production charging stays off until counsel and Paystack confirm in writing (D-MP-3, D-MP-9)**. PRD Module 16 (`Cofoundaz_Technical_PRD.md:610-640`), plus the references at
 line 131 (AI disclaimer: "find one in the Marketplace"), Module 25.3 / 25.5 (moderation, reported reviews), Module 24 (Billing) and the access row at line 900.
 Mocks: `app/(dashboard)/marketplace/*` (6 pages on `hooks/useMarketplaceApi.ts`, all seeded `useState`, hidden from the sidebar by FE #184).
 Gap list: `docs/checklist/marketplace-prd-gaps.md`. No product code in this pass.

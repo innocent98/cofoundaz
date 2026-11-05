@@ -13,7 +13,7 @@ Legend: ❌ gap · Layer: BE / FE / both · Slice (BE): A Providers+vetting · B
 · FE-1 founder directory/booking · FE-2 reviews/purchases/tools · FE-3 provider portal · FE-4 Admin/Super Admin queues
 · Severity: **Sec** (security/money/trust) > **High** > **Med** > **Low** · "Default" = lead default (spec 1.2), built unless Adebayo objects.
 
-## Decisions needed from Adebayo (D-MP-1..9)
+## Decisions (D-MP-1..9): all accepted 2026-11-05 (Adebayo: "Accept all nine")
 
 Full options, costs and exposure are in the spec §1.1 and §1.3. Recommendations:
 
