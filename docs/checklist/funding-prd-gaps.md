@@ -11,7 +11,9 @@ construction. The only API touches are `FUNDING_CATEGORY` in Finance (D-FIN-11),
 Legend: ❌ gap · Layer: BE / FE / both · Slice: A Round+Pipeline · B Data room · C Cap table · D Term sheets · E Grants · F Copilot+Analytics+glue
 · Severity: **Sec** > **High** > **Med** > **Low** · "Default" = lead default, built unless Adebayo objects.
 
-## Decisions needed from Adebayo (D-FUND-1..8)
+## Decisions: D-FUND-1..8 Accepted 2026-11-05 (Adebayo: "Accept all eight")
+
+Each recommendation below is the accepted answer. A ships without the directory (D-FUND-1 directory follows A).
 
 | ID | Question | Options (cost) | Recommendation |
 |---|---|---|---|
@@ -159,11 +161,11 @@ Lead defaults (built as written, reversible):
 ## Slice status
 | Slice | Rows | State |
 |---|---|---|
-| A Round + Pipeline | 1-7, 9, 10, 37, 38 | not started (waits on D-FUND-1, 7) |
-| B Data room | 11-20, 44; B2 row 43 | not started (waits on D-FUND-3, 8) |
-| C Cap table | 21-28, 45 | not started (waits on D-FUND-4, 5) |
-| D Term sheets | 29-32 | not started (waits on D-FUND-6) |
-| E Grants | 33-36, 46, 47 | not started (waits on D-FUND-2) |
+| A Round + Pipeline | 1-7, 9, 10, 37, 38 | ready to build (decisions accepted) |
+| B Data room | 11-20, 44; B2 row 43 | ready to build (decisions accepted) |
+| C Cap table | 21-28, 45 | ready to build (decisions accepted) |
+| D Term sheets | 29-32 | ready to build (decisions accepted) |
+| E Grants | 33-36, 46, 47 | ready to build (decisions accepted) |
 | F Copilot + Analytics + glue | 8, 39-42, 49, 50 | not started |
 
 ## Deferred follow-ups

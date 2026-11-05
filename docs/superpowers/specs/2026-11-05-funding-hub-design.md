@@ -1,6 +1,6 @@
 # Funding Hub: design
 
-Date: 2026-11-05. Status: **draft, waiting for Adebayo's calls on D-FUND-1..8** (questions, options and costs in
+Date: 2026-11-05. Status: **D-FUND-1..8 accepted 2026-11-05 (Adebayo: "Accept all eight"), ready to build**; each recommendation in the gap list is the accepted answer (questions, options and costs in
 `docs/checklist/funding-prd-gaps.md`). PRD Module 14 (`Cofoundaz_Technical_PRD.md:569-590`), plus the Module 15 hand-off
 (`:591-608`), the access row `funding (shared scopes) / investor-readiness | ✓ | ▢ | — | R(shared) ...` (`:899`) and the plan
 catalog (`app/services/billing/catalog.py:14`, `funding` is a Scale module).
