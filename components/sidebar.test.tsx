@@ -44,7 +44,12 @@ describe('Sidebar (PRD 2.1)', () => {
     for (const label of ['Dashboard', "Today's Mission", 'Health Score', 'Roadmap', 'Finance Hub', 'Team', 'Journal']) {
       expect(hasLink(label)).toBe(true);
     }
-    expect(['OVERVIEW', 'BUILD', 'GROW', 'FUND & PROTECT', 'RESOURCES', 'WORKSPACE'].every((t) => within(nav()).queryByText(t))).toBe(true);
+    expect(['OVERVIEW', 'BUILD', 'GROW', 'RESOURCES', 'WORKSPACE'].every((t) => within(nav()).queryByText(t))).toBe(true);
+    // Hidden until they are real (2026-10-29 and 2026-11-05)
+    for (const label of ['Funding Hub', 'Investor Readiness', 'Marketplace', 'Legal & Compliance', 'Analytics & Reports']) {
+      expect(hasLink(label)).toBe(false);
+    }
+    expect(within(nav()).queryByText('FUND & PROTECT')).toBeNull();
   });
 
   it('accountant sees only Finance Hub, Documents and Calendar (invited meetings only) plus Dashboard; everything else is hidden, not disabled', () => {
