@@ -1,0 +1,42 @@
+name: CD (staging)
+
+# push `develop` -> gates -> build the staging image -> deploy to the staging web stack.
+# Manual rollback: Run workflow with image_tag = sha-<commit>-staging.
+# See docs/sop/2026-11-06-fe-vps-deploy.md.
+
+on:
+  push:
+    branches: [develop]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Redeploy an EXISTING tag instead of building (e.g. sha-a1b2c3d-staging)."
+        required: false
+        type: string
+
+concurrency:
+  # Never cancel a half-finished deploy: queue instead.
+  group: cd-web-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Off until the VPS side exists. Set the REPOSITORY variable
+    # WEB_VPS_DEPLOY_STAGING=true to let pushes deploy; a manual run always works.
+    # Without this, every merge would go red at preflight while Vercel is
+    # still the live path.
+    if: vars.WEB_VPS_DEPLOY_STAGING == 'true' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/deploy-web.yml
+    with:
+      environment: staging
+      image_tag: ${{ github.event.inputs.image_tag || '' }}
+    permissions:
+      contents: read
+      packages: write
+    secrets: inherit
