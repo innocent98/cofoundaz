@@ -1,8 +1,7 @@
-import { ApiError, apiClient } from './client';
+import { ApiError, apiClient, API_BASE } from './client';
+import type { MemberRole } from '@/lib/nav-access';
 
-// POST /team/invitations (BE guide: fe-integration-guide-team-invitations.md).
-// Founder only. 1 to 20 rows; `investor` is not accepted here.
-
+// Roles accepted in invite and member management
 export type InviteRole =
   | 'founder'
   | 'team_member'
@@ -39,13 +38,11 @@ export interface InviteResult {
 }
 
 export interface InviteFieldError {
-  /** Row index parsed from `invites.{row}.{email|role}`. */
   row: number;
   field: 'email' | 'role';
   message: string;
 }
 
-/** Thrown for a rejected invite request; carries what the modal needs to show. */
 export class InviteError extends Error {
   constructor(
     message: string,
@@ -100,10 +97,174 @@ export async function sendInvitations(invites: InviteRow[]): Promise<InviteResul
   }
 }
 
-/** One plain-language line per outcome list, e.g. "Invited 1. Skipped 1 (already a member or already invited)." */
 export function summarizeInvites(r: InviteResult): string {
   const parts: string[] = [];
   if (r.created.length) parts.push(`Invited ${r.created.length}.`);
   if (r.skipped.length) parts.push(`Skipped ${r.skipped.length} (already a member or already invited).`);
   return parts.join(' ');
+}
+
+// -------------------------------------------------------------
+// Members
+// -------------------------------------------------------------
+
+export interface TeamMemberRow {
+  user_id: string;
+  name: string | null;
+  email: string;
+  role: MemberRole | string;
+  joined_at?: string | null;
+  last_active_at?: string | null;
+}
+
+export async function getTeamMembers(): Promise<TeamMemberRow[]> {
+  const res = await apiClient<{ data?: TeamMemberRow[] }>('/team/members');
+  return Array.isArray(res?.data) ? res.data : [];
+}
+
+export async function updateMemberRole(userId: string, role: string): Promise<TeamMemberRow> {
+  const res = await apiClient<{ data: TeamMemberRow }>(`/team/members/${encodeURIComponent(userId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
+  });
+  return res.data;
+}
+
+export interface RemoveMemberResult {
+  document_grants_revoked: number;
+}
+
+export async function removeMember(userId: string): Promise<RemoveMemberResult> {
+  const res = await apiClient<{ data?: RemoveMemberResult }>(`/team/members/${encodeURIComponent(userId)}`, {
+    method: 'DELETE',
+  });
+  return {
+    document_grants_revoked: res?.data?.document_grants_revoked ?? 0,
+  };
+}
+
+export async function leaveWorkspace(): Promise<void> {
+  await apiClient('/team/leave', {
+    method: 'POST',
+  });
+}
+
+// -------------------------------------------------------------
+// Invitations (Pending)
+// -------------------------------------------------------------
+
+export interface PendingInvitation {
+  id: string;
+  email: string;
+  role: string;
+  created_at: string;
+  expires_at?: string;
+  expired?: boolean;
+}
+
+export async function getPendingInvitations(): Promise<PendingInvitation[]> {
+  const res = await apiClient<{ data?: PendingInvitation[] }>('/team/invitations');
+  return Array.isArray(res?.data) ? res.data : [];
+}
+
+export interface ResendInvitationResult {
+  delivered: boolean;
+}
+
+export async function resendInvitation(id: string): Promise<ResendInvitationResult> {
+  const res = await apiClient<{ data?: ResendInvitationResult }>(`/team/invitations/${encodeURIComponent(id)}/resend`, {
+    method: 'POST',
+  });
+  return {
+    delivered: res?.data?.delivered ?? true,
+  };
+}
+
+export async function revokeInvitation(id: string): Promise<void> {
+  await apiClient(`/team/invitations/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+}
+
+// -------------------------------------------------------------
+// Comments Threads
+// -------------------------------------------------------------
+
+export type CommentThreadFilter = 'all' | 'mentions' | 'unresolved';
+
+export interface CommentThreadItem {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  anchor: string | null;
+  context: string;
+  unresolved_count: number;
+  mentions_me: boolean;
+  last_comment: {
+    snippet: string;
+    author: {
+      id: string;
+      name: string | null;
+    };
+    created_at: string;
+  };
+}
+
+export async function getCommentThreads(filter: CommentThreadFilter = 'all'): Promise<CommentThreadItem[]> {
+  const q = new URLSearchParams({ filter });
+  const res = await apiClient<{ data?: CommentThreadItem[] }>(`/team/comments/threads?${q.toString()}`);
+  return Array.isArray(res?.data) ? res.data : [];
+}
+
+// -------------------------------------------------------------
+// Audit Log
+// -------------------------------------------------------------
+
+export interface AuditLogEntry {
+  id: string;
+  actor: {
+    id?: string;
+    name?: string | null;
+  } | string | null;
+  action: string;
+  target: string | null;
+  created_at: string;
+}
+
+export interface AuditLogResponse {
+  items: AuditLogEntry[];
+  next_cursor: string | null;
+}
+
+export async function getTeamAuditLogs(cursor?: string): Promise<AuditLogResponse> {
+  const q = new URLSearchParams({ limit: '30' });
+  if (cursor) q.set('cursor', cursor);
+  const res = await apiClient<{ data?: { items?: AuditLogEntry[]; next_cursor?: string | null } }>(
+    `/team/audit?${q.toString()}`
+  );
+  return {
+    items: res?.data?.items ?? [],
+    next_cursor: res?.data?.next_cursor ?? null,
+  };
+}
+
+export async function exportTeamAuditCsv(): Promise<{ blob: Blob; filename: string }> {
+  const headers = new Headers();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
+  const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('cf_workspace_id') : null;
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+  if (workspaceId) headers.set('X-Workspace-Id', workspaceId);
+
+  const res = await fetch(`${API_BASE}/team/audit/export`, { headers });
+  if (!res.ok) {
+    let errData: unknown = null;
+    try {
+      errData = await res.json();
+    } catch {
+      /* not json */
+    }
+    throw new ApiError(res.status, res.statusText, errData);
+  }
+  const blob = await res.blob();
+  return { blob, filename: 'team-audit-log.csv' };
 }

@@ -32,7 +32,7 @@ describe('useDashboardApi & Dashboard Mappers', () => {
       pipeline: { status: 'not_built', value_minor: null, currency: null },
       campaign_ctr: { status: 'no_data', ctr_percent: null, impressions: null, clicks: null, range: '30d' },
     };
-    const raw = (metrics: unknown) => ({
+    const raw = ( metrics: unknown) => ({
       tasks_done_this_week: 3,
       metrics,
       revenue: null,
