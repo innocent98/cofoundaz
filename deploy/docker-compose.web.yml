@@ -1,0 +1,31 @@
+# Cofoundaz web on the VPS. One file serves BOTH stacks; each DEPLOY_PATH has its
+# own `.env` (written by deploy/web-deploy.sh) with a distinct
+# COMPOSE_PROJECT_NAME and WEB_PORT, which is all that keeps them apart.
+# See docs/sop/2026-11-06-fe-vps-deploy.md.
+services:
+  web:
+    image: ${WEB_IMAGE:?WEB_IMAGE must be set}
+    restart: unless-stopped
+    # Loopback only: host nginx is the sole path from the internet.
+    ports:
+      - "127.0.0.1:${WEB_PORT:?WEB_PORT must be set}:3000"
+    environment:
+      NODE_OPTIONS: "--max-old-space-size=${WEB_NODE_HEAP_MB:-384}"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+      # Next's ISR / image-optimisation cache. Ephemeral is fine for one instance.
+      - /app/.next/cache:uid=1000,gid=1000,size=256m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "${WEB_CPUS:-1.0}"
+          memory: ${WEB_MEMORY_LIMIT:-512M}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
