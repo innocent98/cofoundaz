@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-22 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead22-handoff:docs/HANDOFF-master.md`
+> If the lead-23 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead23-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-11-05 ~23:30 WAT (lead session 22, handing over to lead 23, which Adebayo starts himself)**. Lead 22 was session `local_d8bf2dc1-5968-4569-aefb-a51e78700310`. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-06 ~20:00 WAT (lead session 23, handing over to lead 24, which Adebayo starts himself)**. Lead 23 was session `local_2a64fa6e-08f3-4ad4-ad3a-8b5832e1e323`. Lead 22 was session `local_d8bf2dc1-5968-4569-aefb-a51e78700310`. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -17,6 +17,81 @@ Last updated: **2026-11-05 ~23:30 WAT (lead session 22, handing over to lead 23,
 ## 0. FOR ADEBAYO
 
 ### 0a. Open PRs and in-flight sessions
+
+**Lead 23 handover to lead 24 (2026-11-06 ~20:00 WAT). Adebayo starts lead 24 himself: don't auto-chain from lead 23.**
+
+**State:**
+- API develop is **`4d7526e0`**. The migration chain ends `… 0094_marketplace_listings → 0097_ai_conversation_archive → 0098_ai_orchestrator → 0096_auth_onboarding_gaps` (head). Out of number order by design; one head.
+- Reserved migration numbers: **0099** Funding C (#229), **0100** AI slice 3, **0101** Marketplace C. Each one that merges after another re-chains onto the newest head. Tell the session the exact `down_revision`; never chain onto an unmerged revision.
+- FE develop is `29d4532` (+ this handoff). FE `main` was released today (#237, merge commit).
+- **The frontend is off Vercel and on the VPS (LIVE):**
+  - `www.cofoundaz.com` serves FE `main` on port **3100**; `stage.cofoundaz.com` serves FE `develop` on port **3101**. Port 3000 on the VPS belongs to another Express app; don't use it.
+  - Each merge deploys by itself (`CD (production)` / `CD (staging)` in the FE repo): gates, build, GHCR, SSH deploy by digest, `/healthz` through nginx, auto-rollback. Manual rollback: re-run the workflow with an earlier `image_tag`. SOP + runbook: `docs/sop/2026-11-06-fe-vps-deploy.md`; edge: API `docs/deployment/WEB_FRONTEND_EDGE.md`.
+  - **Both FEs call the staging API** (Adebayo: "Staging API for now"). Staging FE moved from `www` to `stage`; `www` now = `main`.
+  - Certs for www + apex and for stage are issued and auto-renew. The apex 301-redirects to www. DNS is at Cloudoon.
+  - Vercel project is the fallback until ~2026-11-13, then Adebayo deletes it.
+- **The production API is far behind:** API `main` was last released 2026-09-21 (#89), migration **0027**, 496 commits behind develop. Switching `www` to `api.cofoundaz.com` is a **launch**, not a variable flip (see "Production launch" below).
+
+**Merged in lead 23 (2026-11-06):**
+
+| PR | What | Commit |
+|---|---|---|
+| API #226 | AI Co-Founder slice 1 (conversation management) | `c6ed4d37` (0097) |
+| API #228 | AI orchestrator + 4 agents (retargeted from #226's branch) | `c431cda4` (0098) |
+| API #227 | Auth & Onboarding step 1 (e2e regressions fixed; explicit invite-role allowlist) | `4d7526e0` (0096 on 0098) |
+| FE #236 | Self-hosted web deploy (Docker, GHCR, SSH, rollback) | `3a5059a` |
+| FE #237 | Release develop → main (merge commit) | — |
+| API #230 | nginx web vhost templates + runbook (config only) | `36093db5` |
+| FE #238 / API #231 | runbook ports 3100/3101 + busy-port hard stop | `29d4532` / `8119c844` |
+
+**Open PRs:**
+
+| PR | State | Next |
+|---|---|---|
+| **API #232** `chore/prod-cors-www` | Re-encrypted `.env.production.enc` (Adebayo added `https://www.cofoundaz.com` to `BACKEND_CORS_ORIGINS` + `APP_BASE_URL`; plaintext deleted). CI just started | Verify CI, ask "Merge #232". Takes effect only on the API develop → main release. The shared checkout `cofoundaz-api/` still shows `.env.production.enc` as modified (same bytes as the PR); after #232 merges, `git checkout -- .env.production.enc` there, then pull |
+| **API #229** Funding C cap table | The session rebuilt the branch locally (`tmp-rewrite`, gitleaks clean, re-chained). **It refuses to force-push on a relayed approval:** Adebayo must type "Yes, force-push" in that session himself. Lead 23 also told it to re-chain 0099 onto `0096_auth_onboarding_gaps` first | After the push: whole CI, then the **Opus final money-path review** (share maths, SAFE conversion cap/discount/MFN, pre/post-money, dilution, row locks, audit rows, founder-only gating), then merge |
+| API #214 Legal (Victoria) | Targets `main`, not `develop`; review posted 2026-11-05 | Victoria acts on the review |
+| FE #231 / #232 / #233 (FE dev) | No pushes since the 2026-11-04/05 review comments; #233 still fails 2 checks | Adebayo points the dev at the comments; keep the PRs open |
+| FE #235 lead-22 handoff | Superseded by this lead-23 handoff PR (which contains it) | Close #235 when this one merges |
+
+**Sessions (message by id; each keeps its context):**
+
+| Session | Doing | Next for it |
+|---|---|---|
+| `ai-cofounder-api` `local_d8cf74aa-8eea-442b-9574-06bcee52194d` | **Building** slice 3 on `feature/ai-cofounder-slice-3` (migration 0100 on 0096) | PR → verify → merge; then the AI FE pass |
+| `marketplace-slice-a-prov` `local_aad778e5-f115-4579-8aa3-b3587cd13e75` | **Building** slice C (booking, checkout, ledger) on `feature/marketplace-booking` (0101 on 0096). Opus per task, Paystack test keys only, prod charging off; fixing the two slice-B lows | PR → verify → merge |
+| `funding-slice-b-data-roo` `local_9566a3ee-8063-48a3-ad66-db641935ab03` | **Waiting on Adebayo's direct force-push OK** for #229 | push → CI → Opus review; then D term sheets, E grants, F copilot |
+| `auth-onboarding-api` `local_61ef1365-a1f8-4f3c-a21f-8137d3aebc6e` | idle (#227 merged) | Auth FE step 2, once Adebayo edits the D-AUTH-7 industry list; D-AUTH-6 cookie switch |
+| `ir-design` `local_c61f651d-2256-42cc-a830-1c1f61496136` | idle | Readiness slice C (narrative): start when a slot frees (max 3 building) |
+| `fe-ci-cd-move-frontend-f` `local_3ba1c971-9784-468b-8507-7f4c5fb6dbd3` | done | can be archived |
+
+**Production launch (Adebayo's call on timing; prepare it when he says go):**
+1. API release PR develop → main. 71 migrations (0027 → head) run on the production DB, so **back up the prod DB first** and have a restore drill ready.
+2. Production `.env` needs every key added since September (MFA, Journal and Finance encryption keys; Google OAuth; Paystack test or live; LLM key; mail; CORS already in #232). Give Adebayo a checklist of names; never read values.
+3. After the prod API is healthy on head: set the FE `production` env var `NEXT_PUBLIC_API_BASE_URL=https://api.cofoundaz.com/api/v1` and re-run `CD (production)`.
+4. Provider callbacks for www/stage: Google OAuth origins and redirects, Paystack/Flutterwave, Mono, LinkedIn.
+
+**Adebayo's own to-dos:**
+- Type "Yes, force-push" in the Funding session.
+- Point the FE dev at the #231-233 review comments.
+- Edit the D-AUTH-7 industry list.
+- Real Google sign-up and sign-in on `www` and `stage` (add both origins in Google Cloud Console first if needed).
+- Send the FE dev the Admin message and briefs.
+- Tell Victoria to read #214's review.
+- Counsel and Paystack confirm Marketplace fund holding in writing (D-MP-3/9).
+- Turn on the Dependency graph and set `ENABLE_CODE_SCANNING=true`.
+- Review the fund directory and grants catalogue.
+- Delete the Vercel project around 2026-11-13.
+- Decide when to launch the production API.
+- Optional: confirm `curl -sI http://www.cofoundaz.com/` on the VPS returns 301 (lead 23's network intercepts port 80).
+
+**Gotchas learned in lead 23:**
+- Merging a parent PR can leave the next PR CONFLICTING. GitHub then runs no `pull_request` checks on it at all (only 1 check shows). Merge develop in (merge commit, no force-push) before reading its CI.
+- The classifier blocks a session's force-push even with Adebayo's approval relayed by the lead. The approval has to be typed in that session.
+- FE worktrees have no `node_modules`, so the pre-commit hook's `npx eslint` fails. For docs-only commits use `--no-verify`; for code, `npm ci` in the worktree.
+- `grep -r` skips symlinked files in `sites-enabled`; use `-R`.
+- Text pasted from the chat can turn host names into markdown links; on the VPS, values came through fine, but check `nginx -t` and the curl result rather than the echo.
+- The VPS has no swap and the container memory limits exceed RAM; the runbook includes a 2 GiB swapfile step (Adebayo ran it).
 
 **Lead 22 handover to lead 23 (2026-11-05 ~23:30 WAT). Adebayo starts lead 23 himself: don't auto-chain from lead 22.**
 
