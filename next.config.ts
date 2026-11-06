@@ -29,6 +29,11 @@ const devApiProxy: Pick<NextConfig, "rewrites" | "compress"> =
     : {};
 
 const nextConfig: NextConfig = {
+  // Self-hosted on the VPS as a Docker image (Dockerfile, docs/sop/2026-11-06-fe-vps-deploy.md).
+  // `standalone` emits .next/standalone/server.js plus only the traced node_modules it needs,
+  // so the runtime image carries no full `npm ci`. The Dockerfile copies `public/` and
+  // `.next/static` in next to it, which standalone deliberately leaves out.
+  output: "standalone",
   ...devApiProxy,
   async redirects() {
     return [

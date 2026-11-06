@@ -1,0 +1,42 @@
+name: CD (production)
+
+# push `main` -> gates -> build the production image -> deploy to the production web stack.
+# Manual rollback: Run workflow with image_tag = sha-<commit>-production.
+# See docs/sop/2026-11-06-fe-vps-deploy.md.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Redeploy an EXISTING tag instead of building (e.g. sha-a1b2c3d-production)."
+        required: false
+        type: string
+
+concurrency:
+  # Never cancel a half-finished deploy: queue instead.
+  group: cd-web-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Off until the VPS side exists. Set the REPOSITORY variable
+    # WEB_VPS_DEPLOY_PRODUCTION=true to let pushes deploy; a manual run always works.
+    # Without this, every merge would go red at preflight while Vercel is
+    # still the live path.
+    if: vars.WEB_VPS_DEPLOY_PRODUCTION == 'true' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/deploy-web.yml
+    with:
+      environment: production
+      image_tag: ${{ github.event.inputs.image_tag || '' }}
+    permissions:
+      contents: read
+      packages: write
+    secrets: inherit
