@@ -25,7 +25,7 @@
 
 **Situation on 2026-11-06:** `cofoundaz.com` and `www.cofoundaz.com` already resolve to the VPS (DNS at Cloudoon). nginx has no site or cert for them yet, so the public site is **down** until steps 1 to 6 are done. There is no Vercel DNS to fall back to (Adebayo: "Wait for VPS pipeline"). `stage.cofoundaz.com` has no DNS record yet, so staging comes after production (step 8).
 
-Defaults used below (they are environment values, not code; change them freely): production serves **`www.cofoundaz.com`**, and **`cofoundaz.com` 301-redirects to www** so browsers only ever see one origin (one CORS entry, one cookie host, one OAuth callback). Production port `3000`, staging `3001` (the API uses 8000/8001). Deploy folders `/opt/cofoundaz-web` and `/opt/cofoundaz-web-staging`.
+Defaults used below (they are environment values, not code; change them freely): production serves **`www.cofoundaz.com`**, and **`cofoundaz.com` 301-redirects to www** so browsers only ever see one origin (one CORS entry, one cookie host, one OAuth callback). Production port `3100`, staging `3101` (the API uses 8000/8001; `3000` is taken by another app on this VPS). Deploy folders `/opt/cofoundaz-web` and `/opt/cofoundaz-web-staging`.
 
 The VPS has 4 vCPU and 7.8 GiB RAM with **no swap**, and the existing container limits already add up to about 11.5 GiB. The web container is capped at 512 MiB (Node heap 384 MiB) with `restart: unless-stopped`. Images are **never built on the VPS**: CI builds them and the VPS only pulls. After each deploy, the script keeps the running image and the one before it (the rollback target) and deletes older web images.
 
@@ -37,9 +37,13 @@ sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapf
 ```bash
 sudo mkdir -p /opt/cofoundaz-web && sudo chown "$(whoami)": /opt/cofoundaz-web
 ```
-Port 3000 must be free (no output means free):
+**Hard stop: the web ports must be free.** On 2026-11-06 `127.0.0.1:3000` turned out to be taken by another Express app on this VPS (it answers `/healthz` with `x-powered-by: Express` and `{"error":"Not found"}`). That is why production uses **3100** and staging **3101**. If either line below says `STOP`, do not continue: pick another free port and use it everywhere `WEB_PORT` appears (render step, GitHub var).
 ```bash
-sudo ss -ltnp | grep -E ':(3000|3001)\b'
+for p in 3100 3101; do if sudo ss -ltnH "( sport = :$p )" | grep -q .; then echo "STOP: port $p is already in use:"; sudo ss -ltnp "( sport = :$p )"; else echo "ok: port $p free"; fi; done
+```
+To see which nginx site already proxies to a port, use `grep -R`, not `-r`. The files in `sites-enabled` are symlinks, and `grep -r` silently skips them:
+```bash
+sudo grep -Rn 'proxy_pass\|server 127.0.0.1' /etc/nginx/sites-enabled/
 ```
 Run the `mkdir`/`chown` as (or for) the same deploy user the API CD uses.
 
@@ -53,7 +57,7 @@ Render it (on the VPS from a clone, or on your Mac and `scp` the two files over)
 cd /tmp && rm -rf cfz-edge && git clone --depth 1 --branch ci/fe-nginx-sites https://github.com/innocent98/Cofoundaz-api.git cfz-edge && cd cfz-edge
 ```
 ```bash
-WEB_ENV=production WEB_SERVER_NAMES="www.cofoundaz.com" WEB_REDIRECT_NAMES="cofoundaz.com" WEB_CERT_NAME="www.cofoundaz.com" WEB_PORT=3000 OUT_DIR=/tmp/web-edge-production ./deploy/nginx/web/render.sh
+WEB_ENV=production WEB_SERVER_NAMES="www.cofoundaz.com" WEB_REDIRECT_NAMES="cofoundaz.com" WEB_CERT_NAME="www.cofoundaz.com" WEB_PORT=3100 OUT_DIR=/tmp/web-edge-production ./deploy/nginx/web/render.sh
 ```
 HTTP-only bootstrap site (answers the ACME challenge; nothing else exists yet):
 ```bash
@@ -97,7 +101,7 @@ gh variable set APP_URL --env production --repo innocent98/cofoundaz --body http
 gh variable set NEXT_PUBLIC_SITE_URL --env production --repo innocent98/cofoundaz --body https://www.cofoundaz.com
 ```
 ```bash
-gh variable set WEB_PORT --env production --repo innocent98/cofoundaz --body 3000
+gh variable set WEB_PORT --env production --repo innocent98/cofoundaz --body 3100
 ```
 **Decision for you:** which API production talks to. Until now `www` (Vercel, off `main`) was the staging front end. Run **one** of these:
 ```bash
@@ -149,8 +153,8 @@ A failed deploy already rolls itself back. The edge on its own: remove the `site
 ### 8. Staging afterwards (`stage.cofoundaz.com`, deploys from `develop`)
 1. Cloudoon DNS: an `A` record `stage` → the VPS IP (the same IP as `api.`). Check `dig +short stage.cofoundaz.com`.
 2. Run `sudo mkdir -p /opt/cofoundaz-web-staging && sudo chown "$(whoami)": /opt/cofoundaz-web-staging`.
-3. Step 2 again with `WEB_ENV=staging WEB_SERVER_NAMES="stage.cofoundaz.com" WEB_CERT_NAME="stage.cofoundaz.com" WEB_PORT=3001 OUT_DIR=/tmp/web-edge-staging` (no redirect names), `certbot ... --cert-name stage.cofoundaz.com -d stage.cofoundaz.com`, and the `web-staging*` files. Same standalone layout; its upstream and rate-limit zone names differ, so both sites load side by side.
-4. Step 3 with `--env staging`: `DEPLOY_PATH=/opt/cofoundaz-web-staging`, `APP_URL` + `NEXT_PUBLIC_SITE_URL=https://stage.cofoundaz.com`, `WEB_PORT=3001`, `NEXT_PUBLIC_API_BASE_URL=https://staging-api.cofoundaz.com/api/v1`.
+3. Step 2 again with `WEB_ENV=staging WEB_SERVER_NAMES="stage.cofoundaz.com" WEB_CERT_NAME="stage.cofoundaz.com" WEB_PORT=3101 OUT_DIR=/tmp/web-edge-staging` (no redirect names), `certbot ... --cert-name stage.cofoundaz.com -d stage.cofoundaz.com`, and the `web-staging*` files. Same standalone layout; its upstream and rate-limit zone names differ, so both sites load side by side.
+4. Step 3 with `--env staging`: `DEPLOY_PATH=/opt/cofoundaz-web-staging`, `APP_URL` + `NEXT_PUBLIC_SITE_URL=https://stage.cofoundaz.com`, `WEB_PORT=3101`, `NEXT_PUBLIC_API_BASE_URL=https://staging-api.cofoundaz.com/api/v1`.
 5. Add `https://stage.cofoundaz.com` to the **staging** API's `BACKEND_CORS_ORIGINS` (step 4 with `staging`).
 6. Run `gh variable set WEB_VPS_DEPLOY_STAGING --repo innocent98/cofoundaz --body true`, then push to `develop` or run `gh workflow run cd-staging.yml --ref develop`.
 
@@ -162,7 +166,7 @@ A failed deploy already rolls itself back. The edge on its own: remove the `site
 | env var | `APP_URL` (also the nginx health-check host) | `https://www.cofoundaz.com` | `https://stage.cofoundaz.com` |
 | env var | `NEXT_PUBLIC_SITE_URL` | `https://www.cofoundaz.com` | `https://stage.cofoundaz.com` |
 | env var | `NEXT_PUBLIC_API_BASE_URL` | your step 3 choice | `https://staging-api.cofoundaz.com/api/v1` |
-| env var | `WEB_PORT` (must match the nginx upstream) | `3000` | `3001` |
+| env var | `WEB_PORT` (must match the nginx upstream; host side only, the container always listens on 3000 inside) | `3100` | `3101` |
 | env var, optional | `VPS_PORT` | unset (22) | unset |
 | env var, optional | `HEALTH_VIA_NGINX` | unset (`true`). `false` only to deploy before the cert exists | unset |
 | repo var | `WEB_VPS_DEPLOY_PRODUCTION` / `WEB_VPS_DEPLOY_STAGING` | `true` turns on push deploys | |
