@@ -1,32 +1,66 @@
-'use client';
-
 import { useCallback, useEffect, useState } from 'react';
-import { apiClient } from '@/lib/api/client';
-
-// Guide §9: per-workspace EMAIL preferences. `master_email` is a global email
-// switch; `categories` is one bool per fixed catalog category. Both must be true
-// for an event's email to send. In-app delivery ignores these entirely (always
-// shown in the inbox). PUT is a PARTIAL merge — send only what changed.
+import {
+  getNotificationPreferences,
+  updateNotificationPreferences,
+  type NotificationPreferencesData,
+} from '@/lib/api/notifications';
 
 export type NotifCategory =
   | 'documents'
   | 'business'
   | 'roadmap_missions'
   | 'health_assessment'
-  | 'team';
+  | 'team'
+  | string;
 
 export interface NotifPreferences {
   master_email: boolean;
-  categories: Record<NotifCategory, boolean>;
+  categories: Record<string, boolean>;
+  in_app: Record<string, boolean>;
 }
 
-const DEFAULT_PREFS: NotifPreferences = {
+const DEFAULT_PREFS: NotificationPreferencesData = {
   master_email: true,
-  categories: { documents: true, business: true, roadmap_missions: true, health_assessment: true, team: true },
+  categories: {
+    documents: true,
+    business: true,
+    roadmap_missions: true,
+    health_assessment: true,
+    team: true,
+    finance: false,
+    marketing: false,
+    sales: false,
+    validation: false,
+    academy: false,
+    ai: false,
+    billing: true,
+  },
+  in_app: {
+    documents: true,
+    business: true,
+    roadmap_missions: true,
+    health_assessment: true,
+    team: true,
+    finance: true,
+    marketing: true,
+    sales: true,
+    validation: true,
+    academy: true,
+    ai: true,
+    billing: true,
+  },
+  groups: [],
+  digest_mode: 'realtime',
+  digest_time: '08:00',
+  digest_day: 0,
+  timezone: 'Africa/Lagos',
+  quiet_enabled: false,
+  quiet_from: '21:00',
+  quiet_until: '06:00',
 };
 
 export function useNotificationPreferences() {
-  const [prefs, setPrefs] = useState<NotifPreferences>(DEFAULT_PREFS);
+  const [prefs, setPrefs] = useState<NotificationPreferencesData>(DEFAULT_PREFS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -35,38 +69,35 @@ export function useNotificationPreferences() {
     try {
       setLoading(true);
       setError(null);
-      const res = await apiClient<{ data?: NotifPreferences }>('/notifications/preferences');
-      if (res?.data) setPrefs(res.data);
+      const data = await getNotificationPreferences();
+      setPrefs(data);
     } catch (err) {
-      setError((err as { message?: string })?.message || 'Failed to load preferences');
+      setError(err instanceof Error ? err.message : 'Failed to load preferences');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    void (async () => {
-      await load();
-    })();
+    queueMicrotask(() => {
+      void load();
+    });
   }, [load]);
 
-  // Partial-merge PUT. Optimistically apply, then reconcile with the server's
-  // full effective response (or roll back on failure).
   const update = useCallback(
-    async (patch: { master_email?: boolean; categories?: Partial<Record<NotifCategory, boolean>> }) => {
+    async (patch: Partial<NotificationPreferencesData>): Promise<boolean> => {
       const previous = prefs;
-      const optimistic: NotifPreferences = {
-        master_email: patch.master_email ?? prefs.master_email,
-        categories: { ...prefs.categories, ...(patch.categories ?? {}) },
+      const optimistic: NotificationPreferencesData = {
+        ...prefs,
+        ...patch,
+        categories: { ...prefs.categories, ...(patch.categories || {}) },
+        in_app: { ...prefs.in_app, ...(patch.in_app || {}) },
       };
       setPrefs(optimistic);
       setSaving(true);
       try {
-        const res = await apiClient<{ data?: NotifPreferences }>('/notifications/preferences', {
-          method: 'PUT',
-          body: JSON.stringify(patch),
-        });
-        if (res?.data) setPrefs(res.data);
+        const updated = await updateNotificationPreferences(patch);
+        setPrefs(updated);
         return true;
       } catch {
         setPrefs(previous); // roll back
@@ -78,8 +109,28 @@ export function useNotificationPreferences() {
     [prefs]
   );
 
-  const setMasterEmail = useCallback((on: boolean) => update({ master_email: on }), [update]);
-  const setCategory = useCallback((key: NotifCategory, on: boolean) => update({ categories: { [key]: on } }), [update]);
+  const setMasterEmail = useCallback(
+    async (master_email: boolean) => {
+      return await update({ master_email });
+    },
+    [update]
+  );
 
-  return { prefs, loading, error, saving, refetch: load, setMasterEmail, setCategory };
+  const setCategory = useCallback(
+    async (category: string, value: boolean) => {
+      return await update({ categories: { [category]: value } });
+    },
+    [update]
+  );
+
+  return {
+    prefs,
+    loading,
+    error,
+    saving,
+    update,
+    setMasterEmail,
+    setCategory,
+    reload: load,
+  };
 }

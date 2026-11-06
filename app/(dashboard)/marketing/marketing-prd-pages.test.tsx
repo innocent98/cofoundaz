@@ -219,7 +219,7 @@ describe('Campaigns list', () => {
     const links = screen.getAllByRole('link', { name: 'Waitlist push' });
     expect(links[0]).toHaveAttribute('href', `/marketing/campaigns/${CID}`);
     expect(screen.getAllByText('5.0% / 10.0%').length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Oct 20, 2026 to Nov 3, 2026/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/20 Oct 2026 to 3 Nov 2026/).length).toBeGreaterThan(0);
     expect(screen.getByRole('list', { name: 'Campaigns' })).toBeInTheDocument(); // the phone card list
   });
 
