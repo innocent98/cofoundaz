@@ -117,4 +117,18 @@ nginx_check
 trap - ERR
 
 echo "==> [${STACK_ENV}] deployed ${IMAGE_REF}"
-docker image prune -af --filter "until=168h" --filter "label=com.cofoundaz.web.environment=${STACK_ENV}" || true
+
+# Disk hygiene: keep exactly the running image and the one before it (the
+# rollback target); remove every other web image built for this environment.
+# Images are never built here - CI builds, the VPS only pulls.
+KEEP_IDS="$(docker image inspect --format '{{.Id}}' "${IMAGE_REF}" 2>/dev/null || true)"
+if [ -n "${PREVIOUS_IMAGE}" ]; then
+  KEEP_IDS="${KEEP_IDS} $(docker image inspect --format '{{.Id}}' "${PREVIOUS_IMAGE}" 2>/dev/null || true)"
+fi
+for id in $(docker image ls -q --no-trunc --filter "label=com.cofoundaz.web.environment=${STACK_ENV}" | sort -u); do
+  case " ${KEEP_IDS} " in
+    *" ${id} "*) ;;
+    *) docker rmi -f "${id}" >/dev/null 2>&1 && echo "    pruned ${id:7:12}" || true ;;
+  esac
+done
+docker image prune -f >/dev/null 2>&1 || true   # dangling layers only
