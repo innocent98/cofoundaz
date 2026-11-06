@@ -19,7 +19,7 @@
 | `deploy/web-deploy.sh` (runs on the VPS) | Record the running image → pull by digest → check the label → write `.env` → `up -d` → loopback `/healthz` (120 s) → **through nginx**: `curl --resolve <host>:443:127.0.0.1 https://<host>/healthz` → on any failure, roll back to the previous image and check it | `--resolve` runs the check through this box's nginx + TLS even before public DNS reaches this box |
 
 ## What's involved
-`next.config.ts`, `Dockerfile`, `.dockerignore`, `app/healthz/route.ts` (+ test), `.github/workflows/{deploy-web,cd-staging,cd-production}.yml`, `deploy/{docker-compose.web.yml,web-deploy.sh}`. Not touched: `ci.yml` (owned by `ci/pipeline-speed-fe`), the API, the VPS, DNS, Vercel. Edge: `cofoundaz-api` PR #230 (`verify-web-local.sh` 28/28, including apex → www and bootstrap sites loading with no certs).
+`next.config.ts`, `Dockerfile`, `.dockerignore`, `app/healthz/route.ts` (+ test), `.github/workflows/{deploy-web,cd-staging,cd-production}.yml`, `deploy/{docker-compose.web.yml,web-deploy.sh}`. Not touched: `ci.yml` (owned by `ci/pipeline-speed-fe`), the API, the VPS, DNS, Vercel. Edge: `cofoundaz-api` PR #230: a standalone site for stock nginx 1.24 (what the VPS runs) and the full-layout variant. `verify-web-local.sh` passes 28/28 for each, including apex → www and bootstrap sites loading with no certs.
 
 ## Go-live runbook: production first (copy-paste, in order)
 
@@ -44,31 +44,34 @@ sudo ss -ltnp | grep -E ':(3000|3001)\b'
 Run the `mkdir`/`chown` as (or for) the same deploy user the API CD uses.
 
 ### 2. nginx site + certificate for apex + www (you, over SSH)
-This needs the API repo branch `ci/fe-nginx-sites` (PR #230) on the VPS. It is config only; nothing in it applies itself. Full detail: `docs/deployment/WEB_FRONTEND_EDGE.md` in that repo.
+The VPS runs **Ubuntu's stock nginx 1.24**. The API repo's full `deploy/nginx/` layout (conf.d files, `snippets/cofoundaz/`, nginx.org ≥ 1.25) was never installed there. So this uses the **standalone** site: **one** file with an inline upstream, ACME location, headers and `listen 443 ssl http2;`. It needs nothing else. It comes from the API repo branch `ci/fe-nginx-sites` (PR #230), proven on nginx 1.24 by `deploy/nginx/test/verify-web-local.sh` (28/28).
+
+If you already installed the hand-written `/etc/nginx/sites-available/web-production.conf` and the certificate, this file replaces it at the same path. Skip the bootstrap and certbot steps if `sudo ls /etc/letsencrypt/live/www.cofoundaz.com/` already lists `fullchain.pem`.
+
+Render it (on the VPS from a clone, or on your Mac and `scp` the two files over):
 ```bash
 cd /tmp && rm -rf cfz-edge && git clone --depth 1 --branch ci/fe-nginx-sites https://github.com/innocent98/Cofoundaz-api.git cfz-edge && cd cfz-edge
 ```
 ```bash
 WEB_ENV=production WEB_SERVER_NAMES="www.cofoundaz.com" WEB_REDIRECT_NAMES="cofoundaz.com" WEB_CERT_NAME="www.cofoundaz.com" WEB_PORT=3000 OUT_DIR=/tmp/web-edge-production ./deploy/nginx/web/render.sh
 ```
-(If the repo is private, `scp` a local checkout of the branch instead of cloning.)
-
-The shared snippets, conf files and an HTTP-only bootstrap site (it answers the ACME challenge; nothing else exists yet):
+HTTP-only bootstrap site (answers the ACME challenge; nothing else exists yet):
 ```bash
-sudo install -m 644 /tmp/web-edge-production/snippets/cofoundaz/*.conf /etc/nginx/snippets/cofoundaz/ && sudo install -m 644 /tmp/web-edge-production/conf.d/*.conf /etc/nginx/conf.d/ && sudo install -m 644 /tmp/web-edge-production/sites-available/web-production-bootstrap.conf /etc/nginx/sites-available/ && sudo ln -sf /etc/nginx/sites-available/web-production-bootstrap.conf /etc/nginx/sites-enabled/ && sudo nginx -t && sudo systemctl reload nginx
+sudo mkdir -p /var/www/certbot && sudo install -m 644 /tmp/web-edge-production/sites-available/web-production-bootstrap.conf /etc/nginx/sites-available/ && sudo ln -sf /etc/nginx/sites-available/web-production-bootstrap.conf /etc/nginx/sites-enabled/ && sudo nginx -t && sudo systemctl reload nginx
 ```
-Issue one certificate for both names (DNS already points here, so HTTP-01 works now):
+One certificate for both names (DNS already points here, so HTTP-01 works now):
 ```bash
 sudo certbot certonly --webroot -w /var/www/certbot --cert-name www.cofoundaz.com -d www.cofoundaz.com -d cofoundaz.com
 ```
-Swap the bootstrap site for the full one:
+Swap the bootstrap site for the real one:
 ```bash
-sudo rm /etc/nginx/sites-enabled/web-production-bootstrap.conf && sudo install -m 644 /tmp/web-edge-production/sites-available/web-production.conf /etc/nginx/sites-available/ && sudo ln -sf /etc/nginx/sites-available/web-production.conf /etc/nginx/sites-enabled/ && sudo nginx -t && sudo systemctl reload nginx
+sudo rm -f /etc/nginx/sites-enabled/web-production-bootstrap.conf && sudo install -m 644 /tmp/web-edge-production/sites-available/web-production.conf /etc/nginx/sites-available/ && sudo ln -sf /etc/nginx/sites-available/web-production.conf /etc/nginx/sites-enabled/ && sudo nginx -t && sudo systemctl reload nginx
 ```
-Check: TLS and routing work. Expect **502** now (no container yet) and `301` → www for the apex:
+Check that TLS and routing work. Expect **502** for `/healthz` now (no container yet; it turns 200 after step 6), and `301` → www for the apex:
 ```bash
 curl -sS -o /dev/null -w '%{http_code}\n' https://www.cofoundaz.com/healthz; curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' https://cofoundaz.com/
 ```
+The CD health check uses exactly this path from the VPS (`curl --resolve www.cofoundaz.com:443:127.0.0.1 https://www.cofoundaz.com/healthz`), through the site's `location /`.
 
 ### 3. GitHub environment `production` (you, on your Mac, in this repo)
 Secrets go in the FE repo too; they do not carry over from the API repo. Use the same VPS host, user and key the API CD uses.
@@ -146,7 +149,7 @@ A failed deploy already rolls itself back. The edge on its own: remove the `site
 ### 8. Staging afterwards (`stage.cofoundaz.com`, deploys from `develop`)
 1. Cloudoon DNS: an `A` record `stage` → the VPS IP (the same IP as `api.`). Check `dig +short stage.cofoundaz.com`.
 2. Run `sudo mkdir -p /opt/cofoundaz-web-staging && sudo chown "$(whoami)": /opt/cofoundaz-web-staging`.
-3. Step 2 again with `WEB_ENV=staging WEB_SERVER_NAMES="stage.cofoundaz.com" WEB_CERT_NAME="stage.cofoundaz.com" WEB_PORT=3001 OUT_DIR=/tmp/web-edge-staging` (no redirect names), `certbot ... --cert-name stage.cofoundaz.com -d stage.cofoundaz.com`, and the `web-staging*` files.
+3. Step 2 again with `WEB_ENV=staging WEB_SERVER_NAMES="stage.cofoundaz.com" WEB_CERT_NAME="stage.cofoundaz.com" WEB_PORT=3001 OUT_DIR=/tmp/web-edge-staging` (no redirect names), `certbot ... --cert-name stage.cofoundaz.com -d stage.cofoundaz.com`, and the `web-staging*` files. Same standalone layout; its upstream and rate-limit zone names differ, so both sites load side by side.
 4. Step 3 with `--env staging`: `DEPLOY_PATH=/opt/cofoundaz-web-staging`, `APP_URL` + `NEXT_PUBLIC_SITE_URL=https://stage.cofoundaz.com`, `WEB_PORT=3001`, `NEXT_PUBLIC_API_BASE_URL=https://staging-api.cofoundaz.com/api/v1`.
 5. Add `https://stage.cofoundaz.com` to the **staging** API's `BACKEND_CORS_ORIGINS` (step 4 with `staging`).
 6. Run `gh variable set WEB_VPS_DEPLOY_STAGING --repo innocent98/cofoundaz --body true`, then push to `develop` or run `gh workflow run cd-staging.yml --ref develop`.
