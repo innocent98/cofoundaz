@@ -62,4 +62,12 @@ describe('session seam', () => {
     expect(await refreshSession()).toBeNull()
     expect(hasSessionHint()).toBe(true)
   })
+
+  it('deletes tokens an older version left in localStorage', () => {
+    localStorage.setItem('cf_token', 'old')
+    localStorage.setItem('cf_refresh_token', 'old')
+    hasSessionHint()
+    expect(localStorage.getItem('cf_token')).toBeNull()
+    expect(localStorage.getItem('cf_refresh_token')).toBeNull()
+  })
 })

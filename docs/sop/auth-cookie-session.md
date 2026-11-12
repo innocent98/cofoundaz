@@ -33,7 +33,7 @@ Lint, type-check and the touched unit tests pass locally; four e2e specs (onboar
 
 ## Operate / roll back
 **Deploy requirement:** the FE origin must be in the API's `BACKEND_CORS_ORIGINS` (the CSRF check compares `Origin` with it), and the FE and API must be same-site (the cookie is `SameSite=lax`, `Path=/api/v1/auth`, `Secure` in deployed envs). Otherwise silent refresh fails and every reload goes to login. `*.vercel.app` previews are not same-site.
-People signed in before the deploy have an old `cf_token` in localStorage that nothing reads: they sign in once more. Roll back by reverting the PR; the API still accepts the body-token mode.
+People signed in before the deploy sign in once more; the seam deletes the old `cf_token` / `cf_refresh_token` keys on first load (`purgeLegacyTokens`). Roll back by reverting the PR; the API still accepts the body-token mode.
 
 ## Follow-ups
-A Safari/Firefox pass; a live check of the scheduled refresh (15 minutes); removing the unused `cf_token` / `cf_refresh_token` keys from old browsers (one `removeItem` at start-up) if wanted.
+A Safari/Firefox pass; a live check of the scheduled refresh (15 minutes).

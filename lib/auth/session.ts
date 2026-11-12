@@ -36,7 +36,17 @@ export function isLoggedIn(): boolean {
   return accessToken !== null;
 }
 
+// Before D-AUTH-6 the tokens sat in localStorage under these keys. Nothing reads them now; delete any left
+// behind in a browser that signed in earlier, so the old long-lived credential does not linger there.
+function purgeLegacyTokens(): void {
+  safeStorage(() => {
+    localStorage.removeItem('cf_token');
+    localStorage.removeItem('cf_refresh_token');
+  }, undefined);
+}
+
 export function hasSessionHint(): boolean {
+  if (typeof window !== 'undefined') purgeLegacyTokens();
   return typeof window !== 'undefined' && safeStorage(() => localStorage.getItem(HINT_KEY) === '1', false);
 }
 
