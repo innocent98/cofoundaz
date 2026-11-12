@@ -1,23 +1,16 @@
 import React, { createContext, createElement, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { apiClient, ApiError } from '@/lib/api/client';
+import { ApiError, formatApiErrorMessage } from '@/lib/api/client';
 import { useRealtimeEvent } from '@/components/realtime-context';
+import {
+  getNotificationCounts,
+  listNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  type NotificationCounts,
+  type RawNotificationItem,
+} from '@/lib/api/notifications';
 
-export type NotificationCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team' | 'Marketing' | 'Sales';
-
-export interface NotificationItem {
-  id: string;
-  section: 'TODAY' | 'EARLIER THIS WEEK';
-  category: NotificationCategory;
-  title: string;
-  description: string;
-  time: string;
-  actionText?: string;
-  /** Where the notification leads, when its type has a destination. */
-  href: string | null;
-  isUnread: boolean;
-  iconBg: string;
-  iconText: string;
-}
+export type NotificationSection = 'TODAY' | 'THIS WEEK' | 'EARLIER';
 
 export interface RawNotification {
   id: string;
@@ -27,17 +20,36 @@ export interface RawNotification {
   data: Record<string, unknown>;
   read: boolean;
   created_at: string;
+  module?: string;
+  priority?: string;
+  archived?: boolean;
 }
 
-// --- type → presentation --------------------------------------------------
-// `title` is generic per type and `body` is always "" in v1 (guide §1/§5); we
-// derive the icon and a filter category from the dotted `type`.
-/** Deep link for a notification, from its type and `data` (BE guides: KPIs 7b, briefing v2 section 5). */
-/** Only in-app Marketing paths are followed; anything else in `data.href` is ignored. */
+export interface EnrichedNotification {
+  id: string;
+  type: string;
+  module: string;
+  priority: string;
+  title: string;
+  body: string;
+  data: Record<string, unknown>;
+  read: boolean;
+  isUnread: boolean; // Backwards compatible with DashboardNavbar
+  archived: boolean;
+  created_at: string;
+  time: string;
+  section: NotificationSection;
+  href: string | null;
+  actionText?: string;
+  isCritical: boolean;
+  iconText: string;
+  iconBg: string;
+}
+
+// Deep links mapping based on type and data
 function marketingHref(type: string, data: Record<string, unknown> | null | undefined): string | null {
   const href = data?.href;
   if (typeof href === 'string' && /^\/marketing(\/|\?|$)/.test(href) && !href.startsWith('//')) return href;
-  // Older rows carry ids but no href.
   if (type === 'marketing.post.published' && typeof data?.entry_id === 'string') {
     return `/marketing/calendar?entry=${encodeURIComponent(data.entry_id)}`;
   }
@@ -47,7 +59,6 @@ function marketingHref(type: string, data: Record<string, unknown> | null | unde
   return '/marketing';
 }
 
-/** Sales notifications (BE guide fe-integration-guide-sales-crm.md §8.2): follow `data.href` when it is a /sales path, else open the deal. */
 function salesHref(data: Record<string, unknown> | null | undefined): string {
   const href = data?.href;
   if (typeof href === 'string' && /^\/sales(\/|\?|$)/.test(href) && !href.startsWith('//')) return href;
@@ -55,7 +66,6 @@ function salesHref(data: Record<string, unknown> | null | undefined): string {
   return '/sales';
 }
 
-/** Document notifications (library guide §10): follow `data.href` when it is a /documents path, else the nearest list. */
 function documentsHref(type: string, data: Record<string, unknown> | null | undefined): string {
   const href = data?.href;
   if (typeof href === 'string' && /^\/documents(\/|$)/.test(href) && !href.startsWith('//')) return href;
@@ -113,31 +123,52 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
   return null;
 }
 
-function categoryFor(type: string): NotificationCategory {
-  if (type.startsWith('marketing')) return 'Marketing';
-  if (type.startsWith('sales')) return 'Sales';
-  if (type.startsWith('mission') || type.startsWith('roadmap') || type.startsWith('business') || type.startsWith('assessment')) return 'Missions';
-  if (type.startsWith('healthscore') || type.startsWith('finance') || type.startsWith('kpi')) return 'Finance';
-  if (type.startsWith('workspace') || type.startsWith('document') || type.startsWith('team')) return 'Team';
-  return 'Missions';
+// Module icon mapping (15 standard modules)
+export function moduleIconFor(module: string): { iconText: string; iconBg: string } {
+  const mod = (module || '').toLowerCase();
+  switch (mod) {
+    case 'marketing':
+      return { iconText: '📣', iconBg: 'bg-accent-xf7eedc' };
+    case 'sales':
+      return { iconText: '💼', iconBg: 'bg-accent-xf7eedc' };
+    case 'learning':
+    case 'academy':
+      return { iconText: '🎓', iconBg: 'bg-brand-tint' };
+    case 'documents':
+    case 'document':
+      return { iconText: '📄', iconBg: 'bg-brand-tint' };
+    case 'business':
+    case 'business_builder':
+      return { iconText: '🧩', iconBg: 'bg-accent-xf7eedc' };
+    case 'assessment':
+      return { iconText: '✓', iconBg: 'bg-brand-tint' };
+    case 'health':
+    case 'healthscore':
+      return { iconText: '♥', iconBg: 'bg-brand-tint' };
+    case 'mission':
+      return { iconText: '◎', iconBg: 'bg-brand-tint' };
+    case 'dashboard':
+      return { iconText: '✦', iconBg: 'bg-brand-tint' };
+    case 'kpi':
+      return { iconText: '↗', iconBg: 'bg-accent-xf7eedc' };
+    case 'roadmap':
+      return { iconText: '🗺', iconBg: 'bg-accent-xf7eedc' };
+    case 'team':
+    case 'workspace':
+      return { iconText: '👤', iconBg: 'bg-brand-tint' };
+    case 'finance':
+      return { iconText: '₦', iconBg: 'bg-accent-xf7eedc' };
+    case 'billing':
+      return { iconText: '💳', iconBg: 'bg-accent-xf7eedc' };
+    case 'validation':
+      return { iconText: '🔬', iconBg: 'bg-brand-tint' };
+    default:
+      return { iconText: '•', iconBg: 'bg-surface-muted' };
+  }
 }
 
-function iconFor(type: string): { iconText: string; iconBg: string } {
-  if (type.startsWith('marketing')) return { iconText: '📣', iconBg: 'bg-accent-xf7eedc' };
-  if (type.startsWith('sales')) return { iconText: '💼', iconBg: 'bg-accent-xf7eedc' };
-  if (type.startsWith('learning')) return { iconText: '🎓', iconBg: 'bg-brand-tint' };
-  if (type.startsWith('document')) return { iconText: '📄', iconBg: 'bg-brand-tint' };
-  if (type.startsWith('business')) return { iconText: '🧩', iconBg: 'bg-accent-xf7eedc' };
-  if (type.startsWith('assessment') || type.startsWith('healthscore')) return { iconText: '✓', iconBg: 'bg-brand-tint' };
-  if (type.startsWith('mission')) return { iconText: '◎', iconBg: 'bg-brand-tint' };
-  if (type.startsWith('dashboard')) return { iconText: '✦', iconBg: 'bg-brand-tint' };
-  if (type.startsWith('kpi')) return { iconText: '↗', iconBg: 'bg-accent-xf7eedc' };
-  if (type.startsWith('roadmap')) return { iconText: '🗺', iconBg: 'bg-accent-xf7eedc' };
-  if (type.startsWith('workspace') || type.startsWith('team')) return { iconText: '👤', iconBg: 'bg-brand-tint' };
-  return { iconText: '•', iconBg: 'bg-surface-muted' };
-}
-
-function relativeTime(iso: string): string {
+// Relative time format
+export function relativeTime(iso: string): string {
   const then = new Date(iso).getTime();
   const diff = Math.floor((Date.now() - then) / 1000);
   if (diff < 60) return 'just now';
@@ -146,117 +177,204 @@ function relativeTime(iso: string): string {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-function sectionFor(iso: string): NotificationItem['section'] {
+// Group into Today / This week / Earlier (last 7 days = this week, not today)
+export function sectionFor(iso: string): NotificationSection {
   const d = new Date(iso);
   const now = new Date();
-  const sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
-  return sameDay ? 'TODAY' : 'EARLIER THIS WEEK';
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+  if (sameDay) return 'TODAY';
+
+  const diffMs = now.getTime() - d.getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  if (diffDays <= 7) return 'THIS WEEK';
+
+  return 'EARLIER';
 }
 
-export function mapNotification(n: RawNotification): NotificationItem {
-  const { iconText, iconBg } = iconFor(n.type);
+export function enrichNotification(n: RawNotificationItem | RawNotification): EnrichedNotification {
+  const mod = n.module || '';
+  const prio = n.priority ?? 'normal';
+  const arch = Boolean(n.archived);
+  const isUnread = !n.read;
+  const { iconText, iconBg } = moduleIconFor(mod);
+
   return {
     id: n.id,
-    section: sectionFor(n.created_at),
-    category: categoryFor(n.type),
+    type: n.type,
+    module: mod,
+    priority: prio,
     title: n.title,
-    description: '', // body is always "" in v1, don't fabricate a subtitle
+    body: n.body || '',
+    data: n.data || {},
+    read: n.read,
+    isUnread,
+    archived: arch,
+    created_at: n.created_at,
     time: relativeTime(n.created_at),
-    // `body` is "" in v1 except where a type sends a CTA label (the insight notification: "See insight").
-    actionText: (n.type === 'validation.insight.detected' || n.type.startsWith('marketing.') || n.type.startsWith('sales.')) && n.body ? n.body : undefined,
+    section: sectionFor(n.created_at),
     href: notificationHref(n.type, n.data),
-    isUnread: !n.read,
-    iconBg,
+    actionText: (n.type === 'validation.insight.detected' || n.type.startsWith('marketing.') || n.type.startsWith('sales.')) && n.body ? n.body : undefined,
+    isCritical: prio === 'critical',
     iconText,
+    iconBg,
   };
 }
 
-function useNotificationsState() {
-  const [items, setItems] = useState<NotificationItem[]>([]);
+export function mapNotification(n: RawNotification | RawNotificationItem): EnrichedNotification {
+  return enrichNotification(n);
+}
+
+export function useNotificationsState() {
+  const [items, setItems] = useState<EnrichedNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [counts, setCounts] = useState<NotificationCounts>({
+    all: 0,
+    unread: 0,
+    urgent: 0,
+    urgent_unread: 0,
+    mentions: 0,
+    ai: 0,
+    deadlines: 0,
+    billing: 0,
+    archived: 0,
+  });
+
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const itemsRef = useRef<NotificationItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const itemsRef = useRef<EnrichedNotification[]>([]);
   useEffect(() => {
     itemsRef.current = items;
   }, [items]);
 
-  const refetch = useCallback(async () => {
+  // Fetch counts
+  const fetchCounts = useCallback(async () => {
     try {
-      setLoading(true);
-      setError(null);
-      const [feed, count] = await Promise.all([
-        apiClient<{ data?: { notifications?: RawNotification[]; next_cursor?: string | null } }>('/notifications?limit=50'),
-        apiClient<{ data?: { unread?: number } }>('/notifications/unread-count').catch(() => ({ data: { unread: 0 } })),
-      ]);
-      const rows = feed?.data?.notifications ?? [];
-      setItems(rows.map(mapNotification));
-      setUnreadCount(count?.data?.unread ?? rows.filter((r) => !r.read).length);
-    } catch (err) {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        console.warn('Notifications unauthorized:', err.message);
+      const c = await getNotificationCounts();
+      if (c && typeof c.unread === 'number') {
+        setCounts(c);
+        setUnreadCount(c.unread);
       }
-      setError(err instanceof Error ? err : new Error(String(err)));
-      setItems([]);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  // Fetch popover feed (default limit=50)
+  const fetchFeed = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [res, countsRes] = await Promise.all([
+        listNotifications({ limit: 50 }),
+        getNotificationCounts().catch(() => null),
+      ]);
+
+      const enriched = res.notifications.map(enrichNotification);
+      setItems(enriched);
+      if (countsRes && typeof countsRes.unread === 'number') {
+        setCounts(countsRes);
+        setUnreadCount(countsRes.unread);
+      } else if (typeof res.unread_count === 'number') {
+        setUnreadCount(res.unread_count);
+        setCounts((prev) => ({ ...prev, unread: res.unread_count as number }));
+      }
+    } catch (err) {
+      setError(formatApiErrorMessage(err, 'Could not load notifications.'));
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // Initial load
   useEffect(() => {
     queueMicrotask(() => {
-      refetch();
+      void fetchFeed();
+      void fetchCounts();
     });
-  }, [refetch]);
+  }, [fetchFeed, fetchCounts]);
 
+  // Mark single read
   const markRead = useCallback(async (id: string) => {
-    // optimistic
-    setItems((prev) => prev.map((n) => (n.id === id && n.isUnread ? { ...n, isUnread: false } : n)));
+    setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: true, isUnread: false } : n)));
     setUnreadCount((c) => Math.max(0, c - 1));
+    setCounts((prev) => ({
+      ...prev,
+      unread: Math.max(0, prev.unread - 1),
+      urgent_unread: prev.urgent_unread ? Math.max(0, prev.urgent_unread - 1) : 0,
+    }));
     try {
-      await apiClient(`/notifications/${id}/read`, { method: 'POST' });
+      await markNotificationRead(id);
+      void fetchCounts();
     } catch (err) {
-      // 404 (cross-user / gone) → leave it read locally; otherwise reconcile
       if (!(err instanceof ApiError && err.status === 404)) {
-        void refetch();
+        void fetchFeed();
       }
     }
-  }, [refetch]);
+  }, [fetchCounts, fetchFeed]);
 
+  // Mark all read
   const markAllRead = useCallback(async () => {
-    setItems((prev) => prev.map((n) => ({ ...n, isUnread: false })));
+    setItems((prev) => prev.map((n) => ({ ...n, read: true, isUnread: false })));
     setUnreadCount(0);
+    setCounts((prev) => ({ ...prev, unread: 0, urgent_unread: 0 }));
     try {
-      await apiClient('/notifications/read-all', { method: 'POST' });
-    } catch {
-      void refetch();
+      await markAllNotificationsRead();
+      void fetchCounts();
+    } catch (err) {
+      void fetchFeed();
+      throw err;
     }
-  }, [refetch]);
+  }, [fetchCounts, fetchFeed]);
 
-  // Live stream (same connection as Team activity): `unread` is authoritative,
-  // `notification.created` is a feed row; a reconnect or refocus refetches.
+  // Realtime updates
   useRealtimeEvent('unread', (data) => {
     const n = (data as { unread?: number } | null)?.unread;
-    if (typeof n === 'number') setUnreadCount(n);
-  });
-  useRealtimeEvent('notification.created', (data) => {
-    const raw = data as RawNotification | null;
-    if (!raw || typeof raw.id !== 'string' || itemsRef.current.some((x) => x.id === raw.id)) return;
-    setItems((prev) => [mapNotification(raw), ...prev]);
-    setUnreadCount((c) => c + 1);
-  });
-  useRealtimeEvent('resync', () => {
-    void refetch();
+    if (typeof n === 'number') {
+      setUnreadCount(n);
+      setCounts((prev) => ({ ...prev, unread: n }));
+    }
   });
 
-  return { items, setItems, unreadCount, loading, error, refetch, markRead, markAllRead };
+  useRealtimeEvent('notification.created', (data) => {
+    const raw = data as RawNotificationItem | null;
+    if (!raw || typeof raw.id !== 'string') return;
+    if (itemsRef.current.some((x) => x.id === raw.id)) return;
+
+    const enriched = enrichNotification(raw);
+    setItems((prev) => [enriched, ...prev]);
+    if (!enriched.read) {
+      setUnreadCount((c) => c + 1);
+      setCounts((prev) => ({ ...prev, unread: prev.unread + 1 }));
+    }
+  });
+
+  useRealtimeEvent('resync', () => {
+    void fetchFeed();
+    void fetchCounts();
+  });
+
+  return {
+    items,
+    setItems,
+    unreadCount,
+    counts,
+    loading,
+    error,
+    refetch: fetchFeed,
+    fetchCounts,
+    markRead,
+    markAllRead,
+  };
 }
 
-type NotificationsState = ReturnType<typeof useNotificationsState>;
+export type NotificationsState = ReturnType<typeof useNotificationsState>;
 
 const NotificationsContext = createContext<NotificationsState | null>(null);
 
-/** One feed + unread count for the whole shell (sidebar badge, bell, tab bar, inbox page). */
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   const state = useNotificationsState();
   return createElement(NotificationsContext.Provider, { value: state }, children);

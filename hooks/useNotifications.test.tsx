@@ -14,6 +14,7 @@ vi.mock('@/lib/realtime/stream', async (orig) => ({ ...(await orig<typeof import
 const briefingReady: RawNotification = {
   id: 'e92e73ff',
   type: 'dashboard.briefing.ready',
+  module: 'ai',
   title: 'Your daily AI briefing is ready',
   body: '',
   data: { startup_id: '11ba2aa0', briefing_id: '15615fdd' },
@@ -23,6 +24,7 @@ const briefingReady: RawNotification = {
 const threshold: RawNotification = {
   id: '5eb58a08',
   type: 'kpi.threshold.crossed',
+  module: 'finance',
   title: 'Runway crossed 3 months: now 1.5 months',
   body: '',
   data: { metric: 'runway', value: 1.5, threshold: 3, audience: 'finance' },
@@ -82,7 +84,7 @@ describe('notification deep links', () => {
 
   it('mapNotification carries the title, href and unread flag', () => {
     const n = mapNotification(threshold);
-    expect(n).toMatchObject({ title: 'Runway crossed 3 months: now 1.5 months', href: '/finance/runway', isUnread: true, category: 'Finance' });
+    expect(n).toMatchObject({ title: 'Runway crossed 3 months: now 1.5 months', href: '/finance/runway', isUnread: true, module: 'finance' });
   });
 });
 
@@ -103,8 +105,10 @@ describe('useNotifications (provider + live stream)', () => {
       close: vi.fn(),
     } as unknown as ReturnType<typeof streamModule.openNotificationStream>);
     vi.mocked(clientModule.apiClient).mockImplementation(async (url: string) => {
-      if (url.startsWith('/notifications?')) return { data: { notifications: [briefingReady], next_cursor: null } };
-      if (url === '/notifications/unread-count') return { data: { unread: 1 } };
+      if (url.startsWith('/notifications?')) return { data: { notifications: [briefingReady], next_cursor: null, unread_count: 1 } };
+      if (url === '/notifications/counts' || url === '/notifications/unread-count') {
+        return { data: { unread: 1, all: 1, urgent: 0, urgent_unread: 0, mentions: 0, ai: 1, deadlines: 0, billing: 0, archived: 0 } };
+      }
       return {};
     });
   });
@@ -122,13 +126,19 @@ describe('useNotifications (provider + live stream)', () => {
   it('notification.created prepends once (deduped) and bumps unread; unread frame is authoritative', async () => {
     const { result } = renderHook(() => useNotifications(), { wrapper });
     await waitFor(() => expect(result.current.unreadCount).toBe(1));
-    act(() => emit('notification.created', threshold));
+    await act(async () => {
+      emit('notification.created', threshold);
+    });
     expect(result.current.items.map((i) => i.id)).toEqual(['5eb58a08', 'e92e73ff']);
     expect(result.current.unreadCount).toBe(2);
-    act(() => emit('notification.created', threshold));
+    await act(async () => {
+      emit('notification.created', threshold);
+    });
     expect(result.current.items).toHaveLength(2);
     expect(result.current.unreadCount).toBe(2);
-    act(() => emit('unread', { unread: 7 }));
+    await act(async () => {
+      emit('unread', { unread: 7 });
+    });
     expect(result.current.unreadCount).toBe(7);
   });
 
@@ -146,6 +156,7 @@ describe('sales notifications', () => {
   const won = {
     id: 'fd3cc02d',
     type: 'sales.deal.won',
+    module: 'sales',
     title: 'Deal moved to Closed Won: Acme fleet rollout 🎉',
     body: '',
     data: { href: '/sales?deal=f9c69088', name: 'Acme fleet rollout', deal_id: 'f9c69088' },
@@ -156,13 +167,14 @@ describe('sales notifications', () => {
     ...won,
     id: 'c3ecf76c',
     type: 'sales.deal.stalled',
+    module: 'sales',
     title: 'Deal stalled: Quiet renewal has had no activity for 20 days',
     body: 'Suggest a follow-up',
     data: { href: '/sales?deal=6c62e89d&followup=1', deal_id: '6c62e89d', days: 20 },
   };
 
   it('opens the deal drawer from data.href and files under Sales', () => {
-    expect(mapNotification(won)).toMatchObject({ href: '/sales?deal=f9c69088', category: 'Sales' });
+    expect(mapNotification(won)).toMatchObject({ href: '/sales?deal=f9c69088', module: 'sales' });
     expect(mapNotification(stalled)).toMatchObject({ href: '/sales?deal=6c62e89d&followup=1', actionText: 'Suggest a follow-up' });
   });
 
@@ -178,6 +190,7 @@ describe('marketing notifications', () => {
   const published: RawNotification = {
     id: 'c2c6c4a9',
     type: 'marketing.post.published',
+    module: 'marketing',
     title: 'Scheduled post published: Waitlist teaser',
     body: 'See results',
     data: { href: '/marketing/calendar?entry=3eb508f6', title: 'Waitlist teaser', channel: 'organic_social', entry_id: '3eb508f6', was_scheduled: true },
@@ -187,6 +200,7 @@ describe('marketing notifications', () => {
   const readout: RawNotification = {
     id: '484189f8',
     type: 'marketing.campaign.readout.ready',
+    module: 'marketing',
     title: 'Campaign performance summary ready: Waitlist push',
     body: 'See results',
     data: { href: '/marketing/campaigns/56e3de5a', name: 'Waitlist push', readout_id: '50d8a1e9', campaign_id: '56e3de5a' },
@@ -201,7 +215,7 @@ describe('marketing notifications', () => {
 
   it('files them under Marketing with a See results action, not under Missions', () => {
     const item = mapNotification(published);
-    expect(item.category).toBe('Marketing');
+    expect(item.module).toBe('marketing');
     expect(item.actionText).toBe('See results');
     expect(item.iconText).not.toBe('•');
   });
