@@ -10,6 +10,22 @@ export class ApiError extends Error {
   }
 }
 
+/** The server's own error message from the API envelope when present, else `fallback` (never "API Error 409: Conflict"). */
+export function formatApiErrorMessage(err: unknown, fallback = 'Something went wrong'): string {
+  if (typeof err === 'object' && err !== null) {
+    const data = (err as { data?: unknown }).data;
+    const d = data as { error?: { message?: string }; message?: string } | undefined;
+    if (d?.error?.message) return d.error.message;
+    if (d?.message) return d.message;
+    if (typeof data === 'string' && data.trim()) return data;
+  }
+  if (err instanceof Error) {
+    if (/^API Error \d+:/.test(err.message)) return fallback;
+    return err.message;
+  }
+  return fallback;
+}
+
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
 
 /** With a relative API base (the dev proxy) an absolute API link is read same-origin, which sidesteps CORS. */
