@@ -1,4 +1,4 @@
-﻿// components/Sidebar.tsx
+// components/Sidebar.tsx
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -328,199 +328,202 @@ export default function Sidebar({
             )}
           </div>
 
-          {/* Navigation Groups: the only part that scrolls, so the header and footer stay put */}
+          {/* Unified menu container: on mobile, a single unified scrollable section combining upper and lower menus; on desktop, keeps upper scrollable and lower pinned */}
           <div
             data-testid="sidebar-nav-scroll"
-            className="-mr-2 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-2 [scrollbar-color:var(--color-brand-x26533d)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-brand-x26533d [&::-webkit-scrollbar-track]:bg-transparent"
+            className="-mr-2 flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain pr-2 [scrollbar-color:var(--color-brand-x26533d)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-brand-x26533d [&::-webkit-scrollbar-track]:bg-transparent lg:mr-0 lg:overflow-hidden lg:pr-0"
           >
-          {roleLoading ? (
-            <div role="status" aria-label="Loading navigation" className="flex w-full flex-col space-y-3 px-2">
-              {Array.from({ length: 8 }, (_, i) => (
-                <div key={i} className="h-8 rounded-modal bg-brand-x0c2419 animate-pulse" />
-              ))}
-            </div>
-          ) : (
-          <div className="flex w-full flex-col space-y-6">
-            {visibleSections.map((section) => (
-              <div key={section.title} className="w-full">
-                <p className="block w-full text-[11px] font-bold uppercase tracking-wider text-neutral-x7b9382 mb-2 px-2">
-                  {section.title}
-                </p>
+            {/* Upper menu section (Navigation Groups) */}
+            <div className="w-full lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:pr-2 lg:-mr-2 lg:[scrollbar-color:var(--color-brand-x26533d)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-brand-x26533d lg:[&::-webkit-scrollbar-track]:bg-transparent">
+              {roleLoading ? (
+                <div role="status" aria-label="Loading navigation" className="flex w-full flex-col space-y-3 px-2">
+                  {Array.from({ length: 8 }, (_, i) => (
+                    <div key={i} className="h-8 rounded-modal bg-brand-x0c2419 animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex w-full flex-col space-y-6">
+                  {visibleSections.map((section) => (
+                    <div key={section.title} className="w-full">
+                      <p className="block w-full text-[11px] font-bold uppercase tracking-wider text-neutral-x7b9382 mb-2 px-2">
+                        {section.title}
+                      </p>
 
-                <ul className="flex w-full flex-col space-y-1">
-                  {section.items.map((item) => {
-                    const isActive = pathname === item.href || (item.href !== '/' && item.href !== '/dashboard' && pathname.startsWith(`${item.href}/`));
-                    const Icon = item.icon;
+                      <ul className="flex w-full flex-col space-y-1">
+                        {section.items.map((item) => {
+                          const isActive = pathname === item.href || (item.href !== '/' && item.href !== '/dashboard' && pathname.startsWith(`${item.href}/`));
+                          const Icon = item.icon;
 
-                    return (
-                      <li key={item.href} className="w-full">
-                        <Link
-                          href={item.href}
-                          onClick={handleClose}
-                          className={`relative flex w-full items-center justify-between gap-2 px-3 py-2.5 rounded-modal transition-all ${isActive
-                              ? 'bg-brand-x0e2c1e text-white font-bold border-l-2 border-accent-500 shadow-card'
-                              : 'text-brand-xa3b899 hover:text-white hover:bg-brand-x0a2217'
-                            }`}
-                        >
-                          <div className="flex min-w-0 items-center gap-3">
-                            <Icon
-                              className={`w-4 h-4 shrink-0 ${isActive
-                                  ? 'text-accent-500'
-                                  : 'text-neutral-x7b9382'
-                                }`}
-                            />
+                          return (
+                            <li key={item.href} className="w-full">
+                              <Link
+                                href={item.href}
+                                onClick={handleClose}
+                                className={`relative flex w-full items-center justify-between gap-2 px-3 py-2.5 rounded-modal transition-all ${isActive
+                                    ? 'bg-brand-x0e2c1e text-white font-bold border-l-2 border-accent-500 shadow-card'
+                                    : 'text-brand-xa3b899 hover:text-white hover:bg-brand-x0a2217'
+                                  }`}
+                              >
+                                <div className="flex min-w-0 items-center gap-3">
+                                  <Icon
+                                    className={`w-4 h-4 shrink-0 ${isActive
+                                        ? 'text-accent-500'
+                                        : 'text-neutral-x7b9382'
+                                      }`}
+                                  />
 
-                            <span className="truncate">
-                              {item.label}
-                            </span>
-                          </div>
+                                  <span className="truncate">
+                                    {item.label}
+                                  </span>
+                                </div>
 
-                          {item.locked && (
-                            <Lock className="w-3.5 h-3.5 shrink-0 text-accent-500" />
-                          )}
-                          {item.href === '/mission' && missionOpen > 0 && (
-                            <span
-                              aria-label={`${missionOpen} open ${missionOpen === 1 ? 'task' : 'tasks'}`}
-                              className="shrink-0 bg-accent-500 text-brand-x061a12 text-xs font-bold px-1.5 py-0.5 rounded-full"
-                            >
-                              {missionOpen > 9 ? '9+' : missionOpen}
-                            </span>
-                          )}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
-          )}
-          </div>
-        </div>
-
-        {/* Footer Navigation & Profile */}
-        <div className="flex w-full shrink-0 flex-col pt-6 border-t border-brand-x122e21 mt-6 space-y-1">
-          <Link
-            href="/notifications"
-            onClick={handleClose}
-            className="flex w-full items-center justify-between gap-2 px-3 py-2 rounded-card hover:text-white hover:bg-brand-x0a2217 transition-colors"
-          >
-            <div className="flex min-w-0 items-center gap-3">
-              <Bell className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
-
-              <span className="truncate">
-                Notifications
-              </span>
+                                {item.locked && (
+                                  <Lock className="w-3.5 h-3.5 shrink-0 text-accent-500" />
+                                )}
+                                {item.href === '/mission' && missionOpen > 0 && (
+                                  <span
+                                    aria-label={`${missionOpen} open ${missionOpen === 1 ? 'task' : 'tasks'}`}
+                                    className="shrink-0 bg-accent-500 text-brand-x061a12 text-xs font-bold px-1.5 py-0.5 rounded-full"
+                                  >
+                                    {missionOpen > 9 ? '9+' : missionOpen}
+                                  </span>
+                                )}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {unreadCount > 0 && (
-              <span className="shrink-0 bg-accent-500 text-brand-x061a12 text-xs font-bold px-1.5 py-0.5 rounded-full">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </Link>
+            {/* Lower menu section (Footer Navigation & Profile) */}
+            <div className="flex w-full shrink-0 flex-col pt-6 border-t border-brand-x122e21 mt-6 space-y-1 lg:mt-auto">
+              <Link
+                href="/notifications"
+                onClick={handleClose}
+                className="flex w-full items-center justify-between gap-2 px-3 py-2 rounded-card hover:text-white hover:bg-brand-x0a2217 transition-colors"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <Bell className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
 
-          <Link
-            href="/settings"
-            onClick={handleClose}
-            className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-brand-x0a2217 transition-colors"
-          >
-            <Settings className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
+                  <span className="truncate">
+                    Notifications
+                  </span>
+                </div>
 
-            <span className="truncate">
-              Settings & Billing
-            </span>
-          </Link>
-
-          <Link
-            href="/setup/mfa"
-            onClick={handleClose}
-            className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-brand-x0a2217 transition-colors"
-          >
-            <Lock className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
-
-            <span className="truncate">
-              Security (2FA)
-            </span>
-          </Link>
-
-          {/* User Profile */}
-          <div ref={profileRef} className="relative pt-4 mt-2">
-            <button
-              type="button"
-              onClick={() => { setProfileOpen((v) => !v); setSwitcherOpen(false); }}
-              aria-haspopup="menu"
-              aria-expanded={profileOpen}
-              className="flex w-full items-center justify-between gap-2 px-2 py-1 rounded-card cursor-pointer hover:bg-brand-x0a2217 transition-colors text-left"
-            >
-              <div className="flex min-w-0 items-center gap-3">
-                {founderAvatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={founderAvatar} alt="Your profile photo" className="h-9 w-9 shrink-0 rounded-full object-cover" />
-                ) : (
-                  <div className="bg-brand-x122e21 text-white font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-full text-xs">
-                    {founderInitials}
-                  </div>
+                {unreadCount > 0 && (
+                  <span className="shrink-0 bg-accent-500 text-brand-x061a12 text-xs font-bold px-1.5 py-0.5 rounded-full">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
                 )}
+              </Link>
 
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-white text-sm">
-                    {founderDisplay}
-                  </p>
+              <Link
+                href="/settings"
+                onClick={handleClose}
+                className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-brand-x0a2217 transition-colors"
+              >
+                <Settings className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
 
-                  <p className="truncate text-xs text-neutral-x7b9382">
-                    {founderRoleText}
-                  </p>
-                </div>
-              </div>
+                <span className="truncate">
+                  Settings & Billing
+                </span>
+              </Link>
 
-              <ChevronDown className={`w-3.5 h-3.5 shrink-0 text-neutral-x7b9382 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
-            </button>
+              <Link
+                href="/setup/mfa"
+                onClick={handleClose}
+                className="flex w-full items-center gap-3 px-3 py-2 rounded-card hover:text-white hover:bg-brand-x0a2217 transition-colors"
+              >
+                <Lock className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
 
-            {profileOpen && (
-              <div role="menu" className="absolute left-0 right-0 bottom-full mb-1.5 z-50 bg-brand-x0c2419 border border-brand-x1f4332 rounded-card shadow-raised p-1.5">
-                <div className="px-2.5 py-2">
-                  <p className="truncate text-sm font-semibold text-white">{founderDisplay}</p>
-                  {founderEmail && <p className="truncate text-xs text-neutral-x7b9382">{founderEmail}</p>}
-                </div>
-                <div className="my-1 border-t border-brand-x183b2b" />
-                <Link
-                  href="/account"
-                  onClick={() => { setProfileOpen(false); handleClose(); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
-                >
-                  <UserCircle className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
-                  Profile
-                </Link>
-                <Link
-                  href="/notifications?tab=preferences"
-                  onClick={() => { setProfileOpen(false); handleClose(); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
-                >
-                  <SlidersHorizontal className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
-                  Preferences
-                </Link>
-                <Link
-                  href="/settings"
-                  onClick={() => { setProfileOpen(false); handleClose(); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
-                >
-                  <Settings className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
-                  Settings &amp; billing
-                </Link>
-                <div className="my-1 border-t border-brand-x183b2b" />
+                <span className="truncate">
+                  Security (2FA)
+                </span>
+              </Link>
+
+              {/* User Profile */}
+              <div ref={profileRef} className="relative pt-4 mt-2">
                 <button
                   type="button"
-                  role="menuitem"
-                  onClick={handleLogout}
-                  disabled={loggingOut}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-danger-xe88b7d hover:text-white hover:bg-danger-x3a1a16 disabled:opacity-60 transition-colors"
+                  onClick={() => { setProfileOpen((v) => !v); setSwitcherOpen(false); }}
+                  aria-haspopup="menu"
+                  aria-expanded={profileOpen}
+                  className="flex w-full items-center justify-between gap-2 px-2 py-1 rounded-card cursor-pointer hover:bg-brand-x0a2217 transition-colors text-left"
                 >
-                  <LogOut className="w-4 h-4 shrink-0" />
-                  {loggingOut ? 'Signing out…' : 'Sign out'}
+                  <div className="flex min-w-0 items-center gap-3">
+                    {founderAvatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={founderAvatar} alt="Your profile photo" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+                    ) : (
+                      <div className="bg-brand-x122e21 text-white font-bold h-9 w-9 shrink-0 flex items-center justify-center rounded-full text-xs">
+                        {founderInitials}
+                      </div>
+                    )}
+
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-white text-sm">
+                        {founderDisplay}
+                      </p>
+
+                      <p className="truncate text-xs text-neutral-x7b9382">
+                        {founderRoleText}
+                      </p>
+                    </div>
+                  </div>
+
+                  <ChevronDown className={`w-3.5 h-3.5 shrink-0 text-neutral-x7b9382 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
+
+                {profileOpen && (
+                  <div role="menu" className="absolute left-0 right-0 bottom-full mb-1.5 z-50 bg-brand-x0c2419 border border-brand-x1f4332 rounded-card shadow-raised p-1.5">
+                    <div className="px-2.5 py-2">
+                      <p className="truncate text-sm font-semibold text-white">{founderDisplay}</p>
+                      {founderEmail && <p className="truncate text-xs text-neutral-x7b9382">{founderEmail}</p>}
+                    </div>
+                    <div className="my-1 border-t border-brand-x183b2b" />
+                    <Link
+                      href="/account"
+                      onClick={() => { setProfileOpen(false); handleClose(); }}
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
+                    >
+                      <UserCircle className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
+                      Profile
+                    </Link>
+                    <Link
+                      href="/notifications?tab=preferences"
+                      onClick={() => { setProfileOpen(false); handleClose(); }}
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
+                    >
+                      <SlidersHorizontal className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
+                      Preferences
+                    </Link>
+                    <Link
+                      href="/settings"
+                      onClick={() => { setProfileOpen(false); handleClose(); }}
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-brand-xa3b899 hover:text-white hover:bg-brand-x122e21 transition-colors"
+                    >
+                      <Settings className="w-4 h-4 shrink-0 text-neutral-x7b9382" />
+                      Settings &amp; billing
+                    </Link>
+                    <div className="my-1 border-t border-brand-x183b2b" />
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleLogout}
+                      disabled={loggingOut}
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-input text-sm text-danger-xe88b7d hover:text-white hover:bg-danger-x3a1a16 disabled:opacity-60 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 shrink-0" />
+                      {loggingOut ? 'Signing out…' : 'Sign out'}
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </aside>
