@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { withStorageLock, accessTokenForRequest, clearSession, ensureSession, getAccessToken, hasSessionHint, isLoggedIn, refreshSession, setSession } from './session'
+import { onRemoteLogout, withStorageLock, accessTokenForRequest, clearSession, ensureSession, getAccessToken, hasSessionHint, isLoggedIn, refreshSession, setSession } from './session'
 
 const ok = (body: unknown) => new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } })
 // Fake token values, assembled so no secret-looking literal is committed.
@@ -121,6 +121,76 @@ describe('session seam', () => {
       fetchMock.mockResolvedValue(ok({ data: { access_token: TOK, refresh_token: null, expires_in: 900 } }))
       expect(await refreshSession()).toBe(TOK)
       expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  it('aborts a refresh that outlives the lock TTL and treats it as failed (hint kept)', async () => {
+    vi.useFakeTimers()
+    try {
+      localStorage.setItem('cf_session', '1')
+      fetchMock.mockImplementation(
+        (_url: string, init: RequestInit) =>
+          new Promise((_res, rej) => init.signal?.addEventListener('abort', () => rej(new DOMException('aborted', 'AbortError'))))
+      )
+      const p = refreshSession()
+      await vi.advanceTimersByTimeAsync(8_100)
+      expect(await p).toBeNull()
+      expect(hasSessionHint()).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  describe('storage that does not work', () => {
+    it('runs the job straight away when the write throws', async () => {
+      const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new DOMException('blocked', 'SecurityError')
+      })
+      try {
+        const ran = vi.fn().mockResolvedValue('ok')
+        await expect(withStorageLock(ran, { pollMs: 1, settleMs: 1 })).resolves.toBe('ok')
+        expect(ran).toHaveBeenCalledTimes(1)
+      } finally {
+        spy.mockRestore()
+      }
+    })
+
+    it('runs the job after a few read-backs find nothing (storage not persisting) instead of spinning forever', async () => {
+      const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => undefined) // accepts, keeps nothing
+      try {
+        const ran = vi.fn().mockResolvedValue('ok')
+        await expect(withStorageLock(ran, { pollMs: 1, settleMs: 1 })).resolves.toBe('ok')
+        expect(ran).toHaveBeenCalledTimes(1)
+      } finally {
+        spy.mockRestore()
+      }
+    })
+  })
+
+  describe('remote logout', () => {
+    const post = async () => {
+      const ch = new BroadcastChannel('cf-auth')
+      ch.postMessage('logout')
+      await new Promise((r) => setTimeout(r, 30))
+      ch.close()
+    }
+
+    it('sends a tab that held a session to the handler and clears local state', async () => {
+      setSession({ access_token: TOK })
+      const handler = vi.fn()
+      const off = onRemoteLogout(handler)
+      await post()
+      off()
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(isLoggedIn()).toBe(false)
+    })
+
+    it('leaves a public-page tab (no session, no hint) alone', async () => {
+      const handler = vi.fn()
+      const off = onRemoteLogout(handler)
+      await post()
+      off()
+      expect(handler).not.toHaveBeenCalled()
     })
   })
 })

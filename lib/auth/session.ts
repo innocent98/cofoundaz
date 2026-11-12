@@ -11,6 +11,9 @@ const CHANNEL = 'cf-auth';
 const LOCK_NAME = 'cf-refresh';
 const MUTEX_KEY = 'cf_refresh_lock';
 const MUTEX_TTL_MS = 10_000;
+// A refresh that outlives the mutex TTL would let another tab in with the pre-rotation cookie, so it is cut off sooner.
+const REFRESH_TIMEOUT_MS = MUTEX_TTL_MS - 2_000;
+const MAX_STORAGE_FAILURES = 5;
 // Same value as lib/api/client.ts API_BASE (duplicated so this module has no import cycle with it).
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
 
@@ -96,12 +99,23 @@ export async function withStorageLock<T>(fn: () => Promise<T>, opts: { pollMs?: 
   const owner = Math.random().toString(36).slice(2) + Date.now().toString(36);
   const read = (): { owner?: string; expiresAt?: number } =>
     safeStorage(() => JSON.parse(localStorage.getItem(MUTEX_KEY) ?? '{}') as { owner?: string; expiresAt?: number }, {});
+  let failures = 0;
   for (;;) {
     const cur = read();
     if (!cur.owner || !cur.expiresAt || cur.expiresAt <= Date.now()) {
-      safeStorage(() => localStorage.setItem(MUTEX_KEY, JSON.stringify({ owner, expiresAt: Date.now() + MUTEX_TTL_MS })), undefined);
+      let wrote = true;
+      try {
+        localStorage.setItem(MUTEX_KEY, JSON.stringify({ owner, expiresAt: Date.now() + MUTEX_TTL_MS }));
+      } catch {
+        wrote = false; // storage blocked or full: there is nothing to lock with
+      }
+      if (!wrote) return fn();
       await sleep(settleMs);
-      if (read().owner === owner) break;
+      const after = read();
+      if (after.owner === owner) break;
+      // Nobody owns it after we wrote: storage is not persisting (private mode, quota). Give up on locking
+      // rather than spin forever; a different owner is ordinary contention, so we just keep waiting.
+      if (!after.owner && ++failures >= MAX_STORAGE_FAILURES) return fn();
     } else {
       await sleep(pollMs);
     }
@@ -120,11 +134,14 @@ export function refreshSession(): Promise<string | null> {
     const run = async (): Promise<string | null> => {
       // Another tab may have signed out (or learned the cookie is dead) while we waited for the lock.
       if (!hasSessionHint()) return null;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), REFRESH_TIMEOUT_MS);
       try {
         const res = await fetch(`${API_BASE}/auth/refresh`, {
           method: 'POST',
           credentials: 'include',
           headers: { ...AUTH_MODE_HEADER },
+          signal: controller.signal,
         });
         if (res.status === 401 || res.status === 403) {
           clearSession();
@@ -141,7 +158,9 @@ export function refreshSession(): Promise<string | null> {
         setSession({ access_token: p.access_token, expires_in: p.expires_in });
         return p.access_token;
       } catch {
-        return null;
+        return null; // network error or the timeout abort: a failed refresh, the hint stays for the next try
+      } finally {
+        clearTimeout(timer);
       }
     };
     // The cookie is shared by every tab, so a tab that waited and finds the cookie already rotated by another
@@ -180,8 +199,11 @@ export function onRemoteLogout(handler: () => void): () => void {
   if (!ch) return () => undefined;
   ch.onmessage = (e) => {
     if (e.data === 'logout') {
+      // Only a tab that was signed in is sent to /login; public pages (e-sign, smoke pages, shared links,
+      // sign-up, marketing) just drop their local state and stay put.
+      const hadSession = accessToken !== null || hasSessionHint();
       clearSession();
-      handler();
+      if (hadSession) handler();
     }
   };
   return () => ch.close();
