@@ -77,11 +77,10 @@ async function setup(page: Page, opts: { role?: string; sending?: Record<string,
   let state = { ...sequence }
   let en: Record<string, unknown> = { ...enrollment }
   await page.addInitScript((ws) => {
-    localStorage.setItem('cf_session', '1')
+    localStorage.setItem('cf_token', 'placeholder-token')
     localStorage.setItem('cf_workspace_id', ws)
   }, WS)
   await page.route('**/api/v1/**', (route) => route.fulfill(json([])))
-  await page.route('**/api/v1/auth/refresh', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { access_token: 'placeholder-token', refresh_token: null, expires_in: 900 }, meta: null }) }))
   await page.route('**/api/v1/auth/me', (route) => route.fulfill(json(me(role))))
   await page.route('**/api/v1/team/members', (route) =>
     route.fulfill(json([{ user_id: 'u1', name: 'Placeholder Person', email: 'placeholder@example.com', role }]))

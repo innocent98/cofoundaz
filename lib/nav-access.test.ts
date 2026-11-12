@@ -28,14 +28,6 @@ describe('nav access (PRD §2.1)', () => {
     expect(canSee('/ai', 'mentor')).toBe(false);
   });
 
-  it('Investor Readiness is for founders and team members only (D-IR-4)', () => {
-    expect(canSee('/investor-readiness', 'founder')).toBe(true);
-    expect(canSee('/investor-readiness', 'team_member')).toBe(true);
-    for (const r of ['mentor', 'business_consultant', 'accountant', 'legal_advisor', 'investor'] as const) {
-      expect(canSee('/investor-readiness', r)).toBe(false);
-    }
-  });
-
   it('an unknown role keeps the nav usable but never reveals the Journal', () => {
     expect(canSee('/finance', null)).toBe(true);
     expect(canSee('/journal', null)).toBe(false);

@@ -8,12 +8,8 @@ import type { ChatConversation, ChatMessage } from '@/lib/api/aiChat';
 vi.mock('@/lib/api/aiChat', () => ({
   createConversation: vi.fn(),
   getConversation: vi.fn(),
+  listConversations: vi.fn(),
   postMessage: vi.fn(),
-  cancelReply: vi.fn(),
-  regenerateReply: vi.fn(),
-  sendFeedback: vi.fn(),
-  actOnAction: vi.fn(),
-  unarchiveConversations: vi.fn(),
 }));
 
 const msg = (role: 'user' | 'assistant', status: ChatMessage['status'], content = ''): ChatMessage => ({
@@ -147,93 +143,5 @@ describe('useAICoFounder (chat)', () => {
     expect(result.current.isGenerating).toBe(true);
     await act(async () => { await vi.advanceTimersByTimeAsync(POLL_MS); });
     expect(result.current.messages[1]).toMatchObject({ status: 'ready', content: 'done' });
-  });
-
-  it('Cancel posts to the generating reply and shows it cancelled, ready for a new message', async () => {
-    const generating = msg('assistant', 'generating');
-    vi.mocked(chat.getConversation).mockResolvedValue(conv([msg('user', 'ready', 'a'), generating]));
-    vi.mocked(chat.cancelReply).mockResolvedValue({ ...generating, status: 'cancelled' });
-    const { result } = renderHook(() => useAICoFounder());
-    await act(async () => { await result.current.selectConversation('c1'); });
-    await act(async () => { await result.current.cancel(); });
-    expect(chat.cancelReply).toHaveBeenCalledWith('c1', generating.id);
-    expect(result.current.messages[1].status).toBe('cancelled');
-    expect(result.current.isGenerating).toBe(false);
-  });
-
-  it('Retry (regenerate) reuses the message id and polls for the new reply', async () => {
-    const failed = msg('assistant', 'failed');
-    vi.mocked(chat.getConversation)
-      .mockResolvedValueOnce(conv([msg('user', 'ready', 'a'), failed]))
-      .mockResolvedValueOnce(conv([msg('user', 'ready', 'a'), { ...failed, status: 'ready', content: 'again' }]));
-    vi.mocked(chat.regenerateReply).mockResolvedValue({ ...failed, status: 'generating' });
-    const { result } = renderHook(() => useAICoFounder());
-    await act(async () => { await result.current.selectConversation('c1'); });
-    await act(async () => { await result.current.regenerate(failed.id); });
-    expect(chat.regenerateReply).toHaveBeenCalledWith('c1', failed.id);
-    expect(result.current.isGenerating).toBe(true);
-    await act(async () => { await vi.advanceTimersByTimeAsync(POLL_MS); });
-    expect(result.current.messages[1]).toMatchObject({ status: 'ready', content: 'again' });
-  });
-
-  it('startNewChat(agent) pins the next conversation to that specialist', async () => {
-    vi.mocked(chat.createConversation).mockResolvedValue(
-      conv([msg('user', 'ready', 'hi'), msg('assistant', 'generating')])
-    );
-    vi.mocked(chat.getConversation).mockResolvedValue(
-      conv([msg('user', 'ready', 'hi'), msg('assistant', 'generating')])
-    );
-    const { result } = renderHook(() => useAICoFounder());
-    act(() => result.current.startNewChat('finance'));
-    expect(result.current.newChatAgent).toBe('finance');
-    await act(async () => { await result.current.sendMessage('hi'); });
-    expect(chat.createConversation).toHaveBeenCalledWith('hi', 'finance');
-    expect(result.current.newChatAgent).toBeNull();
-  });
-
-  it('thumbs toggle: the same rating again clears it, and a failure rolls back', async () => {
-    const reply = { ...msg('assistant', 'ready', 'Hi'), feedback: 'up' as const };
-    vi.mocked(chat.getConversation).mockResolvedValue(conv([msg('user', 'ready', 'a'), reply]));
-    vi.mocked(chat.sendFeedback).mockResolvedValueOnce({ ...reply, feedback: null });
-    const { result } = renderHook(() => useAICoFounder());
-    await act(async () => { await result.current.selectConversation('c1'); });
-    await act(async () => { await result.current.setFeedback(reply.id, 'up'); });
-    expect(chat.sendFeedback).toHaveBeenCalledWith(reply.id, null);
-    expect(result.current.messages[1].feedback).toBeNull();
-
-    vi.mocked(chat.sendFeedback).mockRejectedValueOnce(new ApiError(500, 'x', {}));
-    await act(async () => { await result.current.setFeedback(reply.id, 'down'); });
-    expect(result.current.messages[1].feedback).toBeNull();
-    expect(result.current.error).toBeTruthy();
-  });
-
-  it('confirming an action updates the chip in place; ACTION_CHANGED explains why Undo failed', async () => {
-    const action = { id: 'a1', kind: 'add_task' as const, label: 'Add', status: 'proposed' as const, undoable: false, href: null, result_label: null };
-    const reply = { ...msg('assistant', 'ready', 'Hi'), actions: [action] };
-    vi.mocked(chat.getConversation).mockResolvedValue(conv([msg('user', 'ready', 'a'), reply]));
-    vi.mocked(chat.actOnAction).mockResolvedValueOnce({ ...action, status: 'executed', undoable: true, href: '/roadmap', result_label: 'Task added' });
-    const { result } = renderHook(() => useAICoFounder());
-    await act(async () => { await result.current.selectConversation('c1'); });
-    await act(async () => { await result.current.runAction(reply.id, 'a1', 'confirm'); });
-    expect(result.current.messages[1].actions?.[0]).toMatchObject({ status: 'executed', undoable: true });
-
-    vi.mocked(chat.actOnAction).mockRejectedValueOnce(
-      new ApiError(409, 'Conflict', { error: { code: 'ACTION_CHANGED', message: 'x', field_errors: [] } })
-    );
-    await act(async () => { await result.current.runAction(reply.id, 'a1', 'undo'); });
-    expect(result.current.error).toMatch(/edited since/);
-  });
-
-  it('429 shows the API message, or a plain fallback', async () => {
-    vi.mocked(chat.createConversation).mockRejectedValueOnce(
-      new ApiError(429, 'Too Many', { error: { code: 'RATE_LIMITED', message: 'Slow down a little.', field_errors: [] } })
-    );
-    const { result } = renderHook(() => useAICoFounder());
-    await act(async () => { await result.current.sendMessage('hi'); });
-    expect(result.current.error).toBe('Slow down a little.');
-
-    vi.mocked(chat.createConversation).mockRejectedValueOnce(new ApiError(429, 'Too Many', {}));
-    await act(async () => { await result.current.sendMessage('hi'); });
-    expect(result.current.error).toMatch(/Too many messages/);
   });
 });

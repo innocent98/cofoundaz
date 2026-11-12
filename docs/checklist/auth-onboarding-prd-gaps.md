@@ -93,10 +93,6 @@ real email delivery (file backend only); production proxy IP handling; Apple sig
     Build "I'm building the product" · Launch "I'm live with first users" · Growth "I have revenue and I'm growing" ·
     Scale "I'm expanding what already works".
 
-## FE step 2 status (2026-11-12, PR `feature/auth-onboarding-fe`)
-Closed on the FE: 2, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 23, 24 (walk: `auth-onboarding-fe-walk.md`). Gap 5 (D-AUTH-6) is built in the second PR on
-`feature/auth-cookie-session` (walk: `auth-cookie-session-walk.md`). Open: 19 (AI onboarding panel, needs API follow-ups).
-
 ## Build order (proposal)
 1. BE (one PR): gaps 1, 2 (body), 3, 4, 6, 7, 8 (ticket attempts), 11, 12 (`retry_after`), 14, 21, 22, 25 note; migration for
    terms acceptance and the new rate-limit keys; tests per gap.

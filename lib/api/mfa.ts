@@ -18,7 +18,7 @@ export interface TotpVerifyResult {
 
 export interface MfaChallengeResult {
   access_token: string;
-  expires_in?: number;
+  refresh_token: string;
 }
 
 function unwrap<T>(res: { data?: T } | T): T {

@@ -95,6 +95,7 @@ describe('role-play setup', () => {
     render(<RolePlayPanel rp={rp()} limit={{ overBudget: true, resetsAt: '1:00 AM' }} />);
     expect(screen.getByText(/Daily AI limit used up/)).toBeTruthy();
     expect((screen.getByRole('button', { name: 'Start role-play' }) as HTMLButtonElement).disabled).toBe(true);
+    await waitFor(() => expect(screen.getByRole('option', { name: 'Kolo pilot (Kolo Co-op)' })).toBeTruthy());
   });
 
   it('lists recent calls with their score and reopens one', async () => {
@@ -238,6 +239,7 @@ describe('call prep', () => {
     expect(screen.getAllByRole('listitem').filter((li) => li.textContent?.includes('?')).length).toBeGreaterThanOrEqual(3);
     await userEvent.click(screen.getByRole('button', { name: 'Regenerate' }));
     expect(api.requestCallPrep).toHaveBeenCalledWith('d1');
+    expect(await screen.findByText('Writing your call prep...')).toBeTruthy();
   });
 
   it('a failed prep over budget says so and offers no retry while the limit holds', async () => {

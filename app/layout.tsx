@@ -11,7 +11,6 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from 'sonner';
-import { SessionSync } from '@/components/session-sync';
 
 export default function RootLayout({
   children,
@@ -21,7 +20,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SessionSync />
         {children}
         <Toaster position="bottom-right" />
       </body>

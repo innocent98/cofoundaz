@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const p = vi.hoisted(() => {
@@ -19,8 +19,10 @@ describe('NamePrompt', () => {
     const onSaved = vi.fn();
     render(<NamePrompt onSaved={onSaved} onCancel={vi.fn()} />);
     expect(screen.getByText(/prints this name for good/)).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('Full name'), { target: { value: '  Rewalk   Teammate  ' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save name and finish course' }));
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Full name'), { target: { value: '  Rewalk   Teammate  ' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Save name and finish course' }));
+    });
     await waitFor(() => expect(onSaved).toHaveBeenCalledWith(me));
     expect(p.state.calls).toEqual(['  Rewalk   Teammate  ']);
   });
@@ -32,15 +34,19 @@ describe('NamePrompt', () => {
     };
     const onSaved = vi.fn();
     render(<NamePrompt onSaved={onSaved} onCancel={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Save name and finish course' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Save name and finish course' }));
+    });
     expect(await screen.findByText('Tell us your name.')).toBeInTheDocument();
     expect(onSaved).not.toHaveBeenCalled();
   });
 
-  it('Not now cancels', () => {
+  it('Not now cancels', async () => {
     const onCancel = vi.fn();
     render(<NamePrompt onSaved={vi.fn()} onCancel={onCancel} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Not now' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Not now' }));
+    });
     expect(onCancel).toHaveBeenCalled();
   });
 });

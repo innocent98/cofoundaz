@@ -1,176 +1,219 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useNotifications } from '@/hooks/useNotifications';
+import { useNotificationsPage } from '@/hooks/useNotificationsPage';
+import { type EnrichedNotification } from '@/hooks/useNotifications';
 import { ShellTopBar } from '@/components/shell-top-bar';
-import { NotificationPreferences } from '@/components/notifications/notification-preferences';
-import { Check, X, ChevronDown } from 'lucide-react';
+import { NotificationPreferencesGrid } from '@/components/notifications/notification-preferences-grid';
+import { NotificationDigestTab } from '@/components/notifications/notification-digest-tab';
+import { type NotificationFilter } from '@/lib/api/notifications';
+import { Check, X, AlertCircle } from 'lucide-react';
 
-type NotificationTab = 'Inbox' | 'Preferences' | 'Digest & quiet hours' | 'Announcements';
-type FilterCategory = 'All' | 'Unread' | 'Urgent' | 'Missions' | 'Finance' | 'Team' | 'Marketing' | 'Sales';
-type DigestMode = 'Off' | 'Daily' | 'Weekly';
+type NotificationTab = 'Inbox' | 'Preferences' | 'Digest & quiet hours' | 'Archived';
 
-interface AnnouncementItem {
-  id: string;
-  tag: 'NEW' | 'IMPROVED' | 'MAINTENANCE';
-  tagBg: string;
-  tagText: string;
-  date: string;
-  title: string;
-  description: string;
-  actionText?: string;
-}
+const FILTER_CHIPS: Array<{ key: NotificationFilter; label: string }> = [
+  { key: 'all', label: 'All' },
+  { key: 'unread', label: 'Unread' },
+  { key: 'urgent', label: 'Urgent' },
+  { key: 'mentions', label: 'Mentions' },
+  { key: 'ai', label: 'AI' },
+  { key: 'deadlines', label: 'Deadlines' },
+  { key: 'billing', label: 'Billing' },
+];
 
 export default function NotificationsPage(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<NotificationTab>('Announcements'); // Default to Announcements as requested
-  // Deep links like /notifications?tab=preferences (avatar menu "Preferences").
+  const router = useRouter();
+
+  // Tab state - default is 'Inbox' per brief
+  const [activeTab, setActiveTab] = useState<NotificationTab>('Inbox');
+
+  // Deep links like ?tab=preferences or ?tab=digest
   useEffect(() => {
-    const tab = new URLSearchParams(window.location.search).get('tab');
+    const tabParam = new URLSearchParams(window.location.search).get('tab');
     const byParam: Record<string, NotificationTab> = {
       inbox: 'Inbox',
       preferences: 'Preferences',
       digest: 'Digest & quiet hours',
-      announcements: 'Announcements',
+      archived: 'Archived',
     };
-    if (tab && byParam[tab]) queueMicrotask(() => setActiveTab(byParam[tab]));
+    if (tabParam && byParam[tabParam]) {
+      queueMicrotask(() => setActiveTab(byParam[tabParam]));
+    }
   }, []);
-  const [activeFilter, setActiveFilter] = useState<FilterCategory>('All');
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Digest & Quiet Hours States
-  const [digestMode, setDigestMode] = useState<DigestMode>('Daily');
-  const [deliveryTime, setDeliveryTime] = useState<string>('6:00 AM');
-  const [isDeliveryDropdownOpen, setIsDeliveryDropdownOpen] = useState<boolean>(false);
-
-  const [isQuietHoursActive, setIsQuietHoursActive] = useState<boolean>(true);
-  const [quietFrom, setQuietFrom] = useState<string>('8:00 PM');
-  const [isFromDropdownOpen, setIsFromDropdownOpen] = useState<boolean>(false);
-
-  const [quietUntil, setQuietUntil] = useState<string>('6:00 AM');
-  const [isUntilDropdownOpen, setIsUntilDropdownOpen] = useState<boolean>(false);
-
-  // Announcements list exactly matching the provided image
-  const [announcements] = useState<AnnouncementItem[]>([
-    {
-      id: '1',
-      tag: 'NEW',
-      tagBg: 'bg-neutral-xf5efe6 text-accent-x7a5b30',
-      tagText: 'NEW',
-      date: 'Jul 22, 2026',
-      title: 'The Funding Hub now tracks grants',
-      description: 'We added AI grant matching with fit scores, deadlines, and one-click application drafting. It is live on Scale plans today.',
-      actionText: 'Open Funding Hub →'
-    },
-    {
-      id: '2',
-      tag: 'IMPROVED',
-      tagBg: 'bg-brand-tint text-brand-x2a523c',
-      tagText: 'IMPROVED',
-      date: 'Jul 14, 2026',
-      title: 'Health Score explanations got clearer',
-      description: 'Every dimension now shows exactly which inputs moved it and by how much. No more guessing why a number changed.',
-      actionText: 'View your score →'
-    },
-    {
-      id: '3',
-      tag: 'MAINTENANCE',
-      tagBg: 'bg-neutral-xf2f2ec text-neutral-x55635c',
-      tagText: 'MAINTENANCE',
-      date: 'Jul 6, 2026',
-      title: 'Scheduled maintenance, Aug 2',
-      description: 'We will be upgrading our database between 02:00 and 04:00 WAT. The workspace may be read-only briefly.'
-    }
-  ]);
-
-  // Real notification feed (GET /api/v1/notifications). markRead/markAllRead
-  // POST to the API; the page's local NotificationItem shape is produced by the hook.
   const {
-    items: notifications,
-    setItems: setNotifications,
-    markRead: apiMarkRead,
-    markAllRead: apiMarkAllRead,
-  } = useNotifications();
+    items,
+    archivedItems,
+    counts,
+    filter,
+    setFilterCategory,
+    nextCursor,
+    archivedNextCursor,
+    loading,
+    archivedLoading,
+    error,
+    archivedError,
+    fetchInbox,
+    fetchArchived,
+    loadMore,
+    loadMoreArchived,
+    markRead,
+    markAllRead,
+    archive,
+    restore,
+  } = useNotificationsPage();
 
-  const router = useRouter();
+  // Toast notification state (with optional undo)
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [undoAction, setUndoAction] = useState<(() => Promise<void>) | null>(null);
+  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  /** A feed row with a destination (its type's deep link) opens it and is marked read. */
-  const openNotification = (item: { id: string; title: string; href: string | null; isUnread: boolean }): void => {
-    if (!item.href) {
-      showToast(`Opened notification: ${item.title}`);
-      return;
+  const showToast = useCallback((msg: string, undo?: () => Promise<void>): void => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
     }
-    if (item.isUnread) void apiMarkRead(item.id);
-    router.push(item.href);
-  };
-
-  const showToast = (msg: string): void => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    setUndoAction(undo ? () => undo : null);
+    toastTimerRef.current = setTimeout(() => {
+      setToastMessage(null);
+      setUndoAction(null);
+      toastTimerRef.current = null;
+    }, 4500);
+  }, []);
+
+  // Clear toast timer on unmount
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
+
+  // When switching to Archived tab, trigger fetch
+  useEffect(() => {
+    if (activeTab === 'Archived') {
+      queueMicrotask(() => {
+        void fetchArchived();
+      });
+    }
+  }, [activeTab, fetchArchived]);
+
+  // Click on row - mark read regardless of href
+  const handleRowClick = async (item: EnrichedNotification) => {
+    if (!item.read) {
+      await markRead(item.id);
+    }
+    if (item.href) {
+      router.push(item.href);
+    }
   };
 
-  const handleMarkAllRead = () => {
-    void apiMarkAllRead();
-    showToast('All caught up.');
+  // Keyboard navigation for notification rows
+  const handleRowKeyDown = (e: React.KeyboardEvent, item: EnrichedNotification) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      void handleRowClick(item);
+    }
   };
 
-  const handleMarkSingleRead = (id: string, e: React.MouseEvent) => {
+  // Archive row click
+  const handleArchiveClick = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    void apiMarkRead(id);
-    showToast('Marked as read.');
+    const ok = await archive(id);
+    if (ok) {
+      showToast('Archived', async () => {
+        await restore(id);
+        showToast('Restored');
+      });
+    } else {
+      showToast('Could not archive notification.');
+    }
   };
 
-  const handleDismiss = (id: string, e: React.MouseEvent) => {
+  // Restore row click
+  const handleRestoreClick = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    setNotifications(prev => prev.filter(n => n.id !== id));
-    showToast('Notification dismissed.');
+    const ok = await restore(id);
+    if (ok) {
+      showToast('Restored');
+    } else {
+      showToast('Could not restore notification.');
+    }
   };
 
+  // Mark all read with safe error handling
+  const handleMarkAllReadClick = async () => {
+    try {
+      await markAllRead();
+      showToast('All caught up.');
+    } catch {
+      showToast('Could not mark all as read. Try again.');
+    }
+  };
 
-  const unreadCount = notifications.filter(n => n.isUnread).length;
-  const needYouCount = notifications.filter(n => n.category === 'Urgent' && n.isUnread).length;
+  // Group items by section (TODAY / THIS WEEK / EARLIER)
+  const groupedInbox = useMemo(() => {
+    const today: EnrichedNotification[] = [];
+    const thisWeek: EnrichedNotification[] = [];
+    const earlier: EnrichedNotification[] = [];
 
-  const filteredNotifications = notifications.filter(n => {
-    if (activeFilter === 'Unread') return n.isUnread;
-    if (activeFilter === 'Urgent') return n.category === 'Urgent';
-    if (activeFilter === 'Missions') return n.category === 'Missions';
-    if (activeFilter === 'Finance') return n.category === 'Finance';
-    if (activeFilter === 'Team') return n.category === 'Team';
-    if (activeFilter === 'Marketing') return n.category === 'Marketing';
-    if (activeFilter === 'Sales') return n.category === 'Sales';
-    return true;
-  });
+    items.forEach((item) => {
+      if (item.section === 'TODAY') today.push(item);
+      else if (item.section === 'THIS WEEK') thisWeek.push(item);
+      else earlier.push(item);
+    });
+
+    return [
+      { title: 'Today', list: today },
+      { title: 'This week', list: thisWeek },
+      { title: 'Earlier', list: earlier },
+    ].filter((g) => g.list.length > 0);
+  }, [items]);
+
+  const urgentUnreadCount = counts.urgent_unread ?? 0;
 
   return (
     <div className="min-h-screen bg-surface-faint text-ink font-body antialiased relative selection:bg-accent-200">
+      <ShellTopBar title="Notifications" />
 
       {/* Toast Notification Container */}
       {toastMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-brand-900 text-white px-5 py-3 rounded-[24px] shadow-accent flex items-center space-x-2.5 text-sm font-medium transition-all duration-300 border border-brand-x1e4231">
-          <span className="w-4 h-4 rounded-full bg-brand-x1c4230 flex items-center justify-center text-white text-[10px] font-bold">✓</span>
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-brand-900 text-white px-5 py-3 rounded-[24px] shadow-accent flex items-center space-x-3 text-sm font-medium transition-all duration-300 border border-brand-x1e4231">
+          <span className="w-4 h-4 rounded-full bg-brand-x1c4230 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+            ✓
+          </span>
           <span>{toastMessage}</span>
+          {undoAction && (
+            <button
+              type="button"
+              onClick={async () => {
+                await undoAction();
+                setToastMessage(null);
+                setUndoAction(null);
+              }}
+              className="text-brand-300 hover:text-white underline font-semibold ml-2 cursor-pointer"
+            >
+              Undo
+            </button>
+          )}
         </div>
       )}
 
-      {/* Main Navbar */}
-      <ShellTopBar title="Notifications" />
-
-      {/* Sub-Navbar */}
-      <nav className="w-full bg-surface-subtle border-b border-line px-6 py-3 flex items-center justify-between">
+      {/* Tabs Navigation */}
+      <nav className="w-full bg-surface-subtle border-b border-line px-4 md:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar">
-          {(['Inbox', 'Preferences', 'Digest & quiet hours', 'Announcements'] as NotificationTab[]).map((tab) => {
+          {(['Inbox', 'Preferences', 'Digest & quiet hours', 'Archived'] as NotificationTab[]).map((tab) => {
             const isActive = activeTab === tab;
             return (
               <button
                 key={tab}
-                onClick={() => {
-                  setActiveTab(tab);
-                  showToast(`Switched to ${tab} tab.`);
-                }}
+                onClick={() => setActiveTab(tab)}
                 className={
                   isActive
-                    ? "px-4 py-1.5 rounded-full text-xs font-semibold bg-accent-200 text-ink shadow-card transition-colors shrink-0 cursor-pointer"
-                    : "px-4 py-1.5 rounded-full text-xs font-medium text-ink-muted hover:bg-neutral-xefefee transition-colors shrink-0 cursor-pointer"
+                    ? 'px-4 py-1.5 rounded-full text-xs font-semibold bg-accent-200 text-ink shadow-card transition-colors shrink-0 cursor-pointer'
+                    : 'px-4 py-1.5 rounded-full text-xs font-medium text-ink-muted hover:bg-neutral-xefefee transition-colors shrink-0 cursor-pointer'
                 }
               >
                 {tab}
@@ -181,406 +224,301 @@ export default function NotificationsPage(): React.JSX.Element {
       </nav>
 
       {/* MAIN CONTENT AREA */}
-      <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
-
+      <main className="max-w-4xl mx-auto px-4 md:px-6 py-8 space-y-8">
+        {/* ================================= TAB 1: INBOX ================================= */}
         {activeTab === 'Inbox' && (
           <div className="space-y-6 animate-in fade-in duration-200">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Heading line & mark all read */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-line pb-4">
               <div>
                 <h1 className="text-3xl font-display text-ink-strong tracking-tight">Notifications</h1>
                 <p className="text-xs text-ink-subtle mt-0.5">
-                  {unreadCount === 0 ? 'Nothing unread' : `${unreadCount} unread · ${needYouCount} need you today`}
+                  {counts.unread === 0
+                    ? 'Nothing unread'
+                    : `${counts.unread} unread · ${urgentUnreadCount} need you today`}
                 </p>
               </div>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2.5">
+                {counts.unread > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleMarkAllReadClick}
+                    className="px-3 py-1.5 rounded-modal text-xs font-semibold border border-line bg-white hover:bg-neutral-50 text-ink shadow-card transition-colors cursor-pointer"
+                  >
+                    Mark all read
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={handleMarkAllRead}
-                  className="bg-white border border-neutral-xd5d5cf hover:bg-neutral-50 text-ink px-4 py-2 rounded-modal text-xs font-medium shadow-card transition-colors cursor-pointer"
-                >
-                  Mark all read
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab('Preferences');
-                    showToast('Switched to Preferences.');
-                  }}
-                  className="bg-white border border-neutral-xd5d5cf hover:bg-neutral-50 text-ink px-4 py-2 rounded-modal text-xs font-medium shadow-card transition-colors cursor-pointer"
+                  onClick={() => setActiveTab('Preferences')}
+                  className="px-3 py-1.5 rounded-modal text-xs font-semibold border border-line bg-white hover:bg-neutral-50 text-ink shadow-card transition-colors cursor-pointer"
                 >
                   Preferences
                 </button>
               </div>
             </div>
 
-            {/* Filter Pills */}
+            {/* Filter chips with counts from /counts */}
             <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-1">
-              {[
-                { name: 'All', count: notifications.length },
-                { name: 'Unread', count: unreadCount },
-                { name: 'Urgent', count: notifications.filter(n => n.category === 'Urgent').length },
-                { name: 'Missions', count: notifications.filter(n => n.category === 'Missions').length },
-                { name: 'Finance', count: notifications.filter(n => n.category === 'Finance').length },
-                { name: 'Team', count: notifications.filter(n => n.category === 'Team').length },
-                { name: 'Marketing', count: notifications.filter(n => n.category === 'Marketing').length },
-                { name: 'Sales', count: notifications.filter(n => n.category === 'Sales').length },
-              ].map((filter) => {
-                const isActive = activeFilter === filter.name;
+              {FILTER_CHIPS.map((chip) => {
+                const isActive = filter === chip.key;
+                const countVal = counts[chip.key] ?? 0;
+
                 return (
                   <button
-                    key={filter.name}
-                    onClick={() => {
-                      setActiveFilter(filter.name as FilterCategory);
-                      showToast(`Filtered by ${filter.name}`);
-                    }}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shrink-0 ${
+                    key={chip.key}
+                    onClick={() => setFilterCategory(chip.key)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium flex items-center space-x-1.5 shrink-0 transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-brand-strong text-white shadow-card'
-                        : 'bg-white border border-line text-ink-muted hover:bg-neutral-50'
+                        ? 'bg-ink text-white shadow-card font-semibold'
+                        : 'bg-white border border-line hover:bg-neutral-50 text-ink'
                     }`}
                   >
-                    <span>{filter.name}</span>
-                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${isActive ? 'bg-brand-x2a523c text-white' : 'bg-neutral-xefefee text-ink-muted'}`}>
-                      {filter.count}
+                    <span>{chip.label}</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-neutral-100 text-ink-subtle'}`}>
+                      {countVal}
                     </span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Notifications List Grouped by Section */}
-            {(['TODAY', 'EARLIER THIS WEEK'] as const).map((sectionName) => {
-              const sectionItems = filteredNotifications.filter(n => n.section === sectionName);
-              if (sectionItems.length === 0) return null;
-
-              return (
-                <div key={sectionName} className="space-y-3">
-                  <div className="text-[10px] font-bold tracking-wider text-ink-subtle uppercase pt-2">
-                    {sectionName}
-                  </div>
-
-                  <div className="space-y-3">
-                    {sectionItems.map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => openNotification(item)}
-                        className={`bg-white border rounded-[24px] p-4 md:p-5 shadow-card transition-all cursor-pointer relative group flex items-start justify-between gap-4 ${
-                          item.category === 'Urgent' || item.category === 'Finance'
-                            ? 'border-danger-xf2d6d0 hover:border-danger-xe8b5ac'
-                            : 'border-line hover:border-neutral-xd1d1cb'
-                        }`}
-                      >
-                        <div className="flex items-start space-x-3.5 flex-1 min-w-0">
-                          <div className={`w-9 h-9 rounded-modal ${item.iconBg} flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-card`}>
-                            {item.iconText}
-                          </div>
-
-                          <div className="space-y-1 flex-1 min-w-0 pr-6">
-                            <div className="flex items-center space-x-2">
-                              <h3 className="font-semibold text-xs text-ink tracking-tight truncate">{item.title}</h3>
-                              {item.isUnread && (
-                                <span className="w-2 h-2 rounded-full bg-accent-gold shrink-0" />
-                              )}
-                            </div>
-
-                            <p className="text-xs text-ink-muted leading-relaxed">{item.description}</p>
-
-                            <div className="flex items-center space-x-3 pt-1 text-[11px]">
-                              <span className="text-ink-subtle">{item.time}</span>
-                              {item.actionText && (
-                                <span className="text-brand-strong font-semibold hover:underline">
-                                  {item.actionText}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-1.5 shrink-0">
-                          {item.isUnread && (
-                            <button
-                              type="button"
-                              onClick={(e) => handleMarkSingleRead(item.id, e)}
-                              className="w-7 h-7 rounded-card border border-line-stone bg-white hover:bg-neutral-50 text-neutral-600 flex items-center justify-center transition-colors cursor-pointer"
-                              title="Mark as read"
-                              aria-label="Mark as read"
-                            >
-                              <Check size={13} />
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={(e) => handleDismiss(item.id, e)}
-                            className="w-7 h-7 rounded-card border border-line-stone bg-white hover:bg-neutral-50 text-neutral-400 hover:text-neutral-700 flex items-center justify-center transition-colors cursor-pointer"
-                            title="Dismiss"
-                            aria-label="Dismiss notification"
-                          >
-                            <X size={13} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+            {/* Error state */}
+            {error && (
+              <div className="p-4 bg-danger-50 border border-danger-200 rounded-card flex items-center justify-between text-xs text-danger-800">
+                <div className="flex items-center space-x-2">
+                  <AlertCircle size={16} />
+                  <span>{error}</span>
                 </div>
-              );
-            })}
-          </div>
-        )}
-
-        {activeTab === 'Preferences' && <NotificationPreferences />}
-
-        {activeTab === 'Digest & quiet hours' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <div>
-              <h1 className="text-3xl font-display text-ink-strong tracking-tight">Digest & quiet hours</h1>
-              <p className="text-xs text-ink-subtle mt-0.5">Batch the noise, protect the focus.</p>
-            </div>
-
-            {/* Daily Digest Section Card */}
-            <div className="bg-white border border-line rounded-[24px] p-6 shadow-card space-y-6">
-              <div className="space-y-1">
-                <h3 className="text-xs font-bold text-ink">Daily digest</h3>
-              </div>
-
-              {/* Three selection option cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {[
-                  { mode: 'Off' as DigestMode, title: 'Off', desc: 'Every notification arrives live.' },
-                  { mode: 'Daily' as DigestMode, title: 'Daily', desc: 'One summary each morning.' },
-                  { mode: 'Weekly' as DigestMode, title: 'Weekly', desc: 'One summary each Monday.' }
-                ].map((item) => {
-                  const isSelected = digestMode === item.mode;
-                  return (
-                    <div
-                      key={item.mode}
-                      onClick={() => {
-                        setDigestMode(item.mode);
-                        showToast(`Digest mode set to ${item.title}`);
-                      }}
-                      className={`border rounded-modal p-4 cursor-pointer transition-all ${
-                        isSelected 
-                          ? 'border-brand-strong bg-brand-tint/40 shadow-card ring-1 ring-brand-strong' 
-                          : 'border-line bg-white hover:border-neutral-xd1d1cb'
-                      }`}
-                    >
-                      <h4 className="text-xs font-bold text-ink mb-1">{item.title}</h4>
-                      <p className="text-[11px] text-ink-muted leading-relaxed">{item.desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Delivery time dropdown selection */}
-              <div className="space-y-1.5 pt-2">
-                <label className="text-xs font-medium text-ink">Delivery time</label>
-                <p className="text-[11px] text-ink-subtle">When your digest lands.</p>
-                
-                <div className="relative max-w-xs mt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsDeliveryDropdownOpen(!isDeliveryDropdownOpen);
-                      setIsFromDropdownOpen(false);
-                      setIsUntilDropdownOpen(false);
-                    }}
-                    className={`w-full bg-white border rounded-modal px-4 py-2.5 text-xs text-ink flex items-center justify-between transition-colors cursor-pointer ${
-                      isDeliveryDropdownOpen ? 'border-accent-gold ring-1 ring-accent-gold' : 'border-neutral-xd5d5cf hover:border-accent-gold'
-                    }`}
-                  >
-                    <span className="font-medium">{deliveryTime}</span>
-                    <ChevronDown size={14} className="text-ink-subtle" />
-                  </button>
-
-                  {isDeliveryDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-full bg-white border border-neutral-xd5d5cf rounded-modal shadow-accent z-20 overflow-hidden py-1">
-                      {['6:00 AM', '7:00 AM', '8:00 AM'].map((timeOption) => (
-                        <button
-                          key={timeOption}
-                          type="button"
-                          onClick={() => {
-                            setDeliveryTime(timeOption);
-                            setIsDeliveryDropdownOpen(false);
-                            showToast(`Delivery time updated to ${timeOption}`);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-xs hover:bg-neutral-xfaf8f5 transition-colors cursor-pointer ${
-                            deliveryTime === timeOption ? 'bg-neutral-xf2f2ec font-semibold text-brand-strong' : 'text-ink'
-                          }`}
-                        >
-                          {timeOption}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Quiet Hours Section Card */}
-            <div className="bg-white border border-line rounded-[24px] p-6 shadow-card space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <h3 className="text-xs font-bold text-ink">Quiet hours</h3>
-                  <p className="text-[11px] text-ink-subtle">Nothing but urgent reaches you in this window.</p>
-                </div>
-
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsQuietHoursActive(!isQuietHoursActive);
-                    showToast(isQuietHoursActive ? 'Quiet hours disabled.' : 'Quiet hours enabled.');
-                  }}
-                  className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
-                    isQuietHoursActive ? 'bg-brand-strong' : 'bg-neutral-300'
-                  }`}
-                  aria-label="Toggle Quiet Hours"
+                  onClick={() => void fetchInbox(filter)}
+                  className="font-semibold underline cursor-pointer ml-3"
                 >
-                  <div className={`bg-white w-4 h-4 rounded-full shadow-raised transform transition-transform ${isQuietHoursActive ? 'translate-x-5' : 'translate-x-0'}`} />
+                  Retry
                 </button>
               </div>
+            )}
 
-              {/* Time dropdown selectors (From / Until) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                
-                {/* From Dropdown */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-ink">From</label>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsFromDropdownOpen(!isFromDropdownOpen);
-                        setIsDeliveryDropdownOpen(false);
-                        setIsUntilDropdownOpen(false);
-                      }}
-                      className={`w-full bg-white border rounded-modal px-4 py-2.5 text-xs text-ink flex items-center justify-between transition-colors cursor-pointer ${
-                        isFromDropdownOpen ? 'border-accent-gold ring-1 ring-accent-gold' : 'border-neutral-xd5d5cf hover:border-accent-gold'
-                      }`}
-                    >
-                      <span className="font-medium">{quietFrom}</span>
-                      <ChevronDown size={14} className="text-ink-subtle" />
-                    </button>
-
-                    {isFromDropdownOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-full bg-white border border-neutral-xd5d5cf rounded-modal shadow-accent z-20 overflow-hidden py-1">
-                        {['8:00 PM', '9:00 PM', '10:00 PM'].map((timeOption) => (
-                          <button
-                            key={timeOption}
-                            type="button"
-                            onClick={() => {
-                              setQuietFrom(timeOption);
-                              setIsFromDropdownOpen(false);
-                              showToast(`Quiet hours start time updated to ${timeOption}`);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-xs hover:bg-neutral-xfaf8f5 transition-colors cursor-pointer ${
-                              quietFrom === timeOption ? 'bg-neutral-xf2f2ec font-semibold text-brand-strong' : 'text-ink'
-                            }`}
-                          >
-                            {timeOption}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+            {/* Loading skeletons */}
+            {loading && items.length === 0 && (
+              <div className="space-y-3">
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className="bg-white border border-line rounded-[24px] p-5 shadow-card space-y-2 animate-pulse">
+                    <div className="h-4 bg-neutral-200 rounded w-1/3" />
+                    <div className="h-3 bg-neutral-100 rounded w-2/3" />
                   </div>
-                </div>
-
-                {/* Until Dropdown */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-ink">Until</label>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsUntilDropdownOpen(!isUntilDropdownOpen);
-                        setIsDeliveryDropdownOpen(false);
-                        setIsFromDropdownOpen(false);
-                      }}
-                      className={`w-full bg-white border rounded-modal px-4 py-2.5 text-xs text-ink flex items-center justify-between transition-colors cursor-pointer ${
-                        isUntilDropdownOpen ? 'border-accent-gold ring-1 ring-accent-gold' : 'border-neutral-xd5d5cf hover:border-accent-gold'
-                      }`}
-                    >
-                      <span className="font-medium">{quietUntil}</span>
-                      <ChevronDown size={14} className="text-ink-subtle" />
-                    </button>
-
-                    {isUntilDropdownOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-full bg-white border border-neutral-xd5d5cf rounded-modal shadow-accent z-20 overflow-hidden py-1">
-                        {['6:00 AM', '7:00 AM', '8:00 AM'].map((timeOption) => (
-                          <button
-                            key={timeOption}
-                            type="button"
-                            onClick={() => {
-                              setQuietUntil(timeOption);
-                              setIsUntilDropdownOpen(false);
-                              showToast(`Quiet hours end time updated to ${timeOption}`);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-xs hover:bg-neutral-xfaf8f5 transition-colors cursor-pointer ${
-                              quietUntil === timeOption ? 'bg-neutral-xf2f2ec font-semibold text-brand-strong' : 'text-ink'
-                            }`}
-                          >
-                            {timeOption}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
+                ))}
               </div>
+            )}
 
-            </div>
+            {/* Empty state */}
+            {!loading && items.length === 0 && !error && (
+              <div className="bg-white border border-line rounded-[24px] p-12 text-center shadow-card space-y-2">
+                <p className="text-xs text-ink-muted leading-relaxed">
+                  {filter === 'all'
+                    ? 'All clear. Anything that needs you will show up here.'
+                    : 'Nothing here.'}
+                </p>
+              </div>
+            )}
 
-            {/* Explanatory callout box */}
-            <div className="bg-neutral-xfaf5ec border border-accent-xeadccb rounded-[24px] p-4 text-xs text-accent-x61543e leading-relaxed">
-              <span className="font-bold text-accent-x42392a">What still gets through: </span>
-              compliance deadlines with penalties, signature requests, and payment failures. Everything else waits for your digest.
-            </div>
+            {/* Grouped Notifications List */}
+            {groupedInbox.map((group) => (
+              <div key={group.title} className="space-y-3">
+                <h3 className="text-[10px] font-bold tracking-wider text-ink-subtle uppercase px-1">
+                  {group.title}
+                </h3>
 
+                <div className="space-y-2.5">
+                  {group.list.map((item) => (
+                    <div
+                      key={item.id}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`${item.title}${item.body ? `: ${item.body}` : ''}`}
+                      onClick={() => void handleRowClick(item)}
+                      onKeyDown={(e) => handleRowKeyDown(e, item)}
+                      className={`border rounded-[20px] p-4 flex items-start justify-between gap-4 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-500 ${
+                        item.isCritical
+                          ? 'border-l-4 border-l-accent-gold bg-accent-xfdf8f2 border-accent-xebe3d3 shadow-card'
+                          : 'border-line bg-white shadow-card hover:bg-neutral-50'
+                      }`}
+                    >
+                      <div className="flex items-start space-x-3.5 min-w-0">
+                        {/* Module Icon */}
+                        <div
+                          className={`w-9 h-9 rounded-card flex items-center justify-center text-sm shrink-0 shadow-card ${item.iconBg}`}
+                        >
+                          {item.iconText}
+                        </div>
+
+                        {/* Title & Body */}
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="text-xs font-semibold text-ink leading-snug break-words">
+                              {item.title}
+                            </h4>
+                            {!item.read && (
+                              <span className="w-2 h-2 rounded-full bg-brand-strong shrink-0" />
+                            )}
+                          </div>
+                          {item.body ? (
+                            <p className="text-xs text-ink-muted leading-relaxed break-words">
+                              {item.body}
+                            </p>
+                          ) : null}
+                          <div className="flex items-center space-x-3 pt-0.5 text-[11px] text-ink-subtle">
+                            <span>{item.time}</span>
+                            {item.actionText && (
+                              <span className="text-brand-strong font-semibold">
+                                {item.actionText} →
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row actions */}
+                      <div className="flex items-center space-x-1 shrink-0 pt-0.5">
+                        {!item.read && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void markRead(item.id);
+                            }}
+                            title="Mark as read"
+                            aria-label="Mark as read"
+                            className="w-7 h-7 rounded-card border border-line bg-white hover:bg-neutral-50 text-ink flex items-center justify-center transition-colors cursor-pointer"
+                          >
+                            <Check size={14} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => void handleArchiveClick(e, item.id)}
+                          title="Archive"
+                          aria-label="Archive notification"
+                          className="w-7 h-7 rounded-card border border-line bg-white hover:bg-neutral-50 text-ink-muted hover:text-ink flex items-center justify-center transition-colors cursor-pointer"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* Load more button */}
+            {nextCursor && (
+              <div className="pt-2 text-center">
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => void loadMore()}
+                  className="px-6 py-2.5 bg-white border border-line rounded-modal text-xs font-semibold text-ink hover:bg-neutral-50 transition-colors cursor-pointer shadow-card disabled:opacity-50"
+                >
+                  {loading ? 'Loading...' : 'Load more'}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {activeTab === 'Announcements' && (
+        {/* ================================= TAB 2: PREFERENCES ================================= */}
+        {activeTab === 'Preferences' && (
+          <NotificationPreferencesGrid onErrorToast={showToast} />
+        )}
+
+        {/* ================================= TAB 3: DIGEST & QUIET HOURS ================================= */}
+        {activeTab === 'Digest & quiet hours' && (
+          <NotificationDigestTab onErrorToast={showToast} />
+        )}
+
+        {/* ================================= TAB 4: ARCHIVED ================================= */}
+        {activeTab === 'Archived' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             <div>
-              <h1 className="text-3xl font-display text-ink-strong tracking-tight">Announcements</h1>
+              <h1 className="text-3xl font-display text-ink-strong tracking-tight">Archived notifications</h1>
+              <p className="text-xs text-ink-subtle mt-0.5">
+                Past notifications you dismissed from your inbox.
+              </p>
             </div>
 
-            <div className="space-y-4">
-              {announcements.map((item) => (
+            {archivedError && (
+              <div className="p-4 bg-danger-50 border border-danger-200 rounded-card flex items-center justify-between text-xs text-danger-800">
+                <div className="flex items-center space-x-2">
+                  <AlertCircle size={16} />
+                  <span>{archivedError}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void fetchArchived()}
+                  className="font-semibold underline cursor-pointer ml-3"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {archivedLoading && archivedItems.length === 0 && (
+              <div className="space-y-3">
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className="bg-white border border-line rounded-[24px] p-5 shadow-card space-y-2 animate-pulse">
+                    <div className="h-4 bg-neutral-200 rounded w-1/3" />
+                    <div className="h-3 bg-neutral-100 rounded w-2/3" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!archivedLoading && archivedItems.length === 0 && !archivedError && (
+              <div className="bg-white border border-line rounded-[24px] p-12 text-center shadow-card">
+                <p className="text-xs text-ink-muted">Nothing archived.</p>
+              </div>
+            )}
+
+            <div className="space-y-2.5">
+              {archivedItems.map((item) => (
                 <div
                   key={item.id}
-                  onClick={() => showToast(`Selected announcement: ${item.title}`)}
-                  className="bg-white border border-line hover:border-neutral-xd1d1cb rounded-[24px] p-6 shadow-card space-y-3 cursor-pointer transition-all"
+                  className="bg-white border border-line rounded-[20px] p-4 flex items-center justify-between gap-4 shadow-card"
                 >
-                  <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-0.5 rounded-input text-[10px] font-bold tracking-wider ${item.tagBg}`}>
-                      {item.tagText}
-                    </span>
-                    <span className="text-xs text-ink-subtle">{item.date}</span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <h3 className="text-base font-display font-semibold text-ink tracking-tight">
+                  <div className="space-y-0.5 min-w-0">
+                    <h4 className="text-xs font-semibold text-ink leading-snug break-words">
                       {item.title}
-                    </h3>
-                    <p className="text-xs text-ink-muted leading-relaxed">
-                      {item.description}
-                    </p>
+                    </h4>
+                    <span className="text-[11px] text-ink-subtle">{item.time}</span>
                   </div>
 
-                  {item.actionText && (
-                    <div className="pt-1">
-                      <span className="text-xs font-semibold text-brand-strong hover:underline">
-                        {item.actionText}
-                      </span>
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => void handleRestoreClick(e, item.id)}
+                    className="px-3 py-1.5 bg-white border border-line hover:bg-neutral-50 rounded-modal text-xs font-semibold text-ink transition-colors cursor-pointer shrink-0 shadow-card"
+                  >
+                    Restore
+                  </button>
                 </div>
               ))}
             </div>
+
+            {archivedNextCursor && (
+              <div className="pt-2 text-center">
+                <button
+                  type="button"
+                  disabled={archivedLoading}
+                  onClick={() => void loadMoreArchived()}
+                  className="px-6 py-2.5 bg-white border border-line rounded-modal text-xs font-semibold text-ink hover:bg-neutral-50 transition-colors cursor-pointer shadow-card disabled:opacity-50"
+                >
+                  {archivedLoading ? 'Loading...' : 'Load more'}
+                </button>
+              </div>
+            )}
           </div>
         )}
-
       </main>
     </div>
   );

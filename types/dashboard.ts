@@ -164,6 +164,7 @@ export interface ActivityLogEntry {
   action?: string;
   verb: string;
   entity: string;
+  entity_type?: string;
   timestamp: string;
   relativeTime: string;
   time?: string;

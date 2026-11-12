@@ -7,13 +7,13 @@ vi.mock('next/link', () => ({ default: ({ children, href }: { children: React.Re
 import { AuthForm } from './auth-form'
 
 describe('Google button branding', () => {
-  it('says Continue with Google on login and signup, with no Apple', () => {
+  it('says Continue with Google on login and Sign up with Google on signup, with no Apple', () => {
     const { unmount } = render(<AuthForm mode="login" onGoogle={async () => {}} />)
     expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeInTheDocument()
     expect(screen.queryByText(/Apple/)).toBeNull()
     unmount()
     render(<AuthForm mode="signup" onGoogle={async () => {}} />)
-    expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sign up with Google' })).toBeInTheDocument()
   })
 
   it('uses Google colours, hides the G from assistive tech, and calls onGoogle', async () => {

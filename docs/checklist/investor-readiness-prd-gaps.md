@@ -164,4 +164,4 @@ A can start on defaults after D-IR-1/2/3/4 are answered.
 
 ## Status (2026-11-05)
 
-D-IR-1..7 accepted 2026-11-05 (recommended options). All four API slices merged (A #216, B #219, D #221, C #236). FE pass on `feature/investor-readiness-fe` (PR open): rows 2 to 10, 12 to 14, 16 to 26, 28 and 30 are wired and walked on the stub model; rows 14, 15 (text part), 19 to 21 and 23 to 24 are **not verified on the real model** (credits exhausted). See `investor-readiness-fe-walk.md`.
+D-IR-1..7 accepted 2026-11-05 (recommended options). Slice A (score + history) is in build on `feature/readiness-score`. Nothing is verified live yet.

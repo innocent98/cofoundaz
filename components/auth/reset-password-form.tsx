@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
-import { authCopy } from '@/content/auth';
 
 /**
  * The new-password form behind a reset link. The token comes from the URL —
@@ -13,6 +13,7 @@ import { authCopy } from '@/content/auth';
  * the `?token=` query. An empty token renders the "request a new link" state.
  */
 export function ResetPasswordForm({ token }: { token: string }) {
+  const router = useRouter();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -53,7 +54,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       // Success revokes all existing sessions, so send them to login.
       await authApi.resetPassword({ token, password });
       setSuccess(true);
-      
+      setTimeout(() => router.push('/login'), 2500);
     } catch (err: unknown) {
       // 400 TOKEN_INVALID (invalid/used/expired) · 422 WEAK_PASSWORD.
       const data = err instanceof ApiError ? (err.data as { error?: { code?: string; message?: string } }) : null;
@@ -73,16 +74,13 @@ export function ResetPasswordForm({ token }: { token: string }) {
   return (
     <div className="w-full max-w-md mx-auto p-8 bg-white rounded-modal shadow-card border border-neutral-100">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold font-display text-neutral-900">{authCopy.resetTitle}</h1>
+        <h1 className="text-2xl font-bold font-display text-neutral-900">Set new password</h1>
         <p className="text-sm text-neutral-500 mt-2">Enter your new account password below.</p>
       </div>
 
       {success ? (
         <div className="p-4 bg-brand-50 text-brand-800 rounded-card text-sm border border-brand-200 text-center">
-          <p>{authCopy.resetDone}</p>
-          <Link href="/login" className="mt-3 inline-block font-semibold text-brand-700 hover:underline">
-            Log in
-          </Link>
+          Password updated. Redirecting you to login&hellip;
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">

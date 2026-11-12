@@ -1,4 +1,3 @@
-import { accessTokenForRequest } from '@/lib/auth/session';
 import { ApiError, apiClient } from './client';
 
 // Typed client for the Learning Academy backend (Module 17), /api/v1/learning/*
@@ -244,7 +243,7 @@ export async function verifyCredential(code: string): Promise<Verification> {
  * and hand the browser a blob download. Throws ApiError (409 CERTIFICATE_NOT_READY).
  */
 export async function downloadCertificatePdf(cert: Certificate): Promise<void> {
-  const token = await accessTokenForRequest();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
   const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('cf_workspace_id') : null;
   const headers: Record<string, string> = {};
   if (token) headers.Authorization = `Bearer ${token}`;

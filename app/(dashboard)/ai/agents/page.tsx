@@ -2,68 +2,161 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAIAgents } from '@/hooks/useAIBench';
+import { 
+  PieChart, 
+  TrendingUp, 
+  Diamond, 
+  Star, 
+  Check, 
+  ArrowRight, 
+  Sun, 
+  Layers 
+} from 'lucide-react';
+import type { AgentKey } from '@/types/ai';
+
+interface BenchAgent {
+  id: string;
+  key: AgentKey;
+  name: string;
+  category: string;
+  description: string;
+  buttonText: string;
+  iconType: string;
+}
+
+const benchAgents: BenchAgent[] = [
+  {
+    id: '1', key: 'cofounder', name: 'Strategist', category: 'Business Builder',
+    description: 'Sharpens your model, plan, and positioning.',
+    buttonText: 'Ask Strategist', iconType: 'lines'
+  },
+  {
+    id: '2', key: 'finance', name: 'Finance Advisor', category: 'Finance Hub',
+    description: 'Runway, forecasts, and the hard money calls.',
+    buttonText: 'Ask Finance', iconType: 'currency'
+  },
+  {
+    id: '3', key: 'legal', name: 'Legal Advisor', category: 'Legal & Compliance',
+    description: 'Contracts, formation, and staying covered.',
+    buttonText: 'Ask Legal', iconType: 'section'
+  },
+  {
+    id: '4', key: 'marketing', name: 'Marketing Advisor', category: 'Marketing Hub',
+    description: 'Campaigns, copy, and channel strategy.',
+    buttonText: 'Ask Marketing', iconType: 'pie'
+  },
+  {
+    id: '5', key: 'sales', name: 'Sales Coach', category: 'Sales Hub',
+    description: 'Pipeline, objections, and closing with confidence.',
+    buttonText: 'Ask Sales', iconType: 'trending'
+  },
+  {
+    id: '6', key: 'funding', name: 'Fundraising Copilot', category: 'Funding Hub',
+    description: 'Investors, the data room, and running the raise.',
+    buttonText: 'Ask Fundraising', iconType: 'diamond'
+  },
+  {
+    id: '7', key: 'cofounder', name: 'Readiness Coach', category: 'Investor Readiness',
+    description: 'Your deck, your story, and the tough questions.',
+    buttonText: 'Ask Readiness', iconType: 'star'
+  },
+  {
+    id: '8', key: 'product', name: 'Validation Scientist', category: 'Validation Hub',
+    description: 'Experiments that prove it before you build.',
+    buttonText: 'Ask Validation', iconType: 'check'
+  },
+  {
+    id: '9', key: 'product', name: 'Product Manager', category: 'Roadmap',
+    description: 'Turns feedback into the right next build.',
+    buttonText: 'Ask Product', iconType: 'arrow'
+  },
+  {
+    id: '10', key: 'analytics', name: 'Insight Synthesizer', category: 'Validation Hub',
+    description: 'Finds the patterns hiding in your feedback.',
+    buttonText: 'Ask Insight', iconType: 'layers'
+  },
+  {
+    id: '11', key: 'team', name: 'Mentor', category: 'Across everything',
+    description: 'A steady voice for the founder behind the company.',
+    buttonText: 'Ask Mentor', iconType: 'sun'
+  }
+];
 
 export default function AgentsPage() {
   const router = useRouter();
-  const { agents, loading, error, refresh } = useAIAgents();
+
+  const renderBenchIcon = (type: string) => {
+    switch (type) {
+      case 'lines': return (
+        <div className="flex flex-col gap-1 w-3.5 items-center">
+          <div className="w-full h-0.5 bg-white/80 rounded-full" />
+          <div className="w-full h-0.5 bg-white/80 rounded-full" />
+          <div className="w-full h-0.5 bg-white/80 rounded-full" />
+        </div>
+      );
+      case 'currency': return <span className="font-bold text-sm text-accent-500">₦</span>;
+      case 'section': return <span className="font-display text-sm font-bold text-accent-500">§</span>;
+      case 'pie': return <PieChart className="w-4 h-4 text-accent-500" />;
+      case 'trending': return <TrendingUp className="w-4 h-4 text-accent-500" />;
+      case 'diamond': return <Diamond className="w-4 h-4 text-accent-500" />;
+      case 'star': return <Star className="w-4 h-4 text-accent-500 fill-accent-500" />;
+      case 'check': return <Check className="w-4 h-4 stroke-[3] text-white" />;
+      case 'arrow': return <ArrowRight className="w-4 h-4 text-accent-500" />;
+      case 'layers': return <Layers className="w-4 h-4 text-accent-500" />;
+      case 'sun': return <Sun className="w-4 h-4 text-accent-500" />;
+      default: return null;
+    }
+  };
+
+  const handleAskAgent = async (agent: BenchAgent) => {
+    // We pass the selected agent via URL query parameter
+    router.push(`/ai?agent=${agent.key}`);
+  };
 
   return (
     <div className="max-w-6xl w-full mx-auto flex flex-col gap-6">
       <div>
-        <h2 className="text-2xl font-bold text-ink tracking-tight mb-1">Your bench</h2>
+        <h2 className="text-2xl font-bold text-ink tracking-tight mb-1">
+          Your bench
+        </h2>
         <p className="text-xs text-ink-muted">
           Every specialist, one chat away. You never have to pick, I route automatically, but you can go direct.
         </p>
       </div>
 
-      {loading ? (
-        <p className="text-sm text-neutral-500" role="status">Loading your bench...</p>
-      ) : error ? (
-        <p className="text-sm text-neutral-500">
-          {error}{' '}
-          <button type="button" onClick={() => { void refresh(); }} className="font-semibold text-brand-700 hover:underline cursor-pointer">
-            Try again
-          </button>
-        </p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {agents.map((agent) => (
-            <div
-              key={agent.key}
-              className={`bg-white rounded-modal p-5 border border-line-soft shadow-card flex flex-col justify-between ${
-                agent.available ? '' : 'opacity-70'
-              }`}
-            >
-              <div>
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-9 h-9 rounded-card bg-brand-strong text-white flex items-center justify-center shrink-0 text-sm font-bold" aria-hidden="true">
-                    {agent.name.charAt(0)}
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-sm text-ink leading-tight">{agent.name}</h3>
-                    <span className="text-[11px] font-semibold text-accent-600">{agent.category}</span>
-                  </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {benchAgents.map((agent) => (
+          <div
+            key={agent.id}
+            className="bg-white rounded-modal p-5 border border-line-soft shadow-card flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-9 h-9 rounded-card bg-brand-strong text-white flex items-center justify-center shrink-0">
+                  {renderBenchIcon(agent.iconType)}
                 </div>
-                <p className="text-xs text-ink-body leading-relaxed mb-6">{agent.description}</p>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-sm text-ink leading-tight">
+                    {agent.name}
+                  </h3>
+                  <span className="text-[11px] font-semibold text-accent-600">
+                    {agent.category}
+                  </span>
+                </div>
               </div>
-              {agent.available ? (
-                <button
-                  type="button"
-                  onClick={() => router.push(`/ai?agent=${encodeURIComponent(agent.key)}`)}
-                  className="w-full bg-white hover:bg-surface-muted text-brand-strong font-semibold text-xs py-2 rounded-card border border-line-strong transition-colors cursor-pointer"
-                >
-                  Ask {agent.name}
-                </button>
-              ) : (
-                <p className="w-full text-center text-xs font-semibold text-ink-subtle py-2 rounded-card bg-surface-faint">
-                  Coming soon
-                </p>
-              )}
+              <p className="text-xs text-ink-body leading-relaxed mb-6">
+                {agent.description}
+              </p>
             </div>
-          ))}
-        </div>
-      )}
+            <button
+              onClick={() => handleAskAgent(agent)}
+              className="w-full bg-white hover:bg-surface-muted text-brand-strong font-semibold text-xs py-2 rounded-card border border-line-strong transition-colors"
+            >
+              {agent.buttonText}
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

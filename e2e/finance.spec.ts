@@ -231,11 +231,10 @@ function freshState(role = 'founder'): State {
 
 async function setup(page: Page, state: State = freshState()) {
   await page.addInitScript((ws) => {
-    localStorage.setItem('cf_session', '1')
+    localStorage.setItem('cf_token', 'placeholder-token')
     localStorage.setItem('cf_workspace_id', ws)
   }, WS)
   await page.route('**/api/v1/**', (route) => route.fulfill(json([])))
-  await page.route('**/api/v1/auth/refresh', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { access_token: 'placeholder-token', refresh_token: null, expires_in: 900 }, meta: null }) }))
   await page.route('**/api/v1/auth/me', (route) => route.fulfill(json(me(state.role))))
   await page.route('**/api/v1/team/members', (route) => route.fulfill(json([])))
   const handler = async (route: Route) => {

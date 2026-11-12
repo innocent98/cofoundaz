@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within, act } from '@testing-library/react';
 import React from 'react';
 import { axe } from 'jest-axe';
 import HealthOverviewPage from './page';
@@ -120,11 +120,13 @@ describe('Overview', () => {
     expect(screen.getByText('est. +1 pt')).toBeTruthy();
   });
 
-  it('a failed load is an error with Retry, never the assessment CTA', () => {
+  it('a failed load is an error with Retry, never the assessment CTA', async () => {
     overview = okOverview({ error: new Error('x') });
     render(<HealthOverviewPage />);
     expect(screen.queryByText('Take your assessment')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    });
     expect(refetchOverview).toHaveBeenCalled();
   });
 
@@ -140,11 +142,15 @@ describe('Overview', () => {
     expect(screen.getByText('Nothing to fix right now')).toBeTruthy();
   });
 
-  it('opens an accessible calculation dialog and closes on Escape', () => {
+  it('opens an accessible calculation dialog and closes on Escape', async () => {
     render(<HealthOverviewPage />);
-    fireEvent.click(screen.getByRole('button', { name: 'How is this calculated?' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'How is this calculated?' }));
+    });
     expect(screen.getByRole('dialog', { name: 'How is this calculated?' })).toBeTruthy();
-    fireEvent.keyDown(window, { key: 'Escape' });
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 'Escape' });
+    });
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
@@ -204,10 +210,12 @@ describe('Dimension drill-down', () => {
     expect(screen.queryByRole('link', { name: 'Do it' })).toBeNull();
   });
 
-  it('a load error offers Retry', () => {
+  it('a load error offers Retry', async () => {
     dimension = { loading: false, notFound: false, error: 'boom', detail: null };
     render(<DimensionPage />);
-    fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    });
     expect(refetchDim).toHaveBeenCalled();
   });
 
@@ -228,10 +236,12 @@ describe('History', () => {
     };
   });
 
-  it('offers the PRD ranges 30, 90 and 365 days and requests the chosen one', () => {
+  it('offers the PRD ranges 30, 90 and 365 days and requests the chosen one', async () => {
     render(<HistoryPage />);
     expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual(['30 days', '90 days', '365 days']);
-    fireEvent.click(screen.getByRole('button', { name: '365 days' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: '365 days' }));
+    });
     expect(historyRanges.at(-1)).toBe('365d');
   });
 
@@ -241,14 +251,16 @@ describe('History', () => {
     expect(screen.getByText('Business plan generated')).toBeTruthy();
   });
 
-  it('empty range and error states', () => {
+  it('empty range and error states', async () => {
     historyState = { loading: false, error: null, points: [], markers: [] };
     const { unmount } = render(<HistoryPage />);
     expect(screen.getByText(/No history in the last/)).toBeTruthy();
     unmount();
     historyState = { loading: false, error: 'boom', points: [], markers: [] };
     render(<HistoryPage />);
-    fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    });
     expect(refetchHistory).toHaveBeenCalled();
   });
 });
@@ -276,10 +288,12 @@ describe('Benchmarks', () => {
     expect(labels).toEqual(['Overall', 'Financial']);
   });
 
-  it('error offers Retry', () => {
+  it('error offers Retry', async () => {
     bench = { loading: false, error: 'boom', benchmarks: null };
     render(<BenchmarksPage />);
-    fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    });
     expect(refetchBench).toHaveBeenCalled();
   });
 });
@@ -294,7 +308,9 @@ describe('Recommendations', () => {
 
   it('Start accepts then goes to the recommendation href', async () => {
     render(<RecommendationsPage />);
-    fireEvent.click(screen.getByRole('button', { name: /Start/ }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Start/ }));
+    });
     await waitFor(() => expect(push).toHaveBeenCalledWith('/finance'));
     expect(recFns.accept).toHaveBeenCalledWith('r1');
   });
@@ -302,14 +318,18 @@ describe('Recommendations', () => {
   it('a failed Start stays put and shows the row error', async () => {
     recFns.accept.mockResolvedValue({ ok: false, error: 'That recommendation was already actioned.' });
     render(<RecommendationsPage />);
-    fireEvent.click(screen.getByRole('button', { name: /Start/ }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Start/ }));
+    });
     expect(await screen.findByText('That recommendation was already actioned.')).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
   });
 
   it('Dismiss does not navigate', async () => {
     render(<RecommendationsPage />);
-    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    });
     await waitFor(() => expect(recFns.dismiss).toHaveBeenCalledWith('r1'));
     expect(push).not.toHaveBeenCalled();
   });
@@ -330,17 +350,21 @@ describe('Recommendations', () => {
     else expect(screen.queryByRole('link', { name: /Open/ })).toBeNull();
   });
 
-  it('accepted items link back to the work', () => {
+  it('accepted items link back to the work', async () => {
     render(<RecommendationsPage />);
-    fireEvent.click(screen.getByRole('button', { name: 'Accepted' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Accepted' }));
+    });
     expect(recFilters.at(-1)).toBe('accepted');
     expect(screen.getByRole('link', { name: /Open/ }).getAttribute('href')).toBe('/finance');
   });
 
-  it('error offers Retry', () => {
+  it('error offers Retry', async () => {
     recsState = { loading: false, error: 'boom', recs: [] };
     render(<RecommendationsPage />);
-    fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Retry/ }));
+    });
     expect(recFns.refetch).toHaveBeenCalled();
   });
 });

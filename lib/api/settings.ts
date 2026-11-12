@@ -1,4 +1,3 @@
-import { AUTH_MODE_HEADER } from '@/lib/auth/session';
 import { apiClient } from './client';
 import type { MeResponse } from './profile';
 
@@ -60,15 +59,23 @@ export interface PasswordChangeResult {
 }
 
 /**
- * POST /auth/password/change. The HttpOnly refresh cookie identifies this device (X-Auth-Mode: cookie),
- * so it keeps this sign-in and revokes the others.
+ * POST /auth/password/change. The refresh cookie identifies this device; the app stores its refresh
+ * token in localStorage instead, so it is sent in the body. Without it every session (this one too) is revoked.
  */
 export function changePassword(currentPassword: string, newPassword: string): Promise<PasswordChangeResult> {
+  let refreshToken: string | null = null;
+  try {
+    refreshToken = localStorage.getItem('cf_refresh_token');
+  } catch {
+    /* ignore storage errors */
+  }
   return call('/auth/password/change', {
     method: 'POST',
-    credentials: 'include',
-    headers: { ...AUTH_MODE_HEADER },
-    ...json({ current_password: currentPassword, new_password: newPassword }),
+    ...json({
+      current_password: currentPassword,
+      new_password: newPassword,
+      ...(refreshToken ? { refresh_token: refreshToken } : {}),
+    }),
   });
 }
 
@@ -86,13 +93,17 @@ export const listSessions = (): Promise<AuthSession[]> => call<AuthSession[]>('/
 export const revokeSession = (id: string): Promise<{ revoked: boolean }> =>
   call(`/auth/sessions/${id}`, { method: 'DELETE' });
 
-/** Keeps this device (the cookie identifies it). 409 CURRENT_SESSION_UNKNOWN when there is no cookie. */
+/** Keeps this device. 409 CURRENT_SESSION_UNKNOWN when neither the cookie nor `refresh_token` identifies it. */
 export function revokeOtherSessions(): Promise<{ revoked: number }> {
+  let refreshToken: string | null = null;
+  try {
+    refreshToken = localStorage.getItem('cf_refresh_token');
+  } catch {
+    /* ignore storage errors */
+  }
   return call('/auth/sessions/revoke-others', {
     method: 'POST',
-    credentials: 'include',
-    headers: { ...AUTH_MODE_HEADER },
-    ...json({}),
+    ...json(refreshToken ? { refresh_token: refreshToken } : {}),
   });
 }
 

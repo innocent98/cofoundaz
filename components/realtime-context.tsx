@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { ensureSession } from '@/lib/auth/session';
 import { openNotificationStream, type StreamEventName } from '@/lib/realtime/stream';
 
 type Handler = (data: unknown) => void;
@@ -32,31 +31,23 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const [registry] = useState(createRegistry);
 
   useEffect(() => {
-    let closeStream: (() => void) | null = null;
-    let offs: Array<() => void> = [];
-    let cancelled = false;
-    void (async () => {
-      // The stream needs a ticket, which needs a session: wait for the silent refresh first.
-      if (!(await ensureSession()) || cancelled) return;
-      const stream = openNotificationStream({
-        onRevoked: () => {
-          // Membership is gone: never reconnect, send the user back to sign in.
-          try {
-            localStorage.removeItem('cf_workspace_id');
-          } catch {
-            /* ignore storage errors */
-          }
-          window.location.assign('/login');
-        },
-      });
-      const names: StreamEventName[] = ['unread', 'notification.created', 'activity.created', 'revoked', 'resync'];
-      offs = names.map((n) => stream.subscribe(n, (data) => registry.emit(n, data)));
-      closeStream = () => stream.close();
-    })();
+    if (!localStorage.getItem('cf_token')) return;
+    const stream = openNotificationStream({
+      onRevoked: () => {
+        // Membership is gone: never reconnect, send the user back to sign in.
+        try {
+          localStorage.removeItem('cf_workspace_id');
+        } catch {
+          /* ignore storage errors */
+        }
+        window.location.assign('/login');
+      },
+    });
+    const names: StreamEventName[] = ['unread', 'notification.created', 'activity.created', 'revoked', 'resync'];
+    const offs = names.map((n) => stream.subscribe(n, (data) => registry.emit(n, data)));
     return () => {
-      cancelled = true;
       offs.forEach((off) => off());
-      closeStream?.();
+      stream.close();
     };
   }, [registry]);
 

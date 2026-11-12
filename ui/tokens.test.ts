@@ -231,7 +231,7 @@ describe('no hard-coded colours outside styles/colour-tokens.css', () => {
     const hits: string[] = []
     for (const file of DIRS.flatMap((d) => walk(path.join(root, d)))) {
       const rel = path.relative(root, file)
-      if (rel === 'styles/colour-tokens.css') continue
+      if (rel === 'styles/colour-tokens.css' || rel === 'styles\\colour-tokens.css') continue
       const text = readFileSync(file, 'utf8')
       if (text.includes('colour-ok-file')) continue
       text.split('\n').forEach((line, i) => {

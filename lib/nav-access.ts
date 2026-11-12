@@ -36,8 +36,7 @@ export const NAV_ROLES: Record<string, MemberRole[]> = {
   '/sales': [F, TM],
   '/finance': [F, TM, AC],
   '/funding': [F, TM, INV],
-  // Founder full, team member read-only (D-IR-4). Investors see readiness only through a Funding share; advisors get 403.
-  '/investor-readiness': [F, TM],
+  '/investor-readiness': [F, TM, INV],
   '/legal': [F, TM, LA],
   '/marketplace': [F, TM],
   '/academy': [F, TM],

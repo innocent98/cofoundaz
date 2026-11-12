@@ -4,17 +4,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
-import { apiClient } from '@/lib/api/client';
-import { authCopy } from '@/content/auth';
-import { resolveAfterVerify } from '@/lib/auth/post-login';
+import { apiClient, ApiError } from '@/lib/api/client';
 
 type Status = 'verifying' | 'success' | 'error';
 
 /**
  * Target of the verification email link `/verify-email/{token}` (see
  * fe-integration-guide-auth-email-links). Auto-calls POST /auth/verify with the
- * path token on mount. Success shows "You're verified. Let's build." and Continue
- * routes by state (pending invite, then the wizard, then the dashboard).
+ * path token on mount. On success the user is already signed in (signup issued a
+ * session), so we send them straight into the app — consistent with the /verify
+ * page — rather than bouncing them back to the login screen.
  */
 export function VerifyEmailClient({ token }: { token: string }) {
   const router = useRouter();
@@ -34,17 +33,20 @@ export function VerifyEmailClient({ token }: { token: string }) {
       body: JSON.stringify({ token }),
     })
       .then(() => setStatus('success'))
-      .catch(() => {
+      .catch((err: unknown) => {
+        const data = err instanceof ApiError ? (err.data as { error?: { message?: string } }) : null;
         setStatus('error');
-        setMessage('This link has expired or was already used. If you have already verified, log in.');
+        setMessage(data?.error?.message || 'This verification link is invalid or has expired.');
       });
   }, [token]);
 
-  const [continuing, setContinuing] = useState(false);
-  async function onContinue() {
-    setContinuing(true);
-    router.push(await resolveAfterVerify());
-  }
+  // On success, continue into the app. The post-login guard routes to onboarding
+  // if it is still incomplete, so the founder never has to log in again here.
+  useEffect(() => {
+    if (status !== 'success') return;
+    const t = setTimeout(() => router.push('/dashboard'), 1500);
+    return () => clearTimeout(t);
+  }, [status, router]);
 
   return (
     <div className="w-full max-w-md mx-auto p-8 bg-white rounded-modal shadow-card border border-neutral-100 text-center">
@@ -61,35 +63,30 @@ export function VerifyEmailClient({ token }: { token: string }) {
             <CheckCircle2 className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-bold font-display text-neutral-900 mb-2">
-            {authCopy.verifiedTitle}
+            You&apos;re verified. Let&apos;s build.
           </h1>
-          <p className="text-sm text-neutral-500 mb-6">Your email is confirmed and your account is active.</p>
-          <button
-            type="button"
-            onClick={onContinue}
-            disabled={continuing}
-            className="inline-block px-5 py-2.5 bg-brand-900 text-white rounded-card font-semibold text-sm hover:bg-brand-800 disabled:opacity-60 transition-colors"
+          <p className="text-sm text-neutral-500 mb-6">
+            Your account is active. Taking you to your workspace…
+          </p>
+          <Link
+            href="/dashboard"
+            className="inline-block px-5 py-2.5 bg-brand-900 text-white rounded-card font-semibold text-sm hover:bg-brand-800 transition-colors"
           >
-            {continuing ? 'Continuing…' : 'Continue'}
-          </button>
+            Continue
+          </Link>
         </>
       )}
 
       {status === 'error' && (
         <>
-          <h1 className="text-xl font-bold text-neutral-900 mb-2">This link didn&apos;t work</h1>
+          <h1 className="text-xl font-bold text-neutral-900 mb-2">Verification failed</h1>
           <p className="text-sm text-neutral-500 mb-6">{message}</p>
-          <div className="flex flex-col items-center gap-3">
-            <Link
-              href="/login"
-              className="inline-block px-5 py-2.5 bg-brand-900 text-white rounded-card font-semibold text-sm hover:bg-brand-800 transition-colors"
-            >
-              Already verified? Log in
-            </Link>
-            <Link href="/verify-email" className="text-sm text-neutral-600 hover:text-neutral-900">
-              Send me a new link
-            </Link>
-          </div>
+          <Link
+            href="/verify"
+            className="inline-block px-5 py-2.5 bg-brand-900 text-white rounded-card font-semibold text-sm hover:bg-brand-800 transition-colors"
+          >
+            Resend verification email
+          </Link>
         </>
       )}
     </div>

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import React from 'react';
 import DashboardPage from './page';
 import { mapSummary } from '@/hooks/useDashboardApi';
@@ -21,8 +21,6 @@ vi.mock('@/components/dashboardnavbar', () => ({
 vi.mock('@/components/team/invite-modal', () => ({
   InviteModal: ({ open }: { open: boolean }) => (open ? <div role="dialog">Invite dialog</div> : null),
 }));
-// The 2FA banner makes its own /auth/mfa call, which would eat this file's one-shot apiClient mocks.
-vi.mock('@/components/dashboard/mfa-banner', () => ({ MfaBanner: () => null }));
 vi.mock('@/hooks/useMissionOpenCount', () => ({ announceMissionChanged: vi.fn() }));
 vi.mock('@/lib/api/client', () => ({ apiClient: vi.fn().mockResolvedValue({}) }));
 vi.mock('@/hooks/useDashboardApi', async (orig) => ({
@@ -161,12 +159,14 @@ describe('DashboardPage', () => {
     expect(screen.queryByText(/kickoff assessment/)).toBeNull();
   });
 
-  it('a failed summary errors every summary card on its own with the PRD copy and a working Retry', () => {
+  it('a failed summary errors every summary card on its own with the PRD copy and a working Retry', async () => {
     summary = { data: null, loading: false, error: new Error('500') };
     render(<DashboardPage />);
     expect(screen.getAllByText('Couldn’t load this.').length).toBeGreaterThanOrEqual(6);
     expect(screen.queryByText('Unable to load dashboard')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry loading Startup Health' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Retry loading Startup Health' }));
+    });
     expect(refetch).toHaveBeenCalled();
   });
 
@@ -181,14 +181,18 @@ describe('DashboardPage', () => {
 
   it('Do it saves the action and refetches the summary', async () => {
     render(<DashboardPage />);
-    fireEvent.click(screen.getByRole('button', { name: 'Do it: Interview 3 customers' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Do it: Interview 3 customers' }));
+    });
     await waitFor(() => expect(refetch).toHaveBeenCalled());
   });
 
   it('ticking a mission task completes it on the server (PATCH) and refetches; toast on success', async () => {
     const { apiClient } = await import('@/lib/api/client');
     render(<DashboardPage />);
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Complete task: Interview customers' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Complete task: Interview customers' }));
+    });
     await waitFor(() => expect(apiClient).toHaveBeenCalledWith('/missions/tasks/t1', { method: 'PATCH', body: JSON.stringify({ action: 'complete' }) }));
     expect(await screen.findByText('Nice. Mission progress saved.')).toBeTruthy();
     expect(refetch).toHaveBeenCalled();
@@ -198,14 +202,18 @@ describe('DashboardPage', () => {
     const { apiClient } = await import('@/lib/api/client');
     vi.mocked(apiClient).mockRejectedValueOnce(new Error('x'));
     render(<DashboardPage />);
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Complete task: Interview customers' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Complete task: Interview customers' }));
+    });
     expect(await screen.findByText('Couldn’t save that. Try again.')).toBeTruthy();
     expect(screen.queryByText('Nice. Mission progress saved.')).toBeNull();
   });
 
-  it('+ Invite opens the invite modal', () => {
+  it('+ Invite opens the invite modal', async () => {
     render(<DashboardPage />);
-    fireEvent.click(screen.getByRole('button', { name: '+ Invite' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: '+ Invite' }));
+    });
     expect(screen.getByRole('dialog').textContent).toBe('Invite dialog');
   });
 

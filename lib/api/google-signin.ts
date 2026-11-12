@@ -8,7 +8,7 @@ import { INVITE_TOKEN_KEY, clearStoredInvite } from '@/lib/auth/post-login';
 
 export interface GoogleExchangeData {
   access_token?: string | null;
-  expires_in?: number | null;
+  refresh_token?: string | null;
   mfa_required?: boolean;
   mfa_ticket?: string;
   is_new_user?: boolean;

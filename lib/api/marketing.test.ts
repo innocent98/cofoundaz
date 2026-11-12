@@ -1,4 +1,3 @@
-import { setSession } from '@/lib/auth/session';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import * as clientModule from './client';
 import {
@@ -354,7 +353,7 @@ describe('CSV export', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', fetchMock);
     fetchMock.mockReset();
-    setSession({ access_token: 'placeholder-token' });
+    localStorage.setItem('cf_token', 'placeholder-token');
     localStorage.setItem('cf_workspace_id', 'ws-1');
   });
 
@@ -467,7 +466,7 @@ describe('media file preview', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', fetchMock);
     fetchMock.mockReset();
-    setSession({ access_token: 'placeholder-token' });
+    localStorage.setItem('cf_token', 'placeholder-token');
     localStorage.setItem('cf_workspace_id', 'ws-1');
   });
 

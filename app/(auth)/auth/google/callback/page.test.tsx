@@ -57,18 +57,17 @@ describe('Google callback page', () => {
   });
 
   it('signs in with no email and no invite, using the safe next path', async () => {
-    exchange.mockResolvedValue({ access_token: 'a', expires_in: 900, mfa_required: false, is_new_user: true, next: '/dashboard' });
+    exchange.mockResolvedValue({ access_token: 'a', refresh_token: 'r', mfa_required: false, is_new_user: true, next: '/dashboard' });
     visit('/auth/google/callback#ticket=abc');
     render(<GoogleCallbackPage />);
     await waitFor(() => expect(completePostLogin).toHaveBeenCalled());
     expect(completePostLogin.mock.calls[0][0]).toMatchObject({
       accessToken: 'a',
-      expiresIn: 900,
+      refreshToken: 'r',
       nextPath: '/dashboard',
       inviteToken: null,
     });
     expect(completePostLogin.mock.calls[0][0]).not.toHaveProperty('email');
-    expect(completePostLogin.mock.calls[0][0]).not.toHaveProperty('refreshToken');
   });
 
   it.each(['//evil.example', '/\\evil.example', 'https://evil.example', '/a\nb'])('drops an unsafe next path %j', async (bad) => {

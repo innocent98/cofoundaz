@@ -64,7 +64,9 @@ describe('useFeedback.findThemes', () => {
     });
     expect(out).toEqual({ ok: true });
     expect(jobs.waitForJob).toHaveBeenCalledWith('job', { timeoutMs: 90000 });
-    expect(api.getFeedbackThemes).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(api.getFeedbackThemes).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('says still working on timeout and shows the server copy for NOTHING_TO_CLUSTER', async () => {

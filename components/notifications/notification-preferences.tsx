@@ -31,7 +31,7 @@ function Toggle({ on, disabled, onClick, label }: { on: boolean; disabled?: bool
 }
 
 export function NotificationPreferences() {
-  const { prefs, loading, error, saving, setMasterEmail, setCategory } = useNotificationPreferences();
+  const { prefs, loading, error, saving, setMasterEmail, setCategory, reload } = useNotificationPreferences();
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -45,12 +45,19 @@ export function NotificationPreferences() {
         {saving && <span className="flex items-center gap-1 text-[11px] text-ink-subtle"><Loader2 className="w-3 h-3 animate-spin" /> Saving</span>}
       </div>
 
-      {error && (
-        <div className="bg-danger-tint border border-danger-xfad7d7 rounded-card p-3 text-xs font-semibold text-danger-600">{error}</div>
-      )}
-
       {loading ? (
         <div className="bg-white border border-line rounded-[24px] shadow-card h-64 animate-pulse" />
+      ) : error || !prefs ? (
+        <div className="p-4 bg-danger-50 border border-danger-200 rounded-card flex items-center justify-between text-xs text-danger-800">
+          <span>{error || 'Failed to load preferences.'}</span>
+          <button
+            type="button"
+            onClick={() => void reload()}
+            className="font-semibold underline cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
       ) : (
         <div className="bg-white border border-line rounded-[24px] shadow-card overflow-hidden">
           {/* Master email switch */}

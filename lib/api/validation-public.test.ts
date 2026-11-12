@@ -1,4 +1,3 @@
-import { setSession } from '@/lib/auth/session';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PublicApiError, getPublicPage, sendPublicEvent, submitPublicSignup } from './validation-public';
 
@@ -8,7 +7,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('public smoke-test page client', () => {
   it('sends no auth or workspace headers', async () => {
-    setSession({ access_token: 'stale' });
+    localStorage.setItem('cf_token', 'stale');
     localStorage.setItem('cf_workspace_id', 'ws');
     const fetchMock = vi.fn().mockResolvedValue(ok({ data: { headline: 'H' } }));
     vi.stubGlobal('fetch', fetchMock);
