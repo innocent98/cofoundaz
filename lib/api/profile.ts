@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import { clearSession } from '@/lib/auth/session';
 import { forgetInvite } from '@/lib/auth/pending';
 
 export interface MeUser {
@@ -64,9 +65,9 @@ export async function logout(): Promise<void> {
   } catch {
     // Still clear locally even if the server call fails.
   }
+  // Memory + the session hint, and every other tab of this browser.
+  clearSession({ broadcast: true });
   try {
-    localStorage.removeItem('cf_token');
-    localStorage.removeItem('cf_refresh_token');
     localStorage.removeItem('cf_workspace_id');
   } catch {
     /* ignore storage errors */

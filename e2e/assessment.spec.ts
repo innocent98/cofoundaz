@@ -51,10 +51,11 @@ async function setup(page: Page, o: Opts = {}) {
   const role = o.role ?? 'founder'
   let healthScore = 88
   await page.addInitScript((ws) => {
-    localStorage.setItem('cf_token', 'placeholder-token')
+    localStorage.setItem('cf_session', '1')
     localStorage.setItem('cf_workspace_id', ws)
   }, WS)
   await page.route('**/api/v1/**', (route) => route.fulfill(json([])))
+  await page.route('**/api/v1/auth/refresh', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { access_token: 'placeholder-token', refresh_token: null, expires_in: 900 }, meta: null }) }))
   await page.route('**/api/v1/auth/me', (route) => route.fulfill(json(me(role))))
   await page.route('**/api/v1/health-score', (route) =>
     route.fulfill(json({ status: 'ok', score: healthScore, band: 'healthy', delta_7d: 0, summary: 's', dimensions: [], top_recommendations: [] }))

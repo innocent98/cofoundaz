@@ -1,3 +1,4 @@
+import { accessTokenForRequest } from '@/lib/auth/session';
 import { API_BASE, apiClient } from './client';
 
 // Settings → Billing (Paystack hosted checkout). Founder only, except GET /billing/plans.
@@ -192,7 +193,7 @@ export const purchaseAddon = (key: string, idempotencyKey: string): Promise<Chec
 
 /** The receipt needs the bearer token, so it is fetched then handed to the browser as a blob. */
 export async function downloadInvoicePdf(inv: Pick<Invoice, 'id' | 'number'>): Promise<void> {
-  const token = localStorage.getItem('cf_token');
+  const token = await accessTokenForRequest();
   const ws = localStorage.getItem('cf_workspace_id');
   const res = await fetch(`${API_BASE}/billing/invoices/${inv.id}/pdf`, {
     headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(ws ? { 'X-Workspace-Id': ws } : {}) },

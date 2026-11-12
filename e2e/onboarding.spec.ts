@@ -4,8 +4,9 @@ import { test, expect } from "@playwright/test";
 // 4 goals, 5 invite team, 6 Kickoff Assessment (Start assessment / Do it later).
 test.describe("Onboarding Flow", () => {
   test.beforeEach(async ({ page }) => {
+    // The session hint tells the app a cookie may exist; the refresh mock below then issues the token.
     await page.addInitScript(() => {
-      window.localStorage.setItem("cf_token", "dummy-test-token");
+      window.localStorage.setItem("cf_session", "1");
     });
   });
 
@@ -16,6 +17,7 @@ test.describe("Onboarding Flow", () => {
     });
     let completed = false;
 
+  await page.route('**/api/v1/auth/refresh', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { access_token: 'placeholder-token', refresh_token: null, expires_in: 900 }, meta: null }) }))
     await page.route("**/api/v1/onboarding/state", async (route) => {
       if (route.request().method() === "GET") {
         await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(raw(1, completed)) });

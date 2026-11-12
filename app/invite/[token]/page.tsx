@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Check, Loader2, AlertTriangle, UserPlus, LogIn, Building2 } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api/client';
-import { isLoggedIn } from '@/lib/auth/session';
+import { ensureSession } from '@/lib/auth/session';
 import { forgetInvite, rememberInvite } from '@/lib/auth/pending';
 import { getMe, hasProfileName, logout, updateProfileName, type MeResponse } from '@/lib/api/profile';
 import { declineInvitation } from '@/lib/api/onboarding';
@@ -69,9 +69,11 @@ export default function AcceptInvitePage() {
   useEffect(() => {
     if (!token) return;
     void (async () => {
-      setLoggedIn(isLoggedIn());
+      // A reload has no token in memory yet: wait for the silent refresh before deciding "signed out".
+      const signedIn = await ensureSession();
+      setLoggedIn(signedIn);
       // Signed out: keep the token so it survives sign-in (incl. the Google round trip).
-      if (!isLoggedIn()) rememberInvite(token);
+      if (!signedIn) rememberInvite(token);
       else {
         // Who is signed in decides what the page offers (wrong account, missing name).
         try {

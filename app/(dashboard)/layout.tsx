@@ -11,6 +11,7 @@ import { NotificationsProvider } from '@/hooks/useNotifications';
 import { SearchProvider } from '@/components/search/search-context';
 import { MobileTabBar } from '@/components/mobile-tab-bar';
 import { RouteGuard } from '@/components/route-guard';
+import { SessionSync } from '@/components/session-sync';
 import { OnboardingGate } from '@/components/onboarding-gate';
 
 export default function DashboardLayout({
@@ -26,6 +27,7 @@ export default function DashboardLayout({
       closeSidebar={() => setIsSidebarOpen(false)}
     >
       <WorkspaceProvider>
+        <SessionSync />
         <RealtimeProvider>
           <NotificationsProvider>
             <AiDrawerProvider>

@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthForm } from "@/ui/marketing/auth/auth-form";
 import { apiClient, ApiError } from "@/lib/api/client";
+import { setSession } from "@/lib/auth/session";
 import { safeNextPath } from "@/lib/auth/safe-next";
 import { apiErrorInfo } from "@/lib/api/api-error";
 import { rememberInvite, rememberPendingEmail } from "@/lib/auth/pending";
@@ -22,11 +23,10 @@ interface SignupEnvelope {
 interface LoginEnvelope {
   data?: {
     access_token?: string;
-    refresh_token?: string;
+    expires_in?: number;
     mfa_required?: boolean;
   };
   access_token?: string;
-  refresh_token?: string;
   token?: string;
 }
 
@@ -106,16 +106,7 @@ function SignupForm() {
           loginRes.access_token ||
           loginRes.token;
 
-        const refreshToken =
-          loginRes.data?.refresh_token ||
-          loginRes.refresh_token;
-
-        if (accessToken && typeof window !== "undefined") {
-          localStorage.setItem("cf_token", accessToken);
-          if (refreshToken) {
-            localStorage.setItem("cf_refresh_token", refreshToken);
-          }
-        }
+        if (accessToken) setSession({ access_token: accessToken, expires_in: loginRes.data?.expires_in });
       } catch (loginErr) {
         console.warn("Silent login post-signup failed; continuing to verification:", loginErr);
       }

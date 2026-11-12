@@ -1,3 +1,4 @@
+import { setSession } from '@/lib/auth/session';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import * as api from './finance';
 import * as clientModule from './client';
@@ -266,7 +267,7 @@ describe('toFinanceError', () => {
   describe('xlsx exports', () => {
     const click = vi.fn();
     beforeEach(() => {
-      localStorage.setItem('cf_token', 'tok');
+      setSession({ access_token: 'tok' });
       localStorage.setItem('cf_workspace_id', 'ws');
       vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:x'), revokeObjectURL: vi.fn() }));
       vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(click);

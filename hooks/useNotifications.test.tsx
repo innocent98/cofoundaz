@@ -1,3 +1,4 @@
+import { setSession } from '@/lib/auth/session';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import React from 'react';
@@ -90,7 +91,7 @@ describe('useNotifications (provider + live stream)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.setItem('cf_token', 't');
+    setSession({ access_token: 't' });
     const handlers = new Map<string, Set<(d: unknown) => void>>();
     emit = (event, data) => handlers.get(event)?.forEach((h) => h(data));
     vi.mocked(streamModule.openNotificationStream).mockReturnValue({
