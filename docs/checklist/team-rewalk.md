@@ -106,3 +106,15 @@ The scripts and raw per-run results are in the shared notes folder (`side-sessio
 | Denied: Team is not in the mobile menu | – | ✅ M, BC, AC, INV, LA |  |
 | Denied: API GET /team/members → 403 (it is a workspace directory open to every role; returns names, emails, roles) | – | ❌ M, BC, AC, INV, LA | status 200, 6 members returned incl. emails |
 | Audit export API: GET /team/audit/export → 200 text/csv, attachment "team-audit-log.csv", header "when,actor,action,target", one row per entry | ✅ F | ✅ F | raw capture: 200 text/csv; charset=utf-8; filename="team-audit-log.csv"; first row 2026-11-12T19:53:26.136536+00:00,<actor>,team.member.removed,<target> |
+
+## Re-check after the fix (2026-11-12, branch `fix/rewalk-2026-11-12`)
+
+Scratch stack: API develop `e59e1d6f` on `:8100` with its own Postgres and Redis containers (removed afterwards), FE on `next dev -p 3102`. Founder with 3 audit entries and one joined teammate.
+
+| Control | 1440 | 375 | Evidence / note |
+|---|---|---|---|
+| Audit log: lists the API audit entries (reads `data.entries`) | ✅ F | ✅ F | 4 rows (invited, invited, revoked, joined) match `GET /team/audit`; no "No team activity recorded yet." |
+| Audit log: Export log is enabled when the API has entries | ✅ F | ✅ F | disabled=false |
+| Activity: a row prints the actor once | ✅ F | ✅ F | "A teammate joined the workspace" appears once per row |
+
+Still not verified: the Export log button's actual download through the UI (button now enabled; the API export was already verified).

@@ -98,8 +98,14 @@ export interface TeamMember {
 
 /** Active workspace members (mention pickers). */
 export async function listMembers(): Promise<TeamMember[]> {
-  const res = await apiClient<{ data?: TeamMember[] }>('/team/members');
-  return Array.isArray(res?.data) ? res.data : [];
+  try {
+    const res = await apiClient<{ data?: TeamMember[] }>('/team/members');
+    return Array.isArray(res?.data) ? res.data : [];
+  } catch (err) {
+    // Founder and team member only (the list carries e-mails): other roles get 403 and simply have no one to mention.
+    if (err instanceof ApiError && err.status === 403) return [];
+    throw err;
+  }
 }
 
 /** Comments grouped by `anchor` ('' = whole item), with the open (unresolved) count per group. */

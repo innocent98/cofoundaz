@@ -167,3 +167,14 @@ The scripts and raw per-run results are in the shared notes folder (`side-sessio
 | browser Back after logout does not show the app | ✅ F | ✅ F | http://localhost:3102/login?session=expired&next=%2Fdashboard |
 | a fresh login after revoke-others works | ✅ F | ✅ F | http://localhost:3102/dashboard |
 | lost cookie + reload sends the user to /login (not a blank/broken shell) | ✅ F | ✅ F | http://localhost:3102/login?session=expired&next=%2Fdashboard |
+
+## Re-check after the fix (2026-11-12, branch `fix/rewalk-2026-11-12`)
+
+Same scratch stack as the Team re-check. The API limit is 2 MB (`"Logo must be 2 MB or smaller."`), types PNG, JPG, SVG, WebP.
+
+| Control | 1440 | 375 | Evidence / note |
+|---|---|---|---|
+| step 2: hint states the real limit | ✅ F | ✅ F | "PNG, JPG, SVG, or WebP up to 2 MB" |
+| step 2: >2 MB file is refused with a visible message and the wizard stays on step 2 | ✅ F | not re-run | alert "Logo must be 2 MB or smaller." |
+| step 2: non-image file is refused with a visible message and the wizard stays on step 2 | not re-run | ✅ F | alert "Logo must be a PNG, JPG, SVG, or WebP image." |
+| step 2: a valid PNG still uploads and moves to step 3 | not re-run | ✅ F | step 3 "What are you building?" |

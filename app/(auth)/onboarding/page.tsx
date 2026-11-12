@@ -115,11 +115,15 @@ export default function OnboardingPage() {
     }
   }
 
-  async function handleUploadLogo(file: File) {
+  async function handleUploadLogo(file: File): Promise<boolean> {
+    setError(null)
     try {
       await uploadOnboardingLogo(file)
-    } catch {
-      // Non-blocking upload error
+      return true
+    } catch (err) {
+      // The API's own message ("Logo must be 2 MB or smaller.") is shown and the wizard stays on step 2.
+      setError(apiErrorInfo(err, 'Could not upload the logo. Please try again.').message)
+      return false
     }
   }
 
