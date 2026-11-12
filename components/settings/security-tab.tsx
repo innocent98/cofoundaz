@@ -433,9 +433,9 @@ function SessionsCard(): React.JSX.Element {
   };
 
   const others = rows?.filter((r) => !r.current).length ?? 0;
-  // GET /auth/sessions marks the current device from the refresh *cookie* only. This app keeps its refresh
-  // token in localStorage, so on a cross-origin deploy no row may be marked; then a per-row "Sign out"
-  // could end this very session, so only the bulk action (which sends the token) is offered.
+  // GET /auth/sessions marks the current device from the refresh cookie, which the app now always sends
+  // (cookie mode, lib/auth/session.ts). If no row is marked (e.g. a cross-origin deploy that drops the cookie),
+  // a per-row "Sign out" could end this very session, so only the bulk action is offered.
   const knowsCurrent = rows?.some((r) => r.current) ?? false;
   return (
     <Card
