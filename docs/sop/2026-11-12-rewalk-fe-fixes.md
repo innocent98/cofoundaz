@@ -9,3 +9,5 @@
 | Team > Activity name printed twice (low) | API `summary` already starts with the actor; row also printed the actor | row prints `summary` only (initials avatar kept) |
 
 **Tests:** `lib/api/team.test.ts`, `ui/onboarding/onboarding-wizard.test.tsx`, `app/(dashboard)/team/team-page.test.tsx`. **Verification:** live re-check on a scratch stack at 1440 and 375, rows in the two rewalk docs. **Roll back:** revert the PR; no config or migration. **Follow-up:** `GET /team/members` exposing emails to every role waits on a product decision.
+
+**Added 2026-11-12 (API PR Cofoundaz-api#240):** `GET /team/members` is now founder + team member only (403 for the other five roles). `listMembers` in `lib/api/members.ts` and `lib/api/comments.ts` treats that 403 as an empty list, so pickers and @-mentions show nobody instead of an error. Test: `lib/api/members.test.ts`.
