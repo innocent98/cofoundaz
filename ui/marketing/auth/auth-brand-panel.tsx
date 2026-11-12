@@ -22,7 +22,7 @@ function Tick() {
 
 export function AuthBrandPanel() {
   // PRD §01.1: the value-prop line rotates. All three stay in the DOM for screen readers;
-  // the active one is highlighted.
+  // the active one is bolder (never dimmed: contrast).
   const [active, setActive] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setActive((a) => (a + 1) % VALUE_PROPS.length), 4000);
@@ -48,10 +48,10 @@ export function AuthBrandPanel() {
           {VALUE_PROPS.map((line, i) => (
             <li
               key={line}
-              className={`flex items-center gap-3 transition-opacity duration-500 ${i === active ? "opacity-100" : "opacity-45"}`}
+              className="flex items-center gap-3"
             >
               <Tick />
-              <span className="text-sm font-medium text-brand-100/90">{line}</span>
+              <span className={`text-sm transition-colors duration-500 ${i === active ? "font-semibold text-white" : "font-medium text-brand-100/90"}`}>{line}</span>
             </li>
           ))}
         </ul>

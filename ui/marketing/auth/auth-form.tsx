@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { GoogleButton } from './google-button'
 import { Button, Field, fieldControlClasses } from '@/ui/primitives'
 import { authCopy, authModes, authShared } from '@/content/auth'
-import { passwordStrength } from '@/lib/auth/password-strength'
+import { passwordStrength } from './password-strength'
 
 interface AuthFormProps {
   mode: 'login' | 'signup'

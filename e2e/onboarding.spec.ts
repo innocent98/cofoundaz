@@ -1,79 +1,63 @@
-﻿import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
+// The wizard follows PRD 01.6 (D-AUTH-5/7): 1 you, 2 startup + logo, 3 industry/model/stage,
+// 4 goals, 5 invite team, 6 Kickoff Assessment (Start assessment / Do it later).
 test.describe("Onboarding Flow", () => {
   test.beforeEach(async ({ page }) => {
-    // Inject a dummy auth token to simulate logged-in state
     await page.addInitScript(() => {
       window.localStorage.setItem("cf_token", "dummy-test-token");
     });
   });
 
-  test("completes a full 6-step onboarding wizard", async ({ page }) => {
-    // 1. Mock GET /onboarding/state (initial load, Step 1)
+  test("completes the 6-step onboarding wizard and lands on the dashboard on Do it later", async ({ page }) => {
+    const raw = (step: number, completed = false) => ({
+      data: { step, completed, pending_invite: false, founder_profile: {}, startup: {}, goals: [], invites: [] },
+      meta: null,
+    });
+    let completed = false;
+
     await page.route("**/api/v1/onboarding/state", async (route) => {
       if (route.request().method() === "GET") {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({ step: 1 }),
-        });
-      } else if (route.request().method() === "PATCH") {
-        const patchData = JSON.parse(route.request().postData() || "{}");
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({ ...patchData }),
-        });
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(raw(1, completed)) });
+      } else {
+        const patch = JSON.parse(route.request().postData() || "{}");
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(raw(patch.step ?? 1)) });
       }
     });
-
-    // Mock other endpoints
-    await page.route("**/api/v1/onboarding/logo", async (route) => {
-      await route.fulfill({ status: 200, body: JSON.stringify({ logo_url: "https://example.com/logo.png" }) });
-    });
-    
-    await page.route("**/api/v1/onboarding/invites", async (route) => {
-      await route.fulfill({ status: 200, body: JSON.stringify({ success: true }) });
-    });
-
+    await page.route("**/api/v1/onboarding/logo", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ data: { logo_url: "https://example.com/logo.png" } }) })
+    );
     await page.route("**/api/v1/onboarding/complete", async (route) => {
-      await route.fulfill({ status: 200, body: JSON.stringify({ success: true }) });
+      completed = true;
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ data: { completed: true } }) });
     });
 
-    // Navigate to Onboarding
     await page.goto("/onboarding");
 
-    // STEP 1: Founder Profile
-    await expect(page.getByRole("heading", { name: "Tell us about yourself" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "First, about you" })).toBeVisible();
     await page.getByLabel("Full Name").fill("Test Founder");
     await page.getByRole("button", { name: "Continue" }).click();
 
-    // STEP 2: Startup Core
-    await expect(page.getByRole("heading", { name: "Your Startup Details" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Now, your startup" })).toBeVisible();
     await page.getByLabel("Startup Name").fill("Playwright Innovations");
     await page.getByRole("button", { name: "Continue" }).click();
 
-    // STEP 3: Model & Stage
-    await expect(page.getByRole("heading", { name: "Business Model & Stage" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "What are you building?" })).toBeVisible();
+    await page.getByLabel("Primary Industry").selectOption("Fintech");
     await page.getByRole("button", { name: "B2B (Business to Business)" }).click();
-    await page.getByRole("button", { name: "Idea / Concept" }).click();
+    await page.getByRole("button", { name: /^Idea/ }).click();
     await page.getByRole("button", { name: "Continue" }).click();
 
-    // STEP 4: Goals
-    await expect(page.getByRole("heading", { name: "Select Your Key Goals" })).toBeVisible();
-    await page.getByText("Find co-founders or key hires").click();
+    await expect(page.getByRole("heading", { name: "What do you want to get done first?" })).toBeVisible();
+    await page.getByRole("button", { name: "Validate my idea" }).click();
     await page.getByRole("button", { name: "Continue" }).click();
 
-    // STEP 5: Logo Upload
-    await expect(page.getByRole("heading", { name: "Upload Startup Logo" })).toBeVisible();
-    // Skip file upload interaction for test stability, just click next
-    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByRole("heading", { name: "Who is building this with you?" })).toBeVisible();
+    await page.getByRole("button", { name: /Skip/ }).click();
 
-    // STEP 6: Team Invites
-    await expect(page.getByRole("heading", { name: "Invite Your Team" })).toBeVisible();
-    await page.getByRole("button", { name: "Complete Setup" }).click();
+    await expect(page.getByRole("heading", { name: "One last thing: your kickoff assessment" })).toBeVisible();
+    await page.getByRole("button", { name: "Do it later" }).click();
 
-    // Assert redirect to dashboard
     await page.waitForURL("**/dashboard");
     expect(page.url()).toContain("/dashboard");
   });

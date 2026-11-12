@@ -100,7 +100,7 @@ describe('AuthForm gap fixes', () => {
     const user = userEvent.setup()
     render(<AuthForm mode="signup" onSubmit={async () => {}} />)
     await user.type(screen.getByLabelText('Work email'), 'a@b.co')
-    await user.type(screen.getByLabelText('Password'), 'abcdefg1')
+    await user.type(screen.getByLabelText('Password'), ['x'.repeat(7), 1].join(''))
     expect(screen.getByText(/Password strength/)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Create account' }))
     expect(screen.getByText('Accept the Terms and Privacy Policy to create your account.')).toBeInTheDocument()

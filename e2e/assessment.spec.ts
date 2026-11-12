@@ -112,8 +112,12 @@ test.describe('Assessment: founder', () => {
     await setup(page, { list: [row({})], quarterlyDue: true })
     await page.goto('/assessment')
     const banner = page.getByRole('region', { name: 'Quarterly re-assessment due' })
+    // The start call is the behaviour under test. The run page may redirect on within one frame
+    // (a finished run goes to the results), so the transient /run URL is not a stable thing to poll.
+    const started = page.waitForRequest((r) => r.method() === 'POST' && /\/api\/v1\/assessments(\/start)?$/.test(new URL(r.url()).pathname))
     await banner.getByRole('button', { name: 'Start re-assessment' }).click()
-    await expect(page).toHaveURL(new RegExp(`/assessment/run/${A2}`))
+    await started
+    await expect(page).toHaveURL(new RegExp(`/assessment/(run/${A2}|results)`))
   })
 
   test('completion shows the new Health Score, per-dimension change and refreshes the header', async ({ page }) => {
