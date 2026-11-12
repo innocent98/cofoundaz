@@ -28,12 +28,13 @@ function RatingPill({ rating, label }: { rating: QaRating; label: string | null 
 }
 
 function MockQAContent() {
-  const { role } = useWorkspace();
+  const { role, loading: roleLoading } = useWorkspace();
   const canPlay = role === "founder";
   const preferred = useSearchParams().get("session");
   const q = useQaSession(canPlay, preferred);
 
-  if (q.loading && !q.sessions) return <LoadingBlock label="Loading mock Q&A" />;
+  // Wait for the role: otherwise a founder briefly sees the read-only list.
+  if (roleLoading || (q.loading && !q.sessions)) return <LoadingBlock label="Loading mock Q&A" />;
   if (q.error && !q.sessions) return <LoadFailed error={q.error} onRetry={q.reload} what="your mock sessions" />;
 
   const sessions = q.sessions ?? [];
@@ -261,6 +262,7 @@ function Scoring({ q }: { q: Q }) {
   return (
     <div role="status" className="max-w-md mx-auto py-24 text-center space-y-3 animate-fadeIn">
       <Loader2 className="mx-auto h-8 w-8 animate-spin text-brand-hover" />
+      {q.capReached && <p className="text-sm font-semibold text-neutral-800">That&apos;s all 10 questions. Scoring your session…</p>}
       <h2 className="text-xl font-display font-semibold text-neutral-900">Generating scorecard…</h2>
       {q.slow ? (
         <>

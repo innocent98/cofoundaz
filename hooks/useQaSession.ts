@@ -41,6 +41,7 @@ export function useQaSession(canPlay: boolean, preferredId: string | null) {
   const [busy, setBusy] = useState<'start' | 'answer' | 'end' | null>(null);
   const [slow, setSlow] = useState(false);
   const [version, setVersion] = useState(0);
+  const [capReached, setCapReached] = useState(false);
   const alive = useRef(true);
   const pollToken = useRef(0);
   const sessionRef = useRef<QaSession | null>(null);
@@ -94,6 +95,7 @@ export function useQaSession(canPlay: boolean, preferredId: string | null) {
   const open = useCallback(
     async (id: string) => {
       setActionError(null);
+      setCapReached(false);
       setBudgetLow(false);
       try {
         const s = await getQaSession(id);
@@ -191,7 +193,11 @@ export function useQaSession(canPlay: boolean, preferredId: string | null) {
           ],
         };
         setSession(next);
-        if (res.ended) void poll(current.id);
+        if (res.ended) {
+          // The 10th answer ends the session by itself and starts scoring.
+          setCapReached(true);
+          void poll(current.id);
+        }
         return true;
       } catch (err) {
         const re = readinessError(err, 'That answer was not sent. Try again.');
@@ -240,6 +246,7 @@ export function useQaSession(canPlay: boolean, preferredId: string | null) {
 
   const backToSetup = useCallback(() => {
     pollToken.current++;
+    setCapReached(false);
     setSession(null);
     setActionError(null);
     setBudgetLow(false);
@@ -250,5 +257,5 @@ export function useQaSession(canPlay: boolean, preferredId: string | null) {
     if (sessionRef.current) void poll(sessionRef.current.id);
   }, [poll]);
 
-  return { sessions, session, loading, error, actionError, budgetLow, busy, slow, start, send, end, open, backToSetup, resumePolling, reload };
+  return { sessions, session, loading, error, actionError, budgetLow, busy, slow, capReached, start, send, end, open, backToSetup, resumePolling, reload };
 }

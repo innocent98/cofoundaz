@@ -76,7 +76,8 @@ their strip, the chat input sits above the mobile tab bar. Not clicked at 375 be
 ## Not covered
 
 - Real-model deck review, Q&A and narrative claim extraction (credits, above).
-- Full 10-answer session and the cap notice; `AI_BUDGET_LOW` and `AI_BUDGET_EXHAUSTED` messages; `TURN_MISMATCH` recovery; scoring-failed and "Try scoring again" (unit-level in the BE only).
+- **Unit-level only, not walked live:** the 10-answer cap and its notice ("That's all 10 questions. Scoring your session...", `hooks/useQaSession.test.ts`), `TURN_MISMATCH` recovery, the `AI_BUDGET_LOW` and `AI_BUDGET_EXHAUSTED` messages, scoring-failed and "Try scoring again".
+- The team-member deck file-input removal (found during the walk) was **type-checked only**, not re-walked.
 - Failed deck review states (`no_text`, `unreadable` and so on) in the UI: the copy is in `lib/readiness-format.ts` and unit-tested, not walked.
 - `capped: true` and `ready: true` states (Open Funding Hub button), and a dimension with `score: null`.
 - Thumbnail link expiry refetch (15 minutes).
