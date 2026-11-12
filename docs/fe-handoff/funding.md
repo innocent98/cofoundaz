@@ -19,7 +19,7 @@ Delete the mock layer: everything seeded in `hooks/useFundingApi.ts` (the types 
 - Take the role from the existing auth context (`/auth/me`). A 403 on a founder-only call mid-session (role changed under you) hides those tabs and refetches `/auth/me`.
 - **`lib/nav-access.ts` is wrong today:** `'/funding': [F, TM, INV]` lets investors in. Change it to `[F, TM]` and add the per-tab rule above (`/funding/cap-table` and `/funding/term-sheets` founder only). Investors never get a `/funding` page; they arrive from an emailed link at `/dr/{token}`.
 - **Plan gate:** the module is Scale. When `PLAN_ENFORCEMENT` is on, every route answers **402 `PLAN_REQUIRED`**: show the upgrade prompt (reuse whatever the other Scale-gated pages already show on 402; ask the lead if none exists), never a generic error. It is off today.
-- **The sidebar item stays hidden** (`components/sidebar.tsx`, comment at line 63) until **all six pages are real** and re-walked, together with Investor Readiness's CTA. Do not unhide it in this brief. The page tab bar in `app/(dashboard)/funding/layout.tsx` shows **Pipeline, Data room, Cap table, Term sheets** only; remove the Grants and Analytics tabs and make `/funding/grants` and `/funding/analytics` redirect to `/funding`. Do not leave "coming soon" anywhere.
+- **The Funding sidebar entry stays hidden. Do not add it (Adebayo's product call, 2026-11-12): Funding, Investor Readiness and Marketplace stay hidden even once every page is built, until he says otherwise.** The pages are reached by URL only (`components/sidebar.tsx`, comment at line 63). The page tab bar in `app/(dashboard)/funding/layout.tsx` shows **Pipeline, Data room, Cap table, Term sheets** only; remove the Grants and Analytics tabs and make `/funding/grants` and `/funding/analytics` redirect to `/funding`. Do not leave "coming soon" anywhere.
 
 ## 2. Conventions for every part (read once; the guides repeat them)
 
@@ -115,7 +115,7 @@ State machine (DR section 6): dead link -> email step -> code step -> browser ->
 
 ## 8. Out of scope (do not build)
 
-Grants (rows 33 to 36, 46, 47), Analytics (rows 39 to 42), "Prep me for this meeting" (row 8), the readiness banner (49), the Calendar link on Meeting (50), investor accounts (43), the readiness scope on a share (44), the cap table snapshot in the data room (28), the investor directory ("Find investors"), unhiding the Funding sidebar item, and any "coming soon" placeholder.
+Grants (rows 33 to 36, 46, 47), Analytics (rows 39 to 42), "Prep me for this meeting" (row 8), the readiness banner (49), the Calendar link on Meeting (50), investor accounts (43), the readiness scope on a share (44), the cap table snapshot in the data room (28), the investor directory ("Find investors"), adding the Funding sidebar entry (it stays hidden until Adebayo says so), and any "coming soon" placeholder.
 
 ## 9. Acceptance = the re-walk rows
 
