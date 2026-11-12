@@ -14,7 +14,7 @@ import { startGoogleSignIn, googleStartErrorMessage } from "@/lib/api/google-sig
 
 interface LoginData {
   access_token?: string;
-  refresh_token?: string;
+  expires_in?: number;
   mfa_required?: boolean;
   mfa_ticket?: string;
 }
@@ -22,7 +22,6 @@ interface LoginData {
 interface LoginEnvelope {
   data?: LoginData;
   access_token?: string;
-  refresh_token?: string;
   token?: string;
 }
 
@@ -83,17 +82,13 @@ export default function LoginPage() {
         res.access_token ||
         res.token;
 
-      const refreshToken =
-        res.data?.refresh_token ||
-        res.refresh_token;
-
       if (!accessToken) {
         throw new Error("No access token returned from server.");
       }
 
       await completePostLogin({
         accessToken,
-        refreshToken,
+        expiresIn: res.data?.expires_in,
         email: data.email,
         router,
         nextPath: safeNextPath(),

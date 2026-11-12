@@ -1,3 +1,5 @@
+import { AUTH_MODE_HEADER, clearSession, ensureSession, getAccessToken, hasSessionHint, refreshSession } from '@/lib/auth/session';
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -38,67 +40,24 @@ function isAuthEndpoint(endpoint: string): boolean {
 const CREDENTIAL_AUTH_PATH =
   /\/auth\/(login|signup|register|refresh|verify|verify-email|resend-verification|password\/(forgot|reset)|forgot-password|reset-password|mfa\/(challenge|verify-login))(\/|\?|$)/;
 
+const COOKIE_MODE_PATH = /\/auth\/(login|refresh|logout|mfa\/challenge|oauth\/google\/exchange)(\/|\?|$)/;
+
 export function isCredentialEndpoint(endpoint: string): boolean {
   return (
     CREDENTIAL_AUTH_PATH.test(endpoint) || endpoint.includes('/shared/') || endpoint.includes('/sign/')
   );
 }
 
-// A short-lived access token that has expired can be silently renewed with the
-// stored refresh token via POST /auth/refresh. The refresh token is single-use
-// and ROTATES (the server returns a new one and invalidates the old), so a burst
-// of parallel 401s must share ONE refresh — otherwise the first rotation would
-// invalidate the token the others are about to send. `refreshPromise` is that
-// single-flight guard; concurrent callers await the same in-flight refresh.
-let refreshPromise: Promise<string | null> | null = null;
-
-async function tryRefreshToken(): Promise<string | null> {
-  if (typeof window === 'undefined') return null;
-  const stored = localStorage.getItem('cf_refresh_token');
-  if (!stored) return null;
-
-  if (!refreshPromise) {
-    refreshPromise = (async (): Promise<string | null> => {
-      try {
-        const res = await fetch(`${API_BASE}/auth/refresh`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refresh_token: stored }),
-        });
-        if (!res.ok) return null;
-        const json = (await res.json()) as {
-          data?: { access_token?: string; refresh_token?: string };
-          access_token?: string;
-          refresh_token?: string;
-        };
-        const payload = json.data ?? json;
-        const newAccess = payload.access_token;
-        const newRefresh = payload.refresh_token;
-        if (!newAccess) return null;
-        localStorage.setItem('cf_token', newAccess);
-        // Persist the rotated refresh token; the old one is now dead server-side.
-        if (newRefresh) localStorage.setItem('cf_refresh_token', newRefresh);
-        return newAccess;
-      } catch {
-        return null;
-      }
-    })();
-    // Clear the guard once settled so a later expiry can refresh again.
-    void refreshPromise.finally(() => {
-      refreshPromise = null;
-    });
-  }
-  return refreshPromise;
-}
+// A short-lived access token that has expired is renewed silently with the HttpOnly refresh
+// cookie (lib/auth/session.ts: single-flight per tab, serialised across tabs).
 
 // A 401 from any authenticated call means the access token is missing or
 // expired. Clear the stale session and send the user to /login instead of
 // letting the page hard-crash to an error boundary.
 function handleSessionExpired(endpoint: string): void {
   if (typeof window === 'undefined' || isAuthEndpoint(endpoint)) return;
+  clearSession();
   try {
-    localStorage.removeItem('cf_token');
-    localStorage.removeItem('cf_refresh_token');
     localStorage.removeItem('cf_workspace_id');
   } catch {
     /* ignore storage errors */
@@ -123,7 +82,11 @@ async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<{ status: number; data: T }> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
+  // A page load has no token in memory yet: renew it from the cookie before the first call.
+  if (typeof window !== 'undefined' && !getAccessToken() && !isCredentialEndpoint(endpoint)) {
+    await ensureSession();
+  }
+  const token = getAccessToken();
 
   const headers = new Headers(options.headers);
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
@@ -150,19 +113,24 @@ async function apiRequest<T>(
     ? endpoint
     : `${API_BASE}${normalizedEndpoint}`;
 
-  let res = await fetch(url, {
-    ...options,
-    headers,
-  });
+  // Cookie mode: these routes set or use the refresh cookie, so the browser must send/accept it and the
+  // API must be told (X-Auth-Mode) that no refresh token is in the body. Only these, to avoid CORS preflights elsewhere.
+  const init: RequestInit = { ...options, headers };
+  if (/\/auth\//.test(endpoint)) init.credentials = 'include';
+  if (COOKIE_MODE_PATH.test(endpoint)) headers.set("X-Auth-Mode", AUTH_MODE_HEADER["X-Auth-Mode"]);
+
+  let res = await fetch(url, init);
 
   // Access token expired mid-session → try a silent refresh + one retry before
   // giving up. Credential endpoints are exempt (a 401 there is bad credentials,
   // not an expired session), and we only attempt this when a token was sent.
-  if (res.status === 401 && token && !isCredentialEndpoint(endpoint) && typeof window !== 'undefined') {
-    const newToken = await tryRefreshToken();
+  if (res.status === 401 && (token || hasSessionHint()) && !isCredentialEndpoint(endpoint) && typeof window !== 'undefined') {
+    // Another call may already have renewed the token while this one was in flight: use it, do not refresh again.
+    const current = getAccessToken();
+    const newToken = token && current && current !== token ? current : await refreshSession();
     if (newToken) {
       headers.set('Authorization', `Bearer ${newToken}`);
-      res = await fetch(url, { ...options, headers });
+      res = await fetch(url, { ...init, headers });
     }
   }
 

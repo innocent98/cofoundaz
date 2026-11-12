@@ -61,7 +61,7 @@ export default function MfaChallengePage() {
     setSubmitting(true);
     setError(null);
     try {
-      const { access_token, refresh_token } = await mfaChallenge(handoff.ticket, value);
+      const { access_token, expires_in } = await mfaChallenge(handoff.ticket, value);
       try {
         sessionStorage.removeItem(MFA_HANDOFF_KEY);
       } catch {
@@ -69,7 +69,7 @@ export default function MfaChallengePage() {
       }
       const result = await completePostLogin({
         accessToken: access_token,
-        refreshToken: refresh_token,
+        expiresIn: expires_in,
         email: handoff.email,
         router,
         nextPath: handoff.next,

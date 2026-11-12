@@ -13,6 +13,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
+import { ensureSession } from '@/lib/auth/session';
 import { totpSetup, totpVerify } from '@/lib/api/mfa';
 import BrandLogo from '@/components/brand/BrandLogo';
 
@@ -35,12 +36,12 @@ export default function MfaSetupPage() {
   const [copied, setCopied] = useState<'secret' | 'codes' | null>(null);
 
   useEffect(() => {
-    // Authenticated flow — bounce anonymous visitors back to login and return.
-    if (typeof window !== 'undefined' && !localStorage.getItem('cf_token')) {
-      router.replace('/login?next=/setup/mfa');
-      return;
-    }
+    // Authenticated flow: wait for the silent refresh before deciding the visitor is anonymous.
     void (async () => {
+      if (!(await ensureSession())) {
+        router.replace('/login?next=/setup/mfa');
+        return;
+      }
       try {
         const res = await totpSetup();
         setSecret(res.secret);

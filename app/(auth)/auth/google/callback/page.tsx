@@ -75,7 +75,7 @@ export default function GoogleCallbackPage() {
 
         const result = await completePostLogin({
           accessToken: data.access_token,
-          refreshToken: data.refresh_token ?? undefined,
+          expiresIn: data.expires_in,
           router,
           nextPath: next,
           inviteToken: invite,
