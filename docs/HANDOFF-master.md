@@ -52,6 +52,7 @@ Last updated: **2026-11-12 ~20:30 WAT (lead session 25, handing over to lead 26,
 | **API #238** Analytics slice A (`feature/analytics-slice-a`, head `33a097e8`, 0105 on 0101) | The Opus D-ANA-4 review was clean (0 critical/high/medium). L1 oracle, L2 500s, L4 rate limit and the team-member capture are fixed; L3 is recorded as lead default D-ANA-L13. **CI is red on bandit (Python SAST)** (run 43287762273). The Analytics session was told to fix it | Check the fix and CI, then ask to merge. Then slices B (builder + saved) and C (exports), then the FE pass. Wave 2 (D schedules, E investor updates) and wave 3 (F decks) follow |
 | **API #237** grants catalogue draft (D-FUND-2) | **15 rows, not 30-40:** the session had no JS page reader. 10 verified, 5 partial, and 4 are cloud credits rather than cash | **Adebayo reviews.** Optionally extend it to 30-40 with a web-capable agent. Funding E (grants) waits on his call |
 | **FE #246** Funding FE brief for the FE dev (parts A-D) | CI green; **not yet reviewed by the lead** | Review it against `fe-integration-guide-funding*.md` and the gap list, then Adebayo sends it to the FE dev (the FE dev builds Funding FE) |
+| **FE #251** keep Investor Readiness hidden | Lead's PR; local checks pass | Check CI, then ask "Merge #251" |
 | **API #214** Legal (Victoria) | The lead retargeted it to `develop` 2026-11-12. Not mergeable: migration chains on 0103 (two heads now), the proof upload trusts the client content-type, and the gap list, D-LEG calls, e2e, live guide, SOP and checklist are all missing. [Comment posted](https://github.com/innocent98/Cofoundaz-api/pull/214#issuecomment-6823756577) | Victoria acts on it, then a fresh review per `victoria-legal-process` |
 
 **Sessions (message by id):**
@@ -70,6 +71,9 @@ Archived in lead 25 (each merged, idle, worktree removed): the AI Co-Founder FE,
 - **D-AUTH-7 lists were already approved** (lead 24 listed them as pending by mistake).
 - **D-ANA-L13 (lead):** founder and team member both write custom metrics.
 - **Lead rebuilt #240 on its own branch** (Adebayo: "fix the 240 ourselves") rather than force-pushing the dev's branch.
+- **Hidden on purpose (Adebayo, 2026-11-12):** Marketplace, Investor Readiness and Funding Hub stay hidden from the sidebar **even when every slice is built**, and so does Analytics slice E (investor updates), until he says otherwise. FE #251 re-hides Investor Readiness (#244 had unhidden it). No brief or PR may unhide them. Memory: `hidden-modules-decision`.
+- **Marketplace:** the counsel/Paystack confirmation isn't being pursued for now, so it stays hidden and production charging stays off. Recommendation pending his answer: let slice D finish, then pause Marketplace.
+- **Dependency graph is on** and `ENABLE_CODE_SCANNING=true` is set (2026-11-12). CodeQL now gates every API PR. About 170 pre-existing alerts on develop (17 `py/side-effect-in-assert` errors in tests, the rest notes) are a cleanup follow-up.
 - **New global rule** in `~/.claude/CLAUDE.md`: leads remove stale worktrees and branches and archive finished sessions.
 
 **Adebayo's to-dos:**
@@ -78,9 +82,7 @@ Archived in lead 25 (each merged, idle, worktree removed): the AI Co-Founder FE,
 - **Send the Funding FE brief** (FE #246) to the FE dev once lead 26 has reviewed it.
 - **Send the Admin/Super Admin message** to the FE dev (paste-ready text in lead 25's chat; the file `docs/fe-handoff/MESSAGE-to-fe-dev-admin.md` lacks the Tickets and Reported-issues briefs, so add those two).
 - **Unarchive the MyWay lead session** (see above).
-- **Turn on the Dependency graph** (API repo → Settings → Code security), **then** set the variable: `gh variable set ENABLE_CODE_SCANNING --body true -R innocent98/Cofoundaz-api`. Order matters, or dependency-review fails on every PR.
 - **Optional:** mark the 4 GitGuardian "Generic Password" incidents from FE #243's first commit `fc6a0cd` as test credentials or false positives. They were fixtures, never landed in develop (squash), and the check isn't required.
-- **Counsel + Paystack in writing** on Marketplace fund holding (D-MP-3/9).
 - **Delete the Vercel project** (~2026-11-13).
 - **Decide when to launch the production API.**
 - **Point Victoria to the #214 comment.**
