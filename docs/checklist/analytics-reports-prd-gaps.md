@@ -192,13 +192,13 @@ Lead defaults (built as written, reversible):
 ## Slice status
 | Slice | Rows | State |
 |---|---|---|
-| A Catalog + snapshots + Overview | 1-4, 7, 10-12, 56-61, 64, 65, 70, 72, 74 | ready (D-ANA-1..4 |
-| B Reports + runs + shares | 8, 9, 13-26, 66, 67 | ready (D-ANA-1, 4, 9 |
-| C Exports | 43-48, 58, 68 | ready (D-ANA-5 |
-| D Schedules | 49-55 | ready (D-ANA-6 |
-| E Investor updates | 27-37 | ready (D-ANA-2, 7, 9 |
-| F Board decks | 38-42 | ready (D-ANA-5, 9 |
-| G Benchmarks + insights + glue | 5, 6, 60, 62, 63, 73 | ready (D-ANA-8 |
+| A Catalog + snapshots + Overview | 1-4, 7, 10-12, 56-61, 64, 65, 70, 72, 74 | ready (decisions accepted 2026-11-12) |
+| B Reports + runs + shares | 8, 9, 13-26, 66, 67 | ready (decisions accepted 2026-11-12) |
+| C Exports | 43-48, 58, 68 | ready (decisions accepted 2026-11-12) |
+| D Schedules | 49-55 | ready (decisions accepted 2026-11-12) |
+| E Investor updates | 27-37 | ready (decisions accepted 2026-11-12) |
+| F Board decks | 38-42 | ready (decisions accepted 2026-11-12) |
+| G Benchmarks + insights + glue | 5, 6, 60, 62, 63, 73 | ready (decisions accepted 2026-11-12) |
 
 ## Deferred follow-ups
 Native PPTX with editable charts · metric-level peer benchmarks · public report links · integrations feeding custom metrics (Stripe, analytics
