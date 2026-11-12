@@ -8,6 +8,8 @@ export const authModes = {
   signup: {
     title: 'Create your workspace',
     subtitle: 'Free to start. Set up in under 10 minutes.',
+    inviteTitle: 'Join {startup}',
+    inviteSubtitle: 'Create your account to accept the invitation.',
     cta: 'Create account',
     passwordHelp: '8+ characters, one number',
     footerText: 'Already have an account?',
@@ -25,7 +27,7 @@ export const authModes = {
 
 export const authShared = {
   google: 'Continue with Google',
-  googleSignup: 'Sign up with Google',
+  googleSignup: 'Continue with Google',
   divider: 'or',
   emailLabel: 'Work email',
   emailPlaceholder: 'you@startup.com',
@@ -65,4 +67,21 @@ export const googleSignIn = {
     rate_limited: 'Too many attempts. Try again in a few minutes.',
     try_again: 'Something went wrong. Please try again.',
   },
+} as const
+
+// PRD §01 copy for the sign-in, sign-up and recovery screens (gaps 2, 8, 12, 14, 15).
+export const authCopy = {
+  emailTaken: 'That email already has an account.',
+  emailTakenLink: 'Log in instead?',
+  termsRequired: 'Accept the Terms and Privacy Policy to create your account.',
+  lockedFallback: 'Too many attempts. Try again in a few minutes or reset your password.',
+  lockedReset: 'Reset your password',
+  rateLimited: 'Too many requests. Please wait a moment and try again.',
+  mfaExpired: 'Your sign-in timed out. Log in again.',
+  forgotSent: 'If that email has an account, a reset link is on its way.',
+  resetTitle: 'Choose a new password',
+  resetDone: 'Password updated. Log in with your new password.',
+  verifiedTitle: "You're verified. Let's build.",
+  checkInbox: 'Check your inbox',
+  checkInboxExpiry: 'It expires in 24 hours.',
 } as const

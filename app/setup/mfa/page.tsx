@@ -6,7 +6,6 @@ import QRCode from 'qrcode';
 import {
   ShieldCheck,
   Smartphone,
-  MessageSquare,
   Copy,
   Check,
   Loader2,
@@ -161,24 +160,19 @@ export default function MfaSetupPage() {
         {stage === 'setup' && (
           <div className="bg-white rounded-modal shadow-card border border-line overflow-hidden">
             <div className="border-b border-line px-6 py-5 bg-surface-faint">
-              <h1 className="text-lg font-display font-bold">Add a second factor</h1>
+              <h1 className="text-lg font-display font-bold">Protect your startup</h1>
               <p className="text-sm text-ink-muted mt-0.5">
                 Protect your workspace with a one-time code at sign-in.
               </p>
             </div>
 
             <div className="p-6 flex flex-col gap-5">
-              {/* Method choice — only the authenticator app is available server-side. */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="border-2 border-brand-700 bg-brand-100 rounded-card p-3 flex flex-col gap-1">
-                  <Smartphone className="w-5 h-5 text-brand-700" />
+              {/* D-AUTH-3: authenticator app only for v1; the SMS option is hidden until it exists. */}
+              <div className="border-2 border-brand-700 bg-brand-100 rounded-card p-3 flex items-center gap-3">
+                <Smartphone className="w-5 h-5 text-brand-700 shrink-0" />
+                <div className="flex flex-col">
                   <span className="text-sm font-bold">Authenticator app</span>
                   <span className="text-[11px] text-ink-muted">Recommended, works offline</span>
-                </div>
-                <div className="border border-line bg-surface-subtle rounded-card p-3 flex flex-col gap-1 opacity-70">
-                  <MessageSquare className="w-5 h-5 text-ink-subtle" />
-                  <span className="text-sm font-bold text-ink-subtle">SMS code</span>
-                  <span className="text-[11px] text-accent-xa8894b font-semibold">Coming soon</span>
                 </div>
               </div>
 

@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { authApi } from '@/lib/api/auth';
+import { apiErrorInfo } from '@/lib/api/api-error';
+import { authCopy } from '@/content/auth';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -19,7 +21,8 @@ export default function ForgotPasswordPage() {
       await authApi.forgotPassword({ email });
       setSubmitted(true);
     } catch (err: unknown) {
-      setError(((err as { message?: string })?.message) || 'Failed to send reset email. Please try again.');
+      const info = apiErrorInfo(err, 'Failed to send reset email. Please try again.');
+      setError(info.status === 429 ? info.message : 'Failed to send reset email. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -37,7 +40,7 @@ export default function ForgotPasswordPage() {
       {submitted ? (
         <div className="text-center space-y-4">
           <div className="p-4 bg-brand-50 text-brand-800 rounded-[12px] text-sm border border-brand-200">
-            We&apos;ve sent a reset link to <strong>{email}</strong>. Check your inbox to proceed.
+            {authCopy.forgotSent}
           </div>
           <Link
             href="/login"

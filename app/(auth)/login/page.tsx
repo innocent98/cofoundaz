@@ -6,6 +6,10 @@ import { AuthForm } from "@/ui/marketing/auth/auth-form";
 import { apiClient, ApiError } from "@/lib/api/client";
 import { completePostLogin } from "@/lib/auth/post-login";
 import { safeNextPath } from "@/lib/auth/safe-next";
+import { apiErrorInfo } from "@/lib/api/api-error";
+import { takeLoginNotice } from "@/lib/auth/pending";
+import { useCountdown } from "@/lib/auth/useCountdown";
+import { authCopy } from "@/content/auth";
 import { startGoogleSignIn, googleStartErrorMessage } from "@/lib/api/google-signin";
 
 interface LoginData {
@@ -30,10 +34,16 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // 429 ACCOUNT_LOCKED / RATE_LIMITED: wait this many seconds (counted down on the button).
+  const [lockFor, setLockFor] = useState<number | null>(null);
+  const lockSeconds = useCountdown(lockFor);
 
-  // Surface a friendly notice when we were bounced here by an expired session.
+  // Surface a friendly notice when we were bounced here by an expired session or a timed-out 2FA ticket.
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("session") === "expired") {
+    const notice = takeLoginNotice();
+    if (notice) {
+      queueMicrotask(() => setError(notice));
+    } else if (new URLSearchParams(window.location.search).get("session") === "expired") {
       queueMicrotask(() => setError("Your session expired. Please sign in again."));
     }
   }, []);
@@ -89,20 +99,21 @@ export default function LoginPage() {
       });
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        const d = err.data as Record<string, unknown> | undefined;
-        const serverMessage =
-          ((d?.error as { message?: string } | undefined)?.message) ||
-          (typeof d?.detail === "string" ? d.detail : null) ||
-          (Array.isArray(d?.detail) && d.detail[0]?.msg ? String(d.detail[0].msg) : null);
-
-        if (err.status === 401) {
-          setError(serverMessage || "Invalid email or password. Please check your credentials and try again.");
+        const info = apiErrorInfo(err, "Unable to sign in. Please verify your credentials and try again.");
+        if (err.status === 429) {
+          // The API's message already has the minutes (PRD wording): show it as it comes.
+          setLockFor(info.retryAfterSeconds);
+          setError(
+            info.code === "ACCOUNT_LOCKED"
+              ? info.message || authCopy.lockedFallback
+              : info.message || authCopy.rateLimited
+          );
         } else if (err.status === 403) {
           setError("Account pending verification. Please check your email inbox to verify your account.");
-        } else if (err.status === 429) {
-          setError("Too many attempts. Please wait a moment and try again.");
+        } else if (err.status === 401) {
+          setError(info.message || "That email and password don't match.");
         } else {
-          setError(serverMessage || "Unable to sign in. Please verify your credentials and try again.");
+          setError(info.message);
         }
       } else {
         setError(err instanceof Error ? err.message : "An unexpected network error occurred. Please try again.");
@@ -128,6 +139,7 @@ export default function LoginPage() {
       onGoogle={handleGoogle}
       error={error}
       isSubmitting={isSubmitting}
+      lockSeconds={lockSeconds}
     />
   );
 }

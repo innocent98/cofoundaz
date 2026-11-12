@@ -1,10 +1,11 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
 import { GoogleButton } from './google-button'
 import { Button, Field, fieldControlClasses } from '@/ui/primitives'
-import { authModes, authShared } from '@/content/auth'
+import { authCopy, authModes, authShared } from '@/content/auth'
+import { passwordStrength } from '@/lib/auth/password-strength'
 
 interface AuthFormProps {
   mode: 'login' | 'signup'
@@ -16,6 +17,20 @@ interface AuthFormProps {
   onGoogle?: () => Promise<void>
   /** Prefills the email (an invite link carries it). */
   initialEmail?: string
+  /** Errors shown under their field (from the API's field_errors). */
+  fieldErrors?: { email?: string; password?: string; terms?: string }
+  /** The sign-up "email already has an account" state: renders the PRD link to log in. */
+  emailTaken?: boolean
+  /** Login lock: seconds left; the button waits and a reset link is offered. */
+  lockSeconds?: number
+  /** Invited sign-up: the startup being joined, for the heading. */
+  inviteStartup?: string | null
+}
+
+function formatWait(sec: number): string {
+  const m = Math.floor(sec / 60)
+  const r = sec % 60
+  return `${m}:${String(r).padStart(2, '0')}`
 }
 
 export function AuthForm({
@@ -26,6 +41,10 @@ export function AuthForm({
   isSubmitting = false,
   onGoogle,
   initialEmail = '',
+  fieldErrors,
+  emailTaken = false,
+  lockSeconds = 0,
+  inviteStartup = null,
 }: AuthFormProps) {
   const copy = authModes[mode]
   const isSignup = mode === 'signup'
@@ -34,21 +53,28 @@ export function AuthForm({
   const [password, setPassword] = useState('')
   const [agreedTerms, setAgreedTerms] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
+  const [localFields, setLocalFields] = useState<{ email?: string; password?: string; terms?: string }>({})
   const [googleLoading, setGoogleLoading] = useState(false)
 
   const activeError = externalError || localError
+  const fields = { ...fieldErrors, ...localFields }
+  const strength = passwordStrength(password)
+  const locked = lockSeconds > 0
+  // A field error replaces the banner; the banner is for what belongs to no field.
+  const showBanner = !!activeError && !emailTaken && !fieldErrors?.email && !fieldErrors?.password && !fieldErrors?.terms
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLocalError(null)
+    setLocalFields({})
+    if (locked) return
 
-    if (!email.trim() || !password) {
-      setLocalError('Please enter both email and password.')
-      return
-    }
-
-    if (isSignup && !agreedTerms) {
-      setLocalError('You must agree to the Terms of Service and Privacy Policy.')
+    const next: { email?: string; password?: string; terms?: string } = {}
+    if (!email.trim()) next.email = 'Enter your email address.'
+    if (!password) next.password = 'Enter your password.'
+    if (isSignup && !agreedTerms) next.terms = authCopy.termsRequired
+    if (Object.keys(next).length) {
+      setLocalFields(next)
       return
     }
 
@@ -75,9 +101,11 @@ export function AuthForm({
   return (
     <div className="w-full max-w-[420px]">
       <h1 className="font-display text-[28px] font-semibold text-brand-900 md:text-[32px]">
-        {copy.title}
+        {isSignup && inviteStartup ? authModes.signup.inviteTitle.replace('{startup}', inviteStartup) : copy.title}
       </h1>
-      <p className="mt-2 text-[15px] text-neutral-500">{copy.subtitle}</p>
+      <p className="mt-2 text-[15px] text-neutral-500">
+        {isSignup && inviteStartup ? authModes.signup.inviteSubtitle : copy.subtitle}
+      </p>
 
       <div className="mt-7 flex flex-col gap-2.5">
         <GoogleButton
@@ -95,12 +123,21 @@ export function AuthForm({
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        {activeError && (
+        {showBanner && (
           <div
             role="alert"
             className="rounded-input border border-danger-200 bg-danger-50 p-3 text-[13px] text-danger-700"
           >
             {activeError}
+            {locked && (
+              <>
+                {' '}
+                <Link href="/forgot-password" className="font-semibold underline">
+                  {authCopy.lockedReset}
+                </Link>
+                . You can try again in {formatWait(lockSeconds)}.
+              </>
+            )}
           </div>
         )}
 
@@ -117,6 +154,7 @@ export function AuthForm({
           {(describedById) => (
             <input
               id="auth-email"
+              aria-invalid={fields.email || emailTaken ? true : undefined}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -129,10 +167,25 @@ export function AuthForm({
           )}
         </Field>
 
+        {emailTaken && (
+          <p role="alert" className="-mt-2 text-[13px] text-danger-700">
+            {authCopy.emailTaken}{' '}
+            <Link href="/login" className="font-semibold underline">
+              {authCopy.emailTakenLink}
+            </Link>
+          </p>
+        )}
+        {fields.email && (
+          <p role="alert" className="-mt-2 text-[13px] text-danger-700">
+            {fields.email}
+          </p>
+        )}
+
         <Field label={authShared.passwordLabel} htmlFor="auth-password" help={copy.passwordHelp}>
           {(describedById) => (
             <input
               id="auth-password"
+              aria-invalid={fields.password ? true : undefined}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -144,6 +197,31 @@ export function AuthForm({
             />
           )}
         </Field>
+
+        {fields.password && (
+          <p role="alert" className="-mt-2 text-[13px] text-danger-700">
+            {fields.password}
+          </p>
+        )}
+        {isSignup && password && (
+          <div className="-mt-2" aria-live="polite">
+            <div className="flex gap-1" aria-hidden="true">
+              {[1, 2, 3, 4].map((i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 flex-1 rounded-pill ${
+                    i <= strength.score
+                      ? strength.score >= 3
+                        ? 'bg-success-500'
+                        : 'bg-accent-500'
+                      : 'bg-neutral-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="mt-1 text-[12px] text-neutral-500">Password strength: {strength.label}</p>
+          </div>
+        )}
 
         {isSignup ? (
           <div className="flex items-start gap-2.5">
@@ -170,15 +248,20 @@ export function AuthForm({
             <Link href="/forgot-password" className="text-[13px] font-semibold text-brand-700 hover:text-brand-800 hover:underline transition-colors">{authShared.forgotPassword}</Link>
           </div>
         )}
+        {isSignup && fields.terms && (
+          <p role="alert" className="-mt-2 text-[13px] text-danger-700">
+            {fields.terms}
+          </p>
+        )}
 
         <Button
           type="submit"
           variant="accent"
           size="md"
           className="w-full"
-          disabled={isSubmitting}
+          disabled={isSubmitting || locked}
         >
-          {isSubmitting ? 'Submitting...' : copy.cta}
+          {isSubmitting ? 'Submitting...' : locked ? `Try again in ${formatWait(lockSeconds)}` : copy.cta}
         </Button>
       </form>
 

@@ -83,3 +83,31 @@ describe('Onboarding API Client (lib/api/onboarding.ts)', () => {
     expect(result.ai_panel).toBe('AI Co-Founder calibrated: 3 team recommendations generated.')
   })
 })
+
+describe('invites and pending_invite', () => {
+  it('returns per-row results from POST /onboarding/invites', async () => {
+    const { sendOnboardingInvites } = await import('./onboarding')
+    const results = [{ email: 'nope', status: 'invalid', reason: 'invalid_email', message: 'bad' }]
+    vi.mocked(clientModule.apiClient).mockResolvedValueOnce({ data: { created: [], results } })
+    expect(await sendOnboardingInvites([{ email: 'nope', role: 'team_member' }])).toEqual(results)
+  })
+
+  it('reads pending_invite and tolerates a null startup/founder_profile', async () => {
+    vi.mocked(clientModule.apiClient).mockResolvedValueOnce({
+      data: { step: 1, completed: false, pending_invite: true, founder_profile: null, startup: null },
+    })
+    const s = await getOnboardingState()
+    expect(s.pending_invite).toBe(true)
+    expect(s.name).toBeNull()
+  })
+
+  it('declines an invitation by token', async () => {
+    const { declineInvitation } = await import('./onboarding')
+    vi.mocked(clientModule.apiClient).mockResolvedValueOnce({ data: { declined: true } })
+    await declineInvitation('tok')
+    expect(clientModule.apiClient).toHaveBeenCalledWith('/invitations/decline', {
+      method: 'POST',
+      body: JSON.stringify({ token: 'tok' }),
+    })
+  })
+})
