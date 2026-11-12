@@ -25,12 +25,31 @@ export function readPendingEmail(): string {
  * The invite link a person arrived with. Kept in sessionStorage AND localStorage:
  * the verification link opens in a new tab, which does not share sessionStorage.
  */
+const INVITE_TTL_MS = 24 * 60 * 60 * 1000;
+
 export function rememberInvite(token: string): void {
   safe(() => sessionStorage.setItem(INVITE_KEY, token), undefined);
-  safe(() => localStorage.setItem(INVITE_KEY, token), undefined);
+  // localStorage copy carries a timestamp so a forgotten link is not honoured forever.
+  safe(() => localStorage.setItem(INVITE_KEY, JSON.stringify({ token, savedAt: Date.now() })), undefined);
 }
+
+function readStoredInvite(): string | null {
+  const session = safe(() => sessionStorage.getItem(INVITE_KEY), null);
+  if (session) return session;
+  const raw = safe(() => localStorage.getItem(INVITE_KEY), null);
+  if (!raw) return null;
+  try {
+    const { token, savedAt } = JSON.parse(raw) as { token?: unknown; savedAt?: unknown };
+    if (typeof token === 'string' && typeof savedAt === 'number' && Date.now() - savedAt < INVITE_TTL_MS) return token;
+  } catch {
+    /* an old raw-string value or junk: treat as expired */
+  }
+  safe(() => localStorage.removeItem(INVITE_KEY), undefined);
+  return null;
+}
+
 export function readInvite(): string | null {
-  const v = safe(() => sessionStorage.getItem(INVITE_KEY) ?? localStorage.getItem(INVITE_KEY), null);
+  const v = readStoredInvite();
   // Storage is user-writable: only a URL-safe token may flow into a link or an API path.
   return v && /^[A-Za-z0-9_-]{8,200}$/.test(v) ? v : null;
 }

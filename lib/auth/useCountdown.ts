@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 
 /**
  * Counts down from `seconds` once per second. Returns the seconds left (0 when done).
- * Passing a new positive `seconds` restarts it; `null`/0 stops it.
+ * Passing a new positive `seconds` (or a new `nonce`, for a repeat of the same value) restarts it; `null`/0 stops it.
  */
-export function useCountdown(seconds: number | null): number {
+export function useCountdown(seconds: number | null, nonce = 0): number {
   const [left, setLeft] = useState(0);
   useEffect(() => {
     if (!seconds || seconds <= 0) {
@@ -19,6 +19,6 @@ export function useCountdown(seconds: number | null): number {
       if (Date.now() >= end) clearInterval(id);
     }, 1000);
     return () => clearInterval(id);
-  }, [seconds]);
+  }, [seconds, nonce]);
   return left;
 }

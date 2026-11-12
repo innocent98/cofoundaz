@@ -199,4 +199,17 @@ describe('OnboardingWizard PRD flow (steps 3 to 6)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Do it later' }))
     expect(onComplete).toHaveBeenCalledWith('dashboard')
   })
+
+  it('step 2 refuses a non-http website before saving', async () => {
+    const onSaveStep = vi.fn().mockResolvedValue({})
+    render(<OnboardingWizard initialValues={{ step: 2, name: 'Acme' }} onSaveStep={onSaveStep} onComplete={vi.fn()} />)
+    fireEvent.change(screen.getByLabelText('Website (optional)'), { target: { value: 'javascript:void(0)' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
+    expect(await screen.findByText('Enter a web address starting with http or https.')).toBeInTheDocument()
+    expect(onSaveStep).not.toHaveBeenCalled()
+    fireEvent.change(screen.getByLabelText('Website (optional)'), { target: { value: 'acme.example' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
+    await act(async () => {})
+    expect(onSaveStep).toHaveBeenCalled()
+  })
 })

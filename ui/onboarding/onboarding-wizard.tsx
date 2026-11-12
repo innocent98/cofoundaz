@@ -211,7 +211,14 @@ export function OnboardingWizard({
   function validateStep(step: number): Record<string, string> {
     const errs: Record<string, string> = {}
     if (step === 1 && !values.full_name.trim()) errs.full_name = 'Please enter your full name.'
-    if (step === 2 && !values.name.trim()) errs.name = 'Please enter your startup or workspace name.'
+    if (step === 2) {
+      if (!values.name.trim()) errs.name = 'Please enter your startup or workspace name.'
+      // http(s) only (gap 6); a bare domain is fine, the API adds https://.
+      const site = values.website.trim()
+      if (site && /^[a-z][a-z0-9+.-]*:/i.test(site) && !/^https?:\/\//i.test(site)) {
+        errs.website = 'Enter a web address starting with http or https.'
+      }
+    }
     if (step === 3) {
       if (!industryChoice) errs.industry = 'Pick your industry.'
       else if (industryChoice === OTHER_INDUSTRY && !industryOther.trim()) errs.industry = 'Tell us your industry.'

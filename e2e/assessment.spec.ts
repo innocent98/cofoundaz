@@ -110,14 +110,15 @@ test.describe('Assessment: founder', () => {
 
   test('quarterly banner starts a re-assessment', async ({ page }) => {
     await setup(page, { list: [row({})], quarterlyDue: true })
+    // A run that has a next question stays on /run. The shared mock returns none, which the run
+    // page treats as finished and sends on to the results within a frame (the CI flake).
+    await page.route(`**/api/v1/assessments/${A2}/next-question`, (route) =>
+      route.fulfill(json({ next_question: question, progress: { answered: 0, remaining: 8, pct: 0 } }))
+    )
     await page.goto('/assessment')
     const banner = page.getByRole('region', { name: 'Quarterly re-assessment due' })
-    // The start call is the behaviour under test. The run page may redirect on within one frame
-    // (a finished run goes to the results), so the transient /run URL is not a stable thing to poll.
-    const started = page.waitForRequest((r) => r.method() === 'POST' && /\/api\/v1\/assessments(\/start)?$/.test(new URL(r.url()).pathname))
     await banner.getByRole('button', { name: 'Start re-assessment' }).click()
-    await started
-    await expect(page).toHaveURL(new RegExp(`/assessment/(run/${A2}|results)`))
+    await expect(page).toHaveURL(new RegExp(`/assessment/run/${A2}`))
   })
 
   test('completion shows the new Health Score, per-dimension change and refreshes the header', async ({ page }) => {

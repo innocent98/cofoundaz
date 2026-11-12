@@ -1,4 +1,5 @@
 import { apiClient } from '@/lib/api/client';
+import { isLoggedIn } from '@/lib/auth/session';
 import { forgetInvite, readInvite, rememberPendingEmail } from '@/lib/auth/pending';
 
 // Shared "we now hold a token pair" routing, used by BOTH the password login and
@@ -153,8 +154,7 @@ export async function syncActiveWorkspace(): Promise<string | null> {
 export async function resolveAfterVerify(): Promise<string> {
   const invite = readInvite();
   const inviteHref = invite ? `/invite/${encodeURIComponent(invite)}` : null;
-  const signedIn = typeof window !== 'undefined' && !!localStorage.getItem('cf_token');
-  if (!signedIn) return inviteHref ? `/login?next=${encodeURIComponent(inviteHref)}` : '/login';
+  if (!isLoggedIn()) return inviteHref ? `/login?next=${encodeURIComponent(inviteHref)}` : '/login';
   if (inviteHref) return inviteHref;
   try {
     const state = await apiClient<OnboardingStateResponse>('/onboarding/state');

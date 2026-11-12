@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Check, Loader2, AlertTriangle, UserPlus, LogIn, Building2 } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api/client';
+import { isLoggedIn } from '@/lib/auth/session';
 import { forgetInvite, rememberInvite } from '@/lib/auth/pending';
 import { getMe, hasProfileName, logout, updateProfileName, type MeResponse } from '@/lib/api/profile';
 import { declineInvitation } from '@/lib/api/onboarding';
@@ -32,10 +33,6 @@ function roleLabel(role: string): string {
   return role === 'founder' ? 'Co-Founder' : titleCase(role);
 }
 
-function isLoggedIn(): boolean {
-  if (typeof window === 'undefined') return false;
-  return !!localStorage.getItem('cf_token');
-}
 
 export default function AcceptInvitePage() {
   const params = useParams<{ token: string }>();
@@ -158,7 +155,7 @@ export default function AcceptInvitePage() {
   const signOutAndStay = async () => {
     await logout();
     router.refresh();
-    window.location.assign(`/invite/${token}`);
+    window.location.assign(`/invite/${encodeURIComponent(token)}`);
   };
 
   const signedInEmail = me?.user?.email ?? null;

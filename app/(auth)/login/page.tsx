@@ -36,7 +36,8 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   // 429 ACCOUNT_LOCKED / RATE_LIMITED: wait this many seconds (counted down on the button).
   const [lockFor, setLockFor] = useState<number | null>(null);
-  const lockSeconds = useCountdown(lockFor);
+  const [lockNonce, setLockNonce] = useState(0); // a second 429 with the same wait must restart the countdown
+  const lockSeconds = useCountdown(lockFor, lockNonce);
 
   // Surface a friendly notice when we were bounced here by an expired session or a timed-out 2FA ticket.
   useEffect(() => {
@@ -103,6 +104,7 @@ export default function LoginPage() {
         if (err.status === 429) {
           // The API's message already has the minutes (PRD wording): show it as it comes.
           setLockFor(info.retryAfterSeconds);
+          setLockNonce((n) => n + 1);
           setError(
             info.code === "ACCOUNT_LOCKED"
               ? info.message || authCopy.lockedFallback
