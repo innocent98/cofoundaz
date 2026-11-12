@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-23 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead23-handoff:docs/HANDOFF-master.md`
+> If the lead-24 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead24-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-11-06 ~20:00 WAT (lead session 23, handing over to lead 24, which Adebayo starts himself)**. Lead 23 was session `local_2a64fa6e-08f3-4ad4-ad3a-8b5832e1e323`. Lead 22 was session `local_d8bf2dc1-5968-4569-aefb-a51e78700310`. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-12 ~12:40 WAT (lead session 24, handing over to lead 25, which Adebayo starts himself)**. Lead 24 was session `local_0f813530-39f3-4407-92bc-d9eb5272b9a1` (stays open, capped: no new work). Lead 23 was session `local_2a64fa6e-08f3-4ad4-ad3a-8b5832e1e323`. Lead 22 was session `local_d8bf2dc1-5968-4569-aefb-a51e78700310`. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -17,6 +17,64 @@ Last updated: **2026-11-06 ~20:00 WAT (lead session 23, handing over to lead 24,
 ## 0. FOR ADEBAYO
 
 ### 0a. Open PRs and in-flight sessions
+
+**Lead 24 handover to lead 25 (2026-11-12 ~12:40 WAT). Adebayo starts lead 25 himself: don't auto-chain from lead 24.**
+
+**State:**
+- API develop is **`f7073893`**. Migration chain: `… 0096 → 0100_ai_slice3 → 0099_funding_cap_table → 0103_readiness_narrative` (head). Out of number order by design; one head.
+- Reserved: **0101** Marketplace C (#234), **0102** Funding D (#235). Both currently chain on 0103. Whichever merges second re-chains onto the other's revision (merge develop in with a merge commit, no force-push).
+- FE develop is `18c7e00` (+ this handoff). FE `main` last released 2026-11-06 (#237). www = main (port 3100), stage = develop (3101), both on the VPS, both calling the **staging** API.
+- Production API unchanged: `main` = 2026-09-21 (#89), migration 0027. Launch plan is in the lead-23 block below.
+- Nothing merged between 2026-11-07 and 2026-11-12: both API sessions stopped after their last pushes on 11-06/07.
+
+**Merged in lead 24 (2026-11-06/07), each verified (whole CI, attribution, branch, one head) and on Adebayo's "merge":**
+
+| PR | What | Commit |
+|---|---|---|
+| API #232 | prod CORS allows www.cofoundaz.com (takes effect on the prod release) | `deb53bfa` |
+| API #233 | AI Co-Founder slice 3: actions, feedback, regenerate, suggestions, bench (0100) | `5dcda40d` |
+| API #229 | Funding C cap table (0099). Opus review: 0 high, 3 medium (currency-lock bypass, pre-money SAFE cap missing the pool top-up, converted SAFE as a separate holder row), 5 lows; all fixed; clean Opus fix-check | `dcdd7a67` |
+| API #236 | Investor Readiness C narrative check (0103). All IR API slices (A score, B deck, C narrative, D mock Q&A) are now merged | `f7073893` |
+| FE #239 | lead-23 handoff (FE #235 closed as superseded) | `18c7e00` |
+
+**Open PRs (verify yourself before asking "Merge #N"):**
+
+| PR | State at handover | Next |
+|---|---|---|
+| **API #234** Marketplace C booking/checkout/ledger (`feature/marketplace-booking`, head `be9e779c`, 0101 on 0103) | Three Opus rounds. Round 1: 1 high (charges stranded: non-final webhook outcomes answered 200, timer failed orders without verifying). Round 2 (fix-check): new N1-N3 (a mismatch stuck forever; unbounded retry on Paystack 4xx; **double charge on packages** when verify failed after a charge, because the founder saw "nothing was charged"). Round 3 fixes are pushed (every post-charge verify failure → 502 `PAYMENT_UNCONFIRMED`; mismatch closes the booking as `payment_review`, flagged for staff; bounded retry; per-hold commits). **CI is red on 3 checks:** Unit tests shard 3/4, End-to-end, CI gate | 1) The Marketplace session ([local_aad778e5](#local_aad778e5-f115-4579-8aa3-b3587cd13e75)) reads CI's logs, fixes, pushes once. 2) Run a **final Opus fix-check of round 3** (diff `bbc76d30..be9e779c` plus the CI fix): N1-N6, L5, and look for new double-refund or lock-order problems. 3) Ask to merge. Open gap: whether real Paystack answers 404 or 400 on verify for an unknown reference was never confirmed (no key used); the code is safe either way. Confirm it on staging and map 400 → not-found if so. Charging stays off in prod (two gates now: `MARKETPLACE_PAYMENTS_ENABLED` + refusal in production/`sk_live_` without a second flag) until counsel + Paystack confirm in writing (D-MP-3/9) |
+| **API #235** Funding D term sheets (`feature/funding-term-sheets`, head `f4eba132`, 0102 on 0103) | CI green 18/18, CodeQL findings fixed. The session also has two lows from #229 to fold in (round currency default; duplicated `terms(sigma)` line) | Run the **final Opus review** (term-sheet flags D-FUND-6, founder-only gating D-FUND-5, audit rows, tenancy), route fixes to the Funding session ([local_9566a3ee](#local_9566a3ee-8063-48a3-ad66-db641935ab03)), check the fixes, ask to merge. Then Funding E (grants) and F (analytics) |
+| **FE #240** FE dev: Team + Journal + Notifications QA fixes (`feature/team-journal-notifications-qa-fixes`, head `e0accfd`) | Reviewed by lead 24: **not ready**. Two blockers confirmed in code: Team audit sentences use invented action names (`INVITE_SENT`…; the API sends `team.invitation.created`, `team.member.joined`, `workspace.updated`), and out-of-scope onboarding changes that will collide with Auth FE step 2. Plus unrelated test/config edits, `RoadmapDrawer` changes, Journal settings error state and export URL, Notifications guessed filters/defaults | Paste-ready comment: `docs/fe-handoff/REVIEW-pr240.md`. Adebayo sends it to the FE dev (or asks the lead to post it). After the dev's fixes: re-check, merge, then the every-control re-walk on stage (1440 + 375, every role), then close FE #231/#232/#233 as superseded |
+| FE #231 / #232 / #233 | Superseded by #240 | Close after #240 merges |
+| API #214 Legal (Victoria) | Adebayo told Victoria to retarget to `develop` (2026-11-12) | When retargeted: fresh review per `victoria-legal-process` (gap list, D-LEG calls, live guide, re-walk) |
+
+**Sessions:** no session is building. Still open (keep, they own the open PRs): Marketplace [local_aad778e5](#local_aad778e5-f115-4579-8aa3-b3587cd13e75) (#234) and Funding [local_9566a3ee](#local_9566a3ee-8063-48a3-ad66-db641935ab03) (#235). Archived on 2026-11-12: lead 21, lead 22, AI Co-Founder, Auth step 1, IR narrative, and the September prod-prep session. Lead 24 itself stays open but takes no new work.
+
+**Cleanup done 2026-11-12:** 52 stale worktrees removed (every one had a merged or closed PR, nothing uncommitted, nothing unpushed; `comp-billing-api` held only a scratch `e2e/test_cbf_seed.py`). Local branches deleted except `develop`, `main` and the two open-PR branches. Remaining worktrees: `wt/marketplace-c`, `wt/funding-d`, `wt/lead24-handoff`. **Remote branches of merged/closed PRs were not deleted**: the auto-mode classifier blocked the bulk `git push --delete`. Adebayo runs it himself (lead 24 gave him the exact command with the named branches; open-PR heads and bases are excluded).
+
+**Lead 25, first (in this order):**
+1. Ask the Marketplace session to fix #234's red CI; then the round-3 Opus fix-check; then ask to merge.
+2. Final Opus review of #235; route fixes; ask to merge. Re-chain whichever of #234/#235 merges second.
+3. Track FE #240 through the dev's fixes, merge, re-walk on stage, close #231-233.
+4. Next builds (max 3 at once): **Auth FE step 2** once Adebayo signs off the D-AUTH-7 list (then D-AUTH-6 cookie switch); **Funding E grants** (needs the drafted grants catalogue, below); **AI Co-Founder FE pass** and **Readiness FE pass** (APIs complete). Marketplace FE after #234.
+5. Draft for Adebayo's review (D-FUND-1/2): a curated directory of ~50 Africa-focused funds (firm-level, no personal contacts) and a grants catalogue of 30-40 grants (each with a source link and `verified_on`). Neither exists yet; Funding E needs the grants catalogue.
+
+**Adebayo's own to-dos (as of 2026-11-12):**
+- Sign off or edit the **D-AUTH-7 lists** in `docs/checklist/auth-onboarding-prd-gaps.md` (26 industries + "Other", 8 goal chips, 6 stage cards). Auth FE step 2 waits on it.
+- Send the FE dev the #240 review comment (`docs/fe-handoff/REVIEW-pr240.md`).
+- Run the remote-branch cleanup command lead 24 gave him.
+- Real Google sign-up and sign-in on `www` and `stage`.
+- Counsel + Paystack in writing on holding Marketplace funds (D-MP-3/9).
+- Turn on the Dependency graph and set `ENABLE_CODE_SCANNING=true`.
+- Delete the Vercel project (planned ~2026-11-13).
+- Decide when to launch the production API.
+- Later: review the fund directory and grants catalogue once the lead drafts them.
+- Done 2026-11-12: Admin message + briefs sent to the FE dev; Victoria told to retarget #214.
+
+**Gotchas learned in lead 24:**
+- Opus fix-checks keep finding new money bugs introduced by the previous round's fixes (#234 went three rounds). Always run a fix-check after a money-path fix; never merge on the session's own report.
+- A session that hits a usage limit just stops; it doesn't report. If an open PR hasn't moved, read the session's last events (`list_events`) before assuming it's working.
+- The auto-mode classifier blocks bulk remote branch deletion and starting sessions from automated turns; give Adebayo the command or a card.
+- `gh pr merge --match-head-commit` needs the full 40-char SHA.
 
 **Lead 23 handover to lead 24 (2026-11-06 ~20:00 WAT). Adebayo starts lead 24 himself: don't auto-chain from lead 23.**
 
