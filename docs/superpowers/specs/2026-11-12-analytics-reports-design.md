@@ -1,7 +1,7 @@
 # Analytics & Reports: design
 
-Date: 2026-11-12. Status: **design pass only. D-ANA-1..9 are PROPOSED and unanswered; nothing is built until Adebayo answers.** Every
-recommendation below is the proposed answer (questions, options and costs in `docs/checklist/analytics-reports-prd-gaps.md`).
+Date: 2026-11-12. Status: **D-ANA-1..9 ACCEPTED 2026-11-12 (Adebayo: "Accept all nine"), ready to build.** Every
+recommendation below is the accepted answer (questions, options and costs in `docs/checklist/analytics-reports-prd-gaps.md`).
 PRD Module 22 (`Cofoundaz_Technical_PRD.md:715-731`), access row `analytics | ✓ | ▢ | R(shared) | — | — | R(fin) | R(shared)` (`:904`),
 events (`:912`), `report_exported` (`:933`), Growth plan (`:227`), cross-refs §10.8 (`:495`), §11.6, §14.6.
 Mock: `app/(dashboard)/analytics-reports/page.tsx` (714 lines, local state only). Hidden from the sidebar. **The API has no Analytics code.**
@@ -175,7 +175,7 @@ agenda, one slide per block group, asks) → "Download deck" + a copy in Documen
 | `analytics.investor_update.send` | per recipient | idempotent per recipient (unique `update_id`+`email`), skips opt-outs and bounces |
 | `analytics.deck.generate` | on demand | render, store in Documents, notify |
 
-## 9. AI touchpoints and cost (D-ANA-9 b)
+## 9. AI touchpoints and cost (D-ANA-9 accepted: (b))
 
 | Touchpoint | Tokens | Rule |
 |---|---|---|
