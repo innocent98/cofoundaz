@@ -66,6 +66,9 @@ async function resolveLanding(opts: {
     return '/verify-email';
   }
 
+  // An invitation link wins over the wizard: the invitee came to join, not to start a startup.
+  if (nextPath?.startsWith('/invite/')) return nextPath;
+
   try {
     const state = await apiClient<OnboardingStateResponse>('/onboarding/state', { headers: authHeader });
     const onb = state.data;
@@ -149,7 +152,7 @@ export async function syncActiveWorkspace(): Promise<string | null> {
 
 export async function resolveAfterVerify(): Promise<string> {
   const invite = readInvite();
-  const inviteHref = invite ? `/invite/${invite}` : null;
+  const inviteHref = invite ? `/invite/${encodeURIComponent(invite)}` : null;
   const signedIn = typeof window !== 'undefined' && !!localStorage.getItem('cf_token');
   if (!signedIn) return inviteHref ? `/login?next=${encodeURIComponent(inviteHref)}` : '/login';
   if (inviteHref) return inviteHref;

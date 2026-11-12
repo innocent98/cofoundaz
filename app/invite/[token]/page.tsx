@@ -58,7 +58,7 @@ export default function AcceptInvitePage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await apiClient<{ data?: InvitePreview }>(`/invitations/${token}`);
+      const res = await apiClient<{ data?: InvitePreview }>(`/invitations/${encodeURIComponent(token)}`);
       setPreview(res?.data ?? (res as unknown as InvitePreview));
     } catch {
       // Uniform 404 = unknown / expired / already-accepted link.

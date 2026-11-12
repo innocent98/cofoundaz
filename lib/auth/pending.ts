@@ -30,7 +30,9 @@ export function rememberInvite(token: string): void {
   safe(() => localStorage.setItem(INVITE_KEY, token), undefined);
 }
 export function readInvite(): string | null {
-  return safe(() => sessionStorage.getItem(INVITE_KEY) ?? localStorage.getItem(INVITE_KEY), null);
+  const v = safe(() => sessionStorage.getItem(INVITE_KEY) ?? localStorage.getItem(INVITE_KEY), null);
+  // Storage is user-writable: only a URL-safe token may flow into a link or an API path.
+  return v && /^[A-Za-z0-9_-]{8,200}$/.test(v) ? v : null;
 }
 export function forgetInvite(): void {
   safe(() => sessionStorage.removeItem(INVITE_KEY), undefined);

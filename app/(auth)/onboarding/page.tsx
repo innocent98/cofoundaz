@@ -183,12 +183,12 @@ export default function OnboardingPage() {
   const savedInvite = readInvite()
 
   return (
-    <>
+    <div className="w-full">
       {pendingInvite && (
         <div role="status" className="mx-auto mt-6 w-full max-w-2xl rounded-card border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900">
           You have a pending invitation to join a startup.{' '}
           {savedInvite ? (
-            <Link href={`/invite/${savedInvite}`} className="font-semibold underline">
+            <Link href={`/invite/${encodeURIComponent(savedInvite)}`} className="font-semibold underline">
               Open the invitation
             </Link>
           ) : (
@@ -210,6 +210,6 @@ export default function OnboardingPage() {
       countries={COUNTRIES}
       fieldErrors={fieldErrors}
     />
-    </>
+    </div>
   )
 }

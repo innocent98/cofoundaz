@@ -130,13 +130,11 @@ export function AuthForm({
           >
             {activeError}
             {locked && (
-              <>
-                {' '}
+              <p className="mt-1.5">
                 <Link href="/forgot-password" className="font-semibold underline">
                   {authCopy.lockedReset}
                 </Link>
-                . You can try again in {formatWait(lockSeconds)}.
-              </>
+              </p>
             )}
           </div>
         )}

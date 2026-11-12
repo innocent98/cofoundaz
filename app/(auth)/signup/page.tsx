@@ -39,7 +39,15 @@ function invitedEmail(raw: string | null): string {
 /** `next=/invite/<token>` is how an invite link reaches sign-up. */
 function inviteTokenFromNext(next: string | null): string | null {
   const m = /^\/invite\/([^/?#]+)/.exec(next ?? "");
-  return m ? decodeURIComponent(m[1]) : null;
+  if (!m) return null;
+  let token: string;
+  try {
+    token = decodeURIComponent(m[1]);
+  } catch {
+    return null;
+  }
+  // Invite tokens are URL-safe; anything else (e.g. "../") must never reach an API path.
+  return /^[A-Za-z0-9_-]{8,200}$/.test(token) ? token : null;
 }
 
 function SignupForm() {
@@ -58,7 +66,7 @@ function SignupForm() {
     const token = inviteTokenFromNext(params.get("next"));
     if (!token) return;
     rememberInvite(token);
-    apiClient<{ data?: { startup_name?: string | null } }>(`/invitations/${token}`)
+    apiClient<{ data?: { startup_name?: string | null } }>(`/invitations/${encodeURIComponent(token)}`)
       .then((r) => setInviteStartup(r?.data?.startup_name ?? null))
       .catch(() => undefined);
   }, [params]);
