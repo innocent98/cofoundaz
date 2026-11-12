@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ChatMessage } from '@/lib/api/aiChat';
-import { REPLY_FAILED_COPY } from '@/hooks/useAICoFounder';
+import { REPLY_CANCELLED_COPY, REPLY_FAILED_COPY } from '@/hooks/useAICoFounder';
 
 // Assistant replies are freeform text that may carry light markdown (headings,
 // bullets, **bold**). We render that as plain React elements (never HTML strings)
@@ -115,7 +115,14 @@ export function ChatMessageContent({ message }: { message: ChatMessage }) {
     );
   }
   if (message.status === 'failed') {
-    return <p className="text-neutral-600">{REPLY_FAILED_COPY}</p>;
+    // A server-written reason (e.g. the daily AI limit) beats the generic copy.
+    return <p className="text-neutral-600">{message.content || REPLY_FAILED_COPY}</p>;
+  }
+  if (message.status === 'cancelled') {
+    return <p className="text-neutral-600">{REPLY_CANCELLED_COPY}</p>;
+  }
+  if (message.removed_by_moderation) {
+    return <p className="text-neutral-600">{message.content || 'This message was removed.'}</p>;
   }
   return <AssistantText content={message.content} />;
 }

@@ -14,7 +14,12 @@ vi.mock('./workspace-context', () => ({ useWorkspace: () => ({ me: null, role, w
 vi.mock('@/components/ai/ai-status-banner', () => ({ AiStatusBanner: () => null }));
 vi.mock('@/hooks/useAICoFounder', () => ({
   useAICoFounder: () => ({
+    activeConversationId: null,
     messages,
+    cancel: vi.fn(),
+    regenerate: vi.fn(),
+    setFeedback: vi.fn(),
+    runAction: vi.fn(),
     isGenerating: false,
     threadLoading: false,
     error: null,
