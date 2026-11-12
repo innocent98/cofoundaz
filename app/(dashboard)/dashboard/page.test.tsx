@@ -21,6 +21,8 @@ vi.mock('@/components/dashboardnavbar', () => ({
 vi.mock('@/components/team/invite-modal', () => ({
   InviteModal: ({ open }: { open: boolean }) => (open ? <div role="dialog">Invite dialog</div> : null),
 }));
+// The 2FA banner makes its own /auth/mfa call, which would eat this file's one-shot apiClient mocks.
+vi.mock('@/components/dashboard/mfa-banner', () => ({ MfaBanner: () => null }));
 vi.mock('@/hooks/useMissionOpenCount', () => ({ announceMissionChanged: vi.fn() }));
 vi.mock('@/lib/api/client', () => ({ apiClient: vi.fn().mockResolvedValue({}) }));
 vi.mock('@/hooks/useDashboardApi', async (orig) => ({

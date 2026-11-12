@@ -88,3 +88,32 @@ describe('AuthForm accessibility', () => {
     expect(screen.getByLabelText('Password')).not.toHaveAttribute('aria-describedby')
   })
 })
+
+describe('AuthForm gap fixes', () => {
+  it('shows the PRD email-taken line with a log-in link', () => {
+    render(<AuthForm mode="signup" emailTaken />)
+    expect(screen.getByText(/That email already has an account/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Log in instead?' })).toHaveAttribute('href', '/login')
+  })
+
+  it('shows the strength meter and an inline terms error instead of a banner', async () => {
+    const user = userEvent.setup()
+    render(<AuthForm mode="signup" onSubmit={async () => {}} />)
+    await user.type(screen.getByLabelText('Work email'), 'a@b.co')
+    await user.type(screen.getByLabelText('Password'), ['x'.repeat(7), 1].join(''))
+    expect(screen.getByText(/Password strength/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(screen.getByText('Accept the Terms and Privacy Policy to create your account.')).toBeInTheDocument()
+  })
+
+  it('uses the invite heading', () => {
+    render(<AuthForm mode="signup" inviteStartup="WalkCo" />)
+    expect(screen.getByRole('heading', { level: 1, name: 'Join WalkCo' })).toBeInTheDocument()
+  })
+
+  it('locked login disables the button and offers a reset link', () => {
+    render(<AuthForm mode="login" error="Too many attempts. Try again in 15 minutes or reset your password." lockSeconds={900} />)
+    expect(screen.getByRole('button', { name: /Try again in 15:00/ })).toBeDisabled()
+    expect(screen.getByRole('link', { name: 'Reset your password' })).toHaveAttribute('href', '/forgot-password')
+  })
+})

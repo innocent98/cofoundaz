@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import { forgetInvite } from '@/lib/auth/pending';
 
 export interface MeUser {
   id: string;
@@ -70,4 +71,5 @@ export async function logout(): Promise<void> {
   } catch {
     /* ignore storage errors */
   }
+  forgetInvite();
 }

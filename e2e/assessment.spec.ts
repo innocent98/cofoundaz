@@ -110,6 +110,11 @@ test.describe('Assessment: founder', () => {
 
   test('quarterly banner starts a re-assessment', async ({ page }) => {
     await setup(page, { list: [row({})], quarterlyDue: true })
+    // A run that has a next question stays on /run. The shared mock returns none, which the run
+    // page treats as finished and sends on to the results within a frame (the CI flake).
+    await page.route(`**/api/v1/assessments/${A2}/next-question`, (route) =>
+      route.fulfill(json({ next_question: question, progress: { answered: 0, remaining: 8, pct: 0 } }))
+    )
     await page.goto('/assessment')
     const banner = page.getByRole('region', { name: 'Quarterly re-assessment due' })
     await banner.getByRole('button', { name: 'Start re-assessment' }).click()

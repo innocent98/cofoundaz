@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShieldCheck, Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
+import { apiErrorInfo } from '@/lib/api/api-error';
+import { authCopy } from '@/content/auth';
+import { setLoginNotice } from '@/lib/auth/pending';
 import { mfaChallenge } from '@/lib/api/mfa';
 import { completePostLogin, clearStoredInvite } from '@/lib/auth/post-login';
 
@@ -52,7 +55,7 @@ export default function MfaChallengePage() {
     if (!handoff) return;
     const value = code.trim();
     if (!value) {
-      setError(useBackup ? 'Enter one of your backup codes.' : 'Enter the 6-digit code.');
+      setError(useBackup ? 'Enter one of your backup codes.' : 'Enter your 6-digit code');
       return;
     }
     setSubmitting(true);
@@ -78,12 +81,30 @@ export default function MfaChallengePage() {
       }
     } catch (err) {
       if (err instanceof ApiError) {
-        const d = err.data as { error?: { code?: string; message?: string } } | undefined;
-        // A bad code and an expired/spent ticket both come back as MFA_INVALID_CODE.
-        setError(
-          d?.error?.message ||
-            (useBackup ? 'That backup code is not valid.' : "That code didn't match. Try again.")
+        const info = apiErrorInfo(
+          err,
+          useBackup ? 'That backup code is not valid.' : "That code didn't match. Try again."
         );
+        if (info.code === 'MFA_TICKET_EXPIRED') {
+          // The ticket is burned (5 wrong codes, or it timed out): start over at login.
+          try {
+            sessionStorage.removeItem(MFA_HANDOFF_KEY);
+          } catch {
+            /* ignore */
+          }
+          setLoginNotice(info.message || authCopy.mfaExpired);
+          router.replace('/login');
+          return;
+        }
+        if (err.status === 429) {
+          setError(info.message);
+        } else {
+          setError(
+            info.attemptsRemaining !== null
+              ? `${info.message} ${info.attemptsRemaining} ${info.attemptsRemaining === 1 ? 'try' : 'tries'} left.`
+              : info.message
+          );
+        }
       } else {
         setError('Could not verify the code. Please try again.');
       }
@@ -137,7 +158,7 @@ export default function MfaChallengePage() {
             }
             inputMode={useBackup ? 'text' : 'numeric'}
             autoComplete="one-time-code"
-            placeholder={useBackup ? 'XXXX-XXXX' : '123456'}
+            placeholder={useBackup ? 'Backup code' : '123456'}
             className="w-full border border-line-strong rounded-input px-3 py-2.5 text-center text-lg tracking-[0.3em] focus:outline-none focus:border-line-focus focus:ring-1 focus:ring-line-focus"
           />
           {error && <p className="text-xs font-semibold text-danger-600">{error}</p>}

@@ -12,6 +12,7 @@ import { KPIStrip } from '@/components/dashboard/kpi-strip';
 import { CardError, CardSkeleton } from '@/components/dashboard/card-states';
 import { GreetingHeader, GreetingSkeleton } from '@/components/dashboard/greeting-header';
 import { CalibrationBanner } from '@/components/dashboard/calibration-banner';
+import { MfaBanner } from '@/components/dashboard/mfa-banner';
 import { HealthCard } from '@/components/dashboard/health-card';
 import { MissionCard } from '@/components/dashboard/mission-card';
 import { BriefingCard, briefingSeed } from '@/components/dashboard/briefing-card';
@@ -94,6 +95,7 @@ export default function DashboardPage() {
           <GreetingHeader firstName={data?.greeting?.first_name} startupName={startupName} />
         )}
 
+        {!showSkeleton && <MfaBanner />}
         {!showSkeleton && <CalibrationBanner assessmentComplete={data?.calibration?.assessment_complete} />}
 
         {/* TOP CARDS ROW */}
