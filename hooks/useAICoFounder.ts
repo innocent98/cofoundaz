@@ -34,6 +34,9 @@ function chatErrorMessage(err: unknown): string {
   if (err instanceof ApiError) {
     if (err.status === 403) return 'AI chat is available to founders and team members only.';
     if (err.status === 404) return 'That conversation is no longer available.';
+    if (err.status === 429) {
+      return apiErrorInfo(err, '').message || 'Too many messages. Wait a moment, then try again.';
+    }
     if (err.status === 409) {
       const { message } = apiErrorInfo(err, '');
       return message || 'Your co-founder is still replying. Try again in a moment.';

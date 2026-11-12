@@ -135,7 +135,9 @@ export function ChatMessage({
   const finished = message.status === 'ready' && !message.removed_by_moderation;
   const executed = (message.actions ?? []).some((a) => a.status === 'executed' || a.status === 'undone');
   const canRegenerate = finished && isLatest && !busy && !executed;
-  const canRetry = isLatest && !busy && (message.status === 'failed' || message.status === 'cancelled');
+  // A failed turn that carries its own reason (the daily AI limit) is not retryable today.
+  const hasReason = message.status === 'failed' && !!message.content;
+  const canRetry = isLatest && !busy && !hasReason && (message.status === 'failed' || message.status === 'cancelled');
 
   const copy = async () => {
     try {

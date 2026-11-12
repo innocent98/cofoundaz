@@ -223,4 +223,17 @@ describe('useAICoFounder (chat)', () => {
     await act(async () => { await result.current.runAction(reply.id, 'a1', 'undo'); });
     expect(result.current.error).toMatch(/edited since/);
   });
+
+  it('429 shows the API message, or a plain fallback', async () => {
+    vi.mocked(chat.createConversation).mockRejectedValueOnce(
+      new ApiError(429, 'Too Many', { error: { code: 'RATE_LIMITED', message: 'Slow down a little.', field_errors: [] } })
+    );
+    const { result } = renderHook(() => useAICoFounder());
+    await act(async () => { await result.current.sendMessage('hi'); });
+    expect(result.current.error).toBe('Slow down a little.');
+
+    vi.mocked(chat.createConversation).mockRejectedValueOnce(new ApiError(429, 'Too Many', {}));
+    await act(async () => { await result.current.sendMessage('hi'); });
+    expect(result.current.error).toMatch(/Too many messages/);
+  });
 });

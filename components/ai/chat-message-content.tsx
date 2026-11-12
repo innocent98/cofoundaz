@@ -115,7 +115,8 @@ export function ChatMessageContent({ message }: { message: ChatMessage }) {
     );
   }
   if (message.status === 'failed') {
-    return <p className="text-neutral-600">{REPLY_FAILED_COPY}</p>;
+    // A server-written reason (e.g. the daily AI limit) beats the generic copy.
+    return <p className="text-neutral-600">{message.content || REPLY_FAILED_COPY}</p>;
   }
   if (message.status === 'cancelled') {
     return <p className="text-neutral-600">{REPLY_CANCELLED_COPY}</p>;

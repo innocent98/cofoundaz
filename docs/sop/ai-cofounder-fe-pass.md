@@ -40,6 +40,7 @@ was faked and what is not verified (real-model quality, `add_task`/`update_roadm
 Pure FE, no flags. Revert the PR to restore the previous pages (the API is backward compatible).
 
 ## Follow-ups
+- Timeout behaviour: after the 90 s poll cap the pending turn is shown as failed with Retry; if the server is still generating, Retry gets 409 `REPLY_IN_PROGRESS` and the page re-syncs and resumes polling. A failed turn that carries its own text (the daily AI limit) shows that text and no Retry. A 429 on send shows the API message.
 - Real-model check of action proposals and reply quality once a key is configured on staging.
 - Agents column in History needs `agent_keys` on the list API.
 - Attachments, slash commands and memory stay deferred (D-AI-1, D-AI-5).

@@ -81,4 +81,10 @@ describe('ChatMessage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     await waitFor(() => expect(h.onAction).toHaveBeenCalledWith('m1', 'a1', 'undo'));
   });
+
+  it('a failed turn with its own reason (daily limit) offers no Retry', () => {
+    setup({ status: 'failed', content: "Today's AI usage limit for your workspace has been reached. Try again tomorrow." });
+    expect(screen.getByText(/usage limit/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Retry/ })).toBeNull();
+  });
 });
