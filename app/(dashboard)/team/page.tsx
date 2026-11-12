@@ -1236,7 +1236,6 @@ export default function TeamSectionPage(): React.JSX.Element {
                               {getInitials(act.actor)}
                             </div>
                             <div className="text-xs truncate">
-                              <span className="font-semibold text-ink">{act.actor}</span>{' '}
                               <span className="text-ink-muted">{act.summary}</span>
                               <p className="text-[11px] text-ink-subtle mt-0.5">{act.relativeTime}</p>
                             </div>
@@ -1261,7 +1260,6 @@ export default function TeamSectionPage(): React.JSX.Element {
                               {getInitials(act.actor)}
                             </div>
                             <div className="text-xs truncate">
-                              <span className="font-semibold text-ink">{act.actor}</span>{' '}
                               <span className="text-ink-muted">{act.summary}</span>
                               <p className="text-[11px] text-ink-subtle mt-0.5">{act.relativeTime}</p>
                             </div>
@@ -1286,7 +1284,6 @@ export default function TeamSectionPage(): React.JSX.Element {
                               {getInitials(act.actor)}
                             </div>
                             <div className="text-xs truncate">
-                              <span className="font-semibold text-ink">{act.actor}</span>{' '}
                               <span className="text-ink-muted">{act.summary}</span>
                               <p className="text-[11px] text-ink-subtle mt-0.5">{act.relativeTime}</p>
                             </div>

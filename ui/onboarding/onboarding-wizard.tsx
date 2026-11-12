@@ -48,7 +48,7 @@ export interface OnboardingWizardProps {
     stepNumber: number,
     data: Partial<OnboardingFormValues>
   ) => Promise<{ ai_panel?: string | null } | null | void>
-  onUploadLogo?: (file: File) => Promise<void>
+  onUploadLogo?: (file: File) => Promise<boolean | void>
   /** Resolve the per-row results; reject (or resolve null) when the request itself failed. */
   onSendInvites?: (invites: Array<{ email: string; role: string }>) => Promise<InviteRowResult[] | null>
   onComplete: (then: CompleteTarget) => Promise<void>
@@ -247,7 +247,9 @@ export function OnboardingWizard({
     if (Object.keys(errs).length) return
 
     if (currentStep === 2 && selectedFile && onUploadLogo) {
-      await onUploadLogo(selectedFile)
+      // A rejected logo (type or size) stays on this step; the page shows the API's message.
+      const uploaded = await onUploadLogo(selectedFile)
+      if (uploaded === false) return
     }
 
     if (currentStep === 5) {
@@ -483,7 +485,7 @@ export function OnboardingWizard({
                 <label htmlFor="logo-upload" className="cursor-pointer font-semibold text-brand-700 hover:underline">
                   {selectedFile ? selectedFile.name : 'Add your logo (optional)'}
                 </label>
-                <p className="mt-1 text-xs text-neutral-500">PNG, JPG, or SVG up to 5MB</p>
+                <p className="mt-1 text-xs text-neutral-500">PNG, JPG, SVG, or WebP up to 2 MB</p>
               </div>
             </div>
           )}

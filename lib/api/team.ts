@@ -174,11 +174,11 @@ export async function getCommentThreads(filter: CommentThreadFilter = 'all'): Pr
 export async function getTeamAuditLogs(cursor?: string): Promise<AuditLogResponse> {
   const q = new URLSearchParams({ limit: '30' });
   if (cursor) q.set('cursor', cursor);
-  const res = await apiClient<{ data?: { items?: AuditLogEntry[]; next_cursor?: string | null } }>(
+  const res = await apiClient<{ data?: { entries?: AuditLogEntry[]; next_cursor?: string | null } }>(
     `/team/audit?${q.toString()}`
   );
   return {
-    items: res?.data?.items ?? [],
+    items: res?.data?.entries ?? [],
     next_cursor: res?.data?.next_cursor ?? null,
   };
 }
