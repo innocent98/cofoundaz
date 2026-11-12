@@ -32,24 +32,15 @@ describe('Sidebar (PRD 2.1)', () => {
     missionOpen = 0;
   });
 
-  it('hides Funding Hub and Marketplace until their APIs ship', () => {
-    render(<Sidebar />);
-    for (const label of ['Funding Hub', 'Marketplace']) {
-      expect(hasLink(label)).toBe(false);
+  it('keeps Funding Hub, Marketplace and Investor Readiness hidden on purpose (Adebayo, 2026-11-12)', () => {
+    for (const r of ['founder', 'team_member']) {
+      role = r;
+      const { unmount } = render(<Sidebar />);
+      for (const label of ['Funding Hub', 'Marketplace', 'Investor Readiness']) {
+        expect(hasLink(label)).toBe(false);
+      }
+      unmount();
     }
-  });
-
-  it('shows Investor Readiness to a founder and a team member, not to advisors', () => {
-    const { unmount } = render(<Sidebar />);
-    expect(hasLink('Investor Readiness')).toBe(true);
-    unmount();
-    role = 'team_member';
-    const second = render(<Sidebar />);
-    expect(hasLink('Investor Readiness')).toBe(true);
-    second.unmount();
-    role = 'mentor';
-    render(<Sidebar />);
-    expect(hasLink('Investor Readiness')).toBe(false);
   });
 
   it('founder sees every group, including the founder-only Journal with its lock', () => {
