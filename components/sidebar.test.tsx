@@ -32,11 +32,24 @@ describe('Sidebar (PRD 2.1)', () => {
     missionOpen = 0;
   });
 
-  it('hides Funding Hub, Investor Readiness and Marketplace until their APIs ship', () => {
+  it('hides Funding Hub and Marketplace until their APIs ship', () => {
     render(<Sidebar />);
-    for (const label of ['Funding Hub', 'Investor Readiness', 'Marketplace']) {
+    for (const label of ['Funding Hub', 'Marketplace']) {
       expect(hasLink(label)).toBe(false);
     }
+  });
+
+  it('shows Investor Readiness to a founder and a team member, not to advisors', () => {
+    const { unmount } = render(<Sidebar />);
+    expect(hasLink('Investor Readiness')).toBe(true);
+    unmount();
+    role = 'team_member';
+    const second = render(<Sidebar />);
+    expect(hasLink('Investor Readiness')).toBe(true);
+    second.unmount();
+    role = 'mentor';
+    render(<Sidebar />);
+    expect(hasLink('Investor Readiness')).toBe(false);
   });
 
   it('founder sees every group, including the founder-only Journal with its lock', () => {
@@ -46,7 +59,7 @@ describe('Sidebar (PRD 2.1)', () => {
     }
     expect(['OVERVIEW', 'BUILD', 'GROW', 'RESOURCES', 'WORKSPACE'].every((t) => within(nav()).queryByText(t))).toBe(true);
     // Hidden until they are real (2026-10-29 and 2026-11-05)
-    for (const label of ['Funding Hub', 'Investor Readiness', 'Marketplace', 'Legal & Compliance', 'Analytics & Reports']) {
+    for (const label of ['Funding Hub', 'Marketplace', 'Legal & Compliance', 'Analytics & Reports']) {
       expect(hasLink(label)).toBe(false);
     }
     expect(within(nav()).queryByText('FUND & PROTECT')).toBeNull();
