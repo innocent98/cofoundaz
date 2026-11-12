@@ -125,7 +125,9 @@ async function apiRequest<T>(
   // giving up. Credential endpoints are exempt (a 401 there is bad credentials,
   // not an expired session), and we only attempt this when a token was sent.
   if (res.status === 401 && (token || hasSessionHint()) && !isCredentialEndpoint(endpoint) && typeof window !== 'undefined') {
-    const newToken = await refreshSession();
+    // Another call may already have renewed the token while this one was in flight: use it, do not refresh again.
+    const current = getAccessToken();
+    const newToken = token && current && current !== token ? current : await refreshSession();
     if (newToken) {
       headers.set('Authorization', `Bearer ${newToken}`);
       res = await fetch(url, { ...init, headers });

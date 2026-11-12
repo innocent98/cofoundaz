@@ -1,6 +1,6 @@
-import { apiClient } from './client';
+import { ApiError, apiClient } from './client';
 import { clearSession } from '@/lib/auth/session';
-import { forgetInvite } from '@/lib/auth/pending';
+import { forgetInvite, setLoginNotice } from '@/lib/auth/pending';
 
 export interface MeUser {
   id: string;
@@ -62,8 +62,12 @@ export function hasProfileName(me: MeResponse | null): boolean {
 export async function logout(): Promise<void> {
   try {
     await apiClient('/auth/logout', { method: 'POST' });
-  } catch {
-    // Still clear locally even if the server call fails.
+  } catch (err) {
+    // Still clear locally. A 401 means the server already considers us signed out; anything else
+    // (network, 5xx) means the cookie may still be valid there, so say so on the next screen.
+    if (!(err instanceof ApiError && err.status === 401)) {
+      setLoginNotice("You're signed out on this device, but we couldn't reach the server to end the session everywhere.");
+    }
   }
   // Memory + the session hint, and every other tab of this browser.
   clearSession({ broadcast: true });

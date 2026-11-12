@@ -86,4 +86,17 @@ describe('apiClient 401 handling', () => {
     await apiClient('/invitations/abc');
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it('a 401 for a request sent with a token that is no longer current retries with the current one, no refresh', async () => {
+    fetchMock
+      .mockImplementationOnce(async () => {
+        setSession({ access_token: 'renewed' }) // another call renewed the token while this one was in flight
+        return json(401, {})
+      })
+      .mockResolvedValueOnce(json(200, { data: { ok: true } }))
+    await expect(apiClient('/missions/today')).resolves.toEqual({ data: { ok: true } })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock.mock.calls[1][0]).not.toContain('/auth/refresh')
+    expect(new Headers(fetchMock.mock.calls[1][1].headers).get('Authorization')).toBe('Bearer renewed')
+  })
 });

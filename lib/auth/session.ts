@@ -9,6 +9,8 @@
 const HINT_KEY = 'cf_session';
 const CHANNEL = 'cf-auth';
 const LOCK_NAME = 'cf-refresh';
+const MUTEX_KEY = 'cf_refresh_lock';
+const MUTEX_TTL_MS = 10_000;
 // Same value as lib/api/client.ts API_BASE (duplicated so this module has no import cycle with it).
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/v1';
 
@@ -79,11 +81,45 @@ export function clearSession(opts: { broadcast?: boolean } = {}): void {
   }
 }
 
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+/**
+ * Cross-tab mutex for browsers without Web Locks (Safari/iOS < 15.4, Firefox < 96). A localStorage key holds
+ * {owner, expiresAt}; the TTL means a tab that died mid-refresh cannot block the others for more than ~10 s.
+ * After writing we wait a beat and read back: if another tab wrote at the same instant, only one still owns it.
+ * Best effort by nature (storage has no compare-and-set), but together with the tiny window it removes the
+ * simultaneous-reload race that makes the API see a replayed refresh cookie.
+ */
+export async function withStorageLock<T>(fn: () => Promise<T>, opts: { pollMs?: number; settleMs?: number } = {}): Promise<T> {
+  const pollMs = opts.pollMs ?? 50;
+  const settleMs = opts.settleMs ?? 20;
+  const owner = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const read = (): { owner?: string; expiresAt?: number } =>
+    safeStorage(() => JSON.parse(localStorage.getItem(MUTEX_KEY) ?? '{}') as { owner?: string; expiresAt?: number }, {});
+  for (;;) {
+    const cur = read();
+    if (!cur.owner || !cur.expiresAt || cur.expiresAt <= Date.now()) {
+      safeStorage(() => localStorage.setItem(MUTEX_KEY, JSON.stringify({ owner, expiresAt: Date.now() + MUTEX_TTL_MS })), undefined);
+      await sleep(settleMs);
+      if (read().owner === owner) break;
+    } else {
+      await sleep(pollMs);
+    }
+  }
+  try {
+    return await fn();
+  } finally {
+    if (read().owner === owner) safeStorage(() => localStorage.removeItem(MUTEX_KEY), undefined);
+  }
+}
+
 /** One shared refresh per tab, serialised across tabs so a rotated cookie is never replayed (reuse revokes the sign-in). */
 export function refreshSession(): Promise<string | null> {
   if (typeof window === 'undefined') return Promise.resolve(null);
   if (!inFlight) {
     const run = async (): Promise<string | null> => {
+      // Another tab may have signed out (or learned the cookie is dead) while we waited for the lock.
+      if (!hasSessionHint()) return null;
       try {
         const res = await fetch(`${API_BASE}/auth/refresh`, {
           method: 'POST',
@@ -108,8 +144,12 @@ export function refreshSession(): Promise<string | null> {
         return null;
       }
     };
+    // The cookie is shared by every tab, so a tab that waited and finds the cookie already rotated by another
+    // tab simply refreshes once more with the new one: that is a normal rotation, not a replay.
     const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
-    const p: Promise<string | null> = locks ? (locks.request(LOCK_NAME, run) as unknown as Promise<string | null>) : run();
+    const p: Promise<string | null> = locks
+      ? (locks.request(LOCK_NAME, run) as unknown as Promise<string | null>)
+      : withStorageLock(run);
     inFlight = p.finally(() => {
       inFlight = null;
     });
