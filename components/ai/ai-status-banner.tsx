@@ -10,10 +10,7 @@ interface AiStatusBannerProps {
   className?: string;
 }
 
-/**
- * A subtle, non-alarming banner that renders when AI token budget is exceeded.
- * Copy: "AI personalization is paused until [local time of resets_at] — your data is never affected."
- */
+
 export function AiStatusBanner({ status: propStatus, className = '' }: AiStatusBannerProps) {
   const hookStatus = useAiStatus();
   

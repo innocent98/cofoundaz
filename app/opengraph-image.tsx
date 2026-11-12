@@ -24,6 +24,7 @@ export default async function Image() {
           padding: '80px',
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={wordmarkSrc} alt="Cofoundaz" width={295} height={48} />
         <div style={{ marginTop: 40, fontSize: 76, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.05 }}>
           The co-founder who never sleeps.
