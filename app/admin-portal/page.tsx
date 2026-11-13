@@ -442,7 +442,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
   // If not staff or currently redirecting, render plain 404 with no message
   if (isNotStaff) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-surface text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-surface text-center font-body">
         <h1 className="text-4xl font-bold text-main tracking-tight">404</h1>
         <p className="mt-2 text-sm text-subtle">This page could not be found.</p>
       </div>
@@ -452,7 +452,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
   // Loading staff access verification
   if (authLoading || !me) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface">
+      <div className="min-h-screen flex items-center justify-center bg-surface font-body">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-brand/20 border-t-brand rounded-full animate-spin" />
           <p className="text-xs text-subtle font-medium">Verifying console access...</p>
@@ -465,12 +465,12 @@ export default function AdminPortalPage(): React.JSX.Element | null {
   const hasSupportScope = hasAdminScope(me, 'support');
 
   return (
-    <div className="min-h-screen bg-surface-raised flex flex-col font-sans text-main">
+    <div className="min-h-screen bg-surface-raised flex flex-col font-body text-main">
       {/* Toast Notification Banner */}
       {toastMessage && (
         <div
           role="status"
-          className="fixed bottom-6 right-6 z-50 px-4 py-3 bg-surface border border-brand/30 shadow-xl rounded-xl flex items-center gap-2.5 text-sm font-medium text-main animate-in slide-in-from-bottom-3"
+          className="fixed bottom-6 right-6 z-50 px-4 py-3 bg-surface border border-brand/30 shadow-raised rounded-card flex items-center gap-2.5 text-sm font-medium text-main animate-in slide-in-from-bottom-3"
         >
           <CheckCircle2 className="w-4 h-4 text-brand flex-shrink-0" />
           <span>{toastMessage}</span>
@@ -490,13 +490,13 @@ export default function AdminPortalPage(): React.JSX.Element | null {
         {/* Top-Right Staff Badges (Not Clickable) */}
         <div className="flex items-center gap-2">
           {isSuperAdmin ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-subtle text-brand border border-brand/20 select-none">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-pill bg-brand-subtle text-brand border border-brand/20 select-none">
               <Shield className="w-3.5 h-3.5" />
               Super admin
             </span>
           ) : (
             <div className="flex items-center gap-1.5 select-none">
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full bg-surface-raised border border-neutral-subtle text-main">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-pill bg-surface-raised border border-neutral-subtle text-main">
                 <Shield className="w-3.5 h-3.5 text-brand" />
                 Admin
               </span>
@@ -504,7 +504,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                 me.scopes.map((scope) => (
                   <span
                     key={scope}
-                    className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-brand/10 text-brand capitalize"
+                    className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-pill bg-brand/10 text-brand capitalize"
                   >
                     {scope}
                   </span>
@@ -522,7 +522,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
         {/* Navigation Sidebar */}
         <nav
           aria-label="Admin Navigation"
-          className="w-full md:w-56 flex-shrink-0 bg-surface border border-neutral-subtle rounded-xl p-2.5 h-fit space-y-1"
+          className="w-full md:w-56 flex-shrink-0 bg-surface border border-neutral-subtle rounded-card p-2.5 h-fit space-y-1"
         >
           {/* Dashboard Tab (Always visible) */}
           <button
@@ -530,9 +530,9 @@ export default function AdminPortalPage(): React.JSX.Element | null {
             role="tab"
             aria-selected={activeTab === 'Dashboard'}
             onClick={() => setActiveTab('Dashboard')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left ${
+            className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
               activeTab === 'Dashboard'
-                ? 'bg-brand text-white shadow-sm'
+                ? 'bg-brand text-white shadow-card'
                 : 'text-subtle hover:text-main hover:bg-surface-raised'
             }`}
           >
@@ -547,10 +547,10 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               role="tab"
               aria-selected={activeTab === 'Workspaces'}
               onClick={() => setActiveTab('Workspaces')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
                 activeTab === 'Workspaces'
-                  ? 'bg-brand text-white shadow-sm'
-                  : 'text-subtle hover:text-main hover:bg-surface-raised'
+                  ? 'bg-brand text-white shadow-card'
+                : 'text-subtle hover:text-main hover:bg-surface-raised'
               }`}
             >
               <Boxes className="w-4 h-4" />
@@ -565,10 +565,10 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               role="tab"
               aria-selected={activeTab === 'Users'}
               onClick={() => setActiveTab('Users')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
                 activeTab === 'Users'
-                  ? 'bg-brand text-white shadow-sm'
-                  : 'text-subtle hover:text-main hover:bg-surface-raised'
+                  ? 'bg-brand text-white shadow-card'
+                : 'text-subtle hover:text-main hover:bg-surface-raised'
               }`}
             >
               <Users className="w-4 h-4" />
@@ -594,7 +594,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   type="button"
                   onClick={() => void fetchKpis()}
                   disabled={kpisLoading}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-subtle hover:text-main bg-surface border border-neutral-subtle rounded-lg hover:bg-surface-raised transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-subtle hover:text-main bg-surface border border-neutral-subtle rounded-input hover:bg-surface-raised transition-colors"
                 >
                   <RotateCcw className={`w-3.5 h-3.5 ${kpisLoading ? 'animate-spin' : ''}`} />
                   <span>Refresh</span>
@@ -603,7 +603,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
 
               {/* Error State */}
               {kpisError && (
-                <div className="p-4 bg-danger-subtle/30 border border-danger-subtle rounded-xl flex items-center justify-between text-xs text-danger-strong">
+                <div className="p-4 bg-danger-subtle/30 border border-danger-subtle rounded-card flex items-center justify-between text-xs text-danger-strong">
                   <span>{kpisError}</span>
                   <button
                     type="button"
@@ -618,7 +618,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               {/* KPI Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* 1. Total Workspaces */}
-                <div className="bg-surface border border-neutral-subtle p-4 rounded-xl flex flex-col justify-between relative group">
+                <div className="bg-surface border border-neutral-subtle p-4 rounded-card flex flex-col justify-between relative group shadow-card">
                   <div className="flex items-center justify-between text-xs font-medium text-subtle">
                     <span>Total workspaces</span>
                     <span
@@ -630,15 +630,15 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   </div>
                   <div className="mt-2">
                     {kpisLoading ? (
-                      <div className="h-8 w-24 bg-neutral-subtle/50 animate-pulse rounded" />
+                      <div className="h-8 w-24 bg-neutral-subtle/50 animate-pulse rounded-[4px]" />
                     ) : (
-                      <div className="text-2xl font-bold text-main tracking-tight">
+                      <div className="text-2xl font-bold text-main tracking-tight tabular-nums">
                         {kpis?.total_workspaces?.value != null
                           ? kpis.total_workspaces.value.toLocaleString()
                           : '-'}
                       </div>
                     )}
-                    <div className="text-xs text-subtle mt-1">
+                    <div className="text-xs text-subtle mt-1 tabular-nums">
                       {kpis?.total_workspaces?.new_in_window != null
                         ? `+${kpis.total_workspaces.new_in_window} in 30 days`
                         : '-'}
@@ -647,7 +647,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                 </div>
 
                 {/* 2. Activation Rate */}
-                <div className="bg-surface border border-neutral-subtle p-4 rounded-xl flex flex-col justify-between relative group">
+                <div className="bg-surface border border-neutral-subtle p-4 rounded-card flex flex-col justify-between relative group shadow-card">
                   <div className="flex items-center justify-between text-xs font-medium text-subtle">
                     <span>Activation rate</span>
                     <span
@@ -659,13 +659,13 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   </div>
                   <div className="mt-2">
                     {kpisLoading ? (
-                      <div className="h-8 w-24 bg-neutral-subtle/50 animate-pulse rounded" />
+                      <div className="h-8 w-24 bg-neutral-subtle/50 animate-pulse rounded-[4px]" />
                     ) : (
-                      <div className="text-2xl font-bold text-main tracking-tight">
+                      <div className="text-2xl font-bold text-main tracking-tight tabular-nums">
                         {kpis?.activation_rate?.percent != null ? `${kpis.activation_rate.percent}%` : '-'}
                       </div>
                     )}
-                    <div className="text-xs text-subtle mt-1">
+                    <div className="text-xs text-subtle mt-1 tabular-nums">
                       {kpis?.activation_rate?.previous_percent != null ? (
                         (() => {
                           const delta = kpis.activation_rate.percent - kpis.activation_rate.previous_percent;
@@ -680,7 +680,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                 </div>
 
                 {/* 3. Paid Conversion */}
-                <div className="bg-surface border border-neutral-subtle p-4 rounded-xl flex flex-col justify-between relative group">
+                <div className="bg-surface border border-neutral-subtle p-4 rounded-card flex flex-col justify-between relative group shadow-card">
                   <div className="flex items-center justify-between text-xs font-medium text-subtle">
                     <span>Paid conversion</span>
                     <span
@@ -692,9 +692,9 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   </div>
                   <div className="mt-2">
                     {kpisLoading ? (
-                      <div className="h-8 w-24 bg-neutral-subtle/50 animate-pulse rounded" />
+                      <div className="h-8 w-24 bg-neutral-subtle/50 animate-pulse rounded-[4px]" />
                     ) : (
-                      <div className="text-2xl font-bold text-main tracking-tight">
+                      <div className="text-2xl font-bold text-main tracking-tight tabular-nums">
                         {kpis?.paid_conversion?.percent != null ? `${kpis.paid_conversion.percent}%` : '-'}
                       </div>
                     )}
@@ -703,7 +703,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                 </div>
 
                 {/* 4. MRR */}
-                <div className="bg-surface border border-neutral-subtle p-4 rounded-xl flex flex-col justify-between relative group">
+                <div className="bg-surface border border-neutral-subtle p-4 rounded-card flex flex-col justify-between relative group shadow-card">
                   <div className="flex items-center justify-between text-xs font-medium text-subtle">
                     <span>MRR</span>
                     <span
@@ -715,9 +715,9 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   </div>
                   <div className="mt-2">
                     {kpisLoading ? (
-                      <div className="h-8 w-24 bg-neutral-subtle/50 animate-pulse rounded" />
+                      <div className="h-8 w-24 bg-neutral-subtle/50 animate-pulse rounded-[4px]" />
                     ) : (
-                      <div className="text-2xl font-bold text-main tracking-tight">
+                      <div className="text-2xl font-bold text-main tracking-tight tabular-nums">
                         {kpis?.mrr?.minor != null
                           ? `₦${(kpis.mrr.minor / 100).toLocaleString(undefined, {
                               minimumFractionDigits: 0,
@@ -732,7 +732,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               </div>
 
               {/* Chart: Signups and Activations (Last 30 Days) */}
-              <div className="bg-surface border border-neutral-subtle p-5 rounded-xl">
+              <div className="bg-surface border border-neutral-subtle p-5 rounded-card shadow-card">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-4 border-b border-neutral-subtle">
                   <div>
                     <h2 className="text-sm font-semibold text-main">Signups and activations</h2>
@@ -740,11 +740,11 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   </div>
                   <div className="flex items-center gap-4 text-xs font-medium">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 bg-brand rounded-sm" />
+                      <div className="w-3 h-3 bg-brand rounded-[2px]" />
                       <span className="text-subtle">Signups</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 bg-emerald-500 rounded-sm" />
+                      <div className="w-3 h-3 bg-success-500 rounded-[2px]" />
                       <span className="text-subtle">Activations</span>
                     </div>
                   </div>
@@ -753,7 +753,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                 <div className="mt-6">
                   {kpisLoading ? (
                     <div className="h-64 flex items-center justify-center">
-                      <div className="h-48 w-full bg-neutral-subtle/30 animate-pulse rounded" />
+                      <div className="h-48 w-full bg-neutral-subtle/30 animate-pulse rounded-[4px]" />
                     </div>
                   ) : !kpis?.signups_series || kpis.signups_series.length === 0 ? (
                     <div className="h-64 flex flex-col items-center justify-center text-xs text-muted">
@@ -780,7 +780,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                 className="flex-1 min-w-[20px] flex flex-col items-center justify-end h-full group relative"
                               >
                                 {/* Tooltip */}
-                                <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col bg-neutral-900 text-white text-[10px] p-2 rounded shadow-lg z-20 whitespace-nowrap pointer-events-none">
+                                <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col bg-neutral-900 text-white text-[10px] p-2 rounded-input shadow-raised z-20 whitespace-nowrap pointer-events-none">
                                   <span className="font-bold">{item.date}</span>
                                   <span>Signups: {item.signups}</span>
                                   <span>Activations: {item.activations}</span>
@@ -790,11 +790,11 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                 <div className="w-full flex items-end justify-center gap-0.5 h-full">
                                   <div
                                     style={{ height: `${signupHeight}%` }}
-                                    className="w-1/2 bg-brand rounded-t-sm transition-all hover:opacity-80"
+                                    className="w-1/2 bg-brand rounded-t-[2px] transition-all hover:opacity-80"
                                   />
                                   <div
                                     style={{ height: `${actHeight}%` }}
-                                    className="w-1/2 bg-emerald-500 rounded-t-sm transition-all hover:opacity-80"
+                                    className="w-1/2 bg-success-500 rounded-t-[2px] transition-all hover:opacity-80"
                                   />
                                 </div>
                               </div>
@@ -802,7 +802,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                           });
                         })()}
                       </div>
-                      <div className="flex justify-between text-[10px] text-muted font-mono px-2">
+                      <div className="flex justify-between text-[10px] text-muted tabular-nums font-body px-2">
                         <span>{kpis.signups_series[0]?.date}</span>
                         <span>{kpis.signups_series[Math.floor(kpis.signups_series.length / 2)]?.date}</span>
                         <span>{kpis.signups_series[kpis.signups_series.length - 1]?.date}</span>
@@ -820,7 +820,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
           {activeTab === 'Workspaces' && (
             <section className="space-y-4">
               {!hasSupportScope ? (
-                <div className="p-8 bg-surface border border-neutral-subtle rounded-xl text-center">
+                <div className="p-8 bg-surface border border-neutral-subtle rounded-card text-center">
                   <p className="text-sm font-medium text-main">You don&apos;t have access to this section.</p>
                 </div>
               ) : (
@@ -844,7 +844,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                             if (e.key === 'Enter') void fetchWorkspaces();
                           }}
                           placeholder="Search workspace..."
-                          className="w-full pl-9 pr-3 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-lg focus:outline-none focus:ring-1 focus:ring-brand text-main placeholder:text-muted"
+                          className="w-full pl-9 pr-3 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main placeholder:text-muted"
                         />
                       </div>
 
@@ -854,7 +854,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         onChange={(e) => {
                           setWorkspaceStageFilter(e.target.value as WorkspaceStageFilter);
                         }}
-                        className="px-2.5 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-lg focus:outline-none focus:ring-1 focus:ring-brand text-main"
+                        className="px-2.5 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main"
                       >
                         <option value="all">All stages</option>
                         <option value="idea">Idea</option>
@@ -870,7 +870,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         onChange={(e) => {
                           setWorkspaceBillingFilter(e.target.value as WorkspaceBillingFilter);
                         }}
-                        className="px-2.5 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-lg focus:outline-none focus:ring-1 focus:ring-brand text-main"
+                        className="px-2.5 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main"
                       >
                         <option value="all">All billing</option>
                         <option value="active">Active</option>
@@ -883,7 +883,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                       <button
                         type="button"
                         onClick={() => void fetchWorkspaces()}
-                        className="px-3 py-1.5 text-xs font-medium text-white bg-brand hover:bg-brand-hover rounded-lg transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium text-white bg-brand hover:bg-brand-hover rounded-input transition-colors"
                       >
                         Search
                       </button>
@@ -892,7 +892,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
 
                   {/* Error State */}
                   {workspacesError && (
-                    <div className="p-3 bg-danger-subtle/30 border border-danger-subtle rounded-xl flex items-center justify-between text-xs text-danger-strong">
+                    <div className="p-3 bg-danger-subtle/30 border border-danger-subtle rounded-card flex items-center justify-between text-xs text-danger-strong">
                       <span>{workspacesError}</span>
                       <button
                         type="button"
@@ -905,7 +905,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   )}
 
                   {/* Workspaces Table */}
-                  <div className="bg-surface border border-neutral-subtle rounded-xl overflow-hidden shadow-sm">
+                  <div className="bg-surface border border-neutral-subtle rounded-card overflow-hidden shadow-card">
                     <div className="overflow-x-auto w-full">
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
@@ -947,10 +947,10 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                   </div>
                                 </td>
                                 <td className="py-3 px-4 capitalize">{ws.stage ?? '-'}</td>
-                                <td className="py-3 px-4 font-mono font-medium">{ws.seats != null ? ws.seats : '-'}</td>
+                                <td className="py-3 px-4 tabular-nums font-medium">{ws.seats != null ? ws.seats : '-'}</td>
                                 <td className="py-3 px-4">
                                   {ws.plan ? (
-                                    <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-subtle/50 text-main capitalize">
+                                    <span className="inline-flex px-2 py-0.5 rounded-pill text-[10px] font-semibold bg-neutral-subtle/50 text-main capitalize">
                                       {ws.plan}
                                     </span>
                                   ) : (
@@ -960,12 +960,12 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                 <td className="py-3 px-4">
                                   {ws.health_score != null ? (
                                     <span
-                                      className={`inline-flex items-center gap-1 font-semibold ${
+                                      className={`inline-flex items-center gap-1 font-semibold tabular-nums ${
                                         ws.health_score >= 80
-                                          ? 'text-emerald-600'
+                                          ? 'text-success-700'
                                           : ws.health_score >= 50
-                                          ? 'text-amber-600'
-                                          : 'text-rose-600'
+                                          ? 'text-warning-700'
+                                          : 'text-danger-700'
                                       }`}
                                     >
                                       {ws.health_score}
@@ -1012,7 +1012,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
           {activeTab === 'Users' && (
             <section className="space-y-4">
               {!hasSupportScope ? (
-                <div className="p-8 bg-surface border border-neutral-subtle rounded-xl text-center">
+                <div className="p-8 bg-surface border border-neutral-subtle rounded-card text-center">
                   <p className="text-sm font-medium text-main">You don&apos;t have access to this section.</p>
                 </div>
               ) : (
@@ -1036,7 +1036,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                             if (e.key === 'Enter') void fetchUsers();
                           }}
                           placeholder="Search users by name or email..."
-                          className="w-full pl-9 pr-3 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-lg focus:outline-none focus:ring-1 focus:ring-brand text-main placeholder:text-muted"
+                          className="w-full pl-9 pr-3 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main placeholder:text-muted"
                         />
                       </div>
 
@@ -1046,7 +1046,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         onChange={(e) => {
                           setUserActivityFilter(e.target.value as ActivityFilter);
                         }}
-                        className="px-2.5 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-lg focus:outline-none focus:ring-1 focus:ring-brand text-main"
+                        className="px-2.5 py-1.5 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main"
                       >
                         <option value="all">All activity</option>
                         <option value="active">Active</option>
@@ -1056,7 +1056,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                       <button
                         type="button"
                         onClick={() => void fetchUsers()}
-                        className="px-3 py-1.5 text-xs font-medium text-white bg-brand hover:bg-brand-hover rounded-lg transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium text-white bg-brand hover:bg-brand-hover rounded-input transition-colors"
                       >
                         Search
                       </button>
@@ -1072,9 +1072,9 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         onClick={() => {
                           setUserBillingFilter(tab);
                         }}
-                        className={`px-3 py-1 text-xs font-medium rounded-full capitalize transition-colors ${
+                        className={`px-3 py-1 text-xs font-medium rounded-pill capitalize transition-colors ${
                           userBillingFilter === tab
-                            ? 'bg-brand text-white shadow-sm'
+                            ? 'bg-brand text-white shadow-card'
                             : 'bg-surface border border-neutral-subtle text-subtle hover:text-main'
                         }`}
                       >
@@ -1085,7 +1085,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
 
                   {/* Error State */}
                   {usersError && (
-                    <div className="p-3 bg-danger-subtle/30 border border-danger-subtle rounded-xl flex items-center justify-between text-xs text-danger-strong">
+                    <div className="p-3 bg-danger-subtle/30 border border-danger-subtle rounded-card flex items-center justify-between text-xs text-danger-strong">
                       <span>{usersError}</span>
                       <button
                         type="button"
@@ -1098,7 +1098,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   )}
 
                   {/* Users Table */}
-                  <div className="bg-surface border border-neutral-subtle rounded-xl overflow-hidden shadow-sm">
+                  <div className="bg-surface border border-neutral-subtle rounded-card overflow-hidden shadow-card">
                     <div className="overflow-x-auto w-full">
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
@@ -1140,7 +1140,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                       <span className="font-medium text-main">
                                         {u.primary_workspace.name}
                                         {u.workspace_count > 1 && (
-                                          <span className="text-[10px] text-muted ml-1 font-mono">
+                                          <span className="text-[10px] text-muted ml-1 tabular-nums">
                                             +{u.workspace_count - 1}
                                           </span>
                                         )}
@@ -1155,12 +1155,12 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                   <td className="py-3 px-4 capitalize">
                                     {u.primary_workspace?.billing_status ? (
                                       <span
-                                        className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                        className={`inline-flex px-2 py-0.5 rounded-pill text-[10px] font-semibold ${
                                           u.primary_workspace.billing_status === 'active'
-                                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                            ? 'bg-success-50 text-success-700 border border-success-100'
                                             : u.primary_workspace.billing_status === 'past_due'
-                                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                            ? 'bg-danger-50 text-danger-700 border border-danger-200'
+                                            : 'bg-warning-50 text-warning-700 border border-warning-100'
                                         }`}
                                       >
                                         {u.primary_workspace.billing_status.replace('_', ' ')}
@@ -1172,9 +1172,9 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                   <td className="py-3 px-4 capitalize">
                                     {u.activity ? (
                                       <span
-                                        className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                        className={`inline-flex px-2 py-0.5 rounded-pill text-[10px] font-semibold ${
                                           u.activity === 'active'
-                                            ? 'bg-emerald-50 text-emerald-700'
+                                            ? 'bg-success-50 text-success-700'
                                             : 'bg-neutral-subtle/60 text-muted'
                                         }`}
                                       >
@@ -1186,11 +1186,11 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                   </td>
                                   <td className="py-3 px-4">
                                     {isSuspended ? (
-                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[10px] font-bold bg-danger-100 text-danger-800 border border-danger-200">
                                         Suspended
                                       </span>
                                     ) : (
-                                      <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium bg-neutral-subtle/50 text-main capitalize">
+                                      <span className="inline-flex px-2 py-0.5 rounded-pill text-[10px] font-medium bg-neutral-subtle/50 text-main capitalize">
                                         {u.status}
                                       </span>
                                     )}
@@ -1248,7 +1248,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
           }}
         >
           <div
-            className="w-full max-w-2xl bg-surface border border-neutral-subtle rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            className="w-full max-w-2xl bg-surface border border-neutral-subtle rounded-modal shadow-raised overflow-hidden max-h-[90vh] flex flex-col font-body"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -1265,7 +1265,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   setSelectedWorkspaceId(null);
                   setWorkspaceDetail(null);
                 }}
-                className="p-1 rounded-md text-subtle hover:text-main"
+                className="p-1 rounded-[6px] text-subtle hover:text-main"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1279,13 +1279,13 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   <p className="text-xs">Loading workspace details...</p>
                 </div>
               ) : workspaceDetailError ? (
-                <div className="p-4 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-sm rounded-lg">
+                <div className="p-4 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-sm rounded-input">
                   {workspaceDetailError}
                 </div>
               ) : workspaceDetail ? (
                 <>
                   {/* Meta stats */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-surface-raised rounded-xl border border-neutral-subtle text-xs">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-surface-raised rounded-card border border-neutral-subtle text-xs">
                     <div>
                       <span className="text-muted block">Owner</span>
                       <span className="font-semibold text-main truncate block">
@@ -1300,14 +1300,14 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                     </div>
                     <div>
                       <span className="text-muted block">Seats (Paid)</span>
-                      <span className="font-semibold text-main block">
+                      <span className="font-semibold text-main block tabular-nums">
                         {workspaceDetail.seats} /{' '}
                         {workspaceDetail.seats_limit == null ? 'Unlimited' : workspaceDetail.seats_limit}
                       </span>
                     </div>
                     <div>
                       <span className="text-muted block">Health Score</span>
-                      <span className="font-semibold text-main block">
+                      <span className="font-semibold text-main block tabular-nums">
                         {workspaceDetail.health_score ?? '-'}
                       </span>
                     </div>
@@ -1317,7 +1317,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   <div className="space-y-2">
                     <h3 className="text-xs font-bold text-subtle uppercase tracking-wider">Subscription</h3>
                     {workspaceDetail.subscription ? (
-                      <div className="p-3.5 bg-surface-raised rounded-lg border border-neutral-subtle text-xs space-y-1">
+                      <div className="p-3.5 bg-surface-raised rounded-input border border-neutral-subtle text-xs space-y-1">
                         <div className="flex justify-between">
                           <span className="text-subtle">Plan tier:</span>
                           <span className="font-semibold text-main capitalize">
@@ -1333,7 +1333,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         {workspaceDetail.subscription.renews_at && (
                           <div className="flex justify-between">
                             <span className="text-subtle">Renews on:</span>
-                            <span className="text-main">
+                            <span className="text-main tabular-nums">
                               {formatDate(workspaceDetail.subscription.renews_at)}
                             </span>
                           </div>
@@ -1349,7 +1349,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                     <h3 className="text-xs font-bold text-subtle uppercase tracking-wider">
                       Members ({workspaceDetail.members?.length || 0})
                     </h3>
-                    <div className="border border-neutral-subtle rounded-lg overflow-hidden divide-y divide-neutral-subtle text-xs">
+                    <div className="border border-neutral-subtle rounded-card overflow-hidden divide-y divide-neutral-subtle text-xs">
                       {workspaceDetail.members && workspaceDetail.members.length > 0 ? (
                         workspaceDetail.members.map((m) => (
                           <div key={m.id || m.user_id} className="p-3 flex items-center justify-between">
@@ -1358,7 +1358,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                               <div className="text-[11px] text-muted">{m.email}</div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 bg-neutral-subtle/50 text-[10px] rounded capitalize">
+                              <span className="px-2 py-0.5 bg-neutral-subtle/50 text-[10px] rounded-pill capitalize">
                                 {m.role}
                               </span>
                               <button
@@ -1386,15 +1386,15 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                     <h3 className="text-xs font-bold text-subtle uppercase tracking-wider">
                       Connected Integrations
                     </h3>
-                    <div className="p-3.5 bg-surface-raised rounded-lg border border-neutral-subtle text-xs">
+                    <div className="p-3.5 bg-surface-raised rounded-card border border-neutral-subtle text-xs">
                       {workspaceDetail.integrations && workspaceDetail.integrations.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {workspaceDetail.integrations.map((item) => (
                             <span
                               key={item.id}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface border border-neutral-subtle rounded-md text-main font-medium capitalize"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface border border-neutral-subtle rounded-[6px] text-main font-medium capitalize"
                             >
-                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-success-500" />
                               {item.provider} ({item.status})
                             </span>
                           ))}
@@ -1413,10 +1413,10 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         {Object.entries(workspaceDetail.usage_meters).map(([k, meter]) => (
                           <div
                             key={k}
-                            className="p-3 bg-surface-raised border border-neutral-subtle rounded-lg text-xs"
+                            className="p-3 bg-surface-raised border border-neutral-subtle rounded-input text-xs"
                           >
                             <span className="text-subtle capitalize block">{k.replace('_', ' ')}</span>
-                            <span className="font-bold text-main mt-1 block">
+                            <span className="font-bold text-main mt-1 block tabular-nums">
                               {meter.used} / {meter.limit == null ? 'Unlimited' : meter.limit}
                             </span>
                           </div>
@@ -1446,7 +1446,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
           }}
         >
           <div
-            className="w-full max-w-2xl bg-surface border border-neutral-subtle rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            className="w-full max-w-2xl bg-surface border border-neutral-subtle rounded-modal shadow-raised overflow-hidden max-h-[90vh] flex flex-col font-body"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -1463,7 +1463,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   setSelectedUserId(null);
                   setUserDetail(null);
                 }}
-                className="p-1 rounded-md text-subtle hover:text-main"
+                className="p-1 rounded-[6px] text-subtle hover:text-main"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1477,14 +1477,14 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   <p className="text-xs">Loading user profile...</p>
                 </div>
               ) : userDetailError ? (
-                <div className="p-4 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-sm rounded-lg">
+                <div className="p-4 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-sm rounded-input">
                   {userDetailError}
                 </div>
               ) : userDetail ? (
                 <>
                   {/* Account overview card */}
-                  <div className="p-4 bg-surface-raised rounded-xl border border-neutral-subtle space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="p-4 bg-surface-raised rounded-card border border-neutral-subtle space-y-3">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                       <div>
                         <div className="text-base font-bold text-main">
                           {userDetail.full_name || userDetail.email}
@@ -1493,18 +1493,18 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                       </div>
                       <div>
                         {userDetail.status === 'disabled' ? (
-                          <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                          <span className="px-2.5 py-1 text-xs font-bold rounded-pill bg-danger-100 text-danger-800 border border-danger-200">
                             Suspended
                           </span>
                         ) : (
-                          <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 capitalize">
+                          <span className="px-2.5 py-1 text-xs font-semibold rounded-pill bg-success-100 text-success-800 capitalize">
                             {userDetail.status}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-neutral-subtle text-xs">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 pt-2 border-t border-neutral-subtle text-xs">
                       <div>
                         <span className="text-muted block">Phone</span>
                         <span className="text-main font-medium">
@@ -1517,11 +1517,11 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                       </div>
                       <div>
                         <span className="text-muted block">Joined</span>
-                        <span className="text-main font-medium">{formatDate(userDetail.created_at)}</span>
+                        <span className="text-main font-medium tabular-nums">{formatDate(userDetail.created_at)}</span>
                       </div>
                       <div>
                         <span className="text-muted block">Last active</span>
-                        <span className="text-main font-medium">
+                        <span className="text-main font-medium tabular-nums">
                           {formatRelativeTime(userDetail.last_active_at)}
                         </span>
                       </div>
@@ -1531,13 +1531,13 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   {/* Staff Actions Bar */}
                   <div className="space-y-2">
                     <h3 className="text-xs font-bold text-subtle uppercase tracking-wider">Actions</h3>
-                    <div className="p-4 bg-surface border border-neutral-subtle rounded-xl flex flex-wrap gap-2.5">
+                    <div className="p-4 bg-surface border border-neutral-subtle rounded-card flex flex-wrap gap-2.5">
                       {/* Suspend */}
                       <button
                         type="button"
                         disabled={!userDetail.can?.suspend}
                         onClick={() => triggerSuspend(userDetail)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-xs font-semibold rounded-input bg-danger/10 text-danger hover:bg-danger/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         Suspend user
                       </button>
@@ -1547,7 +1547,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         type="button"
                         disabled={!userDetail.can?.unsuspend}
                         onClick={() => triggerUnsuspend(userDetail)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-xs font-semibold rounded-input bg-success-500/10 text-success-700 hover:bg-success-500/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         Unsuspend
                       </button>
@@ -1561,7 +1561,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                             type="button"
                             disabled={isDisabled}
                             onClick={() => triggerPasswordReset(userDetail)}
-                            className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand/10 text-brand hover:bg-brand/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="px-3 py-1.5 text-xs font-semibold rounded-input bg-brand/10 text-brand hover:bg-brand/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             {cd ? `Reset password (${cd}s)` : 'Send password reset'}
                           </button>
@@ -1577,7 +1577,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                             type="button"
                             disabled={isDisabled}
                             onClick={() => triggerResendVerification(userDetail)}
-                            className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface-raised border border-neutral-subtle text-main hover:bg-neutral-subtle/50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="px-3 py-1.5 text-xs font-semibold rounded-input bg-surface-raised border border-neutral-subtle text-main hover:bg-neutral-subtle/50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             {cd ? `Resend email (${cd}s)` : 'Resend verification'}
                           </button>
@@ -1591,7 +1591,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                     <h3 className="text-xs font-bold text-subtle uppercase tracking-wider">
                       Workspaces ({userDetail.workspaces?.length || 0})
                     </h3>
-                    <div className="border border-neutral-subtle rounded-lg divide-y divide-neutral-subtle text-xs">
+                    <div className="border border-neutral-subtle rounded-card divide-y divide-neutral-subtle text-xs">
                       {userDetail.workspaces && userDetail.workspaces.length > 0 ? (
                         userDetail.workspaces.map((w) => (
                           <div key={w.id} className="p-3 flex items-center justify-between">
@@ -1600,10 +1600,10 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                               <div className="text-[11px] text-muted">Role: {w.role}</div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-subtle/50 capitalize">
+                              <span className="px-2 py-0.5 rounded-pill text-[10px] bg-neutral-subtle/50 capitalize">
                                 {w.plan || 'Free'}
                               </span>
-                              <span className="px-2 py-0.5 rounded text-[10px] bg-brand/10 text-brand capitalize">
+                              <span className="px-2 py-0.5 rounded-pill text-[10px] bg-brand/10 text-brand capitalize">
                                 {w.billing_status}
                               </span>
                             </div>
@@ -1618,7 +1618,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   {/* Recent Sessions */}
                   <div className="space-y-2">
                     <h3 className="text-xs font-bold text-subtle uppercase tracking-wider">Recent Sessions</h3>
-                    <div className="border border-neutral-subtle rounded-lg divide-y divide-neutral-subtle text-xs">
+                    <div className="border border-neutral-subtle rounded-card divide-y divide-neutral-subtle text-xs">
                       {userDetail.is_staff && (!userDetail.sessions || userDetail.sessions.length === 0) ? (
                         <div className="p-4 text-center text-muted italic">
                           Hidden for staff accounts
@@ -1627,7 +1627,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         userDetail.sessions.map((s) => (
                           <div key={s.id} className="p-3 flex items-center justify-between">
                             <div>
-                              <div className="font-mono text-main">{s.ip_address || 'Unknown IP'}</div>
+                              <div className="tabular-nums text-main">{s.ip_address || 'Unknown IP'}</div>
                               <div className="text-[11px] text-muted truncate max-w-xs">{s.user_agent || '-'}</div>
                             </div>
                             <div className="text-right text-[11px] text-muted">

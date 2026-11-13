@@ -116,7 +116,7 @@ function StaffActionDialogModal({
       ref={dialogRef}
     >
       <div
-        className="relative w-full max-w-lg bg-surface border border-neutral-subtle rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150"
+        className="relative w-full max-w-lg bg-surface border border-neutral-subtle rounded-modal shadow-raised overflow-hidden animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -132,16 +132,16 @@ function StaffActionDialogModal({
             onClick={onClose}
             disabled={isSubmitting}
             aria-label="Close dialog"
-            className="text-subtle hover:text-main p-1 rounded-md transition-colors disabled:opacity-50"
+            className="text-subtle hover:text-main p-1 rounded-[6px] transition-colors disabled:opacity-50"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 font-body">
           {/* Confirmation Copy */}
-          <div className="p-3.5 bg-danger-subtle/20 border border-danger-subtle/40 rounded-lg text-sm font-medium text-main">
+          <div className="p-3.5 bg-danger-subtle/20 border border-danger-subtle/40 rounded-input text-sm font-medium text-main">
             {confirmCopy}
           </div>
 
@@ -155,7 +155,7 @@ function StaffActionDialogModal({
           {error && (
             <div
               role="alert"
-              className="flex items-start gap-2 p-3 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-xs rounded-lg"
+              className="flex items-start gap-2 p-3 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-xs rounded-input"
             >
               <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
               <div className="flex-1 leading-relaxed">{error}</div>
@@ -188,7 +188,7 @@ function StaffActionDialogModal({
               onChange={(e) => setReason(e.target.value)}
               disabled={isSubmitting || isTooManyAttempts}
               placeholder="Explain why this action is being taken (10-500 characters)..."
-              className="w-full px-3.5 py-2 text-sm bg-surface-raised border border-neutral-subtle rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-main placeholder:text-muted resize-none disabled:opacity-60"
+              className="w-full px-3.5 py-2 text-sm bg-surface-raised border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main placeholder:text-muted resize-none disabled:opacity-60"
             />
           </div>
 
@@ -214,7 +214,7 @@ function StaffActionDialogModal({
               disabled={isSubmitting || isTooManyAttempts}
               placeholder="000000"
               autoComplete="one-time-code"
-              className="w-full px-3.5 py-2 text-center text-lg tracking-[0.3em] font-mono font-bold bg-surface-raised border border-neutral-subtle rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-main placeholder:text-muted disabled:opacity-60"
+              className="w-full px-3.5 py-2 text-center text-lg tracking-[0.3em] tabular-nums font-bold font-body bg-surface-raised border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main placeholder:text-muted disabled:opacity-60"
             />
           </div>
 
@@ -224,14 +224,14 @@ function StaffActionDialogModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-subtle hover:text-main hover:bg-surface-raised rounded-lg transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-subtle hover:text-main hover:bg-surface-raised rounded-input transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
-              className={`px-4 py-2 text-sm font-medium rounded-lg text-white transition-all shadow-sm flex items-center justify-center gap-2 ${
+              className={`px-4 py-2 text-sm font-medium rounded-input text-white transition-all shadow-card flex items-center justify-center gap-2 ${
                 actionButtonVariant === 'danger'
                   ? 'bg-danger hover:bg-danger-hover disabled:bg-danger/40'
                   : 'bg-brand hover:bg-brand-hover disabled:bg-brand/40'
