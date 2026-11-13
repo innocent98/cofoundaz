@@ -23,6 +23,7 @@ import {
   PieChart,
   TrendingUp,
   Coins,
+  Scale,
   GraduationCap,
   Folder,
   Calendar,
@@ -60,7 +61,8 @@ interface SidebarProps {
 // Hidden from the sidebar on purpose; the pages still open by URL:
 // - Funding Hub, Marketplace and Investor Readiness stay hidden even once every slice is built,
 //   until Adebayo says to show them (2026-11-12). Don't add them back here without his word.
-// - Legal & Compliance and Analytics & Reports are hidden until they are real (Adebayo, 2026-11-05).
+// - Analytics & Reports is hidden until it is real (Adebayo, 2026-11-05). Legal & Compliance is shown again
+//   since its slice 1 shipped (Adebayo, 2026-11-13).
 const navSections: NavSection[] = [
   {
     title: 'OVERVIEW',
@@ -86,6 +88,12 @@ const navSections: NavSection[] = [
       { label: 'Marketing Hub', href: '/marketing', icon: PieChart },
       { label: 'Sales Hub', href: '/sales', icon: TrendingUp },
       { label: 'Finance Hub', href: '/finance', icon: Coins },
+    ],
+  },
+  {
+    title: 'FUND & PROTECT',
+    items: [
+      { label: 'Legal & Compliance', href: '/legal', icon: Scale },
     ],
   },
   {
