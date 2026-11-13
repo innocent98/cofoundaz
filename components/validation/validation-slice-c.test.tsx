@@ -82,7 +82,8 @@ describe('FeedbackInbox', () => {
 
   it('offers Restore on a dismissed item and the dismissed toggle', async () => {
     const props = renderInbox({ items: [{ ...imported, dismissed: true }], showDismissed: true });
-    fireEvent.click(screen.getByRole('button', { name: 'Restore' }));
+    // The accessible name carries the item, like Dismiss, so a screen reader can tell rows apart.
+    fireEvent.click(screen.getByRole('button', { name: 'Restore: I wait three days for my money' }));
     await waitFor(() => expect(props.onRestore).toHaveBeenCalledWith('i2'));
     fireEvent.click(screen.getByRole('button', { name: 'Hide dismissed' }));
     expect(props.onShowDismissed).toHaveBeenCalledWith(false);

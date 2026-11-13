@@ -25,6 +25,20 @@ export const linkBtn =
 export const dangerLinkBtn =
   "inline-flex items-center gap-1 max-md:min-h-11 text-xs font-bold text-danger-600 hover:underline disabled:opacity-50";
 
+/**
+ * Lists render twice (stacked cards below `md`, a table above), and CSS hides one. A deep link
+ * scrolls to whichever of the candidate ids is actually on screen.
+ */
+export function scrollToShown(ids: string[]) {
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el && el.getClientRects().length > 0) {
+      el.scrollIntoView({ block: "center" });
+      return;
+    }
+  }
+}
+
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle: string; action?: React.ReactNode }) {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

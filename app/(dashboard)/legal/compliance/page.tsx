@@ -41,6 +41,7 @@ import {
   inputCls,
   linkBtn,
   primaryBtn,
+  scrollToShown,
   secondaryBtn,
 } from "../_components/ui";
 
@@ -82,7 +83,7 @@ function Compliance() {
 
   useEffect(() => {
     if (!highlightId || resource.status !== "ready") return;
-    document.getElementById(`filing-${highlightId}`)?.scrollIntoView({ block: "center" });
+    scrollToShown([`filing-${highlightId}`, `filing-m-${highlightId}`]);
   }, [highlightId, resource.status]);
 
   const items = useMemo(() => resource.data ?? [], [resource.data]);
@@ -265,7 +266,37 @@ function Compliance() {
                     <EmptyBlock title="No filings match these filters" body="Change the status or date range to see more." />
                   )
                 ) : (
-                  <div className="overflow-x-auto">
+                  <>
+                  {/* Phones: one stacked card per filing, so status and every action stay on screen. */}
+                  <ul className="md:hidden divide-y divide-neutral-100" aria-label="Filings">
+                    {visible.map((item) => (
+                      <li
+                        key={item.id}
+                        id={`filing-m-${item.id}`}
+                        className={`p-4 space-y-2 ${item.id === highlightId ? "bg-accent-100 ring-1 ring-inset ring-accent-200" : ""}`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-neutral-900 break-words">{item.title}</p>
+                            <p className="text-xs text-neutral-500">
+                              {item.authority ?? "Not specified"}
+                              {item.recurrence !== "none" ? ` · Repeats ${RECURRENCE_LABEL[item.recurrence].toLowerCase()}` : ""}
+                            </p>
+                          </div>
+                          <StatusChip label={COMPLIANCE_STATUS_LABEL[item.derived_status]} className={COMPLIANCE_STATUS_CLASS[item.derived_status]} />
+                        </div>
+                        <p className="text-sm">
+                          <span className={`font-medium ${item.derived_status === "overdue" ? "text-danger-600" : "text-neutral-700"}`}>Due {formatDate(item.due_on)}</span>
+                          <span className="text-xs text-neutral-500">
+                            {" · "}
+                            {item.status === "done" && item.done_at ? `Done ${formatTimestamp(item.done_at)}` : dueLabel(item.due_on)}
+                          </span>
+                        </p>
+                        <ItemActions item={item} {...actions} wrap />
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[860px]">
                       <thead>
                         <tr className="bg-neutral-50/50 border-b border-neutral-100 text-[11px] font-bold uppercase tracking-wider text-neutral-400">
@@ -305,6 +336,7 @@ function Compliance() {
                       </tbody>
                     </table>
                   </div>
+                  </>
                 )}
               </div>
             ) : (
@@ -423,6 +455,11 @@ function CalendarView({ items, onOpen }: { items: ComplianceItem[]; onOpen: (id:
     return m;
   }, [items]);
   const move = (d: number) => setYm((c) => shiftMonth(c.year, c.month, d));
+  // The agenda lists only the shown month's days that have filings, earliest first.
+  const agenda = useMemo(() => {
+    const prefix = `${ym.year}-${String(ym.month).padStart(2, "0")}-`;
+    return [...byDay.entries()].filter(([day]) => day.startsWith(prefix)).sort(([a], [b]) => a.localeCompare(b));
+  }, [byDay, ym]);
 
   return (
     <div className="bg-white rounded-modal border border-neutral-200/90 shadow-card overflow-hidden">
@@ -442,7 +479,36 @@ function CalendarView({ items, onOpen }: { items: ComplianceItem[]; onOpen: (id:
           </button>
         </div>
       </div>
-      <div className="overflow-x-auto">
+      {/* Phones: an agenda of this month's filings instead of a 7-column grid, with full-width 44px entries. */}
+      <div className="md:hidden">
+        {agenda.length === 0 ? (
+          <p className="px-4 py-6 text-sm text-neutral-500">No filings due in {monthTitle(ym.year, ym.month)}.</p>
+        ) : (
+          <ol className="divide-y divide-neutral-100" aria-label={`Filings due in ${monthTitle(ym.year, ym.month)}`}>
+            {agenda.map(([day, dayItems]) => (
+              <li key={day} className="px-4 py-3 space-y-2">
+                <h3 className={`text-[11px] font-bold uppercase tracking-wider ${day === today ? "text-accent-700" : "text-neutral-500"}`}>
+                  {formatDate(day)}
+                  {day === today ? " · Today" : ""}
+                </h3>
+                {dayItems.map((i) => (
+                  <button
+                    key={i.id}
+                    type="button"
+                    onClick={() => onOpen(i.id)}
+                    aria-label={`${i.title}, ${COMPLIANCE_STATUS_LABEL[i.derived_status]}, due ${formatDate(i.due_on)}`}
+                    className={`flex w-full min-h-11 items-center justify-between gap-3 text-left text-sm font-semibold px-3 py-2 rounded-card border ${COMPLIANCE_STATUS_CLASS[i.derived_status]}`}
+                  >
+                    <span className="min-w-0 break-words">{i.title}</span>
+                    <span className="shrink-0 text-xs font-medium">{COMPLIANCE_STATUS_LABEL[i.derived_status]}</span>
+                  </button>
+                ))}
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+      <div className="hidden md:block overflow-x-auto">
         <div className="min-w-[720px]">
           <div className="grid grid-cols-7 text-[11px] font-bold uppercase tracking-wider text-neutral-400 border-b border-neutral-100">
             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (

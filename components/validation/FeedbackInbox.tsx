@@ -176,6 +176,7 @@ export function FeedbackInbox({
                         type="button"
                         onClick={() => restore(item)}
                         disabled={busyId === item.id}
+                        aria-label={`Restore: ${item.text}`}
                         className="ml-auto flex items-center gap-1.5 bg-white border border-neutral-200 text-neutral-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-neutral-50 cursor-pointer disabled:opacity-60"
                       >
                         <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" /> Restore

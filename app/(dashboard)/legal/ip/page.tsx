@@ -31,6 +31,7 @@ import {
   inputCls,
   linkBtn,
   primaryBtn,
+  scrollToShown,
   secondaryBtn,
   darkBtn,
 } from "../_components/ui";
@@ -64,7 +65,7 @@ function IPTracker() {
   // A notification link lands on its row: scroll it into view once the list is there.
   useEffect(() => {
     if (!highlightId || resource.status !== "ready") return;
-    document.getElementById(`ip-${highlightId}`)?.scrollIntoView({ block: "center" });
+    scrollToShown([`ip-${highlightId}`, `ip-m-${highlightId}`]);
   }, [highlightId, resource.status]);
 
   const confirmDelete = async () => {
@@ -160,7 +161,42 @@ function IPTracker() {
                 </EmptyBlock>
               )
             ) : (
-              <div className="overflow-x-auto">
+              <>
+              {/* Phones: one stacked card per asset, so status, renewal and actions stay on screen. */}
+              <ul className="md:hidden divide-y divide-neutral-100" aria-label="IP assets">
+                {assets.map((a) => (
+                  <li
+                    key={a.id}
+                    id={`ip-m-${a.id}`}
+                    className={`p-4 space-y-2 ${a.id === highlightId ? "bg-accent-100 ring-1 ring-inset ring-accent-200" : ""}`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-neutral-900 break-words">{a.name}</p>
+                        <p className="text-xs text-neutral-500">
+                          {IP_TYPE_LABEL[a.type]} · {a.jurisdiction}
+                        </p>
+                      </div>
+                      <StatusChip label={IP_STATUS_LABEL[a.derived_status]} className={IP_STATUS_CLASS[a.derived_status]} />
+                    </div>
+                    <p className={`text-sm font-medium ${a.derived_status === "expired" ? "text-danger-600" : "text-neutral-600"}`}>
+                      <span className="text-xs text-neutral-500 font-normal">Renewal: </span>
+                      {renewalLabel(a.renewal_on, a.derived_status)}
+                    </p>
+                    {canWrite && (
+                      <div className="flex flex-wrap items-center gap-x-5">
+                        <button type="button" className={linkBtn} onClick={() => setEditing(a)} aria-label={`${a.derived_status === "expired" ? "Update renewal for" : "Edit"} ${a.name}`}>
+                          {a.derived_status === "expired" ? "Update renewal" : "Edit"}
+                        </button>
+                        <button type="button" className={dangerLinkBtn} onClick={() => setDeleting(a)} aria-label={`Delete ${a.name}`}>
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[760px]">
                   <thead>
                     <tr className="bg-neutral-50/50 border-b border-neutral-100 text-[11px] font-bold uppercase tracking-wider text-neutral-400">
@@ -203,6 +239,7 @@ function IPTracker() {
                   </tbody>
                 </table>
               </div>
+              </>
             )}
           </div>
         )}
