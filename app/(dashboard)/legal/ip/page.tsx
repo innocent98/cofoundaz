@@ -190,7 +190,7 @@ function IPTracker() {
                         </td>
                         {canWrite && (
                           <td className="py-4 px-6 text-right whitespace-nowrap space-x-3">
-                            <button type="button" className={linkBtn} onClick={() => setEditing(a)} aria-label={`Edit ${a.name}`}>
+                            <button type="button" className={linkBtn} onClick={() => setEditing(a)} aria-label={`${a.derived_status === "expired" ? "Update renewal for" : "Edit"} ${a.name}`}>
                               {a.derived_status === "expired" ? "Update renewal" : "Edit"}
                             </button>
                             <button type="button" className={dangerLinkBtn} onClick={() => setDeleting(a)} aria-label={`Delete ${a.name}`}>
@@ -217,6 +217,12 @@ function IPTracker() {
             triggerToast(message);
             await resource.reload();
           }}
+          onGone={async () => {
+            // Deleted elsewhere (a 404): close, say so and drop the stale row, like the delete flow.
+            setEditing(null);
+            triggerToast("That asset no longer exists.", "error");
+            await resource.reload();
+          }}
         />
       )}
 
@@ -235,7 +241,17 @@ function IPTracker() {
   );
 }
 
-function AssetDrawer({ asset, onClose, onSaved }: { asset: IpAsset | null; onClose: () => void; onSaved: (message: string) => Promise<void> }) {
+function AssetDrawer({
+  asset,
+  onClose,
+  onSaved,
+  onGone,
+}: {
+  asset: IpAsset | null;
+  onClose: () => void;
+  onSaved: (message: string) => Promise<void>;
+  onGone: () => Promise<void>;
+}) {
   const isEdit = asset !== null;
   const [type, setType] = useState<IpType>(asset?.type ?? "trademark");
   const [name, setName] = useState(asset?.name ?? "");
@@ -264,8 +280,9 @@ function AssetDrawer({ asset, onClose, onSaved }: { asset: IpAsset | null; onClo
       await onSaved(asset ? "IP asset updated." : "IP asset added.");
     } catch (err) {
       const le = toLegalError(err, "Couldn't save this asset. Try again.");
+      if (le.notFound) return void onGone();
       setFieldErrors(le.fieldErrors);
-      setError(le.notFound ? "That asset no longer exists." : le.message);
+      setError(le.message);
       setBusy(false);
     }
   };

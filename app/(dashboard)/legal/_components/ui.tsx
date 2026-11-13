@@ -136,14 +136,27 @@ export function Field({
   hint?: string;
   children: React.ReactNode;
 }) {
+  // Tie the hint or error to the control so a screen reader announces it, and mark the control invalid.
+  const describedBy = error ? `${htmlFor}-error` : hint ? `${htmlFor}-hint` : undefined;
+  const control = React.isValidElement<{ "aria-describedby"?: string; "aria-invalid"?: boolean }>(children)
+    ? React.cloneElement(children, { "aria-describedby": describedBy, "aria-invalid": error ? true : undefined })
+    : children;
   return (
     <div className="space-y-1.5">
       <label htmlFor={htmlFor} className={labelCls}>
         {label}
       </label>
-      {children}
-      {hint && !error && <p className="text-xs text-neutral-500">{hint}</p>}
-      {error && <p className="text-xs font-medium text-danger-600">{error}</p>}
+      {control}
+      {hint && !error && (
+        <p id={`${htmlFor}-hint`} className="text-xs text-neutral-500">
+          {hint}
+        </p>
+      )}
+      {error && (
+        <p id={`${htmlFor}-error`} className="text-xs font-medium text-danger-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

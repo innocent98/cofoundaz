@@ -109,6 +109,15 @@ function Compliance() {
     await resource.reload();
   };
 
+  // A dialog's filing was deleted elsewhere (a 404): close it, say so, and drop the stale row.
+  const gone = async () => {
+    setEditing(null);
+    setMarkingDone(null);
+    setProofFor(null);
+    triggerToast("That filing no longer exists.", "error");
+    await resource.reload();
+  };
+
   const onMarkedDone = async (item: ComplianceItem) => {
     setMarkingDone(null);
     // Marking a repeating filing done creates the next one; nothing in the reply says so, so refetch.
@@ -305,9 +314,9 @@ function Compliance() {
         )}
       </ResourceGate>
 
-      {editing && <FilingDrawer item={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSaved={saved} />}
-      {markingDone && <MarkDoneDialog item={markingDone} onClose={() => setMarkingDone(null)} onDone={onMarkedDone} />}
-      {proofFor && <ProofDialog item={proofFor} onClose={() => setProofFor(null)} onUploaded={() => saved("Proof uploaded.")} />}
+      {editing && <FilingDrawer item={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSaved={saved} onGone={gone} />}
+      {markingDone && <MarkDoneDialog item={markingDone} onClose={() => setMarkingDone(null)} onDone={onMarkedDone} onGone={gone} />}
+      {proofFor && <ProofDialog item={proofFor} onClose={() => setProofFor(null)} onUploaded={() => saved("Proof uploaded.")} onGone={gone} />}
       {deleting && (
         <ConfirmDialog
           title="Delete this filing?"
