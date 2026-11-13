@@ -5,6 +5,14 @@ export interface ApiErrorInfo {
   code: string | null;
   message: string;
   fieldErrors: Array<{ field: string; message: string }>;
+  /** Seconds to wait (429 ACCOUNT_LOCKED / RATE_LIMITED), when the API says. */
+  retryAfterSeconds: number | null;
+  /** Wrong-code tries left on an MFA ticket (MFA_INVALID_CODE). */
+  attemptsRemaining: number | null;
+}
+
+function num(v: unknown): number | null {
+  return typeof v === 'number' && Number.isFinite(v) ? v : null;
 }
 
 /**
@@ -14,7 +22,15 @@ export interface ApiErrorInfo {
 export function apiErrorInfo(err: unknown, fallback: string): ApiErrorInfo {
   if (err instanceof ApiError) {
     const body = err.data as
-      | { error?: { code?: string; message?: string; field_errors?: unknown } }
+      | {
+          error?: {
+            code?: string;
+            message?: string;
+            field_errors?: unknown;
+            retry_after_seconds?: unknown;
+            attempts_remaining?: unknown;
+          };
+        }
       | undefined;
     const e = body?.error;
     const raw = Array.isArray(e?.field_errors) ? (e!.field_errors as unknown[]) : [];
@@ -26,7 +42,9 @@ export function apiErrorInfo(err: unknown, fallback: string): ApiErrorInfo {
       code: e?.code ?? null,
       message: e?.message || fallback,
       fieldErrors,
+      retryAfterSeconds: num(e?.retry_after_seconds),
+      attemptsRemaining: num(e?.attempts_remaining),
     };
   }
-  return { status: null, code: null, message: (err as { message?: string })?.message || fallback, fieldErrors: [] };
+  return { status: null, code: null, message: (err as { message?: string })?.message || fallback, fieldErrors: [], retryAfterSeconds: null, attemptsRemaining: null };
 }

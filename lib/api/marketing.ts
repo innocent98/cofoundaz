@@ -1,3 +1,4 @@
+import { accessTokenForRequest } from '@/lib/auth/session';
 import { API_BASE, apiClient, ApiError } from './client';
 
 // Typed client for the Marketing backend (Module 10), /api/v1/marketing/*.
@@ -638,7 +639,7 @@ export const deleteMetric = (id: string) => call<{ deleted: boolean }>(`/metrics
  */
 export async function exportAnalyticsCsv(range: AnalyticsRange): Promise<{ blob: Blob; filename: string }> {
   const headers = new Headers();
-  const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
+  const token = await accessTokenForRequest();
   const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('cf_workspace_id') : null;
   if (token) headers.set('Authorization', `Bearer ${token}`);
   if (workspaceId) headers.set('X-Workspace-Id', workspaceId);
@@ -716,7 +717,7 @@ export const MEDIA_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'
  */
 export async function fetchMediaBlob(id: string, signal?: AbortSignal): Promise<Blob> {
   const headers = new Headers();
-  const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
+  const token = await accessTokenForRequest();
   const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('cf_workspace_id') : null;
   if (token) headers.set('Authorization', `Bearer ${token}`);
   if (workspaceId) headers.set('X-Workspace-Id', workspaceId);

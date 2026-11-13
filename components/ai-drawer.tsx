@@ -9,12 +9,8 @@ import { useWorkspace } from './workspace-context';
 import { canSee } from '@/lib/nav-access';
 import { useAICoFounder } from '../hooks/useAICoFounder';
 import { AiStatusBanner } from './ai/ai-status-banner';
-import { ChatMessageContent } from './ai/chat-message-content';
-
-const STARTER_PROMPTS = [
-  'What should I focus on this week?',
-  'Poke holes in my business model',
-];
+import { ChatMessage } from './ai/chat-message';
+import { EMPTY_BODY, EMPTY_TITLE, STARTER_PROMPTS } from '@/lib/ai-copy';
 
 export function AiDrawer() {
   const pathname = usePathname();
@@ -28,12 +24,17 @@ export function AiDrawer() {
   const chatScrollRef = useRef<HTMLDivElement>(null);
   
   const {
+    activeConversationId,
     messages,
     isGenerating,
     threadLoading,
     error,
     sendMessage,
     startNewChat,
+    cancel,
+    regenerate,
+    setFeedback,
+    runAction,
   } = useAICoFounder();
 
   // Auto-scroll
@@ -134,7 +135,7 @@ export function AiDrawer() {
                 <div>
                   <h3 className="font-bold text-sm text-ink">AI Co-Founder</h3>
                   <Link 
-                    href="/ai" 
+                    href={activeConversationId ? `/ai?c=${activeConversationId}` : '/ai'}
                     onClick={closeAiDrawer}
                     className="text-xs font-semibold text-brand-700 hover:underline"
                   >
@@ -146,7 +147,7 @@ export function AiDrawer() {
                 {messages.length > 0 && (
                   <button
                     type="button"
-                    onClick={startNewChat}
+                    onClick={() => startNewChat()}
                     className="flex items-center gap-1 px-2.5 py-1.5 rounded-card text-xs font-semibold text-neutral-600 hover:text-brand-x1f4d3a hover:bg-neutral-100 transition-colors cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -182,12 +183,8 @@ export function AiDrawer() {
                 {!threadLoading && messages.length === 0 && (
                   <div className="flex flex-col items-center justify-center h-full text-center py-10 space-y-3">
                     <Sparkles className="w-8 h-8 text-accent-600" />
-                    <p className="text-sm font-medium text-neutral-700">
-                      Ask your AI co-founder anything.
-                    </p>
-                    <p className="text-xs text-neutral-500 max-w-[16rem]">
-                      Replies use what it knows about your workspace. Your conversations are private to you.
-                    </p>
+                    <p className="text-sm font-medium text-neutral-700">{EMPTY_TITLE}</p>
+                    <p className="text-xs text-neutral-500 max-w-[18rem]">{EMPTY_BODY}</p>
                     <div className="flex flex-col gap-2 w-full pt-2">
                       {STARTER_PROMPTS.map((prompt) => (
                         <button
@@ -203,31 +200,15 @@ export function AiDrawer() {
                   </div>
                 )}
 
-                {messages.map((msg) => (
-                  <div
+                {messages.map((msg, i) => (
+                  <ChatMessage
                     key={msg.id}
-                    className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
-                  >
-                    {msg.role === 'assistant' && (
-                      <div className="text-[11px] font-semibold text-neutral-500 mb-1 ml-9">Co-Founder</div>
-                    )}
-                    <div className={`flex items-start gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''} w-full`}>
-                      {msg.role === 'assistant' && (
-                        <div className="w-7 h-7 rounded-input bg-brand-x1f4d3a text-white flex items-center justify-center shrink-0 mt-0.5 shadow-card">
-                          <Sparkles className="w-3.5 h-3.5 fill-accent-600 text-accent-600" />
-                        </div>
-                      )}
-                      <div
-                        className={`max-w-[85%] p-3.5 text-sm rounded-card shadow-card ${
-                          msg.role === 'user'
-                            ? 'bg-brand-x1f4d3a text-white rounded-tr-sm'
-                            : 'bg-white border border-neutral-100 text-neutral-x1c201d rounded-tl-sm'
-                        }`}
-                      >
-                        <ChatMessageContent message={msg} />
-                      </div>
-                    </div>
-                  </div>
+                    message={msg}
+                    compact
+                    isLatest={i === messages.length - 1}
+                    busy={isGenerating}
+                    handlers={{ onRegenerate: regenerate, onFeedback: setFeedback, onAction: runAction }}
+                  />
                 ))}
               </div>
             </div>
@@ -261,7 +242,16 @@ export function AiDrawer() {
                   aria-label="Message your AI co-founder"
                   className="w-full bg-transparent text-sm outline-none text-ink placeholder-ink-subtle py-2 resize-none h-[40px] max-h-[120px]"
                 />
-                <div className="flex items-center justify-end mt-1">
+                <div className="flex items-center justify-end gap-2 mt-1">
+                  {isGenerating && (
+                    <button
+                      type="button"
+                      onClick={() => { void cancel(); }}
+                      className="font-semibold text-xs px-3 py-1.5 rounded-card border border-line-soft text-ink hover:bg-surface-faint cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  )}
                   <button
                     type="submit"
                     disabled={!chatInput.trim() || isGenerating || threadLoading}

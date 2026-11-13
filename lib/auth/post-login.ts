@@ -1,4 +1,6 @@
 import { apiClient } from '@/lib/api/client';
+import { ensureSession, setSession } from '@/lib/auth/session';
+import { forgetInvite, readInvite, rememberPendingEmail } from '@/lib/auth/pending';
 
 // Shared "we now hold a token pair" routing, used by BOTH the password login and
 // the MFA challenge so their behavior can't drift. Persists the session, resolves
@@ -28,16 +30,14 @@ export interface PostLoginResult {
 
 async function resolveLanding(opts: {
   accessToken: string;
-  refreshToken?: string;
+  expiresIn?: number | null;
   email?: string;
   nextPath?: string | null;
 }): Promise<string> {
-  const { accessToken, refreshToken, nextPath } = opts;
+  const { accessToken, expiresIn, nextPath } = opts;
 
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('cf_token', accessToken);
-    if (refreshToken) localStorage.setItem('cf_refresh_token', refreshToken);
-  }
+  // Memory only (lib/auth/session.ts); the refresh token is the HttpOnly cookie the API just set.
+  setSession({ access_token: accessToken, expires_in: expiresIn });
 
   const authHeader = { Authorization: `Bearer ${accessToken}` };
 
@@ -61,8 +61,12 @@ async function resolveLanding(opts: {
   const email = meRes?.data?.user?.email ?? opts.email ?? '';
 
   if (meRes?.data?.user?.status === 'pending_verification') {
-    return `/verify?email=${encodeURIComponent(email)}`;
+    rememberPendingEmail(email);
+    return '/verify-email';
   }
+
+  // An invitation link wins over the wizard: the invitee came to join, not to start a startup.
+  if (nextPath?.startsWith('/invite/')) return nextPath;
 
   try {
     const state = await apiClient<OnboardingStateResponse>('/onboarding/state', { headers: authHeader });
@@ -73,7 +77,8 @@ async function resolveLanding(opts: {
     return '/onboarding';
   } catch (onberr: unknown) {
     if ((onberr as { status?: number })?.status === 403) {
-      return `/verify?email=${encodeURIComponent(email)}`;
+      rememberPendingEmail(email);
+      return '/verify-email';
     }
     return nextPath || '/dashboard';
   }
@@ -81,7 +86,8 @@ async function resolveLanding(opts: {
 
 export async function completePostLogin(opts: {
   accessToken: string;
-  refreshToken?: string;
+  /** Seconds the access token lives (the API's `expires_in`); schedules the silent refresh. */
+  expiresIn?: number | null;
   /** Optional: when absent (Google sign-in) the email is read from /auth/me. */
   email?: string;
   router: RouterLike;
@@ -120,11 +126,7 @@ export async function completePostLogin(opts: {
 export const INVITE_TOKEN_KEY = 'cf_invite_token';
 
 export function clearStoredInvite(): void {
-  try {
-    sessionStorage.removeItem(INVITE_TOKEN_KEY);
-  } catch {
-    /* ignore storage errors */
-  }
+  forgetInvite();
 }
 
 // After onboarding completes, the workspace has JUST been created — the session
@@ -141,5 +143,22 @@ export async function syncActiveWorkspace(): Promise<string | null> {
     return wid;
   } catch {
     return null;
+  }
+}
+
+// Where "Continue" goes on the "You're verified" page (gap 9, D-AUTH-4): a pending invite
+// first, then the wizard until it is finished, else the dashboard. Signed out → log in
+// (carrying the invite link when there is one).
+
+export async function resolveAfterVerify(): Promise<string> {
+  const invite = readInvite();
+  const inviteHref = invite ? `/invite/${encodeURIComponent(invite)}` : null;
+  if (!(await ensureSession())) return inviteHref ? `/login?next=${encodeURIComponent(inviteHref)}` : '/login';
+  if (inviteHref) return inviteHref;
+  try {
+    const state = await apiClient<OnboardingStateResponse>('/onboarding/state');
+    return state.data?.completed ? '/dashboard' : '/onboarding';
+  } catch {
+    return '/dashboard';
   }
 }

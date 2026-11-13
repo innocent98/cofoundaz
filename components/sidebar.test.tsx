@@ -32,10 +32,14 @@ describe('Sidebar (PRD 2.1)', () => {
     missionOpen = 0;
   });
 
-  it('hides Funding Hub, Investor Readiness and Marketplace until their APIs ship', () => {
-    render(<Sidebar />);
-    for (const label of ['Funding Hub', 'Investor Readiness', 'Marketplace']) {
-      expect(hasLink(label)).toBe(false);
+  it('keeps Funding Hub, Marketplace and Investor Readiness hidden on purpose (Adebayo, 2026-11-12)', () => {
+    for (const r of ['founder', 'team_member']) {
+      role = r;
+      const { unmount } = render(<Sidebar />);
+      for (const label of ['Funding Hub', 'Marketplace', 'Investor Readiness']) {
+        expect(hasLink(label)).toBe(false);
+      }
+      unmount();
     }
   });
 
@@ -45,11 +49,20 @@ describe('Sidebar (PRD 2.1)', () => {
       expect(hasLink(label)).toBe(true);
     }
     expect(['OVERVIEW', 'BUILD', 'GROW', 'RESOURCES', 'WORKSPACE'].every((t) => within(nav()).queryByText(t))).toBe(true);
-    // Hidden until they are real (2026-10-29 and 2026-11-05)
-    for (const label of ['Funding Hub', 'Investor Readiness', 'Marketplace', 'Legal & Compliance', 'Analytics & Reports']) {
+    // Hidden on purpose (2026-11-05 and 2026-11-12)
+    for (const label of ['Funding Hub', 'Marketplace', 'Investor Readiness', 'Analytics & Reports']) {
       expect(hasLink(label)).toBe(false);
     }
-    expect(within(nav()).queryByText('FUND & PROTECT')).toBeNull();
+    // Legal & Compliance is shown again since its slice 1 shipped (2026-11-13)
+    expect(hasLink('Legal & Compliance')).toBe(true);
+    expect(within(nav()).queryByText('FUND & PROTECT')).not.toBeNull();
+  });
+
+  it('legal advisor sees Legal & Compliance, and not the founder modules', () => {
+    role = 'legal_advisor';
+    render(<Sidebar />);
+    expect(hasLink('Legal & Compliance')).toBe(true);
+    for (const label of ["Today's Mission", 'Finance Hub', 'Team', 'Journal']) expect(hasLink(label)).toBe(false);
   });
 
   it('accountant sees only Finance Hub, Documents and Calendar (invited meetings only) plus Dashboard; everything else is hidden, not disabled', () => {

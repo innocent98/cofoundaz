@@ -1,19 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { OnboardingWizard, OnboardingFormValues } from '@/ui/onboarding/onboarding-wizard'
+import { OnboardingWizard, OnboardingFormValues, CompleteTarget } from '@/ui/onboarding/onboarding-wizard'
 import {
   getOnboardingState,
   patchOnboardingState,
   uploadOnboardingLogo,
   sendOnboardingInvites,
+  InviteResult,
   completeOnboarding,
   BusinessModel,
   StartupStage,
   MembershipRole,
 } from '@/lib/api/onboarding'
 import { ApiError } from '@/lib/api/client'
+import { apiErrorInfo } from '@/lib/api/api-error'
+import { readInvite } from '@/lib/auth/pending'
 import { syncActiveWorkspace } from '@/lib/auth/post-login'
 import { COUNTRIES } from '@/lib/countries'
 
@@ -24,11 +28,20 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [pendingInvite, setPendingInvite] = useState(false)
 
   useEffect(() => {
     async function loadState() {
       try {
         const state = await getOnboardingState()
+        // Finished (or a member of someone else's workspace, whose state reads completed):
+        // the wizard is not for them.
+        if (state.completed) {
+          router.replace('/dashboard')
+          return
+        }
+        setPendingInvite(state.pending_invite === true)
         if (state.ai_panel) {
           setAiPanel(state.ai_panel)
         }
@@ -57,11 +70,12 @@ export default function OnboardingPage() {
       }
     }
     loadState()
-  }, [])
+  }, [router])
 
   async function handleSaveStep(step: number, data: Partial<OnboardingFormValues>) {
     setSubmitting(true)
     setError(null)
+    setFieldErrors({})
     try {
       const res = await patchOnboardingState({
         step,
@@ -84,37 +98,53 @@ export default function OnboardingPage() {
       }
       return res
     } catch (err: unknown) {
-      if (err instanceof ApiError) {
-        setError(`Failed to save step: ${err.status}`)
-      } else {
-        setError('Network error while saving progress.')
+      const info = apiErrorInfo(err, 'Could not save your progress. Please try again.')
+      if (info.code === 'ONBOARDING_NOT_FOR_INVITED') {
+        router.replace('/dashboard')
+        return null
       }
+      if (info.fieldErrors.length) {
+        setFieldErrors(Object.fromEntries(info.fieldErrors.map((f) => [f.field, f.message])))
+        setError(info.message)
+      } else {
+        setError(err instanceof ApiError ? info.message : 'Network error while saving progress.')
+      }
+      return null
     } finally {
       setSubmitting(false)
     }
   }
 
-  async function handleUploadLogo(file: File) {
+  async function handleUploadLogo(file: File): Promise<boolean> {
+    setError(null)
     try {
       await uploadOnboardingLogo(file)
-    } catch {
-      // Non-blocking upload error
+      return true
+    } catch (err) {
+      // The API's own message ("Logo must be 2 MB or smaller.") is shown and the wizard stays on step 2.
+      setError(apiErrorInfo(err, 'Could not upload the logo. Please try again.').message)
+      return false
     }
   }
 
-  async function handleSendInvites(invites: Array<{ email: string; role: string }>) {
+  async function handleSendInvites(
+    invites: Array<{ email: string; role: string }>
+  ): Promise<InviteResult[] | null> {
+    setSubmitting(true)
+    setError(null)
     try {
-      const items = invites.map((i) => ({
-        email: i.email,
-        role: i.role as MembershipRole,
-      }))
-      await sendOnboardingInvites(items)
-    } catch {
-      // Non-blocking invite error
+      return await sendOnboardingInvites(
+        invites.map((i) => ({ email: i.email, role: i.role as MembershipRole }))
+      )
+    } catch (err) {
+      setError(apiErrorInfo(err, 'Could not send the invites. Please try again.').message)
+      return null
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  async function handleComplete() {
+  async function handleComplete(then: CompleteTarget) {
     setSubmitting(true)
     setError(null)
     try {
@@ -123,7 +153,7 @@ export default function OnboardingPage() {
       // it, so sync the active workspace id into the client before the dashboard
       // loads — otherwise every tenant-scoped call 422s on a missing X-Workspace-Id.
       await syncActiveWorkspace()
-      router.push('/dashboard')
+      router.push(then === 'assessment' ? '/assessment' : '/dashboard')
     } catch (err: unknown) {
       // 422 ONBOARDING_INCOMPLETE lists the still-missing fields — surface them.
       if (err instanceof ApiError) {
@@ -154,8 +184,24 @@ export default function OnboardingPage() {
     )
   }
 
+  const savedInvite = readInvite()
+
   return (
-    <OnboardingWizard
+    <div className="w-full">
+      {pendingInvite && (
+        <div role="status" className="mx-auto mt-6 w-full max-w-2xl rounded-card border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900">
+          You have a pending invitation to join a startup.{' '}
+          {savedInvite ? (
+            <Link href={`/invite/${encodeURIComponent(savedInvite)}`} className="font-semibold underline">
+              Open the invitation
+            </Link>
+          ) : (
+            'Open the link in your invitation email to accept or decline it.'
+          )}{' '}
+          Or set up your own startup below.
+        </div>
+      )}
+      <OnboardingWizard
       initialValues={initialData || { step: 1 }}
       aiPanel={aiPanel}
       onSaveStep={handleSaveStep}
@@ -166,6 +212,8 @@ export default function OnboardingPage() {
       isSubmitting={submitting}
       error={error}
       countries={COUNTRIES}
+      fieldErrors={fieldErrors}
     />
+    </div>
   )
 }

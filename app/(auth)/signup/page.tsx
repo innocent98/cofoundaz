@@ -1,10 +1,13 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthForm } from "@/ui/marketing/auth/auth-form";
 import { apiClient, ApiError } from "@/lib/api/client";
+import { setSession } from "@/lib/auth/session";
 import { safeNextPath } from "@/lib/auth/safe-next";
+import { apiErrorInfo } from "@/lib/api/api-error";
+import { rememberInvite, rememberPendingEmail } from "@/lib/auth/pending";
 import { startGoogleSignIn, googleStartErrorMessage } from "@/lib/api/google-signin";
 
 interface SignupEnvelope {
@@ -20,11 +23,10 @@ interface SignupEnvelope {
 interface LoginEnvelope {
   data?: {
     access_token?: string;
-    refresh_token?: string;
+    expires_in?: number;
     mfa_required?: boolean;
   };
   access_token?: string;
-  refresh_token?: string;
   token?: string;
 }
 
@@ -34,6 +36,20 @@ function invitedEmail(raw: string | null): string {
   return /^[^\s@,<>]+@[^\s@,<>]+\.[^\s@,<>]+$/.test(v) ? v : "";
 }
 
+/** `next=/invite/<token>` is how an invite link reaches sign-up. */
+function inviteTokenFromNext(next: string | null): string | null {
+  const m = /^\/invite\/([^/?#]+)/.exec(next ?? "");
+  if (!m) return null;
+  let token: string;
+  try {
+    token = decodeURIComponent(m[1]);
+  } catch {
+    return null;
+  }
+  // Invite tokens are URL-safe; anything else (e.g. "../") must never reach an API path.
+  return /^[A-Za-z0-9_-]{8,200}$/.test(token) ? token : null;
+}
+
 function SignupForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -41,10 +57,25 @@ function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string; terms?: string }>({});
+  const [emailTaken, setEmailTaken] = useState(false);
+  const [inviteStartup, setInviteStartup] = useState<string | null>(null);
+
+  // An invited sign-up says "Join {startup}" instead of "Create your workspace".
+  useEffect(() => {
+    const token = inviteTokenFromNext(params.get("next"));
+    if (!token) return;
+    rememberInvite(token);
+    apiClient<{ data?: { startup_name?: string | null } }>(`/invitations/${encodeURIComponent(token)}`)
+      .then((r) => setInviteStartup(r?.data?.startup_name ?? null))
+      .catch(() => undefined);
+  }, [params]);
 
   async function handleSignup(data: { email: string; password: string; agreedTerms?: boolean }) {
     setError(null);
     setSuccessMessage(null);
+    setFieldErrors({});
+    setEmailTaken(false);
     setIsSubmitting(true);
 
     try {
@@ -54,6 +85,7 @@ function SignupForm() {
         body: JSON.stringify({
           email: data.email,
           password: data.password,
+          accepted_terms: data.agreedTerms === true,
         }),
       });
 
@@ -74,36 +106,31 @@ function SignupForm() {
           loginRes.access_token ||
           loginRes.token;
 
-        const refreshToken =
-          loginRes.data?.refresh_token ||
-          loginRes.refresh_token;
-
-        if (accessToken && typeof window !== "undefined") {
-          localStorage.setItem("cf_token", accessToken);
-          if (refreshToken) {
-            localStorage.setItem("cf_refresh_token", refreshToken);
-          }
-        }
+        if (accessToken) setSession({ access_token: accessToken, expires_in: loginRes.data?.expires_in });
       } catch (loginErr) {
         console.warn("Silent login post-signup failed; continuing to verification:", loginErr);
       }
 
       // 3. Direct unverified users to verify screen
-      router.push(`/verify?email=${encodeURIComponent(data.email)}`);
+      rememberPendingEmail(data.email);
+      router.push("/verify-email");
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        const d = err.data as Record<string, unknown> | undefined;
-        const serverMessage =
-          ((d?.error as { message?: string } | undefined)?.message) ||
-          (typeof d?.detail === "string" ? d.detail : null) ||
-          (Array.isArray(d?.detail) && d.detail[0]?.msg ? String(d.detail[0].msg) : null);
-
-        if (err.status === 409 || err.status === 400) {
-          setError(serverMessage || "An account with this email already exists. Please log in.");
+        const info = apiErrorInfo(err, "Signup failed. Please try again.");
+        const byField = (name: string) => info.fieldErrors.find((f) => f.field === name)?.message;
+        if (info.code === "EMAIL_TAKEN" || err.status === 409) {
+          setEmailTaken(true);
+        } else if (info.code === "TERMS_NOT_ACCEPTED") {
+          setFieldErrors({ terms: byField("accepted_terms") || info.message });
         } else if (err.status === 422) {
-          setError(serverMessage || "Password does not meet the security criteria.");
+          const pw = byField("password") || (info.code === "WEAK_PASSWORD" ? info.message : undefined);
+          const em = byField("email");
+          if (pw || em) setFieldErrors({ password: pw, email: em });
+          else setError(info.message);
+        } else if (err.status === 429) {
+          setError(info.message);
         } else {
-          setError(serverMessage || "Signup failed. Please try again.");
+          setError(info.message);
         }
       } else {
         setError(err instanceof Error ? err.message : "An unexpected network error occurred. Please try again.");
@@ -131,6 +158,9 @@ function SignupForm() {
       successMessage={successMessage}
       isSubmitting={isSubmitting}
       initialEmail={prefill}
+      fieldErrors={fieldErrors}
+      emailTaken={emailTaken}
+      inviteStartup={inviteStartup}
     />
   );
 }

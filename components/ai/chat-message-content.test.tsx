@@ -49,4 +49,11 @@ describe('ChatMessageContent', () => {
     render(<ChatMessageContent message={m({ status: 'failed' })} />);
     expect(screen.getByText("Couldn't reach your co-founder. Try again.")).toBeTruthy();
   });
+
+  it('shows the server reason on a failed turn instead of the generic copy', () => {
+    const limit = "Today's AI usage limit for your workspace has been reached. Try again tomorrow.";
+    render(<ChatMessageContent message={m({ status: 'failed', content: limit })} />);
+    expect(screen.getByText(limit)).toBeTruthy();
+    expect(screen.queryByText("Couldn't reach your co-founder. Try again.")).toBeNull();
+  });
 });

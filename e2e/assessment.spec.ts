@@ -51,10 +51,11 @@ async function setup(page: Page, o: Opts = {}) {
   const role = o.role ?? 'founder'
   let healthScore = 88
   await page.addInitScript((ws) => {
-    localStorage.setItem('cf_token', 'placeholder-token')
+    localStorage.setItem('cf_session', '1')
     localStorage.setItem('cf_workspace_id', ws)
   }, WS)
   await page.route('**/api/v1/**', (route) => route.fulfill(json([])))
+  await page.route('**/api/v1/auth/refresh', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { access_token: 'placeholder-token', refresh_token: null, expires_in: 900 }, meta: null }) }))
   await page.route('**/api/v1/auth/me', (route) => route.fulfill(json(me(role))))
   await page.route('**/api/v1/health-score', (route) =>
     route.fulfill(json({ status: 'ok', score: healthScore, band: 'healthy', delta_7d: 0, summary: 's', dimensions: [], top_recommendations: [] }))
@@ -110,6 +111,11 @@ test.describe('Assessment: founder', () => {
 
   test('quarterly banner starts a re-assessment', async ({ page }) => {
     await setup(page, { list: [row({})], quarterlyDue: true })
+    // A run that has a next question stays on /run. The shared mock returns none, which the run
+    // page treats as finished and sends on to the results within a frame (the CI flake).
+    await page.route(`**/api/v1/assessments/${A2}/next-question`, (route) =>
+      route.fulfill(json({ next_question: question, progress: { answered: 0, remaining: 8, pct: 0 } }))
+    )
     await page.goto('/assessment')
     const banner = page.getByRole('region', { name: 'Quarterly re-assessment due' })
     await banner.getByRole('button', { name: 'Start re-assessment' }).click()

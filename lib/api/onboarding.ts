@@ -32,6 +32,9 @@ export interface InviteItem {
 
 export interface OnboardingState {
   step: number
+  completed?: boolean
+  /** True for someone with a pending invitation and no workspace of their own (show it; never block the wizard). */
+  pending_invite?: boolean
   full_name?: string | null
   role_title?: string | null
   country?: string | null
@@ -75,6 +78,7 @@ export interface OnboardingStatePatch {
 interface RawOnboardingState {
   step: number
   completed?: boolean
+  pending_invite?: boolean
   assessment_pending?: boolean
   ai_panel?: string | null
   founder_profile?: {
@@ -101,10 +105,11 @@ interface RawOnboardingState {
 
 function flatten(raw: RawOnboardingState): OnboardingState {
   const fp = raw.founder_profile ?? {}
-  const st = raw.startup ?? {}
+  const st = (raw.startup ?? {}) as NonNullable<RawOnboardingState['startup']>
   return {
     step: raw.step,
     completed: raw.completed,
+    pending_invite: raw.pending_invite ?? false,
     ai_panel: raw.ai_panel ?? null,
     full_name: fp.full_name ?? null,
     role_title: fp.role_title ?? null,
@@ -157,13 +162,25 @@ export async function uploadOnboardingLogo(file: File): Promise<{ logo_url?: str
   return res.data ?? res
 }
 
-export async function sendOnboardingInvites(
-  invites: InviteItem[]
-): Promise<{ success: boolean; count?: number }> {
-  return apiClient<{ success: boolean; count?: number }>('/onboarding/invites', {
+/** One entry per submitted row, in order (POST /onboarding/invites → data.results). */
+export interface InviteResult {
+  email: string
+  status: 'created' | 'skipped' | 'invalid'
+  reason: string | null
+  message: string | null
+}
+
+export async function sendOnboardingInvites(invites: InviteItem[]): Promise<InviteResult[]> {
+  const env = await apiClient<{ data?: { results?: InviteResult[] } }>('/onboarding/invites', {
     method: 'POST',
     body: JSON.stringify({ invites }),
   })
+  return env.data?.results ?? []
+}
+
+/** POST /invitations/decline — the signed-in invitee turns an invitation down (400 TOKEN_INVALID if already used). */
+export async function declineInvitation(token: string): Promise<void> {
+  await apiClient('/invitations/decline', { method: 'POST', body: JSON.stringify({ token }) })
 }
 
 export async function completeOnboarding(): Promise<Record<string, unknown>> {

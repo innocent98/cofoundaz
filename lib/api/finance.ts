@@ -1,3 +1,4 @@
+import { accessTokenForRequest } from '@/lib/auth/session';
 import { API_BASE, apiClient, ApiError } from './client';
 
 // Finance Hub (BE module 12). Shapes are copied from the live-captured guides in
@@ -357,8 +358,8 @@ export async function createPayLink(id: string): Promise<Invoice> {
   return unwrap(await apiClient<Envelope<Invoice>>(`/finance/invoices/${id}/pay-link`, { method: 'POST' }));
 }
 
-function authHeaders(): Record<string, string> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('cf_token') : null;
+async function authHeaders(): Promise<Record<string, string>> {
+  const token = await accessTokenForRequest();
   const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('cf_workspace_id') : null;
   const headers: Record<string, string> = {};
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -372,7 +373,7 @@ function authHeaders(): Record<string, string> {
  * Throws ApiError with the parsed error body on a non-2xx answer. Returns the file name used.
  */
 async function downloadFile(path: string, fallbackName: string): Promise<string> {
-  const res = await fetch(`${API_BASE}${path}`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}${path}`, { headers: await authHeaders() });
   if (!res.ok) {
     let data: unknown = null;
     try {
