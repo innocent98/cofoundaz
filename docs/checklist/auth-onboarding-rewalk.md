@@ -178,3 +178,14 @@ Same scratch stack as the Team re-check. The API limit is 2 MB (`"Logo must be 2
 | step 2: >2 MB file is refused with a visible message and the wizard stays on step 2 | ✅ F | not re-run | alert "Logo must be 2 MB or smaller." |
 | step 2: non-image file is refused with a visible message and the wizard stays on step 2 | not re-run | ✅ F | alert "Logo must be a PNG, JPG, SVG, or WebP image." |
 | step 2: a valid PNG still uploads and moves to step 3 | not re-run | ✅ F | step 3 "What are you building?" |
+
+## Re-check on develop code (2026-11-13, `fe-leftovers-rewalk.md` §5)
+
+Branch `fix/fe-leftovers-mediums` (Team and onboarding code identical to develop `8a4f5f3`), scratch API develop `f2d7ff9a`.
+
+| Control | 1440 | 375 | Evidence / note |
+|---|---|---|---|
+| step 2 hint states the real limit | ✅ | ✅ | "PNG, JPG, SVG, or WebP up to 2 MB" |
+| 2.5 MB PNG refused, stays on step 2 | ✅ | ✅ | alert "Logo must be 2 MB or smaller." |
+| text file refused, stays on step 2 | ✅ | ✅ | `POST /onboarding/logo` 422, alert "Logo must be a PNG, JPG, SVG, or WebP image." |
+| valid PNG uploads, moves to step 3 | ✅ | ✅ | `POST /onboarding/logo` 200, "What are you building?" |

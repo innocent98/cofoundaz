@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Eye, EyeOff, Loader2, Pencil, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { ModalDialog } from '@/components/modal-dialog';
@@ -176,6 +176,7 @@ export function FeedbackInbox({
                         type="button"
                         onClick={() => restore(item)}
                         disabled={busyId === item.id}
+                        aria-label={`Restore: ${item.text}`}
                         className="ml-auto flex items-center gap-1.5 bg-white border border-neutral-200 text-neutral-700 font-semibold px-3 py-1.5 rounded-input text-xs hover:bg-neutral-50 cursor-pointer disabled:opacity-60"
                       >
                         <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" /> Restore
@@ -262,6 +263,9 @@ function FeedbackForm({
   const [receivedOn, setReceivedOn] = useState(initial?.received_on ?? todayIso());
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Explicit label/control pairs: every reader (not only ones that follow a wrapping <label>) names the fields.
+  const uid = useId();
+  const ids = { text: `${uid}-text`, source: `${uid}-source`, date: `${uid}-date` };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -290,25 +294,31 @@ function FeedbackForm({
     >
       <form onSubmit={submit} className="space-y-4">
         <h2 className="text-lg font-display font-bold text-ink">{initial ? 'Edit feedback' : 'Add feedback'}</h2>
-        <label className="block space-y-1">
-          <span className="text-xs font-semibold text-neutral-600">What did they say?</span>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} className={field} />
-        </label>
+        <div className="space-y-1">
+          <label htmlFor={ids.text} className="block text-xs font-semibold text-neutral-600">
+            What did they say?
+          </label>
+          <textarea id={ids.text} value={text} onChange={(e) => setText(e.target.value)} rows={4} className={field} />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <label className="block space-y-1">
-            <span className="text-xs font-semibold text-neutral-600">Where from</span>
-            <select value={source} onChange={(e) => setSource(e.target.value as ManualFeedbackSource)} className={`${field} cursor-pointer`}>
+          <div className="space-y-1">
+            <label htmlFor={ids.source} className="block text-xs font-semibold text-neutral-600">
+              Where from
+            </label>
+            <select id={ids.source} value={source} onChange={(e) => setSource(e.target.value as ManualFeedbackSource)} className={`${field} cursor-pointer`}>
               {MANUAL_SOURCES.map((s) => (
                 <option key={s} value={s}>
                   {SOURCE_LABEL[s]}
                 </option>
               ))}
             </select>
-          </label>
-          <label className="block space-y-1">
-            <span className="text-xs font-semibold text-neutral-600">Date</span>
-            <input type="date" value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} className={field} />
-          </label>
+          </div>
+          <div className="space-y-1">
+            <label htmlFor={ids.date} className="block text-xs font-semibold text-neutral-600">
+              Date
+            </label>
+            <input id={ids.date} type="date" value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} className={field} />
+          </div>
         </div>
         {error && (
           <p role="alert" className="text-sm font-semibold text-danger-600">
