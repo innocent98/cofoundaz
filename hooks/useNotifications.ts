@@ -1,5 +1,6 @@
 import React, { createContext, createElement, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { ApiError, formatApiErrorMessage } from '@/lib/api/client';
+import { legalNotificationHref } from '@/lib/legal-format';
 import { useRealtimeEvent } from '@/components/realtime-context';
 import {
   getNotificationCounts,
@@ -78,6 +79,7 @@ export function notificationHref(type: string, data: Record<string, unknown> | n
   if (type.startsWith('document.')) return documentsHref(type, data);
   if (type.startsWith('marketing.')) return marketingHref(type, data);
   if (type.startsWith('sales.')) return salesHref(data);
+  if (type.startsWith('legal.')) return legalNotificationHref(type, data);
   if (type === 'dashboard.briefing.ready') return '/dashboard';
   if (type === 'learning.course.completed') return '/academy/certificates';
   if (type === 'learning.course.recommended') {
