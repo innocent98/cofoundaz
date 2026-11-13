@@ -1,6 +1,6 @@
-# FE hand-off: Funding Hub, parts A to D (`/funding/**` and the public `/dr/[token]`)
+# FE hand-off: Funding Hub, parts A to E (`/funding/**` and the public `/dr/[token]`)
 
-**For:** the FE developer. **Scope:** exactly what is below: **Pipeline, Data room, Cap table, Term sheets**, and the public investor data room viewer. **Grants and Analytics stay hidden** (their APIs, slices E and F, are not built).
+**For:** the FE developer. **Scope:** exactly what is below: **Pipeline, Data room, Cap table, Term sheets**, and the public investor data room viewer. **Grants and Analytics stay hidden** (their APIs are not built). The five parts below are all in scope: A Pipeline, B Data room, C the public viewer, D Cap table, E Term sheets. (The backend calls its slices A to D differently; ignore that numbering.)
 **Backend:** merged to API `develop` (31ee5a3d): slice A `#218`, B `#222`, C `#229`, D `#235`. No migration to wait for.
 **Contract:** four live guides in `cofoundaz-api/docs/`, every body in them captured from a running server (section numbers below refer to them):
 `fe-integration-guide-funding.md` (**P**, pipeline), `fe-integration-guide-funding-data-room.md` (**DR**), `fe-integration-guide-funding-cap-table.md` (**CT**), `fe-integration-guide-funding-term-sheets.md` (**TS**).
@@ -27,6 +27,8 @@ Delete the mock layer: everything seeded in `hooks/useFundingApi.ts` (the types 
 - **Money** is an integer in **minor units of the round's currency** (kobo/cents). The round has **one currency** (`NGN` or `USD`, no conversion anywhere). Always show the round's symbol and never mix. Format with the money helper the Finance and Sales pages already use; never use floats.
 - **The currency lock (UX consequence):** once any amount exists, the round's currency cannot be changed. An investor's committed amount, a cap table SAFE or share price, or a term sheet's valuation or investment all lock it. A change is refused with **409 `CAP_TABLE_HAS_AMOUNTS`** (the message names what holds amounts) or 422 on a round with investor amounts, and money already recorded in Finance is 409 `ROUND_HAS_RECORDED_MONEY`. Disable the currency control with the reason as a tooltip, and still show the API's message if it is refused.
 - Percentages are **basis points** in the cap table, term sheets and comparison (100 = 1%); the pipeline bar's percentages are whole numbers and **are not capped at 100** (P section 3).
+- **Auth tokens:** no code may read `cf_token` (tokens left localStorage in FE #245). Any authenticated download or file URL uses `accessTokenForRequest()` from `lib/auth/session.ts`. The public viewer (part C) sends no auth at all.
+- **Branch and PR:** branch `feature/funding-hub-fe` (or `feature/funding-hub-<part>` per part) off `develop`; PRs target `develop`; no `claude/` prefix; no AI attribution in commits or PRs. Pull `develop` first: the term-sheets guide is newer than older checkouts.
 - Copy: no em or en dashes in anything rendered. The pages that show a flag, a conversion or a model must show the API's `disclaimer` string.
 - States: every list and tab has a loading skeleton, an error with Retry, and the empty text given below.
 - 375 px: tab bars scroll horizontally; tables scroll inside their card; drawers and modals are full width with 16 px gutters; the board scrolls horizontally with the column header sticky.
@@ -67,7 +69,7 @@ Founder and team member. **Do not build** the investor account path (row 43) or 
   - With downloads **off** (the default) an investor can only view what can be watermarked: PDFs, your rich Documents (shown as PDF) and PNG/JPEG images. **Anything else (docx, xlsx, pptx, csv, txt, md) is refused** with 422 `VIEW_ONLY_UNSUPPORTED`.
   - The share response carries **`unviewable_items`** (those items in the chosen folders when downloads are off). **Warn the founder before they send:** "These files can't be shown view-only: upload a PDF or allow downloads." with the file names, and offer the "Allow downloads" switch right there. Each item in the room also has `viewable`.
   - With downloads **on**, other types are served as they are, unwatermarked: label the switch "Allowed to download. Downloaded files are not watermarked (PDFs still are)."
-- **Share list:** every share with email, investor name, folders, status (`active`, `expired`, `revoked`), `view_count`, `total_duration_s`, `last_viewed_at`. Actions: copy link, edit (`PATCH`: folders, downloads, expiry; **`expires_at: null` clears the expiry, leaving it out leaves it**), **Revoke** (`DELETE`; immediate, even for a viewer mid-document; confirm "Revoke access for {email}? They lose access immediately."). A revoked share cannot be edited or revived: create a new one.
+- **Share list:** every share with email, investor name, folders, status (`active`, `expired`, `revoked`), `view_count`, `total_duration_s`, `last_viewed_at`. Actions: copy link, edit (`PATCH`: folders, downloads, expiry; **`expires_at: null` clears the expiry, leaving it out leaves it**), **Revoke** (`DELETE`; immediate, even for a viewer mid-document; confirm "Revoke access for {email}? They lose access immediately."). A revoked share cannot be edited or revived: create a new one. A workspace holds at most 200 active links: 409 `TOO_MANY_SHARES` (show the API message and suggest revoking old ones).
 - **Access log tab:** `GET /data-room/access-log` (`share_id`, `limit`, `offset`): viewer email, investor, document name, started, duration. One row per document opened; duration grows with the viewer's heartbeat, so an open row changes. There is no IP in the response.
 - **Notification** `funding.dataroom.viewed` ("{Investor} viewed your data room, {doc}"), at most one a day per share; CTA to this tab.
 
@@ -84,6 +86,7 @@ State machine (DR section 6): dead link -> email step -> code step -> browser ->
 6. **Heartbeat:** while a document is on screen **and the tab is visible**, `POST /dr/{token}/heartbeat` `{view_id}` every **15 seconds** (`heartbeat_every_s`); stop on any 404. Never inflate: do not beat from a hidden tab.
 7. **Revoked or expired mid-session:** any 404 on tree/open/content/heartbeat -> "This data room is no longer available." and stop everything.
 - `?download=true` on the content URL only works when `allow_download` is true; show a Download button only then, with "Downloaded files are not watermarked."
+- A PDF that cannot be stamped (encrypted or damaged) is never served bare: 422 `DOCUMENT_UNAVAILABLE` on `/content`; show "This document can't be shown. Ask the sender for another copy."
 - Errors table: DR section 7. 375 px: folder list and viewer stack (list above, viewer full width); the viewer scrolls inside its frame.
 
 ## 6. Part D: Cap table (`/funding/cap-table`, founder only) (guide CT; gap rows 21 to 27, 45)
@@ -119,7 +122,7 @@ Grants (rows 33 to 36, 46, 47), Analytics (rows 39 to 42), "Prep me for this mee
 
 ## 9. Acceptance = the re-walk rows
 
-Done means every row passes on merged `develop`, at 1440 and 375, as **founder** (rows 1 to 33), **team member** (rows 34 to 38) and a **mentor** (row 39), each result matching the raw API. Rows 22 to 26 are the public viewer: use a real emailed link (file or Resend mailbox).
+Done means every row passes on merged `develop`, at 1440 and 375, as **founder** (rows 1 to 33), **team member** (rows 34 to 38), **mentor** (row 39), and **business consultant, accountant, legal advisor and investor** (rows 41 and 42), each result matching the raw API. Rows 17 to 23 are the public viewer: use a real emailed link (file or Resend mailbox).
 
 | # | Row | Pass when |
 |---|---|---|
@@ -163,3 +166,5 @@ Done means every row passes on merged `develop`, at 1440 and 375, as **founder**
 | 38 | `/funding/grants` and `/funding/analytics` | Redirect to `/funding`; no tabs for them |
 | 39 | Mentor opens `/funding` | Denied page / redirect as the other role-gated pages |
 | 40 | 375 px, every page | Every control reachable; no overflow or clipped text; viewer and tables scroll inside their frames |
+| 41 | Business consultant, accountant, legal advisor open `/funding` and each tab URL | Denied page / redirect like the mentor; API calls 403 |
+| 42 | Investor account opens `/funding` | No access (`nav-access` is `[F, TM]`); they reach only `/dr/{token}` from an emailed link |
