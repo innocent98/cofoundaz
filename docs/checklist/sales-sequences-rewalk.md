@@ -44,9 +44,9 @@ Recorded from the lead's report (done with Adebayo's OK; not walked by me). Deal
 
 This closes the follow-up **Send email** rows that were `blocked: lead's live send` (founder and team member, 1440 and 375): the send path works live. The FE click itself was done by the lead, not in these rows. The guide's "success body unit-test shape only" is now captured live (status 200). Still open: the real unsubscribe click (Adebayo) and the two FE fixes.
 
-## ❌ failures
+## ❌ failures (both fixed: code `c0af7ce`, re-checked live 2026-11-13 in `fe-leftovers-rewalk.md` S1 to S3, PR `fix/fe-leftovers-mediums`)
 
-### ❌ 1. Stale "active" count after a 409 on Stop (FE, minor)
+### ✅ 1. Stale "active" count after a 409 on Stop (FE, minor): fixed
 
 Steps (founder, 1440; the same code runs at every viewport):
 1. Create a sequence, pause it, enrol two people from Leads / a contact drawer. Open **People**, filter **Active**.
@@ -61,7 +61,7 @@ Request / response from the click: `POST /sales/enrollments/{B}/stop` -> **409**
 The toast shows that message and the People list refreshes to "Nobody with that status" (good). **But the sequence card header still reads "1 active · 2 enrolled · 50% reply rate" and the Archive dialog still says "1 person is still being emailed"**, while `GET /sales/sequences` returns `active_enrollments: 0, total_enrollments: 2, reply_rate: 0.5`. A reload fixes it. The 409 path refreshes the enrolment list but not the sequence list.
 Layer: **FE** (the API is correct). Real-world trigger: two members acting on the same row.
 
-### ❌ 2. Inline field errors stay after the field is fixed (FE, minor)
+### ✅ 2. Inline field errors stay after the field is fixed (FE, minor): fixed
 
 Steps (founder, 1440): **+ New sequence**, leave step 2's subject and body empty, click **Create sequence**. Inline errors "Add a subject." and "Write the email." appear (correct, no request sent). Type a subject and a body into step 2: both red messages remain visible under the now-filled fields until the next submit. No request is involved.
 Layer: **FE**. Not blocking, but it reads as if the form is still invalid.
@@ -98,7 +98,7 @@ Result legend: ✅ passes against the raw API / spec, ❌ fails (see above), `bl
 | + Add step x9 -> 10 steps, Add disabled, "A sequence has 1 to 10 steps." | DOM: 10 inputs, add.disabled | ✅ |
 | Remove step x8 back to 2 | DOM 2 steps | ✅ |
 | Create with empty step 2 refused: "Add a subject." / "Write the email." | no POST | ✅ |
-| Stale "Add a subject."/"Write the email." remain after fields are filled until next submit | screenshot | ❌ FE (minor) |
+| Stale "Add a subject."/"Write the email." remain after fields are filled until next submit | screenshot | ❌ FE (minor) → ✅ fixed (`c0af7ce`, re-checked 2026-11-13, `fe-leftovers-rewalk.md` S3) |
 | Preview with a sample contact renders "Idea for Acme / Hi Ada,..." ; Hide preview | - | ✅ |
 | Create sequence -> toast "Sequence created", card appears, status active | raw 201: Rewalk paused A, active, step_count 2 | ✅ |
 | Pause sequence | raw status paused | ✅ |
@@ -128,7 +128,7 @@ Result legend: ✅ passes against the raw API / spec, ❌ fails (see above), `bl
 | People: Mark replied flips row, header "1 active · 2 enrolled · 50% reply rate", row leaves Active filter | raw status replied, stopped_reason marked_replied, next_send_at null, reply_rate 0.5 | ✅ |
 | People: Stop asks "Stop emailing Seq Walk Lead?"; Keep going cancels (enrollment still active) | raw status active | ✅ |
 | People: Stop emails on a row someone else already ended -> toast "This enrollment has already ended." list refreshes to "Nobody with that status" | raw POST /enrollments/{id}/stop 409 ENROLLMENT_NOT_ACTIVE "This enrollment has already ended." | ✅ |
-| After that 409, card header still says "1 active" and the Archive dialog says "1 person is still being emailed" while raw active_enrollments is 0 (sequence list not refreshed; stale until reload) | raw active_enrollments 0, reply_rate 0.5; UI "1 active · 2 enrolled · 50%" | ❌ FE (minor) |
+| After that 409, card header still says "1 active" and the Archive dialog says "1 person is still being emailed" while raw active_enrollments is 0 (sequence list not refreshed; stale until reload) | raw active_enrollments 0, reply_rate 0.5; UI "1 active · 2 enrolled · 50%" | ❌ FE (minor) → ✅ fixed (`c0af7ce`, re-checked 2026-11-13, `fe-leftovers-rewalk.md` S1, S2) |
 | People: Stop emails success path clicked by hand | enrolment was ended via raw API in the 409 test; covered at 375 | see founder@375 |
 | Hide people collapses list | DOM | ✅ |
 | Archive asks ("Archive Rewalk paused A?"); Keep it cancels (status unchanged) | raw status paused | ✅ |
