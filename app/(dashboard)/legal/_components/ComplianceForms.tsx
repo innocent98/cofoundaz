@@ -21,10 +21,13 @@ export function FilingDrawer({
   item,
   onClose,
   onSaved,
+  onGone,
 }: {
   item: ComplianceItem | null;
   onClose: () => void;
   onSaved: (message: string) => Promise<void>;
+  /** The filing was deleted elsewhere: the page closes this, says so and refreshes the list. */
+  onGone: () => Promise<void>;
 }) {
   const isEdit = item !== null;
   const [title, setTitle] = useState(item?.title ?? "");
@@ -52,8 +55,9 @@ export function FilingDrawer({
       await onSaved(item ? "Filing updated." : "Filing added.");
     } catch (err) {
       const le = toLegalError(err, "Couldn't save this filing. Try again.");
+      if (le.notFound) return void onGone();
       setFieldErrors(le.fieldErrors);
-      setError(le.notFound ? "That filing no longer exists." : le.message);
+      setError(le.message);
       setBusy(false);
     }
   };
@@ -137,10 +141,12 @@ export function MarkDoneDialog({
   item,
   onClose,
   onDone,
+  onGone,
 }: {
   item: ComplianceItem;
   onClose: () => void;
   onDone: (item: ComplianceItem) => Promise<void>;
+  onGone: () => Promise<void>;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -163,7 +169,8 @@ export function MarkDoneDialog({
       await onDone(item);
     } catch (err) {
       const le = toLegalError(err, "Couldn't mark this done. Try again.");
-      setError(le.notFound ? "That filing no longer exists." : le.message);
+      if (le.notFound) return void onGone();
+      setError(le.message);
       setBusy(false);
     }
   };
@@ -195,10 +202,12 @@ export function ProofDialog({
   item,
   onClose,
   onUploaded,
+  onGone,
 }: {
   item: ComplianceItem;
   onClose: () => void;
   onUploaded: () => Promise<void>;
+  onGone: () => Promise<void>;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -220,7 +229,8 @@ export function ProofDialog({
       await onUploaded();
     } catch (err) {
       const le = toLegalError(err, "Couldn't upload that file. Try again.");
-      setError(le.notFound ? "That filing no longer exists." : le.message);
+      if (le.notFound) return void onGone();
+      setError(le.message);
       setBusy(false);
     }
   };
