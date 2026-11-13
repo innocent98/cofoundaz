@@ -3,6 +3,25 @@
 Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofoundaz-api. Evidence: `*-prd-gaps.md` and
 `*-rewalk.md` in this folder. "Re-walk" = every control clicked and checked against the raw API.
 
+## Snapshot 2026-11-13 (lead 26): read this before the table, which has older row text
+
+- [x] **Legal & Compliance slice 1**: API #214, gap list FE #254, FE #255, sidebar shown again (#257). Live walk 48/48 on the branch; **every-control re-walk on merged develop still to do** (with the disclaimer copy fix)
+- [x] **Release to www**: FE #258 (develop to main, 2026-11-13) fixes the old onboarding wizard on www
+- [x] **Staging after-deploy live E2E check green again** (API #244, #245)
+- [x] **Member emails only for founder + team member** everywhere they leaked (API #240, #241)
+- [x] **Funding**: A-D merged; **E grants open (API #242)**; then **Funding pauses**. F, the fund directory and B2 are deferred
+- [x] **Marketplace**: A-D merged (D = API #239); **paused**. E and F are deferred (and need counsel + Paystack)
+- [ ] **Analytics**: A merged; **B open (API #246)**; **C next** (ends wave 1), then the FE pass. D-G deferred
+- [ ] **Auth/privacy follow-ups** building: refresh grace window, Google consent record, remaining dashboard role leaks, "Teammate joined" marker
+- [ ] **Re-check the #253 fixes on merged develop** (Team audit log, onboarding logo, duplicate name)
+- [ ] **FE leftovers**: Sales 2, Validation 3, Marketing 2 mediums
+- [ ] **Real-model re-runs** (AI Co-Founder, Investor Readiness) after the OpenAI top-up
+- [ ] **Legal slice 2 (Advisor Requests)**: Victoria (message `fe-handoff/MESSAGE-to-victoria-legal-slice2.md`); slice 3 after
+- [ ] **Samuel (FE dev)**: Admin Portal (FE #256), Funding FE (brief FE #246)
+- [ ] **Production API launch** (Adebayo's timing; plan in HANDOFF-master, lead-23 block)
+
+**Deferred by Adebayo 2026-11-13:** Analytics D (schedules), E (investor updates), F (board decks), G (benchmarks/unhide) · Funding F, fund directory, B2 investor accounts · Marketplace E (settlement/disputes), F (reviews/matches/tools) · Sales extras (complaint auto-pause, send windows, Health sales signal, CSV source) · AI Co-Founder extras (memory, attachments, slash commands) · platform items (per-workspace timezones, malware scanner, Outlook sync, push) · tech-debt sweep (~858 CodeQL assert sites, slowapi Redis storage, Trivy CVEs).
+
 | Page | Gaps closed | BE PRs | FE PRs | Re-walk on merged develop | Honest caveats |
 |---|---|---|---|---|---|
 | Dashboard | 20/20 + gaps 11, 12 | #129-#134, #153, #155, #160 | #101, #104, #123, #130 | ✅ 2026-10-21: all 4 roles re-walked on merged develop (#120, #128; 1440 + 375, every control vs the API, live-stream isolation proven); gap 11 load-more (#130, code on develop identical to the live-verified head) and gap 12 legacy notification rows hidden on read (#160, re-checked live via the API for mentor + consultant + founder) | `business.*` notifications stay open to every role by decision #24 |

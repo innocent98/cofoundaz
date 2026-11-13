@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-24 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead24-handoff:docs/HANDOFF-master.md`
+> If the lead-26 handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead26-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-11-12 ~12:40 WAT (lead session 24, handing over to lead 25, which Adebayo starts himself)**. Lead 24 was session `local_0f813530-39f3-4407-92bc-d9eb5272b9a1` (stays open, capped: no new work). Lead 23 was session `local_2a64fa6e-08f3-4ad4-ad3a-8b5832e1e323`. Lead 22 was session `local_d8bf2dc1-5968-4569-aefb-a51e78700310`. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-13 ~19:40 WAT (lead session 26, handing over to lead 27, which lead 26 starts itself)**. Lead 26 was session `local_f1b1ceb0-3f64-47ca-a662-980edd2b84e0` (stays open, capped: relays its sessions' notes only). Lead 25 was session `local_43428156-c269-4cd1-84a6-3318432c8bce` (archived). Lead 24 was session `local_0f813530-39f3-4407-92bc-d9eb5272b9a1`. Lead 23 was session `local_2a64fa6e-08f3-4ad4-ad3a-8b5832e1e323`. Lead 22 was session `local_d8bf2dc1-5968-4569-aefb-a51e78700310`. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -17,6 +17,180 @@ Last updated: **2026-11-12 ~12:40 WAT (lead session 24, handing over to lead 25,
 ## 0. FOR ADEBAYO
 
 ### 0a. Open PRs and in-flight sessions
+
+**Lead 26 handover to lead 27 (2026-11-13 ~19:40 WAT). Lead 26 starts lead 27 itself (auto-chain), then caps: no new work, it only relays its sessions' notes, because the three working sessions report to lead 26 (`local_f1b1ceb0-3f64-47ca-a662-980edd2b84e0`).**
+
+**State:**
+- **API develop is `7cadd951`.** Single alembic head: `0104_marketplace_fulfilment` (chain `… 0101 → 0105 → 0106_legal → 0104`). Pending: **0107** Funding E (#242, chained on 0104), **0108** Analytics B (#246, still on 0106, so it re-chains onto 0107 once #242 merges), **0109** is free (auth/privacy fixes, if they need one).
+- **FE develop = FE main = `14cd6676`** (release #258 merged today with a merge commit; www deployed by `CD (production)` and verified successful). www now runs the new onboarding wizard, the cookie session, AI Co-Founder, Team/Journal/Notifications and Legal. Both FEs still call the **staging** API.
+- **Staging after-deploy live E2E check is GREEN again** (first time since 2026-11-06), after API #244 (collection crash) and #245 (`accepted_terms` on e2e sign-ups; staging sets `SIGNUP_REQUIRE_TERMS`, CI doesn't).
+- Production API unchanged (`main` 2026-09-21, migration 0027). The launch plan is in the lead-23 block.
+
+**Merged in lead 26 (2026-11-13), each checked (whole CI, attribution, branch, one head) and merged on Adebayo's "merge":**
+
+| PR | What | Commit | Reviews |
+|---|---|---|---|
+| API #237 | Grants catalogue (D-FUND-2), **approved by Adebayo** | `4dfc0c54` | n/a |
+| API #214 | Legal slice 1 (Victoria): formation, compliance, IP, proof upload/download (0106) | `3386fc06` | Opus review + Opus fix-check. Lead's team finished it on her branch (Adebayo: "get the Victoria fix done ourselves") |
+| FE #254 | Legal gap list (Victoria), D-LEG-1..8 recorded as lead defaults | `7de10ee7` | n/a |
+| FE #255 | Legal FE pass (Formation, Compliance, IP on the real API; Templates/Review/Requests hidden) | `ca93b505` | Sonnet review; live walk 48/48 |
+| FE #257 | Legal back in the sidebar (**Adebayo: "show Legal"**) | `61a95a74` | n/a |
+| API #244 | Staging live-E2E gate: skip in-process-LLM journeys under `E2E_REMOTE` (replaced #243, closed for GitGuardian-flagged capture churn) | `9d02c60d` | lead |
+| API #241 | Member emails only for founder + TM (suggestions, calendar, Business Builder/Documents name fallback = "A team member") | `a83a4283` | Opus review + fix-check |
+| FE #258 | **Release develop → main** (fixes www's old onboarding wizard; see below) | `14cd6676` (merge commit) | n/a |
+| API #239 | Marketplace D fulfilment (0104). **Marketplace is now PAUSED** | `07b9565c` | Opus review (M1 booker email in the expert's .ics, L1 rejection deleted founder files) + fix-check |
+| API #245 | e2e sign-ups send `accepted_terms` | `7cadd951` | lead |
+
+**Open PRs (verify yourself before asking "Merge #N"):**
+
+| PR | State at handover | Next |
+|---|---|---|
+| **API #242** Funding E grants (`feature/funding-grants`, head `2b8d76ec`, 0107 on 0104) | Opus review (H1 weekly matching ran while Funding is hidden → `FUNDING_GRANT_MATCHING_ENABLED` default False; H2 lock across the LLM call; M1 draft race; L1 term-sheet cap) + fix-check clean; the fix-check's new low (`start_application` during `run_match` → `uq_grant_match`) was fixed in `2b8d76ec`. **CI: unit shard 2 FAILED on `2b8d76ec`**; the log wasn't readable until the run finishes | Read the shard-2 log, send the fix to session `local_bc743ab0` (funding-e-242-fix-opus-r), quick lead check of the last diff, ask "Merge #242". Then tell analytics-b "re-chain now" |
+| **API #246** Analytics B reports/runs/shares (`feature/analytics-slice-b`, head `05da8226`, 0108 on **0106**, CONFLICTING) | Opus review clean (per-block hub authorisation, tenancy, optimistic lock, frozen runs); its 2 lows are fixed (runs writer-only; share insert race). **The session is WAITING for the lead's "re-chain now"** | After #242 merges: message `local_b2e443d4` (analytics-b) "re-chain now" (0108 → 0107_funding_grants), check CI, ask to merge |
+| **Auth/privacy follow-ups** (session `local_09227f39`, branch `fix/auth-privacy-followups`, no PR yet) | Building: refresh-token grace window, consent record for Google sign-ups, dashboard leaks (`kpis.tasks_done_this_week`, `calibration.assessment_complete`, `assessment.completed` activity row), "Teammate joined" marker event name | Opus review (it's auth), fix-check, merge |
+| **FE #256** Admin Portal (Samuel, the FE dev) | Adebayo sent him the Admin message 2026-11-13 | Review when he says it's ready (no `cf_token`; `accessTokenForRequest()` for downloads) |
+| **FE #246** Funding FE brief | Lead-fixed (`067b7b3`) and **sent to Samuel by Adebayo** 2026-11-13 | Merge it (docs) when convenient |
+| FE #250 lead-25 handoff | Superseded by this lead-26 handoff | Closed in favour of this PR |
+
+**Sessions (all report to lead 26 `local_f1b1ceb0-3f64-47ca-a662-980edd2b84e0`; lead 27 reads them with `list_events` or messages them by id):**
+
+| Session | Doing | Next |
+|---|---|---|
+| auth-privacy-fixes `local_09227f39-1f68-4c08-be70-00c7541071ae` | Building the auth/privacy PR above | PR → Opus review → merge |
+| analytics-b `local_b2e443d4-8358-4f85-aec2-90e6b7d7727f` | Waiting for "re-chain now" (#246) | Re-chain, CI, merge; then **Analytics C (exports)** in a fresh session |
+| funding-e-242-fix-opus-r `local_bc743ab0-68eb-425b-9479-420ac6937faa` | #242's shard-2 failure | Fix, CI, merge; then archive (Funding pauses after E) |
+
+Archived in lead 26: the Funding (days old), Marketplace (days old) and fix sessions; lead 25 with its analytics-design and re-walk children; the Legal finish, Legal FE and Marketplace-fix sessions. Worktrees/branches of every merged PR were removed (local + remote). Remaining worktrees: `wt/funding-e`, `wt/analytics-b`, `wt/funding-fe-brief`, `wt/lead25-handoff` (remove after #250 is closed), `wt/lead26-handoff`, plus the auth session's own.
+
+**Decisions taken in lead 26 (all in memory):**
+- **Grants catalogue approved** (#237). Grants stay hidden like the rest of Funding.
+- **Finish outside contributors' PRs ourselves** when review rounds drag on (Adebayo, #214).
+- **D-LEG-1..8 = lead defaults** (Adebayo may overrule): blanket F+TM write and LA read; NG + Delaware only; IP→compliance auto item deferred; proof on the row; **one authenticated GET for proof download**; overdue is critical and in the Deadlines filter; adapted disclaimer; `drafting` IP status.
+- **Show Legal in the sidebar** (Adebayo, 2026-11-13).
+- **Defer (Adebayo, 2026-11-13, memory `defer-hidden-modules-2026-11-13`):** Analytics D-G; Funding F, the fund directory, B2; Marketplace E/F (Marketplace paused after D); Sales extras; AI Co-Founder extras; platform items (per-workspace timezones, malware scanner, Outlook, push); the tech-debt sweep (~858 CodeQL assert sites, slowapi Redis, Trivy).
+- **Victoria's next = Legal slice 2 (13.6 Advisor Requests).** Paste-ready message: `docs/fe-handoff/MESSAGE-to-victoria-legal-slice2.md` (Adebayo sends it).
+- **www onboarding bug explained:** the old wizard (main, 2026-11-06) sent old goal labels that the staging API has rejected since #227, and moved on after failed saves. The FE dev's #240 label-mapping was a workaround for the old wizard; the real fix (#243) shipped in release #258.
+
+**Still active work (after the deferrals):**
+- **BE (ours):** finish #242 and #246; Analytics C (exports; ends wave 1, then the Analytics FE pass); the auth/privacy PR; the Legal disclaimer copy (it says "find one in the Marketplace", a hidden module: change it and re-capture via the Legal e2e); production API launch prep (the lead-23 plan).
+- **BE (Victoria):** Legal slice 2, then slice 3 (13.2 templates, 13.3 AI review).
+- **FE (ours, not blocked by Samuel):** Legal every-control re-walk on merged develop (with the disclaimer fix); re-check the #253 fixes (Team audit log, onboarding logo, duplicate name) on merged develop; leftover FE fixes (Sales 2, Validation 3, Marketing 2 mediums); the Analytics FE pass after B+C; the AI/Readiness real-model re-runs after the OpenAI top-up; the stage onboarding live test (Adebayo didn't choose the mailbox yet: a Gmail `+` alias read through the Gmail connector, or he signs up himself). **Never enter test credentials on www (production host).**
+- **FE (Samuel):** Admin (#256), Funding FE (brief #246).
+
+**Adebayo's to-dos:**
+- Send Victoria `docs/fe-handoff/MESSAGE-to-victoria-legal-slice2.md`.
+- Top up OpenAI.
+- Mark the GitGuardian false positives: the 4 on `e2e/_captures/readiness_deck/review_ready.json` (closed #243) and the 2 "Generic Password" on `e2e/test_notifications*.py` (#245).
+- Delete the Vercel project (due 2026-11-13).
+- Decide when to launch the production API.
+- Optional: a real sign-up through onboarding on www.
+
+**Lead 27, first (in this order):**
+1. #242: read the shard-2 failure, route the fix, verify, ask to merge. Then send analytics-b "re-chain now" (#246), verify, ask to merge.
+2. Auth/privacy PR: Opus review, fix-check, merge.
+3. Start (max 3 at once): Analytics C; the Legal re-walk + disclaimer copy; the FE leftovers batch.
+4. When Victoria's slice-2 PR comes, follow `victoria-legal-process` (and finish it ourselves if review rounds drag on).
+5. Keep reconciling `docs/checklist/buildout-status.md` (it still lacks Funding/Marketplace/Analytics updates from 11-12/13) and the API `PROJECT_CHECKLIST.md` (mark the deferred items **Deferred**).
+
+**Gotchas learned in lead 26:**
+- **The app refuses `start_session` on turns triggered by a session note or an automated event.** Propose a card (`own_initiative`) and Adebayo clicks it, or start it on his next own message.
+- **Archive and unarchive calls get rewritten by a hook.** Re-issue with the exact `session` label the error quotes.
+- **Usage limits stop sub-sessions silently**, with uncommitted work. Tell builders to commit WIP early.
+- **A fresh e2e capture run rewrites captures** with new ids, timestamps and signed tokens, and GitGuardian flags the tokens. Only commit captures the change needs, and only the journey you ran.
+- **zsh:** `${r}:path` in `git show` needs the braces (`$r:u…` is a zsh modifier); quote URLs that contain `?`.
+- **CI e2e can take 25 min** on busy days. `gh run view --log-failed` returns nothing until the whole run completes.
+- **Opus reviewers often have no shell** and read worktrees; make sure the worktree is clean and at the PR head first.
+
+**Lead 25 handover to lead 26 (2026-11-12 ~20:30 WAT). Adebayo starts lead 26 himself: don't auto-chain from lead 25.**
+
+**State:**
+- **API develop is `e59e1d6f`.** Migration chain: `… 0099_funding_cap_table → 0103_readiness_narrative → 0102_funding_term_sheets → 0101_marketplace_booking` (head). It is out of number order by design, with one head.
+- **Reserved migrations:**
+  - **0104** for Marketplace D (building, branch `feature/marketplace-fulfilment`, not pushed at handover);
+  - **0105** for Analytics A (#238, chained on 0101).
+  - Whichever of these merges second re-chains onto the other. Merge develop in with a merge commit; no force-push.
+- **FE develop is `130167d`** (+ this handoff). FE `main` was last released 2026-11-06 (#237). www = main, stage = develop (it auto-deploys on merge), and both call the staging API.
+- **Production API:** unchanged (`main` 2026-09-21, migration 0027). Launch is Adebayo's call; the plan is in the lead-23 block.
+
+**Merged in lead 25 (2026-11-12).** Each one was checked before merge: the whole CI, attribution, branch name, and one migration head. Each was merged on Adebayo's "merge":
+
+| PR | What | Commit | Reviews |
+|---|---|---|---|
+| API #235 | Funding D term sheets (0102) | `31ee5a3d` | Opus final (2 mediums: PDF currency, wording-job row lock) + an Opus fix-check, clean |
+| API #234 | Marketplace C booking/checkout/ledger (0101 on 0102) | `e59e1d6f` | Opus rounds 3 and 4; round 4 clean. Production charging stays off (D-MP-3/9) |
+| FE #242 | AI Co-Founder FE pass | `15ba74a` | Sonnet review; over-budget copy fixed |
+| FE #244 | Investor Readiness FE pass; **sidebar entry unhidden** | `59a16e4` | Sonnet review; Q&A cap notice and role loading fixed |
+| FE #243 | Auth & Onboarding FE step 2 (D-AUTH-1..5, 7) | `bc167e2` | Opus security review; 1 medium + 5 lows fixed |
+| FE #245 | **D-AUTH-6: tokens out of localStorage** (memory + HttpOnly refresh cookie, cross-tab lock, logout broadcast) | `2bd70d6` | Opus review + Opus fix-check. Staging CORS/cookie confirmed OK live |
+| FE #247 | Team + Journal + Notifications, **rebuilt by lead 25 from the FE dev's #240** | `132a63a` | Sonnet re-review. #240's squash would have deleted 64 files, so the lead took only the 22 in-scope files and fixed the Team CSV export for the new session |
+| FE #249 | FE dev's mobile sidebar (one scroll area on phones) + Windows path fix | `81ab543` | lead |
+| FE #248 | Analytics & Reports design pass: gap list (74 rows), D-ANA-1..9 accepted, spec slices A-G | `130167d` | — |
+
+**Closed as superseded:** FE #240, #231, #232, #233 (each with a comment pointing to #247/#249).
+
+**Open PRs (verify yourself before asking "Merge #N"):**
+
+| PR | State at handover | Next |
+|---|---|---|
+| **API #238** Analytics slice A (`feature/analytics-slice-a`, head `33a097e8`, 0105 on 0101) | The Opus D-ANA-4 review was clean (0 critical/high/medium). L1 oracle, L2 500s, L4 rate limit and the team-member capture are fixed; L3 is recorded as lead default D-ANA-L13. **CI is red on bandit (Python SAST)** (run 43287762273). The Analytics session was told to fix it | Check the fix and CI, then ask to merge. Then slices B (builder + saved) and C (exports), then the FE pass. Wave 2 (D schedules, E investor updates) and wave 3 (F decks) follow |
+| **API #237** grants catalogue draft (D-FUND-2) | **15 rows, not 30-40:** the session had no JS page reader. 10 verified, 5 partial, and 4 are cloud credits rather than cash | **Adebayo reviews.** Optionally extend it to 30-40 with a web-capable agent. Funding E (grants) waits on his call |
+| **FE #246** Funding FE brief for the FE dev (parts A-D) | CI green; **not yet reviewed by the lead** | Review it against `fe-integration-guide-funding*.md` and the gap list, then Adebayo sends it to the FE dev (the FE dev builds Funding FE) |
+| **FE #251** keep Investor Readiness hidden | Lead's PR; local checks pass | Check CI, then ask "Merge #251" |
+| **API #214** Legal (Victoria) | The lead retargeted it to `develop` 2026-11-12. Not mergeable: migration chains on 0103 (two heads now), the proof upload trusts the client content-type, and the gap list, D-LEG calls, e2e, live guide, SOP and checklist are all missing. [Comment posted](https://github.com/innocent98/Cofoundaz-api/pull/214#issuecomment-6823756577) | Victoria acts on it, then a fresh review per `victoria-legal-process` |
+
+**Sessions (message by id):**
+
+| Session | Doing | Next |
+|---|---|---|
+| Marketplace `local_aad778e5-f115-4579-8aa3-b3587cd13e75` | **Building** slice D fulfilment (0104), plus the three #234 lows: clear `unverified_close` on revive/refund with a staff resolve action, the log wording, and a replay test | PR, then an Opus money/permission review, then merge |
+| Funding `local_9566a3ee-8063-48a3-ad66-db641935ab03` | Idle. Wrote #246 and #237 | Funding E (grants) once Adebayo approves the catalogue; it carries four #235 lows (failed-sheet cap, quote unescape, no-round currency message, reconcile audit row). Then F (analytics) |
+| Analytics `local_fe8efa73-0337-44ba-b1ee-da35a1b6f714` | Fixing #238's bandit failure | Slices B, C, then the FE pass |
+| Re-walk `local_70244ece-1998-4cff-8c93-9664d7f1f585` | **Running** the every-control re-walk on merged develop (FE `130167d`, API `e59e1d6f`), its own scratch stack: Auth + cookie session, Team/Journal/Notifications, mobile sidebar, AI Co-Founder, Investor Readiness. Real-model flows are marked NOT verified (OpenAI quota) | Its docs PR `docs/rewalk-2026-11-12`; route every ❌ to a fixer; re-run the real-model flows after Adebayo tops up OpenAI |
+
+Archived in lead 25 (each merged, idle, worktree removed): the AI Co-Founder FE, Readiness FE and Auth FE sessions, plus 17 stale sessions from other projects. **Adebayo must unarchive the MyWay lead session** (`local_39860e56-aa28-4f7f-beca-921c0a6da9fd`). It was archived as a side effect of archiving its parent, and the classifier blocked the lead's unarchive.
+
+**Decisions taken in lead 25 (all in memory):**
+- **D-ANA-1..9 accepted** ("Accept all nine"), see `analytics-decisions`: waves; platform data plus founder-entered metrics; live + nightly snapshot + frozen runs; per-metric hub authorisation; PDF/XLSX; in-app plus link email; investor updates are the only outside sharing; Health benchmarks; AI prose only over computed numbers.
+- **D-AUTH-7 lists were already approved** (lead 24 listed them as pending by mistake).
+- **D-ANA-L13 (lead):** founder and team member both write custom metrics.
+- **Lead rebuilt #240 on its own branch** (Adebayo: "fix the 240 ourselves") rather than force-pushing the dev's branch.
+- **Hidden on purpose (Adebayo, 2026-11-12):** Marketplace, Investor Readiness and Funding Hub stay hidden from the sidebar **even when every slice is built**, and so does Analytics slice E (investor updates), until he says otherwise. FE #251 re-hides Investor Readiness (#244 had unhidden it). No brief or PR may unhide them. Memory: `hidden-modules-decision`.
+- **`GET /team/members` = founder + team member only** (Adebayo, 2026-11-12, "Founder + TM only"). The re-walk found it returning names and emails to all seven roles. The fix session `local_2296b49c-f475-4b8f-b603-6a0379bd26de` builds it (API branch `fix/team-members-roles`), and it needs an Opus review. Memory: `team-members-visibility-decision`.
+- **Re-walk of today's merges is done** (FE #252: 1,353 passed, 18 failed, 18 not verified). Defects are with that same fix session (FE branch `fix/rewalk-2026-11-12`): Team audit log always empty (FE reads `items`, API sends `entries`, high), onboarding logo 422 swallowed and wrong 5 MB copy (medium), actor name shown twice in Activity (low). The 16 real-AI checks (AI Co-Founder 10, Investor Readiness 6) wait for the OpenAI top-up.
+- **Merged late on 2026-11-12:** API #238 Analytics A (`0f0501d1`, 0105 on 0101; Opus review + fix-check clean), FE #251 keep Investor Readiness hidden (`fad9148`), FE #252 re-walk evidence (`633f7cd`). **API develop is now `0f0501d1`, head `0105_analytics_custom_metrics`; FE develop is `633f7cd`.**
+- **Merged later still:** API #240 `/team/members` founder + TM only (`da25fb86`, Opus clean) and FE #253 re-walk fixes (`1fc2fe0`: audit log `entries`, onboarding logo 422 + 2 MB copy, duplicate actor name). **API develop `da25fb86`, FE develop `1fc2fe0`.** The every-control re-check of those three fixes on merged develop is still to do (the fix session checked them live on its branch only).
+- **Open follow-up, fix session `local_2296b49c-f475-4b8f-b603-6a0379bd26de`, branch `fix/member-email-leaks`:** strip member emails for the five outside roles from `GET /business/suggestions` (`author.email`) and `GET /calendar/meetings` (`attendees[].email`, which "team" meetings show to all members), and correct the calendar SOP. Opus review it, then merge.
+- **API #239 Marketplace D fulfilment is open** (`feature/marketplace-fulfilment`; deliveries, timers, threads, files, booking documents, calendar, and the #234 lows; no money moves; the session's own Opus review is fixed; CI green on `efcd68b6`). It must re-chain 0104 onto `0105_analytics_custom_metrics`, and the Marketplace session was told to do it. Then the lead runs its own Opus check (permissions on threads and files) and asks to merge. **After #239, Marketplace pauses** (hidden; no slice E until Adebayo says). Adebayo approved the documents access matrix skipping `/marketplace` and `/provider` (2026-11-12). The overdue notice and the booking-documents table stay as built (lead defaults; he didn't object). **Grants catalogue (#237): Adebayo hasn't seen it yet.** Send him the file link. Grants stay hidden like the rest of Funding.
+- **Marketplace:** the counsel/Paystack confirmation isn't being pursued for now, so it stays hidden and production charging stays off. Recommendation pending his answer: let slice D finish, then pause Marketplace.
+- **Dependency graph is on** and `ENABLE_CODE_SCANNING=true` is set (2026-11-12). CodeQL now gates every API PR. About 170 pre-existing alerts on develop (17 `py/side-effect-in-assert` errors in tests, the rest notes) are a cleanup follow-up.
+- **New global rule** in `~/.claude/CLAUDE.md`: leads remove stale worktrees and branches and archive finished sessions.
+
+**Adebayo's to-dos:**
+- **Top up OpenAI credits.** Every AI call gets 429 `insufficient_quota`, on staging too if it uses the same key. Nothing else is needed: AI resumes on its own. The re-walk then re-runs the real-model flows.
+- **Review the grants catalogue** (API #237). Funding E waits on it.
+- **Send the Funding FE brief** (FE #246) to the FE dev once lead 26 has reviewed it.
+- **Send the Admin/Super Admin message** to the FE dev (paste-ready text in lead 25's chat; the file `docs/fe-handoff/MESSAGE-to-fe-dev-admin.md` lacks the Tickets and Reported-issues briefs, so add those two).
+- **Unarchive the MyWay lead session** (see above).
+- **Optional:** mark the 4 GitGuardian "Generic Password" incidents from FE #243's first commit `fc6a0cd` as test credentials or false positives. They were fixtures, never landed in develop (squash), and the check isn't required.
+- **Delete the Vercel project** (~2026-11-13).
+- **Decide when to launch the production API.**
+- **Point Victoria to the #214 comment.**
+
+**Lead 26, first (in this order):**
+1. **#238:** check the bandit fix and green CI, then ask "Merge #238". Re-chain whichever of 0104/0105 lands second.
+2. **The re-walk:** read its report and PR, route each ❌ to a session, and merge its docs PR after checking it.
+3. **Review FE #246** (the Funding brief); fix it or send it back; then tell Adebayo it's ready to send.
+4. **Marketplace D:** when its PR opens, run the Opus review (money + permissions), fix-check every money-path fix round, then ask to merge.
+5. **Next builds (max 3 at once):** Analytics B and C; Funding E after the catalogue; Marketplace E (settlement + disputes) after D; Marketplace FE once the API is complete (FE dev or lead team, ask Adebayo). The Readiness/AI real-model re-run after the OpenAI top-up.
+6. **Small API follow-up from #245:** a short grace window on the API that accepts the just-rotated refresh token. It closes the rare "signed out everywhere" race on pre-2022 browsers and on aborted refreshes. Opus review it, since it's auth.
+
+**Gotchas learned in lead 25:**
+- **Check what a "squashed onto develop" PR actually changes:** `git diff --stat origin/develop <branch>`. #240's squash carried an old tree and would have deleted 64 files. To rebuild one, take only the in-scope files (`git checkout <sha> -- <paths>`), and diff each against develop's history since the author's base (`git log <old-base>..origin/develop -- <file>`) to re-apply anything newer.
+- **DNS to github.com drops briefly here.** A session's "pushed" can be false: check `git status -sb` ("ahead N") or the PR head SHA before trusting a push or a merge.
+- **Fix-checks keep paying off on auth too, not only money:** #245's first fix round added three new bugs (an unbounded refresh, a storage-failure hang, logout redirecting public pages).
+- **Archiving a session also archives its side sessions** (children started from it). Check `list_sessions` for children before archiving a parent you're not done with.
+- **GitGuardian scans every commit in a PR,** so a fixed fixture stays red until history is rewritten. It isn't a required check, and a squash merge keeps the commit out of develop.
+- **Since FE #245, no code may read `cf_token`.** Downloads use `accessTokenForRequest()` from `lib/auth/session.ts`. Review any FE dev PR for this.
 
 **Lead 24 handover to lead 25 (2026-11-12 ~12:40 WAT). Adebayo starts lead 25 himself: don't auto-chain from lead 24.**
 
