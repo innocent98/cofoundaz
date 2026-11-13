@@ -13,8 +13,8 @@ Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofounda
 - [x] **Marketplace**: A-D merged (D = API #239); **paused**. E and F are deferred (and need counsel + Paystack)
 - [ ] **Analytics**: A merged; **B open (API #246)**; **C next** (ends wave 1), then the FE pass. D-G deferred
 - [ ] **Auth/privacy follow-ups** building: refresh grace window, Google consent record, remaining dashboard role leaks, "Teammate joined" marker
-- [x] **Re-check the #253 fixes on merged develop** (Team audit log, onboarding logo, duplicate name): all pass at 1440 + 375, 2026-11-13 (`fe-leftovers-rewalk.md` §5, FE #261 (FE #261, `fix/fe-leftovers-mediums`))
-- [x] **FE leftovers**: Sales 2, Validation 3, Marketing 2 mediums + Legal G1/G2 at 375: done 2026-11-13, FE #261 (FE #261, `fix/fe-leftovers-mediums`). Validation tab link + Restore name + field labels and Legal mobile cards/agenda fixed here; Sales 2, Marketing 2 and the Validation target clamp were already fixed in code and are now re-checked live (`fe-leftovers-rewalk.md`, 33/33)
+- [x] **Re-check the #253 fixes on merged develop** (Team audit log, onboarding logo, duplicate name): all pass at 1440 + 375, 2026-11-13 (`fe-leftovers-rewalk.md` §5, FE #261 (`fix/fe-leftovers-mediums`))
+- [x] **FE leftovers**: Sales 2, Validation 3, Marketing 2 mediums + Legal G1/G2 at 375: done 2026-11-13, FE #261 (`fix/fe-leftovers-mediums`). Validation tab link + Restore name + field labels and Legal mobile cards/agenda fixed here; Sales 2, Marketing 2 and the Validation target clamp were already fixed in code and are now re-checked live (`fe-leftovers-rewalk.md`, 33/33)
 - [ ] **Real-model re-runs** (AI Co-Founder, Investor Readiness) after the OpenAI top-up
 - [ ] **Legal slice 2 (Advisor Requests)**: Victoria (message `fe-handoff/MESSAGE-to-victoria-legal-slice2.md`); slice 3 after
 - [ ] **Samuel (FE dev)**: Admin Portal (FE #256), Funding FE (brief FE #246)

@@ -44,7 +44,7 @@ Recorded from the lead's report (done with Adebayo's OK; not walked by me). Deal
 
 This closes the follow-up **Send email** rows that were `blocked: lead's live send` (founder and team member, 1440 and 375): the send path works live. The FE click itself was done by the lead, not in these rows. The guide's "success body unit-test shape only" is now captured live (status 200). Still open: the real unsubscribe click (Adebayo) and the two FE fixes.
 
-## ❌ failures (both fixed: code `c0af7ce`, re-checked live 2026-11-13 in `fe-leftovers-rewalk.md` S1 to S3, FE #261 (FE #261, `fix/fe-leftovers-mediums`))
+## ❌ failures (both fixed: code `c0af7ce`, re-checked live 2026-11-13 in `fe-leftovers-rewalk.md` S1 to S3, FE #261 (`fix/fe-leftovers-mediums`))
 
 ### ✅ 1. Stale "active" count after a 409 on Stop (FE, minor): fixed
 
