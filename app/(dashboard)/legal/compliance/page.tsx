@@ -272,7 +272,7 @@ function Compliance() {
                           <tr
                             key={item.id}
                             id={`filing-${item.id}`}
-                            className={`transition-colors ${item.id === highlightId ? "bg-accent-50 ring-1 ring-inset ring-accent-200" : "hover:bg-neutral-50/60"}`}
+                            className={`transition-colors ${item.id === highlightId ? "bg-accent-100 ring-1 ring-inset ring-accent-200" : "hover:bg-neutral-50/60"}`}
                           >
                             <td className="py-4 px-6">
                               <div className="text-neutral-900 font-semibold">{item.title}</div>

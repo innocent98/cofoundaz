@@ -177,7 +177,7 @@ function IPTracker() {
                       <tr
                         key={a.id}
                         id={`ip-${a.id}`}
-                        className={`transition-colors ${a.id === highlightId ? "bg-accent-50 ring-1 ring-inset ring-accent-200" : "hover:bg-neutral-50/60"}`}
+                        className={`transition-colors ${a.id === highlightId ? "bg-accent-100 ring-1 ring-inset ring-accent-200" : "hover:bg-neutral-50/60"}`}
                       >
                         <td className="py-4 px-6 text-neutral-800 font-medium">{IP_TYPE_LABEL[a.type]}</td>
                         <td className="py-4 px-6 text-neutral-900 font-semibold">{a.name}</td>
