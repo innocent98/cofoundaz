@@ -44,9 +44,9 @@ Three things are worse than "not wired yet", because they will still be wrong af
 
 | # | Status | Gap | Sev | Slice |
 |---|---|---|---|---|
-| 1 | ❌ | FE calls no Legal endpoint at all: `useLegalApi.ts` is seeded `useState`, every mutation is a toast, nothing persists | High | FE-1 |
-| 2 | ✅ | Role gating built and tested: reader set F + TM + LA on GETs, writer set F + TM on writes, uniform 404 cross-tenant. **Not verified live** (no browser walk) | Sec | 1, FE-1 |
-| 3 | ❌ | Mock shapes are not the API contract: `meta: "CAC · est. 1 day · ₦500"` vs structured `authority`/`est_days`/`est_cost_minor`; `due: "Was due Jul 10"` vs ISO `due_on` + derived `status`; `statusBg`/`dueColor` carried as data | High | FE-1 |
+| 1 | ✅ FE | FE calls no Legal endpoint at all: `useLegalApi.ts` is seeded `useState`, every mutation is a toast, nothing persists | High | FE-1 |
+| 2 | ✅ | Role gating built and tested: reader set F + TM + LA on GETs, writer set F + TM on writes, uniform 404 cross-tenant. **Walked live in the browser 2026-11-13** (`legal-fe-walk.md`): founder, team member, legal advisor and mentor at 1440 + 375 | Sec | 1, FE-1 |
+| 3 | ✅ FE | Mock shapes are not the API contract: `meta: "CAC · est. 1 day · ₦500"` vs structured `authority`/`est_days`/`est_cost_minor`; `due: "Was due Jul 10"` vs ISO `due_on` + derived `status`; `statusBg`/`dueColor` carried as data | High | FE-1 |
 | 4 | ❌ | No legal entry in the sidebar access rules or ⌘K search; no activity-feed visibility rule for `legal.*` | Med | FE-1 |
 | 5 | ◐ | Events `legal.compliance.due_soon` and `legal.compliance.overdue` built; `legal.contract.flagged` is Slice 3. **`legal.ip.renewal_due_soon` is NOT in the PRD's events list** — added in Slice 1 (D18), needs ratifying | Low | 1 |
 
@@ -54,37 +54,37 @@ Three things are worse than "not wired yet", because they will still be wrong af
 
 | # | Status | Gap | Sev | Slice |
 |---|---|---|---|---|
-| 6 | ❌ | Dropdown offers **Nigeria, Kenya, Ghana, Delaware USA**; the API serves **NG** and **US-DE** only. Kenya and Ghana 404 by design (D6). Either the API gains two jurisdictions with real step content, or the FE drops them — see **D-LEG-2** | High | 1, FE-1 |
-| 7 | ❌ | Dropdown sends display names (`"Nigeria"`, `"Delaware, USA"`); the API takes codes (`NG`, `US-DE`) | High | FE-1 |
+| 6 | ✅ FE | Dropdown offers **Nigeria, Kenya, Ghana, Delaware USA**; the API serves **NG** and **US-DE** only. Kenya and Ghana 404 by design (D6). Either the API gains two jurisdictions with real step content, or the FE drops them — see **D-LEG-2** | High | 1, FE-1 |
+| 7 | ✅ FE | Dropdown sends display names (`"Nigeria"`, `"Delaware, USA"`); the API takes codes (`NG`, `US-DE`) | High | FE-1 |
 | 8 | ❌ | The PRD's **entity summary card** (name, type, reg no., formed date) shown "when complete" cannot be built: there is no `legal_entities` table. The FE's completion card is a congratulation with no entity data in it | High | 1 |
 | 9 | ❌ | PRD asks for **doc links** per step. `FormationStepDef` has no link field, and the FE's "Docs" button is wired to nothing (`onClick` only stops propagation) | Med | 1, FE-1 |
-| 10 | ❌ | The API returns `disclaimer` plus an `estimates: true` flag; the page renders neither. PRD requires the §1.4 disclaimer to be visible, and the flag exists so no client presents catalog figures as verified fact (D6) | Sec | FE-1 |
+| 10 | ✅ FE | The API returns `disclaimer` plus an `estimates: true` flag; the page renders neither. PRD requires the §1.4 disclaimer to be visible, and the flag exists so no client presents catalog figures as verified fact (D6) | Sec | FE-1 |
 | 11 | ✅ | Per-jurisdiction checklist, "mark done" / untick, and progress kept per jurisdiction so switching never wipes ticks (D8) | — | 1 |
-| 12 | ❌ | Step toggle is optimistic-only and local; no `PATCH /legal/formation/steps/{step_key}`, no failure state | Med | FE-1 |
+| 12 | ✅ FE | Step toggle is optimistic-only and local; no `PATCH /legal/formation/steps/{step_key}`, no failure state | Med | FE-1 |
 
 ## 13.4 IP Tracker (`/legal/ip`)
 
 | # | Status | Gap | Sev | Slice |
 |---|---|---|---|---|
-| 13 | ❌ | "Add asset" drawer submits to `triggerToast("IP asset added successfully.")` — no `POST`, no validation, no error path | High | FE-1 |
-| 14 | ❌ | No edit and no delete on a row, though the API has `PATCH` and `DELETE` | Med | FE-1 |
+| 13 | ✅ FE | "Add asset" drawer submits to `triggerToast("IP asset added successfully.")` — no `POST`, no validation, no error path | High | FE-1 |
+| 14 | ✅ FE | No edit and no delete on a row, though the API has `PATCH` and `DELETE` | Med | FE-1 |
 | 15 | ❌ | **PRD 13.4: "renewal date → auto compliance item".** Not built: an IP asset with a `renewal_on` creates no linked compliance item, and nothing defines what happens when that date moves or the asset is deleted — see **D-LEG-3** | High | 1 |
-| 16 | ❌ | `renewal` is a display string; PRD wants a **"Renews {date}"** chip. API returns ISO `renewal_on` | Low | FE-1 |
+| 16 | ✅ FE | `renewal` is a display string; PRD wants a **"Renews {date}"** chip. API returns ISO `renewal_on` | Low | FE-1 |
 | 17 | ◐ | API stores three statuses (`drafting`, `filed`, `registered`) and derives `expired` from `renewal_on` (D9). **The PRD and the mock both list only Filed / Registered / Expired** — `drafting` is a Slice 1 addition, needs ratifying | Low | 1 |
 
 ## 13.5 Compliance Calendar (`/legal/compliance`)
 
 | # | Status | Gap | Sev | Slice |
 |---|---|---|---|---|
-| 18 | ❌ | **No way to create a filing.** The page has no "Add" control at all, though the API has `POST /legal/compliance-items` | High | FE-1 |
-| 19 | ❌ | "Mark done" only toasts "Prompting for proof upload…" — no `PATCH`, no upload, no proof | High | FE-1 |
-| 20 | ❌ | Calendar toggle is a placeholder: the button toasts "Calendar view is not fully supported in this demo" and renders "Calendar view rendering placeholder." PRD requires **list + calendar toggle** | Med | FE-1 |
+| 18 | ✅ FE | **No way to create a filing.** The page has no "Add" control at all, though the API has `POST /legal/compliance-items` | High | FE-1 |
+| 19 | ✅ FE | "Mark done" only toasts "Prompting for proof upload…" — no `PATCH`, no upload, no proof | High | FE-1 |
+| 20 | ✅ FE | Calendar toggle is a placeholder: the button toasts "Calendar view is not fully supported in this demo" and renders "Calendar view rendering placeholder." PRD requires **list + calendar toggle** | Med | FE-1 |
 | 21 | ❌ | **PRD entity is `compliance_items(… proof_doc_id)`** — proof as a Documents record. Slice 1 stores `proof_key` on the row and serves it through its own authenticated route. Divergence, not an oversight — see **D-LEG-4** | High | 1 |
 | 22 | ❌ | PRD lists **owner** and **linked docs** on an item; neither exists. `created_by`/`completed_by` are audit stamps, not an assignable owner | Med | 1, FE-1 |
-| 23 | ❌ | **Recurrence has no UI.** The API has a `recurrence` enum and drift-free next-occurrence spawning (D16/D24); nothing on the page sets, shows or explains it. VAT and PAYE are monthly in Nigeria, so this is the module's most-used field and it is invisible | High | FE-1 |
+| 23 | ✅ FE | **Recurrence has no UI.** The API has a `recurrence` enum and drift-free next-occurrence spawning (D16/D24); nothing on the page sets, shows or explains it. VAT and PAYE are monthly in Nigeria, so this is the module's most-used field and it is invisible | High | FE-1 |
 | 24 | ✅ | Derived status (`upcoming` / `due_soon` / `overdue` / `done`) is returned on every row, and the mock's four status labels match it exactly. There is deliberately **no** overdue-count endpoint — the FE counts the rows for its banner, which is what it already does (D13) | — | 1 |
-| 25 | ❌ | Overdue banner copy is "{n} filing overdue. These carry penalties, handle it first." PRD: "**{n} filings overdue. These carry penalties — handle them first.**" No plural handling | Low | FE-1 |
-| 26 | ❌ | No edit and no delete on a row, though the API has `PATCH` and `DELETE` | Med | FE-1 |
+| 25 | ✅ FE | Overdue banner copy is "{n} filing overdue. These carry penalties, handle it first." PRD: "**{n} filings overdue. These carry penalties — handle them first.**" No plural handling | Low | FE-1 |
+| 26 | ✅ FE | No edit and no delete on a row, though the API has `PATCH` and `DELETE` | Med | FE-1 |
 
 ## 13.2 Contract Templates (`/legal/templates`) — Slice 3
 
@@ -161,3 +161,18 @@ Each has a proposed default. **The default is what gets built unless told otherw
 - LA comment surface (13.6) — arrives with Slice 2.
 - Scheduler follow-ups raised in PR review: a batch cap plus a `ScheduledRun` anti-join on `_due_compliance`; clearing claims
   when a `due_on` moves after a reminder has fired; deleting the stored proof **after** the DB commit rather than before.
+
+## FE status (Legal FE pass, 2026-11-13, branch `feature/legal-fe`)
+
+Slice 1 pages are wired to the real API and walked live (`legal-fe-walk.md`, SOP `docs/sop/legal-fe-pass.md`).
+
+| Rows | FE status |
+|---|---|
+| 1, 3, 6, 7, 10, 12, 13, 14, 16, 18, 19, 20, 23, 25, 26 | ✅ FE done and walked live |
+| 2 | ✅ walked live as four roles |
+| 4 | ◐ The sidebar access rule for `/legal` already existed (F, TM, LA). **The sidebar entry stays hidden** (decision 2026-11-05: "hidden until they are real"), so the pages open by URL and by notification link only. Needs Adebayo's word. ⌘K search and the `legal.*` activity visibility are API rows, not built |
+| 5 | ◐ Notification deep links done: `legal.compliance.*` opens `/legal/compliance?item={id}` and `legal.ip.renewal_due_soon` opens `/legal/ip?asset={id}`, the row is highlighted. Unit-tested; no live reminder fired (worker not run) |
+| 8, 15, 21, 22 | ❌ BE, unchanged. The FE shows no entity card, no auto compliance item, no owner or linked docs |
+| 9 | ❌ BE (no doc link field). The mock's dead "Docs" button was removed rather than left unwired |
+| 17 | ✅ FE: the add drawer offers drafting and filed; edit offers all three; `expired` is derived and never offered |
+| 27 to 47 | Templates, Contract review, Advisor requests have no API (slices 2 and 3). **Tabs removed and the three routes redirect to `/legal`.** Rows stay ❌ BE; the FE rows (28, 29, 34, 38, 43, 44, 46 and the FE halves of 30, 31, 35, 37, 39) cannot be built without the API. Product call for the lead: keep them hidden until slice 2 and 3 ship |
