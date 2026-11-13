@@ -1,6 +1,6 @@
 # FE leftovers: Legal mobile layout, Validation fixes, and re-checks of earlier fixes
 
-**What shipped:** the open FE re-walk leftovers, in one PR from branch `fix/fe-leftovers-mediums` to `develop`
+**What shipped:** the open FE re-walk leftovers, in FE #261 (branch `fix/fe-leftovers-mediums` to `develop`)
 (commits `de100c8`, `21bd0ab` and the docs commit). Legal tables and calendar now work on phones. Three Validation
 items are fixed. The Sales, Marketing and #253 fixes that were already in code are now proven live. Record:
 `docs/checklist/fe-leftovers-rewalk.md` (33/33 rows pass).

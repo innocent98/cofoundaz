@@ -111,7 +111,7 @@ Slices (b) and (c) were walked on 2026-10-20 (FE `5025154` = #115 + #117; API `e
 | Team member (`rewalk-tm`), 1440 | every (b)/(c) control present, no "+ Invite"; added and deleted a feedback entry through the UI; scripts / insights / themes 200 | ✅ |
 | Mentor (`bb-mentor-1`) | `/validation/mvp` "You don't have access to this page."; feedback / scripts / insights API 403; no Validation notifications | ✅ |
 
-## Open items (all minor, FE, non-blocking): all fixed 2026-11-13, PR `fix/fe-leftovers-mediums`, re-walk `fe-leftovers-rewalk.md`
+## Open items (all minor, FE, non-blocking): all fixed 2026-11-13, FE #261 (FE #261, `fix/fe-leftovers-mediums`), re-walk `fe-leftovers-rewalk.md`
 - A Surveys-sourced insight notification opens the report on the Interviews tab.
 - Feedback form textarea has no accessible name; the Restore button's name omits the item.
 
