@@ -193,11 +193,18 @@ export async function getAdminSupportTicket(id: string): Promise<AdminTicketDeta
  * GET /admin/support/assignees
  */
 export async function getAdminSupportAssignees(): Promise<AdminSupportAssignee[]> {
-  const res = await apiClient<{ data?: { assignees: AdminSupportAssignee[] }; assignees?: AdminSupportAssignee[] } | AdminSupportAssignee[]>(
-    '/admin/support/assignees'
-  );
+  const res = await apiClient<
+    | {
+        data?: { assignees?: AdminSupportAssignee[] } | AdminSupportAssignee[];
+        assignees?: AdminSupportAssignee[];
+      }
+    | AdminSupportAssignee[]
+  >('/admin/support/assignees');
   if (Array.isArray(res)) return res;
-  if ('data' in res && res.data?.assignees) return res.data.assignees;
+  if ('data' in res && res.data) {
+    if (Array.isArray(res.data)) return res.data;
+    if ('assignees' in res.data && res.data.assignees) return res.data.assignees;
+  }
   if ('assignees' in res && res.assignees) return res.assignees;
   return [];
 }
