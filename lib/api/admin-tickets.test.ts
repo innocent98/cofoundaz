@@ -145,6 +145,16 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
     expect(res.notes).toHaveLength(1);
   });
 
+  it('fetches support assignees', async () => {
+    const spy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({
+      assignees: [{ id: 'u-1', name: 'Agent Smith', email: 'smith@staff.com' }],
+    });
+    const assignees = await getAdminSupportAssignees();
+    expect(spy).toHaveBeenCalledWith('/admin/support/assignees');
+    expect(assignees).toHaveLength(1);
+    expect(assignees[0].name).toBe('Agent Smith');
+  });
+
   it('manages canned responses (get, create, update, delete)', async () => {
     const getSpy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({
       data: { responses: [{ id: 'c-1', title: 'Greeting', body: 'Hello!' }] },
