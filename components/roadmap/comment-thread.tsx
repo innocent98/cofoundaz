@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useMemo, useRef, useState } from 'react';
-import { Check, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Check, Flag, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { useComments } from '@/hooks/useComments';
 import { useWorkspace } from '@/components/workspace-context';
 import { COMMENT_MAX, MENTION_MAX, type Comment, type CommentEntityType } from '@/lib/api/comments';
 import { memberLabel, type TeamMember } from '@/lib/api/members';
 import { relativeStamp } from '@/lib/roadmap-format';
 import { activeMention, filterCandidates, insertMention, liveMentionIds, splitMentions } from '@/lib/mentions';
+import { myReports } from '@/lib/api/reports';
+import { ReportDialog } from '@/components/reports/report-dialog';
 
 interface CommentThreadProps {
   entityType: CommentEntityType;
@@ -22,6 +24,22 @@ export function CommentThread({ entityType, entityId, members }: CommentThreadPr
   const canPost = role !== 'investor';
   const canResolveAny = role === 'founder' || role === 'team_member';
   const [error, setError] = useState<string | null>(null);
+  const [reportedIds, setReportedIds] = useState<Set<string>>(new Set());
+
+  const loadMyReports = useCallback(async () => {
+    try {
+      const list = await myReports();
+      setReportedIds(new Set(list.filter((r) => r.item_type === 'comment').map((r) => r.item_id)));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadMyReports();
+    });
+  }, [loadMyReports]);
 
   const labelById = useMemo(() => new Map(members.map((m) => [m.user_id, memberLabel(m)])), [members]);
 
@@ -58,6 +76,8 @@ export function CommentThread({ entityType, entityId, members }: CommentThreadPr
             comment={c}
             labelById={labelById}
             canResolve={canResolveAny || c.is_mine}
+            isReported={reportedIds.has(c.id)}
+            onReportSuccess={loadMyReports}
             onEdit={(body) => guard(() => edit(c.id, body), "Couldn't save that edit. Try again.")}
             onDelete={() => guard(() => remove(c.id), "Couldn't delete that comment. Try again.")}
             onResolve={() => guard(() => resolve(c.id, !c.resolved_at), "Couldn't update that thread. Try again.")}
@@ -87,6 +107,8 @@ function CommentRow({
   comment: c,
   labelById,
   canResolve,
+  isReported = false,
+  onReportSuccess,
   onEdit,
   onDelete,
   onResolve,
@@ -94,6 +116,8 @@ function CommentRow({
   comment: Comment;
   labelById: Map<string, string>;
   canResolve: boolean;
+  isReported?: boolean;
+  onReportSuccess?: () => void;
   onEdit: (body: string) => Promise<boolean>;
   onDelete: () => Promise<boolean>;
   onResolve: () => Promise<boolean>;
@@ -102,7 +126,10 @@ function CommentRow({
   const [draft, setDraft] = useState(c.body);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportedLocally, setReportedLocally] = useState(false);
 
+  const reported = isReported || reportedLocally;
   const mentionLabels = c.mention_user_ids.map((id) => labelById.get(id) ?? '').filter(Boolean);
   const segments = splitMentions(c.body, mentionLabels);
   const resolved = !!c.resolved_at;
@@ -113,6 +140,14 @@ function CommentRow({
     setBusy(false);
     return ok;
   };
+
+  if (c.removed_by_moderation) {
+    return (
+      <li className="rounded-card border border-line-soft bg-surface-muted p-3 text-xs italic text-ink-muted">
+        {c.body || 'Removed by moderation'}
+      </li>
+    );
+  }
 
   return (
     <li className={`rounded-card border p-3 flex flex-col gap-1.5 ${resolved ? 'bg-surface-muted border-line-soft opacity-80' : 'bg-white border-line-soft'}`}>
@@ -225,8 +260,35 @@ function CommentRow({
               )}
             </>
           )}
+          {!c.is_mine && (
+            reported ? (
+              <span className="px-1.5 py-1 text-[11px] text-ink-subtle">Reported</span>
+            ) : (
+              <button
+                type="button"
+                aria-label="Report comment"
+                disabled={busy}
+                onClick={() => setReportOpen(true)}
+                className="flex items-center gap-1 px-1.5 py-1 rounded-input text-[11px] font-semibold hover:bg-line-soft disabled:opacity-40"
+              >
+                <Flag className="w-3 h-3" aria-hidden="true" />
+                Report
+              </button>
+            )
+          )}
         </div>
       )}
+
+      <ReportDialog
+        isOpen={reportOpen}
+        itemType="comment"
+        itemId={c.id}
+        onClose={() => setReportOpen(false)}
+        onSuccess={() => {
+          setReportedLocally(true);
+          onReportSuccess?.();
+        }}
+      />
     </li>
   );
 }
