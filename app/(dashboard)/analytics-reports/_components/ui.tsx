@@ -27,6 +27,7 @@ export {
   labelCls,
   linkBtn,
   primaryBtn,
+  scrollToShown,
   secondaryBtn,
 } from "../../legal/_components/ui";
 
