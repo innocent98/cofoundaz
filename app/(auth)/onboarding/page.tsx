@@ -19,6 +19,7 @@ import { ApiError } from '@/lib/api/client'
 import { apiErrorInfo } from '@/lib/api/api-error'
 import { readInvite } from '@/lib/auth/pending'
 import { syncActiveWorkspace } from '@/lib/auth/post-login'
+import { fetchStaffHome } from '@/lib/auth/staff'
 import { COUNTRIES } from '@/lib/countries'
 
 export default function OnboardingPage() {
@@ -33,6 +34,12 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     async function loadState() {
+      // Staff never see the wizard: it would make them the founder of an empty workspace (SO4).
+      const staffConsole = await fetchStaffHome()
+      if (staffConsole) {
+        router.replace(staffConsole)
+        return
+      }
       try {
         const state = await getOnboardingState()
         // Finished (or a member of someone else's workspace, whose state reads completed):
@@ -101,6 +108,10 @@ export default function OnboardingPage() {
       const info = apiErrorInfo(err, 'Could not save your progress. Please try again.')
       if (info.code === 'ONBOARDING_NOT_FOR_INVITED') {
         router.replace('/dashboard')
+        return null
+      }
+      if (info.code === 'ONBOARDING_NOT_FOR_STAFF') {
+        router.replace((await fetchStaffHome()) ?? '/admin-portal')
         return null
       }
       if (info.fieldErrors.length) {

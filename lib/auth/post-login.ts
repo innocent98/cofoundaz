@@ -1,6 +1,7 @@
 import { apiClient } from '@/lib/api/client';
 import { ensureSession, setSession } from '@/lib/auth/session';
 import { forgetInvite, readInvite, rememberPendingEmail } from '@/lib/auth/pending';
+import { fetchStaffHome, isConsolePath, staffHome } from '@/lib/auth/staff';
 
 // Shared "we now hold a token pair" routing, used by BOTH the password login and
 // the MFA challenge so their behavior can't drift. Persists the session, resolves
@@ -11,6 +12,7 @@ interface UserMeResponse {
     user?: { id: string; email: string; status: string };
     profile?: { full_name?: string | null };
     active_workspace_id?: string | null;
+    staff_role?: string | null;
   };
 }
 
@@ -67,6 +69,10 @@ async function resolveLanding(opts: {
 
   // An invitation link wins over the wizard: the invitee came to join, not to start a startup.
   if (nextPath?.startsWith('/invite/')) return nextPath;
+
+  // Staff run the console and are never founders: no wizard, no founder workspace (SO4).
+  const console_ = staffHome(meRes?.data?.staff_role);
+  if (console_) return isConsolePath(nextPath) ? (nextPath as string) : console_;
 
   try {
     const state = await apiClient<OnboardingStateResponse>('/onboarding/state', { headers: authHeader });
@@ -155,6 +161,8 @@ export async function resolveAfterVerify(): Promise<string> {
   const inviteHref = invite ? `/invite/${encodeURIComponent(invite)}` : null;
   if (!(await ensureSession())) return inviteHref ? `/login?next=${encodeURIComponent(inviteHref)}` : '/login';
   if (inviteHref) return inviteHref;
+  const console_ = await fetchStaffHome();
+  if (console_) return console_;
   try {
     const state = await apiClient<OnboardingStateResponse>('/onboarding/state');
     return state.data?.completed ? '/dashboard' : '/onboarding';
