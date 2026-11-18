@@ -25,6 +25,20 @@ export const linkBtn =
 export const dangerLinkBtn =
   "inline-flex items-center gap-1 max-md:min-h-11 text-xs font-bold text-danger-600 hover:underline disabled:opacity-50";
 
+/**
+ * Lists render twice (stacked cards below `md`, a table above), and CSS hides one. A deep link
+ * scrolls to whichever of the candidate ids is actually on screen.
+ */
+export function scrollToShown(ids: string[]) {
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el && el.getClientRects().length > 0) {
+      el.scrollIntoView({ block: "center" });
+      return;
+    }
+  }
+}
+
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle: string; action?: React.ReactNode }) {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -136,14 +150,27 @@ export function Field({
   hint?: string;
   children: React.ReactNode;
 }) {
+  // Tie the hint or error to the control so a screen reader announces it, and mark the control invalid.
+  const describedBy = error ? `${htmlFor}-error` : hint ? `${htmlFor}-hint` : undefined;
+  const control = React.isValidElement<{ "aria-describedby"?: string; "aria-invalid"?: boolean }>(children)
+    ? React.cloneElement(children, { "aria-describedby": describedBy, "aria-invalid": error ? true : undefined })
+    : children;
   return (
     <div className="space-y-1.5">
       <label htmlFor={htmlFor} className={labelCls}>
         {label}
       </label>
-      {children}
-      {hint && !error && <p className="text-xs text-neutral-500">{hint}</p>}
-      {error && <p className="text-xs font-medium text-danger-600">{error}</p>}
+      {control}
+      {hint && !error && (
+        <p id={`${htmlFor}-hint`} className="text-xs text-neutral-500">
+          {hint}
+        </p>
+      )}
+      {error && (
+        <p id={`${htmlFor}-error`} className="text-xs font-medium text-danger-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

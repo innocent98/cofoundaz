@@ -15,7 +15,7 @@ Slices (b) and (c) were walked on 2026-10-20 (FE `5025154` = #115 + #117; API `e
 | Overview stat strip | load, reload | equals `GET /validation/overview` (0/0/1 untested, 1 live, 2 responses) | ✅ | responses = survey responses + smoke signups, by design |
 | Riskiest nudge | load | PRD copy with the riskiest untested statement; moves to the next one when that assumption changes status | ✅ | |
 | Design experiment (real model) | click | "Designing…", job polled, builder pre-filled (name, headline, sub, CTA, metric, 5%, "Why this test"), nothing saved | ✅ | |
-| Builder step 2 target | type 60 | accepted; saved as 50 (`config.target_conversion` 50) without telling the user | ❌ minor | FE: show "Between 1 and 50" as an error instead of clamping silently |
+| Builder step 2 target | type 60 | accepted; saved as 50 (`config.target_conversion` 50) without telling the user | ❌ minor → ✅ fixed (`43f74eb`; re-checked 2026-11-13, `fe-leftovers-rewalk.md` V5) | FE: show "Between 1 and 50" as an error instead of clamping silently |
 | Builder step 3 slug: taken | `fe-fee-test` → Publish | 409 shown under the field: "That page address is taken. Try another." | ✅ | |
 | Builder step 3 slug: invalid | `ab` → Publish | "Use 3 to 60 lowercase letters, numbers and dashes, not starting or ending with a dash." | ✅ | |
 | Publish | `rewalk-assoc-partners` | "Published. Your page is live."; `status` live, slug set, `published_at`, linked to the drafted assumption | ✅ | |
@@ -79,7 +79,7 @@ Slices (b) and (c) were walked on 2026-10-20 (FE `5025154` = #115 + #117; API `e
 | Past reports | open | 4 reports listed = `GET /insights`; opening one shows it | ✅ | |
 | Delete this report | Delete → confirm | "Assumptions you already changed stay as they are."; 4 → 3 | ✅ | |
 | Synthesize insights (Surveys) | click | `source=surveys`, "Based on 2 survey answers" | ✅ | |
-| Notification "New pattern detected…" | click in Notifications inbox | opens `/validation/interviews?insight={id}` with that report | ✅ / ❌ minor | a Surveys report opens on the Interviews tab (works, wrong tab context) |
+| Notification "New pattern detected…" | click in Notifications inbox | opens `/validation/interviews?insight={id}` with that report | ✅ / ❌ minor → ✅ fixed | a Surveys report opens on the Interviews tab (works, wrong tab context). Fixed 2026-11-13: the report moves to its own tab (`fe-leftovers-rewalk.md` V1) |
 
 ## Slice (c): MVP feedback, surveys, linked experiments, founder, 1440
 | Control | Action | Result (API) | | Notes |
@@ -87,11 +87,11 @@ Slices (b) and (c) were walked on 2026-10-20 (FE `5025154` = #115 + #117; API `e
 | Inbox load | load | items = `GET /feedback`; imported rows show source + origin label, no interviewee names | ✅ | |
 | Filter tabs All / Interview / Survey / In-app / Email | click each | 13 / 5 / 2 / 3 / 3 rows = `counts` | ✅ | |
 | Add feedback, empty | submit | "Write what the customer said."; nothing created | ✅ | |
-| Add feedback | text, Email, 18 Oct | created `email`, `received_on` 2026-10-18, not imported | ✅ | textarea has no accessible name ❌ minor |
+| Add feedback | text, Email, 18 Oct | created `email`, `received_on` 2026-10-18, not imported | ✅ | textarea has no accessible name ❌ minor → ✅ fixed 2026-11-13: explicit `<label for>` (V2) |
 | Edit | change text + source to In-app, Save changes | persisted | ✅ | |
 | Dismiss (imported) | Dismiss | `dismissed: true`, hidden | ✅ | |
 | Show dismissed / Hide dismissed | toggle | dismissed row shown / hidden | ✅ | |
-| Restore | click | `dismissed: false`, back in the inbox | ✅ | Restore button lacks the item in its accessible name ❌ minor |
+| Restore | click | `dismissed: false`, back in the inbox | ✅ | Restore button lacks the item in its accessible name ❌ minor → ✅ fixed 2026-11-13: "Restore: <text>" (V4) |
 | Delete (manual) | Delete → Cancel, Delete → Delete | "It is deleted for good and removed from any theme it is in."; cancel keeps, confirm deletes; theme count drops live (Withdrawal Failures 3× → 2×) | ✅ | |
 | Find themes (real model) | click | new run over 13 items replaces the shown themes; labels "{theme} mentioned {n}× across {m} sources" = API | ✅ | |
 | Show / Hide quotes | toggle | quotes shown, label flips | ✅ | |
@@ -111,7 +111,7 @@ Slices (b) and (c) were walked on 2026-10-20 (FE `5025154` = #115 + #117; API `e
 | Team member (`rewalk-tm`), 1440 | every (b)/(c) control present, no "+ Invite"; added and deleted a feedback entry through the UI; scripts / insights / themes 200 | ✅ |
 | Mentor (`bb-mentor-1`) | `/validation/mvp` "You don't have access to this page."; feedback / scripts / insights API 403; no Validation notifications | ✅ |
 
-## Open items (all minor, FE, non-blocking)
+## Open items (all minor, FE, non-blocking): all fixed 2026-11-13, FE #261 (`fix/fe-leftovers-mediums`), re-walk `fe-leftovers-rewalk.md`
 - A Surveys-sourced insight notification opens the report on the Interviews tab.
 - Feedback form textarea has no accessible name; the Restore button's name omits the item.
 

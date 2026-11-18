@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { replaceUrl } from '@/lib/replace-url';
 import { History, Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { ModalDialog } from '@/components/modal-dialog';
@@ -19,6 +19,14 @@ type Panel =
   | { view: 'error'; message: string }
   | { view: 'report'; insight: RawInsight }
   | { view: 'history'; items: RawInsight[] };
+
+/** The tab that owns a report of each source (the MVP tab synthesizes across all sources). */
+const SOURCE_PATH: Record<InsightSource, string> = {
+  interviews: '/validation/interviews',
+  surveys: '/validation/surveys',
+  feedback: '/validation/mvp',
+  all: '/validation/mvp',
+};
 
 const SOURCE_LABEL: Record<InsightSource, string> = { interviews: 'Interviews', surveys: 'Surveys', feedback: 'Feedback', all: 'All sources' };
 
@@ -38,6 +46,7 @@ export function InsightSynthesizer({ source }: { source: InsightSource }) {
 function Inner({ source }: { source: InsightSource }) {
   const { triggerToast } = useToast();
   const pathname = usePathname();
+  const router = useRouter();
   const search = useSearchParams();
   const { synthesizing, synthesize, history, read, remove, apply } = useInsights(source);
 
@@ -73,14 +82,34 @@ function Inner({ source }: { source: InsightSource }) {
     }
   }, [history]);
 
-  // Deep link from the notification: ?insight={insight_id}.
+  // Deep link from the notification: ?insight={insight_id}. The notification payload has no
+  // source, so it always lands on Interviews; a report from another tab moves to that tab first.
+  const openLinked = useCallback(
+    async (id: string) => {
+      setPanel({ view: 'loading', label: 'Loading the report…' });
+      try {
+        const insight = await read(id);
+        const home = SOURCE_PATH[insight.source];
+        if (home && home !== pathname) {
+          router.replace(`${home}?insight=${encodeURIComponent(id)}`);
+          return;
+        }
+        setPanel({ view: 'report', insight });
+      } catch (err) {
+        const info = apiErrorInfo(err, 'Could not load that report.');
+        setPanel({ view: 'error', message: info.status === 404 ? 'That report no longer exists.' : info.message });
+      }
+    },
+    [read, pathname, router]
+  );
+
   const linked = search.get('insight');
   useEffect(() => {
     if (!linked) return;
     queueMicrotask(() => {
-      void openReport(linked);
+      void openLinked(linked);
     });
-  }, [linked, openReport]);
+  }, [linked, openLinked]);
 
   const onSynthesize = async () => {
     setPanel({ view: 'loading', label: 'Synthesizing your customer evidence…' });
