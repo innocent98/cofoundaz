@@ -25,7 +25,6 @@ export interface Comment {
   edited_at: string | null;
   resolved_at: string | null;
   is_mine: boolean;
-  removed_by_moderation?: boolean;
 }
 
 export const COMMENT_MAX = 4000;

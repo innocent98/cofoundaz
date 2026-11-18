@@ -11,16 +11,15 @@ import { SecurityTab } from '@/components/settings/security-tab';
 import { WorkspaceTab } from '@/components/settings/workspace-tab';
 import { AiPreferencesTab, NotificationsTab } from '@/components/settings/link-tabs';
 import { BillingTab } from '@/components/settings/billing/billing-tab';
-import { HelpTab } from '@/components/settings/help-tab';
 import { Banner, Button } from '@/components/settings/ui';
 import { apiErrorInfo } from '@/lib/api/api-error';
 import { getSubscription, type Subscription } from '@/lib/api/billing';
 import { formatDate } from '@/lib/billing-format';
 
-const TABS = ['profile', 'security', 'workspace', 'notifications', 'ai', 'billing', 'help'] as const;
+const TABS = ['profile', 'security', 'workspace', 'notifications', 'ai', 'billing'] as const;
 type Tab = (typeof TABS)[number];
 const LABELS: Record<Tab, string> = {
-  profile: 'Profile', security: 'Security', workspace: 'Workspace', notifications: 'Notifications', ai: 'AI preferences', billing: 'Billing', help: 'Help',
+  profile: 'Profile', security: 'Security', workspace: 'Workspace', notifications: 'Notifications', ai: 'AI preferences', billing: 'Billing',
 };
 
 function SettingsHub(): React.JSX.Element {
@@ -123,7 +122,6 @@ function SettingsHub(): React.JSX.Element {
             {tab === 'notifications' && <NotificationsTab />}
             {tab === 'ai' && <AiPreferencesTab />}
             {tab === 'billing' && <BillingTab isFounder={isFounder} sub={sub} subError={subError} reloadSub={reloadSub} />}
-            {tab === 'help' && <HelpTab />}
           </>
         )}
       </div>
