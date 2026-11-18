@@ -7,11 +7,9 @@ import { AlertCircle, Lock, ShieldAlert, X } from 'lucide-react';
 export interface StaffActionDialogProps {
   isOpen: boolean;
   title: string;
-  confirmCopy?: string;
-  children?: React.ReactNode;
+  confirmCopy: string;
   actionButtonLabel?: string;
   actionButtonVariant?: 'danger' | 'primary';
-  isSubmitDisabled?: boolean;
   onClose: () => void;
   onConfirm: (payload: { reason: string; totp_code: string }) => Promise<void>;
 }
@@ -25,10 +23,8 @@ export function StaffActionDialog(props: StaffActionDialogProps): React.JSX.Elem
 function StaffActionDialogModal({
   title,
   confirmCopy,
-  children,
   actionButtonLabel = 'Confirm',
   actionButtonVariant = 'danger',
-  isSubmitDisabled = false,
   onClose,
   onConfirm,
 }: StaffActionDialogProps): React.JSX.Element {
@@ -61,7 +57,7 @@ function StaffActionDialogModal({
   const trimmedReasonLength = trimmedReason.length;
   const isReasonValid = trimmedReasonLength >= 10 && trimmedReasonLength <= 500;
   const isTotpValid = /^\d{6}$/.test(totpCode.trim());
-  const canSubmit = isReasonValid && isTotpValid && !isSubmitting && !isTooManyAttempts && !isSubmitDisabled;
+  const canSubmit = isReasonValid && isTotpValid && !isSubmitting && !isTooManyAttempts;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,14 +141,9 @@ function StaffActionDialogModal({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 font-body">
           {/* Confirmation Copy */}
-          {confirmCopy && (
-            <div className="p-3.5 bg-danger-subtle/20 border border-danger-subtle/40 rounded-input text-sm font-medium text-main">
-              {confirmCopy}
-            </div>
-          )}
-
-          {/* Custom Children Fields */}
-          {children}
+          <div className="p-3.5 bg-danger-subtle/20 border border-danger-subtle/40 rounded-input text-sm font-medium text-main">
+            {confirmCopy}
+          </div>
 
           {/* Audit Notice */}
           <div className="flex items-center gap-2 text-xs text-subtle">

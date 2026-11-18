@@ -345,7 +345,5 @@ export async function resendUserVerification(id: string, payload: StaffActionPay
   });
 }
 
-export * from './admin-super';
-
 export { ApiError };
 
