@@ -14,7 +14,6 @@ import {
   ChevronRight,
   X,
   CheckCircle2,
-  LifeBuoy,
 } from 'lucide-react';
 import {
   getAdminMe,
@@ -38,10 +37,8 @@ import {
 } from '@/lib/api/admin';
 import { formatApiErrorMessage } from '@/lib/api/client';
 import { StaffActionDialog } from '@/components/admin/staff-action-dialog';
-import { AdminSupportView } from '@/components/admin/admin-support-view';
-import { getAdminSupportAttention, type AdminAttentionResponse } from '@/lib/api/admin-tickets';
 
-type AdminTab = 'Dashboard' | 'Workspaces' | 'Users' | 'Support';
+type AdminTab = 'Dashboard' | 'Workspaces' | 'Users';
 type BillingFilter = 'all' | 'active' | 'past_due' | 'trialing';
 type ActivityFilter = 'all' | 'active' | 'dormant';
 type WorkspaceStageFilter = 'all' | 'idea' | 'validation' | 'mvp' | 'growth' | 'scaling';
@@ -167,19 +164,6 @@ export default function AdminPortalPage(): React.JSX.Element | null {
   const [kpisLoading, setKpisLoading] = useState(false);
   const [kpisError, setKpisError] = useState<string | null>(null);
 
-  // Dashboard Attention State
-  const [attention, setAttention] = useState<AdminAttentionResponse | null>(null);
-
-  const fetchAttention = useCallback(async () => {
-    try {
-      const data = await getAdminSupportAttention();
-      setAttention(data);
-    } catch (err) {
-      if (handlePotentialRevoke(err)) return;
-      // Fail silently for non-critical attention metric
-    }
-  }, [handlePotentialRevoke]);
-
   const fetchKpis = useCallback(async () => {
     setKpisLoading(true);
     setKpisError(null);
@@ -198,10 +182,9 @@ export default function AdminPortalPage(): React.JSX.Element | null {
     if (!authLoading && me && activeTab === 'Dashboard') {
       queueMicrotask(() => {
         void fetchKpis();
-        void fetchAttention();
       });
     }
-  }, [authLoading, me, activeTab, fetchKpis, fetchAttention]);
+  }, [authLoading, me, activeTab, fetchKpis]);
 
   // ============================================================================
   // TAB 2: Workspaces State
@@ -592,24 +575,6 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               <span>Users</span>
             </button>
           )}
-
-          {/* Support Tab (Needs support scope or super_admin) */}
-          {hasSupportScope && (
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'Support'}
-              onClick={() => setActiveTab('Support')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
-                activeTab === 'Support'
-                  ? 'bg-brand text-white shadow-card'
-                : 'text-subtle hover:text-main hover:bg-surface-raised'
-              }`}
-            >
-              <LifeBuoy className="w-4 h-4" />
-              <span>Support</span>
-            </button>
-          )}
         </nav>
 
         {/* Content Pane */}
@@ -647,38 +612,6 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   >
                     Retry
                   </button>
-                </div>
-              )}
-
-              {/* Needs Attention Card */}
-              {attention?.tickets && (attention.tickets.open > 0 || attention.tickets.breached > 0) && (
-                <div className="bg-surface border border-neutral-subtle p-4 rounded-card shadow-card flex flex-col md:flex-row md:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-modal bg-brand-subtle text-brand flex items-center justify-center shrink-0">
-                      <LifeBuoy className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-semibold text-main">Needs attention</h4>
-                      <p className="text-xs text-subtle">
-                        <span className="font-semibold text-main">{attention.tickets.open}</span> support {attention.tickets.open === 1 ? 'ticket' : 'tickets'} open
-                        {attention.tickets.breached > 0 && (
-                          <span className="text-danger-strong font-semibold ml-1.5">
-                            ({attention.tickets.breached} overdue)
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  {hasSupportScope && (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('Support')}
-                      className="px-3.5 py-1.5 bg-brand text-white rounded-input text-xs font-semibold hover:bg-brand-hover shadow-card transition-colors inline-flex items-center gap-1.5 cursor-pointer self-start md:self-auto"
-                    >
-                      <span>View Support</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -1295,21 +1228,6 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   </div>
                 </>
               )}
-            </section>
-          )}
-
-          {/* ================================================================ */}
-          {/* TAB 4: SUPPORT TICKETS                                           */}
-          {/* ================================================================ */}
-          {activeTab === 'Support' && (
-            <section className="space-y-4">
-              {!hasSupportScope ? (
-                <div className="p-8 bg-surface border border-neutral-subtle rounded-card text-center">
-                  <p className="text-sm font-medium text-main">You don&apos;t have access to this section.</p>
-                </div>
-              ) : me ? (
-                <AdminSupportView adminMe={me} />
-              ) : null}
             </section>
           )}
         </main>
