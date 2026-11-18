@@ -499,8 +499,10 @@ export interface ExportList {
   retention_days: number;
 }
 
-export async function listExports(artifactType?: 'report' | 'data_tables'): Promise<ExportList> {
-  const p = new URLSearchParams({ limit: '100' });
+export const EXPORTS_PAGE = 50;
+
+export async function listExports(artifactType?: 'report' | 'data_tables', offset = 0): Promise<ExportList> {
+  const p = new URLSearchParams({ limit: String(EXPORTS_PAGE), offset: String(offset) });
   if (artifactType) p.set('artifact_type', artifactType);
   return unwrap(await apiClient<Envelope<ExportList>>(`${B}/exports?${p}`));
 }
@@ -526,6 +528,11 @@ export async function exportDataTables(input: {
   include_metadata: boolean;
 }): Promise<ExportRow> {
   return unwrap(await apiClient<Envelope<ExportRow>>(`${B}/exports/data-tables`, { method: 'POST', body: json(input) }));
+}
+
+/** Download errors that mean the row's state changed under us: reload the row instead of only toasting. */
+export function isStaleExportError(code: string | null): boolean {
+  return code === 'EXPORT_EXPIRED' || code === 'EXPORT_FAILED' || code === 'EXPORT_NOT_READY';
 }
 
 /** Decode the filename from Content-Disposition, preferring the RFC 5987 `filename*` form. */

@@ -262,3 +262,7 @@ export function analyticsNotificationHref(type: string, data: Record<string, unk
   if ((type === 'analytics.report.shared' || type === 'analytics.report.generated') && reportId) return `/analytics-reports/saved/${reportId}`;
   return '/analytics-reports/saved';
 }
+
+/** Builder: shown when a draft holds blocks the editor's role can't open. Saving would drop them, so it is refused. */
+export const LOCKED_SAVE_MESSAGE =
+  "This report has blocks your role can't open, so it can't be saved from here without losing them. Ask the founder to change it.";

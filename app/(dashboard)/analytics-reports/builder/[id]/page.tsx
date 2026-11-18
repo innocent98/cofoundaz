@@ -26,7 +26,7 @@ import {
   type TextBlock,
   type Viz,
 } from "@/lib/api/analytics";
-import { COMPARE_OPTIONS, DEFAULT_RANGE, MAX_BLOCKS, RANGE_OPTIONS, hubLabel, moveItem, newBlockId, periodLabel, reorderTo, asOfLabel } from "@/lib/analytics-format";
+import { COMPARE_OPTIONS, DEFAULT_RANGE, LOCKED_SAVE_MESSAGE, MAX_BLOCKS, RANGE_OPTIONS, hubLabel, moveItem, newBlockId, periodLabel, reorderTo, asOfLabel } from "@/lib/analytics-format";
 import { useAnalyticsResource } from "@/hooks/useAnalyticsResource";
 import { useToast } from "../../ToastContext";
 import { useAnalyticsAccess } from "../../_components/access";
@@ -220,7 +220,14 @@ function Builder({ catalog, initial, onReload }: { catalog: Catalog; initial: Re
     }
   };
 
+  const lockedCount = draft.blocks.filter((b) => b.locked).length;
+
   const save = async () => {
+    // A locked block carries no metric, so it can't be sent back: saving would delete it. Refuse instead.
+    if (lockedCount > 0) {
+      setError(LOCKED_SAVE_MESSAGE);
+      return;
+    }
     if (!draft.name.trim()) {
       setError("Give the report a name.");
       return;
@@ -293,7 +300,7 @@ function Builder({ catalog, initial, onReload }: { catalog: Catalog; initial: Re
             <button type="button" className={secondaryBtn} disabled={previewing || draft.blocks.length === 0} onClick={() => void runPreview()}>
               <Eye className="w-4 h-4" aria-hidden="true" /> {previewing ? "Previewing" : "Preview"}
             </button>
-            <button type="button" className={darkBtn} disabled={saving || (!dirty && !!initial)} onClick={() => void save()}>
+            <button type="button" className={darkBtn} disabled={saving || (!dirty && !!initial) || lockedCount > 0} title={lockedCount > 0 ? LOCKED_SAVE_MESSAGE : undefined} onClick={() => void save()}>
               <Save className="w-4 h-4" aria-hidden="true" /> {saving ? "Saving" : dirty || !initial ? "Save report" : "Saved"}
             </button>
             <ExportMenu
@@ -314,6 +321,11 @@ function Builder({ catalog, initial, onReload }: { catalog: Catalog; initial: Re
           <p className={`${labelCls} mb-2`}>Report period</p>
           <RangePicker value={draft.range} onChange={(r) => update((d) => ({ ...d, range: r }))} idPrefix="rep" label="Report period" />
         </div>
+        {lockedCount > 0 && (
+          <p role="status" className="text-sm font-medium text-warning-800 bg-warning-50 border border-warning-500/40 rounded-input px-3 py-2">
+            {LOCKED_SAVE_MESSAGE}
+          </p>
+        )}
         {dirty && <p className="text-xs text-warning-700">You have unsaved changes.</p>}
         <FormError message={error} />
         {conflict && (
@@ -586,7 +598,7 @@ function ConfigPane({
   if (block.locked) {
     return (
       <section className={`${cardCls} p-4`} aria-label="Block settings">
-        <p className="text-sm text-neutral-600">This block needs {block.needs_label} access. You can move or remove it, not change it.</p>
+        <p className="text-sm text-neutral-600">This block needs {block.needs_label} access. You can&apos;t change it, and this report can&apos;t be saved from your role while it holds locked blocks.</p>
       </section>
     );
   }

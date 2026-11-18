@@ -9,6 +9,7 @@ import {
   exportDataTables,
   exportReport,
   getCatalog,
+  isStaleExportError,
   listExports,
   toAnalyticsError,
   type Catalog,
@@ -62,15 +63,35 @@ function ExportsInner() {
   const [filter, setFilter] = useState<Filter>("all");
   const load = useCallback(() => listExports(filter === "all" ? undefined : filter), [filter]);
   const res = useAnalyticsResource<ExportList>(access.canExport ? load : null);
-  const { rows: live, stale, watch } = useExportWatch((row) => {
+  const { rows: live, stale, watch, refresh } = useExportWatch((row) => {
     if (row.status === "ready") triggerToast(`Your export is ready: ${row.name}`);
     else triggerToast(exportStatusView(row).detail, "error");
   });
 
-  // Follow every pending row on screen.
+  // "Load more" pages, tied to the list they extend: a reload or a filter change drops them.
+  const [more, setMore] = useState<{ base: ExportList; rows: ExportRow[] } | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const extra = more && more.base === res.data ? more.rows : [];
+
+  // Follow every pending row on screen (useExportWatch skips rows that already hit the 2-minute cap).
   useEffect(() => {
     for (const r of res.data?.exports ?? []) if (r.status === "pending") watch(r);
   }, [res.data, watch]);
+
+  const loadMore = async () => {
+    if (!res.data) return;
+    const base = res.data;
+    setLoadingMore(true);
+    try {
+      const page = await listExports(filter === "all" ? undefined : filter, base.exports.length + extra.length);
+      setMore({ base, rows: [...extra, ...page.exports] });
+      for (const r of page.exports) if (r.status === "pending") watch(r);
+    } catch (err) {
+      triggerToast(toAnalyticsError(err, "Couldn't load more exports. Try again.").message, "error");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
     if (!highlight || res.status !== "ready") return;
@@ -111,7 +132,8 @@ function ExportsInner() {
         </div>
         <ResourceGate resource={res} skeleton={<SkeletonRows rows={4} label="Loading exports" />}>
           {(data) => {
-            const rows = data.exports.map((r) => live[r.id] ?? r);
+            const rows = [...data.exports, ...extra].map((r) => live[r.id] ?? r);
+            const hasMore = rows.length < data.total;
             if (rows.length === 0) {
               return (
                 <div className={cardCls}>
@@ -132,7 +154,7 @@ function ExportsInner() {
                         {r.format.toUpperCase()} · {r.period ? periodLabel(r.period) : ""} · {dateTimeLabel(r.created_at)} · {r.created_by?.name || "Someone"}
                       </p>
                       <p className="text-xs text-neutral-600">{exportStatusView(r).detail}</p>
-                      <RowActions row={r} onStarted={started} canRegenerate={access.canStartRun} />
+                      <RowActions row={r} onStarted={started} onRefresh={refresh} canRegenerate={access.canStartRun} />
                     </li>
                   ))}
                 </ul>
@@ -168,13 +190,23 @@ function ExportsInner() {
                             <p className="text-xs text-neutral-500 mt-1 max-w-56">{exportStatusView(r).detail}</p>
                           </td>
                           <td className="px-5 py-3">
-                            <RowActions row={r} onStarted={started} canRegenerate={access.canStartRun} />
+                            <RowActions row={r} onStarted={started} onRefresh={refresh} canRegenerate={access.canStartRun} />
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
+                {hasMore && (
+                  <div className="flex flex-col items-center gap-1">
+                    <button type="button" className={darkBtn} disabled={loadingMore} onClick={() => void loadMore()}>
+                      {loadingMore ? "Loading" : "Load more"}
+                    </button>
+                    <p className="text-xs text-neutral-500">
+                      Showing {rows.length} of {data.total}
+                    </p>
+                  </div>
+                )}
               </>
             );
           }}
@@ -194,7 +226,17 @@ function StatusCell({ row, stale }: { row: ExportRow; stale: boolean }) {
   );
 }
 
-function RowActions({ row, onStarted, canRegenerate }: { row: ExportRow; onStarted: (r: ExportRow) => void; canRegenerate: boolean }) {
+function RowActions({
+  row,
+  onStarted,
+  onRefresh,
+  canRegenerate,
+}: {
+  row: ExportRow;
+  onStarted: (r: ExportRow) => void;
+  onRefresh: (id: string) => Promise<ExportRow | null>;
+  canRegenerate: boolean;
+}) {
   const { triggerToast } = useToast();
   const [busy, setBusy] = useState(false);
 
@@ -203,7 +245,10 @@ function RowActions({ row, onStarted, canRegenerate }: { row: ExportRow; onStart
     try {
       await downloadExport(row);
     } catch (err) {
-      triggerToast(toAnalyticsError(err, "Couldn't download the file. Try again.").message, "error");
+      const e = toAnalyticsError(err, "Couldn't download the file. Try again.");
+      triggerToast(e.message, "error");
+      // 410 expired / 409 failed: reload the row so it says "Expired. Generate it again." instead of "Ready".
+      if (isStaleExportError(e.code)) await onRefresh(row.id);
     } finally {
       setBusy(false);
     }

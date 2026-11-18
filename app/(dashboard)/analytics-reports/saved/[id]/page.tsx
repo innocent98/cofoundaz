@@ -79,8 +79,13 @@ function ReportBody({ report, onShared }: { report: Report; onShared: () => void
     };
   }, [report.id, runId, retry]);
 
-  useEffect(() => () => {
-    if (pollRef.current) clearTimeout(pollRef.current);
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (pollRef.current) clearTimeout(pollRef.current);
+    };
   }, []);
 
   /** Guide: poll the run row every 1-2 s until ready or failed; never the job. */
@@ -88,6 +93,8 @@ function ReportBody({ report, onShared }: { report: Report; onShared: () => void
     pollRef.current = setTimeout(async () => {
       try {
         const r = await getRun(report.id, newId);
+        // Left the page while the request was in flight: no reschedule, no toast elsewhere.
+        if (!mountedRef.current) return;
         if (r.status === "pending" && Date.now() - started < 120_000) return follow(newId, started);
         setStarting(false);
         await runs.reload();
@@ -100,6 +107,7 @@ function ReportBody({ report, onShared }: { report: Report; onShared: () => void
           triggerToast("Still running. Check back in a minute.", "error");
         }
       } catch (err) {
+        if (!mountedRef.current) return;
         setStarting(false);
         triggerToast(toAnalyticsError(err, "Couldn't check the run. Reload the page.").message, "error");
       }

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Download, Loader2 } from "lucide-react";
-import { downloadExport, toAnalyticsError, type ExportRow } from "@/lib/api/analytics";
+import { downloadExport, isStaleExportError, toAnalyticsError, type ExportRow } from "@/lib/api/analytics";
 import { exportStatusView } from "@/lib/analytics-format";
 import { useExportWatch } from "@/hooks/useExportWatch";
 import { useToast } from "../ToastContext";
@@ -38,7 +38,7 @@ export function ExportMenu({
   const [busy, setBusy] = useState(false);
   const [current, setCurrent] = useState<string | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const { rows, stale, watch } = useExportWatch((row) => {
+  const { rows, stale, watch, refresh } = useExportWatch((row) => {
     if (row.status === "ready") triggerToast(`Your export is ready: ${row.name}`);
     else triggerToast(exportStatusView(row).detail, "error");
   });
@@ -79,7 +79,10 @@ export function ExportMenu({
     try {
       await downloadExport(row);
     } catch (err) {
-      triggerToast(toAnalyticsError(err, "Couldn't download the file. Try again.").message, "error");
+      const e = toAnalyticsError(err, "Couldn't download the file. Try again.");
+      triggerToast(e.message, "error");
+      // 410 expired / 409 failed: the row must stop saying "Ready".
+      if (isStaleExportError(e.code)) await refresh(row.id);
     }
   };
 
