@@ -101,6 +101,8 @@ Paystack billing keys (+ yes/no on per-founder keys) · smoke-test subdomains (p
 - [x] Reported issues, R1-R12 lead defaults (API #212, 0088; FE brief #213), 2026-11-02
 - [ ] Content library: deferred by Adebayo 2026-11-02 (P5: Academy stays repo markdown; no Templates editor yet). Stays hidden
 - [ ] FE for all Admin briefs and its 1440 + 375 re-walk: the junior FE dev
+  - [x] FE #256, #263, #264, #266 merged to `develop` 2026-11-18 without review (FE head `821ddfa`)
+  - [ ] Every-control re-walk **FAILED** 2026-11-18 (`admin-rewalk.md`: 114 rows, 85 pass, 25 fail, 3 blocked, 1 not run): 4 blockers (Support tab, founder Help thread + create, Super Admin Billing overrides crash), 3 high, fix list for Samuel; not for `main`/www until it passes
 
 ## Google sign-in / sign-up
 - [x] Four calls accepted 2026-11-02 (link by verified email, 2FA applies, onboarding + invite match, hide Apple)
