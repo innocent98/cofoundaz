@@ -51,6 +51,7 @@ function ReportBody({ report, onShared }: { report: Report; onShared: () => void
   const [runState, setRunState] = useState<"idle" | "loading" | "error">("idle");
   const [starting, setStarting] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [allRuns, setAllRuns] = useState(false);
   const [sharing, setSharing] = useState(false);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -180,7 +181,7 @@ function ReportBody({ report, onShared }: { report: Report; onShared: () => void
           {runs.status === "ready" && (runs.data?.length ?? 0) === 0 && <p className="text-xs text-neutral-500">Not run yet.</p>}
           {runs.status === "ready" && (runs.data?.length ?? 0) > 0 && (
             <ul className="space-y-1.5">
-              {runs.data!.map((r) => (
+              {(allRuns ? runs.data! : runs.data!.slice(0, 5)).map((r) => (
                 <li key={r.id}>
                   <button
                     type="button"
@@ -199,6 +200,11 @@ function ReportBody({ report, onShared }: { report: Report; onShared: () => void
                 </li>
               ))}
             </ul>
+          )}
+          {runs.status === "ready" && (runs.data?.length ?? 0) > 5 && (
+            <button type="button" className="text-xs font-bold text-brand-800 hover:underline max-md:min-h-11" aria-expanded={allRuns} onClick={() => setAllRuns((v) => !v)}>
+              {allRuns ? "Show fewer runs" : `Show all ${runs.data!.length} runs`}
+            </button>
           )}
           <p className="text-[11px] text-neutral-500">Runs are kept 90 days. A run&apos;s numbers never change.</p>
         </section>

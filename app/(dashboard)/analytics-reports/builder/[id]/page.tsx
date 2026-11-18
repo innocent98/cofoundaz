@@ -109,7 +109,7 @@ function Builder({ catalog, initial, onReload }: { catalog: Catalog; initial: Re
   const [draft, setDraft] = useState<Draft>(() => draftOf(initial));
   const [dirty, setDirty] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [step, setStep] = useState<Step>(initial && initial.blocks.length ? "canvas" : "sources");
+  const [step, setStep] = useState<Step>("canvas"); // an empty canvas shows the template chips and a "Browse metrics" step link
   const [preview, setPreview] = useState<Preview | null>(null);
   const [previewing, setPreviewing] = useState(false);
   const [saving, setSaving] = useState(false);

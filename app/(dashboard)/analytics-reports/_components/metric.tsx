@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useId } from "react";
-import { AlertTriangle, Info, TrendingDown, TrendingUp } from "lucide-react";
+import { AlertTriangle, Info, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import type { MetricResult, RangeSpec, SeriesPoint } from "@/lib/api/analytics";
 import {
   COMPARE_OPTIONS,
@@ -42,7 +42,7 @@ export function Sparkline({ series }: { series: SeriesPoint[] }) {
 export function DeltaChip({ metric }: { metric: MetricResult }) {
   const d = deltaView(metric);
   if (!d) return null;
-  const Icon = d.text.startsWith("−") ? TrendingDown : TrendingUp;
+  const Icon = d.tone === "neutral" && d.text === "No change" ? Minus : d.text.startsWith("−") ? TrendingDown : TrendingUp;
   return (
     <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border ${toneCls[d.tone]}`}>
       <Icon className="w-3 h-3" aria-hidden="true" />
