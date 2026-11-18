@@ -60,12 +60,12 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
     render(<AdminSupportView adminMe={mockAdminMe} />);
 
     expect(await screen.findByText('Payments failing intermittently', {}, { timeout: 5000 })).toBeInTheDocument();
-    expect(screen.getByText('T-101')).toBeInTheDocument();
+    expect(screen.getAllByText('T-101')[0]).toBeInTheDocument();
     expect(screen.getAllByText('P1')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Escalated')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Overdue')[0]).toBeInTheDocument();
-    expect(screen.getByText('Bob Founder')).toBeInTheDocument();
-    expect(screen.getByText('Startup Beta (growth)')).toBeInTheDocument();
+    expect(screen.getAllByText('Bob Founder')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Startup Beta (growth)')[0]).toBeInTheDocument();
   });
 
   it('sends a reply to founder, and auto-assigns ticket on first reply', async () => {

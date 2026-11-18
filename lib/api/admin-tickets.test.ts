@@ -147,7 +147,7 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
 
   it('fetches support assignees', async () => {
     const spy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({
-      data: [{ id: 'u-1', name: 'Agent Smith', email: 'smith@staff.com' }],
+      assignees: [{ id: 'u-1', name: 'Agent Smith', email: 'smith@staff.com' }],
     });
     const assignees = await getAdminSupportAssignees();
     expect(spy).toHaveBeenCalledWith('/admin/support/assignees');

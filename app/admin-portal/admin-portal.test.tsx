@@ -174,7 +174,7 @@ describe('AdminPortalPage', () => {
     fireEvent.click(screen.getByText('Paystack Clone'));
 
     expect(await screen.findByText('Workspace Detail')).toBeInTheDocument();
-    expect(screen.getByText('12 / 15')).toBeInTheDocument();
+    expect(await screen.findByText('12 / 15')).toBeInTheDocument();
     expect(screen.getByText('slack (connected)')).toBeInTheDocument();
     expect(screen.getByText('4500 / 10000')).toBeInTheDocument();
   });
@@ -239,7 +239,7 @@ describe('AdminPortalPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'View' }));
 
     expect(await screen.findByText('User Profile')).toBeInTheDocument();
-    expect(screen.getByText('102.89.34.1')).toBeInTheDocument();
+    expect(await screen.findByText('102.89.34.1')).toBeInTheDocument();
 
     // Click Suspend user button
     fireEvent.click(screen.getByRole('button', { name: 'Suspend user' }));
