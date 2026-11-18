@@ -144,3 +144,20 @@ describe('linkableHubPath', () => {
     expect(deltaView(m)).toEqual({ text: 'No change', tone: 'neutral', spoken: 'no change on the comparison period' });
   });
 });
+
+describe('analyticsNotificationHref', () => {
+  const rid = '1cdb9c97-21d5-4c24-b4e1-297935df8fe4';
+  it('opens the shared or generated report, or the export row (guide captures)', async () => {
+    const { analyticsNotificationHref } = await import('./analytics-format');
+    expect(analyticsNotificationHref('analytics.report.shared', { report_id: rid })).toBe(`/analytics-reports/saved/${rid}`);
+    expect(analyticsNotificationHref('analytics.report.generated', { report_id: rid })).toBe(`/analytics-reports/saved/${rid}`);
+    expect(analyticsNotificationHref('analytics.export.created', { export_id: rid, report_id: null })).toBe(
+      `/analytics-reports/exports?highlight=${rid}`,
+    );
+  });
+  it('never builds a path from a non-UUID id', async () => {
+    const { analyticsNotificationHref } = await import('./analytics-format');
+    expect(analyticsNotificationHref('analytics.report.shared', { report_id: '../../admin' })).toBe('/analytics-reports/saved');
+    expect(analyticsNotificationHref('analytics.export.created', { export_id: 'x?y' })).toBe('/analytics-reports/exports');
+  });
+});

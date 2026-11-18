@@ -247,3 +247,18 @@ export function linkableHubPath(path: string | null | undefined): string | null 
   if (path === '/analytics-reports') return null;
   return path;
 }
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * In-app target of an Analytics notification (guides B §4, C §5): a shared or generated report opens the
+ * report, a ready export opens Export history with that row highlighted. Ids are checked to be UUIDs
+ * so a notification can never build an arbitrary path.
+ */
+export function analyticsNotificationHref(type: string, data: Record<string, unknown> | null | undefined): string {
+  const reportId = typeof data?.report_id === 'string' && UUID_RE.test(data.report_id) ? data.report_id : null;
+  const exportId = typeof data?.export_id === 'string' && UUID_RE.test(data.export_id) ? data.export_id : null;
+  if (type === 'analytics.export.created') return exportId ? `/analytics-reports/exports?highlight=${exportId}` : '/analytics-reports/exports';
+  if ((type === 'analytics.report.shared' || type === 'analytics.report.generated') && reportId) return `/analytics-reports/saved/${reportId}`;
+  return '/analytics-reports/saved';
+}
