@@ -35,6 +35,12 @@ live-captured guides in `cofoundaz-api/docs/fe-integration-guide-analytics{,-rep
 - Fast checks: `npm run typecheck`, `npm run lint` on the touched files, `npx vitest run` on the touched tests
   (`lib/analytics-format.test.ts`, `lib/api/analytics.test.ts`, `analytics-reports/_components/access.test.ts`,
   `lib/nav-access.test.ts`, `hooks/useNotifications.test.tsx`). Full suite, e2e and build left to CI.
+- Render/flow tests fed with the guides' **captured bodies** (`analytics-reports/__fixtures__/captures.ts`,
+  `analytics-reports/analytics-flows.test.tsx`): locked blocks render the "… access needed" tile and no number
+  (`accountant_run`, `get_mentor` + `founder_run_as_mentor`); 409 `VERSION_CONFLICT` banner, no silent retry; a draft with
+  locked blocks can't be saved; 410 `EXPORT_EXPIRED` turns the row into "Expired. Generate it again."; Load more uses `offset`;
+  `useExportWatch` stops on ready / failed / expired, at 2 minutes (and never restarts that id), and on unmount mid-request;
+  investor and legal advisor get the denial page with zero Analytics requests.
 - Live walk: `docs/checklist/analytics-fe-walk.md` with screenshots in `docs/checklist/analytics-fe-walk-evidence/`,
   against a scratch API stack at develop `4d5d60d6` (0109), for founder, team member, accountant, mentor, business
   consultant and investor at 1440 and 375: **334/334 checks**, plus the 409 conflict and 429 rate-limit states by hand at both
@@ -42,6 +48,12 @@ live-captured guides in `cofoundaz-api/docs/fe-integration-guide-analytics{,-rep
 
 ## Operate / roll back
 No env, no migration. Revert the PR to get the mock back. The sidebar stays hidden; Adebayo unhides it after the lead's re-walk.
+
+## Review fixes (lead's Opus review of `075ac09`)
+M1 render tests above. L1 polling stops on unmount even with a request in flight (`useExportWatch`, run polling on the report
+page). L2 exports that hit the 2-minute cap stay stopped across list reloads. L3 a 410/409 on download reloads the row.
+L4 Export history pages with "Load more" (`offset`, 50 a page). L5 the builder refuses to save while locked blocks are present
+(they carry no metric, so saving would delete them) and says why.
 
 ## Follow-ups (gaps)
 1. **API:** an Overview PDF export (`POST /analytics/overview/export` or a template-backed run that is not listed in Reports).
