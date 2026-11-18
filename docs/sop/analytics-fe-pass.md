@@ -55,6 +55,22 @@ page). L2 exports that hit the 2-minute cap stay stopped across list reloads. L3
 L4 Export history pages with "Load more" (`offset`, 50 a page). L5 the builder refuses to save while locked blocks are present
 (they carry no metric, so saving would delete them) and says why.
 
+## Re-walk on merged develop (2026-11-18, `fix/analytics-rewalk`)
+Lead's every-control re-walk of FE `c4cde6e` against a scratch API at `3f3e8f12` (0109), seven roles (adds legal advisor)
+x 1440/375: **420/420 automated rows** (370 browser, 8 hand-set, 16 file contents, 26 API probes). Record:
+`docs/checklist/analytics-rewalk.md`. Shipped with it:
+
+| Fix | File | Why |
+|---|---|---|
+| Same-unit series share one y-axis (`axisIds`) | `analytics-reports/_components/series-chart.tsx` | Revenue ₦7,777 and Expenses ₦1,234 drew at the same height on two independent axes, which misreads as "spending what I earn". A second axis is used only for a different unit. |
+| Tick labels keep one decimal below ten of a unit (`compactTick`) | same | 1,050 and 1,400 both read "₦1k". |
+
+Tests: `_components/series-chart.test.ts`. Verified live after the fix (`analytics-rewalk-evidence/founder-*-overview-chart-after-fix.jpg`).
+Rollback: revert the commit; the chart returns to one axis per series.
+
+Open from the re-walk: **D1 (API, High)** PDF exports print "?" for "₦" (ReportLab built-in Helvetica has no U+20A6;
+`render.py`); D4 (API) unnamed member shown as "Member" not "A team member"; D5 `?highlight=` only searches page 1.
+
 ## Follow-ups (gaps)
 1. **API:** an Overview PDF export (`POST /analytics/overview/export` or a template-backed run that is not listed in Reports).
 2. **API:** report objects do not carry `locked_hubs` for the viewer (the exports guide says they do); the FE derives the
