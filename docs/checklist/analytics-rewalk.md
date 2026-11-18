@@ -3,8 +3,9 @@
 **Verdict: PASS for the FE, with one High API defect to fix before files go to real users.** Every control does what
 the brief says for all seven roles at 1440 and 375, and no role ever sees or downloads a number from a hub it can't
 open. The re-walk found three defects. Two were in the Overview chart (FE, fixed in this PR with tests). One is in the
-API's PDF renderer: every naira sign prints as "?" (API, not fixed here). The sidebar entry is still hidden; the pages
-work by URL.
+API's PDF renderer: every naira sign printed as "?". That is fixed in innocent98/Cofoundaz-api#252 (`fix/analytics-pdf-naira`).
+
+**Update 2026-11-18: Analytics is shown in the sidebar** (Adebayo's call, after this re-walk). See "Sidebar unhide" below.
 
 ## Setup
 
@@ -70,7 +71,7 @@ rendered files: **2 FAIL on develop (fixed here), 2 FAIL (API, open).**
 ## Defects
 
 **High**
-- **D1 (API): PDF exports print "?" instead of "₦".**
+- **D1 (API): PDF exports print "?" instead of "₦". Fixed in innocent98/Cofoundaz-api#252 (`fix/analytics-pdf-naira`)**, verified live (`files/accountant-pdf-page1-after-api-fix.png`: "₦7,777.00", Marketing still locked).
   - Where: `cofoundaz-api/app/services/analytics/render.py`. It sets the symbol `_SYMBOL = {"NGN": "₦"}` (l.37), but
     renders with ReportLab's built-in Helvetica (l.267, 332-338). That font has WinAnsi encoding and no U+20A6 glyph,
     so the sign becomes "?".
@@ -91,7 +92,7 @@ rendered files: **2 FAIL on develop (fixed here), 2 FAIL (API, open).**
 **Low**
 - **D3 (FE, fixed here): repeated tick labels.** `compact()` rounded 1,050 and 1,400 both to "₦1k". `compactTick()` keeps
   one decimal below ten of a unit ("₦1.1k", "₦1.4k"). Tested.
-- **D4 (API, cosmetic): an unnamed member is "Member".** In the runs list and the PDF header
+- **D4 (API, cosmetic): an unnamed member is "Member". Fixed in innocent98/Cofoundaz-api#252 (`fix/analytics-pdf-naira`).** In the runs list and the PDF header
   (`exports.py:266`, `rep.names(...).get(..., "Member")`), where SO1 settled on "A team member" for report authors. Make
   the fallback match.
 - **D5 (FE, observation): a notification link to an export older than the newest 50 can't find its row.**
@@ -142,9 +143,30 @@ rendered files: **2 FAIL on develop (fixed here), 2 FAIL (API, open).**
 
 ## Recommendation to the lead
 
-The FE is ready to show in the sidebar once D1 is fixed in the API. A board-facing PDF with "?" for every naira is the
+The FE was ready to show in the sidebar once D1 was fixed in the API; Adebayo said to show it on 2026-11-18, and D1 is fixed in innocent98/Cofoundaz-api#252. A board-facing PDF with "?" for every naira is the
 one thing a founder will notice on day one. D2 and D3 ship in this PR. D4 and D5 can ride with the next Analytics
 slice.
+
+## Sidebar unhide (2026-11-18)
+
+Adebayo said to show Analytics in the sidebar. The entry is "Analytics & Reports" in GROW, after Finance Hub
+(`components/sidebar.tsx`). It uses the same `canSee` role map as the pages, so a role that can't open Analytics
+doesn't get the entry, as for every other module.
+
+Checked live with `analytics-rewalk-evidence/sidebar.mjs` (results `results-sidebar.json`, screenshots
+`sidebar-<role>-<width>.jpg`). At 375 the check opens the "More" menu first. **14/14 pass.**
+
+| Role | 1440 | 375 | Click lands on |
+|---|---|---|---|
+| Founder | shown ✅ | shown ✅ | `/analytics-reports` (Overview) |
+| Team member | shown ✅ | shown ✅ | `/analytics-reports` |
+| Accountant | shown ✅ | shown ✅ | `/analytics-reports` (Finance only) |
+| Mentor | shown ✅ | shown ✅ | `/analytics-reports/saved` (shared reports) |
+| Business consultant | shown ✅ | shown ✅ | `/analytics-reports/saved` |
+| Investor | absent ✅ | absent ✅ | n/a |
+| Legal advisor | absent ✅ | absent ✅ | n/a |
+
+Unit: `components/sidebar.test.tsx`, a new per-role test plus the accountant test.
 
 ## Rows
 

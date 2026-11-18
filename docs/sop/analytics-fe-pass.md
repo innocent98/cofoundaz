@@ -47,7 +47,9 @@ live-captured guides in `cofoundaz-api/docs/fe-integration-guide-analytics{,-rep
   widths. Seven defects the walk found were fixed before the final pass (listed at the end of the walk doc).
 
 ## Operate / roll back
-No env, no migration. Revert the PR to get the mock back. The sidebar stays hidden; Adebayo unhides it after the lead's re-walk.
+No env, no migration. Revert the PR to get the mock back. **The sidebar entry was shown on 2026-11-18** (Adebayo, after the
+lead's re-walk): "Analytics & Reports" in GROW, filtered by `canSee` (F, TM, AC, M, BC). To hide it again, remove that one
+line from `components/sidebar.tsx`; the pages still work by URL.
 
 ## Review fixes (lead's Opus review of `075ac09`)
 M1 render tests above. L1 polling stops on unmount even with a request in flight (`useExportWatch`, run polling on the report
@@ -68,8 +70,11 @@ x 1440/375: **420/420 automated rows** (370 browser, 8 hand-set, 16 file content
 Tests: `_components/series-chart.test.ts`. Verified live after the fix (`analytics-rewalk-evidence/founder-*-overview-chart-after-fix.jpg`).
 Rollback: revert the commit; the chart returns to one axis per series.
 
-Open from the re-walk: **D1 (API, High)** PDF exports print "?" for "₦" (ReportLab built-in Helvetica has no U+20A6;
-`render.py`); D4 (API) unnamed member shown as "Member" not "A team member"; D5 `?highlight=` only searches page 1.
+Open from the re-walk: D5 `?highlight=` only searches page 1. **D1** (PDFs printed "?" for "₦") and **D4** ("Member" →
+"A team member") are fixed in innocent98/Cofoundaz-api#252.
+
+**Sidebar shown 2026-11-18** in the same PR (#271): `components/sidebar.tsx` (GROW, after Finance Hub); test
+`components/sidebar.test.tsx`; live check 14/14 (`analytics-rewalk.md`, "Sidebar unhide").
 
 ## Follow-ups (gaps)
 1. **API:** an Overview PDF export (`POST /analytics/overview/export` or a template-backed run that is not listed in Reports).

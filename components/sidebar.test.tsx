@@ -49,13 +49,27 @@ describe('Sidebar (PRD 2.1)', () => {
       expect(hasLink(label)).toBe(true);
     }
     expect(['OVERVIEW', 'BUILD', 'GROW', 'RESOURCES', 'WORKSPACE'].every((t) => within(nav()).queryByText(t))).toBe(true);
-    // Hidden on purpose (2026-11-05 and 2026-11-12)
-    for (const label of ['Funding Hub', 'Marketplace', 'Investor Readiness', 'Analytics & Reports']) {
+    // Hidden on purpose (2026-11-12)
+    for (const label of ['Funding Hub', 'Marketplace', 'Investor Readiness']) {
       expect(hasLink(label)).toBe(false);
     }
     // Legal & Compliance is shown again since its slice 1 shipped (2026-11-13)
     expect(hasLink('Legal & Compliance')).toBe(true);
     expect(within(nav()).queryByText('FUND & PROTECT')).not.toBeNull();
+  });
+
+  it('Analytics & Reports is shown to founder, team member, accountant, mentor and consultant, never to investor or legal advisor (2026-11-18)', () => {
+    for (const [r, shown] of [
+      ['founder', true], ['team_member', true], ['accountant', true], ['mentor', true], ['business_consultant', true],
+      ['investor', false], ['legal_advisor', false],
+    ] as const) {
+      role = r;
+      const { unmount } = render(<Sidebar />);
+      const link = within(nav()).queryByRole('link', { name: 'Analytics & Reports' });
+      expect(link !== null, r).toBe(shown);
+      if (link) expect(link.getAttribute('href')).toBe('/analytics-reports');
+      unmount();
+    }
   });
 
   it('legal advisor sees Legal & Compliance, and not the founder modules', () => {
@@ -65,10 +79,10 @@ describe('Sidebar (PRD 2.1)', () => {
     for (const label of ["Today's Mission", 'Finance Hub', 'Team', 'Journal']) expect(hasLink(label)).toBe(false);
   });
 
-  it('accountant sees only Finance Hub, Documents and Calendar (invited meetings only) plus Dashboard; everything else is hidden, not disabled', () => {
+  it('accountant sees only Finance Hub, Analytics & Reports (finance only), Documents and Calendar (invited meetings only) plus Dashboard; everything else is hidden, not disabled', () => {
     role = 'accountant';
     render(<Sidebar />);
-    for (const label of ['Dashboard', 'Finance Hub', 'Documents', 'Calendar']) expect(hasLink(label)).toBe(true);
+    for (const label of ['Dashboard', 'Finance Hub', 'Analytics & Reports', 'Documents', 'Calendar']) expect(hasLink(label)).toBe(true);
     for (const label of ["Today's Mission", 'AI Co-Founder', 'Marketing Hub', 'Journal', 'Team', 'Roadmap', 'Legal & Compliance']) {
       expect(hasLink(label)).toBe(false);
     }

@@ -37,6 +37,7 @@ import {
   Check,
   UserCircle,
   SlidersHorizontal,
+  BarChart3,
 } from 'lucide-react';
 
 interface NavItem {
@@ -61,8 +62,8 @@ interface SidebarProps {
 // Hidden from the sidebar on purpose; the pages still open by URL:
 // - Funding Hub, Marketplace and Investor Readiness stay hidden even once every slice is built,
 //   until Adebayo says to show them (2026-11-12). Don't add them back here without his word.
-// - Analytics & Reports is hidden until it is real (Adebayo, 2026-11-05). Legal & Compliance is shown again
-//   since its slice 1 shipped (Adebayo, 2026-11-13).
+// Legal & Compliance is shown again since its slice 1 shipped (Adebayo, 2026-11-13). Analytics & Reports is shown
+// since wave 1 passed the lead's re-walk (Adebayo, 2026-11-18); `canSee` gives it to F, TM, AC, M and BC only.
 const navSections: NavSection[] = [
   {
     title: 'OVERVIEW',
@@ -88,6 +89,7 @@ const navSections: NavSection[] = [
       { label: 'Marketing Hub', href: '/marketing', icon: PieChart },
       { label: 'Sales Hub', href: '/sales', icon: TrendingUp },
       { label: 'Finance Hub', href: '/finance', icon: Coins },
+      { label: 'Analytics & Reports', href: '/analytics-reports', icon: BarChart3 },
     ],
   },
   {
