@@ -88,40 +88,40 @@ Lead defaults (built as written, reversible):
 | 3 | Hub reads have incompatible range semantics (Marketing `range_key` "30d", Sales `from/to`, Finance as-of, Dashboard KPIs fixed). Needs one resolver `resolve(metric, from, to, group_by, compare)` that adapts each | High | BE | A | L3 |
 | 4 | History: `kpi_snapshots` stores 4 metrics nightly; trends, comparison periods and schedule diffs need the whole catalog snapshotted (same table, new metric keys, widen `metric` String(40) if needed) | High | BE | A | **D-ANA-3** |
 | 5 | Plan gating: `analytics` is a Growth module in the catalog; no `require_module("analytics")` on any route; FE `nav-access` lists F, TM, M, BC | Med | both | G | L10 |
-| 6 | Sidebar item hidden; unhide only after the waves are re-walked; role denial page for investor, legal advisor, admin roles | Med | FE | G | |
+| 6 | ◐ FE: denial page for investor / legal advisor / admins done (RouteGuard); sidebar stays hidden until the lead's re-walk · Sidebar item hidden; unhide only after the waves are re-walked; role denial page for investor, legal advisor, admin roles | Med | FE | G | |
 | 7 | **Per-metric authorisation**: a TM with the Analytics grant but without the Finance (or Funding) grant must not receive those numbers through the catalog, a block, a run, an export or an email. The numbers must not be sent at all (not hidden by CSS) | Sec | BE | A, B | **D-ANA-4** |
 | 8 | **M and BC read only reports shared with them**; AC reads finance metrics only; no other role has any access. Needs `analytics_report_shares` and the role matrix in tests | Sec | BE | B | **D-ANA-4** |
 | 9 | **Workspace isolation**: report, run, export, schedule and update ids from another workspace return a uniform 404; export download URLs are authorised per request (no guessable path), audited | Sec | BE | B, C | |
-| 10 | The mock's numbers and nouns are invented and fintech-specific ("Active Savers", "referral brought 61% of new savers"): no such data exists in the product. Replace by the real catalog; "users" only through custom metrics | High | both | A | **D-ANA-2** |
-| 11 | Money shown as strings (₦1.6M); real values are integer minor units + currency, formatted at the edge, exports write numeric cells | Med | both | A, C | L3 |
-| 12 | Period model missing (presets, custom, comparison previous period / last year, workspace timezone, month boundaries) | High | both | A | L3 |
-| 64 | Every tab and range click fires a toast ("Switched to X tab."), which is noise and read aloud by screen readers; remove | Low | FE | A | |
-| 65 | IA mismatch: mock has Overview / By hub / Benchmarks / Reports / Export tabs, PRD has Builder / Saved / Investor updates / Board decks / Exports routes. Becomes a section layout with a tab bar of the PRD routes plus an Overview landing | High | FE | A | **D-ANA-1**, L1 |
-| 70 | Empty, loading, error and "no data yet" states for a new workspace (a block with no source data says "No data yet" and links to the hub, never a zero) | Med | both | A, B | |
-| 71 | FE integration guide per slice, captured live; every-control re-walk for F, TM (with and without the Finance grant), M and BC (shared report only), AC (finance only), and a denial page for others, at 1440 + 375 | High | both | each | house rule |
+| 10 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · The mock's numbers and nouns are invented and fintech-specific ("Active Savers", "referral brought 61% of new savers"): no such data exists in the product. Replace by the real catalog; "users" only through custom metrics | High | both | A | **D-ANA-2** |
+| 11 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Money shown as strings (₦1.6M); real values are integer minor units + currency, formatted at the edge, exports write numeric cells | Med | both | A, C | L3 |
+| 12 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Period model missing (presets, custom, comparison previous period / last year, workspace timezone, month boundaries) | High | both | A | L3 |
+| 64 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Every tab and range click fires a toast ("Switched to X tab."), which is noise and read aloud by screen readers; remove | Low | FE | A | |
+| 65 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · IA mismatch: mock has Overview / By hub / Benchmarks / Reports / Export tabs, PRD has Builder / Saved / Investor updates / Board decks / Exports routes. Becomes a section layout with a tab bar of the PRD routes plus an Overview landing | High | FE | A | **D-ANA-1**, L1 |
+| 70 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Empty, loading, error and "no data yet" states for a new workspace (a block with no source data says "No data yet" and links to the hub, never a zero) | Med | both | A, B | |
+| 71 | ◐ FE: live walk of every control for F, TM, AC, M, BC and a denied role at 1440 + 375 (`analytics-fe-walk.md`); lead re-walk on merged develop pending · FE integration guide per slice, captured live; every-control re-walk for F, TM (with and without the Finance grant), M and BC (shared report only), AC (finance only), and a denial page for others, at 1440 + 375 | High | both | each | house rule |
 | 72 | Timezone: the workspace timezone does not exist as a stored setting for all workspaces (mission scheduler follow-up "per-workspace timezones"); decide the source (settings, else UTC+1 default) | Med | BE | A | L3 |
-| 74 | Provenance: every figure needs "where this comes from" (hub link + definition tooltip) and every PDF a footer with period, generated-at ("as of"), workspace; mock claims "every figure traces back to its source" with nothing behind it | Med | both | A, C | |
+| 74 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Provenance: every figure needs "where this comes from" (hub link + definition tooltip) and every PDF a footer with period, generated-at ("as of"), workspace; mock claims "every figure traces back to its source" with nothing behind it | Med | both | A, C | |
 
 ### 22.1 Report Builder
 | # | Gap | Sev | Layer | Slice | Default / Q |
 |---|---|---|---|---|---|
-| 13 | 3-pane builder does not exist (data source picker, canvas, block config); mock "Build a report" is a 2.5 s timer | High | FE | B | |
-| 14 | Searchable metric picker over the catalog, grouped by hub, locked entries for hubs the viewer lacks | High | both | A, B | **D-ANA-4** |
-| 15 | Canvas of blocks (metric card, chart, table, text), drag and drop order, add/remove/duplicate; `blocks_json` schema with a version, validation, limits | High | both | B | L4 |
-| 16 | Block config: metric, range, grouping, viz type, comparison period; invalid combinations rejected (metric that cannot group by X) | High | both | B | L2, L3 |
-| 17 | Header: inline-edit name, **Preview**, **Save report**, **Export ▾** (PDF / XLSX), **Schedule**; unsaved-changes guard; optimistic concurrency (`updated_at` / `version`) so two tabs do not overwrite | High | both | B, C, D | |
-| 18 | Empty canvas copy "Drag in a metric to start. Or let me draft it:" with three chips; chips = deterministic templates (no AI) | Med | both | B | **D-ANA-9** |
+| 13 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · 3-pane builder does not exist (data source picker, canvas, block config); mock "Build a report" is a 2.5 s timer | High | FE | B | |
+| 14 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Searchable metric picker over the catalog, grouped by hub, locked entries for hubs the viewer lacks | High | both | A, B | **D-ANA-4** |
+| 15 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Canvas of blocks (metric card, chart, table, text), drag and drop order, add/remove/duplicate; `blocks_json` schema with a version, validation, limits | High | both | B | L4 |
+| 16 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Block config: metric, range, grouping, viz type, comparison period; invalid combinations rejected (metric that cannot group by X) | High | both | B | L2, L3 |
+| 17 | ◐ FE: name, Preview, Save (409 → reload banner), Export ▾ done; Schedule is wave 2 (D); unsaved guard covers reload/close only, not in-app links · Header: inline-edit name, **Preview**, **Save report**, **Export ▾** (PDF / XLSX), **Schedule**; unsaved-changes guard; optimistic concurrency (`updated_at` / `version`) so two tabs do not overwrite | High | both | B, C, D | |
+| 18 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Empty canvas copy "Drag in a metric to start. Or let me draft it:" with three chips; chips = deterministic templates (no AI) | Med | both | B | **D-ANA-9** |
 | 19 | Preview must resolve without saving: stateless `POST /analytics/reports/preview` with the draft blocks | High | BE | B | |
-| 20 | Keyboard-accessible reordering (not drag only), focus management, announcements; at 375 the 3 panes become a stepped layout (Sources, Canvas, Config) | Med | FE | B | |
+| 20 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Keyboard-accessible reordering (not drag only), focus management, announcements; at 375 the 3 panes become a stepped layout (Sources, Canvas, Config) | Med | FE | B | |
 | 22 | Abuse and cost: max 30 blocks, max 24-month range, rate limit on preview/run/export per workspace, request timeout, no unbounded group-by | Sec | BE | B | L4 |
 
 ### 22.2 Saved Reports
 | # | Gap | Sev | Layer | Slice | Default / Q |
 |---|---|---|---|---|---|
-| 23 | Table (name, blocks, last run, schedule chip, owner) with search and sort; mock shows 4 fake rows | High | both | B | |
-| 24 | Open in builder, duplicate, rename, delete (soft, 30 days), owner or Founder only | High | both | B | |
-| 25 | Share with internal roles: share dialog (Founder picks members: TM, M, BC, AC), revoke, "shared with you" list for M and BC; "or export" = the export menu | High | both | B | **D-ANA-4** |
-| 26 | "Last run" semantics: latest ready run time, failure chip when the last scheduled run failed | Low | both | B, D | L5 |
+| 23 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Table (name, blocks, last run, schedule chip, owner) with search and sort; mock shows 4 fake rows | High | both | B | |
+| 24 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Open in builder, duplicate, rename, delete (soft, 30 days), owner or Founder only | High | both | B | |
+| 25 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Share with internal roles: share dialog (Founder picks members: TM, M, BC, AC), revoke, "shared with you" list for M and BC; "or export" = the export menu | High | both | B | **D-ANA-4** |
+| 26 | ◐ FE: last run time + failure chip done; schedule chip is wave 2 (D) · "Last run" semantics: latest ready run time, failure chip when the last scheduled run failed | Low | both | B, D | L5 |
 
 ### 22.3 Investor Updates
 | # | Gap | Sev | Layer | Slice | Default / Q |
@@ -150,10 +150,10 @@ Lead defaults (built as written, reversible):
 ### 22.5 Export History
 | # | Gap | Sev | Layer | Slice | Default / Q |
 |---|---|---|---|---|---|
-| 43 | Log table: artifact, format, generated, by, download link, expiry (30 days), status; mock has 4 fake download rows | High | both | C | |
+| 43 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Log table: artifact, format, generated, by, download link, expiry (30 days), status; mock has 4 fake download rows | High | both | C | |
 | 44 | Expiry: a purge job deletes the file at 30 days and marks the row Expired ("Generate again"); downloads after expiry are 410 | High | BE | C | L5 |
-| 45 | Raw data export (the mock's Export tab: dataset × format × metadata header): redefine as "Data tables" export over catalog metrics (CSV for one table, XLSX for several sheets), metadata header sheet; the mock's "Savers & Growth" dataset is invalid; JSON dropped | Med | both | C | L12 |
-| 46 | Existing interim exports (Marketing CSV D-MKT-6 "→ Module 22 report", Finance transactions/model XLSX) stay working; Marketing 10.8 gets an "Add to a report" action once B ships | Low | both | C, G | |
+| 45 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Raw data export (the mock's Export tab: dataset × format × metadata header): redefine as "Data tables" export over catalog metrics (CSV for one table, XLSX for several sheets), metadata header sheet; the mock's "Savers & Growth" dataset is invalid; JSON dropped | Med | both | C | L12 |
+| 46 | ◐ FE: Marketing CSV and Finance XLSX untouched and working; "Add to a report" is G · Existing interim exports (Marketing CSV D-MKT-6 "→ Module 22 report", Finance transactions/model XLSX) stay working; Marketing 10.8 gets an "Add to a report" action once B ships | Low | both | C, G | |
 | 47 | Download authorisation: per-request check of workspace + role + metric access recorded on the run; audit row; `Content-Disposition` filename sanitised | Sec | BE | C | |
 | 48 | XLSX/CSV formula injection (cells beginning `=`, `+`, `-`, `@` from user text such as custom metric names, text blocks): reuse the `xlsx.py` text-only writer and guard CSV | Sec | BE | C | |
 
@@ -171,13 +171,13 @@ Lead defaults (built as written, reversible):
 ### Overview, By hub, Benchmarks (the mock's own tabs)
 | # | Gap | Sev | Layer | Slice | Default / Q |
 |---|---|---|---|---|---|
-| 56 | Overview stat cards hard-coded; need 4 real KPIs with delta and sparkline (revenue, net burn, runway, plus pipeline or a custom metric), "No data yet" when empty | High | both | A | **D-ANA-2** |
-| 57 | Range pills change a label only; must drive every number on the page | High | both | A | L3 |
-| 58 | "Export report" button must create a real export of the Overview as a report run (PDF) and show it in Export history | Med | both | A, C | |
-| 59 | "Revenue and active savers growth" chart: static heights, no axis, no values, no tooltip; needs a real series (revenue vs a second metric), accessible table alternative | High | both | A | |
-| 60 | "What the data says" (Working / Watch): rule-based notes from numbers (e.g. burn up while revenue up) with optional AI wording; each note links to its source | Med | both | A, G | **D-ANA-9** |
-| 61 | By hub: hub filter pills and four cards with three tiles each; Open → goes to the hub; hubs the viewer cannot access are not shown; add Roadmap, Mission, Health and Funding cards where the viewer has access | High | both | A | **D-ANA-4** |
-| 62 | Benchmarks: invented cohort. Replace with Health Score benchmark cohort rules (same stage and industry, minimum size, bucketed percentiles, own rank only) and a "Not enough peers yet" state | High | both | G | **D-ANA-8** |
+| 56 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Overview stat cards hard-coded; need 4 real KPIs with delta and sparkline (revenue, net burn, runway, plus pipeline or a custom metric), "No data yet" when empty | High | both | A | **D-ANA-2** |
+| 57 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · Range pills change a label only; must drive every number on the page | High | both | A | L3 |
+| 58 | ◐ FE: Overview "Export data" makes real data tables (XLSX/CSV) in Export history; an Overview **PDF** needs an API route (gap noted in the FE SOP) · "Export report" button must create a real export of the Overview as a report run (PDF) and show it in Export history | Med | both | A, C | |
+| 59 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · "Revenue and active savers growth" chart: static heights, no axis, no values, no tooltip; needs a real series (revenue vs a second metric), accessible table alternative | High | both | A | |
+| 60 | ◐ FE: rule notes with source links done; AI wording is G · "What the data says" (Working / Watch): rule-based notes from numbers (e.g. burn up while revenue up) with optional AI wording; each note links to its source | Med | both | A, G | **D-ANA-9** |
+| 61 | ✅ FE (`feature/analytics-fe`, 2026-11-18) · By hub: hub filter pills and four cards with three tiles each; Open → goes to the hub; hubs the viewer cannot access are not shown; add Roadmap, Mission, Health and Funding cards where the viewer has access | High | both | A | **D-ANA-4** |
+| 62 | ◐ FE: Overview reuses the Health cohort benchmark (`/health-score/benchmarks`) with "Not enough peers yet"; per-metric peers are G · Benchmarks: invented cohort. Replace with Health Score benchmark cohort rules (same stage and industry, minimum size, bucketed percentiles, own rank only) and a "Not enough peers yet" state | High | both | G | **D-ANA-8** |
 | 63 | Benchmarks sort toggle and cohort-spread bars need real p25/p50/p75 from the benchmark endpoint; MoM growth, retention and CAC have no cohort data yet | Med | both | G | **D-ANA-8** |
 
 ### Events, notifications, instrumentation
