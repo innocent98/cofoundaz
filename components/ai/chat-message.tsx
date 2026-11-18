@@ -2,11 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Check, Copy, Flag, RefreshCw, Sparkles, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { Check, Copy, RefreshCw, Sparkles, ThumbsDown, ThumbsUp } from 'lucide-react';
 import type { ChatAction, ChatMessage as ChatMessageT } from '@/lib/api/aiChat';
 import type { ActionVerb } from '@/lib/api/aiChat';
 import { ChatMessageContent } from './chat-message-content';
-import { ReportDialog } from '@/components/reports/report-dialog';
 
 export interface ChatMessageHandlers {
   onRegenerate: (messageId: string) => void;
@@ -112,8 +111,6 @@ export function ChatMessage({
   busy,
   handlers,
   compact = false,
-  isReported = false,
-  onReportSuccess,
 }: {
   message: ChatMessageT;
   isLatest: boolean;
@@ -121,15 +118,9 @@ export function ChatMessage({
   busy: boolean;
   handlers: ChatMessageHandlers;
   compact?: boolean;
-  isReported?: boolean;
-  onReportSuccess?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
   const [showWhy, setShowWhy] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
-  const [reportedLocally, setReportedLocally] = useState(false);
-
-  const reported = isReported || reportedLocally;
 
   if (message.role === 'user') {
     return (
@@ -209,18 +200,6 @@ export function ChatMessage({
               >
                 <ThumbsDown className="w-3.5 h-3.5" />
               </button>
-              {reported ? (
-                <span className="px-1.5 py-1 text-xs text-ink-subtle">Reported</span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setReportOpen(true)}
-                  aria-label="Report reply"
-                  className="p-1.5 rounded-card hover:bg-surface-faint hover:text-ink cursor-pointer"
-                >
-                  <Flag className="w-3.5 h-3.5" />
-                </button>
-              )}
             </>
           )}
           {canRegenerate && (
@@ -261,17 +240,6 @@ export function ChatMessage({
           {message.reasoning_summary}
         </p>
       )}
-
-      <ReportDialog
-        isOpen={reportOpen}
-        itemType="ai_message"
-        itemId={message.id}
-        onClose={() => setReportOpen(false)}
-        onSuccess={() => {
-          setReportedLocally(true);
-          onReportSuccess?.();
-        }}
-      />
     </div>
   );
 }
