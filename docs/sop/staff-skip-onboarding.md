@@ -13,16 +13,17 @@ owned by the staff member. In the re-walk 5 of 7 workspaces were staff ghosts, i
 ## How
 | Area | Change |
 |---|---|
-| `lib/auth/staff.ts` (new) | `staffHome(role)`: `admin` → `/admin-portal`, `super_admin` → `/super-admin`, else `null`; `isConsolePath()`; `fetchStaffHome()` reads `/auth/me` and answers null when it can't. |
+| `lib/auth/staff.ts` (new) | `staffHome(role)`: `admin` → `/admin-portal`, `super_admin` → `/super-admin`, else `null`; `staffLanding(me)` answers the console **only for staff with no workspace** (no `active_workspace_id`, no memberships): a staff member who is also a founder or member keeps the normal founder flow, finishes their own onboarding and keeps a founder `next` link (Opus review M1); `isConsolePath()`; `fetchStaffHome()` reads `/auth/me` and answers null when it can't. |
 | `lib/auth/post-login.ts` | After password, MFA and Google sign-in, staff go to their console before `/onboarding/state` is ever called. A console deep link in `next` is kept; a founder page in `next` is not. Invitation links still win (unchanged). The verify page's Continue (`resolveAfterVerify`) does the same. |
-| `app/(auth)/onboarding/page.tsx` | Sends staff to their console before reading state; `ONBOARDING_NOT_FOR_STAFF` on a save is a redirect, never a form error (same as `ONBOARDING_NOT_FOR_INVITED`). |
+| `app/(auth)/onboarding/page.tsx` | Sends staff with no workspace to their console before reading state; `ONBOARDING_NOT_FOR_STAFF` on the first read (when `/auth/me` blipped, review L2) or on a save is a redirect, never the wizard or a form error (same as `ONBOARDING_NOT_FOR_INVITED`). |
 
 Samuel's Admin pages (reverted pending his fixes) were not touched; `/admin-portal` and `/super-admin` are today's mocks.
 An older API without `staff_role` reads as "not staff", so the FE and API PRs can merge in either order.
 
 ## Verification
-- `lib/auth/staff.test.ts` (8 tests): role mapping, console paths, admin / super admin / founder landings, deep links,
-  verify Continue, unreadable `/auth/me`.
+- `lib/auth/staff.test.ts` (11 tests): role mapping, console paths, admin / super admin / founder landings, deep links,
+  verify Continue, unreadable `/auth/me`, and a staff member who is also a founder (unfinished → `/onboarding`; finished →
+  their `next` or `/dashboard`). The L2 catch on the onboarding page has no page test (none exists for that page).
 - `npm run typecheck`, `eslint` on the touched files.
 - Live on localhost (this branch on :3105 against the API branch on :8010, scratch DB): Admin sign-in with 2FA → `/admin-portal`;
   Admin visiting `/onboarding` → bounced to `/admin-portal`; Super Admin → `/super-admin`; workspace count unchanged (2 → 2);
@@ -33,4 +34,5 @@ Revert the PR. No env change.
 
 ## Follow-ups
 - Samuel's Admin FE should land on `staff_role` rather than probing `/admin/me` when it returns.
+- When Samuel's console lands, its "2FA not set up" path must **not** send staff to `/dashboard` or `/onboarding`: the staff landing sends them straight back to the console, so that would loop. Show a "turn on 2FA" screen inside the console.
 - `OnboardingGate` (dashboard pages) still lets a staff member with no workspace through to a blank dashboard if they type the URL; the console is where they belong, but nothing sends them there from `/dashboard`.

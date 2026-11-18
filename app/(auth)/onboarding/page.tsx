@@ -34,7 +34,8 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     async function loadState() {
-      // Staff never see the wizard: it would make them the founder of an empty workspace (SO4).
+      // Staff with no workspace never see the wizard: it would make them the founder of an
+      // empty workspace (SO4). A staff member who is also a founder finishes their own wizard.
       const staffConsole = await fetchStaffHome()
       if (staffConsole) {
         router.replace(staffConsole)
@@ -69,7 +70,12 @@ export default function OnboardingPage() {
           notes: state.notes || '',
           ai_panel: state.ai_panel || null,
         })
-      } catch {
+      } catch (err: unknown) {
+        // /auth/me blipped above but the API knows a staff member: never show them the wizard.
+        if (apiErrorInfo(err, '').code === 'ONBOARDING_NOT_FOR_STAFF') {
+          router.replace((await fetchStaffHome()) ?? '/admin-portal')
+          return
+        }
         // Unauthenticated or fresh user starts on Step 1
         setInitialData({ step: 1 })
       } finally {

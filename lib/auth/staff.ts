@@ -17,11 +17,29 @@ export function isConsolePath(path: string | null | undefined): boolean {
   return !!path && /^\/(admin-portal|super-admin)(\/|\?|$)/.test(path);
 }
 
-/** Reads `/auth/me` and answers the caller's console, or null (not staff, or unreadable). */
+export interface StaffMe {
+  staff_role?: string | null;
+  active_workspace_id?: string | null;
+  memberships?: unknown[] | null;
+}
+
+/**
+ * Where a signed-in person lands INSTEAD of the founder flow, or null to use the founder flow.
+ * Only staff with no workspace of their own go to the console: a staff member who is also a
+ * founder (or a member somewhere) keeps the normal flow, so they can finish their own onboarding
+ * and a founder `next` link still works.
+ */
+export function staffLanding(me: StaffMe | null | undefined): string | null {
+  if (!me) return null;
+  const hasWorkspace = !!me.active_workspace_id || (me.memberships?.length ?? 0) > 0;
+  return hasWorkspace ? null : staffHome(me.staff_role);
+}
+
+/** Reads `/auth/me` and answers `staffLanding`, or null (not staff-only, or unreadable). */
 export async function fetchStaffHome(): Promise<string | null> {
   try {
-    const me = await apiClient<{ data?: { staff_role?: string | null } }>('/auth/me');
-    return staffHome(me?.data?.staff_role);
+    const me = await apiClient<{ data?: StaffMe }>('/auth/me');
+    return staffLanding(me?.data);
   } catch {
     return null;
   }
