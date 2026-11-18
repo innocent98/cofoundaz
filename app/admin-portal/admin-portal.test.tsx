@@ -71,6 +71,7 @@ describe('AdminPortalPage', () => {
     expect(screen.getByRole('tab', { name: 'Dashboard' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Workspaces' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Users' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Reports' })).toBeInTheDocument();
 
     // Out of scope tabs must NOT be present
     expect(screen.queryByText(/expert vetting/i)).not.toBeInTheDocument();
@@ -106,10 +107,11 @@ describe('AdminPortalPage', () => {
     expect(screen.getByText('Admin')).toBeInTheDocument();
     expect(screen.getByText('content')).toBeInTheDocument();
 
-    // Dashboard is visible, but Workspaces and Users are hidden
+    // Dashboard is visible, but Workspaces, Users, and Reports are hidden
     expect(screen.getByRole('tab', { name: 'Dashboard' })).toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: 'Workspaces' })).not.toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: 'Users' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Reports' })).not.toBeInTheDocument();
   });
 
   it('workspaces tab: lists workspaces and opens detail modal on row click', async () => {
@@ -281,5 +283,27 @@ describe('AdminPortalPage', () => {
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith('/dashboard');
     });
+  });
+
+  it('reports tab: allows staff with moderation scope to see and navigate to Reports tab', async () => {
+    vi.mocked(adminApi.getAdminMe).mockResolvedValue({
+      user_id: 'adm-mod',
+      role: 'admin',
+      scopes: ['moderation'],
+    });
+    vi.mocked(adminApi.getAdminKpis).mockResolvedValue({
+      total_workspaces: { value: 10, new_in_window: 1 },
+      activation_rate: { percent: 40, previous_percent: null },
+      paid_conversion: { percent: 10, previous_percent: null },
+      mrr: { minor: 500000 },
+      signups_series: [],
+    });
+
+    render(<AdminPortalPage />);
+
+    expect(await screen.findByRole('tab', { name: 'Reports' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'Reports' }));
+
+    expect(await screen.findByText('Content Moderation & Reports')).toBeInTheDocument();
   });
 });

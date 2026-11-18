@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AlertTriangle, Check, Loader2, Pencil, RotateCcw, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Check, Flag, Loader2, Pencil, RotateCcw, Trash2, X } from 'lucide-react';
 import {
   createComment,
   deleteComment,
@@ -17,6 +17,8 @@ import { apiErrorInfo } from '@/lib/api/api-error';
 import { relativeTime } from '@/lib/relative-time';
 import { activeMentionQuery, applyMention, filterMembers, memberLabel, mentionIdsIn } from '@/lib/mentions';
 import { useBuilderAccess } from '@/hooks/useBuilderAccess';
+import { myReports } from '@/lib/api/reports';
+import { ReportDialog } from '@/components/reports/report-dialog';
 
 interface Props {
   open: boolean;
@@ -33,17 +35,25 @@ interface Props {
 function CommentRow({
   c,
   canResolve,
+  isReported = false,
+  onReportSuccess,
   onChanged,
   onError,
 }: {
   c: Comment;
   canResolve: boolean;
+  isReported?: boolean;
+  onReportSuccess?: () => void;
   onChanged: (next: Comment | null) => void;
   onError: (msg: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(c.body);
   const [busy, setBusy] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportedLocally, setReportedLocally] = useState(false);
+
+  const reported = isReported || reportedLocally;
 
   const run = async (fn: () => Promise<Comment | null>) => {
     setBusy(true);
@@ -56,6 +66,14 @@ function CommentRow({
       setBusy(false);
     }
   };
+
+  if (c.removed_by_moderation) {
+    return (
+      <li className="rounded-card border border-line-soft bg-surface-ghost px-3 py-2.5 text-xs italic text-ink-muted">
+        {c.body || 'Removed by moderation'}
+      </li>
+    );
+  }
 
   return (
     <li className={`rounded-card border px-3 py-2.5 ${c.resolved_at ? 'border-line-soft bg-surface-ghost' : 'border-line-soft bg-white'}`}>
@@ -98,8 +116,33 @@ function CommentRow({
               <button type="button" disabled={busy} onClick={() => run(async () => { await deleteComment(c.id); return null; })} className="flex items-center gap-1 hover:text-danger-text"><Trash2 className="w-3 h-3" /> Delete</button>
             </>
           )}
+          {!c.is_mine && (
+            reported ? (
+              <span className="text-[11px] text-ink-subtle">Reported</span>
+            ) : (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setReportOpen(true)}
+                className="flex items-center gap-1 hover:text-brand-strong"
+              >
+                <Flag className="w-3 h-3" /> Report
+              </button>
+            )
+          )}
         </div>
       )}
+
+      <ReportDialog
+        isOpen={reportOpen}
+        itemType="comment"
+        itemId={c.id}
+        onClose={() => setReportOpen(false)}
+        onSuccess={() => {
+          setReportedLocally(true);
+          onReportSuccess?.();
+        }}
+      />
     </li>
   );
 }
@@ -108,6 +151,7 @@ function CommentRow({
 export function CommentDrawer({ open, title, entityType, entityId, anchor, onClose, onChanged }: Props) {
   const { canComment, canEdit } = useBuilderAccess();
   const [comments, setComments] = useState<Comment[]>([]);
+  const [reportedIds, setReportedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [text, setText] = useState('');
@@ -118,6 +162,15 @@ export function CommentDrawer({ open, title, entityType, entityId, anchor, onClo
   const [activeIndex, setActive] = useState(0);
   const [dismissed, setDismissed] = useState(false);
   const areaRef = useRef<HTMLTextAreaElement>(null);
+
+  const loadMyReports = useCallback(async () => {
+    try {
+      const list = await myReports();
+      setReportedIds(new Set(list.filter((r) => r.item_type === 'comment').map((r) => r.item_id)));
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const load = useCallback(async () => {
     if (!entityId) return;
@@ -137,6 +190,7 @@ export function CommentDrawer({ open, title, entityType, entityId, anchor, onClo
     void (async () => {
       setText('');
       setPicked([]);
+      void loadMyReports();
       await load();
       try {
         setMembers(await listMembers());
@@ -144,7 +198,7 @@ export function CommentDrawer({ open, title, entityType, entityId, anchor, onClo
         setMembers([]); // mentions are optional: the composer still works
       }
     })();
-  }, [open, load]);
+  }, [open, load, loadMyReports]);
 
   useEffect(() => {
     if (!open) return;
@@ -222,6 +276,8 @@ export function CommentDrawer({ open, title, entityType, entityId, anchor, onClo
                   key={c.id}
                   c={c}
                   canResolve={canEdit}
+                  isReported={reportedIds.has(c.id)}
+                  onReportSuccess={loadMyReports}
                   onError={setError}
                   onChanged={(next) => {
                     setComments((prev) => (next ? prev.map((x) => (x.id === c.id ? next : x)) : prev.filter((x) => x.id !== c.id)));

@@ -87,4 +87,27 @@ describe('ChatMessage', () => {
     expect(screen.getByText(/usage limit/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Retry/ })).toBeNull();
   });
+
+  it('renders report action on ready assistant reply and opens dialog', () => {
+    setup();
+    const reportBtn = screen.getByRole('button', { name: 'Report reply' });
+    expect(reportBtn).toBeInTheDocument();
+    fireEvent.click(reportBtn);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('renders Reported label when isReported is true', () => {
+    const h = handlers();
+    render(<ChatMessage message={base} isLatest={true} busy={false} handlers={h} isReported={true} />);
+    expect(screen.getByText('Reported')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Report reply' })).toBeNull();
+  });
+
+  it('renders removed content without action buttons when removed_by_moderation is true', () => {
+    setup({ removed_by_moderation: true, content: 'Removed by moderation' });
+    expect(screen.getByText('Removed by moderation')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Report reply' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Copy reply' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Good reply' })).toBeNull();
+  });
 });

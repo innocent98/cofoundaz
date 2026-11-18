@@ -15,6 +15,7 @@ import {
   X,
   CheckCircle2,
   LifeBuoy,
+  ShieldAlert,
 } from 'lucide-react';
 import {
   getAdminMe,
@@ -39,9 +40,10 @@ import {
 import { formatApiErrorMessage } from '@/lib/api/client';
 import { StaffActionDialog } from '@/components/admin/staff-action-dialog';
 import { AdminSupportView } from '@/components/admin/admin-support-view';
+import { AdminReportsView } from '@/components/admin/admin-reports-view';
 import { getAdminSupportAttention, type AdminAttentionResponse } from '@/lib/api/admin-tickets';
 
-type AdminTab = 'Dashboard' | 'Workspaces' | 'Users' | 'Support';
+type AdminTab = 'Dashboard' | 'Workspaces' | 'Users' | 'Support' | 'Reports';
 type BillingFilter = 'all' | 'active' | 'past_due' | 'trialing';
 type ActivityFilter = 'all' | 'active' | 'dormant';
 type WorkspaceStageFilter = 'all' | 'idea' | 'validation' | 'mvp' | 'growth' | 'scaling';
@@ -480,6 +482,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
 
   const isSuperAdmin = me.role === 'super_admin';
   const hasSupportScope = hasAdminScope(me, 'support');
+  const hasModerationScope = hasAdminScope(me, 'moderation');
 
   return (
     <div className="min-h-screen bg-surface-raised flex flex-col font-body text-main">
@@ -608,6 +611,24 @@ export default function AdminPortalPage(): React.JSX.Element | null {
             >
               <LifeBuoy className="w-4 h-4" />
               <span>Support</span>
+            </button>
+          )}
+
+          {/* Reports Tab (Needs moderation scope or super_admin) */}
+          {hasModerationScope && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'Reports'}
+              onClick={() => setActiveTab('Reports')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
+                activeTab === 'Reports'
+                  ? 'bg-brand text-white shadow-card'
+                  : 'text-subtle hover:text-main hover:bg-surface-raised'
+              }`}
+            >
+              <ShieldAlert className="w-4 h-4" />
+              <span>Reports</span>
             </button>
           )}
         </nav>
@@ -1309,6 +1330,21 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                 </div>
               ) : me ? (
                 <AdminSupportView adminMe={me} />
+              ) : null}
+            </section>
+          )}
+
+          {/* ================================================================ */}
+          {/* TAB 5: REPORTED ISSUES                                           */}
+          {/* ================================================================ */}
+          {activeTab === 'Reports' && (
+            <section className="space-y-4">
+              {!hasModerationScope ? (
+                <div className="p-8 bg-surface border border-neutral-subtle rounded-card text-center">
+                  <p className="text-sm font-medium text-main">You don&apos;t have access to this section.</p>
+                </div>
+              ) : me ? (
+                <AdminReportsView adminMe={me} />
               ) : null}
             </section>
           )}
