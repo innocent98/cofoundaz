@@ -46,7 +46,8 @@ export const NAV_ROLES: Record<string, MemberRole[]> = {
   // (read-only, GET /calendar/meetings). The calendar layout narrows the sub-pages by role.
   '/calendar': EVERYONE,
   '/team': [F, TM],
-  '/analytics-reports': [F, TM, M, BC],
+  // Accountants read Finance numbers in Analytics (D-ANA-4); investors and legal advisors get the denial page.
+  '/analytics-reports': [F, TM, M, BC, AC],
   '/journal': [F],
   '/notifications': EVERYONE,
   '/settings': EVERYONE,
