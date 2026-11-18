@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, CheckCircle2, Eye } from "lucide-react";
+import { CheckCircle2, Eye } from "lucide-react";
 import { exportDataTables, getByHub, getOverview, type Overview, type RangeSpec } from "@/lib/api/analytics";
 import { DEFAULT_RANGE } from "@/lib/analytics-format";
 import { useAnalyticsResource } from "@/hooks/useAnalyticsResource";
@@ -196,9 +195,7 @@ function ByHubSection({ range, hubs, nonce }: { range: RangeSpec; hubs: Overview
             <div key={h.hub} className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold text-neutral-700">{h.label}</h3>
-                <Link href={h.path} className="inline-flex items-center gap-0.5 max-md:min-h-11 text-xs font-bold text-brand-800 hover:underline">
-                  Open {h.label} <ArrowUpRight className="w-3 h-3" aria-hidden="true" />
-                </Link>
+                <HubLink path={h.path} label={`Open ${h.label}`} />
               </div>
               {h.tiles.length === 0 ? (
                 <p className="text-sm text-neutral-500">No metrics here yet.</p>

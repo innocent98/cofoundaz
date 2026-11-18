@@ -77,12 +77,13 @@ export function deltaView(m: MetricResult): DeltaView | null {
   if (!c || c.delta === null || c.delta === undefined) return null;
   const dir = c.delta > 0 ? 'up' : c.delta < 0 ? 'down' : 'flat';
   const tone: Tone = dir === 'flat' ? 'neutral' : (dir === m.good ? 'good' : 'bad');
+  if (dir === "flat") return { text: 'No change', tone, spoken: 'no change on the comparison period' };
   const sign = c.delta > 0 ? '+' : c.delta < 0 ? '−' : '';
   const text =
     c.delta_pct !== null && c.delta_pct !== undefined
       ? `${sign}${round1(Math.abs(c.delta_pct))}%`
       : `${sign}${formatValue(Math.abs(c.delta), m.unit, m.currency)}`;
-  const spoken = dir === 'flat' ? 'no change on the comparison period' : `${dir} ${text.replace(/^[+−]/, '')} on the comparison period`;
+  const spoken = `${dir} ${text.replace(/^[+−]/, '')} on the comparison period`;
   return { text, tone, spoken };
 }
 
@@ -231,3 +232,18 @@ export const ROLE_LABEL: Record<string, string> = {
   business_consultant: 'Business consultant',
   founder: 'Founder',
 };
+
+/**
+ * Hub pages that stay hidden from navigation until Adebayo unhides them (2026-11-12): Analytics shows
+ * their numbers but never links into them.
+ */
+const HIDDEN_HUB_PATHS = ['/funding', '/investor-readiness', '/marketplace'];
+
+/** Where a figure's "Open …" link may go: an in-app hub path that is not hidden, else null. */
+export function linkableHubPath(path: string | null | undefined): string | null {
+  if (!path || !path.startsWith('/') || path.startsWith('//')) return null;
+  if (HIDDEN_HUB_PATHS.some((p) => path === p || path.startsWith(`${p}/`))) return null;
+  // Custom metrics point back at Analytics itself; the card offers "Edit values" instead.
+  if (path === '/analytics-reports') return null;
+  return path;
+}

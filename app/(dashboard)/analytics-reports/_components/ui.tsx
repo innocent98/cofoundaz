@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, Lock } from "lucide-react";
 import type { AnalyticsResource } from "@/hooks/useAnalyticsResource";
 import { ErrorBlock, SkeletonRows } from "../../legal/_components/ui";
-import { lockedText } from "@/lib/analytics-format";
+import { linkableHubPath, lockedText } from "@/lib/analytics-format";
 
 // The generic building blocks (buttons, fields, dialogs, drawers, states) are shared with Legal so
 // every page in the app renders loading, empty and error the same way. Analytics adds its own
@@ -102,9 +102,10 @@ export function LockedTile({ needsLabel, compact = false }: { needsLabel: string
 
 /** "Open Finance" style link to the hub a figure comes from (provenance, gap 74). */
 export function HubLink({ path, label }: { path?: string; label: string }) {
-  if (!path || !path.startsWith("/")) return null;
+  const href = linkableHubPath(path);
+  if (!href) return null;
   return (
-    <Link href={path} className="inline-flex items-center gap-0.5 max-md:min-h-11 text-xs font-bold text-brand-800 hover:underline">
+    <Link href={href} className="inline-flex items-center gap-0.5 max-md:min-h-11 text-xs font-bold text-brand-800 hover:underline">
       {label}
       <ArrowUpRight className="w-3 h-3" aria-hidden="true" />
     </Link>

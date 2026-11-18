@@ -48,10 +48,14 @@ export function useAnalyticsResource<T>(load: (() => Promise<T>) | null): Analyt
   );
 
   useEffect(() => {
+    // A mount that is torn down before the microtask (React StrictMode in dev) never fires its request:
+    // the heavy Analytics reads share a 40-per-minute workspace limit.
+    let live = true;
     queueMicrotask(() => {
-      void run(false);
+      if (live) void run(false);
     });
     return () => {
+      live = false;
       // A plain cancel token: bumping the live value is the point.
       // eslint-disable-next-line react-hooks/exhaustive-deps
       runRef.current++;

@@ -74,7 +74,7 @@ export function CustomMetricsPanel({ onChanged }: { onChanged: () => void }) {
   };
 
   return (
-    <section aria-labelledby="custom-h" className={`${cardCls} p-5 md:p-6 space-y-4`}>
+    <section id="custom-metrics" aria-labelledby="custom-h" className={`${cardCls} p-5 md:p-6 space-y-4`}>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h2 id="custom-h" className="text-lg font-display font-semibold text-neutral-900">

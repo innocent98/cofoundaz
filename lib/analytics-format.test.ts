@@ -128,3 +128,19 @@ describe('reordering and ids', () => {
     ).toEqual(['Marketing']);
   });
 });
+
+describe('linkableHubPath', () => {
+  it('never links into hidden modules or back to Analytics', async () => {
+    const { linkableHubPath } = await import('./analytics-format');
+    expect(linkableHubPath('/finance')).toBe('/finance');
+    expect(linkableHubPath('/funding')).toBeNull();
+    expect(linkableHubPath('/investor-readiness/x')).toBeNull();
+    expect(linkableHubPath('/analytics-reports')).toBeNull();
+    expect(linkableHubPath('https://evil.example')).toBeNull();
+    expect(linkableHubPath('//evil.example')).toBeNull();
+  });
+  it('says No change for a zero delta', () => {
+    const m = { ...revenue, compare: { ...revenue.compare!, value: 500000, delta: 0, delta_pct: 0 } };
+    expect(deltaView(m)).toEqual({ text: 'No change', tone: 'neutral', spoken: 'no change on the comparison period' });
+  });
+});

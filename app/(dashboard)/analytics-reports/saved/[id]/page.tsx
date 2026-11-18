@@ -239,7 +239,7 @@ function ReportBody({ report, onShared }: { report: Report; onShared: () => void
                   {periodLabel(run.period)}
                 </h2>
                 <p className="text-xs text-neutral-500">
-                  Numbers {asOfLabel(run.as_of)} UTC, run by {run.run_by?.name || "someone"}
+                  Numbers {asOfLabel(run.as_of)}, run by {run.run_by?.name || "someone"}
                 </p>
               </div>
               <RunResults results={run.snapshot?.results ?? []} />

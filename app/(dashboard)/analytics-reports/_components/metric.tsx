@@ -126,7 +126,13 @@ export function MetricCard({ metric, title, showSpark = true }: { metric: Metric
           {metric.source_note && !entered ? `${metric.source_note} · ` : ""}
           {asOfLabel(metric.as_of)}
         </span>
-        <HubLink path={metric.hub_path} label={state.kind === "no_data" ? `Add in ${hubLabel(metric.hub ?? "")}` : `Open ${hubLabel(metric.hub ?? "")}`} />
+        {metric.hub === "custom" ? (
+          <a href="#custom-metrics" className="inline-flex items-center max-md:min-h-11 text-xs font-bold text-brand-800 hover:underline">
+            Edit values
+          </a>
+        ) : (
+          <HubLink path={metric.hub_path} label={state.kind === "no_data" ? `Add in ${hubLabel(metric.hub ?? "")}` : `Open ${hubLabel(metric.hub ?? "")}`} />
+        )}
       </div>
     </article>
   );

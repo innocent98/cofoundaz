@@ -5,7 +5,9 @@ import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContai
 import type { MetricResult } from "@/lib/api/analytics";
 import { formatValue, periodLabel } from "@/lib/analytics-format";
 
-const COLOURS = ["var(--color-brand-mid)", "var(--color-accent-600)"];
+// Navy solid + amber dashed: the second series must read apart from the first without relying on hue alone.
+const COLOURS = ["var(--color-brand-900)", "var(--color-warning-500)"];
+const DASH = [undefined, "5 3"];
 const GRID = "var(--color-line-soft)";
 const AXIS = "var(--color-ink-soft)";
 const tooltipStyle = {
@@ -87,7 +89,7 @@ export function SeriesChart({ metrics, kind = "line", height = 256 }: { metrics:
               kind === "bar" ? (
                 <Bar key={m.key} yAxisId={k} dataKey={`m${k}`} name={`m${k}`} fill={COLOURS[k]} radius={[3, 3, 0, 0]} isAnimationActive={false} />
               ) : (
-                <Line key={m.key} yAxisId={k} dataKey={`m${k}`} name={`m${k}`} stroke={COLOURS[k]} strokeWidth={2} dot={{ r: 3 }} connectNulls isAnimationActive={false} />
+                <Line key={m.key} yAxisId={k} dataKey={`m${k}`} name={`m${k}`} stroke={COLOURS[k]} strokeDasharray={DASH[k]} strokeWidth={2} dot={{ r: 3 }} connectNulls isAnimationActive={false} />
               ),
             )}
           </Chart>
