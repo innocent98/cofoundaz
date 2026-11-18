@@ -25,23 +25,36 @@ function bucketLabel(from: string, to: string): string {
   return from === to ? f.toLocaleDateString("en-GB", o) : `${f.toLocaleDateString("en-GB", o)}–${t.toLocaleDateString("en-GB", o)}`;
 }
 
-/** Short axis ticks: ₦1.5M / 12k. */
-function compact(v: number, m: MetricResult): string {
-  if (m.unit === "money") {
-    const major = v / 100;
-    const a = Math.abs(major);
-    if (a >= 1e9) return `₦${(major / 1e9).toFixed(1)}B`;
-    if (a >= 1e6) return `₦${(major / 1e6).toFixed(1)}M`;
-    if (a >= 1e3) return `₦${Math.round(major / 1e3)}k`;
-    return `₦${Math.round(major)}`;
-  }
-  if (Math.abs(v) >= 1000) return `${Math.round(v / 1000)}k`;
+/** 1.4k, 12k, 1.5M: one decimal below 10 of a unit, so neighbouring ticks never collapse to the same label. */
+function shortNumber(n: number): string {
+  const a = Math.abs(n);
+  const fmt = (x: number, suffix: string) => `${Math.abs(x) < 10 ? Number(x.toFixed(1)) : Math.round(x)}${suffix}`;
+  if (a >= 1e9) return fmt(n / 1e9, "B");
+  if (a >= 1e6) return fmt(n / 1e6, "M");
+  if (a >= 1e3) return fmt(n / 1e3, "k");
+  return String(Math.round(n));
+}
+
+/** Short axis ticks: ₦1.5M / ₦1.4k / 12k. */
+export function compactTick(v: number, m: Pick<MetricResult, "unit" | "currency">): string {
+  if (m.unit === "money") return `₦${shortNumber(v / 100)}`;
+  if (Math.abs(v) >= 1000) return shortNumber(v);
   return formatValue(v, m.unit === "months" || m.unit === "days" ? "score" : m.unit, m.currency);
 }
 
 /**
- * One or two metrics over time, from their `series` buckets. Two metrics get two axes (their units can
- * differ). Always paired with a real table below for keyboard and screen-reader users.
+ * Which y-axis each series draws on. Series in the same unit (and currency) share one axis, so their heights
+ * compare honestly (Revenue ₦7,777 must stand taller than Expenses ₦1,234). Only a second, different unit
+ * gets its own right-hand axis.
+ */
+export function axisIds(metrics: Pick<MetricResult, "unit" | "currency">[]): number[] {
+  const first = metrics[0];
+  return metrics.map((m, k) => (k === 0 || (m.unit === first.unit && m.currency === first.currency) ? 0 : 1));
+}
+
+/**
+ * One or two metrics over time, from their `series` buckets. Two metrics share one axis when their units match,
+ * and get two axes only when the units differ. Always paired with a real table below for keyboard and screen-reader users.
  */
 export function SeriesChart({ metrics, kind = "line", height = 256 }: { metrics: MetricResult[]; kind?: "line" | "bar"; height?: number }) {
   const drawable = metrics.filter((m) => m.status === "ok" && (m.series?.length ?? 0) > 0);
@@ -57,6 +70,8 @@ export function SeriesChart({ metrics, kind = "line", height = 256 }: { metrics:
     return row;
   });
   const Chart = kind === "bar" ? BarChart : LineChart;
+  const axes = axisIds(drawable);
+  const axisOwners = drawable.filter((_, k) => k === axes.indexOf(axes[k]));
 
   return (
     <div className="space-y-3">
@@ -65,16 +80,16 @@ export function SeriesChart({ metrics, kind = "line", height = 256 }: { metrics:
           <Chart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke={GRID} vertical={false} />
             <XAxis dataKey="label" tick={{ fill: AXIS, fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={12} />
-            {drawable.map((m, k) => (
+            {axisOwners.map((m) => (
               <YAxis
                 key={m.key}
-                yAxisId={k}
-                orientation={k === 0 ? "left" : "right"}
+                yAxisId={axes[drawable.indexOf(m)]}
+                orientation={axes[drawable.indexOf(m)] === 0 ? "left" : "right"}
                 tick={{ fill: AXIS, fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
                 width={56}
-                tickFormatter={(v) => compact(Number(v), m)}
+                tickFormatter={(v) => compactTick(Number(v), m)}
               />
             ))}
             <Tooltip
@@ -87,9 +102,9 @@ export function SeriesChart({ metrics, kind = "line", height = 256 }: { metrics:
             {drawable.length > 1 && <Legend wrapperStyle={{ fontSize: 12 }} formatter={(v) => drawable[Number(String(v).replace("m", ""))]?.label ?? v} />}
             {drawable.map((m, k) =>
               kind === "bar" ? (
-                <Bar key={m.key} yAxisId={k} dataKey={`m${k}`} name={`m${k}`} fill={COLOURS[k]} radius={[3, 3, 0, 0]} isAnimationActive={false} />
+                <Bar key={m.key} yAxisId={axes[k]} dataKey={`m${k}`} name={`m${k}`} fill={COLOURS[k]} radius={[3, 3, 0, 0]} isAnimationActive={false} />
               ) : (
-                <Line key={m.key} yAxisId={k} dataKey={`m${k}`} name={`m${k}`} stroke={COLOURS[k]} strokeDasharray={DASH[k]} strokeWidth={2} dot={{ r: 3 }} connectNulls isAnimationActive={false} />
+                <Line key={m.key} yAxisId={axes[k]} dataKey={`m${k}`} name={`m${k}`} stroke={COLOURS[k]} strokeDasharray={DASH[k]} strokeWidth={2} dot={{ r: 3 }} connectNulls isAnimationActive={false} />
               ),
             )}
           </Chart>
