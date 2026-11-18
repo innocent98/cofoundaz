@@ -141,4 +141,19 @@ describe('Sidebar (PRD 2.1)', () => {
     expect(screen.getByRole('menuitem', { name: 'Sign out' })).toBeTruthy();
     expect(screen.queryByText('Log out')).toBeNull();
   });
+
+  it('pins the footer by height, not width alone: the layout classes use the `pinned` variant (wide AND tall), never bare `lg:`', () => {
+    render(<Sidebar />);
+    const nav = screen.getByTestId('sidebar-nav-scroll');
+    const footerLink = screen.getByRole('link', { name: /Notifications/ });
+    const classes = `${nav.className} ${nav.firstElementChild?.className ?? ''} ${footerLink.parentElement?.className ?? ''}`;
+    expect(classes).toContain('pinned:overflow-hidden');
+    expect(classes).toContain('pinned:mt-auto');
+    expect(classes).not.toMatch(/(^|\s)lg:(overflow|flex-1|mt-auto|min-h)/);
+  });
+
+  it('marks the current page with aria-current so the menu can scroll it into view', () => {
+    render(<Sidebar />);
+    expect(screen.getAllByRole('link').filter((a) => a.getAttribute('aria-current') === 'page').length).toBeLessThanOrEqual(1);
+  });
 });

@@ -197,6 +197,13 @@ export default function Sidebar({
     };
   }, []);
 
+  // Keep the current page's item in view when the menu scrolls (short windows, phones, deep links).
+  const navScrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const active = navScrollRef.current?.querySelector('[aria-current="page"]');
+    if (active && typeof active.scrollIntoView === 'function') active.scrollIntoView({ block: 'nearest' });
+  }, [pathname, roleLoading, role]);
+
   const handleClose = () => {
     if (onClose) onClose();
     if (setIsOpen) setIsOpen(false);
@@ -336,13 +343,14 @@ export default function Sidebar({
             )}
           </div>
 
-          {/* Unified menu container: on mobile, a single unified scrollable section combining upper and lower menus; on desktop, keeps upper scrollable and lower pinned */}
+          {/* Unified menu container: on a phone or a short window the whole menu (groups + footer) scrolls as one area; on a wide AND tall window (`pinned` variant, globals.css) the groups scroll and the footer stays pinned */}
           <div
+            ref={navScrollRef}
             data-testid="sidebar-nav-scroll"
-            className="-mr-2 flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain pr-2 [scrollbar-color:var(--color-brand-x26533d)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-brand-x26533d [&::-webkit-scrollbar-track]:bg-transparent lg:mr-0 lg:overflow-hidden lg:pr-0"
+            className="-mr-2 flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain pr-2 [scrollbar-color:var(--color-brand-x26533d)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-brand-x26533d [&::-webkit-scrollbar-track]:bg-transparent pinned:mr-0 pinned:overflow-hidden pinned:pr-0"
           >
             {/* Upper menu section (Navigation Groups) */}
-            <div className="w-full lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:pr-2 lg:-mr-2 lg:[scrollbar-color:var(--color-brand-x26533d)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-brand-x26533d lg:[&::-webkit-scrollbar-track]:bg-transparent">
+            <div className="w-full pinned:min-h-0 pinned:flex-1 pinned:overflow-y-auto pinned:overscroll-contain pinned:pr-2 pinned:-mr-2 pinned:[scrollbar-color:var(--color-brand-x26533d)_transparent] pinned:[scrollbar-width:thin] pinned:[&::-webkit-scrollbar]:w-1.5 pinned:[&::-webkit-scrollbar-thumb]:rounded-full pinned:[&::-webkit-scrollbar-thumb]:bg-brand-x26533d pinned:[&::-webkit-scrollbar-track]:bg-transparent">
               {roleLoading ? (
                 <div role="status" aria-label="Loading navigation" className="flex w-full flex-col space-y-3 px-2">
                   {Array.from({ length: 8 }, (_, i) => (
@@ -367,6 +375,7 @@ export default function Sidebar({
                               <Link
                                 href={item.href}
                                 onClick={handleClose}
+                                aria-current={isActive ? 'page' : undefined}
                                 className={`relative flex w-full items-center justify-between gap-2 px-3 py-2.5 rounded-modal transition-all ${isActive
                                     ? 'bg-brand-x0e2c1e text-white font-bold border-l-2 border-accent-500 shadow-card'
                                     : 'text-brand-xa3b899 hover:text-white hover:bg-brand-x0a2217'
@@ -408,7 +417,7 @@ export default function Sidebar({
             </div>
 
             {/* Lower menu section (Footer Navigation & Profile) */}
-            <div className="flex w-full shrink-0 flex-col pt-6 border-t border-brand-x122e21 mt-6 space-y-1 lg:mt-auto">
+            <div className="flex w-full shrink-0 flex-col pt-6 border-t border-brand-x122e21 mt-6 space-y-1 pinned:mt-auto">
               <Link
                 href="/notifications"
                 onClick={handleClose}
