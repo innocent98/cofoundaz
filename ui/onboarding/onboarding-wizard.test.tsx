@@ -212,4 +212,24 @@ describe('OnboardingWizard PRD flow (steps 3 to 6)', () => {
     await act(async () => {})
     expect(onSaveStep).toHaveBeenCalled()
   })
+
+  it('step 2 stays put when the logo is rejected, and the hint states the real 2 MB limit', async () => {
+    const onSaveStep = vi.fn().mockResolvedValue({})
+    const onUploadLogo = vi.fn().mockResolvedValue(false)
+    render(
+      <OnboardingWizard
+        initialValues={{ step: 2, name: 'Acme' }}
+        onSaveStep={onSaveStep}
+        onUploadLogo={onUploadLogo}
+        onComplete={vi.fn()}
+      />
+    )
+    expect(screen.getByText(/up to 2 MB/)).toBeInTheDocument()
+    const file = new File(['x'], 'notes.txt', { type: 'text/plain' })
+    fireEvent.change(document.getElementById('logo-upload') as HTMLInputElement, { target: { files: [file] } })
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
+    await act(async () => {})
+    expect(onUploadLogo).toHaveBeenCalledWith(file)
+    expect(onSaveStep).not.toHaveBeenCalled()
+  })
 })

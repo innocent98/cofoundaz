@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { INVITE_ROLE_OPTIONS, InviteError, parseFieldErrors, sendInvitations, summarizeInvites } from './team';
+import { getTeamAuditLogs, INVITE_ROLE_OPTIONS, InviteError, parseFieldErrors, sendInvitations, summarizeInvites } from './team';
 import { ApiError } from './client';
 import * as client from './client';
 
@@ -82,5 +82,23 @@ describe('team invitations api', () => {
     expect(summarizeInvites({ created: ['a'], skipped: ['b'], undelivered: [] })).toBe(
       'Invited 1. Skipped 1 (already a member or already invited).',
     );
+  });
+});
+
+describe('team audit api', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('reads data.entries and data.next_cursor as the live API returns them', async () => {
+    const entry = {
+      id: 'a1',
+      action: 'team.member.removed',
+      actor: 'Ada Founder',
+      target: 'placeholder@example.com',
+      created_at: '2026-11-12T19:53:26.136536+00:00',
+    };
+    vi.mocked(client.apiClient).mockResolvedValueOnce({ data: { entries: [entry], next_cursor: 'abc' }, meta: null });
+    const res = await getTeamAuditLogs('prev');
+    expect(client.apiClient).toHaveBeenCalledWith('/team/audit?limit=30&cursor=prev');
+    expect(res).toEqual({ items: [entry], next_cursor: 'abc' });
   });
 });

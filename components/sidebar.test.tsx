@@ -32,24 +32,15 @@ describe('Sidebar (PRD 2.1)', () => {
     missionOpen = 0;
   });
 
-  it('hides Funding Hub and Marketplace until their APIs ship', () => {
-    render(<Sidebar />);
-    for (const label of ['Funding Hub', 'Marketplace']) {
-      expect(hasLink(label)).toBe(false);
+  it('keeps Funding Hub, Marketplace and Investor Readiness hidden on purpose (Adebayo, 2026-11-12)', () => {
+    for (const r of ['founder', 'team_member']) {
+      role = r;
+      const { unmount } = render(<Sidebar />);
+      for (const label of ['Funding Hub', 'Marketplace', 'Investor Readiness']) {
+        expect(hasLink(label)).toBe(false);
+      }
+      unmount();
     }
-  });
-
-  it('shows Investor Readiness to a founder and a team member, not to advisors', () => {
-    const { unmount } = render(<Sidebar />);
-    expect(hasLink('Investor Readiness')).toBe(true);
-    unmount();
-    role = 'team_member';
-    const second = render(<Sidebar />);
-    expect(hasLink('Investor Readiness')).toBe(true);
-    second.unmount();
-    role = 'mentor';
-    render(<Sidebar />);
-    expect(hasLink('Investor Readiness')).toBe(false);
   });
 
   it('founder sees every group, including the founder-only Journal with its lock', () => {
@@ -58,17 +49,40 @@ describe('Sidebar (PRD 2.1)', () => {
       expect(hasLink(label)).toBe(true);
     }
     expect(['OVERVIEW', 'BUILD', 'GROW', 'RESOURCES', 'WORKSPACE'].every((t) => within(nav()).queryByText(t))).toBe(true);
-    // Hidden until they are real (2026-10-29 and 2026-11-05)
-    for (const label of ['Funding Hub', 'Marketplace', 'Legal & Compliance', 'Analytics & Reports']) {
+    // Hidden on purpose (2026-11-12)
+    for (const label of ['Funding Hub', 'Marketplace', 'Investor Readiness']) {
       expect(hasLink(label)).toBe(false);
     }
-    expect(within(nav()).queryByText('FUND & PROTECT')).toBeNull();
+    // Legal & Compliance is shown again since its slice 1 shipped (2026-11-13)
+    expect(hasLink('Legal & Compliance')).toBe(true);
+    expect(within(nav()).queryByText('FUND & PROTECT')).not.toBeNull();
   });
 
-  it('accountant sees only Finance Hub, Documents and Calendar (invited meetings only) plus Dashboard; everything else is hidden, not disabled', () => {
+  it('Analytics & Reports is shown to founder, team member, accountant, mentor and consultant, never to investor or legal advisor (2026-11-18)', () => {
+    for (const [r, shown] of [
+      ['founder', true], ['team_member', true], ['accountant', true], ['mentor', true], ['business_consultant', true],
+      ['investor', false], ['legal_advisor', false],
+    ] as const) {
+      role = r;
+      const { unmount } = render(<Sidebar />);
+      const link = within(nav()).queryByRole('link', { name: 'Analytics & Reports' });
+      expect(link !== null, r).toBe(shown);
+      if (link) expect(link.getAttribute('href')).toBe('/analytics-reports');
+      unmount();
+    }
+  });
+
+  it('legal advisor sees Legal & Compliance, and not the founder modules', () => {
+    role = 'legal_advisor';
+    render(<Sidebar />);
+    expect(hasLink('Legal & Compliance')).toBe(true);
+    for (const label of ["Today's Mission", 'Finance Hub', 'Team', 'Journal']) expect(hasLink(label)).toBe(false);
+  });
+
+  it('accountant sees only Finance Hub, Analytics & Reports (finance only), Documents and Calendar (invited meetings only) plus Dashboard; everything else is hidden, not disabled', () => {
     role = 'accountant';
     render(<Sidebar />);
-    for (const label of ['Dashboard', 'Finance Hub', 'Documents', 'Calendar']) expect(hasLink(label)).toBe(true);
+    for (const label of ['Dashboard', 'Finance Hub', 'Analytics & Reports', 'Documents', 'Calendar']) expect(hasLink(label)).toBe(true);
     for (const label of ["Today's Mission", 'AI Co-Founder', 'Marketing Hub', 'Journal', 'Team', 'Roadmap', 'Legal & Compliance']) {
       expect(hasLink(label)).toBe(false);
     }
@@ -126,5 +140,20 @@ describe('Sidebar (PRD 2.1)', () => {
     expect(screen.getByRole('link', { name: 'Preferences' }).getAttribute('href')).toBe('/notifications?tab=preferences');
     expect(screen.getByRole('menuitem', { name: 'Sign out' })).toBeTruthy();
     expect(screen.queryByText('Log out')).toBeNull();
+  });
+
+  it('pins the footer by height, not width alone: the layout classes use the `pinned` variant (wide AND tall), never bare `lg:`', () => {
+    render(<Sidebar />);
+    const nav = screen.getByTestId('sidebar-nav-scroll');
+    const footerLink = screen.getByRole('link', { name: /Notifications/ });
+    const classes = `${nav.className} ${nav.firstElementChild?.className ?? ''} ${footerLink.parentElement?.className ?? ''}`;
+    expect(classes).toContain('pinned:overflow-hidden');
+    expect(classes).toContain('pinned:mt-auto');
+    expect(classes).not.toMatch(/(^|\s)lg:(overflow|flex-1|mt-auto|min-h)/);
+  });
+
+  it('marks the current page with aria-current so the menu can scroll it into view', () => {
+    render(<Sidebar />);
+    expect(screen.getAllByRole('link').filter((a) => a.getAttribute('aria-current') === 'page').length).toBeLessThanOrEqual(1);
   });
 });

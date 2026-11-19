@@ -44,7 +44,7 @@ const mockActivity = vi.hoisted(() => ({
     {
       id: 'act-1',
       actor: 'Ade',
-      summary: 'invited John Doe',
+      summary: 'Ade invited John Doe',
       action: 'team.member.invited',
       verb: 'invited',
       entity: 'team_member',
@@ -158,6 +158,9 @@ describe('Team Page - Adebayo Review Specifications', () => {
 
     expect(await screen.findByText(/invited John Doe/i)).toBeInTheDocument();
     expect(screen.getByText(/signed NDA/i)).toBeInTheDocument();
+    // The API summary already starts with the actor: the row must not print the name a second time.
+    expect(screen.getByText('Ade invited John Doe')).toBeInTheDocument();
+    expect(screen.queryByText('Ade', { exact: true })).not.toBeInTheDocument();
 
     // Switch to Documents filter
     fireEvent.click(screen.getByRole('button', { name: 'Documents' }));

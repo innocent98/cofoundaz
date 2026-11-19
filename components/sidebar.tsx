@@ -23,7 +23,7 @@ import {
   PieChart,
   TrendingUp,
   Coins,
-  Gem,
+  Scale,
   GraduationCap,
   Folder,
   Calendar,
@@ -37,6 +37,7 @@ import {
   Check,
   UserCircle,
   SlidersHorizontal,
+  BarChart3,
 } from 'lucide-react';
 
 interface NavItem {
@@ -58,10 +59,11 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-// Funding Hub and Marketplace are hidden until their APIs ship (2026-10-29).
-// Legal & Compliance and Analytics & Reports are hidden too until they are real (Adebayo, 2026-11-05).
-// Their pages still exist at /funding, /marketplace, /legal and /analytics-reports.
-// Investor Readiness is back (all five pages are wired to the API).
+// Hidden from the sidebar on purpose; the pages still open by URL:
+// - Funding Hub, Marketplace and Investor Readiness stay hidden even once every slice is built,
+//   until Adebayo says to show them (2026-11-12). Don't add them back here without his word.
+// Legal & Compliance is shown again since its slice 1 shipped (Adebayo, 2026-11-13). Analytics & Reports is shown
+// since wave 1 passed the lead's re-walk (Adebayo, 2026-11-18); `canSee` gives it to F, TM, AC, M and BC only.
 const navSections: NavSection[] = [
   {
     title: 'OVERVIEW',
@@ -87,7 +89,13 @@ const navSections: NavSection[] = [
       { label: 'Marketing Hub', href: '/marketing', icon: PieChart },
       { label: 'Sales Hub', href: '/sales', icon: TrendingUp },
       { label: 'Finance Hub', href: '/finance', icon: Coins },
-      { label: 'Investor Readiness', href: '/investor-readiness', icon: Gem },
+      { label: 'Analytics & Reports', href: '/analytics-reports', icon: BarChart3 },
+    ],
+  },
+  {
+    title: 'FUND & PROTECT',
+    items: [
+      { label: 'Legal & Compliance', href: '/legal', icon: Scale },
     ],
   },
   {
@@ -188,6 +196,13 @@ export default function Sidebar({
       document.removeEventListener('keydown', onKey);
     };
   }, []);
+
+  // Keep the current page's item in view when the menu scrolls (short windows, phones, deep links).
+  const navScrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const active = navScrollRef.current?.querySelector('[aria-current="page"]');
+    if (active && typeof active.scrollIntoView === 'function') active.scrollIntoView({ block: 'nearest' });
+  }, [pathname, roleLoading, role]);
 
   const handleClose = () => {
     if (onClose) onClose();
@@ -328,13 +343,14 @@ export default function Sidebar({
             )}
           </div>
 
-          {/* Unified menu container: on mobile, a single unified scrollable section combining upper and lower menus; on desktop, keeps upper scrollable and lower pinned */}
+          {/* Unified menu container: on a phone or a short window the whole menu (groups + footer) scrolls as one area; on a wide AND tall window (`pinned` variant, globals.css) the groups scroll and the footer stays pinned */}
           <div
+            ref={navScrollRef}
             data-testid="sidebar-nav-scroll"
-            className="-mr-2 flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain pr-2 [scrollbar-color:var(--color-brand-x26533d)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-brand-x26533d [&::-webkit-scrollbar-track]:bg-transparent lg:mr-0 lg:overflow-hidden lg:pr-0"
+            className="-mr-2 flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain pr-2 [scrollbar-color:var(--color-brand-x26533d)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-brand-x26533d [&::-webkit-scrollbar-track]:bg-transparent pinned:mr-0 pinned:overflow-hidden pinned:pr-0"
           >
             {/* Upper menu section (Navigation Groups) */}
-            <div className="w-full lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:pr-2 lg:-mr-2 lg:[scrollbar-color:var(--color-brand-x26533d)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-brand-x26533d lg:[&::-webkit-scrollbar-track]:bg-transparent">
+            <div className="w-full pinned:min-h-0 pinned:flex-1 pinned:overflow-y-auto pinned:overscroll-contain pinned:pr-2 pinned:-mr-2 pinned:[scrollbar-color:var(--color-brand-x26533d)_transparent] pinned:[scrollbar-width:thin] pinned:[&::-webkit-scrollbar]:w-1.5 pinned:[&::-webkit-scrollbar-thumb]:rounded-full pinned:[&::-webkit-scrollbar-thumb]:bg-brand-x26533d pinned:[&::-webkit-scrollbar-track]:bg-transparent">
               {roleLoading ? (
                 <div role="status" aria-label="Loading navigation" className="flex w-full flex-col space-y-3 px-2">
                   {Array.from({ length: 8 }, (_, i) => (
@@ -359,6 +375,7 @@ export default function Sidebar({
                               <Link
                                 href={item.href}
                                 onClick={handleClose}
+                                aria-current={isActive ? 'page' : undefined}
                                 className={`relative flex w-full items-center justify-between gap-2 px-3 py-2.5 rounded-modal transition-all ${isActive
                                     ? 'bg-brand-x0e2c1e text-white font-bold border-l-2 border-accent-500 shadow-card'
                                     : 'text-brand-xa3b899 hover:text-white hover:bg-brand-x0a2217'
@@ -400,7 +417,7 @@ export default function Sidebar({
             </div>
 
             {/* Lower menu section (Footer Navigation & Profile) */}
-            <div className="flex w-full shrink-0 flex-col pt-6 border-t border-brand-x122e21 mt-6 space-y-1 lg:mt-auto">
+            <div className="flex w-full shrink-0 flex-col pt-6 border-t border-brand-x122e21 mt-6 space-y-1 pinned:mt-auto">
               <Link
                 href="/notifications"
                 onClick={handleClose}

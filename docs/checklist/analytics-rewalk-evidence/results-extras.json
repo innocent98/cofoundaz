@@ -1,0 +1,50 @@
+[
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "409: stale save shows \"Someone else changed this report\", no silent retry, Reload loads the new version",
+    "ok": true
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "locked-block save refusal (stubbed GET): Save disabled, message shown, no PATCH",
+    "ok": true
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "429: heavy-read limit shows the API message with Retry; Retry recovers",
+    "ok": true
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "409: stale save shows \"Someone else changed this report\", no silent retry, Reload loads the new version",
+    "ok": true
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "locked-block save refusal (stubbed GET): Save disabled, message shown, no PATCH",
+    "ok": true
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "429: heavy-read limit shows the API message with Retry; Retry recovers",
+    "ok": true
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "accountant: Export ▾ XLSX of the selected run → download (contents: files.py)",
+    "ok": true
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "accountant: Export ▾ XLSX of the selected run → download (contents: files.py)",
+    "ok": true
+  }
+]

@@ -36,6 +36,9 @@ describe('notification deep links', () => {
   it('a smoke-test milestone opens that test', () => {
     expect(notificationHref('validation.smoke_test.milestone', { experiment_id: 'e1' })).toBe('/validation/smoke-tests?test=e1');
     expect(notificationHref('validation.smoke_test.milestone', {})).toBe('/validation/smoke-tests');
+    expect(notificationHref('legal.compliance.overdue', { item_id: 'i1' })).toBe('/legal/compliance?item=i1');
+    expect(notificationHref('legal.compliance.due_soon', {})).toBe('/legal/compliance');
+    expect(notificationHref('legal.ip.renewal_due_soon', { asset_id: 'a1' })).toBe('/legal/ip?asset=a1');
   });
 
   it('briefing ready goes to the dashboard', () => {

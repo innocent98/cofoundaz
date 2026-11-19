@@ -1,0 +1,2582 @@
+[
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "login",
+    "ok": true,
+    "ms": 940
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 1100
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "overview loads with cards",
+    "ok": true,
+    "ms": 1252
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Revenue card equals API (777,700 kobo = ₦7,777)",
+    "ok": true,
+    "ms": 4
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "no sideways scroll",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "range pill 7 days",
+    "ok": true,
+    "ms": 455
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "range pill 90 days",
+    "ok": true,
+    "ms": 213
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "range pill 12 months",
+    "ok": true,
+    "ms": 232
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "range pill This month",
+    "ok": true,
+    "ms": 198
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "range pill Last month",
+    "ok": true,
+    "ms": 262
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "range pill 30 days",
+    "ok": true,
+    "ms": 169
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "custom range needs both dates, then refetches",
+    "ok": true,
+    "ms": 252
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "compare select (year, then previous)",
+    "ok": true,
+    "ms": 251
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "definition tooltip button",
+    "ok": true,
+    "ms": 69
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "chart \"Show as a table\"",
+    "ok": true,
+    "ms": 38
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "insight source link goes to hub",
+    "ok": true,
+    "ms": 7
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "card hub link targets hub",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "no link into hidden Funding",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "by-hub pill Finance",
+    "ok": true,
+    "ms": 60
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "by-hub pill Marketing",
+    "ok": true,
+    "ms": 56
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "by-hub pill All hubs",
+    "ok": true,
+    "ms": 69
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "custom metric: add, enter value, delete",
+    "ok": true,
+    "ms": 2881
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "\"Edit values\" on a custom card jumps to the panel",
+    "ok": true,
+    "ms": 16
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "benchmarks card (Health cohort)",
+    "ok": true,
+    "ms": 12
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Export data ▾ CSV → ready → download",
+    "ok": true,
+    "ms": 5883
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "reports list loads",
+    "ok": true,
+    "ms": 882
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "no sideways scroll (list)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "search filters",
+    "ok": true,
+    "ms": 214
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "sort select",
+    "ok": true,
+    "ms": 110
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "duplicate a report",
+    "ok": true,
+    "ms": 150
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "delete: cancel, then delete the copy",
+    "ok": true,
+    "ms": 251
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "share dialog: shows locked hubs, saves members",
+    "ok": true,
+    "ms": 119
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "report detail loads",
+    "ok": true,
+    "ms": 1014
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Run now → frozen run shown",
+    "ok": true,
+    "ms": 68
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "no sideways scroll (detail)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "pick an older run in the list",
+    "ok": true,
+    "ms": 107
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Export ▾ PDF → ready → download",
+    "ok": true,
+    "ms": 2439
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Share button on detail opens dialog",
+    "ok": true,
+    "ms": 139
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Edit link opens builder",
+    "ok": true,
+    "ms": 202
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "builder new: template chips + empty copy",
+    "ok": true,
+    "ms": 929
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "save without a name is refused",
+    "ok": true,
+    "ms": 50
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "template chip fills the canvas",
+    "ok": true,
+    "ms": 62
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "name and description inputs",
+    "ok": true,
+    "ms": 37
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "catalog: search and add a metric",
+    "ok": true,
+    "ms": 75
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "catalog: add a text note → config opens",
+    "ok": true,
+    "ms": 98
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "block config: title, viz, period, compare",
+    "ok": true,
+    "ms": 117
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "canvas: move up/down, duplicate, remove",
+    "ok": true,
+    "ms": 1441
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "drag and drop reorders",
+    "ok": true,
+    "ms": 122
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Preview shows live numbers",
+    "ok": true,
+    "ms": 565
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "close preview",
+    "ok": true,
+    "ms": 54
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Export disabled until saved",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "report period pills",
+    "ok": true,
+    "ms": 88
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Save creates the report",
+    "ok": true,
+    "ms": 245
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "edit → unsaved hint → save again (PATCH)",
+    "ok": true,
+    "ms": 262
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Export ▾ XLSX from the builder",
+    "ok": true,
+    "ms": 2483
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "Back to the report link",
+    "ok": true,
+    "ms": 87
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "exports page loads with history",
+    "ok": true,
+    "ms": 882
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "no sideways scroll (exports)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "filter select (reports, data tables, everything)",
+    "ok": true,
+    "ms": 448
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "data tables: empty pick refused",
+    "ok": true,
+    "ms": 84
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "note": "polled 1x",
+    "step": "data tables: pick, period, format, metadata → ready",
+    "ok": true,
+    "ms": 2380
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "history Load more fetches offset=50 and adds rows",
+    "ok": true,
+    "ms": 195
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "history row Download (authorised fetch)",
+    "ok": true,
+    "ms": 55
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "expired row (fa5aa997) says \"Expired. Generate it again.\" and regenerates",
+    "ok": true,
+    "ms": 1031
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "expired row (7e9e2416) says \"Expired. Generate it again.\" and regenerates",
+    "ok": true,
+    "ms": 1169
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "login",
+    "ok": true,
+    "ms": 674
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 1000
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "overview loads with cards",
+    "ok": true,
+    "ms": 1013
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Revenue card equals API (777,700 kobo = ₦7,777)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "no sideways scroll",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "range pill 7 days",
+    "ok": true,
+    "ms": 197
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "range pill 90 days",
+    "ok": true,
+    "ms": 508
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "range pill 12 months",
+    "ok": true,
+    "ms": 206
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "range pill This month",
+    "ok": true,
+    "ms": 159
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "range pill Last month",
+    "ok": true,
+    "ms": 224
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "range pill 30 days",
+    "ok": true,
+    "ms": 174
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "custom range needs both dates, then refetches",
+    "ok": true,
+    "ms": 214
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "compare select (year, then previous)",
+    "ok": true,
+    "ms": 272
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "definition tooltip button",
+    "ok": true,
+    "ms": 50
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "chart \"Show as a table\"",
+    "ok": true,
+    "ms": 29
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "insight source link goes to hub",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "card hub link targets hub",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "no link into hidden Funding",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "by-hub pill Finance",
+    "ok": true,
+    "ms": 71
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "by-hub pill Marketing",
+    "ok": true,
+    "ms": 61
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "by-hub pill All hubs",
+    "ok": true,
+    "ms": 84
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "custom metric: add, enter value, delete",
+    "ok": true,
+    "ms": 737
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "\"Edit values\" on a custom card jumps to the panel",
+    "ok": true,
+    "ms": 121
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "benchmarks card (Health cohort)",
+    "ok": true,
+    "ms": 21
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Export data ▾ CSV → ready → download",
+    "ok": true,
+    "ms": 2436
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "reports list loads",
+    "ok": true,
+    "ms": 827
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "no sideways scroll (list)",
+    "ok": true,
+    "ms": 3
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "search filters",
+    "ok": true,
+    "ms": 169
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "sort select",
+    "ok": true,
+    "ms": 93
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "duplicate a report",
+    "ok": true,
+    "ms": 181
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "delete: cancel, then delete the copy",
+    "ok": true,
+    "ms": 257
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "share dialog: shows locked hubs, saves members",
+    "ok": true,
+    "ms": 220
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "report detail loads",
+    "ok": true,
+    "ms": 1165
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Run now → frozen run shown",
+    "ok": true,
+    "ms": 57
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "no sideways scroll (detail)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "pick an older run in the list",
+    "ok": true,
+    "ms": 96
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Export ▾ PDF → ready → download",
+    "ok": true,
+    "ms": 2432
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Share button on detail opens dialog",
+    "ok": true,
+    "ms": 125
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Edit link opens builder",
+    "ok": true,
+    "ms": 73
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "builder new: template chips + empty copy",
+    "ok": true,
+    "ms": 907
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "save without a name is refused",
+    "ok": true,
+    "ms": 43
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "template chip fills the canvas",
+    "ok": true,
+    "ms": 61
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "name and description inputs",
+    "ok": true,
+    "ms": 34
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "catalog: search and add a metric",
+    "ok": true,
+    "ms": 1344
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "catalog: add a text note → config opens",
+    "ok": true,
+    "ms": 1250
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "block config: title, viz, period, compare",
+    "ok": true,
+    "ms": 2545
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "canvas: move up/down, duplicate, remove",
+    "ok": true,
+    "ms": 2541
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "drag and drop reorders",
+    "ok": true,
+    "ms": 0
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Preview shows live numbers",
+    "ok": true,
+    "ms": 279
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "close preview",
+    "ok": true,
+    "ms": 56
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Export disabled until saved",
+    "ok": true,
+    "ms": 25
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "report period pills",
+    "ok": true,
+    "ms": 82
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Save creates the report",
+    "ok": true,
+    "ms": 351
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "edit → unsaved hint → save again (PATCH)",
+    "ok": true,
+    "ms": 323
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Export ▾ XLSX from the builder",
+    "ok": true,
+    "ms": 2547
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "Back to the report link",
+    "ok": true,
+    "ms": 320
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "exports page loads with history",
+    "ok": true,
+    "ms": 1048
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "no sideways scroll (exports)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "filter select (reports, data tables, everything)",
+    "ok": true,
+    "ms": 359
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "data tables: empty pick refused",
+    "ok": true,
+    "ms": 94
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "note": "polled 1x",
+    "step": "data tables: pick, period, format, metadata → ready",
+    "ok": true,
+    "ms": 2776
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "history Load more fetches offset=50 and adds rows",
+    "ok": true,
+    "ms": 212
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "history row Download (authorised fetch)",
+    "ok": true,
+    "ms": 71
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "expired row (fa5aa997) says \"Expired. Generate it again.\" and regenerates",
+    "ok": true,
+    "ms": 1453
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "expired row (7e9e2416) says \"Expired. Generate it again.\" and regenerates",
+    "ok": true,
+    "ms": 1719
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "login",
+    "ok": true,
+    "ms": 747
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 1039
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "overview loads with cards",
+    "ok": true,
+    "ms": 981
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "Revenue card equals API (777,700 kobo = ₦7,777)",
+    "ok": true,
+    "ms": 3
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "no sideways scroll",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "range pill 7 days",
+    "ok": true,
+    "ms": 228
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "range pill 90 days",
+    "ok": true,
+    "ms": 237
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "range pill 12 months",
+    "ok": true,
+    "ms": 195
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "range pill This month",
+    "ok": true,
+    "ms": 172
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "range pill Last month",
+    "ok": true,
+    "ms": 166
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "range pill 30 days",
+    "ok": true,
+    "ms": 182
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "custom range needs both dates, then refetches",
+    "ok": true,
+    "ms": 297
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "compare select (year, then previous)",
+    "ok": true,
+    "ms": 242
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "definition tooltip button",
+    "ok": true,
+    "ms": 48
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "chart \"Show as a table\"",
+    "ok": true,
+    "ms": 46
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "insight source link goes to hub",
+    "ok": true,
+    "ms": 8
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "card hub link targets hub",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "no link into hidden Funding",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "by-hub pill Finance",
+    "ok": true,
+    "ms": 49
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "by-hub pill Marketing",
+    "ok": true,
+    "ms": 47
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "by-hub pill All hubs",
+    "ok": true,
+    "ms": 61
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "custom metric: add, enter value, delete",
+    "ok": true,
+    "ms": 1841
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "\"Edit values\" on a custom card jumps to the panel",
+    "ok": true,
+    "ms": 209
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "benchmarks card (Health cohort)",
+    "ok": true,
+    "ms": 21
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "Export data ▾ CSV → ready → download",
+    "ok": true,
+    "ms": 2453
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "reports list loads",
+    "ok": true,
+    "ms": 863
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "no sideways scroll (list)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "search filters",
+    "ok": true,
+    "ms": 192
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "sort select",
+    "ok": true,
+    "ms": 56
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "duplicate a report",
+    "ok": true,
+    "ms": 105
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "delete: cancel, then delete the copy",
+    "ok": true,
+    "ms": 249
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "no Share button for team member",
+    "ok": true,
+    "ms": 3
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "report detail loads",
+    "ok": true,
+    "ms": 940
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "Run now → frozen run shown",
+    "ok": true,
+    "ms": 73
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "no sideways scroll (detail)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "pick an older run in the list",
+    "ok": true,
+    "ms": 111
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "Export ▾ PDF → ready → download",
+    "ok": true,
+    "ms": 2418
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "no Share button",
+    "ok": true,
+    "ms": 4
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "no Edit on the founder's report (can_edit false)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "builder URL of the founder's report is refused",
+    "ok": true,
+    "ms": 896
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "builder new: template chips + empty copy",
+    "ok": true,
+    "ms": 897
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "save without a name is refused",
+    "ok": true,
+    "ms": 54
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "template chip fills the canvas",
+    "ok": true,
+    "ms": 66
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "name and description inputs",
+    "ok": true,
+    "ms": 40
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "catalog: search and add a metric",
+    "ok": true,
+    "ms": 65
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "catalog: add a text note → config opens",
+    "ok": true,
+    "ms": 102
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "block config: title, viz, period, compare",
+    "ok": true,
+    "ms": 121
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "canvas: move up/down, duplicate, remove",
+    "ok": true,
+    "ms": 1452
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "drag and drop reorders",
+    "ok": true,
+    "ms": 116
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "Preview shows live numbers",
+    "ok": true,
+    "ms": 569
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "close preview",
+    "ok": true,
+    "ms": 69
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "Export disabled until saved",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "report period pills",
+    "ok": true,
+    "ms": 76
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "Save creates the report",
+    "ok": true,
+    "ms": 168
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "edit → unsaved hint → save again (PATCH)",
+    "ok": true,
+    "ms": 91
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "Export ▾ XLSX from the builder",
+    "ok": true,
+    "ms": 2512
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "Back to the report link",
+    "ok": true,
+    "ms": 92
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "exports page loads with history",
+    "ok": true,
+    "ms": 865
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "no sideways scroll (exports)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "filter select (reports, data tables, everything)",
+    "ok": true,
+    "ms": 115
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "data tables: empty pick refused",
+    "ok": true,
+    "ms": 47
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "note": "polled 1x",
+    "step": "data tables: pick, period, format, metadata → ready",
+    "ok": true,
+    "ms": 2629
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "history row Download (authorised fetch)",
+    "ok": true,
+    "ms": 47
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "login",
+    "ok": true,
+    "ms": 642
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 996
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "overview loads with cards",
+    "ok": true,
+    "ms": 1062
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "Revenue card equals API (777,700 kobo = ₦7,777)",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "no sideways scroll",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "range pill 7 days",
+    "ok": true,
+    "ms": 187
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "range pill 90 days",
+    "ok": true,
+    "ms": 231
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "range pill 12 months",
+    "ok": true,
+    "ms": 204
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "range pill This month",
+    "ok": true,
+    "ms": 159
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "range pill Last month",
+    "ok": true,
+    "ms": 162
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "range pill 30 days",
+    "ok": true,
+    "ms": 133
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "custom range needs both dates, then refetches",
+    "ok": true,
+    "ms": 319
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "compare select (year, then previous)",
+    "ok": true,
+    "ms": 435
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "definition tooltip button",
+    "ok": true,
+    "ms": 56
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "chart \"Show as a table\"",
+    "ok": true,
+    "ms": 33
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "insight source link goes to hub",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "card hub link targets hub",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "no link into hidden Funding",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "by-hub pill Finance",
+    "ok": true,
+    "ms": 56
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "by-hub pill Marketing",
+    "ok": true,
+    "ms": 54
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "by-hub pill All hubs",
+    "ok": true,
+    "ms": 64
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "custom metric: add, enter value, delete",
+    "ok": true,
+    "ms": 763
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "\"Edit values\" on a custom card jumps to the panel",
+    "ok": true,
+    "ms": 87
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "benchmarks card (Health cohort)",
+    "ok": true,
+    "ms": 33
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "Export data ▾ CSV → ready → download",
+    "ok": true,
+    "ms": 2452
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "reports list loads",
+    "ok": true,
+    "ms": 835
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "no sideways scroll (list)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "search filters",
+    "ok": true,
+    "ms": 92
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "sort select",
+    "ok": true,
+    "ms": 54
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "duplicate a report",
+    "ok": true,
+    "ms": 99
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "delete: cancel, then delete the copy",
+    "ok": true,
+    "ms": 301
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "no Share button for team member",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "report detail loads",
+    "ok": true,
+    "ms": 904
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "Run now → frozen run shown",
+    "ok": true,
+    "ms": 53
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "no sideways scroll (detail)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "pick an older run in the list",
+    "ok": true,
+    "ms": 73
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "Export ▾ PDF → ready → download",
+    "ok": true,
+    "ms": 2454
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "no Share button",
+    "ok": true,
+    "ms": 3
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "no Edit on the founder's report (can_edit false)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "builder URL of the founder's report is refused",
+    "ok": true,
+    "ms": 936
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "builder new: template chips + empty copy",
+    "ok": true,
+    "ms": 853
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "save without a name is refused",
+    "ok": true,
+    "ms": 40
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "template chip fills the canvas",
+    "ok": true,
+    "ms": 62
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "name and description inputs",
+    "ok": true,
+    "ms": 36
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "catalog: search and add a metric",
+    "ok": true,
+    "ms": 1303
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "catalog: add a text note → config opens",
+    "ok": true,
+    "ms": 1228
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "block config: title, viz, period, compare",
+    "ok": true,
+    "ms": 597
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "canvas: move up/down, duplicate, remove",
+    "ok": true,
+    "ms": 2551
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "drag and drop reorders",
+    "ok": true,
+    "ms": 0
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "Preview shows live numbers",
+    "ok": true,
+    "ms": 176
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "close preview",
+    "ok": true,
+    "ms": 49
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "Export disabled until saved",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "report period pills",
+    "ok": true,
+    "ms": 48
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "Save creates the report",
+    "ok": true,
+    "ms": 241
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "edit → unsaved hint → save again (PATCH)",
+    "ok": true,
+    "ms": 123
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "Export ▾ XLSX from the builder",
+    "ok": true,
+    "ms": 2454
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "Back to the report link",
+    "ok": true,
+    "ms": 78
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "exports page loads with history",
+    "ok": true,
+    "ms": 843
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "no sideways scroll (exports)",
+    "ok": true,
+    "ms": 3
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "filter select (reports, data tables, everything)",
+    "ok": true,
+    "ms": 130
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "data tables: empty pick refused",
+    "ok": true,
+    "ms": 64
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "note": "polled 1x",
+    "step": "data tables: pick, period, format, metadata → ready",
+    "ok": true,
+    "ms": 2670
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "history row Download (authorised fetch)",
+    "ok": true,
+    "ms": 66
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "login",
+    "ok": true,
+    "ms": 709
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 873
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "Overview: finance only",
+    "ok": true,
+    "ms": 899
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "no sideways scroll (landing)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "tabs match role",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "shared list: read-only, no New report",
+    "ok": true,
+    "ms": 814
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "open shared report: frozen run with locks, never numbers",
+    "ok": true,
+    "ms": 335
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "no sideways scroll (report)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "no Run, Edit or Share controls",
+    "ok": true,
+    "ms": 6
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "Export ▾ warns about locked blocks, PDF of the run → download",
+    "ok": true,
+    "ms": 2449
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "builder is refused",
+    "ok": true,
+    "ms": 820
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "exports page: own exports + finance-only data tables",
+    "ok": true,
+    "ms": 770
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "login",
+    "ok": true,
+    "ms": 590
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 851
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "Overview: finance only",
+    "ok": true,
+    "ms": 976
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "no sideways scroll (landing)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "tabs match role",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "shared list: read-only, no New report",
+    "ok": true,
+    "ms": 790
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "open shared report: frozen run with locks, never numbers",
+    "ok": true,
+    "ms": 278
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "no sideways scroll (report)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "no Run, Edit or Share controls",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "Export ▾ warns about locked blocks, PDF of the run → download",
+    "ok": true,
+    "ms": 4445
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "builder is refused",
+    "ok": true,
+    "ms": 981
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "exports page: own exports + finance-only data tables",
+    "ok": true,
+    "ms": 902
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "login",
+    "ok": true,
+    "ms": 895
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 900
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "Overview: redirects to shared reports",
+    "ok": true,
+    "ms": 951
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "no sideways scroll (landing)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "tabs match role",
+    "ok": true,
+    "ms": 4
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "shared list: read-only, no New report",
+    "ok": true,
+    "ms": 763
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "open shared report: frozen run with locks, never numbers",
+    "ok": true,
+    "ms": 350
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "no sideways scroll (report)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "no Run, Edit or Share controls",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "no Export menu",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "builder is refused",
+    "ok": true,
+    "ms": 772
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "exports page refused",
+    "ok": true,
+    "ms": 766
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "login",
+    "ok": true,
+    "ms": 692
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 837
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "Overview: redirects to shared reports",
+    "ok": true,
+    "ms": 852
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "no sideways scroll (landing)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "tabs match role",
+    "ok": true,
+    "ms": 3
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "shared list: read-only, no New report",
+    "ok": true,
+    "ms": 755
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "open shared report: frozen run with locks, never numbers",
+    "ok": true,
+    "ms": 324
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "no sideways scroll (report)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "no Run, Edit or Share controls",
+    "ok": true,
+    "ms": 5
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "no Export menu",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "builder is refused",
+    "ok": true,
+    "ms": 816
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "exports page refused",
+    "ok": true,
+    "ms": 756
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "login",
+    "ok": true,
+    "ms": 630
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 906
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "Overview: redirects to shared reports",
+    "ok": true,
+    "ms": 818
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "no sideways scroll (landing)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "tabs match role",
+    "ok": true,
+    "ms": 3
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "shared list: read-only, no New report",
+    "ok": true,
+    "ms": 757
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "open shared report: frozen run with locks, never numbers",
+    "ok": true,
+    "ms": 234
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "no sideways scroll (report)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "no Run, Edit or Share controls",
+    "ok": true,
+    "ms": 6
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "no Export menu",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "builder is refused",
+    "ok": true,
+    "ms": 770
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "exports page refused",
+    "ok": true,
+    "ms": 752
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "login",
+    "ok": true,
+    "ms": 696
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 826
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "Overview: redirects to shared reports",
+    "ok": true,
+    "ms": 819
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "no sideways scroll (landing)",
+    "ok": true,
+    "ms": 2
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "tabs match role",
+    "ok": true,
+    "ms": 4
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "shared list: read-only, no New report",
+    "ok": true,
+    "ms": 751
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "open shared report: frozen run with locks, never numbers",
+    "ok": true,
+    "ms": 230
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "no sideways scroll (report)",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "no Run, Edit or Share controls",
+    "ok": true,
+    "ms": 6
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "no Export menu",
+    "ok": true,
+    "ms": 1
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "builder is refused",
+    "ok": true,
+    "ms": 768
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "exports page refused",
+    "ok": true,
+    "ms": 755
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "investor",
+    "width": 1440,
+    "step": "login",
+    "ok": true,
+    "ms": 623
+  },
+  {
+    "role": "investor",
+    "width": 1440,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 871
+  },
+  {
+    "role": "investor",
+    "width": 1440,
+    "step": "denied /",
+    "ok": true,
+    "ms": 746
+  },
+  {
+    "role": "investor",
+    "width": 1440,
+    "step": "denied /saved",
+    "ok": true,
+    "ms": 727
+  },
+  {
+    "role": "investor",
+    "width": 1440,
+    "step": "denied /exports",
+    "ok": true,
+    "ms": 767
+  },
+  {
+    "role": "investor",
+    "width": 1440,
+    "step": "denied /builder/new",
+    "ok": true,
+    "ms": 783
+  },
+  {
+    "role": "investor",
+    "width": 1440,
+    "step": "zero /analytics requests in the network log",
+    "ok": true,
+    "ms": 0
+  },
+  {
+    "role": "investor",
+    "width": 1440,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "investor",
+    "width": 375,
+    "step": "login",
+    "ok": true,
+    "ms": 756
+  },
+  {
+    "role": "investor",
+    "width": 375,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 866
+  },
+  {
+    "role": "investor",
+    "width": 375,
+    "step": "denied /",
+    "ok": true,
+    "ms": 867
+  },
+  {
+    "role": "investor",
+    "width": 375,
+    "step": "denied /saved",
+    "ok": true,
+    "ms": 932
+  },
+  {
+    "role": "investor",
+    "width": 375,
+    "step": "denied /exports",
+    "ok": true,
+    "ms": 818
+  },
+  {
+    "role": "investor",
+    "width": 375,
+    "step": "denied /builder/new",
+    "ok": true,
+    "ms": 1129
+  },
+  {
+    "role": "investor",
+    "width": 375,
+    "step": "zero /analytics requests in the network log",
+    "ok": true,
+    "ms": 0
+  },
+  {
+    "role": "investor",
+    "width": 375,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "legal_advisor",
+    "width": 1440,
+    "step": "login",
+    "ok": true,
+    "ms": 1190
+  },
+  {
+    "role": "legal_advisor",
+    "width": 1440,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 1531
+  },
+  {
+    "role": "legal_advisor",
+    "width": 1440,
+    "step": "denied /",
+    "ok": true,
+    "ms": 1306
+  },
+  {
+    "role": "legal_advisor",
+    "width": 1440,
+    "step": "denied /saved",
+    "ok": true,
+    "ms": 1382
+  },
+  {
+    "role": "legal_advisor",
+    "width": 1440,
+    "step": "denied /exports",
+    "ok": true,
+    "ms": 798
+  },
+  {
+    "role": "legal_advisor",
+    "width": 1440,
+    "step": "denied /builder/new",
+    "ok": true,
+    "ms": 792
+  },
+  {
+    "role": "legal_advisor",
+    "width": 1440,
+    "step": "zero /analytics requests in the network log",
+    "ok": true,
+    "ms": 0
+  },
+  {
+    "role": "legal_advisor",
+    "width": 1440,
+    "step": "console errors",
+    "ok": true
+  },
+  {
+    "role": "legal_advisor",
+    "width": 375,
+    "step": "login",
+    "ok": true,
+    "ms": 688
+  },
+  {
+    "role": "legal_advisor",
+    "width": 375,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "ms": 907
+  },
+  {
+    "role": "legal_advisor",
+    "width": 375,
+    "step": "denied /",
+    "ok": true,
+    "ms": 790
+  },
+  {
+    "role": "legal_advisor",
+    "width": 375,
+    "step": "denied /saved",
+    "ok": true,
+    "ms": 752
+  },
+  {
+    "role": "legal_advisor",
+    "width": 375,
+    "step": "denied /exports",
+    "ok": true,
+    "ms": 741
+  },
+  {
+    "role": "legal_advisor",
+    "width": 375,
+    "step": "denied /builder/new",
+    "ok": true,
+    "ms": 797
+  },
+  {
+    "role": "legal_advisor",
+    "width": 375,
+    "step": "zero /analytics requests in the network log",
+    "ok": true,
+    "ms": 0
+  },
+  {
+    "role": "legal_advisor",
+    "width": 375,
+    "step": "console errors",
+    "ok": true
+  }
+]
