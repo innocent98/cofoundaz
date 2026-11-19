@@ -3,6 +3,16 @@
 Page-by-page PRD completion. FE = innocent98/cofoundaz, BE = innocent98/Cofoundaz-api. Evidence: `*-prd-gaps.md` and
 `*-rewalk.md` in this folder. "Re-walk" = every control clicked and checked against the raw API.
 
+## Snapshot 2026-11-19 (lead 27 handover): newest first
+
+- [x] **Analytics & Reports wave 1 DONE and shown** (API A-C 0105/0108/0109; FE #268; re-walk 420/420 FE #271; shown in the sidebar 2026-11-18). Waves 2-3 deferred, investor updates hidden. Low follow-ups D5/D6 in `analytics-rewalk.md`
+- [x] **Sidebar on short desktop windows** (FE #272): footer pinned only at ≥1024×760; shorter windows scroll as one area
+- [x] **Staff fixes** (API #251, FE #270): report author never an email; staff skip founder onboarding; staff ghost drafts out of KPIs
+- [x] **PDFs print ₦** everywhere (API #252, bundled DejaVu)
+- [ ] **Admin + Super Admin FE (Samuel)**: merged then **reverted** (FE #267) after review + re-walk FAIL (`admin-rewalk.md`, D1-D19); he re-opens module by module; review before merge
+- [ ] **Legal slice 2 Advisor Requests (Victoria)**: D-LEG-9..18 accepted (FE #265, #273); code not started
+- [ ] **On hold (Adebayo):** FE develop→main release for www; production API launch
+
 ## Snapshot 2026-11-13 (lead 27, ~22:30 WAT): read this before the table, which has older row text
 
 - [x] **Legal & Compliance slice 1**: API #214, gap list FE #254, FE #255, sidebar shown again (#257). Live walk 48/48 on the branch; **every-control re-walk on merged develop done 2026-11-13** (`legal-rewalk.md`: 78/81 rows pass, all four roles at 1440 + 375; D1 to D3 fixed in `fix/legal-rewalk`; gap G1/G2 = mobile table/calendar layout, **fixed 2026-11-13** in `fix/fe-leftovers-mediums`). Disclaimer copy fix: API #248 merged (`f2d7ff9a`); re-walk FE #260 merged (`8a4f5f3`), G1/G2 fixes FE #261 merged (`6d0fa03`). **Legal slice 1 done**

@@ -4,10 +4,10 @@
 > *"Read `cofoundaz/docs/HANDOFF-master.md` and continue as the lead. Start with §0a. No half-built pages; ask me only for
 > genuine product calls."*
 >
-> If the lead-27 handoff PR hasn't merged yet, read this file from its branch:
-> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead27-handoff:docs/HANDOFF-master.md`
+> If the lead-27 final handoff PR hasn't merged yet, read this file from its branch:
+> `git -C cofoundaz fetch -q origin && git -C cofoundaz show origin/docs/lead27-final-handoff:docs/HANDOFF-master.md`
 
-Last updated: **2026-11-13 ~22:30 WAT (lead session 27, paused for the night by Adebayo)**. Lead 27 is session `local_c2151e44-d307-4e05-b3a3-fb5a3d1ccc33`. Lead 26 was session `local_f1b1ceb0-3f64-47ca-a662-980edd2b84e0` (stays open, capped: relays its sessions' notes only). Lead 25 was session `local_43428156-c269-4cd1-84a6-3318432c8bce` (archived). Lead 24 was session `local_0f813530-39f3-4407-92bc-d9eb5272b9a1`. Lead 23 was session `local_2a64fa6e-08f3-4ad4-ad3a-8b5832e1e323`. Lead 22 was session `local_d8bf2dc1-5968-4569-aefb-a51e78700310`. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
+Last updated: **2026-11-19 ~13:30 WAT (lead session 27, handing over to lead 28, which lead 27 starts itself)**. Lead 27 is session `local_c2151e44-d307-4e05-b3a3-fb5a3d1ccc33`. Lead 26 was session `local_f1b1ceb0-3f64-47ca-a662-980edd2b84e0` (stays open, capped: relays its sessions' notes only). Lead 25 was session `local_43428156-c269-4cd1-84a6-3318432c8bce` (archived). Lead 24 was session `local_0f813530-39f3-4407-92bc-d9eb5272b9a1`. Lead 23 was session `local_2a64fa6e-08f3-4ad4-ad3a-8b5832e1e323`. Lead 22 was session `local_d8bf2dc1-5968-4569-aefb-a51e78700310`. Lead 21 was session `local_db966c75-9250-4f68-80da-e3878c9e0bba`. Lead 20 was session `local_1bac7c03-f04b-4f82-99fd-3df089317419`. Lead 19 left no handoff of its own (it merged FE #216 and #218 on 2026-11-03). Lead 18 was session `local_90e78be7-a5e6-47e2-baf6-cf427912e03f` (started by lead 17). Lead 17 was session `local_e292715c-83ae-4894-8547-a9b8cc162c0a`; lead 16 was before it. Lead 15 was session `local_39a65db8-604e-4b86-9823-829f77313ca3`; lead 14 was session `local_720c2389-f281-4841-b8e1-c0a528cce121`; lead 13 was session `local_016c7571-74ef-4f0d-8038-42fbaae26d62`; lead 12 was session `local_834938e8-7994-46f3-b253-9f454e329879`; lead 11 was session `local_fafcc475-7de3-4c37-ba3f-fe728ace6b39`; lead 10 was `local_07d6ffed-3092-46d5-afa6-5e42c3f68d6d`. This file is a map; the detail lives in the gap lists
 (`docs/checklist/*-prd-gaps.md`, `*-rewalk.md`), SOPs (`docs/sop/` in both repos), FE guides
 (`cofoundaz-api/docs/fe-integration-guide-*.md`), design specs (`docs/superpowers/specs/`), the master checklists
 (`cofoundaz-api/docs/checklist/PROJECT_CHECKLIST.md`, `docs/checklist/buildout-status.md`), and memory.
@@ -17,6 +17,57 @@ Last updated: **2026-11-13 ~22:30 WAT (lead session 27, paused for the night by 
 ## 0. FOR ADEBAYO
 
 ### 0a. Open PRs and in-flight sessions
+
+**Lead 27 handover to lead 28 (2026-11-19 ~13:30 WAT). Lead 27 (`local_c2151e44-d307-4e05-b3a3-fb5a3d1ccc33`) grew too large; it starts lead 28 itself, then caps (relays only). Nothing is building; no sub-sessions are open.**
+
+**State:**
+- **API develop `bfbce57c`**, single alembic head **`0109_analytics_exports`**. Production API unchanged (`main` 2026-09-21, migration 0027).
+- **FE develop `b4389ed`** (includes FE #273). FE `main` is still `14cd6676` (release #258, 2026-11-13): **www has none of the work below**; stage.cofoundaz.com (develop) does.
+- **No open PRs** in either repo at handover.
+
+**Merged 2026-11-18/19 (each checked: whole CI, attribution, branch, one head; Opus where security-relevant):**
+
+| PR | What | Commit |
+|---|---|---|
+| API #250 | dnspython 2.9.0→2.9.2 (CVE-2026-128089 turned pip-audit red everywhere) | `d9bfda75` |
+| API #249 | Analytics C exports (0109); Opus-reviewed, M1/L1/L2 fixed | `4d5d60d6` |
+| FE #265 | Victoria: D-LEG-9..15 (slice 2 calls) accepted | `bf0f435` |
+| FE #262, #246 | Lead-27 pause handoff; Funding FE brief | `f31c71b`, `ac1663d` |
+| FE #256/#266/#263/#264 | Samuel's Admin + Super Admin FE: **merged unreviewed, then REVERTED in FE #267** (`2b9ee06`) | see below |
+| FE #269 | Every-control re-walk of Samuel's Admin FE: FAIL, fix list D1-D19 + SO1-SO6 (`docs/checklist/admin-rewalk.md`) | `6eb1c29` |
+| FE #268 | Analytics & Reports FE wave 1 on the real API (Opus-reviewed; M1 render tests + 5 lows fixed) | `54e6eca` |
+| API #251 + FE #270 | Staff fixes: SO1 nameless report author = "A team member"; SO4 staff skip founder onboarding, staff-owned never-onboarded drafts excluded from KPIs (Opus + fixes) | `3f3e8f12`, `c4cde6e` |
+| API #252 | Bundled DejaVu fonts: every PDF prints ₦ and Yoruba letters; nameless analytics members "A team member" | `c8d5bd69` |
+| FE #271 | **Analytics shown in the sidebar** (Adebayo 2026-11-18) + merged-develop re-walk 420/420 + chart axis fix | `ac95a4f` |
+| FE #272 | Sidebar: footer pinned only on windows ≥1024px wide AND ≥760px tall; shorter windows scroll the whole sidebar (Adebayo's desktop report) | `843f833` |
+| API #253 | API `PROJECT_CHECKLIST.md` reconciled (snapshot 2026-11-18; deferrals marked) | `bfbce57c` |
+| FE #273 | Victoria: D-LEG-16..18 accepted 2026-11-19 (16 with two lead conditions) | `b4389ed` |
+
+**Samuel (Admin FE) — the important lesson.** Lead 27 merged his 4 PRs on "merge all open PRs" after only CI/conflict/attribution checks. A post-merge Opus review + live re-walk found security sound (gating, TOTP step-up, no token storage, no unsafe HTML) but many flows broken against the live API (field names/shapes; Help ticket create 422, ticket threads crash, Resolve 422, billing crash, plan_key casing, audit filters, undefined `brand` colour making primary buttons invisible…). Adebayo chose **revert + return**. Samuel has the message with every finding (file:line) and the full list in `docs/checklist/admin-rewalk.md`. He'll re-open one module at a time (Portal → Tickets → Users → Super Admin), each branched from the latest develop. **Review each BEFORE merge** (memory `feedback-review-outside-prs-before-merge`): read the diff against the live-captured guides, Opus on access/TOTP, and an every-control walk; failures go back to him. His old branches still exist; the 4 revert commits are separate (merge commit #267) if a module needs restoring.
+
+**Victoria (Legal slice 2, Advisor Requests 13.6).** D-LEG-9..18 all accepted (gap list + memory `legal-decisions`). She has written no code yet; branch `feature/legal-advisor-requests` in the API, migration = next free after 0109 at push time. Paste-ready message for her is below. When her PR comes: follow `victoria-legal-process` + Opus on permissions and uploads (D-LEG-16 read route, D-LEG-18 scan re-check).
+
+> Message for Victoria (Adebayo sends): "Hi Victoria, thanks for D-LEG-16..18 (#273): all three are accepted and merged. On D-LEG-16 two conditions: (1) `GET /legal/advisor-requests/{id}/document` answers only the request's own advisor with a live legal_advisor membership (founder/TM writers may read too), and 404s for anyone else, a foreign workspace or a cancelled request; (2) an uploaded reviewed draft goes through the normal file path (size cap, magic-byte sniff, private storage, scan), and D-LEG-18 applies to it. Please pull develop and start slice 2 code; the alembic head is 0109_analytics_exports, so take the next free number at push time. Same process as slice 1."
+
+**Decisions taken in lead 27 (all in memory):** D-LEG-9..18 (`legal-decisions`); review outside PRs before merge (`feedback-review-outside-prs-before-merge`); staff skip onboarding + SO1 (`staff-skip-onboarding`); Analytics shown 2026-11-18, waves 2-3 + investor updates stay deferred/hidden (`analytics-decisions`); Health Score shows assessment completion by design and no per-member grants exist (`health-open-implies-assessment`).
+
+**On hold by Adebayo (2026-11-18): do not start until he says.**
+- FE `develop` → `main` release for www (would ship Analytics, sidebar fix, Legal fixes, staff fixes, PDF ₦).
+- Production API launch prep (plan in the lead-23 block).
+
+**Next for lead 28:**
+1. Give Adebayo the Victoria message above if he hasn't sent it.
+2. Wait for Samuel's re-opened Admin PRs and Victoria's slice-2 PR; review before merge.
+3. When Adebayo lifts the hold: develop→main release, then production API launch prep.
+4. Open follow-ups: re-run AI Co-Founder / Readiness on the real model after the OpenAI top-up; stage onboarding live test; Analytics D5 (export highlight beyond page 1) and D6 (period pills scroll at 375) are low, listed in `docs/checklist/analytics-rewalk.md`.
+
+**Gotchas learned in lead 27:**
+- **"Merge all open PRs" ≠ merge unreviewed outside PRs.** Review first, every time.
+- Independent PRs that edit the same file each look CLEAN alone; trial-merge them in order before merging the first.
+- Outside test mocks copied from the author's own types pass CI while the live API differs: require mocks built from the captured guide bodies.
+- A new upstream CVE turns every API PR red (pip-audit); check develop's own Security job, fix the lock in its own PR first.
+- `notify_when_idle` needs the session NAME from `ListAgents`; `send_message` works by id. zsh doesn't word-split `$x` (use `${x% *}`/`${x#* }`).
+- Archiving a session with a queued message fails; retry later.
 
 **Lead 27 pause for the night (2026-11-13 ~22:30 WAT). Adebayo paused; nothing is building. Lead 27 is session `local_c2151e44-d307-4e05-b3a3-fb5a3d1ccc33` and can be resumed, or a new lead starts from this block.**
 
