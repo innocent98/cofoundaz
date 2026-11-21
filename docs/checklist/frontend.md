@@ -128,7 +128,7 @@ Frontend features the Technical PRD / UI comp specify that are **not built** (in
 - ⛔ **Journal → Retrospectives** — PRD 21.5 — **backend-blocked**: no retro concept (journal writes also blocked on encryption key). See backend-requests doc.
 - ⛔ **Team → Directory** (member cards, external collaborators) — PRD 23.5 — **backend-blocked**: no members API (list/role/remove/seats). See backend-requests doc.
 - ⛔ **Notifications → Archived** (with restore) — PRD 20.4 — **backend-blocked**: no archive/restore endpoint. See backend-requests doc.
-- [ ] **Analytics → Saved reports** — PRD 22.2
+- [x] **Analytics → Saved reports** — PRD 22.2 (wave 1 on the real API, FE #268; re-walked + shown in the sidebar 2026-11-18, #271)
 - [ ] **Admin → Reported-issues** queue — PRD 25.5
 - [ ] **Super-Admin → Impersonate user** + **Billing overrides** — PRD 26.1 / 26.6
 - [ ] Marketing **Blog & Help Center** — *deliberately deferred v1* (`content/nav.ts`)

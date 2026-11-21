@@ -118,3 +118,13 @@ Scratch stack: API develop `e59e1d6f` on `:8100` with its own Postgres and Redis
 | Activity: a row prints the actor once | ✅ F | ✅ F | "A teammate joined the workspace" appears once per row |
 
 Still not verified: the Export log button's actual download through the UI (button now enabled; the API export was already verified).
+
+## Re-check on develop code (2026-11-13, `fe-leftovers-rewalk.md` §5)
+
+Branch `fix/fe-leftovers-mediums` (Team and onboarding code identical to develop `8a4f5f3`), scratch API develop `f2d7ff9a`.
+
+| Control | 1440 | 375 | Evidence / note |
+|---|---|---|---|
+| Audit log lists the API entries | ✅ F | ✅ F | 7 rows = `GET /team/audit` 7 entries; no empty state |
+| Export log enabled with entries | ✅ F | ✅ F | disabled=false |
+| Activity prints the actor once | ✅ F | ✅ F | initials + summary only; no doubled name |

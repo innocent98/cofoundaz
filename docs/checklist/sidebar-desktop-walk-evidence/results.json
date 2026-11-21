@@ -1,0 +1,356 @@
+[
+ {
+  "tag": "founder-dashboard-1440x900",
+  "items": 18,
+  "visItems": 9,
+  "scrollers": [
+   "w-full pinned:min-h- 1030/519"
+  ],
+  "activeInView": true,
+  "asideH": 900,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-dashboard-1440x700",
+  "items": 18,
+  "visItems": 10,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/532"
+  ],
+  "activeInView": true,
+  "asideH": 700,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-dashboard-1366x768",
+  "items": 18,
+  "visItems": 7,
+  "scrollers": [
+   "w-full pinned:min-h- 1030/387"
+  ],
+  "activeInView": true,
+  "asideH": 768,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-dashboard-1280x720",
+  "items": 18,
+  "visItems": 10,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/552"
+  ],
+  "activeInView": true,
+  "asideH": 720,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-dashboard-1280x600",
+  "items": 18,
+  "visItems": 8,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/432"
+  ],
+  "activeInView": true,
+  "asideH": 600,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-dashboard-1024x640",
+  "items": 18,
+  "visItems": 8,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/472"
+  ],
+  "activeInView": true,
+  "asideH": 640,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-dashboard-375x812",
+  "items": 18,
+  "visItems": 12,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/638"
+  ],
+  "activeInView": true,
+  "asideH": 812,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-dashboard-375x520",
+  "items": 18,
+  "visItems": 6,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/346"
+  ],
+  "activeInView": true,
+  "asideH": 520,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-documents-1440x900",
+  "items": 18,
+  "visItems": 8,
+  "scrollers": [
+   "w-full pinned:min-h- 1030/519"
+  ],
+  "activeInView": true,
+  "asideH": 900,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-documents-1440x700",
+  "items": 18,
+  "visItems": 9,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/532"
+  ],
+  "activeInView": true,
+  "asideH": 700,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-documents-1366x768",
+  "items": 18,
+  "visItems": 6,
+  "scrollers": [
+   "w-full pinned:min-h- 1030/387"
+  ],
+  "activeInView": true,
+  "asideH": 768,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-documents-1280x720",
+  "items": 18,
+  "visItems": 9,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/552"
+  ],
+  "activeInView": true,
+  "asideH": 720,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-documents-1280x600",
+  "items": 18,
+  "visItems": 7,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/432"
+  ],
+  "activeInView": true,
+  "asideH": 600,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-documents-1024x640",
+  "items": 18,
+  "visItems": 7,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/472"
+  ],
+  "activeInView": true,
+  "asideH": 640,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-documents-375x812",
+  "items": 18,
+  "visItems": 10,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/638"
+  ],
+  "activeInView": true,
+  "asideH": 812,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "founder-documents-375x520",
+  "items": 18,
+  "visItems": 5,
+  "scrollers": [
+   "sidebar-nav-scroll 1267/346"
+  ],
+  "activeInView": true,
+  "asideH": 520,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "accountant-documents-1440x900",
+  "items": 5,
+  "visItems": 5,
+  "scrollers": [],
+  "activeInView": true,
+  "asideH": 900,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "accountant-documents-1440x700",
+  "items": 5,
+  "visItems": 5,
+  "scrollers": [
+   "sidebar-nav-scroll 608/532"
+  ],
+  "activeInView": true,
+  "asideH": 700,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "accountant-documents-1366x768",
+  "items": 5,
+  "visItems": 5,
+  "scrollers": [],
+  "activeInView": true,
+  "asideH": 768,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "accountant-documents-1280x720",
+  "items": 5,
+  "visItems": 5,
+  "scrollers": [
+   "sidebar-nav-scroll 608/552"
+  ],
+  "activeInView": true,
+  "asideH": 720,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "accountant-documents-1280x600",
+  "items": 5,
+  "visItems": 5,
+  "scrollers": [
+   "sidebar-nav-scroll 608/432"
+  ],
+  "activeInView": true,
+  "asideH": 600,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "accountant-documents-1024x640",
+  "items": 5,
+  "visItems": 5,
+  "scrollers": [
+   "sidebar-nav-scroll 608/472"
+  ],
+  "activeInView": true,
+  "asideH": 640,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "accountant-documents-375x812",
+  "items": 5,
+  "visItems": 5,
+  "scrollers": [],
+  "activeInView": true,
+  "asideH": 812,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ },
+ {
+  "tag": "accountant-documents-375x520",
+  "items": 5,
+  "visItems": 4,
+  "scrollers": [
+   "sidebar-nav-scroll 608/346"
+  ],
+  "activeInView": true,
+  "asideH": 520,
+  "docOverflowX": false,
+  "footerInView": true,
+  "profileInView": true,
+  "overlap": false,
+  "signOutInView": true
+ }
+]
