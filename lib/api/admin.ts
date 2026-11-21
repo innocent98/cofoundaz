@@ -39,15 +39,18 @@ export interface DashboardKpisResponse {
 export interface AdminWorkspaceRow {
   id: string;
   name: string;
-  owner: {
-    id: string;
-    name: string | null;
-    email: string;
+  owner_name?: string | null;
+  owner_email?: string;
+  owner?: {
+    id?: string;
+    name?: string | null;
+    email?: string;
   } | null;
   stage: string | null;
-  seats: number;
-  members: number;
-  plan: string | null;
+  seats?: number;
+  members?: number;
+  plan_key?: string | null;
+  plan?: string | null;
   health_score: number | null;
   country: string | null;
   last_active_at: string | null;
@@ -60,9 +63,10 @@ export interface AdminWorkspacesResponse {
 }
 
 export interface AdminWorkspaceMember {
-  id: string;
+  id?: string;
   user_id: string;
-  name: string | null;
+  full_name?: string | null;
+  name?: string | null;
   email: string;
   role: string;
   joined_at?: string | null;
@@ -83,34 +87,48 @@ export interface AdminWorkspaceUsageMeter {
 export interface AdminWorkspaceDetail {
   id: string;
   name: string;
-  owner: {
-    id: string;
-    name: string | null;
-    email: string;
+  owner_name?: string | null;
+  owner_email?: string | null;
+  owner?: {
+    id?: string;
+    name?: string | null;
+    email?: string;
   } | null;
   stage: string | null;
-  seats: number;
-  seats_limit: number | null; // null = Unlimited
-  members_count: number;
+  seats?: number;
+  seats_limit?: number | null; // null = Unlimited
+  members_count?: number;
   members: AdminWorkspaceMember[];
-  subscription: {
-    plan: string;
-    billing_status: string;
+  subscription?: {
+    plan_name?: string | null;
+    plan_key?: string | null;
+    plan?: string | { key: string; name: string } | null;
+    status?: string | null;
+    billing_status?: string | null;
     billing_interval?: string | null;
     renews_at?: string | null;
     expires_at?: string | null;
   } | null;
+  usage?: {
+    seats_used?: number;
+    seats_limit?: number | null;
+    [key: string]: unknown;
+  } | null;
   usage_meters?: Record<string, AdminWorkspaceUsageMeter> | null;
-  integrations: AdminWorkspaceIntegration[];
+  integrations?: AdminWorkspaceIntegration[];
   health_score: number | null;
   created_at: string;
   last_active_at: string | null;
 }
 
 export interface AdminUserPrimaryWorkspace {
-  id: string;
-  name: string;
-  billing_status: string;
+  id?: string;
+  workspace_id?: string;
+  name?: string;
+  workspace_name?: string;
+  billing_status?: string;
+  status?: string;
+  plan_key?: string | null;
   plan?: string | null;
 }
 
@@ -122,8 +140,11 @@ export interface AdminUserRow {
   activity: 'active' | 'dormant' | string;
   workspace_count: number;
   primary_workspace: AdminUserPrimaryWorkspace | null;
+  plan_key?: string | null;
+  plan?: string | null;
   created_at: string;
   last_active_at?: string | null;
+  last_login_at?: string | null;
 }
 
 export interface AdminUsersResponse {
@@ -133,18 +154,25 @@ export interface AdminUsersResponse {
 
 export interface AdminUserSession {
   id: string;
-  ip_address: string | null;
+  ip?: string | null;
+  ip_address?: string | null;
   user_agent: string | null;
-  signed_in_at: string | null;
+  signed_in_at?: string | null;
+  created_at?: string | null;
   ended_at?: string | null;
+  revoked_at?: string | null;
 }
 
 export interface AdminUserWorkspaceMembership {
-  id: string;
-  name: string;
+  id?: string;
+  workspace_id?: string;
+  name?: string;
+  workspace_name?: string;
   role: string;
-  plan: string | null;
-  billing_status: string;
+  plan_key?: string | null;
+  plan?: string | { key: string; name: string } | null;
+  billing_status?: string;
+  status?: string;
 }
 
 export interface AdminUserDetail {
@@ -165,6 +193,7 @@ export interface AdminUserDetail {
   };
   created_at: string;
   last_active_at?: string | null;
+  last_login_at?: string | null;
 }
 
 export interface StaffActionPayload {

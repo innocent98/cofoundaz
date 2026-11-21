@@ -36,16 +36,22 @@ describe('AdminPortalPage', () => {
     vi.clearAllMocks();
   });
 
-  it('hidden access: non-staff user receiving 404 gets plain 404 and redirects to /dashboard without access denied copy', async () => {
+  it('hidden access: non-staff user receiving 404 renders null, redirects to /dashboard without flashing 404 or console, and fires zero staff calls', async () => {
     vi.mocked(adminApi.getAdminMe).mockRejectedValue(new ApiError(404, 'Not Found', { detail: 'Not Found' }));
 
-    render(<AdminPortalPage />);
+    const { container } = render(<AdminPortalPage />);
 
-    expect(await screen.findByText('404')).toBeInTheDocument();
-    expect(screen.getByText('This page could not be found.')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/dashboard');
+    });
+
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
     expect(screen.queryByText(/access denied/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/forbidden/i)).not.toBeInTheDocument();
-    expect(mockReplace).toHaveBeenCalledWith('/dashboard');
+    expect(screen.queryByText(/verifying/i)).not.toBeInTheDocument();
+    expect(adminApi.getAdminKpis).not.toHaveBeenCalled();
+    expect(adminApi.getAdminWorkspaces).not.toHaveBeenCalled();
+    expect(adminApi.getAdminUsers).not.toHaveBeenCalled();
   });
 
   it('staff access: renders console, real role, and scope chips for Super Admin', async () => {
@@ -129,11 +135,12 @@ describe('AdminPortalPage', () => {
     const mockWorkspace: adminApi.AdminWorkspaceRow = {
       id: 'ws-test-1',
       name: 'Paystack Clone',
-      owner: { id: 'u-owner', name: 'Shola Akinlade', email: 'shola@example.com' },
+      owner_name: 'Shola Akinlade',
+      owner_email: 'shola@example.com',
       stage: 'growth',
       seats: 12,
       members: 20,
-      plan: 'scale',
+      plan_key: 'scale',
       health_score: 95,
       country: 'NG',
       last_active_at: new Date().toISOString(),
@@ -149,12 +156,13 @@ describe('AdminPortalPage', () => {
       seats_limit: 15,
       members_count: 2,
       members: [
-        { id: 'm-1', user_id: 'u-owner', name: 'Shola Akinlade', email: 'shola@example.com', role: 'founder' },
+        { id: 'm-1', user_id: 'u-owner', full_name: 'Shola Akinlade', email: 'shola@example.com', role: 'founder' },
       ],
-      subscription: { plan: 'scale', billing_status: 'active', renews_at: '2026-12-01T00:00:00Z' },
-      usage_meters: { api_calls: { used: 4500, limit: 10000 } },
+      subscription: { plan_name: 'Scale', plan_key: 'scale', status: 'active', billing_status: 'active', renews_at: '2026-12-01T00:00:00Z' },
+      usage: { seats_used: 12, seats_limit: 15, api_calls: { used: 4500, limit: 10000 } },
       integrations: [{ id: 'int-1', provider: 'slack', status: 'connected' }],
       created_at: '2026-01-01T00:00:00Z',
+      last_active_at: new Date().toISOString(),
     };
 
     vi.mocked(adminApi.getAdminWorkspace).mockResolvedValue(mockWorkspaceDetail);
@@ -198,8 +206,10 @@ describe('AdminPortalPage', () => {
       status: 'disabled',
       activity: 'active',
       workspace_count: 2,
-      primary_workspace: { id: 'ws-1', name: 'Paystack', billing_status: 'active', plan: 'pro' },
+      primary_workspace: { workspace_id: 'ws-1', workspace_name: 'Paystack', billing_status: 'active', plan_key: 'pro' },
+      plan_key: 'pro',
       created_at: new Date().toISOString(),
+      last_login_at: new Date().toISOString(),
     };
 
     vi.mocked(adminApi.getAdminUsers).mockResolvedValue({
@@ -214,10 +224,11 @@ describe('AdminPortalPage', () => {
       phone: '+2348099887766',
       status: 'disabled',
       activity: 'active',
-      workspaces: [{ id: 'ws-1', name: 'Paystack', role: 'founder', plan: 'pro', billing_status: 'active' }],
-      sessions: [{ id: 's-1', ip_address: '102.89.34.1', user_agent: 'Chrome/120', signed_in_at: new Date().toISOString() }],
+      workspaces: [{ workspace_id: 'ws-1', workspace_name: 'Paystack', role: 'founder', plan_key: 'pro', billing_status: 'active' }],
+      sessions: [{ id: 's-1', ip: '102.89.34.1', user_agent: 'Chrome/120', signed_in_at: new Date().toISOString() }],
       can: { suspend: true, unsuspend: true, reset_password: true, resend_verification: true },
       created_at: '2026-01-01T00:00:00Z',
+      last_login_at: new Date().toISOString(),
     };
 
     vi.mocked(adminApi.getAdminUser).mockResolvedValue(mockUserDetail);
@@ -263,6 +274,87 @@ describe('AdminPortalPage', () => {
         totp_code: '123456',
       });
       expect(screen.getByText('ezra@example.com is suspended.')).toBeInTheDocument();
+    });
+  });
+
+  it('post-action reload error does not cause action submission to appear failed (#14)', async () => {
+    vi.mocked(adminApi.getAdminMe).mockResolvedValue({
+      user_id: 'sa-1',
+      role: 'super_admin',
+      scopes: [],
+    });
+    vi.mocked(adminApi.getAdminKpis).mockResolvedValue({
+      total_workspaces: { value: 1, new_in_window: 1 },
+      activation_rate: { percent: 50, previous_percent: null },
+      paid_conversion: { percent: 10, previous_percent: null },
+      mrr: { minor: 100000 },
+      signups_series: [],
+    });
+
+    const mockUser: adminApi.AdminUserRow = {
+      id: 'usr-2',
+      full_name: 'Sim Shagaya',
+      email: 'sim@example.com',
+      status: 'active',
+      activity: 'active',
+      workspace_count: 1,
+      primary_workspace: { workspace_id: 'ws-2', workspace_name: 'Konga', billing_status: 'active', plan_key: 'starter' },
+      plan_key: 'starter',
+      created_at: new Date().toISOString(),
+    };
+
+    vi.mocked(adminApi.getAdminUsers).mockResolvedValue({
+      users: [mockUser],
+      next_cursor: null,
+    });
+
+    const mockUserDetail: adminApi.AdminUserDetail = {
+      id: 'usr-2',
+      full_name: 'Sim Shagaya',
+      email: 'sim@example.com',
+      phone: null,
+      status: 'active',
+      activity: 'active',
+      workspaces: [{ workspace_id: 'ws-2', workspace_name: 'Konga', role: 'founder', plan_key: 'starter', billing_status: 'active' }],
+      sessions: [],
+      can: { suspend: true, unsuspend: false, reset_password: true, resend_verification: true },
+      created_at: '2026-01-01T00:00:00Z',
+    };
+
+    // First fetch succeeds, post-action reload fails
+    vi.mocked(adminApi.getAdminUser)
+      .mockResolvedValueOnce(mockUserDetail)
+      .mockRejectedValueOnce(new Error('Network error on reload'));
+
+    vi.mocked(adminApi.suspendUser).mockResolvedValue();
+
+    render(<AdminPortalPage />);
+
+    expect(await screen.findByRole('tab', { name: 'Users' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'Users' }));
+
+    expect(await screen.findByText('Sim Shagaya')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'View' }));
+
+    expect(await screen.findByText('User Profile')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Suspend user' }));
+
+    fireEvent.change(screen.getByLabelText(/Reason/i), {
+      target: { value: 'Policy violation investigation.' },
+    });
+    fireEvent.change(screen.getByLabelText(/Authenticator code/i), {
+      target: { value: '654321' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Suspend' }));
+
+    await waitFor(() => {
+      expect(adminApi.suspendUser).toHaveBeenCalledWith('usr-2', {
+        reason: 'Policy violation investigation.',
+        totp_code: '654321',
+      });
+      // The success toast is shown even though the subsequent reload had an error
+      expect(screen.getByText('sim@example.com is suspended.')).toBeInTheDocument();
     });
   });
 

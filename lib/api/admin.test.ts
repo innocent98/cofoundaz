@@ -83,11 +83,12 @@ describe('admin api', () => {
         {
           id: 'ws-1',
           name: 'Acme',
-          owner: { id: 'u-1', name: 'John', email: 'john@example.com' },
-          stage: 'mvp',
+          owner_name: 'John',
+          owner_email: 'john@example.com',
+          stage: 'build',
           seats: 5,
           members: 8,
-          plan: 'pro',
+          plan_key: 'starter',
           health_score: 92,
           country: 'NG',
           last_active_at: new Date().toISOString(),
@@ -100,14 +101,14 @@ describe('admin api', () => {
 
       const res = await getAdminWorkspaces({
         query: 'Acme',
-        stage: 'mvp',
+        stage: 'build',
         billing_status: 'active',
         cursor: 'prev-cursor',
         limit: 10,
       });
 
       expect(client.apiClient).toHaveBeenCalledWith(
-        '/admin/workspaces?query=Acme&stage=mvp&billing_status=active&cursor=prev-cursor&limit=10'
+        '/admin/workspaces?query=Acme&stage=build&billing_status=active&cursor=prev-cursor&limit=10'
       );
       expect(res).toEqual({
         workspaces: mockWorkspaces,
@@ -119,13 +120,15 @@ describe('admin api', () => {
       const mockDetail = {
         id: 'ws-1',
         name: 'Acme',
-        owner: { id: 'u-1', name: 'John', email: 'john@example.com' },
+        owner_name: 'John',
+        owner_email: 'john@example.com',
         stage: 'growth',
         seats: 10,
         seats_limit: null,
         members_count: 5,
-        members: [],
-        subscription: { plan: 'growth', billing_status: 'active' },
+        members: [{ id: 'm-1', user_id: 'u-1', full_name: 'John Doe', email: 'john@example.com', role: 'founder' }],
+        subscription: { plan_name: 'Growth', plan_key: 'growth', status: 'active', billing_status: 'active' },
+        usage: { seats_used: 10, seats_limit: 15 },
         usage_meters: null,
         integrations: [],
         health_score: 85,
@@ -148,8 +151,10 @@ describe('admin api', () => {
           status: 'active',
           activity: 'active',
           workspace_count: 2,
-          primary_workspace: { id: 'ws-1', name: 'Alpha', billing_status: 'active' },
+          primary_workspace: { workspace_id: 'ws-1', workspace_name: 'Alpha', billing_status: 'active', plan_key: 'starter' },
+          plan_key: 'starter',
           created_at: new Date().toISOString(),
+          last_login_at: new Date().toISOString(),
         },
       ];
       vi.mocked(client.apiClient).mockResolvedValueOnce({
@@ -182,10 +187,11 @@ describe('admin api', () => {
         phone: '+2348012345678',
         status: 'active',
         activity: 'active',
-        workspaces: [],
-        sessions: [],
+        workspaces: [{ workspace_id: 'ws-1', workspace_name: 'Alpha', role: 'founder', plan_key: 'starter', billing_status: 'active' }],
+        sessions: [{ id: 's-1', ip: '127.0.0.1', user_agent: 'Mozilla/5.0', signed_in_at: new Date().toISOString() }],
         can: { suspend: true, unsuspend: false, reset_password: true, resend_verification: true },
         created_at: new Date().toISOString(),
+        last_login_at: new Date().toISOString(),
       };
       vi.mocked(client.apiClient).mockResolvedValueOnce({ data: mockDetail });
 
