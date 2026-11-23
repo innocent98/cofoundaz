@@ -57,7 +57,7 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
     expect(res.tickets.breached).toBe(1);
   });
 
-  it('fetches tickets with complex query parameters', async () => {
+  it('fetches tickets with complex query parameters and normalizes escalated flag', async () => {
     const mockItem: AdminTicketItem = {
       id: 't-10',
       number: 'T-1010',
@@ -65,7 +65,7 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
       category: 'bug',
       priority: 'P1',
       status: 'open',
-      is_escalated: true,
+      escalated: true,
       founder: { id: 'u-1', name: 'Alice', email: 'alice@startup.co' },
       workspace: { id: 'ws-1', name: 'Startup Alpha', plan_key: 'scale' },
       assignee: { id: 'staff-1', name: 'Staff Support', email: 'staff@cofoundaz.com' },
@@ -94,32 +94,31 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
     );
     expect(res.tickets).toHaveLength(1);
     expect(res.tickets[0].number).toBe('T-1010');
+    expect(res.tickets[0].escalated).toBe(true);
     expect(res.next_cursor).toBe('cur_page2');
   });
 
-  it('fetches full ticket detail with conversation and internal notes', async () => {
+  it('fetches flat ticket detail with conversation and internal notes', async () => {
     const mockDetail: AdminTicketDetail = {
-      ticket: {
-        id: 't-10',
-        number: 'T-1010',
-        subject: 'Critical production bug',
-        category: 'bug',
-        priority: 'P1',
-        status: 'open',
-        is_escalated: true,
-        escalation_reason: 'Major outage reported',
-        resolved_at: null,
-        founder: { id: 'u-1', name: 'Alice', email: 'alice@startup.co' },
-        workspace: { id: 'ws-1', name: 'Startup Alpha', plan_key: 'scale' },
-        assignee: null,
-        created_at: '2026-11-13T09:00:00Z',
-        sla: { state: 'breached', due_at: null },
-      },
+      id: 't-10',
+      number: 'T-1010',
+      subject: 'Critical production bug',
+      category: 'bug',
+      priority: 'P1',
+      status: 'open',
+      escalated: true,
+      escalation_reason: 'Major outage reported',
+      resolved_at: null,
+      founder: { id: 'u-1', name: 'Alice', email: 'alice@startup.co' },
+      workspace: { id: 'ws-1', name: 'Startup Alpha', plan_key: 'scale' },
+      assignee: null,
+      created_at: '2026-11-13T09:00:00Z',
+      sla: { state: 'breached', due_at: null },
       messages: [
         {
           id: 'm-1',
-          author_type: 'founder',
-          author_name: 'Alice',
+          author_kind: 'founder',
+          author: { name: 'Alice' },
           body: 'We cannot login!',
           created_at: '2026-11-13T09:00:00Z',
         },
@@ -140,14 +139,14 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
 
     const res = await getAdminSupportTicket('t-10');
     expect(spy).toHaveBeenCalledWith('/admin/support/tickets/t-10');
-    expect(res.ticket.subject).toBe('Critical production bug');
+    expect(res.subject).toBe('Critical production bug');
     expect(res.messages).toHaveLength(1);
     expect(res.notes).toHaveLength(1);
   });
 
-  it('fetches support assignees', async () => {
+  it('fetches support assignees from data.staff', async () => {
     const spy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({
-      assignees: [{ id: 'u-1', name: 'Agent Smith', email: 'smith@staff.com' }],
+      data: { staff: [{ id: 'u-1', name: 'Agent Smith', email: 'smith@staff.com' }] },
     });
     const assignees = await getAdminSupportAssignees();
     expect(spy).toHaveBeenCalledWith('/admin/support/assignees');
@@ -155,9 +154,9 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
     expect(assignees[0].name).toBe('Agent Smith');
   });
 
-  it('manages canned responses (get, create, update, delete)', async () => {
+  it('manages canned responses (get from data.canned, create, PATCH update, delete)', async () => {
     const getSpy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({
-      data: { responses: [{ id: 'c-1', title: 'Greeting', body: 'Hello!' }] },
+      data: { canned: [{ id: 'c-1', title: 'Greeting', body: 'Hello!' }] },
     });
     const items = await getAdminCannedResponses();
     expect(getSpy).toHaveBeenCalledWith('/admin/support/canned');
@@ -173,12 +172,12 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
     });
     expect(created.id).toBe('c-2');
 
-    const putSpy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({
+    const patchSpy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({
       data: { id: 'c-2', title: 'Updated', body: 'New body' },
     });
     const updated = await updateAdminCannedResponse('c-2', { title: 'Updated', body: 'New body' });
-    expect(putSpy).toHaveBeenCalledWith('/admin/support/canned/c-2', {
-      method: 'PUT',
+    expect(patchSpy).toHaveBeenCalledWith('/admin/support/canned/c-2', {
+      method: 'PATCH',
       body: JSON.stringify({ title: 'Updated', body: 'New body' }),
     });
     expect(updated.title).toBe('Updated');
@@ -188,9 +187,9 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
     expect(delSpy).toHaveBeenCalledWith('/admin/support/canned/c-2', { method: 'DELETE' });
   });
 
-  it('executes ticket actions (reply, note, priority, assign, escalate, resolve, reopen)', async () => {
+  it('executes ticket actions (reply, note, priority, assign, escalate, resolve without TOTP, reopen)', async () => {
     const replySpy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({
-      data: { message: { id: 'm-reply', author_type: 'staff', author_name: 'Cofoundaz Support', body: 'We fixed it.', created_at: '2026-11-13T10:00:00Z' } },
+      data: { messages: [{ id: 'm-reply', author_kind: 'staff', author: { name: 'Cofoundaz Support' }, body: 'We fixed it.', created_at: '2026-11-13T10:00:00Z' }] },
     });
     const msg = await replyAdminSupportTicket('t-1', { body: 'We fixed it.' });
     expect(replySpy).toHaveBeenCalledWith('/admin/support/tickets/t-1/reply', {
@@ -200,7 +199,7 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
     expect(msg.body).toBe('We fixed it.');
 
     const noteSpy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({
-      data: { note: { id: 'n-new', author_name: 'Staff', body: 'Customer confirmed fix.', created_at: '2026-11-13T10:01:00Z' } },
+      data: { notes: [{ id: 'n-new', author_name: 'Staff', body: 'Customer confirmed fix.', created_at: '2026-11-13T10:01:00Z' }] },
     });
     const note = await addAdminSupportNote('t-1', { body: 'Customer confirmed fix.' });
     expect(noteSpy).toHaveBeenCalledWith('/admin/support/tickets/t-1/notes', {
@@ -232,12 +231,11 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
 
     const resSpy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({});
     await resolveAdminSupportTicket('t-1', {
-      reason: 'Issue resolved cleanly',
-      totp_code: '123456',
+      message: 'Issue resolved cleanly',
     });
     expect(resSpy).toHaveBeenCalledWith('/admin/support/tickets/t-1/resolve', {
       method: 'POST',
-      body: JSON.stringify({ reason: 'Issue resolved cleanly', totp_code: '123456' }),
+      body: JSON.stringify({ message: 'Issue resolved cleanly' }),
     });
 
     const reopenSpy = vi.spyOn(client, 'apiClient').mockResolvedValueOnce({});
@@ -248,4 +246,3 @@ describe('Admin Support Tickets API (lib/api/admin-tickets.ts)', () => {
     });
   });
 });
-

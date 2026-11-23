@@ -12,6 +12,7 @@ import {
   MessageSquare,
   FileText,
   X,
+  CheckCircle2,
 } from 'lucide-react';
 import {
   getAdminSupportCounts,
@@ -38,7 +39,6 @@ import {
 } from '@/lib/api/admin-tickets';
 import { type AdminMeResponse } from '@/lib/api/admin';
 import { formatApiErrorMessage } from '@/lib/api/client';
-import { StaffActionDialog } from '@/components/admin/staff-action-dialog';
 import { CannedResponsesDialog } from '@/components/admin/canned-responses-dialog';
 
 export interface AdminSupportViewProps {
@@ -189,7 +189,11 @@ export function AdminSupportView({
   const [isEscalating, setIsEscalating] = useState(false);
   const [escalateError, setEscalateError] = useState<string | null>(null);
 
-  const [isResolveDialogOpen, setIsResolveDialogOpen] = useState(false);
+  // Resolve Modal State (No TOTP)
+  const [isResolveModalOpen, setIsResolveModalOpen] = useState(false);
+  const [closingMessage, setClosingMessage] = useState('');
+  const [isResolving, setIsResolving] = useState(false);
+  const [resolveError, setResolveError] = useState<string | null>(null);
 
   const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
   const [reopenReason, setReopenReason] = useState('');
@@ -349,29 +353,37 @@ export function AdminSupportView({
     setReplyError(null);
 
     try {
-      const message = await replyAdminSupportTicket(selectedTicketId, { body });
+      const replyRes = await replyAdminSupportTicket(selectedTicketId, { body });
       setReplyText('');
 
-      // Update thread detail locally
+      // Replace or append messages in thread detail locally
       setTicketDetail((prev) => {
         if (!prev) return null;
-        // First reply assigns to current staff if unassigned
-        const newAssignee = prev.ticket.assignee || {
+        const currentAssignee = prev.assignee || prev.ticket?.assignee;
+        const newAssignee = currentAssignee || {
           id: adminMe.user_id,
           name: adminMe.full_name || 'Staff',
           email: adminMe.email || '',
         };
+
+        const newMessages = replyRes.messages && Array.isArray(replyRes.messages)
+          ? replyRes.messages
+          : [...prev.messages, replyRes];
+
         return {
           ...prev,
-          ticket: {
-            ...prev.ticket,
-            assignee: newAssignee,
-          },
-          messages: [...prev.messages, message],
+          assignee: newAssignee,
+          ticket: prev.ticket ? { ...prev.ticket, assignee: newAssignee } : undefined,
+          messages: newMessages,
         };
       });
 
-      void fetchCounts();
+      // Reload error isolation (#14)
+      try {
+        void fetchCounts();
+      } catch {
+        // ignore background reload failure
+      }
     } catch (err: unknown) {
       setReplyError(formatApiErrorMessage(err, 'Failed to send reply.'));
     } finally {
@@ -390,9 +402,19 @@ export function AdminSupportView({
     setNoteError(null);
 
     try {
-      const note = await addAdminSupportNote(selectedTicketId, { body });
+      const noteRes = await addAdminSupportNote(selectedTicketId, { body });
       setNoteText('');
-      setTicketDetail((prev) => (prev ? { ...prev, notes: [...prev.notes, note] } : null));
+
+      setTicketDetail((prev) => {
+        if (!prev) return null;
+        const newNotes = noteRes.notes && Array.isArray(noteRes.notes)
+          ? noteRes.notes
+          : [...prev.notes, noteRes];
+        return {
+          ...prev,
+          notes: newNotes,
+        };
+      });
     } catch (err: unknown) {
       setNoteError(formatApiErrorMessage(err, 'Failed to add internal note.'));
     } finally {
@@ -405,7 +427,11 @@ export function AdminSupportView({
     if (!selectedTicketId || !ticketDetail) return;
     try {
       await updateAdminSupportPriority(selectedTicketId, newPriority);
-      setTicketDetail((prev) => (prev ? { ...prev, ticket: { ...prev.ticket, priority: newPriority } } : null));
+      setTicketDetail((prev) => (prev ? {
+        ...prev,
+        priority: newPriority,
+        ticket: prev.ticket ? { ...prev.ticket, priority: newPriority } : undefined,
+      } : null));
       setTickets((prev) =>
         prev.map((t) => (t.id === selectedTicketId ? { ...t, priority: newPriority } : t))
       );
@@ -427,11 +453,20 @@ export function AdminSupportView({
           }
         : null;
 
-      setTicketDetail((prev) => (prev ? { ...prev, ticket: { ...prev.ticket, assignee: assignedObj } } : null));
+      setTicketDetail((prev) => (prev ? {
+        ...prev,
+        assignee: assignedObj,
+        ticket: prev.ticket ? { ...prev.ticket, assignee: assignedObj } : undefined,
+      } : null));
       setTickets((prev) =>
         prev.map((t) => (t.id === selectedTicketId ? { ...t, assignee: assignedObj } : t))
       );
-      void fetchCounts();
+      // Reload error isolation (#14)
+      try {
+        void fetchCounts();
+      } catch {
+        // ignore background reload failure
+      }
     } catch (err: unknown) {
       alert(formatApiErrorMessage(err, 'Failed to assign ticket.'));
     }
@@ -451,9 +486,15 @@ export function AdminSupportView({
       await escalateAdminSupportTicket(selectedTicketId, { reason });
       setIsEscalateModalOpen(false);
       setEscalateReason('');
-      void fetchDetail(selectedTicketId);
-      void fetchCounts();
-      void fetchTickets(true);
+
+      // Reload error isolation (#14)
+      try {
+        void fetchDetail(selectedTicketId);
+        void fetchCounts();
+        void fetchTickets(true);
+      } catch {
+        // ignore reload error
+      }
     } catch (err: unknown) {
       if (err instanceof ApiError && err.status === 409) {
         setEscalateError('This ticket has already been escalated.');
@@ -478,13 +519,23 @@ export function AdminSupportView({
       });
       setIsReopenModalOpen(false);
       setReopenReason('');
-      void fetchDetail(selectedTicketId);
-      void fetchCounts();
-      void fetchTickets(true);
+
+      // Reload error isolation (#14)
+      try {
+        void fetchDetail(selectedTicketId);
+        void fetchCounts();
+        void fetchTickets(true);
+      } catch {
+        // ignore reload error
+      }
     } catch (err: unknown) {
       if (err instanceof ApiError && err.status === 409) {
         setReopenError(formatApiErrorMessage(err, 'Ticket state conflict. Refreshing ticket...'));
-        void fetchDetail(selectedTicketId);
+        try {
+          void fetchDetail(selectedTicketId);
+        } catch {
+          // ignore
+        }
       } else {
         setReopenError(formatApiErrorMessage(err, 'Failed to reopen ticket.'));
       }
@@ -493,18 +544,38 @@ export function AdminSupportView({
     }
   };
 
-  // Resolve Ticket via StaffActionDialog (Reason + fresh 6-digit TOTP)
-  const handleConfirmResolve = async (payload: { reason: string; totp_code: string }) => {
+  // Resolve Ticket without TOTP (#3 — Decision T3)
+  const handleConfirmResolve = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!selectedTicketId) return;
-    await resolveAdminSupportTicket(selectedTicketId, {
-      reason: payload.reason,
-      totp_code: payload.totp_code,
-    });
-    // On success, refetch counts, reload list, and move to resolved tab or refetch detail
-    void fetchCounts();
-    void fetchTickets(true);
-    if (selectedTicketId) {
-      void fetchDetail(selectedTicketId);
+
+    setIsResolving(true);
+    setResolveError(null);
+
+    try {
+      const msg = closingMessage.trim();
+      await resolveAdminSupportTicket(
+        selectedTicketId,
+        msg ? { message: msg } : undefined
+      );
+
+      setIsResolveModalOpen(false);
+      setClosingMessage('');
+
+      // Post-action reload in separate try/catch (#14)
+      try {
+        void fetchCounts();
+        void fetchTickets(true);
+        if (selectedTicketId) {
+          void fetchDetail(selectedTicketId);
+        }
+      } catch {
+        // ignore background reload failure
+      }
+    } catch (err: unknown) {
+      setResolveError(formatApiErrorMessage(err, 'Failed to resolve ticket.'));
+    } finally {
+      setIsResolving(false);
     }
   };
 
@@ -570,7 +641,7 @@ export function AdminSupportView({
           onClick={() => setIsCannedManagerOpen(true)}
           className="px-3.5 py-2 bg-surface-raised border border-neutral-subtle rounded-input text-xs font-semibold text-main hover:bg-neutral-subtle shadow-card transition-colors inline-flex items-center gap-2 cursor-pointer self-start md:self-auto"
         >
-          <MessageSquare className="w-4 h-4 text-brand" />
+          <MessageSquare className="w-4 h-4 text-brand-600" />
           <span>Manage replies</span>
         </button>
       </div>
@@ -672,7 +743,7 @@ export function AdminSupportView({
 
           {loadingList ? (
             <div className="p-8 text-center space-y-2">
-              <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin mx-auto" />
+              <div className="w-6 h-6 border-2 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto" />
               <p className="text-xs text-subtle">Loading tickets...</p>
             </div>
           ) : listError ? (
@@ -695,13 +766,16 @@ export function AdminSupportView({
             <div className="divide-y divide-neutral-subtle max-h-[700px] overflow-y-auto">
               {tickets.map((t) => {
                 const isSelected = t.id === selectedTicketId;
+                const founderDisplayName = t.founder?.name || t.founder?.email || 'Unknown founder';
+                const isEscalated = t.escalated ?? t.is_escalated ?? false;
+
                 return (
                   <div
                     key={t.id}
                     onClick={() => setSelectedTicketId(t.id)}
                     className={`p-4 transition-colors cursor-pointer space-y-2 ${
                       isSelected
-                        ? 'bg-brand-subtle/30 border-l-4 border-l-brand'
+                        ? 'bg-brand-subtle/30 border-l-4 border-l-brand-600'
                         : 'hover:bg-surface-raised'
                     }`}
                   >
@@ -712,7 +786,7 @@ export function AdminSupportView({
                           {t.number}
                         </span>
                         {renderPriorityBadge(t.priority)}
-                        {t.is_escalated && (
+                        {isEscalated && (
                           <span className="px-1.5 py-0.2 text-[10px] font-bold uppercase rounded-pill bg-danger text-white">
                             Escalated
                           </span>
@@ -726,9 +800,9 @@ export function AdminSupportView({
 
                     {/* Details: Founder, Workspace, Assignee, Age */}
                     <div className="flex flex-wrap items-center gap-1.5 text-xs text-subtle">
-                      <span className="font-medium text-main">{t.founder.name || t.founder.email}</span>
+                      <span className="font-medium text-main">{founderDisplayName}</span>
                       <span>•</span>
-                      <span>{t.workspace.name} ({t.workspace.plan_key})</span>
+                      <span>{t.workspace?.name} ({t.workspace?.plan_key})</span>
                       <span>•</span>
                       <span className="text-muted">{formatAge(t.created_at)}</span>
                     </div>
@@ -767,7 +841,7 @@ export function AdminSupportView({
             </div>
           ) : loadingDetail ? (
             <div className="p-12 text-center space-y-2">
-              <div className="w-7 h-7 border-2 border-brand border-t-transparent rounded-full animate-spin mx-auto" />
+              <div className="w-7 h-7 border-2 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto" />
               <p className="text-xs text-subtle">Loading ticket thread...</p>
             </div>
           ) : detailError || !ticketDetail ? (
@@ -790,35 +864,37 @@ export function AdminSupportView({
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="tabular-nums font-bold text-xs bg-surface px-2 py-0.5 rounded-[4px] border border-neutral-subtle text-subtle">
-                        {ticketDetail.ticket.number}
+                        {ticketDetail.number || ticketDetail.ticket?.number}
                       </span>
                       <span className="text-xs text-subtle font-medium capitalize">
-                        {ticketDetail.ticket.category}
+                        {ticketDetail.category || ticketDetail.ticket?.category}
                       </span>
-                      {ticketDetail.ticket.is_escalated && (
+                      {(ticketDetail.escalated || ticketDetail.is_escalated || ticketDetail.ticket?.escalated || ticketDetail.ticket?.is_escalated) && (
                         <span className="px-2 py-0.5 text-xs font-bold uppercase rounded-pill bg-danger text-white">
                           Escalated
                         </span>
                       )}
                     </div>
-                    <h3 className="text-base font-bold text-main">{ticketDetail.ticket.subject}</h3>
+                    <h3 className="text-base font-bold text-main">{ticketDetail.subject || ticketDetail.ticket?.subject}</h3>
                     <div className="flex flex-wrap items-center gap-2 text-xs text-subtle pt-0.5">
                       <span className="font-semibold text-main">
-                        {ticketDetail.ticket.founder.name || ticketDetail.ticket.founder.email}
+                        {ticketDetail.founder?.name || ticketDetail.founder?.email || ticketDetail.ticket?.founder?.name || ticketDetail.ticket?.founder?.email || 'Unknown founder'}
                       </span>
-                      <span>({ticketDetail.ticket.founder.email})</span>
+                      {(ticketDetail.founder?.email || ticketDetail.ticket?.founder?.email) && (
+                        <span>({ticketDetail.founder?.email || ticketDetail.ticket?.founder?.email})</span>
+                      )}
                       <span>•</span>
                       <span>
-                        {ticketDetail.ticket.workspace.name} · {ticketDetail.ticket.workspace.plan_key}
+                        {(ticketDetail.workspace?.name || ticketDetail.ticket?.workspace?.name)} · {(ticketDetail.workspace?.plan_key || ticketDetail.ticket?.workspace?.plan_key)}
                       </span>
                     </div>
                   </div>
 
                   {/* Actions Toolbar */}
                   <div className="flex items-center gap-2 shrink-0">
-                    {ticketDetail.ticket.status !== 'resolved' ? (
+                    {(ticketDetail.status || ticketDetail.ticket?.status) !== 'resolved' ? (
                       <>
-                        {!ticketDetail.ticket.is_escalated && (
+                        {!(ticketDetail.escalated || ticketDetail.is_escalated || ticketDetail.ticket?.escalated || ticketDetail.ticket?.is_escalated) && (
                           <button
                             type="button"
                             onClick={() => {
@@ -833,8 +909,12 @@ export function AdminSupportView({
                         )}
                         <button
                           type="button"
-                          onClick={() => setIsResolveDialogOpen(true)}
-                          className="px-3.5 py-1.5 bg-brand text-white rounded-input text-xs font-semibold hover:bg-brand-hover shadow-card transition-colors cursor-pointer"
+                          onClick={() => {
+                            setIsResolveModalOpen(true);
+                            setClosingMessage('');
+                            setResolveError(null);
+                          }}
+                          className="px-3.5 py-1.5 bg-brand-600 text-white rounded-input text-xs font-semibold hover:bg-brand-hover shadow-card transition-colors cursor-pointer"
                         >
                           Resolve ticket
                         </button>
@@ -860,7 +940,7 @@ export function AdminSupportView({
                   <div className="flex items-center gap-2">
                     <span className="text-subtle font-medium">Priority:</span>
                     <select
-                      value={ticketDetail.ticket.priority}
+                      value={ticketDetail.priority || ticketDetail.ticket?.priority}
                       onChange={(e) => void handlePriorityChange(e.target.value as TicketPriority)}
                       className="px-2.5 py-1 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main font-semibold"
                     >
@@ -874,7 +954,7 @@ export function AdminSupportView({
                   <div className="flex items-center gap-2">
                     <span className="text-subtle font-medium">Assignee:</span>
                     <select
-                      value={ticketDetail.ticket.assignee?.id || ''}
+                      value={(ticketDetail.assignee || ticketDetail.ticket?.assignee)?.id || ''}
                       onChange={(e) => void handleAssignTicket(e.target.value || null)}
                       className="px-2.5 py-1 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main"
                     >
@@ -885,11 +965,12 @@ export function AdminSupportView({
                         </option>
                       ))}
                     </select>
-                    {(!ticketDetail.ticket.assignee || ticketDetail.ticket.assignee.id !== adminMe.user_id) && (
+                    {(!(ticketDetail.assignee || ticketDetail.ticket?.assignee) ||
+                      (ticketDetail.assignee || ticketDetail.ticket?.assignee)?.id !== adminMe.user_id) && (
                       <button
                         type="button"
                         onClick={() => void handleAssignTicket(adminMe.user_id)}
-                        className="text-brand hover:underline font-semibold cursor-pointer"
+                        className="text-brand-600 hover:underline font-semibold cursor-pointer"
                       >
                         Assign to me
                       </button>
@@ -898,14 +979,14 @@ export function AdminSupportView({
                 </div>
 
                 {/* Escalation Reason Banner (if escalated) */}
-                {ticketDetail.ticket.is_escalated && (
+                {(ticketDetail.escalated || ticketDetail.is_escalated || ticketDetail.ticket?.escalated || ticketDetail.ticket?.is_escalated) && (
                   <div className="p-3 bg-danger-subtle/40 border border-danger-subtle rounded-input text-xs space-y-1">
                     <div className="flex items-center gap-1.5 text-danger-strong font-bold">
                       <ShieldAlert className="w-4 h-4" />
                       <span>Ticket Escalated to P1</span>
                     </div>
                     <p className="text-main leading-relaxed">
-                      {ticketDetail.ticket.escalation_reason || 'Escalated by staff member.'}
+                      {ticketDetail.escalation_reason || ticketDetail.ticket?.escalation_reason || 'Escalated by staff member.'}
                     </p>
                   </div>
                 )}
@@ -918,24 +999,24 @@ export function AdminSupportView({
                   onClick={() => setThreadTab('conversation')}
                   className={`py-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
                     threadTab === 'conversation'
-                      ? 'border-brand text-brand'
+                      ? 'border-brand-600 text-brand-600'
                       : 'border-transparent text-subtle hover:text-main'
                   }`}
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
-                  <span>Conversation ({ticketDetail.messages.length})</span>
+                  <span>Conversation ({(ticketDetail.messages || []).length})</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setThreadTab('notes')}
                   className={`py-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
                     threadTab === 'notes'
-                      ? 'border-brand text-brand'
+                      ? 'border-brand-600 text-brand-600'
                       : 'border-transparent text-subtle hover:text-main'
                   }`}
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  <span>Internal notes ({ticketDetail.notes.length})</span>
+                  <span>Internal notes ({(ticketDetail.notes || []).length})</span>
                   <span className="text-[10px] bg-warning-subtle text-warning-strong px-1.5 py-0.2 rounded-full font-bold ml-1">
                     Staff only
                   </span>
@@ -945,11 +1026,15 @@ export function AdminSupportView({
               {/* Thread Messages Body */}
               <div className="p-6 overflow-y-auto space-y-4 max-h-[480px]">
                 {threadTab === 'conversation' ? (
-                  ticketDetail.messages.length === 0 ? (
+                  (ticketDetail.messages || []).length === 0 ? (
                     <p className="text-xs text-subtle text-center py-8">No messages yet.</p>
                   ) : (
-                    ticketDetail.messages.map((m) => {
-                      const isFounder = m.author_type === 'founder';
+                    (ticketDetail.messages || []).map((m) => {
+                      const isFounder = m.author_kind === 'founder' || m.author_type === 'founder';
+                      const authorName = isFounder
+                        ? (m.author?.name || m.author_name || 'Founder')
+                        : 'Cofoundaz Support';
+
                       return (
                         <div
                           key={m.id}
@@ -957,7 +1042,7 @@ export function AdminSupportView({
                         >
                           <div className="flex items-center gap-2 mb-1 px-1">
                             <span className="text-xs font-semibold text-main">
-                              {isFounder ? m.author_name || 'Founder' : 'Cofoundaz Support'}
+                              {authorName}
                             </span>
                             <span className="text-[11px] text-muted">{formatAge(m.created_at)}</span>
                           </div>
@@ -974,20 +1059,20 @@ export function AdminSupportView({
                       );
                     })
                   )
-                ) : ticketDetail.notes.length === 0 ? (
+                ) : (ticketDetail.notes || []).length === 0 ? (
                   <div className="text-center py-8 text-xs text-subtle space-y-1">
                     <Lock className="w-5 h-5 text-muted mx-auto" />
                     <p>No internal notes added yet.</p>
                   </div>
                 ) : (
-                  ticketDetail.notes.map((n) => (
+                  (ticketDetail.notes || []).map((n) => (
                     <div
                       key={n.id}
                       className="p-3.5 bg-warning-subtle/20 border border-warning-subtle rounded-card space-y-1 text-xs"
                     >
                       <div className="flex items-center justify-between text-subtle">
                         <span className="font-semibold text-warning-strong">
-                          {n.author_name} (Staff Note)
+                          {n.author?.name || n.author_name || 'Staff'} (Staff Note)
                         </span>
                         <span className="text-[11px] text-muted">{formatAge(n.created_at)}</span>
                       </div>
@@ -998,121 +1083,121 @@ export function AdminSupportView({
               </div>
 
               {/* Reply or Add Note Bottom Area */}
-                <div className="p-5 border-t border-neutral-subtle bg-surface-raised">
-                  {threadTab === 'conversation' ? (
-                    <form onSubmit={handleSendReply} className="space-y-3">
-                      {replyError && (
-                        <div
-                          role="alert"
-                          className="p-2.5 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-xs rounded-input flex items-center gap-2"
-                        >
-                          <AlertCircle className="w-4 h-4 shrink-0" />
-                          <span>{replyError}</span>
-                        </div>
-                      )}
+              <div className="p-5 border-t border-neutral-subtle bg-surface-raised">
+                {threadTab === 'conversation' ? (
+                  <form onSubmit={handleSendReply} className="space-y-3">
+                    {replyError && (
+                      <div
+                        role="alert"
+                        className="p-2.5 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-xs rounded-input flex items-center gap-2"
+                      >
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <span>{replyError}</span>
+                      </div>
+                    )}
 
-                      {/* Canned Picker */}
-                      <div className="flex items-center justify-between text-xs">
-                        <label htmlFor="admin-reply-box" className="font-semibold text-main">
-                          Reply to Founder
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <span className="text-subtle">Insert reply:</span>
-                          <select
-                            onChange={handleSelectCanned}
-                            defaultValue=""
-                            className="px-2 py-1 text-xs bg-surface border border-neutral-subtle rounded-input text-main"
-                          >
-                            <option value="" disabled>
-                              Select canned response...
+                    {/* Canned Picker */}
+                    <div className="flex items-center justify-between text-xs">
+                      <label htmlFor="admin-reply-box" className="font-semibold text-main">
+                        Reply to Founder
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-subtle">Insert reply:</span>
+                        <select
+                          onChange={handleSelectCanned}
+                          defaultValue=""
+                          className="px-2 py-1 text-xs bg-surface border border-neutral-subtle rounded-input text-main"
+                        >
+                          <option value="" disabled>
+                            Select canned response...
+                          </option>
+                          {cannedResponses.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.title}
                             </option>
-                            {cannedResponses.map((c) => (
-                              <option key={c.id} value={c.id}>
-                                {c.title}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                          ))}
+                        </select>
                       </div>
+                    </div>
 
-                      <textarea
-                        id="admin-reply-box"
-                        rows={3}
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        disabled={isReplying}
-                        placeholder="Type reply to founder..."
-                        className="w-full px-3 py-2 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main placeholder:text-muted resize-none"
-                      />
+                    <textarea
+                      id="admin-reply-box"
+                      rows={3}
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      disabled={isReplying}
+                      placeholder="Type reply to founder..."
+                      className="w-full px-3 py-2 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main placeholder:text-muted resize-none"
+                    />
 
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted">
-                          Sends an email to {ticketDetail.ticket.founder.email}
-                        </span>
-                        <button
-                          type="submit"
-                          disabled={isReplying || replyText.trim().length === 0}
-                          className="px-4 py-2 bg-brand text-white rounded-input text-xs font-semibold hover:bg-brand-hover shadow-card disabled:opacity-50 transition-all inline-flex items-center gap-2 cursor-pointer"
-                        >
-                          {isReplying ? (
-                            <>
-                              <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                              <span>Sending...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Send className="w-3.5 h-3.5" />
-                              <span>Send reply</span>
-                            </>
-                          )}
-                        </button>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted">
+                        Sends an email to {ticketDetail.founder?.email || ticketDetail.ticket?.founder?.email}
+                      </span>
+                      <button
+                        type="submit"
+                        disabled={isReplying || replyText.trim().length === 0}
+                        className="px-4 py-2 bg-brand-600 text-white rounded-input text-xs font-semibold hover:bg-brand-hover shadow-card disabled:opacity-50 transition-all inline-flex items-center gap-2 cursor-pointer"
+                      >
+                        {isReplying ? (
+                          <>
+                            <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span>Sending...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-3.5 h-3.5" />
+                            <span>Send reply</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  // Add Internal Note Form
+                  <form onSubmit={handleAddNote} className="space-y-3">
+                    {noteError && (
+                      <div
+                        role="alert"
+                        className="p-2.5 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-xs rounded-input flex items-center gap-2"
+                      >
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <span>{noteError}</span>
                       </div>
-                    </form>
-                  ) : (
-                    // Add Internal Note Form
-                    <form onSubmit={handleAddNote} className="space-y-3">
-                      {noteError && (
-                        <div
-                          role="alert"
-                          className="p-2.5 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-xs rounded-input flex items-center gap-2"
-                        >
-                          <AlertCircle className="w-4 h-4 shrink-0" />
-                          <span>{noteError}</span>
-                        </div>
-                      )}
+                    )}
 
-                      <div className="flex items-center justify-between text-xs">
-                        <label htmlFor="admin-note-box" className="font-semibold text-main">
-                          Add Internal Staff Note
-                        </label>
-                        <span className="text-warning-strong font-medium">
-                          Only staff see this — never emailed
-                        </span>
-                      </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <label htmlFor="admin-note-box" className="font-semibold text-main">
+                        Add Internal Staff Note
+                      </label>
+                      <span className="text-warning-strong font-medium">
+                        Only staff see this — never emailed
+                      </span>
+                    </div>
 
-                      <textarea
-                        id="admin-note-box"
-                        rows={3}
-                        value={noteText}
-                        onChange={(e) => setNoteText(e.target.value)}
-                        disabled={isAddingNote}
-                        placeholder="Internal notes visible to staff only..."
-                        className="w-full px-3 py-2 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main placeholder:text-muted resize-none"
-                      />
+                    <textarea
+                      id="admin-note-box"
+                      rows={3}
+                      value={noteText}
+                      onChange={(e) => setNoteText(e.target.value)}
+                      disabled={isAddingNote}
+                      placeholder="Internal notes visible to staff only..."
+                      className="w-full px-3 py-2 text-xs bg-surface border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main placeholder:text-muted resize-none"
+                    />
 
-                      <div className="flex justify-end">
-                        <button
-                          type="submit"
-                          disabled={isAddingNote || noteText.trim().length === 0}
-                          className="px-4 py-2 bg-neutral-x1c211f text-white rounded-input text-xs font-semibold hover:bg-neutral-x181c1a shadow-card disabled:opacity-50 transition-all cursor-pointer"
-                        >
-                          {isAddingNote ? 'Saving note...' : 'Save internal note'}
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                </div>
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        disabled={isAddingNote || noteText.trim().length === 0}
+                        className="px-4 py-2 bg-neutral-x1c211f text-white rounded-input text-xs font-semibold hover:bg-neutral-x181c1a shadow-card disabled:opacity-50 transition-all cursor-pointer"
+                      >
+                        {isAddingNote ? 'Saving note...' : 'Save internal note'}
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
+            </div>
           )}
         </div>
       </div>
@@ -1194,16 +1279,81 @@ export function AdminSupportView({
         </div>
       )}
 
-      {/* Staff Action Dialog for Resolve Ticket (Requires 10+ char reason and 6-digit TOTP) */}
-      <StaffActionDialog
-        isOpen={isResolveDialogOpen}
-        title={`Resolve Ticket ${ticketDetail?.ticket.number || ''}`}
-        confirmCopy="This sends the founder a closing email."
-        actionButtonLabel="Confirm resolution"
-        actionButtonVariant="primary"
-        onClose={() => setIsResolveDialogOpen(false)}
-        onConfirm={handleConfirmResolve}
-      />
+      {/* Resolve Confirmation Modal Without TOTP (#3 — Decision T3) */}
+      {isResolveModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        >
+          <div
+            className="w-full max-w-md bg-surface border border-neutral-subtle rounded-modal shadow-raised overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-subtle bg-surface-raised">
+              <div className="flex items-center gap-2 text-main">
+                <CheckCircle2 className="w-5 h-5 text-success-strong" />
+                <h4 className="text-base font-bold text-main">
+                  Resolve Ticket {ticketDetail?.number || ticketDetail?.ticket?.number || ''}
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsResolveModalOpen(false)}
+                className="text-subtle hover:text-main p-1 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmResolve} className="p-6 space-y-4">
+              <p className="text-xs text-subtle leading-relaxed">
+                This sends the founder a closing email.
+              </p>
+
+              {resolveError && (
+                <div className="p-2.5 bg-danger-subtle/30 border border-danger-subtle text-danger-strong text-xs rounded-input flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{resolveError}</span>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label htmlFor="resolve-message-input" className="text-xs font-medium text-subtle">
+                  Closing message (optional)
+                </label>
+                <textarea
+                  id="resolve-message-input"
+                  rows={3}
+                  value={closingMessage}
+                  onChange={(e) => setClosingMessage(e.target.value)}
+                  disabled={isResolving}
+                  placeholder="Optional closing message sent to founder..."
+                  className="w-full px-3 py-2 text-sm bg-surface-raised border border-neutral-subtle rounded-input focus:outline-none focus:ring-1 focus:ring-brand-strong text-main placeholder:text-muted resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-neutral-subtle">
+                <button
+                  type="button"
+                  onClick={() => setIsResolveModalOpen(false)}
+                  disabled={isResolving}
+                  className="px-3.5 py-1.5 text-xs font-medium text-subtle hover:text-main cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isResolving}
+                  className="px-4 py-1.5 bg-brand-600 text-white text-xs font-semibold rounded-input hover:bg-brand-hover shadow-card disabled:opacity-50 cursor-pointer"
+                >
+                  {isResolving ? 'Resolving...' : 'Confirm resolution'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Reopen Modal */}
       {isReopenModalOpen && (
@@ -1262,7 +1412,7 @@ export function AdminSupportView({
                 <button
                   type="submit"
                   disabled={isReopening}
-                  className="px-4 py-1.5 bg-brand text-white text-xs font-semibold rounded-input hover:bg-brand-hover shadow-card disabled:opacity-50 cursor-pointer"
+                  className="px-4 py-1.5 bg-brand-600 text-white text-xs font-semibold rounded-input hover:bg-brand-hover shadow-card disabled:opacity-50 cursor-pointer"
                 >
                   {isReopening ? 'Reopening...' : 'Confirm reopen'}
                 </button>
@@ -1286,4 +1436,3 @@ export function AdminSupportView({
     </div>
   );
 }
-

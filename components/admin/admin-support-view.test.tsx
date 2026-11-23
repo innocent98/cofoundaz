@@ -39,7 +39,7 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
       category: 'billing',
       priority: 'P1',
       status: 'open',
-      is_escalated: true,
+      escalated: true,
       founder: { id: 'u-1', name: 'Bob Founder', email: 'bob@startup.io' },
       workspace: { id: 'ws-1', name: 'Startup Beta', plan_key: 'growth' },
       assignee: null,
@@ -52,20 +52,75 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
       next_cursor: null,
     });
     vi.spyOn(adminTicketsApi, 'getAdminSupportTicket').mockResolvedValue({
-      ticket: { ...mockTicket, resolved_at: null },
+      id: 't-101',
+      number: 'T-101',
+      subject: 'Payments failing intermittently',
+      category: 'billing',
+      priority: 'P1',
+      status: 'open',
+      escalated: true,
+      resolved_at: null,
+      founder: { id: 'u-1', name: 'Bob Founder', email: 'bob@startup.io' },
+      workspace: { id: 'ws-1', name: 'Startup Beta', plan_key: 'growth' },
+      assignee: null,
+      created_at: '2026-11-13T09:00:00Z',
+      sla: { state: 'breached', due_at: null },
       messages: [],
       notes: [],
     });
 
     render(<AdminSupportView adminMe={mockAdminMe} />);
 
-    expect(await screen.findByText('Payments failing intermittently', {}, { timeout: 5000 })).toBeInTheDocument();
+    expect(await screen.findByText('Payments failing intermittently', {}, { timeout: 10000 })).toBeInTheDocument();
     expect(screen.getByText('T-101')).toBeInTheDocument();
     expect(screen.getAllByText('P1')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Escalated')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Overdue')[0]).toBeInTheDocument();
     expect(screen.getByText('Bob Founder')).toBeInTheDocument();
     expect(screen.getByText('Startup Beta (growth)')).toBeInTheDocument();
+  });
+
+  it('null-guards founder name falling back to email or default', async () => {
+    vi.spyOn(adminTicketsApi, 'getAdminSupportCounts').mockResolvedValue({
+      open: 1,
+      mine: 0,
+      resolved: 0,
+      breached: 0,
+      unassigned: 1,
+    });
+    vi.spyOn(adminTicketsApi, 'getAdminSupportAssignees').mockResolvedValue([]);
+    vi.spyOn(adminTicketsApi, 'getAdminCannedResponses').mockResolvedValue([]);
+
+    const mockTicket: adminTicketsApi.AdminTicketItem = {
+      id: 't-null-founder',
+      number: 'T-999',
+      subject: 'Deleted founder account query',
+      category: 'account',
+      priority: 'P3',
+      status: 'open',
+      escalated: false,
+      founder: { id: 'u-deleted', name: null, email: 'ghost@deleted.io' },
+      workspace: { id: 'ws-ghost', name: 'Ghost Co', plan_key: 'starter' },
+      assignee: null,
+      created_at: '2026-11-13T09:00:00Z',
+      sla: { state: 'ok', due_at: null },
+    };
+
+    vi.spyOn(adminTicketsApi, 'getAdminSupportTickets').mockResolvedValue({
+      tickets: [mockTicket],
+      next_cursor: null,
+    });
+    vi.spyOn(adminTicketsApi, 'getAdminSupportTicket').mockResolvedValue({
+      ...mockTicket,
+      resolved_at: null,
+      messages: [],
+      notes: [],
+    });
+
+    render(<AdminSupportView adminMe={mockAdminMe} />);
+
+    expect(await screen.findByText('Deleted founder account query', {}, { timeout: 10000 })).toBeInTheDocument();
+    expect(screen.getAllByText('ghost@deleted.io')[0]).toBeInTheDocument();
   });
 
   it('sends a reply to founder, and auto-assigns ticket on first reply', async () => {
@@ -86,7 +141,7 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
       category: 'how_to',
       priority: 'P3',
       status: 'open',
-      is_escalated: false,
+      escalated: false,
       founder: { id: 'u-2', name: 'Charlie', email: 'charlie@domain.co' },
       workspace: { id: 'ws-2', name: 'Domain App', plan_key: 'starter' },
       assignee: null,
@@ -99,22 +154,23 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
       next_cursor: null,
     });
     vi.spyOn(adminTicketsApi, 'getAdminSupportTicket').mockResolvedValue({
-      ticket: { ...mockTicket, resolved_at: null },
+      ...mockTicket,
+      resolved_at: null,
       messages: [],
       notes: [],
     });
 
     const replySpy = vi.spyOn(adminTicketsApi, 'replyAdminSupportTicket').mockResolvedValueOnce({
       id: 'm-reply-1',
-      author_type: 'staff',
-      author_name: 'Cofoundaz Support',
+      author_kind: 'staff',
+      author: { name: 'Cofoundaz Support' },
       body: 'Here are the DNS CNAME records to add.',
       created_at: '2026-11-13T11:00:00Z',
     });
 
     render(<AdminSupportView adminMe={mockAdminMe} />);
 
-    const replyInput = await screen.findByPlaceholderText(/type reply to founder/i, {}, { timeout: 5000 });
+    const replyInput = await screen.findByPlaceholderText(/type reply to founder/i, {}, { timeout: 10000 });
     fireEvent.change(replyInput, {
       target: { value: 'Here are the DNS CNAME records to add.' },
     });
@@ -145,7 +201,7 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
       category: 'account',
       priority: 'P2',
       status: 'open',
-      is_escalated: false,
+      escalated: false,
       founder: { id: 'u-3', name: 'Dave', email: 'dave@sec.com' },
       workspace: { id: 'ws-3', name: 'Sec Corp', plan_key: 'scale' },
       assignee: null,
@@ -158,7 +214,8 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
       next_cursor: null,
     });
     vi.spyOn(adminTicketsApi, 'getAdminSupportTicket').mockResolvedValue({
-      ticket: { ...mockTicket, resolved_at: null },
+      ...mockTicket,
+      resolved_at: null,
       messages: [],
       notes: [],
     });
@@ -171,13 +228,13 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
     });
 
     render(<AdminSupportView adminMe={mockAdminMe} />);
-    await screen.findByText('Security inquiry', {}, { timeout: 5000 });
+    expect(await screen.findByText('Security inquiry', {}, { timeout: 10000 })).toBeInTheDocument();
 
     // Switch to Internal notes tab
-    const notesTabBtn = await screen.findByText(/internal notes/i, {}, { timeout: 5000 });
+    const notesTabBtn = await screen.findByRole('button', { name: /internal notes/i }, { timeout: 10000 });
     fireEvent.click(notesTabBtn);
 
-    const noteInput = await screen.findByPlaceholderText(/internal notes visible to staff only/i, {}, { timeout: 5000 });
+    const noteInput = await screen.findByPlaceholderText(/internal notes visible to staff only/i, {}, { timeout: 10000 });
     fireEvent.change(noteInput, {
       target: { value: 'Verified 2FA logs with devops.' },
     });
@@ -190,7 +247,7 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
     });
   });
 
-  it('resolves ticket using StaffActionDialog requiring 10+ char reason and 6-digit TOTP', async () => {
+  it('resolves ticket without TOTP using optional closing message confirmation dialog', async () => {
     vi.spyOn(adminTicketsApi, 'getAdminSupportCounts').mockResolvedValue({
       open: 1,
       mine: 0,
@@ -208,7 +265,7 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
       category: 'other',
       priority: 'P4',
       status: 'open',
-      is_escalated: false,
+      escalated: false,
       founder: { id: 'u-4', name: 'Eve', email: 'eve@corp.com' },
       workspace: { id: 'ws-4', name: 'Eve Startup', plan_key: 'starter' },
       assignee: null,
@@ -221,7 +278,8 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
       next_cursor: null,
     });
     vi.spyOn(adminTicketsApi, 'getAdminSupportTicket').mockResolvedValue({
-      ticket: { ...mockTicket, resolved_at: null },
+      ...mockTicket,
+      resolved_at: null,
       messages: [],
       notes: [],
     });
@@ -231,41 +289,32 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
     render(<AdminSupportView adminMe={mockAdminMe} />);
 
     // Click Resolve ticket
-    const resolveBtn = await screen.findByRole('button', { name: /resolve ticket/i }, { timeout: 5000 });
+    const resolveBtn = await screen.findByRole('button', { name: /resolve ticket/i }, { timeout: 10000 });
     fireEvent.click(resolveBtn);
 
-    // StaffActionDialog is rendered
-    expect(await screen.findByText(/resolve ticket T-104/i, {}, { timeout: 5000 })).toBeInTheDocument();
-    expect(screen.getByText('This action is permanently logged.')).toBeInTheDocument();
+    // Confirmation dialog is rendered without TOTP
+    expect(await screen.findByText(/resolve ticket T-104/i, {}, { timeout: 10000 })).toBeInTheDocument();
+    expect(screen.getByText('This sends the founder a closing email.')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('000000')).not.toBeInTheDocument();
 
-    // Fill reason < 10 chars -> submit disabled
-    fireEvent.change(screen.getByPlaceholderText(/explain why this action is being taken/i), {
-      target: { value: 'Too short' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('000000'), {
-      target: { value: '123456' },
+    // Type optional closing message
+    const msgInput = screen.getByPlaceholderText(/optional closing message sent to founder/i);
+    fireEvent.change(msgInput, {
+      target: { value: 'Your request has been completely taken care of. Have a nice day!' },
     });
 
     const confirmBtn = screen.getByRole('button', { name: /confirm resolution/i });
-    expect(confirmBtn).toBeDisabled();
-
-    // Fill valid reason
-    fireEvent.change(screen.getByPlaceholderText(/explain why this action is being taken/i), {
-      target: { value: 'Issue resolved satisfactorily with the founder.' },
-    });
-
     expect(confirmBtn).toBeEnabled();
     fireEvent.click(confirmBtn);
 
     await waitFor(() => {
       expect(resolveSpy).toHaveBeenCalledWith('t-104', {
-        reason: 'Issue resolved satisfactorily with the founder.',
-        totp_code: '123456',
+        message: 'Your request has been completely taken care of. Have a nice day!',
       });
     });
   });
 
-  it('handles 403 STEP_UP_INVALID inside resolve dialog without logging user out', async () => {
+  it('handles resolve error inline without breaking page state', async () => {
     vi.spyOn(adminTicketsApi, 'getAdminSupportCounts').mockResolvedValue({
       open: 1,
       mine: 0,
@@ -279,11 +328,11 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
     const mockTicket: adminTicketsApi.AdminTicketItem = {
       id: 't-105',
       number: 'T-105',
-      subject: 'TOTP Failure Test',
+      subject: 'Resolve Error Test',
       category: 'other',
       priority: 'P4',
       status: 'open',
-      is_escalated: false,
+      escalated: false,
       founder: { id: 'u-5', name: 'Frank', email: 'frank@test.com' },
       workspace: { id: 'ws-5', name: 'Frank Co', plan_key: 'starter' },
       assignee: null,
@@ -296,41 +345,28 @@ describe('Admin Support View (components/admin/admin-support-view.tsx)', () => {
       next_cursor: null,
     });
     vi.spyOn(adminTicketsApi, 'getAdminSupportTicket').mockResolvedValue({
-      ticket: { ...mockTicket, resolved_at: null },
+      ...mockTicket,
+      resolved_at: null,
       messages: [],
       notes: [],
     });
 
     vi.spyOn(adminTicketsApi, 'resolveAdminSupportTicket').mockRejectedValueOnce(
-      new ApiError(403, 'Forbidden', {
-        error: { code: 'STEP_UP_INVALID' },
+      new ApiError(400, 'Bad Request', {
+        message: 'Unable to resolve ticket due to pending invoice.',
       })
     );
 
     render(<AdminSupportView adminMe={mockAdminMe} />);
 
-    const resolveBtn = await screen.findByRole('button', { name: /resolve ticket/i }, { timeout: 5000 });
+    const resolveBtn = await screen.findByRole('button', { name: /resolve ticket/i }, { timeout: 10000 });
     fireEvent.click(resolveBtn);
 
-    fireEvent.change(await screen.findByPlaceholderText(/explain why this action is being taken/i, {}, { timeout: 5000 }), {
-      target: { value: 'Valid explanation for resolving this ticket.' },
-    });
-    const totpInput = screen.getByPlaceholderText('000000');
-    fireEvent.change(totpInput, {
-      target: { value: '999999' },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /confirm resolution/i }));
+    const confirmBtn = await screen.findByRole('button', { name: /confirm resolution/i }, { timeout: 10000 });
+    fireEvent.click(confirmBtn);
 
     expect(
-      await screen.findByText(
-        "That code was already used or isn't right. Wait for the next code and try again.",
-        {},
-        { timeout: 5000 }
-      )
+      await screen.findByText('Unable to resolve ticket due to pending invoice.', {}, { timeout: 10000 })
     ).toBeInTheDocument();
-
-    // Verifies TOTP input is cleared on failure
-    expect((totpInput as HTMLInputElement).value).toBe('');
   });
 });

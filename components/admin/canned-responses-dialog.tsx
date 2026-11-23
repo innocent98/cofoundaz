@@ -150,7 +150,7 @@ export function CannedResponsesDialog({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-subtle bg-surface-raised shrink-0">
-          <div className="flex items-center gap-2 text-brand">
+          <div className="flex items-center gap-2 text-brand-600">
             <MessageSquare className="w-5 h-5" />
             <h3 id="canned-responses-dialog-title" className="text-base font-bold text-main">
               Manage Canned Responses
@@ -240,7 +240,7 @@ export function CannedResponsesDialog({
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-3.5 py-1.5 bg-brand text-white text-xs font-semibold rounded-input hover:bg-brand-hover shadow-card disabled:opacity-50 transition-all cursor-pointer"
+                  className="px-3.5 py-1.5 bg-brand-600 text-white text-xs font-semibold rounded-input hover:bg-brand-hover shadow-card disabled:opacity-50 transition-all cursor-pointer"
                 >
                   {saving ? 'Saving...' : editingItem ? 'Update response' : 'Create response'}
                 </button>
@@ -254,7 +254,7 @@ export function CannedResponsesDialog({
               <button
                 type="button"
                 onClick={handleStartCreate}
-                className="px-3 py-1.5 bg-brand text-white rounded-input text-xs font-semibold hover:bg-brand-hover shadow-card inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3 py-1.5 bg-brand-600 text-white rounded-input text-xs font-semibold hover:bg-brand-hover shadow-card inline-flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>New response</span>
@@ -265,7 +265,7 @@ export function CannedResponsesDialog({
           {/* List of Canned Responses */}
           {loading ? (
             <div className="py-8 text-center">
-              <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin mx-auto" />
+              <div className="w-6 h-6 border-2 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto" />
               <p className="text-xs text-subtle mt-2">Loading canned responses...</p>
             </div>
           ) : responses.length === 0 ? (
@@ -289,7 +289,7 @@ export function CannedResponsesDialog({
                             onSelect(item);
                             onClose();
                           }}
-                          className="px-2.5 py-1 text-xs font-semibold bg-brand text-white rounded-[6px] hover:bg-brand-hover shadow-card transition-colors cursor-pointer mr-1"
+                          className="px-2.5 py-1 text-xs font-semibold bg-brand-600 text-white rounded-[6px] hover:bg-brand-hover shadow-card transition-colors cursor-pointer mr-1"
                         >
                           Use this
                         </button>

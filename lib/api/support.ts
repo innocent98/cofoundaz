@@ -29,14 +29,27 @@ export interface FounderTicketsResponse {
 
 export interface FounderTicketMessage {
   id: string;
-  author_type: 'founder' | 'staff';
-  author_name: string;
+  author_kind?: 'founder' | 'staff';
+  author_type?: 'founder' | 'staff';
+  author?: {
+    name?: string | null;
+  } | null;
+  author_name?: string;
   body: string;
   created_at: string;
 }
 
 export interface FounderTicketDetail {
-  ticket: {
+  id: string;
+  number: string;
+  subject: string;
+  category: SupportCategory;
+  status: SupportStatus;
+  created_at: string;
+  resolved_at: string | null;
+  messages: FounderTicketMessage[];
+  // Backwards-compatible ticket field
+  ticket?: {
     id: string;
     number: string;
     subject: string;
@@ -45,13 +58,13 @@ export interface FounderTicketDetail {
     created_at: string;
     resolved_at: string | null;
   };
-  messages: FounderTicketMessage[];
 }
 
 export interface CreateTicketPayload {
   category: SupportCategory | string;
   subject: string;
-  message: string;
+  body: string;
+  message?: string;
 }
 
 export interface SendMessagePayload {
@@ -85,11 +98,17 @@ export async function getFounderTickets(params?: {
  * POST /support/tickets
  */
 export async function createFounderTicket(payload: CreateTicketPayload): Promise<{ id: string; number: string }> {
+  const requestBody = {
+    category: payload.category,
+    subject: payload.subject,
+    body: payload.body || payload.message || '',
+  };
+
   const res = await apiClient<{ data?: { id: string; number: string; ticket?: { id: string; number: string } }; id?: string; number?: string; ticket?: { id: string; number: string } }>(
     '/support/tickets',
     {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: JSON.stringify(requestBody),
     }
   );
 
@@ -105,14 +124,56 @@ export async function createFounderTicket(payload: CreateTicketPayload): Promise
  * GET /support/tickets/{id}
  */
 export async function getFounderTicket(id: string): Promise<FounderTicketDetail> {
-  const res = await apiClient<{ data?: FounderTicketDetail } | FounderTicketDetail>(
+  const res = await apiClient<{ data?: Record<string, unknown> } & Record<string, unknown>>(
     `/support/tickets/${encodeURIComponent(id)}`
   );
 
-  if ('data' in res && res.data) {
-    return res.data;
+  const raw = ('data' in res && res.data) ? res.data : res;
+
+  if (raw.ticket && typeof raw.ticket === 'object') {
+    const t = raw.ticket as Record<string, unknown>;
+    const messages = (Array.isArray(raw.messages) ? raw.messages : []) as FounderTicketMessage[];
+    return {
+      id: String(t.id || ''),
+      number: String(t.number || ''),
+      subject: String(t.subject || ''),
+      category: (t.category || 'other') as SupportCategory,
+      status: (t.status || 'open') as SupportStatus,
+      created_at: String(t.created_at || ''),
+      resolved_at: t.resolved_at ? String(t.resolved_at) : null,
+      messages,
+      ticket: {
+        id: String(t.id || ''),
+        number: String(t.number || ''),
+        subject: String(t.subject || ''),
+        category: (t.category || 'other') as SupportCategory,
+        status: (t.status || 'open') as SupportStatus,
+        created_at: String(t.created_at || ''),
+        resolved_at: t.resolved_at ? String(t.resolved_at) : null,
+      },
+    };
   }
-  return res as FounderTicketDetail;
+
+  const messages = (Array.isArray(raw.messages) ? raw.messages : []) as FounderTicketMessage[];
+  return {
+    id: String(raw.id || ''),
+    number: String(raw.number || ''),
+    subject: String(raw.subject || ''),
+    category: (raw.category || 'other') as SupportCategory,
+    status: (raw.status || 'open') as SupportStatus,
+    created_at: String(raw.created_at || ''),
+    resolved_at: raw.resolved_at ? String(raw.resolved_at) : null,
+    messages,
+    ticket: {
+      id: String(raw.id || ''),
+      number: String(raw.number || ''),
+      subject: String(raw.subject || ''),
+      category: (raw.category || 'other') as SupportCategory,
+      status: (raw.status || 'open') as SupportStatus,
+      created_at: String(raw.created_at || ''),
+      resolved_at: raw.resolved_at ? String(raw.resolved_at) : null,
+    },
+  };
 }
 
 /**
@@ -122,8 +183,8 @@ export async function getFounderTicket(id: string): Promise<FounderTicketDetail>
 export async function sendFounderMessage(
   id: string,
   payload: SendMessagePayload
-): Promise<FounderTicketMessage> {
-  const res = await apiClient<{ data?: { message: FounderTicketMessage }; message?: FounderTicketMessage } | FounderTicketMessage>(
+): Promise<FounderTicketMessage & { messages?: FounderTicketMessage[] }> {
+  const res = await apiClient<{ data?: Record<string, unknown> | FounderTicketMessage[] } & Record<string, unknown>>(
     `/support/tickets/${encodeURIComponent(id)}/messages`,
     {
       method: 'POST',
@@ -131,14 +192,25 @@ export async function sendFounderMessage(
     }
   );
 
-  if ('data' in res && res.data?.message) {
-    return res.data.message;
+  const data = (res.data ?? res) as Record<string, unknown> | FounderTicketMessage[];
+
+  if (Array.isArray(data)) {
+    const last = data[data.length - 1] || ({} as FounderTicketMessage);
+    return Object.assign({}, last, { messages: data });
   }
-  if ('message' in res && res.message && typeof res.message === 'object' && 'body' in res.message) {
-    return res.message as FounderTicketMessage;
+
+  if (data && typeof data === 'object' && Array.isArray(data.messages)) {
+    const msgList = data.messages as FounderTicketMessage[];
+    const last = msgList[msgList.length - 1] || (data.message as FounderTicketMessage) || ({} as FounderTicketMessage);
+    return Object.assign({}, last, { messages: msgList });
   }
-  return res as FounderTicketMessage;
+
+  if (data && typeof data === 'object' && data.message) {
+    const singleMsg = data.message as FounderTicketMessage;
+    return Object.assign({}, singleMsg, { messages: [singleMsg] });
+  }
+
+  return data as unknown as FounderTicketMessage;
 }
 
 export { ApiError };
-

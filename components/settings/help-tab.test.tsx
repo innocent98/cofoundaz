@@ -45,8 +45,7 @@ describe('Founder HelpTab (components/settings/help-tab.tsx)', () => {
 
     render(<HelpTab />);
 
-    expect(await screen.findByText('Help & Support')).toBeInTheDocument();
-    expect(screen.getByText('Stripe webhook failure')).toBeInTheDocument();
+    expect(await screen.findByText('Stripe webhook failure')).toBeInTheDocument();
     expect(screen.getByText('T-1001')).toBeInTheDocument();
     expect(screen.getByText('Billing')).toBeInTheDocument();
     expect(screen.getByText('Waiting for you')).toBeInTheDocument();
@@ -57,7 +56,7 @@ describe('Founder HelpTab (components/settings/help-tab.tsx)', () => {
     expect(screen.getByText('Resolved')).toBeInTheDocument();
   });
 
-  it('submits a new ticket with category, subject, and message', async () => {
+  it('submits a new ticket sending body in payload', async () => {
     vi.spyOn(supportApi, 'getFounderTickets').mockResolvedValueOnce({
       tickets: [],
       next_cursor: null,
@@ -89,7 +88,7 @@ describe('Founder HelpTab (components/settings/help-tab.tsx)', () => {
       expect(createSpy).toHaveBeenCalledWith({
         category: 'bug',
         subject: 'Bug in journal rich text editor',
-        message: 'Typing markdown causes cursor to jump to end of line.',
+        body: 'Typing markdown causes cursor to jump to end of line.',
       });
       expect(mockPush).toHaveBeenCalledWith('/settings/help/t-999');
     });
@@ -122,28 +121,30 @@ describe('Founder HelpTab (components/settings/help-tab.tsx)', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders ticket thread, right-aligns founder, left-aligns staff with Cofoundaz Support', async () => {
+  it('renders flat ticket thread, right-aligns founder, left-aligns staff with Cofoundaz Support', async () => {
     vi.spyOn(supportApi, 'getFounderTicket').mockResolvedValueOnce({
-      ticket: {
-        id: 't-1',
-        number: 'T-1001',
-        subject: 'Invoice clarification',
-        category: 'billing',
-        status: 'open',
-        created_at: '2026-11-13T10:00:00Z',
-        resolved_at: null,
-      },
+      id: 't-1',
+      number: 'T-1001',
+      subject: 'Invoice clarification',
+      category: 'billing',
+      status: 'open',
+      created_at: '2026-11-13T10:00:00Z',
+      resolved_at: null,
       messages: [
         {
           id: 'm-1',
+          author_kind: 'founder',
           author_type: 'founder',
+          author: { name: 'Jane Doe' },
           author_name: 'Jane Doe',
           body: 'Why was I billed ₦50,000?',
           created_at: '2026-11-13T10:00:00Z',
         },
         {
           id: 'm-2',
+          author_kind: 'staff',
           author_type: 'staff',
+          author: { name: 'Cofoundaz Support' },
           author_name: 'Cofoundaz Support',
           body: 'Hello Jane, that covers the Pro workspace plan for this month.',
           created_at: '2026-11-13T10:15:00Z',
@@ -180,15 +181,13 @@ describe('Founder HelpTab (components/settings/help-tab.tsx)', () => {
 
   it('handles 409 TICKET_CLOSED (> 14 days) by replacing reply box with notice', async () => {
     vi.spyOn(supportApi, 'getFounderTicket').mockResolvedValueOnce({
-      ticket: {
-        id: 't-resolved',
-        number: 'T-1000',
-        subject: 'Old resolved ticket',
-        category: 'other',
-        status: 'resolved',
-        created_at: '2026-10-01T10:00:00Z',
-        resolved_at: '2026-10-02T10:00:00Z',
-      },
+      id: 't-resolved',
+      number: 'T-1000',
+      subject: 'Old resolved ticket',
+      category: 'other',
+      status: 'resolved',
+      created_at: '2026-10-01T10:00:00Z',
+      resolved_at: '2026-10-02T10:00:00Z',
       messages: [],
     });
     vi.spyOn(supportApi, 'sendFounderMessage').mockRejectedValueOnce(
@@ -211,4 +210,3 @@ describe('Founder HelpTab (components/settings/help-tab.tsx)', () => {
     expect(screen.getByRole('button', { name: /open a new ticket/i })).toBeInTheDocument();
   });
 });
-

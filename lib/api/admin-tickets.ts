@@ -26,7 +26,8 @@ export interface AdminTicketItem {
   category: string;
   priority: TicketPriority;
   status: 'open' | 'resolved';
-  is_escalated: boolean;
+  escalated: boolean;
+  is_escalated?: boolean;
   founder: {
     id: string;
     name: string | null;
@@ -56,26 +57,63 @@ export interface AdminTicketsListResponse {
 
 export interface AdminTicketMessage {
   id: string;
-  author_type: 'founder' | 'staff';
-  author_name: string;
+  author_kind?: 'founder' | 'staff';
+  author_type?: 'founder' | 'staff';
+  author?: {
+    name?: string | null;
+  } | null;
+  author_name?: string;
   body: string;
   created_at: string;
 }
 
 export interface AdminTicketNote {
   id: string;
-  author_name: string;
+  author_name?: string;
+  author?: {
+    name?: string | null;
+  } | null;
   body: string;
   created_at: string;
 }
 
 export interface AdminTicketDetail {
-  ticket: AdminTicketItem & {
-    escalation_reason?: string | null;
-    resolved_at: string | null;
+  id: string;
+  number: string;
+  subject: string;
+  category: string;
+  priority: TicketPriority;
+  status: 'open' | 'resolved';
+  escalated: boolean;
+  is_escalated?: boolean;
+  escalation_reason?: string | null;
+  resolved_at: string | null;
+  founder: {
+    id: string;
+    name: string | null;
+    email: string;
+  };
+  workspace: {
+    id: string;
+    name: string;
+    plan_key: string;
+  };
+  assignee: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+  created_at: string;
+  sla: {
+    state: SlaState;
+    due_at: string | null;
   };
   messages: AdminTicketMessage[];
   notes: AdminTicketNote[];
+  ticket?: AdminTicketItem & {
+    escalation_reason?: string | null;
+    resolved_at: string | null;
+  };
 }
 
 export interface AdminSupportAssignee {
@@ -168,7 +206,15 @@ export async function getAdminSupportTickets(params: FetchTicketsParams): Promis
     next_cursor?: string | null;
   }>(`/admin/support/tickets?${query.toString()}`);
 
-  const tickets = res.data?.tickets ?? res.tickets ?? [];
+  const rawTickets = res.data?.tickets ?? res.tickets ?? [];
+  const tickets: AdminTicketItem[] = rawTickets.map((t: AdminTicketItem) => {
+    const isEsc = t.escalated ?? t.is_escalated ?? false;
+    return {
+      ...t,
+      escalated: isEsc,
+      is_escalated: isEsc,
+    };
+  });
   const next_cursor = res.meta?.next_cursor ?? res.next_cursor ?? null;
 
   return { tickets, next_cursor };
@@ -179,13 +225,99 @@ export async function getAdminSupportTickets(params: FetchTicketsParams): Promis
  * GET /admin/support/tickets/{id}
  */
 export async function getAdminSupportTicket(id: string): Promise<AdminTicketDetail> {
-  const res = await apiClient<{ data?: AdminTicketDetail } | AdminTicketDetail>(
+  const res = await apiClient<{ data?: Record<string, unknown> } & Record<string, unknown>>(
     `/admin/support/tickets/${encodeURIComponent(id)}`
   );
-  if ('data' in res && res.data) {
-    return res.data;
+
+  const raw = ('data' in res && res.data) ? res.data : res;
+
+  if (raw.ticket && typeof raw.ticket === 'object') {
+    const t = raw.ticket as Record<string, unknown>;
+    const isEsc = Boolean(t.escalated ?? t.is_escalated ?? false);
+    const messages = (Array.isArray(raw.messages) ? raw.messages : []) as AdminTicketMessage[];
+    const notes = (Array.isArray(raw.notes) ? raw.notes : []) as AdminTicketNote[];
+
+    const item: AdminTicketDetail = {
+      id: String(t.id || ''),
+      number: String(t.number || ''),
+      subject: String(t.subject || ''),
+      category: String(t.category || ''),
+      priority: (t.priority || 'P4') as TicketPriority,
+      status: (t.status || 'open') as 'open' | 'resolved',
+      escalated: isEsc,
+      is_escalated: isEsc,
+      escalation_reason: t.escalation_reason ? String(t.escalation_reason) : null,
+      resolved_at: t.resolved_at ? String(t.resolved_at) : null,
+      founder: t.founder as AdminTicketItem['founder'],
+      workspace: t.workspace as AdminTicketItem['workspace'],
+      assignee: (t.assignee ?? null) as AdminTicketItem['assignee'],
+      created_at: String(t.created_at || ''),
+      sla: t.sla as AdminTicketItem['sla'],
+      messages,
+      notes,
+      ticket: {
+        id: String(t.id || ''),
+        number: String(t.number || ''),
+        subject: String(t.subject || ''),
+        category: String(t.category || ''),
+        priority: (t.priority || 'P4') as TicketPriority,
+        status: (t.status || 'open') as 'open' | 'resolved',
+        escalated: isEsc,
+        is_escalated: isEsc,
+        escalation_reason: t.escalation_reason ? String(t.escalation_reason) : null,
+        resolved_at: t.resolved_at ? String(t.resolved_at) : null,
+        founder: t.founder as AdminTicketItem['founder'],
+        workspace: t.workspace as AdminTicketItem['workspace'],
+        assignee: (t.assignee ?? null) as AdminTicketItem['assignee'],
+        created_at: String(t.created_at || ''),
+        sla: t.sla as AdminTicketItem['sla'],
+      },
+    };
+    return item;
   }
-  return res as AdminTicketDetail;
+
+  const isEsc = Boolean(raw.escalated ?? raw.is_escalated ?? false);
+  const messages = (Array.isArray(raw.messages) ? raw.messages : []) as AdminTicketMessage[];
+  const notes = (Array.isArray(raw.notes) ? raw.notes : []) as AdminTicketNote[];
+
+  const item: AdminTicketDetail = {
+    id: String(raw.id || ''),
+    number: String(raw.number || ''),
+    subject: String(raw.subject || ''),
+    category: String(raw.category || ''),
+    priority: (raw.priority || 'P4') as TicketPriority,
+    status: (raw.status || 'open') as 'open' | 'resolved',
+    escalated: isEsc,
+    is_escalated: isEsc,
+    escalation_reason: raw.escalation_reason ? String(raw.escalation_reason) : null,
+    resolved_at: raw.resolved_at ? String(raw.resolved_at) : null,
+    founder: raw.founder as AdminTicketItem['founder'],
+    workspace: raw.workspace as AdminTicketItem['workspace'],
+    assignee: (raw.assignee ?? null) as AdminTicketItem['assignee'],
+    created_at: String(raw.created_at || ''),
+    sla: raw.sla as AdminTicketItem['sla'],
+    messages,
+    notes,
+    ticket: {
+      id: String(raw.id || ''),
+      number: String(raw.number || ''),
+      subject: String(raw.subject || ''),
+      category: String(raw.category || ''),
+      priority: (raw.priority || 'P4') as TicketPriority,
+      status: (raw.status || 'open') as 'open' | 'resolved',
+      escalated: isEsc,
+      is_escalated: isEsc,
+      escalation_reason: raw.escalation_reason ? String(raw.escalation_reason) : null,
+      resolved_at: raw.resolved_at ? String(raw.resolved_at) : null,
+      founder: raw.founder as AdminTicketItem['founder'],
+      workspace: raw.workspace as AdminTicketItem['workspace'],
+      assignee: (raw.assignee ?? null) as AdminTicketItem['assignee'],
+      created_at: String(raw.created_at || ''),
+      sla: raw.sla as AdminTicketItem['sla'],
+    },
+  };
+
+  return item;
 }
 
 /**
@@ -195,17 +327,23 @@ export async function getAdminSupportTicket(id: string): Promise<AdminTicketDeta
 export async function getAdminSupportAssignees(): Promise<AdminSupportAssignee[]> {
   const res = await apiClient<
     | {
-        data?: { assignees?: AdminSupportAssignee[] } | AdminSupportAssignee[];
+        data?: { staff?: AdminSupportAssignee[]; assignees?: AdminSupportAssignee[] } | AdminSupportAssignee[];
+        staff?: AdminSupportAssignee[];
         assignees?: AdminSupportAssignee[];
       }
     | AdminSupportAssignee[]
   >('/admin/support/assignees');
+
   if (Array.isArray(res)) return res;
-  if ('data' in res && res.data) {
-    if (Array.isArray(res.data)) return res.data;
-    if ('assignees' in res.data && res.data.assignees) return res.data.assignees;
+  if (res && typeof res === 'object') {
+    if (res.data) {
+      if (Array.isArray(res.data)) return res.data;
+      if (Array.isArray(res.data.staff)) return res.data.staff;
+      if (Array.isArray(res.data.assignees)) return res.data.assignees;
+    }
+    if (Array.isArray(res.staff)) return res.staff;
+    if (Array.isArray(res.assignees)) return res.assignees;
   }
-  if ('assignees' in res && res.assignees) return res.assignees;
   return [];
 }
 
@@ -214,12 +352,25 @@ export async function getAdminSupportAssignees(): Promise<AdminSupportAssignee[]
  * GET /admin/support/canned
  */
 export async function getAdminCannedResponses(): Promise<AdminCannedResponse[]> {
-  const res = await apiClient<{ data?: { responses: AdminCannedResponse[] }; responses?: AdminCannedResponse[] } | AdminCannedResponse[]>(
-    '/admin/support/canned'
-  );
+  const res = await apiClient<
+    | {
+        data?: { canned?: AdminCannedResponse[]; responses?: AdminCannedResponse[] } | AdminCannedResponse[];
+        canned?: AdminCannedResponse[];
+        responses?: AdminCannedResponse[];
+      }
+    | AdminCannedResponse[]
+  >('/admin/support/canned');
+
   if (Array.isArray(res)) return res;
-  if ('data' in res && res.data?.responses) return res.data.responses;
-  if ('responses' in res && res.responses) return res.responses;
+  if (res && typeof res === 'object') {
+    if (res.data) {
+      if (Array.isArray(res.data)) return res.data;
+      if (Array.isArray(res.data.canned)) return res.data.canned;
+      if (Array.isArray(res.data.responses)) return res.data.responses;
+    }
+    if (Array.isArray(res.canned)) return res.canned;
+    if (Array.isArray(res.responses)) return res.responses;
+  }
   return [];
 }
 
@@ -241,7 +392,7 @@ export async function createAdminCannedResponse(payload: { title: string; body: 
 
 /**
  * Update an existing canned response
- * PUT /admin/support/canned/{id}
+ * PATCH /admin/support/canned/{id}
  */
 export async function updateAdminCannedResponse(
   id: string,
@@ -250,7 +401,7 @@ export async function updateAdminCannedResponse(
   const res = await apiClient<{ data?: AdminCannedResponse } | AdminCannedResponse>(
     `/admin/support/canned/${encodeURIComponent(id)}`,
     {
-      method: 'PUT',
+      method: 'PATCH',
       body: JSON.stringify(payload),
     }
   );
@@ -275,19 +426,34 @@ export async function deleteAdminCannedResponse(id: string): Promise<void> {
 export async function replyAdminSupportTicket(
   id: string,
   payload: { body: string }
-): Promise<AdminTicketMessage> {
-  const res = await apiClient<{ data?: { message: AdminTicketMessage }; message?: AdminTicketMessage } | AdminTicketMessage>(
+): Promise<AdminTicketMessage & { messages?: AdminTicketMessage[] }> {
+  const res = await apiClient<{ data?: Record<string, unknown> | AdminTicketMessage[] } & Record<string, unknown>>(
     `/admin/support/tickets/${encodeURIComponent(id)}/reply`,
     {
       method: 'POST',
       body: JSON.stringify(payload),
     }
   );
-  if ('data' in res && res.data?.message) return res.data.message;
-  if ('message' in res && res.message && typeof res.message === 'object' && 'body' in res.message) {
-    return res.message as AdminTicketMessage;
+
+  const data = (res.data ?? res) as Record<string, unknown> | AdminTicketMessage[];
+
+  if (Array.isArray(data)) {
+    const last = data[data.length - 1] || ({} as AdminTicketMessage);
+    return Object.assign({}, last, { messages: data });
   }
-  return res as AdminTicketMessage;
+
+  if (data && typeof data === 'object' && Array.isArray(data.messages)) {
+    const msgList = data.messages as AdminTicketMessage[];
+    const last = msgList[msgList.length - 1] || (data.message as AdminTicketMessage) || ({} as AdminTicketMessage);
+    return Object.assign({}, last, { messages: msgList });
+  }
+
+  if (data && typeof data === 'object' && data.message) {
+    const singleMsg = data.message as AdminTicketMessage;
+    return Object.assign({}, singleMsg, { messages: [singleMsg] });
+  }
+
+  return data as unknown as AdminTicketMessage;
 }
 
 /**
@@ -297,19 +463,34 @@ export async function replyAdminSupportTicket(
 export async function addAdminSupportNote(
   id: string,
   payload: { body: string }
-): Promise<AdminTicketNote> {
-  const res = await apiClient<{ data?: { note: AdminTicketNote }; note?: AdminTicketNote } | AdminTicketNote>(
+): Promise<AdminTicketNote & { notes?: AdminTicketNote[] }> {
+  const res = await apiClient<{ data?: Record<string, unknown> | AdminTicketNote[] } & Record<string, unknown>>(
     `/admin/support/tickets/${encodeURIComponent(id)}/notes`,
     {
       method: 'POST',
       body: JSON.stringify(payload),
     }
   );
-  if ('data' in res && res.data?.note) return res.data.note;
-  if ('note' in res && res.note && typeof res.note === 'object' && 'body' in res.note) {
-    return res.note as AdminTicketNote;
+
+  const data = (res.data ?? res) as Record<string, unknown> | AdminTicketNote[];
+
+  if (Array.isArray(data)) {
+    const last = data[data.length - 1] || ({} as AdminTicketNote);
+    return Object.assign({}, last, { notes: data });
   }
-  return res as AdminTicketNote;
+
+  if (data && typeof data === 'object' && Array.isArray(data.notes)) {
+    const noteList = data.notes as AdminTicketNote[];
+    const last = noteList[noteList.length - 1] || (data.note as AdminTicketNote) || ({} as AdminTicketNote);
+    return Object.assign({}, last, { notes: noteList });
+  }
+
+  if (data && typeof data === 'object' && data.note) {
+    const singleNote = data.note as AdminTicketNote;
+    return Object.assign({}, singleNote, { notes: [singleNote] });
+  }
+
+  return data as unknown as AdminTicketNote;
 }
 
 /**
@@ -360,11 +541,13 @@ export async function escalateAdminSupportTicket(
  */
 export async function resolveAdminSupportTicket(
   id: string,
-  payload: { closing_message?: string; reason?: string; totp_code?: string }
+  payload?: { message?: string; closing_message?: string; reason?: string; totp_code?: string }
 ): Promise<void> {
+  const msg = payload?.message || payload?.closing_message;
+  const body = msg && msg.trim() ? { message: msg.trim() } : undefined;
   await apiClient(`/admin/support/tickets/${encodeURIComponent(id)}/resolve`, {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: body ? JSON.stringify(body) : JSON.stringify({}),
   });
 }
 
@@ -383,4 +566,3 @@ export async function reopenAdminSupportTicket(
 }
 
 export { ApiError };
-
