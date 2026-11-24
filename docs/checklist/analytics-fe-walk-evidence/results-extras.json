@@ -1,0 +1,26 @@
+[
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "409: stale save shows \"Someone else changed this report\", Reload loads the new version",
+    "ok": true
+  },
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "429: heavy-read limit shows the API message with Retry",
+    "ok": true
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "409: stale save shows \"Someone else changed this report\", Reload loads the new version",
+    "ok": true
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "429: heavy-read limit shows the API message with Retry",
+    "ok": true
+  }
+]

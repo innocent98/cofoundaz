@@ -1,0 +1,209 @@
+[
+ {
+  "role": "investor",
+  "req": "GET /analytics/overview",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "legal_advisor",
+  "req": "GET /analytics/overview",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "investor",
+  "req": "GET /analytics/reports",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "legal_advisor",
+  "req": "GET /analytics/reports/76d2502c-84e4-4f6d-96c6-7b92da664a35",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "legal_advisor",
+  "req": "GET /analytics/exports",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "mentor",
+  "req": "GET /analytics/overview",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "business_consultant",
+  "req": "GET /analytics/overview",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "mentor",
+  "req": "GET /analytics/reports/0a9479b5-31e2-4eda-a729-10c21d0d691e",
+  "status": 404,
+  "expected": 404,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"NOT_FOUND\",\"message\":\"Report not found.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "accountant",
+  "req": "GET /analytics/reports/0a9479b5-31e2-4eda-a729-10c21d0d691e",
+  "status": 404,
+  "expected": 404,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"NOT_FOUND\",\"message\":\"Report not found.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "team_member",
+  "req": "GET /analytics/reports/0a9479b5-31e2-4eda-a729-10c21d0d691e",
+  "status": 404,
+  "expected": 404,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"NOT_FOUND\",\"message\":\"Report not found.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "mentor",
+  "req": "POST /analytics/reports/76d2502c-84e4-4f6d-96c6-7b92da664a35/run",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "mentor",
+  "req": "POST /analytics/reports/76d2502c-84e4-4f6d-96c6-7b92da664a35/export",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "business_consultant",
+  "req": "GET /analytics/exports",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "accountant",
+  "req": "POST /analytics/reports/76d2502c-84e4-4f6d-96c6-7b92da664a35/export",
+  "status": 403,
+  "expected": null,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"Only the founder or a team member can run a report. Export one of its finished runs instead.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "accountant",
+  "req": "POST /analytics/exports/data-tables",
+  "status": 422,
+  "expected": 422,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"One or more metrics are not available to you.\",\"field_errors\":[{\"field\":\"metrics\",\"message\":\"One or more metrics "
+ },
+ {
+  "role": "accountant",
+  "req": "GET /analytics/exports/d73cf137-c990-41e7-a0be-02e1a40cce2a",
+  "status": 404,
+  "expected": 404,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"NOT_FOUND\",\"message\":\"Export not found.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "team_member",
+  "req": "GET /analytics/exports/d73cf137-c990-41e7-a0be-02e1a40cce2a",
+  "status": 404,
+  "expected": 404,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"NOT_FOUND\",\"message\":\"Export not found.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "accountant",
+  "req": "GET /analytics/exports/d73cf137-c990-41e7-a0be-02e1a40cce2a/download",
+  "status": 404,
+  "expected": 404,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"NOT_FOUND\",\"message\":\"Export not found.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "team_member",
+  "req": "PATCH /analytics/reports/76d2502c-84e4-4f6d-96c6-7b92da664a35",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "team_member",
+  "req": "GET /analytics/reports/76d2502c-84e4-4f6d-96c6-7b92da664a35/shares",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "team_member",
+  "req": "DELETE /analytics/reports/76d2502c-84e4-4f6d-96c6-7b92da664a35",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "founder",
+  "req": "GET /analytics/reports/e5a3a2a5-54f9-44af-bd17-bc40eb45f431",
+  "status": 200,
+  "expected": 200,
+  "ok": true,
+  "body": "{\"data\":{\"id\":\"e5a3a2a5-54f9-44af-bd17-bc40eb45f431\",\"name\":\"TM own report\",\"description\":null,\"owner\":{\"id\":\"ea589c64-c72b-4f1b-88a1-9833027b288c\",\"name\":\"Memb"
+ },
+ {
+  "role": "accountant",
+  "req": "GET /analytics/by-hub?hub=marketing",
+  "status": 403,
+  "expected": 403,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "accountant",
+  "req": "GET /analytics/custom-metrics",
+  "status": 403,
+  "expected": null,
+  "ok": true,
+  "body": "{\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You don't have permission to do that.\",\"field_errors\":[]}}"
+ },
+ {
+  "role": "mentor",
+  "req": "GET report blocks",
+  "locked": [
+   "finance",
+   "finance"
+  ],
+  "ok": true
+ },
+ {
+  "role": "mentor",
+  "req": "GET runs (frozen run payload)",
+  "has_7777": false,
+  "ok": true
+ }
+]

@@ -1,0 +1,178 @@
+[
+ {
+  "file": "accountant-1440-1-Board pack 2026-10-20 to 2026-11-18.pdf",
+  "role": "accountant",
+  "bytes": 2437,
+  "has_4321": false,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "no marketing number; Locked text present; revenue present"
+ },
+ {
+  "file": "accountant-1440-x-Board pack 2026-10-20 to 2026-11-18.xlsx",
+  "role": "accountant",
+  "bytes": 4198,
+  "has_4321": false,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "no marketing number; Locked text present; revenue present"
+ },
+ {
+  "file": "accountant-375-1-Board pack 2026-10-20 to 2026-11-18.pdf",
+  "role": "accountant",
+  "bytes": 2437,
+  "has_4321": false,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "no marketing number; Locked text present; revenue present"
+ },
+ {
+  "file": "accountant-375-x-Board pack 2026-10-20 to 2026-11-18.xlsx",
+  "role": "accountant",
+  "bytes": 4198,
+  "has_4321": false,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "no marketing number; Locked text present; revenue present"
+ },
+ {
+  "file": "founder-1440-1-Data tables 2026-10-20 to 2026-11-18.csv",
+  "role": "founder",
+  "bytes": 768,
+  "has_4321": false,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "founder-1440-2-Board pack 2026-10-20 to 2026-11-18.pdf",
+  "role": "founder",
+  "bytes": 2347,
+  "has_4321": true,
+  "has_7777": true,
+  "has_locked_text": false,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "founder-1440-3-Walk report founder 1440 2026-08-21 to 2026-11-18.xlsx",
+  "role": "founder",
+  "bytes": 4830,
+  "has_4321": true,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "founder-375-1-Data tables 2026-10-20 to 2026-11-18.csv",
+  "role": "founder",
+  "bytes": 768,
+  "has_4321": false,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "founder-375-2-Board pack 2026-10-20 to 2026-11-18.pdf",
+  "role": "founder",
+  "bytes": 2347,
+  "has_4321": true,
+  "has_7777": true,
+  "has_locked_text": false,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "founder-375-3-Walk report founder 375 2026-08-21 to 2026-11-18.xlsx",
+  "role": "founder",
+  "bytes": 4791,
+  "has_4321": true,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "team_member-1440-1-Data tables 2026-10-20 to 2026-11-18.csv",
+  "role": "team_member",
+  "bytes": 763,
+  "has_4321": false,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "team_member-1440-2-Board pack 2026-10-20 to 2026-11-18.pdf",
+  "role": "team_member",
+  "bytes": 2340,
+  "has_4321": true,
+  "has_7777": true,
+  "has_locked_text": false,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "team_member-1440-3-Walk report team_member 1440 2026-08-21 to 2026-11-18.xlsx",
+  "role": "team_member",
+  "bytes": 4829,
+  "has_4321": true,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "team_member-375-1-Data tables 2026-10-20 to 2026-11-18.csv",
+  "role": "team_member",
+  "bytes": 763,
+  "has_4321": false,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "team_member-375-2-Board pack 2026-10-20 to 2026-11-18.pdf",
+  "role": "team_member",
+  "bytes": 2340,
+  "has_4321": true,
+  "has_7777": true,
+  "has_locked_text": false,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ },
+ {
+  "file": "team_member-375-3-Walk report team_member 375 2026-08-21 to 2026-11-18.xlsx",
+  "role": "team_member",
+  "bytes": 4790,
+  "has_4321": true,
+  "has_7777": true,
+  "has_locked_text": true,
+  "has_as_of": true,
+  "ok": true,
+  "rule": "file parses and is not empty"
+ }
+]
