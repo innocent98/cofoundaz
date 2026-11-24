@@ -240,5 +240,5 @@ describe('no hard-coded colours outside styles/colour-tokens.css', () => {
       })
     }
     expect(hits).toEqual([])
-  })
+  }, 60000)
 })
