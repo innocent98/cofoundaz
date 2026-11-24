@@ -36,7 +36,7 @@ import {
   type AdminUserRow,
   type AdminUserDetail,
   ApiError,
-} from '@/lib/api/admin';
+} from '@/lib/api/admin-users';
 import { formatApiErrorMessage } from '@/lib/api/client';
 import { StaffActionDialog } from '@/components/admin/staff-action-dialog';
 import { AdminSupportView } from '@/components/admin/admin-support-view';
@@ -125,11 +125,9 @@ export default function AdminPortalPage(): React.JSX.Element | null {
 
   // Staff Probe on entry
   const checkStaffAccess = useCallback(async () => {
-    setAuthLoading(true);
     try {
       const data = await getAdminMe();
       setMe(data);
-      setAuthLoading(false);
     } catch (err: unknown) {
       if (err instanceof ApiError && err.status === 404) {
         // Not staff: redirect to /dashboard immediately with no message
@@ -140,6 +138,8 @@ export default function AdminPortalPage(): React.JSX.Element | null {
       // If unauthorized or other error, redirect to /dashboard without error copy
       setIsNotStaff(true);
       router.replace('/dashboard');
+    } finally {
+      setAuthLoading(false);
     }
   }, [router]);
 
@@ -401,8 +401,16 @@ export default function AdminPortalPage(): React.JSX.Element | null {
       onConfirm: async (payload) => {
         await suspendUser(user.id, payload);
         showToast(`${user.email} is suspended.`);
-        await openUserProfile(user.id);
-        void fetchUsers();
+        try {
+          await openUserProfile(user.id);
+        } catch {
+          // ignore reload error
+        }
+        try {
+          void fetchUsers();
+        } catch {
+          // ignore reload error
+        }
       },
     });
   };
@@ -418,8 +426,16 @@ export default function AdminPortalPage(): React.JSX.Element | null {
       onConfirm: async (payload) => {
         await unsuspendUser(user.id, payload);
         showToast(`${user.email} can sign in again.`);
-        await openUserProfile(user.id);
-        void fetchUsers();
+        try {
+          await openUserProfile(user.id);
+        } catch {
+          // ignore reload error
+        }
+        try {
+          void fetchUsers();
+        } catch {
+          // ignore reload error
+        }
       },
     });
   };
@@ -436,7 +452,11 @@ export default function AdminPortalPage(): React.JSX.Element | null {
         await sendUserPasswordReset(user.id, payload);
         showToast('Reset email sent.');
         setCooldowns((prev) => ({ ...prev, [`reset_${user.id}`]: 60 }));
-        await openUserProfile(user.id);
+        try {
+          await openUserProfile(user.id);
+        } catch {
+          // ignore reload error
+        }
       },
     });
   };
@@ -453,10 +473,31 @@ export default function AdminPortalPage(): React.JSX.Element | null {
         await resendUserVerification(user.id, payload);
         showToast('Verification email sent.');
         setCooldowns((prev) => ({ ...prev, [`verify_${user.id}`]: 60 }));
-        await openUserProfile(user.id);
+        try {
+          await openUserProfile(user.id);
+        } catch {
+          // ignore reload error
+        }
       },
     });
   };
+
+  // Escape key listener for modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (selectedUserId) {
+          setSelectedUserId(null);
+          setUserDetail(null);
+        } else if (selectedWorkspaceId) {
+          setSelectedWorkspaceId(null);
+          setWorkspaceDetail(null);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedUserId, selectedWorkspaceId]);
 
   // If not staff or currently redirecting, render plain 404 with no message
   if (isNotStaff) {
@@ -473,7 +514,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface font-body">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-brand/20 border-t-brand rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-brand-500/20 border-t-brand-600 rounded-full animate-spin" />
           <p className="text-xs text-subtle font-medium">Verifying console access...</p>
         </div>
       </div>
@@ -486,13 +527,13 @@ export default function AdminPortalPage(): React.JSX.Element | null {
 
   return (
     <div className="min-h-screen bg-surface-raised flex flex-col font-body text-main">
-      {/* Toast Notification Banner */}
+      {/* Toast Notification Banner (z-[70] so it renders above modal overlays) */}
       {toastMessage && (
         <div
           role="status"
-          className="fixed bottom-6 right-6 z-50 px-4 py-3 bg-surface border border-brand/30 shadow-raised rounded-card flex items-center gap-2.5 text-sm font-medium text-main animate-in slide-in-from-bottom-3"
+          className="fixed bottom-6 right-6 z-[70] px-4 py-3 bg-surface border border-brand-500/30 shadow-raised rounded-card flex items-center gap-2.5 text-sm font-medium text-main animate-in slide-in-from-bottom-3"
         >
-          <CheckCircle2 className="w-4 h-4 text-brand flex-shrink-0" />
+          <CheckCircle2 className="w-4 h-4 text-brand-600 flex-shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -510,21 +551,21 @@ export default function AdminPortalPage(): React.JSX.Element | null {
         {/* Top-Right Staff Badges (Not Clickable) */}
         <div className="flex items-center gap-2">
           {isSuperAdmin ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-pill bg-brand-subtle text-brand border border-brand/20 select-none">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-pill bg-brand-50 text-brand-700 border border-brand-200 select-none">
               <Shield className="w-3.5 h-3.5" />
               Super admin
             </span>
           ) : (
             <div className="flex items-center gap-1.5 select-none">
               <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-pill bg-surface-raised border border-neutral-subtle text-main">
-                <Shield className="w-3.5 h-3.5 text-brand" />
+                <Shield className="w-3.5 h-3.5 text-brand-600" />
                 Admin
               </span>
               {me.scopes && me.scopes.length > 0 ? (
                 me.scopes.map((scope) => (
                   <span
                     key={scope}
-                    className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-pill bg-brand/10 text-brand capitalize"
+                    className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-pill bg-brand-50 text-brand-700 border border-brand-200 capitalize"
                   >
                     {scope}
                   </span>
@@ -552,7 +593,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
             onClick={() => setActiveTab('Dashboard')}
             className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
               activeTab === 'Dashboard'
-                ? 'bg-brand text-white shadow-card'
+                ? 'bg-brand-600 text-white shadow-card'
                 : 'text-subtle hover:text-main hover:bg-surface-raised'
             }`}
           >
@@ -569,8 +610,8 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               onClick={() => setActiveTab('Workspaces')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
                 activeTab === 'Workspaces'
-                  ? 'bg-brand text-white shadow-card'
-                : 'text-subtle hover:text-main hover:bg-surface-raised'
+                  ? 'bg-brand-600 text-white shadow-card'
+                  : 'text-subtle hover:text-main hover:bg-surface-raised'
               }`}
             >
               <Boxes className="w-4 h-4" />
@@ -587,8 +628,8 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               onClick={() => setActiveTab('Users')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
                 activeTab === 'Users'
-                  ? 'bg-brand text-white shadow-card'
-                : 'text-subtle hover:text-main hover:bg-surface-raised'
+                  ? 'bg-brand-600 text-white shadow-card'
+                  : 'text-subtle hover:text-main hover:bg-surface-raised'
               }`}
             >
               <Users className="w-4 h-4" />
@@ -605,8 +646,8 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               onClick={() => setActiveTab('Support')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
                 activeTab === 'Support'
-                  ? 'bg-brand text-white shadow-card'
-                : 'text-subtle hover:text-main hover:bg-surface-raised'
+                  ? 'bg-brand-600 text-white shadow-card'
+                  : 'text-subtle hover:text-main hover:bg-surface-raised'
               }`}
             >
               <LifeBuoy className="w-4 h-4" />
@@ -623,7 +664,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               onClick={() => setActiveTab('Reports')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-input transition-colors text-left ${
                 activeTab === 'Reports'
-                  ? 'bg-brand text-white shadow-card'
+                  ? 'bg-brand-600 text-white shadow-card'
                   : 'text-subtle hover:text-main hover:bg-surface-raised'
               }`}
             >
@@ -675,7 +716,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
               {attention?.tickets && (attention.tickets.open > 0 || attention.tickets.breached > 0) && (
                 <div className="bg-surface border border-neutral-subtle p-4 rounded-card shadow-card flex flex-col md:flex-row md:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-modal bg-brand-subtle text-brand flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-modal bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
                       <LifeBuoy className="w-5 h-5" />
                     </div>
                     <div>
@@ -694,7 +735,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                     <button
                       type="button"
                       onClick={() => setActiveTab('Support')}
-                      className="px-3.5 py-1.5 bg-brand text-white rounded-input text-xs font-semibold hover:bg-brand-hover shadow-card transition-colors inline-flex items-center gap-1.5 cursor-pointer self-start md:self-auto"
+                      className="px-3.5 py-1.5 bg-brand-600 text-white rounded-input text-xs font-semibold hover:bg-brand-700 shadow-card transition-colors inline-flex items-center gap-1.5 cursor-pointer self-start md:self-auto"
                     >
                       <span>View Support</span>
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -828,7 +869,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   </div>
                   <div className="flex items-center gap-4 text-xs font-medium">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 bg-brand rounded-[2px]" />
+                      <div className="w-3 h-3 bg-brand-600 rounded-[2px]" />
                       <span className="text-subtle">Signups</span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -878,7 +919,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                 <div className="w-full flex items-end justify-center gap-0.5 h-full">
                                   <div
                                     style={{ height: `${signupHeight}%` }}
-                                    className="w-1/2 bg-brand rounded-t-[2px] transition-all hover:opacity-80"
+                                    className="w-1/2 bg-brand-600 rounded-t-[2px] transition-all hover:opacity-80"
                                   />
                                   <div
                                     style={{ height: `${actHeight}%` }}
@@ -971,7 +1012,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                       <button
                         type="button"
                         onClick={() => void fetchWorkspaces()}
-                        className="px-3 py-1.5 text-xs font-medium text-white bg-brand hover:bg-brand-hover rounded-input transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-input transition-colors"
                       >
                         Search
                       </button>
@@ -1011,7 +1052,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                           {workspacesLoading ? (
                             <tr>
                               <td colSpan={7} className="py-12 text-center text-muted">
-                                <div className="inline-block w-5 h-5 border-2 border-brand/20 border-t-brand rounded-full animate-spin mb-2" />
+                                <div className="inline-block w-5 h-5 border-2 border-brand-500/20 border-t-brand-600 rounded-full animate-spin mb-2" />
                                 <p>Loading workspaces...</p>
                               </td>
                             </tr>
@@ -1022,54 +1063,63 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                               </td>
                             </tr>
                           ) : (
-                            workspaces.map((ws) => (
-                              <tr
-                                key={ws.id}
-                                onClick={() => void openWorkspaceDetail(ws.id)}
-                                className="hover:bg-surface-raised cursor-pointer transition-colors"
-                              >
-                                <td className="py-3 px-4">
-                                  <div className="font-semibold text-main">{ws.name}</div>
-                                  <div className="text-[11px] text-muted">
-                                    {ws.owner?.name ? `${ws.owner.name} (${ws.owner.email})` : ws.owner?.email || '-'}
-                                  </div>
-                                </td>
-                                <td className="py-3 px-4 capitalize">{ws.stage ?? '-'}</td>
-                                <td className="py-3 px-4 tabular-nums font-medium">{ws.seats != null ? ws.seats : '-'}</td>
-                                <td className="py-3 px-4">
-                                  {ws.plan ? (
-                                    <span className="inline-flex px-2 py-0.5 rounded-pill text-[10px] font-semibold bg-neutral-subtle/50 text-main capitalize">
-                                      {ws.plan}
+                            workspaces.map((ws) => {
+                              const ownerDisplayName = ws.owner_name || ws.owner?.name;
+                              const ownerEmail = ws.owner_email || ws.owner?.email;
+                              const planDisplay = ws.plan_key || ws.plan;
+                              const workspaceTitle = ws.workspace_name || ws.name;
+
+                              return (
+                                <tr
+                                  key={ws.id}
+                                  onClick={() => void openWorkspaceDetail(ws.id)}
+                                  className="hover:bg-surface-raised cursor-pointer transition-colors"
+                                >
+                                  <td className="py-3 px-4">
+                                    <div className="font-semibold text-main">{workspaceTitle}</div>
+                                    <div className="text-[11px] text-muted">
+                                      {ownerDisplayName && ownerEmail
+                                        ? `${ownerDisplayName} (${ownerEmail})`
+                                        : ownerDisplayName || ownerEmail || '-'}
+                                    </div>
+                                  </td>
+                                  <td className="py-3 px-4 capitalize">{ws.stage ?? '-'}</td>
+                                  <td className="py-3 px-4 tabular-nums font-medium">{ws.seats != null ? ws.seats : '-'}</td>
+                                  <td className="py-3 px-4">
+                                    {planDisplay ? (
+                                      <span className="inline-flex px-2 py-0.5 rounded-pill text-[10px] font-semibold bg-neutral-subtle/50 text-main capitalize">
+                                        {planDisplay}
+                                      </span>
+                                    ) : (
+                                      '-'
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {ws.health_score != null ? (
+                                      <span
+                                        className={`inline-flex items-center gap-1 font-semibold tabular-nums ${
+                                          ws.health_score >= 80
+                                            ? 'text-success-700'
+                                            : ws.health_score >= 50
+                                            ? 'text-warning-700'
+                                            : 'text-danger-700'
+                                        }`}
+                                      >
+                                        {ws.health_score}
+                                      </span>
+                                    ) : (
+                                      '-'
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4 text-muted">{formatRelativeTime(ws.last_active_at)}</td>
+                                  <td className="py-3 px-4 text-right">
+                                    <span className="text-brand-600 hover:underline font-medium inline-flex items-center gap-0.5">
+                                      View <ChevronRight className="w-3.5 h-3.5" />
                                     </span>
-                                  ) : (
-                                    '-'
-                                  )}
-                                </td>
-                                <td className="py-3 px-4">
-                                  {ws.health_score != null ? (
-                                    <span
-                                      className={`inline-flex items-center gap-1 font-semibold tabular-nums ${
-                                        ws.health_score >= 80
-                                          ? 'text-success-700'
-                                          : ws.health_score >= 50
-                                          ? 'text-warning-700'
-                                          : 'text-danger-700'
-                                      }`}
-                                    >
-                                      {ws.health_score}
-                                    </span>
-                                  ) : (
-                                    '-'
-                                  )}
-                                </td>
-                                <td className="py-3 px-4 text-muted">{formatRelativeTime(ws.last_active_at)}</td>
-                                <td className="py-3 px-4 text-right">
-                                  <span className="text-brand hover:underline font-medium inline-flex items-center gap-0.5">
-                                    View <ChevronRight className="w-3.5 h-3.5" />
-                                  </span>
-                                </td>
-                              </tr>
-                            ))
+                                  </td>
+                                </tr>
+                              );
+                            })
                           )}
                         </tbody>
                       </table>
@@ -1082,7 +1132,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                           type="button"
                           onClick={() => void fetchWorkspaces(workspacesNextCursor, true)}
                           disabled={workspacesLoadingMore}
-                          className="px-4 py-1.5 text-xs font-semibold text-brand hover:underline disabled:opacity-50"
+                          className="px-4 py-1.5 text-xs font-semibold text-brand-600 hover:underline disabled:opacity-50"
                         >
                           {workspacesLoadingMore ? 'Loading more...' : 'Load more workspaces'}
                         </button>
@@ -1144,7 +1194,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                       <button
                         type="button"
                         onClick={() => void fetchUsers()}
-                        className="px-3 py-1.5 text-xs font-medium text-white bg-brand hover:bg-brand-hover rounded-input transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-input transition-colors"
                       >
                         Search
                       </button>
@@ -1162,7 +1212,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         }}
                         className={`px-3 py-1 text-xs font-medium rounded-pill capitalize transition-colors ${
                           userBillingFilter === tab
-                            ? 'bg-brand text-white shadow-card'
+                            ? 'bg-brand-600 text-white shadow-card'
                             : 'bg-surface border border-neutral-subtle text-subtle hover:text-main'
                         }`}
                       >
@@ -1204,7 +1254,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                           {usersLoading ? (
                             <tr>
                               <td colSpan={7} className="py-12 text-center text-muted">
-                                <div className="inline-block w-5 h-5 border-2 border-brand/20 border-t-brand rounded-full animate-spin mb-2" />
+                                <div className="inline-block w-5 h-5 border-2 border-brand-500/20 border-t-brand-600 rounded-full animate-spin mb-2" />
                                 <p>Loading users...</p>
                               </td>
                             </tr>
@@ -1217,6 +1267,13 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                           ) : (
                             users.map((u) => {
                               const isSuspended = u.status === 'disabled';
+                              const wsName = u.primary_workspace?.workspace_name || u.primary_workspace?.name;
+                              const planName = u.primary_workspace?.plan_key || u.primary_workspace?.plan || u.plan_key;
+                              const formattedStatus =
+                                u.status === 'pending_verification' || u.status === 'Pending_verification'
+                                  ? 'Pending verification'
+                                  : u.status;
+
                               return (
                                 <tr key={u.id} className="hover:bg-surface-raised transition-colors">
                                   <td className="py-3 px-4">
@@ -1224,9 +1281,9 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                     <div className="text-[11px] text-muted">{u.email}</div>
                                   </td>
                                   <td className="py-3 px-4">
-                                    {u.primary_workspace ? (
+                                    {wsName ? (
                                       <span className="font-medium text-main">
-                                        {u.primary_workspace.name}
+                                        {wsName}
                                         {u.workspace_count > 1 && (
                                           <span className="text-[10px] text-muted ml-1 tabular-nums">
                                             +{u.workspace_count - 1}
@@ -1238,7 +1295,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                     )}
                                   </td>
                                   <td className="py-3 px-4 capitalize">
-                                    {u.primary_workspace?.plan || '-'}
+                                    {planName || '-'}
                                   </td>
                                   <td className="py-3 px-4 capitalize">
                                     {u.primary_workspace?.billing_status ? (
@@ -1279,7 +1336,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                       </span>
                                     ) : (
                                       <span className="inline-flex px-2 py-0.5 rounded-pill text-[10px] font-medium bg-neutral-subtle/50 text-main capitalize">
-                                        {u.status}
+                                        {formattedStatus}
                                       </span>
                                     )}
                                   </td>
@@ -1287,7 +1344,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                                     <button
                                       type="button"
                                       onClick={() => void openUserProfile(u.id)}
-                                      className="px-2.5 py-1 text-xs font-semibold text-brand hover:underline"
+                                      className="px-2.5 py-1 text-xs font-semibold text-brand-600 hover:underline"
                                     >
                                       View
                                     </button>
@@ -1307,7 +1364,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                           type="button"
                           onClick={() => void fetchUsers(usersNextCursor, true)}
                           disabled={usersLoadingMore}
-                          className="px-4 py-1.5 text-xs font-semibold text-brand hover:underline disabled:opacity-50"
+                          className="px-4 py-1.5 text-xs font-semibold text-brand-600 hover:underline disabled:opacity-50"
                         >
                           {usersLoadingMore ? 'Loading more...' : 'Load more users'}
                         </button>
@@ -1373,9 +1430,16 @@ export default function AdminPortalPage(): React.JSX.Element | null {
             <div className="px-6 py-4 border-b border-neutral-subtle bg-surface-raised flex items-center justify-between">
               <div>
                 <h2 id="workspace-detail-title" className="text-base font-bold text-main">
-                  {workspaceDetail?.name || 'Workspace Detail'}
+                  Workspace Detail
                 </h2>
-                <p className="text-xs text-subtle">Read-only view of workspace configuration and metrics.</p>
+                <p className="text-xs text-subtle">
+                  {workspaceDetail?.workspace_name || workspaceDetail?.name ? (
+                    <span className="font-semibold text-main mr-1">
+                      {workspaceDetail.workspace_name || workspaceDetail.name} ·
+                    </span>
+                  ) : null}
+                  Read-only view of workspace configuration and metrics.
+                </p>
               </div>
               <button
                 type="button"
@@ -1393,7 +1457,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
             <div className="p-6 overflow-y-auto space-y-6">
               {workspaceDetailLoading ? (
                 <div className="py-12 flex flex-col items-center justify-center text-muted gap-2">
-                  <div className="w-6 h-6 border-2 border-brand/20 border-t-brand rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-brand-500/20 border-t-brand-600 rounded-full animate-spin" />
                   <p className="text-xs">Loading workspace details...</p>
                 </div>
               ) : workspaceDetailError ? (
@@ -1407,7 +1471,11 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                     <div>
                       <span className="text-muted block">Owner</span>
                       <span className="font-semibold text-main truncate block">
-                        {workspaceDetail.owner?.name || workspaceDetail.owner?.email || '-'}
+                        {workspaceDetail.owner_name ||
+                          workspaceDetail.owner?.name ||
+                          workspaceDetail.owner_email ||
+                          workspaceDetail.owner?.email ||
+                          '-'}
                       </span>
                     </div>
                     <div>
@@ -1419,8 +1487,17 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                     <div>
                       <span className="text-muted block">Seats (Paid)</span>
                       <span className="font-semibold text-main block tabular-nums">
-                        {workspaceDetail.seats} /{' '}
-                        {workspaceDetail.seats_limit == null ? 'Unlimited' : workspaceDetail.seats_limit}
+                        {workspaceDetail.usage?.seats_used != null
+                          ? workspaceDetail.usage.seats_used
+                          : workspaceDetail.seats}{' '}
+                        /{' '}
+                        {workspaceDetail.usage != null
+                          ? workspaceDetail.usage.seats_limit == null
+                            ? 'Unlimited'
+                            : workspaceDetail.usage.seats_limit
+                          : workspaceDetail.seats_limit == null
+                          ? 'Unlimited'
+                          : workspaceDetail.seats_limit}
                       </span>
                     </div>
                     <div>
@@ -1439,13 +1516,18 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                         <div className="flex justify-between">
                           <span className="text-subtle">Plan tier:</span>
                           <span className="font-semibold text-main capitalize">
-                            {workspaceDetail.subscription.plan}
+                            {workspaceDetail.subscription.plan_name ||
+                              workspaceDetail.subscription.plan_key ||
+                              workspaceDetail.subscription.plan ||
+                              '-'}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-subtle">Billing status:</span>
                           <span className="font-semibold text-main capitalize">
-                            {workspaceDetail.subscription.billing_status}
+                            {workspaceDetail.subscription.status ||
+                              workspaceDetail.subscription.billing_status ||
+                              '-'}
                           </span>
                         </div>
                         {workspaceDetail.subscription.renews_at && (
@@ -1469,30 +1551,36 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                     </h3>
                     <div className="border border-neutral-subtle rounded-card overflow-hidden divide-y divide-neutral-subtle text-xs">
                       {workspaceDetail.members && workspaceDetail.members.length > 0 ? (
-                        workspaceDetail.members.map((m) => (
-                          <div key={m.id || m.user_id} className="p-3 flex items-center justify-between">
-                            <div>
-                              <div className="font-medium text-main">{m.name || m.email}</div>
-                              <div className="text-[11px] text-muted">{m.email}</div>
+                        workspaceDetail.members.map((m) => {
+                          const memberName = m.full_name || m.name;
+                          const roleLabel =
+                            m.role === 'team_member' ? 'Team member' : m.role.replace('_', ' ');
+
+                          return (
+                            <div key={m.id || m.user_id} className="p-3 flex items-center justify-between">
+                              <div>
+                                <div className="font-medium text-main">{memberName || m.email}</div>
+                                <div className="text-[11px] text-muted">{m.email}</div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 bg-neutral-subtle/50 text-[10px] rounded-pill capitalize">
+                                  {roleLabel}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedWorkspaceId(null);
+                                    setActiveTab('Users');
+                                    void openUserProfile(m.user_id);
+                                  }}
+                                  className="text-brand-600 hover:underline text-[11px]"
+                                >
+                                  View user
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 bg-neutral-subtle/50 text-[10px] rounded-pill capitalize">
-                                {m.role}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedWorkspaceId(null);
-                                  setActiveTab('Users');
-                                  void openUserProfile(m.user_id);
-                                }}
-                                className="text-brand hover:underline text-[11px]"
-                              >
-                                View user
-                              </button>
-                            </div>
-                          </div>
-                        ))
+                          );
+                        })
                       ) : (
                         <div className="p-4 text-center text-muted">No members listed.</div>
                       )}
@@ -1524,21 +1612,34 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                   </div>
 
                   {/* Usage Meters */}
-                  {workspaceDetail.usage_meters && Object.keys(workspaceDetail.usage_meters).length > 0 && (
+                  {((workspaceDetail.usage_meters && Object.keys(workspaceDetail.usage_meters).length > 0) ||
+                    workspaceDetail.usage != null) && (
                     <div className="space-y-2">
                       <h3 className="text-xs font-bold text-subtle uppercase tracking-wider">Usage Meters</h3>
                       <div className="grid grid-cols-2 gap-2">
-                        {Object.entries(workspaceDetail.usage_meters).map(([k, meter]) => (
-                          <div
-                            key={k}
-                            className="p-3 bg-surface-raised border border-neutral-subtle rounded-input text-xs"
-                          >
-                            <span className="text-subtle capitalize block">{k.replace('_', ' ')}</span>
+                        {workspaceDetail.usage && (
+                          <div className="p-3 bg-surface-raised border border-neutral-subtle rounded-input text-xs">
+                            <span className="text-subtle block">Seats used</span>
                             <span className="font-bold text-main mt-1 block tabular-nums">
-                              {meter.used} / {meter.limit == null ? 'Unlimited' : meter.limit}
+                              {workspaceDetail.usage.seats_used} /{' '}
+                              {workspaceDetail.usage.seats_limit == null
+                                ? 'Unlimited'
+                                : workspaceDetail.usage.seats_limit}
                             </span>
                           </div>
-                        ))}
+                        )}
+                        {workspaceDetail.usage_meters &&
+                          Object.entries(workspaceDetail.usage_meters).map(([k, meter]) => (
+                            <div
+                              key={k}
+                              className="p-3 bg-surface-raised border border-neutral-subtle rounded-input text-xs"
+                            >
+                              <span className="text-subtle capitalize block">{k.replace('_', ' ')}</span>
+                              <span className="font-bold text-main mt-1 block tabular-nums">
+                                {meter.used} / {meter.limit == null ? 'Unlimited' : meter.limit}
+                              </span>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   )}
@@ -1591,7 +1692,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
             <div className="p-6 overflow-y-auto space-y-6">
               {userDetailLoading ? (
                 <div className="py-12 flex flex-col items-center justify-center text-muted gap-2">
-                  <div className="w-6 h-6 border-2 border-brand/20 border-t-brand rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-brand-500/20 border-t-brand-600 rounded-full animate-spin" />
                   <p className="text-xs">Loading user profile...</p>
                 </div>
               ) : userDetailError ? (
@@ -1616,7 +1717,9 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                           </span>
                         ) : (
                           <span className="px-2.5 py-1 text-xs font-semibold rounded-pill bg-success-100 text-success-800 capitalize">
-                            {userDetail.status}
+                            {userDetail.status === 'pending_verification' || userDetail.status === 'Pending_verification'
+                              ? 'Pending verification'
+                              : userDetail.status}
                           </span>
                         )}
                       </div>
@@ -1640,7 +1743,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                       <div>
                         <span className="text-muted block">Last active</span>
                         <span className="text-main font-medium tabular-nums">
-                          {formatRelativeTime(userDetail.last_active_at)}
+                          {formatRelativeTime(userDetail.last_active_at || userDetail.last_login_at)}
                         </span>
                       </div>
                     </div>
@@ -1679,7 +1782,7 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                             type="button"
                             disabled={isDisabled}
                             onClick={() => triggerPasswordReset(userDetail)}
-                            className="px-3 py-1.5 text-xs font-semibold rounded-input bg-brand/10 text-brand hover:bg-brand/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="px-3 py-1.5 text-xs font-semibold rounded-input bg-brand-50 text-brand-700 hover:bg-brand-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             {cd ? `Reset password (${cd}s)` : 'Send password reset'}
                           </button>
@@ -1711,22 +1814,29 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                     </h3>
                     <div className="border border-neutral-subtle rounded-card divide-y divide-neutral-subtle text-xs">
                       {userDetail.workspaces && userDetail.workspaces.length > 0 ? (
-                        userDetail.workspaces.map((w) => (
-                          <div key={w.id} className="p-3 flex items-center justify-between">
-                            <div>
-                              <div className="font-semibold text-main">{w.name}</div>
-                              <div className="text-[11px] text-muted">Role: {w.role}</div>
+                        userDetail.workspaces.map((w) => {
+                          const wsTitle = w.workspace_name || w.name;
+                          const rawPlan = w.plan_key || w.plan || 'Free';
+                          // Avoid duplicate like "Free Free" if plan was string concatenated
+                          const planLabel = rawPlan.toLowerCase().includes('free') ? 'Free' : rawPlan;
+
+                          return (
+                            <div key={w.id || w.workspace_id} className="p-3 flex items-center justify-between">
+                              <div>
+                                <div className="font-semibold text-main">{wsTitle}</div>
+                                <div className="text-[11px] text-muted">Role: {w.role}</div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded-pill text-[10px] bg-neutral-subtle/50 capitalize">
+                                  {planLabel}
+                                </span>
+                                <span className="px-2 py-0.5 rounded-pill text-[10px] bg-brand-50 text-brand-700 capitalize">
+                                  {w.billing_status}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-pill text-[10px] bg-neutral-subtle/50 capitalize">
-                                {w.plan || 'Free'}
-                              </span>
-                              <span className="px-2 py-0.5 rounded-pill text-[10px] bg-brand/10 text-brand capitalize">
-                                {w.billing_status}
-                              </span>
-                            </div>
-                          </div>
-                        ))
+                          );
+                        })
                       ) : (
                         <div className="p-4 text-center text-muted">No workspaces joined.</div>
                       )}
@@ -1742,18 +1852,25 @@ export default function AdminPortalPage(): React.JSX.Element | null {
                           Hidden for staff accounts
                         </div>
                       ) : userDetail.sessions && userDetail.sessions.length > 0 ? (
-                        userDetail.sessions.map((s) => (
-                          <div key={s.id} className="p-3 flex items-center justify-between">
-                            <div>
-                              <div className="tabular-nums text-main">{s.ip_address || 'Unknown IP'}</div>
-                              <div className="text-[11px] text-muted truncate max-w-xs">{s.user_agent || '-'}</div>
+                        userDetail.sessions.map((s) => {
+                          const sessionIp = s.ip || s.ip_address || 'Unknown IP';
+                          const sessionTime = s.signed_in_at || s.last_login_at;
+                          const isEnded = s.ended_at || s.revoked_at;
+                          const endedTime = s.ended_at || s.revoked_at;
+
+                          return (
+                            <div key={s.id} className="p-3 flex items-center justify-between">
+                              <div>
+                                <div className="tabular-nums text-main">{sessionIp}</div>
+                                <div className="text-[11px] text-muted truncate max-w-xs">{s.user_agent || '-'}</div>
+                              </div>
+                              <div className="text-right text-[11px] text-muted">
+                                <div>Signed in: {formatRelativeTime(sessionTime)}</div>
+                                {isEnded && <div>Ended: {formatRelativeTime(endedTime)}</div>}
+                              </div>
                             </div>
-                            <div className="text-right text-[11px] text-muted">
-                              <div>Signed in: {formatRelativeTime(s.signed_in_at)}</div>
-                              {s.ended_at && <div>Ended: {formatRelativeTime(s.ended_at)}</div>}
-                            </div>
-                          </div>
-                        ))
+                          );
+                        })
                       ) : (
                         <div className="p-4 text-center text-muted">No recent sessions recorded.</div>
                       )}

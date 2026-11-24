@@ -147,7 +147,7 @@ function StaffActionDialogModal({
 
           {/* Audit Notice */}
           <div className="flex items-center gap-2 text-xs text-subtle">
-            <Lock className="w-3.5 h-3.5 text-brand" />
+            <Lock className="w-3.5 h-3.5 text-brand-600" />
             <span>This action is permanently logged.</span>
           </div>
 
@@ -234,7 +234,7 @@ function StaffActionDialogModal({
               className={`px-4 py-2 text-sm font-medium rounded-input text-white transition-all shadow-card flex items-center justify-center gap-2 ${
                 actionButtonVariant === 'danger'
                   ? 'bg-danger hover:bg-danger-hover disabled:bg-danger/40'
-                  : 'bg-brand hover:bg-brand-hover disabled:bg-brand/40'
+                  : 'bg-brand-600 hover:bg-brand-700 disabled:bg-brand-600/40'
               } disabled:cursor-not-allowed`}
             >
               {isSubmitting ? (

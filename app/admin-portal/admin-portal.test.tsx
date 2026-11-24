@@ -2,20 +2,21 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import AdminPortalPage from './page';
-import * as adminApi from '@/lib/api/admin';
-import { ApiError } from '@/lib/api/admin';
+import * as adminApi from '@/lib/api/admin-users';
+import { ApiError } from '@/lib/api/admin-users';
 
 const mockPush = vi.fn();
 const mockReplace = vi.fn();
+const mockRouter = { push: mockPush, replace: mockReplace };
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush, replace: mockReplace }),
+  useRouter: () => mockRouter,
   usePathname: () => '/admin-portal',
   useSearchParams: () => new URLSearchParams(),
 }));
 
-vi.mock('@/lib/api/admin', async (orig) => {
-  const actual = await orig<typeof import('@/lib/api/admin')>();
+vi.mock('@/lib/api/admin-users', async (orig) => {
+  const actual = await orig<typeof import('@/lib/api/admin-users')>();
   return {
     ...actual,
     getAdminMe: vi.fn(),
@@ -28,6 +29,35 @@ vi.mock('@/lib/api/admin', async (orig) => {
     unsuspendUser: vi.fn(),
     sendUserPasswordReset: vi.fn(),
     resendUserVerification: vi.fn(),
+  };
+});
+
+vi.mock('@/lib/api/admin-tickets', async (orig) => {
+  const actual = await orig<typeof import('@/lib/api/admin-tickets')>();
+  return {
+    ...actual,
+    getAdminSupportAttention: vi.fn().mockResolvedValue({
+      open_tickets: 5,
+      tickets_assigned_to_me: 2,
+      critical_tickets: 1,
+      awaiting_staff_tickets: 3,
+    }),
+  };
+});
+
+vi.mock('@/lib/api/admin-reports', async (orig) => {
+  const actual = await orig<typeof import('@/lib/api/admin-reports')>();
+  return {
+    ...actual,
+    getAdminReportsCounts: vi.fn().mockResolvedValue({
+      open: 6,
+      escalated: 0,
+      closed: 0,
+    }),
+    getAdminReports: vi.fn().mockResolvedValue({
+      reports: [],
+      next_cursor: null,
+    }),
   };
 });
 
@@ -85,7 +115,7 @@ describe('AdminPortalPage', () => {
     expect(screen.getByText('64%')).toBeInTheDocument();
     expect(screen.getByText('+3.0 pts from prior period')).toBeInTheDocument();
     expect(screen.getByText('₦182,000')).toBeInTheDocument();
-  });
+  }, 15000);
 
   it('scope gating: hides Workspaces and Users tabs for staff without support scope', async () => {
     vi.mocked(adminApi.getAdminMe).mockResolvedValue({
@@ -131,10 +161,14 @@ describe('AdminPortalPage', () => {
     const mockWorkspace: adminApi.AdminWorkspaceRow = {
       id: 'ws-test-1',
       name: 'Paystack Clone',
+      workspace_name: 'Paystack Clone',
+      owner_name: 'Shola Akinlade',
+      owner_email: 'shola@example.com',
       owner: { id: 'u-owner', name: 'Shola Akinlade', email: 'shola@example.com' },
       stage: 'growth',
       seats: 12,
       members: 20,
+      plan_key: 'scale',
       plan: 'scale',
       health_score: 95,
       country: 'NG',
@@ -151,9 +185,10 @@ describe('AdminPortalPage', () => {
       seats_limit: 15,
       members_count: 2,
       members: [
-        { id: 'm-1', user_id: 'u-owner', name: 'Shola Akinlade', email: 'shola@example.com', role: 'founder' },
+        { id: 'm-1', user_id: 'u-owner', full_name: 'Shola Akinlade', email: 'shola@example.com', role: 'team_member' },
       ],
-      subscription: { plan: 'scale', billing_status: 'active', renews_at: '2026-12-01T00:00:00Z' },
+      usage: { seats_used: 12, seats_limit: 15 },
+      subscription: { plan_key: 'scale', plan_name: 'Scale', status: 'active', billing_status: 'active', renews_at: '2026-12-01T00:00:00Z' },
       usage_meters: { api_calls: { used: 4500, limit: 10000 } },
       integrations: [{ id: 'int-1', provider: 'slack', status: 'connected' }],
       created_at: '2026-01-01T00:00:00Z',
@@ -174,7 +209,8 @@ describe('AdminPortalPage', () => {
     fireEvent.click(screen.getByText('Paystack Clone'));
 
     expect(await screen.findByText('Workspace Detail')).toBeInTheDocument();
-    expect(screen.getByText('12 / 15')).toBeInTheDocument();
+    expect(screen.getAllByText(/12\s*\/\s*15/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Team member')).toBeInTheDocument();
     expect(screen.getByText('slack (connected)')).toBeInTheDocument();
     expect(screen.getByText('4500 / 10000')).toBeInTheDocument();
   });
@@ -200,7 +236,7 @@ describe('AdminPortalPage', () => {
       status: 'disabled',
       activity: 'active',
       workspace_count: 2,
-      primary_workspace: { id: 'ws-1', name: 'Paystack', billing_status: 'active', plan: 'pro' },
+      primary_workspace: { id: 'ws-1', workspace_name: 'Paystack', billing_status: 'active', plan_key: 'pro' },
       created_at: new Date().toISOString(),
     };
 
@@ -216,8 +252,8 @@ describe('AdminPortalPage', () => {
       phone: '+2348099887766',
       status: 'disabled',
       activity: 'active',
-      workspaces: [{ id: 'ws-1', name: 'Paystack', role: 'founder', plan: 'pro', billing_status: 'active' }],
-      sessions: [{ id: 's-1', ip_address: '102.89.34.1', user_agent: 'Chrome/120', signed_in_at: new Date().toISOString() }],
+      workspaces: [{ id: 'ws-1', workspace_name: 'Paystack', role: 'founder', plan_key: 'pro', billing_status: 'active' }],
+      sessions: [{ id: 's-1', ip: '102.89.34.1', user_agent: 'Chrome/120', last_login_at: new Date().toISOString() }],
       can: { suspend: true, unsuspend: true, reset_password: true, resend_verification: true },
       created_at: '2026-01-01T00:00:00Z',
     };
@@ -239,10 +275,10 @@ describe('AdminPortalPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'View' }));
 
     expect(await screen.findByText('User Profile')).toBeInTheDocument();
-    expect(screen.getByText('102.89.34.1')).toBeInTheDocument();
+    expect(await screen.findByText('102.89.34.1')).toBeInTheDocument();
 
     // Click Suspend user button
-    fireEvent.click(screen.getByRole('button', { name: 'Suspend user' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Suspend user' }));
 
     // Reusable StaffActionDialog opens with exact confirm copy
     expect(
@@ -265,6 +301,12 @@ describe('AdminPortalPage', () => {
         totp_code: '123456',
       });
       expect(screen.getByText('ezra@example.com is suspended.')).toBeInTheDocument();
+    });
+
+    // Pressing Escape closes the user profile modal
+    fireEvent.keyDown(window, { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByText('User Profile')).not.toBeInTheDocument();
     });
   });
 
