@@ -122,7 +122,7 @@ export function ChatMessageContent({ message }: { message: ChatMessage }) {
     return <p className="text-neutral-600">{REPLY_CANCELLED_COPY}</p>;
   }
   if (message.removed_by_moderation) {
-    return <p className="text-neutral-600">{message.content || 'This message was removed.'}</p>;
+    return <p className="text-ink-muted italic">{message.content || 'Removed by moderation'}</p>;
   }
   return <AssistantText content={message.content} />;
 }

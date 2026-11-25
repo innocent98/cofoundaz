@@ -50,7 +50,10 @@ import {
   AlertCircle,
   Check,
   RotateCcw,
+  Flag,
 } from 'lucide-react';
+import { myReports } from '@/lib/api/reports';
+import { ReportDialog } from '@/components/reports/report-dialog';
 
 type TeamSubTab = 'Members' | 'Roles' | 'Activity' | 'Comments' | 'Audit log';
 type ActivityFilter = 'All' | 'Edits' | 'Comments' | 'Documents';
@@ -678,13 +681,26 @@ export default function TeamSectionPage(): React.JSX.Element {
     }
   }, []);
 
+  const [reportingCommentId, setReportingCommentId] = useState<string | null>(null);
+  const [myReportedCommentIds, setMyReportedCommentIds] = useState<Set<string>>(new Set());
+
+  const fetchMyReports = useCallback(async () => {
+    try {
+      const list = await myReports();
+      setMyReportedCommentIds(new Set(list.filter((r) => r.item_type === 'comment').map((r) => r.item_id)));
+    } catch {
+      // ignore
+    }
+  }, []);
+
   useEffect(() => {
     if (activeTab === 'Comments') {
       queueMicrotask(() => {
         void fetchThreads(commentFilter);
+        void fetchMyReports();
       });
     }
-  }, [activeTab, commentFilter, fetchThreads]);
+  }, [activeTab, commentFilter, fetchThreads, fetchMyReports]);
 
   const loadExpandedThread = useCallback(async (thread: CommentThreadItem) => {
     setThreadCommentsLoading(true);
@@ -1450,6 +1466,17 @@ export default function TeamSectionPage(): React.JSX.Element {
                             <div className="space-y-4">
                               <div className="space-y-3">
                                 {threadComments.map((c) => {
+                                  if (c.removed_by_moderation) {
+                                    return (
+                                      <div
+                                        key={c.id}
+                                        className="p-4 rounded-card border border-line-soft bg-surface-muted text-xs italic text-ink-muted"
+                                      >
+                                        {c.body || 'Removed by moderation'}
+                                      </div>
+                                    );
+                                  }
+
                                   const authorName = c.author?.name?.trim() || 'A teammate';
                                   const isResolved = Boolean(c.resolved_at);
                                   const canResolve =
@@ -1474,25 +1501,41 @@ export default function TeamSectionPage(): React.JSX.Element {
                                             </span>
                                           )}
                                         </div>
-                                        {canResolve && (
-                                          <button
-                                            type="button"
-                                            onClick={() => void handleToggleResolveComment(c.id, isResolved, thread)}
-                                            className="flex items-center space-x-1 text-xs font-semibold text-brand-strong hover:underline"
-                                          >
-                                            {isResolved ? (
-                                              <>
-                                                <RotateCcw size={12} />
-                                                <span>Reopen</span>
-                                              </>
+                                        <div className="flex items-center space-x-2">
+                                          {canResolve && (
+                                            <button
+                                              type="button"
+                                              onClick={() => void handleToggleResolveComment(c.id, isResolved, thread)}
+                                              className="flex items-center space-x-1 text-xs font-semibold text-brand-strong hover:underline"
+                                            >
+                                              {isResolved ? (
+                                                <>
+                                                  <RotateCcw size={12} />
+                                                  <span>Reopen</span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <Check size={12} />
+                                                  <span>Resolve</span>
+                                                </>
+                                              )}
+                                            </button>
+                                          )}
+                                          {!c.is_mine && (
+                                            myReportedCommentIds.has(c.id) ? (
+                                              <span className="text-[11px] text-ink-subtle">Reported</span>
                                             ) : (
-                                              <>
-                                                <Check size={12} />
-                                                <span>Resolve</span>
-                                              </>
-                                            )}
-                                          </button>
-                                        )}
+                                              <button
+                                                type="button"
+                                                onClick={() => setReportingCommentId(c.id)}
+                                                className="flex items-center space-x-1 text-xs font-semibold text-ink-soft hover:text-brand-strong"
+                                              >
+                                                <Flag size={12} />
+                                                <span>Report</span>
+                                              </button>
+                                            )
+                                          )}
+                                        </div>
                                       </div>
                                       <p className="text-xs text-ink whitespace-pre-wrap">{c.body}</p>
                                     </div>
@@ -1959,6 +2002,19 @@ export default function TeamSectionPage(): React.JSX.Element {
           </div>
         </div>
       )}
+
+      <ReportDialog
+        isOpen={Boolean(reportingCommentId)}
+        itemType="comment"
+        itemId={reportingCommentId || ''}
+        onClose={() => setReportingCommentId(null)}
+        onSuccess={() => {
+          if (reportingCommentId) {
+            setMyReportedCommentIds((prev) => new Set([...prev, reportingCommentId]));
+          }
+          void fetchMyReports();
+        }}
+      />
     </div>
   );
 }

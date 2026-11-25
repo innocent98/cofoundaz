@@ -1,0 +1,351 @@
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import AdminPortalPage from './page';
+import * as adminApi from '@/lib/api/admin-users';
+import { ApiError } from '@/lib/api/admin-users';
+
+const mockPush = vi.fn();
+const mockReplace = vi.fn();
+const mockRouter = { push: mockPush, replace: mockReplace };
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => mockRouter,
+  usePathname: () => '/admin-portal',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock('@/lib/api/admin-users', async (orig) => {
+  const actual = await orig<typeof import('@/lib/api/admin-users')>();
+  return {
+    ...actual,
+    getAdminMe: vi.fn(),
+    getAdminKpis: vi.fn(),
+    getAdminWorkspaces: vi.fn(),
+    getAdminWorkspace: vi.fn(),
+    getAdminUsers: vi.fn(),
+    getAdminUser: vi.fn(),
+    suspendUser: vi.fn(),
+    unsuspendUser: vi.fn(),
+    sendUserPasswordReset: vi.fn(),
+    resendUserVerification: vi.fn(),
+  };
+});
+
+vi.mock('@/lib/api/admin-tickets', async (orig) => {
+  const actual = await orig<typeof import('@/lib/api/admin-tickets')>();
+  return {
+    ...actual,
+    getAdminSupportAttention: vi.fn().mockResolvedValue({
+      open_tickets: 5,
+      tickets_assigned_to_me: 2,
+      critical_tickets: 1,
+      awaiting_staff_tickets: 3,
+    }),
+  };
+});
+
+vi.mock('@/lib/api/admin-reports', async (orig) => {
+  const actual = await orig<typeof import('@/lib/api/admin-reports')>();
+  return {
+    ...actual,
+    getAdminReportsCounts: vi.fn().mockResolvedValue({
+      open: 6,
+      escalated: 0,
+      closed: 0,
+    }),
+    getAdminReports: vi.fn().mockResolvedValue({
+      reports: [],
+      next_cursor: null,
+    }),
+  };
+});
+
+describe('AdminPortalPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('hidden access: non-staff user receiving 404 gets plain 404 and redirects to /dashboard without access denied copy', async () => {
+    vi.mocked(adminApi.getAdminMe).mockRejectedValue(new ApiError(404, 'Not Found', { detail: 'Not Found' }));
+
+    render(<AdminPortalPage />);
+
+    expect(await screen.findByText('404')).toBeInTheDocument();
+    expect(screen.getByText('This page could not be found.')).toBeInTheDocument();
+    expect(screen.queryByText(/access denied/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/forbidden/i)).not.toBeInTheDocument();
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard');
+  });
+
+  it('staff access: renders console, real role, and scope chips for Super Admin', async () => {
+    vi.mocked(adminApi.getAdminMe).mockResolvedValue({
+      user_id: 'sa-1',
+      role: 'super_admin',
+      scopes: [],
+    });
+    vi.mocked(adminApi.getAdminKpis).mockResolvedValue({
+      total_workspaces: { value: 1420, new_in_window: 85 },
+      activation_rate: { percent: 64, previous_percent: 61 },
+      paid_conversion: { percent: 18, previous_percent: null },
+      mrr: { minor: 18200000, currency: 'NGN' },
+      signups_series: [{ date: '2026-10-15', signups: 12, activations: 8 }],
+    });
+
+    render(<AdminPortalPage />);
+
+    expect(await screen.findByText('Admin Portal')).toBeInTheDocument();
+    expect(screen.getByText('Super admin')).toBeInTheDocument();
+
+    // Nav items visible for Super Admin
+    expect(screen.getByRole('tab', { name: 'Dashboard' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Workspaces' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Users' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Reports' })).toBeInTheDocument();
+
+    // Out of scope tabs must NOT be present
+    expect(screen.queryByText(/expert vetting/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/content library/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/tenant operations/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/key rotation/i)).not.toBeInTheDocument();
+
+    // KPIs rendered
+    expect(await screen.findByText('1,420')).toBeInTheDocument();
+    expect(screen.getByText('+85 in 30 days')).toBeInTheDocument();
+    expect(screen.getByText('64%')).toBeInTheDocument();
+    expect(screen.getByText('+3.0 pts from prior period')).toBeInTheDocument();
+    expect(screen.getByText('₦182,000')).toBeInTheDocument();
+  }, 15000);
+
+  it('scope gating: hides Workspaces and Users tabs for staff without support scope', async () => {
+    vi.mocked(adminApi.getAdminMe).mockResolvedValue({
+      user_id: 'adm-content',
+      role: 'admin',
+      scopes: ['content'],
+    });
+    vi.mocked(adminApi.getAdminKpis).mockResolvedValue({
+      total_workspaces: { value: 50, new_in_window: 5 },
+      activation_rate: { percent: 50, previous_percent: null },
+      paid_conversion: { percent: 10, previous_percent: null },
+      mrr: { minor: 1000000 },
+      signups_series: [],
+    });
+
+    render(<AdminPortalPage />);
+
+    expect(await screen.findByText('Admin Portal')).toBeInTheDocument();
+    expect(screen.getByText('Admin')).toBeInTheDocument();
+    expect(screen.getByText('content')).toBeInTheDocument();
+
+    // Dashboard is visible, but Workspaces, Users, and Reports are hidden
+    expect(screen.getByRole('tab', { name: 'Dashboard' })).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Workspaces' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Users' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Reports' })).not.toBeInTheDocument();
+  });
+
+  it('workspaces tab: lists workspaces and opens detail modal on row click', async () => {
+    vi.mocked(adminApi.getAdminMe).mockResolvedValue({
+      user_id: 'sa-1',
+      role: 'super_admin',
+      scopes: [],
+    });
+    vi.mocked(adminApi.getAdminKpis).mockResolvedValue({
+      total_workspaces: { value: 1, new_in_window: 1 },
+      activation_rate: { percent: 50, previous_percent: null },
+      paid_conversion: { percent: 10, previous_percent: null },
+      mrr: { minor: 100000 },
+      signups_series: [],
+    });
+
+    const mockWorkspace: adminApi.AdminWorkspaceRow = {
+      id: 'ws-test-1',
+      name: 'Paystack Clone',
+      workspace_name: 'Paystack Clone',
+      owner_name: 'Shola Akinlade',
+      owner_email: 'shola@example.com',
+      owner: { id: 'u-owner', name: 'Shola Akinlade', email: 'shola@example.com' },
+      stage: 'growth',
+      seats: 12,
+      members: 20,
+      plan_key: 'scale',
+      plan: 'scale',
+      health_score: 95,
+      country: 'NG',
+      last_active_at: new Date().toISOString(),
+    };
+
+    vi.mocked(adminApi.getAdminWorkspaces).mockResolvedValue({
+      workspaces: [mockWorkspace],
+      next_cursor: null,
+    });
+
+    const mockWorkspaceDetail: adminApi.AdminWorkspaceDetail = {
+      ...mockWorkspace,
+      seats_limit: 15,
+      members_count: 2,
+      members: [
+        { id: 'm-1', user_id: 'u-owner', full_name: 'Shola Akinlade', email: 'shola@example.com', role: 'team_member' },
+      ],
+      usage: { seats_used: 12, seats_limit: 15 },
+      subscription: { plan_key: 'scale', plan_name: 'Scale', status: 'active', billing_status: 'active', renews_at: '2026-12-01T00:00:00Z' },
+      usage_meters: { api_calls: { used: 4500, limit: 10000 } },
+      integrations: [{ id: 'int-1', provider: 'slack', status: 'connected' }],
+      created_at: '2026-01-01T00:00:00Z',
+    };
+
+    vi.mocked(adminApi.getAdminWorkspace).mockResolvedValue(mockWorkspaceDetail);
+
+    render(<AdminPortalPage />);
+
+    expect(await screen.findByRole('tab', { name: 'Workspaces' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'Workspaces' }));
+
+    expect(await screen.findByText('Paystack Clone')).toBeInTheDocument();
+    expect(screen.getByText(/Shola Akinlade \(shola@example.com\)/i)).toBeInTheDocument();
+    expect(screen.getByText('95')).toBeInTheDocument();
+
+    // Click row to open detail modal
+    fireEvent.click(screen.getByText('Paystack Clone'));
+
+    expect(await screen.findByText('Workspace Detail')).toBeInTheDocument();
+    expect(screen.getAllByText(/12\s*\/\s*15/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Team member')).toBeInTheDocument();
+    expect(screen.getByText('slack (connected)')).toBeInTheDocument();
+    expect(screen.getByText('4500 / 10000')).toBeInTheDocument();
+  });
+
+  it('users tab: renders users, status Suspended for disabled, opens profile with action dialog', async () => {
+    vi.mocked(adminApi.getAdminMe).mockResolvedValue({
+      user_id: 'sa-1',
+      role: 'super_admin',
+      scopes: [],
+    });
+    vi.mocked(adminApi.getAdminKpis).mockResolvedValue({
+      total_workspaces: { value: 1, new_in_window: 1 },
+      activation_rate: { percent: 50, previous_percent: null },
+      paid_conversion: { percent: 10, previous_percent: null },
+      mrr: { minor: 100000 },
+      signups_series: [],
+    });
+
+    const mockUser: adminApi.AdminUserRow = {
+      id: 'usr-1',
+      full_name: 'Ezra Olubi',
+      email: 'ezra@example.com',
+      status: 'disabled',
+      activity: 'active',
+      workspace_count: 2,
+      primary_workspace: { id: 'ws-1', workspace_name: 'Paystack', billing_status: 'active', plan_key: 'pro' },
+      created_at: new Date().toISOString(),
+    };
+
+    vi.mocked(adminApi.getAdminUsers).mockResolvedValue({
+      users: [mockUser],
+      next_cursor: null,
+    });
+
+    const mockUserDetail: adminApi.AdminUserDetail = {
+      id: 'usr-1',
+      full_name: 'Ezra Olubi',
+      email: 'ezra@example.com',
+      phone: '+2348099887766',
+      status: 'disabled',
+      activity: 'active',
+      workspaces: [{ id: 'ws-1', workspace_name: 'Paystack', role: 'founder', plan_key: 'pro', billing_status: 'active' }],
+      sessions: [{ id: 's-1', ip: '102.89.34.1', user_agent: 'Chrome/120', last_login_at: new Date().toISOString() }],
+      can: { suspend: true, unsuspend: true, reset_password: true, resend_verification: true },
+      created_at: '2026-01-01T00:00:00Z',
+    };
+
+    vi.mocked(adminApi.getAdminUser).mockResolvedValue(mockUserDetail);
+    vi.mocked(adminApi.suspendUser).mockResolvedValue();
+
+    render(<AdminPortalPage />);
+
+    expect(await screen.findByRole('tab', { name: 'Users' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'Users' }));
+
+    // User is rendered with "Suspended" (not "disabled")
+    expect(await screen.findByText('Ezra Olubi')).toBeInTheDocument();
+    expect(screen.getAllByText('Suspended').length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText('disabled')).not.toBeInTheDocument();
+
+    // Click View to open User Profile modal
+    fireEvent.click(screen.getByRole('button', { name: 'View' }));
+
+    expect(await screen.findByText('User Profile')).toBeInTheDocument();
+    expect(await screen.findByText('102.89.34.1')).toBeInTheDocument();
+
+    // Click Suspend user button
+    fireEvent.click(await screen.findByRole('button', { name: 'Suspend user' }));
+
+    // Reusable StaffActionDialog opens with exact confirm copy
+    expect(
+      await screen.findByText("Suspend ezra@example.com? They're signed out everywhere immediately.")
+    ).toBeInTheDocument();
+
+    // Fill reason and TOTP
+    fireEvent.change(screen.getByLabelText(/Reason/i), {
+      target: { value: 'Suspicious credential breach reported.' },
+    });
+    fireEvent.change(screen.getByLabelText(/Authenticator code/i), {
+      target: { value: '123456' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Suspend' }));
+
+    await waitFor(() => {
+      expect(adminApi.suspendUser).toHaveBeenCalledWith('usr-1', {
+        reason: 'Suspicious credential breach reported.',
+        totp_code: '123456',
+      });
+      expect(screen.getByText('ezra@example.com is suspended.')).toBeInTheDocument();
+    });
+
+    // Pressing Escape closes the user profile modal
+    fireEvent.keyDown(window, { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByText('User Profile')).not.toBeInTheDocument();
+    });
+  });
+
+  it('mid-session revoke: redirects to /dashboard when an API call returns 404', async () => {
+    vi.mocked(adminApi.getAdminMe).mockResolvedValue({
+      user_id: 'sa-1',
+      role: 'super_admin',
+      scopes: [],
+    });
+    vi.mocked(adminApi.getAdminKpis).mockRejectedValue(
+      new ApiError(404, 'Not Found', { detail: 'Not Found' })
+    );
+
+    render(<AdminPortalPage />);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/dashboard');
+    });
+  });
+
+  it('reports tab: allows staff with moderation scope to see and navigate to Reports tab', async () => {
+    vi.mocked(adminApi.getAdminMe).mockResolvedValue({
+      user_id: 'adm-mod',
+      role: 'admin',
+      scopes: ['moderation'],
+    });
+    vi.mocked(adminApi.getAdminKpis).mockResolvedValue({
+      total_workspaces: { value: 10, new_in_window: 1 },
+      activation_rate: { percent: 40, previous_percent: null },
+      paid_conversion: { percent: 10, previous_percent: null },
+      mrr: { minor: 500000 },
+      signups_series: [],
+    });
+
+    render(<AdminPortalPage />);
+
+    expect(await screen.findByRole('tab', { name: 'Reports' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'Reports' }));
+
+    expect(await screen.findByText('Content Moderation & Reports')).toBeInTheDocument();
+  });
+});
