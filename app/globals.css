@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "../styles/colour-tokens.css";
 
+/* Sidebar: pin the footer only when the window is wide AND tall enough to leave the menu room (see docs/sop/sidebar-short-viewport.md). */
+@custom-variant pinned (@media (min-width: 1024px) and (min-height: 760px));
+
 @theme {
   /* Clear Tailwind's defaults so only PRD tokens exist (colour and shadow
      namespaces are cleared in styles/colour-tokens.css, which owns every colour). */

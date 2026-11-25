@@ -1,0 +1,100 @@
+[
+  {
+    "role": "founder",
+    "width": 1440,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports"
+  },
+  {
+    "role": "founder",
+    "width": 375,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports"
+  },
+  {
+    "role": "team_member",
+    "width": 1440,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports"
+  },
+  {
+    "role": "team_member",
+    "width": 375,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports"
+  },
+  {
+    "role": "accountant",
+    "width": 1440,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports"
+  },
+  {
+    "role": "accountant",
+    "width": 375,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports"
+  },
+  {
+    "role": "mentor",
+    "width": 1440,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports/saved"
+  },
+  {
+    "role": "mentor",
+    "width": 375,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports/saved"
+  },
+  {
+    "role": "business_consultant",
+    "width": 1440,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports/saved"
+  },
+  {
+    "role": "business_consultant",
+    "width": 375,
+    "step": "sidebar shows \"Analytics & Reports\"; click lands on the role's Analytics page",
+    "ok": true,
+    "url": "/analytics-reports/saved"
+  },
+  {
+    "role": "investor",
+    "width": 1440,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "url": "/dashboard"
+  },
+  {
+    "role": "investor",
+    "width": 375,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "url": "/dashboard"
+  },
+  {
+    "role": "legal_advisor",
+    "width": 1440,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "url": "/dashboard"
+  },
+  {
+    "role": "legal_advisor",
+    "width": 375,
+    "step": "sidebar has no Analytics entry",
+    "ok": true,
+    "url": "/dashboard"
+  }
+]
