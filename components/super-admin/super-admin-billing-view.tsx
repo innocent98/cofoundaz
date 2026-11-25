@@ -14,6 +14,7 @@ import {
   SuperAdminInvoice,
   SuperAdminOverride,
 } from '@/lib/api/admin';
+import { getPlans } from '@/lib/api/billing';
 import { formatApiErrorMessage } from '@/lib/api/client';
 import { StaffActionDialog } from '@/components/admin/staff-action-dialog';
 import {
@@ -58,7 +59,11 @@ export function SuperAdminBillingView(): React.JSX.Element {
 
   // 5. Comp Plan
   const [isCompModalOpen, setIsCompModalOpen] = useState(false);
-  const [compPlanKey, setCompPlanKey] = useState<string>('Growth');
+  const [availablePlans, setAvailablePlans] = useState<Array<{ key: string; name: string }>>([
+    { key: 'growth', name: 'Growth' },
+    { key: 'scale', name: 'Scale' },
+  ]);
+  const [compPlanKey, setCompPlanKey] = useState<string>('growth');
   const [compDays, setCompDays] = useState<string>('30');
   const compRequestIdRef = useRef<string>('');
 
@@ -66,6 +71,31 @@ export function SuperAdminBillingView(): React.JSX.Element {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
   };
+
+  // Fetch plans dynamically for Comp Plan options
+  useEffect(() => {
+    let isMounted = true;
+    void (async () => {
+      try {
+        const payload = await getPlans();
+        if (!isMounted) return;
+        if (payload?.plans && Array.isArray(payload.plans)) {
+          const paid = payload.plans
+            .filter((p) => p.key !== 'starter' && (p.price_monthly_minor ?? 0) > 0)
+            .map((p) => ({ key: p.key.toLowerCase(), name: p.name }));
+          if (paid.length > 0) {
+            setAvailablePlans(paid);
+            setCompPlanKey(paid[0].key);
+          }
+        }
+      } catch {
+        // keep fallback plans
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Search Workspaces Debounce
   useEffect(() => {
@@ -157,7 +187,11 @@ export function SuperAdminBillingView(): React.JSX.Element {
 
     showToast('Recorded as pending. No money has been sent.');
     setRefundInvoice(null);
-    await loadBilling(selectedWorkspace.id);
+    try {
+      await loadBilling(selectedWorkspace.id);
+    } catch {
+      // ignore reload error
+    }
   };
 
   // 2. Mark Refund Done
@@ -175,7 +209,11 @@ export function SuperAdminBillingView(): React.JSX.Element {
 
     showToast('Refund marked as done.');
     setCompleteRefundTarget(null);
-    await loadBilling(selectedWorkspace.id);
+    try {
+      await loadBilling(selectedWorkspace.id);
+    } catch {
+      // ignore reload error
+    }
   };
 
   // 3. Credit
@@ -198,7 +236,11 @@ export function SuperAdminBillingView(): React.JSX.Element {
 
     showToast(`${creditsNum.toLocaleString()} credits granted.`);
     setIsCreditModalOpen(false);
-    await loadBilling(selectedWorkspace.id);
+    try {
+      await loadBilling(selectedWorkspace.id);
+    } catch {
+      // ignore reload error
+    }
   };
 
   // 4. Extend Trial
@@ -221,13 +263,17 @@ export function SuperAdminBillingView(): React.JSX.Element {
 
     showToast(`Trial extended by ${daysNum} days.`);
     setIsTrialModalOpen(false);
-    await loadBilling(selectedWorkspace.id);
+    try {
+      await loadBilling(selectedWorkspace.id);
+    } catch {
+      // ignore reload error
+    }
   };
 
   // 5. Comp Plan
   const handleOpenComp = () => {
     setIsCompModalOpen(true);
-    setCompPlanKey('Growth');
+    setCompPlanKey(availablePlans[0]?.key || 'growth');
     setCompDays('30');
     compRequestIdRef.current = crypto.randomUUID();
   };
@@ -246,7 +292,11 @@ export function SuperAdminBillingView(): React.JSX.Element {
 
     showToast(`${compPlanKey} plan comped for ${daysNum} days.`);
     setIsCompModalOpen(false);
-    await loadBilling(selectedWorkspace.id);
+    try {
+      await loadBilling(selectedWorkspace.id);
+    } catch {
+      // ignore reload error
+    }
   };
 
   // Compute trial new end date preview
@@ -290,7 +340,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
             value={workspaceQuery}
             onChange={(e) => setWorkspaceQuery(e.target.value)}
             placeholder="Search workspace by name or identifier..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
           {isSearching && (
             <div className="absolute right-3 top-2.5 text-xs text-subtle animate-spin">
@@ -315,7 +365,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
                     Owner: {ws.owner?.name || ws.owner?.email || '-'}
                   </div>
                 </div>
-                <span className="text-xs text-brand font-medium">Select</span>
+                <span className="text-xs text-brand-600 font-medium">Select</span>
               </button>
             ))}
           </div>
@@ -347,7 +397,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
           {/* Workspace Title & Action Buttons */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-neutral-subtle">
             <div className="flex items-center gap-2.5">
-              <Building2 className="w-5 h-5 text-brand" />
+              <Building2 className="w-5 h-5 text-brand-600" />
               <div>
                 <h2 className="text-base font-bold text-main">
                   {selectedWorkspace.name}
@@ -364,7 +414,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
                 onClick={handleOpenCredit}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-neutral-subtle hover:bg-surface-raised rounded-input text-xs font-medium text-main transition-colors"
               >
-                <Coins className="w-3.5 h-3.5 text-brand" />
+                <Coins className="w-3.5 h-3.5 text-brand-600" />
                 Grant credit
               </button>
 
@@ -380,7 +430,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
                     : undefined
                 }
               >
-                <Calendar className="w-3.5 h-3.5 text-brand" />
+                <Calendar className="w-3.5 h-3.5 text-brand-600" />
                 Extend trial
               </button>
 
@@ -390,7 +440,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
                 onClick={handleOpenComp}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-neutral-subtle hover:bg-surface-raised rounded-input text-xs font-medium text-main transition-colors"
               >
-                <Gift className="w-3.5 h-3.5 text-brand" />
+                <Gift className="w-3.5 h-3.5 text-brand-600" />
                 Comp plan
               </button>
             </div>
@@ -416,7 +466,9 @@ export function SuperAdminBillingView(): React.JSX.Element {
                 <div>
                   <div className="text-xs text-subtle">Plan</div>
                   <div className="text-sm font-semibold text-main">
-                    {billing.subscription.plan || 'Free'}
+                    {typeof billing.subscription.plan === 'object' && billing.subscription.plan !== null
+                      ? billing.subscription.plan.name || billing.subscription.plan.key
+                      : billing.subscription.plan || 'Free'}
                   </div>
                 </div>
                 <div>
@@ -572,7 +624,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
                             <button
                               type="button"
                               onClick={() => handleOpenCompleteRefund(ovr)}
-                              className="px-2.5 py-1 bg-brand text-surface rounded-input hover:bg-brand-strong font-medium text-xs transition-colors"
+                              className="px-2.5 py-1 bg-brand-strong text-surface rounded-input hover:bg-brand-600 font-medium text-xs transition-colors"
                             >
                               Mark refund done
                             </button>
@@ -612,7 +664,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
                 max={refundInvoice.refundable_minor / 100}
                 value={refundAmountNaira}
                 onChange={(e) => setRefundAmountNaira(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
           </div>
@@ -655,7 +707,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
                 max="100000"
                 value={creditAmount}
                 onChange={(e) => setCreditAmount(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
           </div>
@@ -685,7 +737,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
                 max="60"
                 value={trialDays}
                 onChange={(e) => setTrialDays(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
           </div>
@@ -712,10 +764,13 @@ export function SuperAdminBillingView(): React.JSX.Element {
                 id="comp-plan-select"
                 value={compPlanKey}
                 onChange={(e) => setCompPlanKey(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
-                <option value="Growth">Growth</option>
-                <option value="Scale">Scale</option>
+                {availablePlans.map((p) => (
+                  <option key={p.key} value={p.key}>
+                    {p.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="space-y-1">
@@ -729,7 +784,7 @@ export function SuperAdminBillingView(): React.JSX.Element {
                 max="365"
                 value={compDays}
                 onChange={(e) => setCompDays(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
           </div>

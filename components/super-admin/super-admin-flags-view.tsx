@@ -120,7 +120,11 @@ export function SuperAdminFlagsView(): React.JSX.Element {
     await updateSuperAdminFlag(flag.key, payload);
     showToast(`Flag ${flag.key} updated.`);
     setImpactTarget(null);
-    await loadFlags();
+    try {
+      await loadFlags();
+    } catch {
+      // ignore reload error
+    }
   };
 
   // Open Edit Dialog
@@ -130,7 +134,8 @@ export function SuperAdminFlagsView(): React.JSX.Element {
     setEditDescription(flag.description || '');
     setEditStage((flag.stage as 'beta' | 'ga' | 'internal') || 'beta');
     // Prepopulate allow list names if stored or map IDs
-    const currentList = (flag.workspace_ids || []).map((id) => ({ id, name: id }));
+    const rawList = flag.workspace_allowlist ?? flag.workspace_ids ?? [];
+    const currentList = rawList.map((id) => ({ id, name: id }));
     setEditAllowList(currentList);
     setWorkspaceSearch('');
     setWorkspaceSearchResults([]);
@@ -185,7 +190,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
       name?: string;
       description?: string;
       stage?: string;
-      workspace_ids?: string[];
+      workspace_allowlist?: string[];
       reason: string;
       totp_code: string;
     } = { reason, totp_code };
@@ -195,17 +200,21 @@ export function SuperAdminFlagsView(): React.JSX.Element {
     if (editStage !== editingFlag.stage) changedPayload.stage = editStage;
 
     const newIds = editAllowList.map((w) => w.id);
-    const oldIds = editingFlag.workspace_ids || [];
+    const oldIds = editingFlag.workspace_allowlist ?? editingFlag.workspace_ids ?? [];
     const isIdsDifferent =
       newIds.length !== oldIds.length || newIds.some((id) => !oldIds.includes(id));
     if (isIdsDifferent) {
-      changedPayload.workspace_ids = newIds;
+      changedPayload.workspace_allowlist = newIds;
     }
 
     await updateSuperAdminFlag(editingFlag.key, changedPayload);
     showToast(`Flag ${editingFlag.key} updated.`);
     setEditingFlag(null);
-    await loadFlags();
+    try {
+      await loadFlags();
+    } catch {
+      // ignore reload error
+    }
   };
 
   // Key validation: lowercase letters, digits, _, 3-60 chars, starts with letter
@@ -234,7 +243,11 @@ export function SuperAdminFlagsView(): React.JSX.Element {
     setNewName('');
     setNewDescription('');
     setNewStage('beta');
-    await loadFlags();
+    try {
+      await loadFlags();
+    } catch {
+      // ignore reload error
+    }
   };
 
   const getStageBadgeClass = (stage?: string) => {
@@ -272,7 +285,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
         <button
           type="button"
           onClick={() => setIsNewFlagOpen(true)}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-brand text-surface rounded-input text-xs font-medium hover:bg-brand-strong transition-colors"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-brand-strong text-surface rounded-input text-xs font-medium hover:bg-brand-600 transition-colors"
         >
           <Plus className="w-4 h-4" />
           New feature flag
@@ -364,8 +377,8 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                     onClick={() =>
                       handleInitiateRolloutChange(flag, !flag.enabled, flag.rollout_pct)
                     }
-                    className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-1 focus:ring-brand ${
-                      flag.enabled ? 'bg-brand' : 'bg-neutral-300'
+                    className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-1 focus:ring-brand-500 ${
+                      flag.enabled ? 'bg-brand-600' : 'bg-neutral-300'
                     }`}
                   >
                     <span
@@ -392,7 +405,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                         onClick={() => handleInitiateRolloutChange(flag, flag.enabled, pct)}
                         className={`py-1 text-xs font-medium rounded-input border transition-colors ${
                           flag.rollout_pct === pct
-                            ? 'bg-brand text-surface border-brand'
+                            ? 'bg-brand-strong text-surface border-brand-600'
                             : 'bg-surface-raised border-neutral-subtle text-subtle hover:text-main hover:border-neutral-500'
                         }`}
                       >
@@ -455,7 +468,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                 value={newKey}
                 onChange={(e) => setNewKey(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                 placeholder="e.g. ai_voice_notes"
-                className="w-full px-3 py-2 text-xs font-body bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs font-body bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
               <p className="text-[11px] text-subtle">
                 Lowercase letters, digits, and underscores (3-60 chars). Can&apos;t be changed later.
@@ -472,7 +485,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="e.g. AI Voice Notes"
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
 
@@ -486,7 +499,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
                 placeholder="Explain what this flag enables..."
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand resize-none"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
               />
             </div>
 
@@ -498,7 +511,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                 id="new-flag-stage"
                 value={newStage}
                 onChange={(e) => setNewStage(e.target.value as 'beta' | 'ga' | 'internal')}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
                 <option value="beta">Beta</option>
                 <option value="ga">GA</option>
@@ -530,7 +543,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                 type="text"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
 
@@ -543,7 +556,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                 rows={2}
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand resize-none"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
               />
             </div>
 
@@ -555,7 +568,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                 id="edit-flag-stage"
                 value={editStage}
                 onChange={(e) => setEditStage(e.target.value as 'beta' | 'ga' | 'internal')}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
                 <option value="beta">Beta</option>
                 <option value="ga">GA</option>
@@ -603,7 +616,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                   value={workspaceSearch}
                   onChange={(e) => setWorkspaceSearch(e.target.value)}
                   placeholder="Search workspace name to add..."
-                  className="w-full pl-8 pr-3 py-2 text-xs bg-surface border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand"
+                  className="w-full pl-8 pr-3 py-2 text-xs bg-surface border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand-500"
                 />
                 {isSearchingWorkspaces && (
                   <div className="absolute right-2.5 top-2.5 text-xs text-subtle animate-spin">
@@ -625,7 +638,7 @@ export function SuperAdminFlagsView(): React.JSX.Element {
                         className="w-full px-3 py-2 text-xs flex items-center justify-between text-left hover:bg-surface-raised transition-colors"
                       >
                         <span className="font-medium text-main">{ws.name}</span>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-brand" />}
+                        {isSelected && <Check className="w-3.5 h-3.5 text-brand-600" />}
                       </button>
                     );
                   })}

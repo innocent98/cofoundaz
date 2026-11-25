@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import React from 'react';
 import SuperAdminPortal from './page';
 import * as adminApi from '@/lib/api/admin';
+import * as billingApi from '@/lib/api/billing';
 import { ApiError } from '@/lib/api/client';
 
 const mockPush = vi.fn();
@@ -24,6 +25,24 @@ describe('SuperAdminPortal (/super-admin)', { timeout: 25000 }, () => {
     vi.clearAllMocks();
 
     // Default mocks to prevent hanging promises when Overview tab mounts by default
+    vi.spyOn(billingApi, 'getPlans').mockResolvedValue({
+      plans: [
+        {
+          key: 'growth',
+          name: 'Growth',
+          tagline: 'For growing teams',
+          currency: 'NGN',
+          price_monthly_minor: 5000000,
+          price_annual_minor: 50000000,
+          ai_credits: 500,
+          seats: 5,
+          storage_mb: 1000,
+          features: [],
+          modules: [],
+        },
+      ],
+      addons: [],
+    });
     vi.spyOn(adminApi, 'getAdminKpis').mockResolvedValue({
       total_workspaces: { value: 2847, new_in_window: 218 },
       activation_rate: { percent: 64, previous_percent: null },
@@ -279,7 +298,7 @@ describe('SuperAdminPortal (/super-admin)', { timeout: 25000 }, () => {
         workspace_id: 'ws-test-1',
         name: 'Acme Corp',
         subscription: {
-          plan: 'Growth',
+          plan: { key: 'growth', name: 'Growth' },
           status: 'active',
           price_minor: 5000000,
           renews_at: '2026-12-01T00:00:00Z',

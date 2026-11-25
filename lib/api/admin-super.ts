@@ -60,6 +60,7 @@ export interface FeatureFlagItem {
   rollout_pct: number;
   affected_workspaces: number;
   total_workspaces: number;
+  workspace_allowlist?: string[];
   workspace_ids?: string[];
 }
 
@@ -83,13 +84,19 @@ export interface UpdateFlagPayload {
   stage?: string;
   enabled?: boolean;
   rollout_pct?: number;
+  workspace_allowlist?: string[];
   workspace_ids?: string[];
   reason: string;
   totp_code: string;
 }
 
+export interface SuperAdminPlan {
+  key: string;
+  name: string;
+}
+
 export interface SuperAdminSubscription {
-  plan: string;
+  plan: SuperAdminPlan | string;
   status: string;
   price_minor: number;
   renews_at: string | null;
@@ -174,24 +181,46 @@ export async function getSuperAdminAuditRecent(): Promise<SuperAdminAuditItem[]>
   return res.items;
 }
 
-/**
- * Fetch audit log: GET /super-admin/audit
- */
-export async function getSuperAdminAudit(params: {
+export interface SuperAdminAuditParams {
+  actor_id?: string;
   actor?: string;
   action?: string;
   workspace_id?: string;
+  date_from?: string;
+  date_to?: string;
   start_date?: string;
   end_date?: string;
   cursor?: string;
   limit?: number;
-} = {}): Promise<SuperAdminAuditResponse> {
+}
+
+export interface ExportAuditParams {
+  reason: string;
+  actor_id?: string;
+  actor?: string;
+  action?: string;
+  workspace_id?: string;
+  date_from?: string;
+  date_to?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
+/**
+ * Fetch audit log: GET /super-admin/audit
+ */
+export async function getSuperAdminAudit(
+  params: SuperAdminAuditParams = {}
+): Promise<SuperAdminAuditResponse> {
   const query = new URLSearchParams();
-  if (params.actor?.trim()) query.set('actor', params.actor.trim());
+  const actorId = params.actor_id ?? params.actor;
+  if (actorId?.trim()) query.set('actor_id', actorId.trim());
   if (params.action && params.action !== 'all') query.set('action', params.action);
   if (params.workspace_id?.trim()) query.set('workspace_id', params.workspace_id.trim());
-  if (params.start_date) query.set('start_date', params.start_date);
-  if (params.end_date) query.set('end_date', params.end_date);
+  const dateFrom = params.date_from ?? params.start_date;
+  if (dateFrom) query.set('date_from', dateFrom);
+  const dateTo = params.date_to ?? params.end_date;
+  if (dateTo) query.set('date_to', dateTo);
   if (params.cursor) query.set('cursor', params.cursor);
   if (params.limit) query.set('limit', String(params.limit));
 
@@ -232,21 +261,19 @@ export async function getSuperAdminAudit(params: {
 /**
  * Export audit log CSV: authenticated fetch to /super-admin/audit/export
  */
-export async function exportSuperAdminAuditCsv(params: {
-  reason: string;
-  actor?: string;
-  action?: string;
-  workspace_id?: string;
-  start_date?: string;
-  end_date?: string;
-}): Promise<{ blob: Blob; filename: string }> {
+export async function exportSuperAdminAuditCsv(
+  params: ExportAuditParams
+): Promise<{ blob: Blob; filename: string }> {
   const query = new URLSearchParams();
   query.set('reason', params.reason);
-  if (params.actor?.trim()) query.set('actor', params.actor.trim());
+  const actorId = params.actor_id ?? params.actor;
+  if (actorId?.trim()) query.set('actor_id', actorId.trim());
   if (params.action && params.action !== 'all') query.set('action', params.action);
   if (params.workspace_id?.trim()) query.set('workspace_id', params.workspace_id.trim());
-  if (params.start_date) query.set('start_date', params.start_date);
-  if (params.end_date) query.set('end_date', params.end_date);
+  const dateFrom = params.date_from ?? params.start_date;
+  if (dateFrom) query.set('date_from', dateFrom);
+  const dateTo = params.date_to ?? params.end_date;
+  if (dateTo) query.set('date_to', dateTo);
 
   await ensureSession();
   const token = getAccessToken();
@@ -328,19 +355,40 @@ export async function revokeSuperAdminStaff(id: string, payload: StaffActionPayl
  */
 export async function getSuperAdminFlags(): Promise<FeatureFlagItem[]> {
   const res = await apiClient<{
-    data?: { flags?: FeatureFlagItem[] } | FeatureFlagItem[];
+    data?: { flags?: FeatureFlagItem[]; total_workspaces?: number } | FeatureFlagItem[];
     flags?: FeatureFlagItem[];
     items?: FeatureFlagItem[];
+    total_workspaces?: number;
   } | FeatureFlagItem[]>('/super-admin/flags');
 
-  if (Array.isArray(res)) return res;
-  if ('flags' in res && Array.isArray(res.flags)) return res.flags;
-  if ('items' in res && Array.isArray(res.items)) return res.items;
-  if ('data' in res) {
-    if (Array.isArray(res.data)) return res.data;
-    if (res.data && 'flags' in res.data && Array.isArray(res.data.flags)) return res.data.flags;
+  let flags: FeatureFlagItem[] = [];
+  let rootTotalWorkspaces: number | undefined;
+
+  if (Array.isArray(res)) {
+    flags = res;
+  } else if ('flags' in res && Array.isArray(res.flags)) {
+    flags = res.flags;
+    rootTotalWorkspaces = res.total_workspaces;
+  } else if ('items' in res && Array.isArray(res.items)) {
+    flags = res.items;
+    rootTotalWorkspaces = res.total_workspaces;
+  } else if ('data' in res) {
+    if (Array.isArray(res.data)) {
+      flags = res.data;
+    } else if (res.data && 'flags' in res.data && Array.isArray(res.data.flags)) {
+      flags = res.data.flags;
+      rootTotalWorkspaces = res.data.total_workspaces ?? res.total_workspaces;
+    }
   }
-  return [];
+
+  if (rootTotalWorkspaces !== undefined) {
+    return flags.map((f) => ({
+      ...f,
+      total_workspaces: f.total_workspaces ?? rootTotalWorkspaces!,
+    }));
+  }
+
+  return flags;
 }
 
 /**
@@ -378,9 +426,17 @@ export async function createSuperAdminFlag(payload: CreateFlagPayload): Promise<
  * Update feature flag (sends only changed fields): PATCH /super-admin/flags/{key}
  */
 export async function updateSuperAdminFlag(key: string, payload: UpdateFlagPayload): Promise<void> {
+  const bodyPayload: Record<string, unknown> = { ...payload };
+  if (payload.workspace_allowlist !== undefined) {
+    bodyPayload.workspace_allowlist = payload.workspace_allowlist;
+  } else if (payload.workspace_ids !== undefined) {
+    bodyPayload.workspace_allowlist = payload.workspace_ids;
+  }
+  delete bodyPayload.workspace_ids;
+
   await apiClient(`/super-admin/flags/${encodeURIComponent(key)}`, {
     method: 'PATCH',
-    body: JSON.stringify(payload),
+    body: JSON.stringify(bodyPayload),
   });
 }
 

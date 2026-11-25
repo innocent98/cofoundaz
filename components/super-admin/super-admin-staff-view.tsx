@@ -102,7 +102,11 @@ export function SuperAdminStaffView({ currentStaff }: SuperAdminStaffViewProps):
     setAddEmail('');
     setAddRole('admin');
     setAddScopes(['support']);
-    await loadStaff();
+    try {
+      await loadStaff();
+    } catch {
+      // ignore reload error
+    }
   };
 
   // Edit Staff Handler
@@ -131,13 +135,21 @@ export function SuperAdminStaffView({ currentStaff }: SuperAdminStaffViewProps):
       });
       showToast('Access updated.');
       setEditingStaff(null);
-      await loadStaff();
+      try {
+        await loadStaff();
+      } catch {
+        // ignore reload error
+      }
     } catch (err: unknown) {
       const msg = formatApiErrorMessage(err);
       if (msg.includes('ALREADY_REVOKED') || (err as { status?: number }).status === 409) {
         showToast('That access was revoked. Add them again.');
         setEditingStaff(null);
-        await loadStaff();
+        try {
+          await loadStaff();
+        } catch {
+          // ignore reload error
+        }
       } else {
         throw err;
       }
@@ -159,7 +171,11 @@ export function SuperAdminStaffView({ currentStaff }: SuperAdminStaffViewProps):
 
     showToast('Access revoked.');
     setRevokingStaff(null);
-    await loadStaff();
+    try {
+      await loadStaff();
+    } catch {
+      // ignore reload error
+    }
   };
 
   return (
@@ -185,7 +201,7 @@ export function SuperAdminStaffView({ currentStaff }: SuperAdminStaffViewProps):
         <button
           type="button"
           onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-brand text-surface rounded-input text-xs font-medium hover:bg-brand-strong transition-colors"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-brand-strong text-surface rounded-input text-xs font-medium hover:bg-brand-600 transition-colors"
         >
           <UserPlus className="w-4 h-4" />
           Add staff member
@@ -340,7 +356,7 @@ export function SuperAdminStaffView({ currentStaff }: SuperAdminStaffViewProps):
                 value={addEmail}
                 onChange={(e) => setAddEmail(e.target.value)}
                 placeholder="colleague@example.com"
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
 
@@ -352,7 +368,7 @@ export function SuperAdminStaffView({ currentStaff }: SuperAdminStaffViewProps):
                 id="add-staff-role"
                 value={addRole}
                 onChange={(e) => setAddRole(e.target.value as 'admin' | 'super_admin')}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
                 <option value="admin">Admin (Scoped)</option>
                 <option value="super_admin">Super Admin</option>
@@ -371,10 +387,11 @@ export function SuperAdminStaffView({ currentStaff }: SuperAdminStaffViewProps):
                       <button
                         key={sc.id}
                         type="button"
+                        aria-pressed={isChecked}
                         onClick={() => handleToggleAddScope(sc.id)}
                         className={`p-2 rounded-input border text-xs font-medium text-center transition-colors ${
                           isChecked
-                            ? 'bg-brand-50 border-brand text-brand-700'
+                            ? 'bg-brand-50 border-brand-600 text-brand-700'
                             : 'bg-surface-raised border-neutral-subtle text-subtle hover:text-main'
                         }`}
                       >
@@ -409,7 +426,7 @@ export function SuperAdminStaffView({ currentStaff }: SuperAdminStaffViewProps):
                 id="edit-staff-role"
                 value={editRole}
                 onChange={(e) => setEditRole(e.target.value as 'admin' | 'super_admin')}
-                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
                 <option value="admin">Admin (Scoped)</option>
                 <option value="super_admin">Super Admin</option>
@@ -428,10 +445,11 @@ export function SuperAdminStaffView({ currentStaff }: SuperAdminStaffViewProps):
                       <button
                         key={sc.id}
                         type="button"
+                        aria-pressed={isChecked}
                         onClick={() => handleToggleEditScope(sc.id)}
                         className={`p-2 rounded-input border text-xs font-medium text-center transition-colors ${
                           isChecked
-                            ? 'bg-brand-50 border-brand text-brand-700'
+                            ? 'bg-brand-50 border-brand-600 text-brand-700'
                             : 'bg-surface-raised border-neutral-subtle text-subtle hover:text-main'
                         }`}
                       >

@@ -56,11 +56,11 @@ export function SuperAdminAuditView(): React.JSX.Element {
 
       try {
         const res = await getSuperAdminAudit({
-          actor: filterActor,
+          actor_id: filterActor,
           action: filterAction,
           workspace_id: filterWorkspace,
-          start_date: filterStartDate,
-          end_date: filterEndDate,
+          date_from: filterStartDate,
+          date_to: filterEndDate,
           cursor,
           limit: 25,
         });
@@ -134,11 +134,11 @@ export function SuperAdminAuditView(): React.JSX.Element {
     try {
       const { blob, filename } = await exportSuperAdminAuditCsv({
         reason: trimmedReason,
-        actor: filterActor,
+        actor_id: filterActor,
         action: filterAction,
         workspace_id: filterWorkspace,
-        start_date: filterStartDate,
-        end_date: filterEndDate,
+        date_from: filterStartDate,
+        date_to: filterEndDate,
       });
 
       // Trigger download
@@ -155,7 +155,11 @@ export function SuperAdminAuditView(): React.JSX.Element {
       setIsExportModalOpen(false);
       setExportReason('');
       // Refetch audit log to show the new audit.exported row
-      await loadAudit();
+      try {
+        await loadAudit();
+      } catch {
+        // ignore reload error
+      }
     } catch (err) {
       setExportError(formatApiErrorMessage(err, 'Failed to export audit log.'));
     } finally {
@@ -192,7 +196,7 @@ export function SuperAdminAuditView(): React.JSX.Element {
           }}
           className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-surface border border-neutral-subtle rounded-input text-xs font-medium text-main hover:bg-surface-raised transition-colors"
         >
-          <Download className="w-4 h-4 text-brand" />
+          <Download className="w-4 h-4 text-brand-600" />
           Export CSV
         </button>
       </div>
@@ -206,15 +210,15 @@ export function SuperAdminAuditView(): React.JSX.Element {
           {/* Actor Filter */}
           <div>
             <label htmlFor="filter-actor" className="text-xs font-medium text-subtle block mb-1">
-              Actor
+              Actor ID
             </label>
             <input
               id="filter-actor"
               type="text"
               value={filterActor}
               onChange={(e) => setFilterActor(e.target.value)}
-              placeholder="Email or user ID..."
-              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand"
+              placeholder="Actor UUID or email..."
+              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
 
@@ -227,20 +231,22 @@ export function SuperAdminAuditView(): React.JSX.Element {
               id="filter-action"
               value={filterAction}
               onChange={(e) => setFilterAction(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
             >
               <option value="all">All actions</option>
-              <option value="staff.invite">staff.invite</option>
-              <option value="staff.edit">staff.edit</option>
-              <option value="staff.revoke">staff.revoke</option>
-              <option value="flag.create">flag.create</option>
-              <option value="flag.update">flag.update</option>
-              <option value="billing.refund">billing.refund</option>
-              <option value="billing.credit">billing.credit</option>
-              <option value="billing.extend_trial">billing.extend_trial</option>
-              <option value="billing.comp">billing.comp</option>
-              <option value="user.suspend">user.suspend</option>
-              <option value="audit.export">audit.export</option>
+              <option value="staff.invited">staff.invited</option>
+              <option value="staff.updated">staff.updated</option>
+              <option value="staff.revoked">staff.revoked</option>
+              <option value="staff.reinstated">staff.reinstated</option>
+              <option value="flag.created">flag.created</option>
+              <option value="flag.updated">flag.updated</option>
+              <option value="billing.refunded">billing.refunded</option>
+              <option value="billing.credited">billing.credited</option>
+              <option value="billing.trial_extended">billing.trial_extended</option>
+              <option value="billing.comped">billing.comped</option>
+              <option value="user.suspended">user.suspended</option>
+              <option value="user.unsuspended">user.unsuspended</option>
+              <option value="audit.exported">audit.exported</option>
             </select>
           </div>
 
@@ -255,7 +261,7 @@ export function SuperAdminAuditView(): React.JSX.Element {
               value={filterWorkspace}
               onChange={(e) => setFilterWorkspace(e.target.value)}
               placeholder="ws-..."
-              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand"
+              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
 
@@ -269,7 +275,7 @@ export function SuperAdminAuditView(): React.JSX.Element {
               type="date"
               value={filterStartDate}
               onChange={(e) => setFilterStartDate(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
 
@@ -283,7 +289,7 @@ export function SuperAdminAuditView(): React.JSX.Element {
               type="date"
               value={filterEndDate}
               onChange={(e) => setFilterEndDate(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand"
+              className="w-full px-3 py-1.5 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
         </div>
@@ -299,7 +305,7 @@ export function SuperAdminAuditView(): React.JSX.Element {
           </button>
           <button
             type="submit"
-            className="px-3.5 py-1.5 bg-brand text-surface text-xs font-medium rounded-input hover:bg-brand-strong transition-colors"
+            className="px-3.5 py-1.5 bg-brand-strong text-surface text-xs font-medium rounded-input hover:bg-brand-600 transition-colors"
           >
             Apply filters
           </button>
@@ -364,7 +370,7 @@ export function SuperAdminAuditView(): React.JSX.Element {
                         <td className="px-3 py-3 text-subtle">
                           {item.details ? (
                             isExpanded ? (
-                              <ChevronDown className="w-4 h-4 text-brand" />
+                              <ChevronDown className="w-4 h-4 text-brand-600" />
                             ) : (
                               <ChevronRight className="w-4 h-4 text-subtle" />
                             )
@@ -399,7 +405,7 @@ export function SuperAdminAuditView(): React.JSX.Element {
                               <span className="text-xs font-semibold text-main">
                                 Details Payload:
                               </span>
-                              <pre className="p-3 bg-surface border border-neutral-subtle rounded-input text-[11px] font-body text-main overflow-x-auto whitespace-pre-wrap leading-relaxed">
+                              <pre className="p-3 bg-surface border border-neutral-subtle rounded-input text-[11px] font-body text-main overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">
                                 {JSON.stringify(item.details, null, 2)}
                               </pre>
                             </div>
@@ -492,7 +498,7 @@ export function SuperAdminAuditView(): React.JSX.Element {
                   onChange={(e) => setExportReason(e.target.value)}
                   placeholder="Explain why this audit log export is being performed..."
                   disabled={isExporting}
-                  className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand resize-none"
+                  className="w-full px-3 py-2 text-xs bg-surface-raised border border-neutral-subtle rounded-input text-main placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
                 />
               </div>
 
@@ -508,7 +514,7 @@ export function SuperAdminAuditView(): React.JSX.Element {
                 <button
                   type="submit"
                   disabled={!isExportReasonValid || isExporting}
-                  className="px-4 py-2 bg-brand text-surface text-xs font-medium rounded-input hover:bg-brand-strong transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-brand-strong text-surface text-xs font-medium rounded-input hover:bg-brand-600 transition-colors disabled:opacity-50"
                 >
                   {isExporting ? 'Exporting...' : 'Download audit-log.csv'}
                 </button>

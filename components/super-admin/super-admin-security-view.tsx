@@ -16,7 +16,7 @@ export function SuperAdminSecurityView(): React.JSX.Element {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Policy 1: Authenticator app required for all staff */}
         <div className="p-5 bg-surface border border-neutral-subtle rounded-card shadow-card flex items-start gap-4">
-          <div className="p-2.5 bg-brand-50 border border-brand-200 text-brand rounded-card flex-shrink-0">
+          <div className="p-2.5 bg-brand-50 border border-brand-200 text-brand-700 rounded-card flex-shrink-0">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div className="space-y-1">
@@ -32,7 +32,7 @@ export function SuperAdminSecurityView(): React.JSX.Element {
 
         {/* Policy 2: Fresh code required for every staff action */}
         <div className="p-5 bg-surface border border-neutral-subtle rounded-card shadow-card flex items-start gap-4">
-          <div className="p-2.5 bg-brand-50 border border-brand-200 text-brand rounded-card flex-shrink-0">
+          <div className="p-2.5 bg-brand-50 border border-brand-200 text-brand-700 rounded-card flex-shrink-0">
             <KeyRound className="w-5 h-5" />
           </div>
           <div className="space-y-1">

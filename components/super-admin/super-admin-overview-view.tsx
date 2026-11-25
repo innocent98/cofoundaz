@@ -78,7 +78,7 @@ export function SuperAdminOverviewView(): React.JSX.Element {
         <div className="p-5 bg-surface border border-neutral-subtle rounded-card shadow-card">
           <div className="flex items-center justify-between text-subtle mb-3">
             <span className="text-sm font-medium text-main">Total Workspaces</span>
-            <Building2 className="w-5 h-5 text-brand" />
+            <Building2 className="w-5 h-5 text-brand-600" />
           </div>
           {isLoading ? (
             <div className="h-8 w-24 bg-neutral-100 rounded-input animate-pulse" />
@@ -103,7 +103,7 @@ export function SuperAdminOverviewView(): React.JSX.Element {
       <div className="bg-surface border border-neutral-subtle rounded-card shadow-card overflow-hidden">
         <div className="px-5 py-4 border-b border-neutral-subtle flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <History className="w-4 h-4 text-brand" />
+            <History className="w-4 h-4 text-brand-600" />
             <h3 className="text-sm font-semibold text-main">Recent Privileged Actions</h3>
           </div>
           <span className="text-xs text-subtle font-medium">Last 5 actions</span>

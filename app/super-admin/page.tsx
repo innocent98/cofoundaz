@@ -74,20 +74,8 @@ export default function SuperAdminPortal(): React.JSX.Element | null {
   }, [router]);
 
   // If loading or unauthorized, do not flash content or show access denied
-  if (isLoadingAuth) {
-    return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center font-body text-xs text-subtle">
-        Loading console...
-      </div>
-    );
-  }
-
-  if (!isAuthorized) {
-    return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center font-body text-xs text-subtle">
-        404 - Not Found
-      </div>
-    );
+  if (isLoadingAuth || !isAuthorized) {
+    return null;
   }
 
   const navItems: Array<{ tab: SuperAdminTab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
@@ -103,7 +91,7 @@ export default function SuperAdminPortal(): React.JSX.Element | null {
     <div className="min-h-screen bg-surface-base flex flex-col font-body">
       {/* Persistent Console Banner across every tab */}
       <div className="bg-neutral-900 text-surface px-4 py-2 text-xs font-medium flex items-center justify-center gap-2 tracking-wide">
-        <Lock className="w-3.5 h-3.5 text-brand flex-shrink-0" />
+        <Lock className="w-3.5 h-3.5 text-brand-400 flex-shrink-0" />
         <span>All actions on this console are permanently logged.</span>
       </div>
 
@@ -124,7 +112,7 @@ export default function SuperAdminPortal(): React.JSX.Element | null {
           <div className="flex items-center gap-3">
             <BrandLogo />
             <div className="h-4 w-px bg-neutral-subtle hidden md:block" />
-            <span className="text-xs font-bold font-display uppercase tracking-wider text-brand hidden md:inline">
+            <span className="text-xs font-bold font-display uppercase tracking-wider text-brand-600 hidden md:inline">
               Super Admin Console
             </span>
           </div>
@@ -159,7 +147,7 @@ export default function SuperAdminPortal(): React.JSX.Element | null {
                   onClick={() => setActiveTab(item.tab)}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-input transition-colors ${
                     isActive
-                      ? 'bg-brand text-surface shadow-card'
+                      ? 'bg-brand-strong text-surface shadow-card'
                       : 'text-subtle hover:text-main hover:bg-surface-raised'
                   }`}
                 >
@@ -187,7 +175,7 @@ export default function SuperAdminPortal(): React.JSX.Element | null {
                   }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-input transition-colors ${
                     isActive
-                      ? 'bg-brand text-surface'
+                      ? 'bg-brand-strong text-surface'
                       : 'text-subtle hover:text-main hover:bg-surface-raised'
                   }`}
                 >

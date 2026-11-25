@@ -68,11 +68,11 @@ describe('admin-super API', () => {
       });
 
       const res = await getSuperAdminAudit({
-        actor: 'test@example.com',
-        action: 'user.suspend',
+        actor_id: 'usr-123-uuid',
+        action: 'user.suspended',
         workspace_id: 'ws-1',
-        start_date: '2026-11-01',
-        end_date: '2026-11-14',
+        date_from: '2026-11-01',
+        date_to: '2026-11-14',
         limit: 20,
       });
 
@@ -80,19 +80,19 @@ describe('admin-super API', () => {
         expect.stringContaining('/super-admin/audit?')
       );
       expect(apiClient).toHaveBeenCalledWith(
-        expect.stringContaining('actor=test%40example.com')
+        expect.stringContaining('actor_id=usr-123-uuid')
       );
       expect(apiClient).toHaveBeenCalledWith(
-        expect.stringContaining('action=user.suspend')
+        expect.stringContaining('action=user.suspended')
       );
       expect(apiClient).toHaveBeenCalledWith(
         expect.stringContaining('workspace_id=ws-1')
       );
       expect(apiClient).toHaveBeenCalledWith(
-        expect.stringContaining('start_date=2026-11-01')
+        expect.stringContaining('date_from=2026-11-01')
       );
       expect(apiClient).toHaveBeenCalledWith(
-        expect.stringContaining('end_date=2026-11-14')
+        expect.stringContaining('date_to=2026-11-14')
       );
       expect(apiClient).toHaveBeenCalledWith(
         expect.stringContaining('limit=20')
@@ -106,7 +106,7 @@ describe('admin-super API', () => {
         .mockRejectedValueOnce(new ApiError(422, 'Unprocessable Entity', { message: 'Bad cursor' }))
         // Retry call without cursor succeeds
         .mockResolvedValueOnce({
-          items: [{ id: 'aud-fresh', action: 'flag.update' }],
+          items: [{ id: 'aud-fresh', action: 'flag.updated' }],
           next_cursor: null,
         });
 
@@ -130,11 +130,14 @@ describe('admin-super API', () => {
 
       const res = await exportSuperAdminAuditCsv({
         reason: 'Monthly compliance audit verification',
-        action: 'staff.revoke',
+        actor_id: 'usr-123-uuid',
+        action: 'staff.revoked',
+        date_from: '2026-11-01',
+        date_to: '2026-11-18',
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/super-admin/audit/export?reason=Monthly+compliance+audit+verification&action=staff.revoke'),
+        expect.stringContaining('/super-admin/audit/export?reason=Monthly+compliance+audit+verification&actor_id=usr-123-uuid&action=staff.revoked&date_from=2026-11-01&date_to=2026-11-18'),
         expect.objectContaining({
           headers: expect.any(Headers),
         })
@@ -298,6 +301,7 @@ describe('admin-super API', () => {
 
       await updateSuperAdminFlag('dark_mode', {
         rollout_pct: 50,
+        workspace_allowlist: ['ws-1', 'ws-2'],
         reason: 'Expanded internal rollout to 50%',
         totp_code: '778899',
       });
@@ -306,6 +310,7 @@ describe('admin-super API', () => {
         method: 'PATCH',
         body: JSON.stringify({
           rollout_pct: 50,
+          workspace_allowlist: ['ws-1', 'ws-2'],
           reason: 'Expanded internal rollout to 50%',
           totp_code: '778899',
         }),
@@ -319,7 +324,7 @@ describe('admin-super API', () => {
         data: {
           workspace_id: 'ws-abc',
           subscription: {
-            plan: 'Growth',
+            plan: { key: 'growth', name: 'Growth' },
             status: 'active',
             price_minor: 5000000,
             renews_at: '2026-12-01T00:00:00Z',
@@ -345,7 +350,7 @@ describe('admin-super API', () => {
 
       const billing = await getSuperAdminBilling('ws-abc');
       expect(apiClient).toHaveBeenCalledWith('/super-admin/billing/ws-abc');
-      expect(billing.subscription?.plan).toBe('Growth');
+      expect(billing.subscription?.plan).toEqual({ key: 'growth', name: 'Growth' });
       expect(billing.invoices).toHaveLength(1);
     });
 
@@ -438,7 +443,7 @@ describe('admin-super API', () => {
       vi.mocked(apiClient).mockResolvedValueOnce({});
 
       await overrideComp('ws-abc', {
-        plan_key: 'Growth',
+        plan_key: 'growth',
         days: 30,
         request_id: 'req-uuid-4',
         reason: 'Non-profit accelerator comped sponsorship',
@@ -448,7 +453,7 @@ describe('admin-super API', () => {
       expect(apiClient).toHaveBeenCalledWith('/super-admin/billing/ws-abc/comp', {
         method: 'POST',
         body: JSON.stringify({
-          plan_key: 'Growth',
+          plan_key: 'growth',
           days: 30,
           request_id: 'req-uuid-4',
           reason: 'Non-profit accelerator comped sponsorship',
